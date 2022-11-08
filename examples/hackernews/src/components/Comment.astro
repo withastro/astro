@@ -16,7 +16,7 @@ const { comment } = Astro.props;
 		<a href={`/users/${comment.user}`}>{comment.user}</a>{' '}
 		{comment.time_ago} ago
 	</div>
-	<div class="text" set:html={comment.content}></div>
+	<div class="text" set:html={comment.content} />
 	<Show when={comment.comments.length}>
 		<Toggle open>
 			<For each={comment.comments}>{(comment: IComment) => <Astro.self comment={comment} />}</For>

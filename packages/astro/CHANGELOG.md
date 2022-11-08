@@ -501,7 +501,7 @@
   This expands the abilities of `set:html` to ultimate service this use-case:
 
   ```astro
-  <div set:html={fetch('/legacy-post.html')}></div>
+  <div set:html={fetch('/legacy-post.html')} />
   ```
 
   This means you can take a legacy app that has been statically generated to HTML and directly consume that HTML within your templates. As is always the case with `set:html`, this should only be used on trusted content.
@@ -514,8 +514,7 @@
       set:html={new Response('<span>Hello world</span>', {
         headers: { 'content-type': 'text/html' },
       })}
-    >
-    </div>
+    />
     ```
   - `ReadableStream`s:
     ```astro
@@ -526,8 +525,7 @@
           controller.close();
         },
       })}
-    >
-    </div>
+    />
     ```
   - `AsyncIterable`s:
     ```astro
@@ -537,8 +535,7 @@
           yield `<li>${num}</li>`;
         }
       })()}
-    >
-    </div>
+    />
     ```
   - `Iterable`s (non-async):
     ```astro
@@ -548,8 +545,7 @@
           yield `<li>${num}</li>`;
         }
       })()}
-    >
-    </div>
+    />
     ```
 
 ### Patch Changes
