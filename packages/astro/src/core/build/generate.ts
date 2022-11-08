@@ -326,7 +326,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output !== 'static';
+	const ssr = settings.config.output === 'server';
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,

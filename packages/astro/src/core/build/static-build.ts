@@ -127,12 +127,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					chunkFileNames: (chunkInfo) => {
-						if (chunkInfo.name.startsWith('pages/')) {
-							return `[name].[hash].mjs`;
-						}
-						return 'chunks/[name].[hash].mjs'
-					},
+					chunkFileNames: 'chunks/[name].[hash].mjs',
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
@@ -145,6 +140,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 						// so we split all pages into their own chunk
 						const pageInfo = internals.pagesByViteID.get(id);
 						if (pageInfo) {
+							// pages should go in their own chunks/pages/ directory
 							return `pages${pageInfo.route.pathname?.replace(/\/$/, '/index')}`;
 						}
 					},
@@ -191,7 +187,7 @@ async function clientBuild(
 ) {
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = settings.config.output !== 'static';
+	const ssr = settings.config.output === 'server';
 	const out = ssr ? settings.config.build.client : settings.config.outDir;
 
 	// Nothing to do if there is no client-side JS.
@@ -274,7 +270,8 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 		await Promise.all(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
-				if (!allStaticFiles.has(filename.replace('server/', ''))) {
+				const serverBase = opts.settings.config.build.server.toString().replace(opts.settings.config.outDir.toString(), '')
+				if (!allStaticFiles.has(filename.replace(serverBase, ''))) {
 					return;
 				}
 				// Replace file with `noop` export, removes static dependencies from build output
@@ -337,8 +334,8 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 		await Promise.all(
 			Array.from(directories).map(async (filename) => {
 				const url = new URL(filename, out);
-				const folder = await fs.promises.readdir(url);
-				if (!folder.length) {
+				const dir = await glob(fileURLToPath(url), { absolute: true });
+				if (!dir.length) {
 					await fs.promises.rm(url, { recursive: true, force: true });
 				}
 			})

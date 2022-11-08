@@ -98,7 +98,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					if (pageUrls.length === 0) {
 						// offer suggestion for SSR users
-						if (config.output !== 'static') {
+						if (config.output === 'server') {
 							logger.warn(
 								`No pages found! We can only detect sitemap routes for "static" builds. Since you are using an SSR adapter, we recommend manually listing your sitemap routes using the "customPages" integration option.\n\nExample: \`sitemap({ customPages: ['https://example.com/route'] })\``
 							);
