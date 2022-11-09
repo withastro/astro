@@ -23,14 +23,14 @@ export interface HydrationMetadata {
 interface ExtractedProps {
 	isPage: boolean;
 	hydration: HydrationMetadata | null;
-	props: Record<string | number, any>;
+	props: Record<string | number | symbol, any>;
 }
 
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
 	displayName: string,
-	inputProps: Record<string | number, any>
+	inputProps: Record<string | number | symbol, any>
 ): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,
@@ -104,6 +104,9 @@ export function extractDirectives(
 		} else {
 			extracted.props[key] = value;
 		}
+	}
+	for(const sym of Object.getOwnPropertySymbols(inputProps)) {
+		extracted.props[sym] = inputProps[sym];
 	}
 
 	return extracted;
