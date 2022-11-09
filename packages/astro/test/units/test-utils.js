@@ -15,6 +15,8 @@ class MyVolume extends Volume {
 	#forcePath(p) {
 		if (p instanceof URL) {
 			p = unixify(fileURLToPath(p));
+		} else {
+			p = unixify(p);
 		}
 		return p;
 	}

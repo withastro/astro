@@ -492,7 +492,6 @@ importers:
       debug: 4.3.4
       deepmerge-ts: 4.2.2
       diff: 5.1.0
-      eol: 0.9.1
       es-module-lexer: 0.10.5
       esbuild: 0.14.54
       execa: 6.1.0
@@ -557,6 +556,7 @@ importers:
       astro-scripts: link:../../scripts
       chai: 4.3.7
       cheerio: 1.0.0-rc.12
+      eol: 0.9.1
       memfs: 3.4.10
       mocha: 9.2.2
       node-fetch: 3.2.10
@@ -2782,6 +2782,7 @@ importers:
       mdast-util-to-string: ^3.1.0
       mocha: ^9.2.2
       reading-time: ^1.5.0
+      rehype-pretty-code: ^0.4.0
       rehype-raw: ^6.1.1
       remark-frontmatter: ^4.0.1
       remark-gfm: ^3.0.1
@@ -2824,6 +2825,7 @@ importers:
       mdast-util-to-string: 3.1.0
       mocha: 9.2.2
       reading-time: 1.5.0
+      rehype-pretty-code: 0.4.0_shiki@0.11.1
       remark-shiki-twoslash: 3.1.0
       remark-toc: 8.0.1
       vite: 3.2.3
@@ -11633,7 +11635,7 @@ packages:
 
   /eol/0.9.1:
     resolution: {integrity: sha512-Ds/TEoZjwggRoz/Q2O7SE3i4Jm66mqTDfmdHdq/7DKVk3bro9Q8h6WdXKdPqFLMoqxrDK5SVRzHVPOS6uuGtrg==}
-    dev: false
+    dev: true
 
   /error-ex/1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
@@ -15280,6 +15282,10 @@ packages:
       unist-util-visit-children: 1.1.4
     dev: false
 
+  /parse-numeric-range/1.3.0:
+    resolution: {integrity: sha512-twN+njEipszzlMJd4ONUYgSfZPDxgHhT9Ahed5uTigpQn90FggW4SA/AIPq/6a149fTbE9qBEcSwE3FAEp6wQQ==}
+    dev: true
+
   /parse-package-name/1.0.0:
     resolution: {integrity: sha512-kBeTUtcj+SkyfaW4+KBe0HtsloBJ/mKTPoxpVdA57GZiPerREsUWJOhVj9anXweFiJkm5y8FG1sxFZkZ0SN6wg==}
     dev: true
@@ -16210,6 +16216,16 @@ packages:
       unified: 10.1.2
     dev: false
 
+  /rehype-pretty-code/0.4.0_shiki@0.11.1:
+    resolution: {integrity: sha512-Bp91nfo4blpgCXlvGP1hsG+kRFfjqBVU09o1RFcnNA62u+iIzJiJRGzpfBj4FaItq7CEQL5ASGB7vLxN5xCvyA==}
+    engines: {node: ^12.16.0 || >=13.2.0}
+    peerDependencies:
+      shiki: '*'
+    dependencies:
+      parse-numeric-range: 1.3.0
+      shiki: 0.11.1
+    dev: true
+
   /rehype-raw/6.1.1:
     resolution: {integrity: sha512-d6AKtisSRtDRX4aSPsJGTfnzrX2ZkHQLE5kiUuGOeEoLpbEulFF4hj0mLPbsa+7vmguDKOVVEQdHKDSwoaIDsQ==}
     dependencies:
@@ -16721,7 +16737,6 @@ packages:
       jsonc-parser: 3.2.0
       vscode-oniguruma: 1.6.2
       vscode-textmate: 6.0.0
-    dev: false
 
   /side-channel/1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -18247,7 +18262,6 @@ packages:
 
   /vscode-textmate/6.0.0:
     resolution: {integrity: sha512-gu73tuZfJgu+mvCSy4UZwd2JXykjK9zAZsfmDeut5dx/1a7FeTk0XwJsSuqQn+cuMCGVbIBfl+s53X4T19DnzQ==}
-    dev: false
 
   /vscode-uri/2.1.2:
     resolution: {integrity: sha512-8TEXQxlldWAuIODdukIb+TR5s+9Ds40eSJrw+1iDDA9IFORPjMELarNQE3myz5XIkWWpdprmJjm1/SxMlWOC8A==}

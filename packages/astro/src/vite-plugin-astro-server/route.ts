@@ -6,6 +6,7 @@ import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { preload, renderPage } from '../core/render/dev/index.js';
@@ -63,10 +64,14 @@ export async function matchRoute(
 	}
 
 	if (matches.length) {
+		const possibleRoutes = matches.flatMap((route) => route.component);
+
 		warn(
 			logging,
 			'getStaticPaths',
-			`Route pattern matched, but no matching static path found. (${pathname})`
+			`${AstroErrorData.NoMatchingStaticPathFound.message(
+				pathname
+			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`
 		);
 	}
 

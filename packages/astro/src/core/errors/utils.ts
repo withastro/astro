@@ -1,54 +1,5 @@
-import eol from 'eol';
-import stripAnsi from 'strip-ansi';
-import type { SSRError } from '../../@types/astro.js';
-
-export function collectInfoFromStacktrace(error: SSRError): SSRError {
-	if (!error.stack) return error;
-
-	// normalize error stack line-endings to \n
-	error.stack = eol.lf(error.stack);
-	const stackText = stripAnsi(error.stack);
-
-	// Try to find possible location from stack if we don't have one
-	if (!error.loc || (!error.loc.column && !error.loc.line)) {
-		const possibleFilePath =
-			error.loc?.file ||
-			error.pluginCode ||
-			error.id ||
-			// TODO: this could be better, `src` might be something else
-			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
-		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
-
-		const [file, line, column] = source?.split(':') ?? [];
-		if (line && column) {
-			error.loc = {
-				file,
-				line: Number.parseInt(line),
-				column: Number.parseInt(column),
-			};
-		}
-	}
-
-	// Derive plugin from stack (if possible)
-	if (!error.plugin) {
-		error.plugin =
-			/withastro\/astro\/packages\/integrations\/([\w-]+)/gim.exec(stackText)?.at(1) ||
-			/(@astrojs\/[\w-]+)\/(server|client|index)/gim.exec(stackText)?.at(1) ||
-			undefined;
-	}
-
-	// Normalize stack (remove `/@fs/` urls, etc)
-	error.stack = cleanErrorStack(error.stack);
-
-	return error;
-}
-
-function cleanErrorStack(stack: string) {
-	return stack
-		.split(/\n/g)
-		.map((l) => l.replace(/\/@fs\//g, '/'))
-		.join('\n');
-}
+import { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
+import { AstroErrorCodes, AstroErrorData } from './errors-data.js';
 
 /**
  * Get the line and character based on the offset
@@ -124,4 +75,19 @@ export function createSafeError(err: any): Error {
 	return err instanceof Error || (err && err.name && err.message)
 		? err
 		: new Error(JSON.stringify(err));
+}
+
+export function normalizeLF(code: string) {
+	return code.replace(/\r\n|\r(?!\n)|\n/g, '\n');
+}
+
+export function getErrorDataByCode(code: AstroErrorCodes | DiagnosticCode) {
+	const entry = Object.entries(AstroErrorData).find((data) => data[1].code === code);
+
+	if (entry) {
+		return {
+			name: entry[0],
+			data: entry[1],
+		};
+	}
 }
