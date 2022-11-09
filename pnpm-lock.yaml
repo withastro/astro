@@ -370,7 +370,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.29.5
+      '@astrojs/compiler': ^0.29.11
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^1.1.3
       '@astrojs/telemetry': ^1.0.1
