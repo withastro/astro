@@ -1,5 +1,13 @@
 # astro
 
+## 1.6.5
+
+### Patch Changes
+
+- [#5326](https://github.com/withastro/astro/pull/5326) [`88c1bbe3a`](https://github.com/withastro/astro/commit/88c1bbe3a71f85e92f42f13d0f310c6b2a264ade) Thanks [@matthewp](https://github.com/matthewp)! - Fix omitted island hydration scripts in slots
+
+- [#5301](https://github.com/withastro/astro/pull/5301) [`a79a37cad`](https://github.com/withastro/astro/commit/a79a37cad549b21f91599ff86899e456d9dcc7df) Thanks [@bluwy](https://github.com/bluwy)! - Improve environment variable handling performance
+
 ## 1.6.4
 
 ### Patch Changes
@@ -493,7 +501,7 @@
   This expands the abilities of `set:html` to ultimate service this use-case:
 
   ```astro
-  <div set:html={fetch('/legacy-post.html')}></div>
+  <div set:html={fetch('/legacy-post.html')} />
   ```
 
   This means you can take a legacy app that has been statically generated to HTML and directly consume that HTML within your templates. As is always the case with `set:html`, this should only be used on trusted content.
@@ -506,8 +514,7 @@
       set:html={new Response('<span>Hello world</span>', {
         headers: { 'content-type': 'text/html' },
       })}
-    >
-    </div>
+    />
     ```
   - `ReadableStream`s:
     ```astro
@@ -518,8 +525,7 @@
           controller.close();
         },
       })}
-    >
-    </div>
+    />
     ```
   - `AsyncIterable`s:
     ```astro
@@ -529,8 +535,7 @@
           yield `<li>${num}</li>`;
         }
       })()}
-    >
-    </div>
+    />
     ```
   - `Iterable`s (non-async):
     ```astro
@@ -540,8 +545,7 @@
           yield `<li>${num}</li>`;
         }
       })()}
-    >
-    </div>
+    />
     ```
 
 ### Patch Changes

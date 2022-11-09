@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.11.2
+
+### Patch Changes
+
+- [#5317](https://github.com/withastro/astro/pull/5317) [`d701ae074`](https://github.com/withastro/astro/commit/d701ae074a4a5c7a5891e31ca50d7c51f56b353c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of image worker pool in SSR environments
+
 ## 0.11.1
 
 ### Patch Changes

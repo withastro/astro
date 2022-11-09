@@ -10,7 +10,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { renderSlot } from '../../runtime/server/index.js';
+import { renderSlot, stringifyChunk } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -122,11 +122,11 @@ class Slots {
 				}
 			}
 		}
-		const content = await renderSlot(this.#result, this.#slots[name]).then((res) =>
-			res != null ? String(res) : res
-		);
-		if (cacheable) this.#cache.set(name, content);
-		return content;
+		const content = await renderSlot(this.#result, this.#slots[name]);
+		const outHTML = stringifyChunk(this.#result, content);
+
+		if (cacheable) this.#cache.set(name, outHTML);
+		return outHTML;
 	}
 }
 

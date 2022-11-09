@@ -4,12 +4,20 @@ import type { RenderInstruction } from './types.js';
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
 
+const slotString = Symbol.for('astro:slot-string');
+
 export class SlotString extends HTMLString {
 	public instructions: null | RenderInstruction[];
+	public [slotString]: boolean;
 	constructor(content: string, instructions: null | RenderInstruction[]) {
 		super(content);
 		this.instructions = instructions;
+		this[slotString] = true;
 	}
+}
+
+export function isSlotString(str: string): str is any {
+	return !!(str as any)[slotString];
 }
 
 export async function renderSlot(_result: any, slotted: string, fallback?: any): Promise<string> {

@@ -25,7 +25,7 @@ const user = (await fetchAPI(`user/${id}`)) as IUser;
 						{user.karma}
 					</li>
 					<Show when={user.about}>
-						<li set:html={user.about} class="about"></li>{' '}
+						<li set:html={user.about} class="about" />{' '}
 					</Show>
 				</ul>
 				<p>

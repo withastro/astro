@@ -91,7 +91,7 @@
     "execa": "^6.1.0",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.7.0",
-    "prettier-plugin-astro": "^0.4.0",
+    "prettier-plugin-astro": "^0.7.0",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
     "turbo": "1.2.5",

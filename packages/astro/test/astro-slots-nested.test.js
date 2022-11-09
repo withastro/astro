@@ -17,4 +17,10 @@ describe('Nested Slots', () => {
 		const scriptInTemplate = $($('template')[0].children[0]).find('script');
 		expect(scriptInTemplate).to.have.a.lengthOf(0, 'script defined outside of the inner template');
 	});
+
+	it('Slots rendered via Astro.slots.render have the hydration script', async () => {
+		const html = await fixture.readFile('/component-slot/index.html');
+		const $ = cheerio.load(html);
+		expect($('script')).to.have.a.lengthOf(1, 'script rendered');
+	});
 });

@@ -8,6 +8,7 @@ import {
 	getPrescripts,
 	PrescriptType,
 } from '../scripts.js';
+import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
@@ -18,7 +19,7 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction) {
+export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
 	switch ((chunk as any).type) {
 		case 'directive': {
 			const { hydration } = chunk as RenderInstruction;
@@ -39,6 +40,18 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 			}
 		}
 		default: {
+			if (isSlotString(chunk as string)) {
+				let out = '';
+				const c = chunk as SlotString;
+				if (c.instructions) {
+					for (const instr of c.instructions) {
+						out += stringifyChunk(result, instr);
+					}
+				}
+				out += chunk.toString();
+				return out;
+			}
+
 			return chunk.toString();
 		}
 	}
