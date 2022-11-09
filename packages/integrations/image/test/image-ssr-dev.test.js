@@ -199,7 +199,7 @@ describe('SSR images with subpath - dev', function () {
 				f: 'webp',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg',
+				href: '/docs/hero.jpg',
 			},
 			contentType: 'image/webp',
 		},
