@@ -36,6 +36,9 @@ describe('Directives', async () => {
 		const html = await fixture.readFile('/define-vars/index.html');
 		const $ = cheerio.load(html);
 
+		// All styles should be bundled
+		expect($('style')).to.have.lengthOf(0);
+
 		// Inject style attribute on top-level element in page
 		expect($('html').attr('style').toString()).to.include('--bg: white;');
 		expect($('html').attr('style').toString()).to.include('--fg: black;');
