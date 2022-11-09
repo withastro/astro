@@ -9,10 +9,10 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 
 load.use([loadTypeScript]);
 

@@ -6,6 +6,7 @@ import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { preload, renderPage } from '../core/render/dev/index.js';
@@ -15,7 +16,6 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import { AstroErrorData } from '../core/errors/index.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any

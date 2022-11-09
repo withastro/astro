@@ -5,10 +5,10 @@ import type { Environment } from './environment.js';
 
 import { Fragment, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;

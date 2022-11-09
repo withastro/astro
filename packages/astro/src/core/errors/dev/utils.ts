@@ -25,7 +25,6 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 			error = collectInfoFromStacktrace(e);
 		}
 
-		
 		if (error.loc?.file && rootFolder && !error.loc.file.startsWith('/')) {
 			error.loc.file = join(fileURLToPath(rootFolder), error.loc.file);
 		}

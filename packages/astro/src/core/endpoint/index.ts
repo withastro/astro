@@ -4,8 +4,8 @@ import type { Environment, RenderContext } from '../render/index';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
