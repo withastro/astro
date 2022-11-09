@@ -114,6 +114,6 @@ describe('MDX syntax highlighting', () => {
 		await fixture.build();
 
 		const html = await fixture.readFile('/index.html');
-		expect(html).to.include('style="background-color:#000000"')
+		expect(html).to.include('style="background-color:#000000"');
 	});
 });
