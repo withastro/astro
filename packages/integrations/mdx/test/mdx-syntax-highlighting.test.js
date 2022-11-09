@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import shikiTwoslash from 'remark-shiki-twoslash';
+import rehypePrettyCode from 'rehype-pretty-code';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
 
@@ -87,5 +88,32 @@ describe('MDX syntax highlighting', () => {
 
 		const twoslashCodeBlock = document.querySelector('pre.shiki');
 		expect(twoslashCodeBlock).to.not.be.null;
+	});
+
+	it('supports custom highlighter - rehype-pretty-code', async () => {
+		const fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+			markdown: {
+				syntaxHighlight: false,
+			},
+			integrations: [
+				mdx({
+					rehypePlugins: [
+						[
+							rehypePrettyCode,
+							{
+								onVisitHighlightedLine(node) {
+									node.properties.style = 'background-color:#000000';
+								},
+							},
+						],
+					],
+				}),
+			],
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+		expect(html).to.include('style="background-color:#000000"')
 	});
 });
