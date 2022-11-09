@@ -11,7 +11,7 @@ interface AstroCookieSetOptions {
 	secure?: boolean;
 }
 
-interface AstroCookieDeleteOptions extends Pick<AstroCookieSetOptions, 'domain' | 'path'> {}
+type AstroCookieDeleteOptions = Pick<AstroCookieSetOptions, 'domain' | 'path'>;
 
 interface AstroCookieInterface {
 	value: string | undefined;
