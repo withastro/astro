@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to cloudflare workers or cloudflare pages",
-  "version": "3.1.2",
+  "version": "4.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -35,6 +35,9 @@
   },
   "dependencies": {
     "esbuild": "^0.14.42"
+  },
+  "peerDependencies": {
+    "astro": "^1.6.5"
   },
   "devDependencies": {
     "astro": "workspace:*",

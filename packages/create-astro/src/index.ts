@@ -133,7 +133,7 @@ export async function main() {
 				type: 'text',
 				name: 'directory',
 				message: 'Where would you like to create your new project?',
-				initial: `./${generateProjectName()}`,
+				initial: generateProjectName(),
 				validate(value) {
 					if (!isValidProjectDirectory(value)) {
 						return notEmptyMsg(value);
@@ -347,7 +347,9 @@ export async function main() {
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 	await nextSteps({ projectDir, devCmd });
 
-	await say(['Good luck out there, astronaut!']);
+	if (!args.skipHouston) {
+		await say(['Good luck out there, astronaut!']);
+	}
 }
 
 function emojiWithFallback(char: string, fallback: string) {

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { AstroErrorCodes, MarkdownError } from '../core/errors/index.js';
+import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
@@ -22,7 +22,7 @@ function safeMatter(source: string, id: string) {
 		return matter(source);
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
-			errorCode: AstroErrorCodes.GenericMarkdownError,
+			code: AstroErrorData.UnknownMarkdownError.code,
 			message: err.message,
 			stack: err.stack,
 			location: {
@@ -31,7 +31,7 @@ function safeMatter(source: string, id: string) {
 		});
 
 		if (err.name === 'YAMLException') {
-			markdownError.setErrorCode(AstroErrorCodes.MarkdownFrontmatterParseError);
+			markdownError.setErrorCode(AstroErrorData.MarkdownFrontmatterParseError.code);
 			markdownError.setLocation({
 				file: id,
 				line: err.mark.line,

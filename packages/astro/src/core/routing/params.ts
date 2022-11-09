@@ -27,10 +27,10 @@ export function getParams(array: string[]) {
  * values and create a stringified key for the route
  * that can be used to match request routes
  */
-export function stringifyParams(params: Params) {
+export function stringifyParams(params: Params, routeComponent: string) {
 	// validate parameter values then stringify each value
 	const validatedParams = Object.entries(params).reduce((acc, next) => {
-		validateGetStaticPathsParameter(next);
+		validateGetStaticPathsParameter(next, routeComponent);
 		const [key, value] = next;
 		acc[key] = typeof value === 'undefined' ? undefined : `${value}`;
 		return acc;

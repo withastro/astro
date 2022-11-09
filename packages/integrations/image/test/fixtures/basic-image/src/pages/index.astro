@@ -2,6 +2,7 @@
 import socialJpg from '../assets/social.jpg';
 import introJpg from '../assets/blog/introducing astro.jpg';
 import { Image } from '@astrojs/image/components';
+const publicImage = new URL('./hero.jpg', Astro.url);
 ---
 
 <html>
@@ -9,7 +10,7 @@ import { Image } from '@astrojs/image/components';
     <!-- Head Stuff -->
   </head>
   <body>
-		<Image id="hero" src="/hero.jpg" width={768} height={414} format="webp" alt="hero" />
+		<Image id="hero" src={publicImage.pathname} width={768} height={414} format="webp" alt="hero" />
 		<br />
 		<Image id="spaces" src={introJpg} width={768} height={414} format="webp" alt="spaces" />
 		<br />

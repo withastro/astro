@@ -36,12 +36,14 @@ const cart = await getCart(Astro.request);
 					</tr>
 				</thead>
 				<tbody>
-					{cart.items.map((item) => (
-						<tr>
-							<td>{item.name}</td>
-							<td>{item.count}</td>
-						</tr>
-					))}
+					{
+						cart.items.map((item) => (
+							<tr>
+								<td>{item.name}</td>
+								<td>{item.count}</td>
+							</tr>
+						))
+					}
 				</tbody>
 			</table>
 		</Container>

@@ -4,6 +4,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 import { serializeListValue } from './util.js';
@@ -27,7 +28,10 @@ interface ExtractedProps {
 
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
-export function extractDirectives(inputProps: Record<string | number, any>): ExtractedProps {
+export function extractDirectives(
+	displayName: string,
+	inputProps: Record<string | number, any>
+): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,
 		hydration: null,
@@ -83,9 +87,10 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 						extracted.hydration.directive === 'media' &&
 						typeof extracted.hydration.value !== 'string'
 					) {
-						throw new Error(
-							'Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"'
-						);
+						throw new AstroError({
+							...AstroErrorData.MissingMediaQueryDirective,
+							message: AstroErrorData.MissingMediaQueryDirective.message(displayName),
+						});
 					}
 
 					break;

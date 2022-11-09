@@ -278,6 +278,17 @@ export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []):
 		args.push(dim(err.stack));
 		args.push(``);
 	}
+
+	if (err.cause) {
+		args.push(`  ${bold('Cause:')}`);
+		if (err.cause instanceof Error) {
+			args.push(dim(err.cause.stack ?? err.cause.toString()));
+		} else {
+			args.push(JSON.stringify(err.cause));
+		}
+
+		args.push(``);
+	}
 	return args.join('\n');
 }
 

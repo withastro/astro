@@ -15,11 +15,13 @@ const links: Link[] = [
 
 <header>
 	<nav aria-label="Main menu">
-		{links.map(({ href, text }) => (
-			<a href={href} aria-current={href === Astro.url.pathname ? 'page' : undefined}>
-				<strong>{text}</strong>
-			</a>
-		))}
+		{
+			links.map(({ href, text }) => (
+				<a href={href} aria-current={href === Astro.url.pathname ? 'page' : undefined}>
+					<strong>{text}</strong>
+				</a>
+			))
+		}
 		<a class="github" href="http://github.com/withastro/astro" target="_blank" rel="noreferrer">
 			Built with Astro
 		</a>

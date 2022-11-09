@@ -1,5 +1,5 @@
 import { ZodError } from 'zod';
-import { AstroErrorCodes, ErrorWithMetadata } from '../core/errors/index.js';
+import { AstroErrorData, ErrorWithMetadata } from '../core/errors/index.js';
 
 const EVENT_ERROR = 'ASTRO_CLI_ERROR';
 
@@ -46,7 +46,7 @@ export function eventConfigError({
 	isFatal: boolean;
 }): { eventName: string; payload: ConfigErrorEventPayload }[] {
 	const payload: ConfigErrorEventPayload = {
-		code: AstroErrorCodes.ConfigError,
+		code: AstroErrorData.UnknownConfigError.code,
 		isFatal,
 		isConfig: true,
 		cliCommand: cmd,
@@ -65,7 +65,7 @@ export function eventError({
 	isFatal: boolean;
 }): { eventName: string; payload: ErrorEventPayload }[] {
 	const payload: ErrorEventPayload = {
-		code: err.code || AstroErrorCodes.UnknownError,
+		code: err.code || AstroErrorData.UnknownError.code,
 		plugin: err.plugin,
 		cliCommand: cmd,
 		isFatal: isFatal,

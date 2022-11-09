@@ -13,7 +13,6 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { enhanceViteSSRError } from '../errors/dev/index.js';
 import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -169,7 +168,7 @@ class AstroBuilder {
 		try {
 			await this.build(setupData);
 		} catch (_err) {
-			throw enhanceViteSSRError(_err as Error);
+			throw _err;
 		}
 	}
 

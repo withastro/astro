@@ -8,15 +8,17 @@ interface CreateServerOptions {
 	client: URL;
 	port: number;
 	host: string | undefined;
+	removeBase: (pathname: string) => string;
 }
 
 export function createServer(
-	{ client, port, host }: CreateServerOptions,
+	{ client, port, host, removeBase }: CreateServerOptions,
 	handler: http.RequestListener
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
-			const stream = send(req, encodeURI(req.url), {
+			const pathname = '/' + removeBase(req.url);
+			const stream = send(req, encodeURI(pathname), {
 				root: fileURLToPath(client),
 				dotfiles: 'deny',
 			});

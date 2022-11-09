@@ -72,27 +72,31 @@ const additionalContributors = unique.length - recentContributors.length; // lis
 <!-- Thanks to @5t3ph for https://smolcss.dev/#smol-avatar-list! -->
 <div class="contributors">
 	<ul class="avatar-list" style={`--avatar-count: ${recentContributors.length}`}>
-		{recentContributors.map((item) => (
-			<li>
-				<a href={`https://github.com/${item.login}`}>
-					<img
-						alt={`Contributor ${item.login}`}
-						title={`Contributor ${item.login}`}
-						width="64"
-						height="64"
-						src={`https://avatars.githubusercontent.com/u/${item.id}`}
-					/>
-				</a>
-			</li>
-		))}
+		{
+			recentContributors.map((item) => (
+				<li>
+					<a href={`https://github.com/${item.login}`}>
+						<img
+							alt={`Contributor ${item.login}`}
+							title={`Contributor ${item.login}`}
+							width="64"
+							height="64"
+							src={`https://avatars.githubusercontent.com/u/${item.id}`}
+						/>
+					</a>
+				</li>
+			))
+		}
 	</ul>
-	{additionalContributors > 0 && (
-		<span>
-			<a href={commitsURL}>{`and ${additionalContributors} additional contributor${
-				additionalContributors > 1 ? 's' : ''
-			}.`}</a>
-		</span>
-	)}
+	{
+		additionalContributors > 0 && (
+			<span>
+				<a href={commitsURL}>{`and ${additionalContributors} additional contributor${
+					additionalContributors > 1 ? 's' : ''
+				}.`}</a>
+			</span>
+		)
+	}
 	{unique.length === 0 && <a href={commitsURL}>Contributors</a>}
 </div>
 

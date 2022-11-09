@@ -1,5 +1,31 @@
 # astro
 
+## 1.6.5
+
+### Patch Changes
+
+- [#5326](https://github.com/withastro/astro/pull/5326) [`88c1bbe3a`](https://github.com/withastro/astro/commit/88c1bbe3a71f85e92f42f13d0f310c6b2a264ade) Thanks [@matthewp](https://github.com/matthewp)! - Fix omitted island hydration scripts in slots
+
+- [#5301](https://github.com/withastro/astro/pull/5301) [`a79a37cad`](https://github.com/withastro/astro/commit/a79a37cad549b21f91599ff86899e456d9dcc7df) Thanks [@bluwy](https://github.com/bluwy)! - Improve environment variable handling performance
+
+## 1.6.4
+
+### Patch Changes
+
+- [#5290](https://github.com/withastro/astro/pull/5290) [`b2b291d29`](https://github.com/withastro/astro/commit/b2b291d29143703cece0d12c8e74b2e1151d2061) Thanks [@matthewp](https://github.com/matthewp)! - Handle base configuration in adapters
+
+  This allows adapters to correctly handle `base` configuration. Internally Astro now matches routes when the URL includes the `base`.
+
+  Adapters now also have access to the `removeBase` method which will remove the `base` from a pathname. This is useful to look up files for static assets.
+
+- [#5292](https://github.com/withastro/astro/pull/5292) [`97e2b6ad7`](https://github.com/withastro/astro/commit/97e2b6ad7a6fa23e82be28b2f57cdf3f85fab112) Thanks [@MontelAle](https://github.com/MontelAle)! - Changes slow astro cli imports to dynamic
+
+- [#5293](https://github.com/withastro/astro/pull/5293) [`4af4d8fa0`](https://github.com/withastro/astro/commit/4af4d8fa0035130fbf31c82d72777c3679bc1ca5) Thanks [@matthewp](https://github.com/matthewp)! - Prevent overcaching .astro HMR changes
+
+- [#5314](https://github.com/withastro/astro/pull/5314) [`f6add3924`](https://github.com/withastro/astro/commit/f6add3924d5cd59925a6ea4bf7f2f731709bc893) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression with config file restarts
+
+- [#5298](https://github.com/withastro/astro/pull/5298) [`247eb7411`](https://github.com/withastro/astro/commit/247eb7411f429317e5cd7d401a6660ee73641313) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - have not founded style when srcDir was root
+
 ## 1.6.3
 
 ### Patch Changes
@@ -475,7 +501,7 @@
   This expands the abilities of `set:html` to ultimate service this use-case:
 
   ```astro
-  <div set:html={fetch('/legacy-post.html')}></div>
+  <div set:html={fetch('/legacy-post.html')} />
   ```
 
   This means you can take a legacy app that has been statically generated to HTML and directly consume that HTML within your templates. As is always the case with `set:html`, this should only be used on trusted content.
@@ -488,8 +514,7 @@
       set:html={new Response('<span>Hello world</span>', {
         headers: { 'content-type': 'text/html' },
       })}
-    >
-    </div>
+    />
     ```
   - `ReadableStream`s:
     ```astro
@@ -500,8 +525,7 @@
           controller.close();
         },
       })}
-    >
-    </div>
+    />
     ```
   - `AsyncIterable`s:
     ```astro
@@ -511,8 +535,7 @@
           yield `<li>${num}</li>`;
         }
       })()}
-    >
-    </div>
+    />
     ```
   - `Iterable`s (non-async):
     ```astro
@@ -522,8 +545,7 @@
           yield `<li>${num}</li>`;
         }
       })()}
-    >
-    </div>
+    />
     ```
 
 ### Patch Changes

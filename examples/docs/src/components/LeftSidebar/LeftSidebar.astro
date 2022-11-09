@@ -16,25 +16,27 @@ const sidebar = SIDEBAR[langCode];
 
 <nav aria-labelledby="grid-left">
 	<ul class="nav-groups">
-		{Object.entries(sidebar).map(([header, children]) => (
-			<li>
-				<div class="nav-group">
-					<h2>{header}</h2>
-					<ul>
-						{children.map((child) => {
-							const url = Astro.site?.pathname + child.link;
-							return (
-								<li class="nav-link">
-									<a href={url} aria-current={currentPageMatch === child.link ? 'page' : false}>
-										{child.text}
-									</a>
-								</li>
-							);
-						})}
-					</ul>
-				</div>
-			</li>
-		))}
+		{
+			Object.entries(sidebar).map(([header, children]) => (
+				<li>
+					<div class="nav-group">
+						<h2>{header}</h2>
+						<ul>
+							{children.map((child) => {
+								const url = Astro.site?.pathname + child.link;
+								return (
+									<li class="nav-link">
+										<a href={url} aria-current={currentPageMatch === child.link ? 'page' : false}>
+											{child.text}
+										</a>
+									</li>
+								);
+							})}
+						</ul>
+					</div>
+				</li>
+			))
+		}
 	</ul>
 </nav>
 

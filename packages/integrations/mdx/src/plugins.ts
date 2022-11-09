@@ -11,6 +11,7 @@ import remarkSmartypants from 'remark-smartypants';
 import type { Data, VFile } from 'vfile';
 import { MdxOptions } from './index.js';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
+import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
@@ -150,6 +151,8 @@ export function getRehypePlugins(
 	let rehypePlugins: PluggableList = [
 		// getHeadings() is guaranteed by TS, so we can't allow user to override
 		rehypeCollectHeadings,
+		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
+		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
 		[rehypeRaw, { passThrough: nodeTypes }] as any,
 	];
