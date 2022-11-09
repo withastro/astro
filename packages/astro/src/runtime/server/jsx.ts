@@ -28,7 +28,7 @@ class Skip {
 	haveNoTried() {
 		return this.count === 0;
 	}
-	
+
 	isCompleted() {
 		return this.count > 2;
 	}
@@ -59,7 +59,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 
 	// Extract the skip from the props, if we've already attempted a previous render
 	let skip: Skip;
-	if(vnode.props[Skip.symbol]) {
+	if (vnode.props[Skip.symbol]) {
 		skip = vnode.props[Skip.symbol];
 	} else {
 		skip = new Skip(vnode);
@@ -107,7 +107,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 				return await renderJSX(result, output);
 			}
 			if (typeof vnode.type === 'function') {
-				if(skip.haveNoTried() || skip.isCompleted()) {
+				if (skip.haveNoTried() || skip.isCompleted()) {
 					useConsoleFilter();
 					try {
 						const output = await vnode.type(vnode.props ?? {});
@@ -119,9 +119,8 @@ Did you forget to import the component or is it possible there is a typo?`);
 							renderResult = await renderJSXVNode(result, output, skip);
 							return renderResult;
 						}
-						
 					} catch (e: unknown) {
-						if(skip.isCompleted()) {
+						if (skip.isCompleted()) {
 							throw e;
 						}
 						skip.increment();

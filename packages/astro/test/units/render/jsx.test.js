@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 
-import { createComponent, render, renderComponent, renderSlot } from '../../../dist/runtime/server/index.js';
+import {
+	createComponent,
+	render,
+	renderComponent,
+	renderSlot,
+} from '../../../dist/runtime/server/index.js';
 import { jsx } from '../../../dist/jsx-runtime/index.js';
 import {
 	createBasicEnvironment,
@@ -106,7 +111,7 @@ describe('core/render', () => {
 			try {
 				await response.text();
 				expect(false).to.equal(true, 'should not have been successful');
-			} catch(err) {
+			} catch (err) {
 				expect(err.message).to.equal('uh oh');
 			}
 		});

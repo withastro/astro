@@ -105,7 +105,7 @@ export function extractDirectives(
 			extracted.props[key] = value;
 		}
 	}
-	for(const sym of Object.getOwnPropertySymbols(inputProps)) {
+	for (const sym of Object.getOwnPropertySymbols(inputProps)) {
 		extracted.props[sym] = inputProps[sym];
 	}
 
