@@ -360,15 +360,12 @@ export function createRouteManifest(
 			}
 			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 
-			const isDynamic = (str: string) => str?.[0] === '[';
-			const normalize = (str: string) => str?.substring(1, str?.length - 1);
-
 			const segments = removeLeadingForwardSlash(name)
-				.split(path.sep)
+				.split(path.posix.sep)
 				.filter(Boolean)
 				.map((s: string) => {
 					validateSegment(s);
-					return getParts(s, resolved);
+					return getParts(s, component);
 				});
 
 			const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
