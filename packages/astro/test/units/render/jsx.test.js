@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 
-import { createComponent, render, renderSlot } from '../../../dist/runtime/server/index.js';
+import {
+	createComponent,
+	render,
+	renderComponent,
+	renderSlot,
+} from '../../../dist/runtime/server/index.js';
 import { jsx } from '../../../dist/jsx-runtime/index.js';
 import {
 	createBasicEnvironment,
@@ -89,6 +94,26 @@ describe('core/render', () => {
 			expect(html).to.include(
 				'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
 			);
+		});
+
+		it('Errors in JSX components are raised', async () => {
+			const Component = createAstroJSXComponent(() => {
+				throw new Error('uh oh');
+			});
+
+			const Page = createComponent((result, _props) => {
+				return render`<div>${renderComponent(result, 'Component', Component, {})}</div>`;
+			});
+
+			const ctx = createRenderContext({ request: new Request('http://example.com/') });
+			const response = await renderPage(createAstroModule(Page), ctx, env);
+
+			try {
+				await response.text();
+				expect(false).to.equal(true, 'should not have been successful');
+			} catch (err) {
+				expect(err.message).to.equal('uh oh');
+			}
 		});
 	});
 });
