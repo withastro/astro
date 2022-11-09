@@ -175,7 +175,7 @@ describe('SSR pictures with subpath - build', function () {
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
-			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
+			query: { f: 'jpg', w: '768', h: '414', href: '/docs/hero.jpg' },
 			alt: 'Hero image',
 		},
 		{
