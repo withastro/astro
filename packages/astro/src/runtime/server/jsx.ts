@@ -15,22 +15,24 @@ import type { ComponentIterable } from './render/component';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
-const skipAstroJSXCheck = new WeakMap<() => any, number>();
-function addSkip(vnode: AstroVNode) {
-	if(typeof vnode.type === 'function') {
-		skipAstroJSXCheck.set(vnode.type, skipCount(vnode) + 1);
+class Skip {
+	count: number;
+	constructor(public vnode: AstroVNode) {
+		this.count = 0;
 	}
-}
-function skipCount(vnode: AstroVNode): number {
-	if(typeof vnode.type === 'function') {
-		return  skipAstroJSXCheck.get(vnode.type) || 0;
+
+	increment() {
+		this.count++;
 	}
-	return NaN;
-}
-function deleteSkips(vnode: AstroVNode) {
-	if(typeof vnode.type === 'function') {
-		skipAstroJSXCheck.delete(vnode.type);
+
+	haveNoTried() {
+		return this.count === 0;
 	}
+	
+	isCompleted() {
+		return this.count > 2;
+	}
+	static symbol = Symbol('astro:jsx:skip');
 }
 
 let originalConsoleError: any;
@@ -54,6 +56,19 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				(await Promise.all(vnode.map((v: any) => renderJSX(result, v)))).join('')
 			);
 	}
+
+	// Extract the skip from the props, if we've already attempted a previous render
+	let skip: Skip;
+	if(vnode.props[Skip.symbol]) {
+		skip = vnode.props[Skip.symbol];
+	} else {
+		skip = new Skip(vnode);
+	}
+
+	return renderJSXVNode(result, vnode, skip);
+}
+
+async function renderJSXVNode(result: SSRResult, vnode: AstroVNode, skip: Skip): Promise<any> {
 	if (isVNode(vnode)) {
 		switch (true) {
 			case !vnode.type: {
@@ -85,38 +100,36 @@ Did you forget to import the component or is it possible there is a typo?`);
 
 		if (vnode.type) {
 			if (typeof vnode.type === 'function' && (vnode.type as any)['astro:renderer']) {
-				addSkip(vnode);
+				skip.increment();
 			}
 			if (typeof vnode.type === 'function' && vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
 				return await renderJSX(result, output);
 			}
 			if (typeof vnode.type === 'function') {
-				if(skipCount(vnode) === 0 || skipCount(vnode) > 2) {
+				if(skip.haveNoTried() || skip.isCompleted()) {
 					useConsoleFilter();
 					try {
 						const output = await vnode.type(vnode.props ?? {});
 						let renderResult: any;
 						if (output && output[AstroJSX]) {
-							renderResult = await renderJSX(result, output);
-							deleteSkips(vnode);
+							renderResult = await renderJSXVNode(result, output, skip);
 							return renderResult;
 						} else if (!output) {
-							renderResult = await renderJSX(result, output);
-							deleteSkips(vnode);
+							renderResult = await renderJSXVNode(result, output, skip);
 							return renderResult;
 						}
 						
 					} catch (e: unknown) {
-						if(skipCount(vnode) > 2) {
+						if(skip.isCompleted()) {
 							throw e;
 						}
-						addSkip(vnode);
+						skip.increment();
 					} finally {
 						finishUsingConsoleFilter();
 					}
 				} else {
-					addSkip(vnode);
+					skip.increment();
 				}
 			}
 
@@ -158,6 +171,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			await Promise.all(slotPromises);
 
+			props[Skip.symbol] = skip;
 			let output: ComponentIterable;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
@@ -181,10 +195,8 @@ Did you forget to import the component or is it possible there is a typo?`);
 				for await (const chunk of output) {
 					parts.append(chunk, result);
 				}
-				deleteSkips(vnode);
 				return markHTMLString(parts.toString());
 			} else {
-				deleteSkips(vnode);
 				return markHTMLString(output);
 			}
 		}
