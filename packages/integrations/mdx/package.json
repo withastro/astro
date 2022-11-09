@@ -39,7 +39,6 @@
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.4",
-    "rehype-pretty-code": "^0.4.0",
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
@@ -63,6 +62,7 @@
     "mdast-util-to-string": "^3.1.0",
     "mocha": "^9.2.2",
     "reading-time": "^1.5.0",
+    "rehype-pretty-code": "^0.4.0",
     "remark-shiki-twoslash": "^3.1.0",
     "remark-toc": "^8.0.1",
     "vite": "^3.0.0"
