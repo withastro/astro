@@ -39,6 +39,7 @@
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.4",
+    "rehype-pretty-code": "^0.4.0",
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
