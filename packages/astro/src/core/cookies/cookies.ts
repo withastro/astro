@@ -11,9 +11,7 @@ interface AstroCookieSetOptions {
 	secure?: boolean;
 }
 
-interface AstroCookieDeleteOptions {
-	path?: string;
-}
+interface AstroCookieDeleteOptions extends Pick<AstroCookieSetOptions, 'domain' | 'path'> {}
 
 interface AstroCookieInterface {
 	value: string | undefined;
@@ -75,6 +73,9 @@ class AstroCookies implements AstroCookiesInterface {
 			expires: DELETED_EXPIRATION,
 		};
 
+		if (options?.domain) {
+			serializeOptions.domain = options.domain;
+		}
 		if (options?.path) {
 			serializeOptions.path = options.path;
 		}
