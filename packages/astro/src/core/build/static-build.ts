@@ -10,6 +10,7 @@ import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
@@ -26,19 +27,9 @@ import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
-	// Verify this app is buildable.
+	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
-		throw new Error(`Cannot use \`output: 'server'\` without an adapter.
-Install and configure the appropriate server adapter for your final deployment.
-Learn more: https://docs.astro.build/en/guides/server-side-rendering/
-
-  // Example: astro.config.js
-  import netlify from '@astrojs/netlify';
-  export default {
-    output: 'server',
-    adapter: netlify(),
-  }
-`);
+		throw new AstroError(AstroErrorData.NoAdapterInstalled);
 	}
 
 	// The pages to be built for rendering purposes.

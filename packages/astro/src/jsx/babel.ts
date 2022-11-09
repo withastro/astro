@@ -1,5 +1,7 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
+import { AstroErrorData } from '../core/errors/errors-data.js';
+import { AstroError } from '../core/errors/errors.js';
 import { resolvePath } from '../core/util.js';
 import { HydrationDirectiveProps } from '../runtime/server/hydration.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
@@ -310,11 +312,10 @@ export default function astroJSX(): PluginObj {
 						addClientMetadata(parentNode, meta);
 					}
 				} else {
-					throw new Error(
-						`Unable to match <${getTagName(
-							parentNode
-						)}> with client:* directive to an import statement!`
-					);
+					throw new AstroError({
+						...AstroErrorData.NoMatchingImport,
+						message: AstroErrorData.NoMatchingImport.message(getTagName(parentNode)),
+					});
 				}
 			},
 		},

@@ -5,6 +5,7 @@ import type { Environment } from './environment.js';
 
 import { Fragment, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -45,7 +46,7 @@ export async function getParamsAndProps(
 			routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
 			routeCache.set(route, routeCacheEntry);
 		}
-		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
+		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
 		if (!matchedStaticPath && !ssr) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
@@ -71,9 +72,13 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 	});
 
 	if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-		throw new Error(
-			`[getStaticPath] route pattern matched, but no matching static path found. (${ctx.pathname})`
-		);
+		throw new AstroError({
+			...AstroErrorData.NoMatchingStaticPathFound,
+			message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
+			hint: ctx.route?.component
+				? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
+				: '',
+		});
 	}
 	const [params, pageProps] = paramsAndPropsRes;
 
@@ -114,7 +119,14 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 		});
 	}
 
-	const response = await runtimeRenderPage(result, Component, pageProps, null, env.streaming);
+	const response = await runtimeRenderPage(
+		result,
+		Component,
+		pageProps,
+		null,
+		env.streaming,
+		ctx.route
+	);
 
 	// If there is an Astro.cookies instance, attach it to the response so that
 	// adapters can grab the Set-Cookie headers.

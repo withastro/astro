@@ -1,11 +1,11 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 
+import * as fs from 'fs';
 import { LogOptions } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { log404 } from './common.js';
 import { writeHtmlResponse } from './response.js';
-import * as fs from 'fs';
 
 export function baseMiddleware(
 	settings: AstroSettings,
@@ -19,7 +19,6 @@ export function baseMiddleware(
 		const url = req.url!;
 
 		const pathname = decodeURI(new URL(url, 'http://localhost').pathname);
-
 
 		if (pathname.startsWith(devRoot)) {
 			req.url = url.replace(devRoot, '/');
@@ -46,7 +45,7 @@ export function baseMiddleware(
 		// Check to see if it's in public and if so 404
 		const publicPath = new URL('.' + req.url, config.publicDir);
 		fs.stat(publicPath, (_err, stats) => {
-			if(stats) {
+			if (stats) {
 				log404(logging, pathname);
 				const html = subpathNotUsedTemplate(devRoot, pathname);
 				return writeHtmlResponse(res, 404, html);

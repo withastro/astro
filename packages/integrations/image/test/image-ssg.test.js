@@ -164,7 +164,7 @@ describe('SSG images with subpath - dev', function () {
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
-			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+			query: { f: 'webp', w: '768', h: '414', href: '/docs/hero.jpg' },
 		},
 		{
 			title: 'Background color',
