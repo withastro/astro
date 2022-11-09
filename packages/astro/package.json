@@ -123,7 +123,6 @@
     "debug": "^4.3.4",
     "deepmerge-ts": "^4.2.2",
     "diff": "^5.1.0",
-    "eol": "^0.9.1",
     "es-module-lexer": "^0.10.5",
     "esbuild": "^0.14.43",
     "execa": "^6.1.0",
@@ -199,7 +198,8 @@
     "remark-code-titles": "^0.1.2",
     "sass": "^1.52.2",
     "srcset-parse": "^1.1.0",
-    "unified": "^10.1.2"
+    "unified": "^10.1.2",
+    "eol": "^0.9.1"
   },
   "engines": {
     "node": "^14.18.0 || >=16.12.0",

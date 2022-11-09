@@ -1,13 +1,12 @@
-import eol from 'eol';
 import type { ErrorLocation } from './errors.js';
+import { normalizeLF } from './utils.js';
 
 /** Generate a code frame from string and an error location */
 export function codeFrame(src: string, loc: ErrorLocation): string {
 	if (!loc || loc.line === undefined || loc.column === undefined) {
 		return '';
 	}
-	const lines = eol
-		.lf(src)
+	const lines = normalizeLF(src)
 		.split('\n')
 		.map((ln) => ln.replace(/\t/g, '  '));
 	// grab 2 lines before, and 3 lines after focused line

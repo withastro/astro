@@ -1,7 +1,8 @@
-import type { SSRResult } from '../../../@types/astro';
+import type { RouteData, SSRResult } from '../../../@types/astro';
 import type { ComponentIterable } from './component';
 import type { AstroComponentFactory } from './index';
 
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { isHTMLString } from '../escape.js';
 import { createResponse } from '../response.js';
 import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
@@ -49,17 +50,32 @@ export async function renderPage(
 	componentFactory: AstroComponentFactory | NonAstroPageComponent,
 	props: any,
 	children: any,
-	streaming: boolean
+	streaming: boolean,
+	route?: RouteData | undefined
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
-		const output = await renderComponent(
-			result,
-			componentFactory.name,
-			componentFactory,
-			pageProps,
-			null
-		);
+
+		let output: ComponentIterable;
+
+		try {
+			output = await renderComponent(
+				result,
+				componentFactory.name,
+				componentFactory,
+				pageProps,
+				null,
+				route
+			);
+		} catch (e) {
+			if (AstroError.is(e) && !e.loc) {
+				e.setLocation({
+					file: route?.component,
+				});
+			}
+
+			throw e;
+		}
 
 		// Accumulate the HTML string and append the head if necessary.
 		const bytes = await iterableToHTMLBytes(result, output, async (parts) => {
@@ -106,6 +122,14 @@ export async function renderPage(
 							}
 							controller.close();
 						} catch (e) {
+							// We don't have a lot of information downstream, and upstream we can't catch the error properly
+							// So let's add the location here
+							if (AstroError.is(e) && !e.loc) {
+								e.setLocation({
+									file: route?.component,
+								});
+							}
+
 							controller.error(e);
 						}
 					}
@@ -123,7 +147,16 @@ export async function renderPage(
 
 	// We double check if the file return a Response
 	if (!(factoryReturnValue instanceof Response)) {
-		throw new Error('Only instance of Response can be returned from an Astro file');
+		throw new AstroError({
+			...AstroErrorData.OnlyResponseCanBeReturned,
+			message: AstroErrorData.OnlyResponseCanBeReturned.message(
+				route?.route,
+				typeof factoryReturnValue
+			),
+			location: {
+				file: route?.component,
+			},
+		});
 	}
 
 	return factoryReturnValue;

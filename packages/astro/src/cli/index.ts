@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
-import { pathToFileURL } from 'url';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
@@ -94,9 +93,7 @@ async function handleConfigError(
 		if (path) {
 			error(logging, 'astro', `Unable to load ${colors.bold(path)}\n`);
 		}
-		console.error(
-			formatErrorMessage(collectErrorMetadata(e, path ? pathToFileURL(path) : undefined)) + '\n'
-		);
+		console.error(formatErrorMessage(collectErrorMetadata(e)) + '\n');
 	}
 }
 

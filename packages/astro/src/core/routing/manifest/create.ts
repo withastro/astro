@@ -114,11 +114,6 @@ function isSpread(str: string) {
 function validateSegment(segment: string, file = '') {
 	if (!file) file = segment;
 
-	if (/^\$/.test(segment)) {
-		throw new Error(
-			`Invalid route ${file} \u2014 Astro's Collections API has been replaced by dynamic route params.`
-		);
-	}
 	if (/\]\[/.test(segment)) {
 		throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
 	}
