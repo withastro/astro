@@ -48,9 +48,13 @@ export function baseMiddleware(
 		fs.stat(publicPath, (_err, stats) => {
 			if (stats) {
 				const expectedLocation = new URL('.' + url, devRootURL).pathname;
-				warn(logging, 'dev', `Requests for items in your public folder must also include your base. ${url} should be ${expectedLocation}. Omitting the base will break in production.`);
+				warn(
+					logging,
+					'dev',
+					`Requests for items in your public folder must also include your base. ${url} should be ${expectedLocation}. Omitting the base will break in production.`
+				);
 				res.writeHead(301, {
-					'Location': expectedLocation
+					Location: expectedLocation,
 				});
 				res.end();
 			} else {
