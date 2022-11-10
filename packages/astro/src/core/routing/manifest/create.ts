@@ -307,7 +307,7 @@ export function createRouteManifest(
 				components.push(item.file);
 				const component = item.file;
 				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
-				const pattern = getPattern(segments, trailingSlash);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -368,7 +368,7 @@ export function createRouteManifest(
 			const isPage = type === 'page';
 			const trailingSlash = isPage ? config.trailingSlash : 'never';
 
-			const pattern = getPattern(segments, trailingSlash);
+			const pattern = getPattern(segments, settings.config.base, trailingSlash);
 			const generate = getRouteGenerator(segments, trailingSlash);
 			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 				? `/${segments.map((segment) => segment[0].content).join('/')}`
