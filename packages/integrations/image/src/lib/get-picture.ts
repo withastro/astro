@@ -59,6 +59,13 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		throw new Error('`aspectRatio` must be provided for remote images');
 	}
 
+	// always include the original image format
+	const allFormats = await resolveFormats(params);
+	const lastFormat = allFormats[allFormats.length - 1];
+	const maxWidth = Math.max(...widths);
+
+	let image: astroHTML.JSX.ImgHTMLAttributes;
+
 	async function getSource(format: OutputFormat) {
 		const imgs = await Promise.all(
 			widths.map(async (width) => {
@@ -69,8 +76,13 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					fit,
 					position,
 					background,
-					height: Math.round(width / aspectRatio!),
+					aspectRatio,
 				});
+
+				if (format === lastFormat && width === maxWidth) {
+					image = img;
+				}
+
 				return `${img.src} ${width}w`;
 			})
 		);
@@ -81,23 +93,11 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		};
 	}
 
-	// always include the original image format
-	const allFormats = await resolveFormats(params);
-
-	const image = await getImage({
-		src,
-		width: Math.max(...widths),
-		aspectRatio,
-		fit,
-		position,
-		background,
-		format: allFormats[allFormats.length - 1],
-	});
-
 	const sources = await Promise.all(allFormats.map((format) => getSource(format)));
 
 	return {
 		sources,
+		// @ts-expect-error image will always be defined
 		image,
 	};
 }

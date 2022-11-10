@@ -4,6 +4,7 @@ import type { Environment, RenderContext } from '../render/index';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -52,13 +53,12 @@ function createAPIContext({
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
-					throw new Error(
-						`clientAddress is not available in the ${adapterName} adapter. File an issue with the adapter to add support.`
-					);
+					throw new AstroError({
+						...AstroErrorData.SSRClientAddressNotAvailableInAdapter,
+						message: AstroErrorData.SSRClientAddressNotAvailableInAdapter.message(adapterName),
+					});
 				} else {
-					throw new Error(
-						`clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
-					);
+					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 				}
 			}
 
@@ -82,9 +82,13 @@ export async function call(
 	});
 
 	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
-		throw new Error(
-			`[getStaticPath] route pattern matched, but no matching static path found. (${ctx.pathname})`
-		);
+		throw new AstroError({
+			...AstroErrorData.NoMatchingStaticPathFound,
+			message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
+			hint: ctx.route?.component
+				? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
+				: '',
+		});
 	}
 	const [params, props] = paramsAndPropsResp;
 
@@ -120,8 +124,6 @@ function isRedirect(statusCode: number) {
 
 export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
 	if (config.output !== 'server' && isRedirect(response.status)) {
-		throw new Error(
-			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
-		);
+		throw new AstroError(AstroErrorData.StaticRedirectNotAllowed);
 	}
 }

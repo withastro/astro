@@ -157,4 +157,54 @@ describe('dev container', () => {
 			}
 		);
 	});
+
+	it('items in public/ are not available from root when using a base', async () => {
+		await runInContainer(
+			{
+				root,
+				userConfig: {
+					base: '/sub/',
+				},
+			},
+			async (container) => {
+				// First try the subpath
+				let r = createRequestAndResponse({
+					method: 'GET',
+					url: '/sub/test.txt',
+				});
+
+				container.handle(r.req, r.res);
+				await r.done;
+
+				expect(r.res.statusCode).to.equal(200);
+
+				// Next try the root path
+				r = createRequestAndResponse({
+					method: 'GET',
+					url: '/test.txt',
+				});
+
+				container.handle(r.req, r.res);
+				await r.done;
+
+				expect(r.res.statusCode).to.equal(301);
+				expect(r.res.getHeader('location')).to.equal('/sub/test.txt');
+			}
+		);
+	});
+
+	it('items in public/ are available from root when not using a base', async () => {
+		await runInContainer({ root }, async (container) => {
+			// Try the root path
+			let r = createRequestAndResponse({
+				method: 'GET',
+				url: '/test.txt',
+			});
+
+			container.handle(r.req, r.res);
+			await r.done;
+
+			expect(r.res.statusCode).to.equal(200);
+		});
+	});
 });

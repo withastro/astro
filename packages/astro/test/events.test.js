@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AstroErrorCodes } from '../dist/core/errors/codes.js';
+import { AstroErrorData } from '../dist/core/errors/errors-data.js';
 import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
@@ -426,7 +426,7 @@ describe('Events', () => {
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
-					code: AstroErrorCodes.ConfigError,
+					code: AstroErrorData.UnknownConfigError.code,
 					isFatal: true,
 					isConfig: true,
 					cliCommand: 'COMMAND_NAME',
@@ -467,7 +467,7 @@ describe('Events', () => {
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
-					code: AstroErrorCodes.UnknownError,
+					code: AstroErrorData.UnknownError.code,
 					plugin: undefined,
 					isFatal: false,
 					cliCommand: 'COMMAND_NAME',

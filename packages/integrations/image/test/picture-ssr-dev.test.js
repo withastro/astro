@@ -213,7 +213,7 @@ describe('SSR pictures with subpath - dev', function () {
 				f: 'jpg',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg',
+				href: '/docs/hero.jpg',
 			},
 			contentType: 'image/jpeg',
 			alt: 'Hero image',
