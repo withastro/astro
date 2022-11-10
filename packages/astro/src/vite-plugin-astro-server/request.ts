@@ -28,7 +28,10 @@ export async function handleRequest(
 	// routing behavior matches production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
-	const pathname = req.url ?? decodeURI(url.pathname);
+	let pathname = decodeURI(url.pathname);
+	if(config.trailingSlash === 'never' && !req.url) {
+		pathname = '';
+	}
 
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
