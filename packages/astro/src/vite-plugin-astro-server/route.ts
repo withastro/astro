@@ -100,6 +100,7 @@ export async function matchRoute(
 		return {
 			route: custom404,
 			filePath,
+			resolvedPathname: pathname,
 			preloadedComponent,
 			mod,
 		};
