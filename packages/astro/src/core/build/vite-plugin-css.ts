@@ -6,6 +6,7 @@ import esbuild from 'esbuild';
 import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 
+import * as assetName from './css-asset-name.js';
 import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
 	eachPageData,
@@ -14,7 +15,6 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
-import * as assetName from './css-asset-name.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -45,7 +45,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 				const manualChunks = outputOptions.manualChunks || Function.prototype;
 				const assetFileNames = outputOptions.assetFileNames;
 				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
-				const createNameForParentPages = namingIncludesHash ? assetName.shortHashedName : assetName.createSlugger(settings);
+				const createNameForParentPages = namingIncludesHash
+					? assetName.shortHashedName
+					: assetName.createSlugger(settings);
 				outputOptions.manualChunks = function (id, ...args) {
 					// Defer to user-provided `manualChunks`, if it was provided.
 					if (typeof manualChunks == 'object') {

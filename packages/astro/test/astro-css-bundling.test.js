@@ -29,15 +29,15 @@ describe('CSS Bundling', function () {
 			});
 			await fixture.build({ mode: 'production' });
 		});
-	
+
 		it('Bundles CSS', async () => {
 			const builtCSS = new Set();
-	
+
 			// for all HTML files…
 			for (const [filepath, css] of Object.entries(EXPECTED_CSS)) {
 				const html = await fixture.readFile(filepath);
 				const $ = cheerio.load(html);
-	
+
 				// test 1: assert new bundled CSS is present
 				for (const href of css) {
 					const link = $(`link[rel="stylesheet"][href^="${href}"]`);
@@ -45,13 +45,13 @@ describe('CSS Bundling', function () {
 					const outHref = link.attr('href');
 					builtCSS.add(outHref.startsWith('../') ? outHref.slice(2) : outHref);
 				}
-	
+
 				// test 2: assert old CSS was removed
 				for (const href of UNEXPECTED_CSS) {
 					const link = $(`link[rel="stylesheet"][href="${href}"]`);
 					expect(link).to.have.lengthOf(0);
 				}
-	
+
 				// test 3: assert all bundled CSS was built and contains CSS
 				for (const url of builtCSS.keys()) {
 					const bundledCss = await fixture.readFile(url);
@@ -80,12 +80,12 @@ describe('CSS Bundling', function () {
 					build: {
 						rollupOptions: {
 							output: {
-								assetFileNames: "assets/[name][extname]",
-								entryFileNames: "[name].js",
-							}
-						}
-					}
-				}
+								assetFileNames: 'assets/[name][extname]',
+								entryFileNames: '[name].js',
+							},
+						},
+					},
+				},
 			});
 			await fixture.build({ mode: 'production' });
 		});
@@ -102,7 +102,7 @@ describe('CSS Bundling', function () {
 
 		it('there are 2 index named CSS files', async () => {
 			const dir = await fixture.readdir('/assets');
-			const indexNamedFiles = dir.filter(name => name.startsWith('index'))
+			const indexNamedFiles = dir.filter((name) => name.startsWith('index'));
 			expect(indexNamedFiles).to.have.a.lengthOf(2);
 		});
 	});

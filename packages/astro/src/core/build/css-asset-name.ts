@@ -2,9 +2,9 @@ import type { GetModuleInfo } from 'rollup';
 
 import crypto from 'crypto';
 import npath from 'path';
-import { getTopLevelPages } from './graph.js';
 import { AstroSettings } from '../../@types/astro';
 import { viteID } from '../util.js';
+import { getTopLevelPages } from './graph.js';
 
 // The short name for when the hash can be included
 // We could get rid of this and only use the createSlugger implementation, but this creates
@@ -27,12 +27,12 @@ export function createSlugger(settings: AstroSettings) {
 	const pagesDir = viteID(new URL('./pages', settings.config.srcDir));
 	const map = new Map<string, Map<string, number>>();
 	const sep = '-';
-	return function(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
+	return function (id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx));
 		const allParentsKey = parents
-		.map(([page]) => page.id)
-		.sort()
-		.join('-');
+			.map(([page]) => page.id)
+			.sort()
+			.join('-');
 		const firstParentId = parents[0]?.[0].id || 'index';
 
 		// Use the last two segments, for ex /docs/index
@@ -40,12 +40,12 @@ export function createSlugger(settings: AstroSettings) {
 		let key = '';
 		let i = 0;
 		while (i < 2) {
-			if(dir === pagesDir) {
+			if (dir === pagesDir) {
 				break;
 			}
 
 			const name = npath.parse(npath.basename(dir)).name;
-			key = key.length ? (name + sep + key) : name;
+			key = key.length ? name + sep + key : name;
 			dir = npath.dirname(dir);
 			i++;
 		}
@@ -56,13 +56,13 @@ export function createSlugger(settings: AstroSettings) {
 		// The map keeps track of how many times a key, like `pages_index` is used as the name.
 		// If the same key is used more than once we increment a number so it becomes `pages-index-1`.
 		// This guarantees that it stays unique, without sacrificing pretty names.
-		if(!map.has(key)) {
+		if (!map.has(key)) {
 			map.set(key, new Map([[allParentsKey, 0]]));
 		} else {
 			const inner = map.get(key)!;
-			if(inner.has(allParentsKey)) {
+			if (inner.has(allParentsKey)) {
 				const num = inner.get(allParentsKey)!;
-				if(num > 0) {
+				if (num > 0) {
 					name = name + sep + num;
 				}
 			} else {
@@ -71,7 +71,7 @@ export function createSlugger(settings: AstroSettings) {
 				name = name + sep + num;
 			}
 		}
-	
+
 		return name;
 	};
 }
