@@ -7,7 +7,7 @@ export interface AstroVNode {
 	[Renderer]: string;
 	[AstroJSX]: boolean;
 	type: string | ((...args: any) => any);
-	props: Record<string, any>;
+	props: Record<string | symbol, any>;
 }
 
 const toSlotName = (slotAttr: string) => slotAttr;
