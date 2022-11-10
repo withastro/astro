@@ -5,7 +5,6 @@ npm create astro@latest -- --template with-vite-plugin-pwa
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/with-vite-plugin-pwa)
-
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/s/github/withastro/astro/tree/latest/examples/with-vite-plugin-pwa)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
