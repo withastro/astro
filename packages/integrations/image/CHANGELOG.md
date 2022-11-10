@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.11.3
+
+### Patch Changes
+
+- [#5324](https://github.com/withastro/astro/pull/5324) [`dc00ca464`](https://github.com/withastro/astro/commit/dc00ca464865feccd3760b54e0ccc58dbc1e804d) Thanks [@bluwy](https://github.com/bluwy)! - Share fallback img src with source of Picture component
+
 ## 0.11.2
 
 ### Patch Changes
