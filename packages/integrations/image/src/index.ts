@@ -100,12 +100,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				_buildConfig = config.build;
 			},
 			'astro:build:start': ({ buildConfig }) => {
-				const adapterName = _config.adapter?.name;
-				if (adapterName && UNSUPPORTED_ADAPTERS.has(adapterName)) {
-					throw new Error(
-						`@astrojs/image is not supported with the ${adapterName} adapter. Please choose a Node.js compatible adapter.`
-					);
-				}
 				// Backwards compat
 				if (needsBuildConfig) {
 					_buildConfig = buildConfig;
