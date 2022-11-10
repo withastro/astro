@@ -291,14 +291,8 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	// If a base path was provided, append it to the site URL. This ensures that
-	// all injected scripts and links are referenced relative to the site and subpath.
-	const site =
-		settings.config.base !== '/'
-			? joinPaths(settings.config.site?.toString() || 'http://localhost/', settings.config.base)
-			: settings.config.site;
-	const links = createLinkStylesheetElementSet(linkIds, site);
-	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], site);
+	const links = createLinkStylesheetElementSet(linkIds, settings.config.base);
+	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], settings.config.base);
 
 	if (settings.scripts.some((script) => script.stage === 'page')) {
 		const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);

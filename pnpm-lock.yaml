@@ -1150,6 +1150,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/asset-url-base:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro pages:
     specifiers:
       astro: workspace:*
