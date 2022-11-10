@@ -93,7 +93,10 @@ function getPattern(segments: RoutePart[][], base: string, addTrailingSlash: Ast
 
 	const trailing =
 		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
-	const initial = base === '/' ? '\\/' : '';
+	let initial = '\\/';
+	if(addTrailingSlash === 'never' && base !== '/') {
+		initial = '';
+	}
 	return new RegExp(`^${pathname || initial}${trailing}`);
 }
 
