@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.11.6
+
+### Patch Changes
+
+- [#5335](https://github.com/withastro/astro/pull/5335) [`dca762cf7`](https://github.com/withastro/astro/commit/dca762cf734a657d8f126fd6958892b6163a4f67) Thanks [@bluwy](https://github.com/bluwy)! - Preserve code element node `data.meta` in `properties.metastring` for rehype syntax highlighters, like `rehype-pretty-code``
+
 ## 0.11.5
 
 ### Patch Changes
