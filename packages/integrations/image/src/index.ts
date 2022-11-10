@@ -11,15 +11,6 @@ export { getPicture } from './lib/get-picture.js';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
-<<<<<<< HEAD
-const UNSUPPORTED_ADAPTERS = new Set([
-	'@astrojs/cloudflare',
-	'@astrojs/deno',
-	'@astrojs/netlify/edge-functions',
-	'@astrojs/vercel/edge',
-]);
-=======
->>>>>>> parent of d701ae074 (Allow image-pool to be used as its own Worker (#5317))
 
 interface BuildConfig {
 	client: URL;
