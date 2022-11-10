@@ -15,23 +15,57 @@ export const AstroErrorData = defineErrors({
 		code: 1000,
 	},
 	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
+	/**
+	 * @docs
+	 * @see
+	 * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
+	 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * @description
+	 * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
+	 *
+	 * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
+	 */
 	StaticRedirectNotAllowed: {
 		code: 3001,
 		message:
 			"Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
-	SSRClientAddressNotAvailableInAdapter: {
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+	 * @description
+	 * The adapter you're using unfortunately does not support `Astro.clientAddress`.
+	 */
+	ClientAddressNotAvailable: {
 		code: 3002,
 		message: (adapterName: string) =>
 			`Astro.clientAddress is not available in the ${adapterName} adapter. File an issue with the adapter to add support.`,
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
+	 * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
+	 * @description
+	 * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/) is enabled.
+	 *
+	 * Alternatively, to get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
+	 */
 	StaticClientAddressNotAvailable: {
 		code: 3003,
 		message:
 			"Astro.clientAddress is only available when using output: 'server'. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 * @description
+	 * A [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes) was matched, but no corresponding path was found for the requested parameters.
+	 */
 	NoMatchingStaticPathFound: {
 		code: 3004,
 		message: (pathName: string) =>
