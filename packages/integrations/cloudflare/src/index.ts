@@ -1,6 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
+import glob from 'tiny-glob';
 import { fileURLToPath } from 'url';
 
 type Options = {
@@ -115,6 +116,42 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
 					await fs.promises.rename(entryUrl, directoryUrl);
+
+					// this creates a _routes.json, in case there is none present
+					// to enable cloudflare to handle those files directly (without calling the worker)
+					if (
+						!(await fs.promises
+							.stat(new URL('./_routes.json', _buildConfig.client))
+							.then((stat) => stat.isFile())
+							.catch(() => false))
+					) {
+						const specialFiles = ['_headers', '_redirects'],
+							staticFiles = (
+								await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
+									cwd: fileURLToPath(_buildConfig.client),
+									filesOnly: true,
+								})
+							).filter((file) => specialFiles.indexOf(file) < 0);
+
+						await fs.promises.writeFile(
+							new URL('./_routes.json', _buildConfig.client),
+							JSON.stringify(
+								{
+									version: 1,
+									include: ['/*'],
+									exclude: staticFiles.map((file) => `/${file}`),
+								},
+								null,
+								2
+							)
+						);
+
+						// move the files onto the root
+						await fs.promises.cp(_buildConfig.client, _buildConfig.server, {
+							recursive: true,
+						});
+						await fs.promises.rm(_buildConfig.client, { recursive: true, force: true });
+					}
 				}
 			},
 		},

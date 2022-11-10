@@ -18,9 +18,9 @@ export function createExports(manifest: SSRManifest) {
 		process.env = runtimeEnv.env as any;
 
 		const { origin, pathname } = new URL(request.url);
-		// static assets
+		// static assets fallback, in case default _routes.json is not used
 		if (manifest.assets.has(pathname)) {
-			const assetRequest = new Request(`${origin}/static/${app.removeBase(pathname)}`, request);
+			const assetRequest = new Request(`${origin}/${app.removeBase(pathname)}`, request);
 			return next(assetRequest);
 		}
 
