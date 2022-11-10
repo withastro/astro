@@ -106,6 +106,4 @@ describe('CSS Bundling', function () {
 			expect(indexNamedFiles).to.have.a.lengthOf(2);
 		});
 	});
-
-	
 });

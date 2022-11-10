@@ -4,8 +4,7 @@ import crypto from 'crypto';
 import npath from 'path';
 import { getTopLevelPages } from './graph.js';
 import { AstroSettings } from '../../@types/astro';
-import { fileURLToPath } from 'url';
-
+import { viteID } from '../util.js';
 
 // The short name for when the hash can be included
 // We could get rid of this and only use the createSlugger implementation, but this creates
@@ -25,7 +24,7 @@ export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo 
 }
 
 export function createSlugger(settings: AstroSettings) {
-	const pagesDir = fileURLToPath(new URL('./pages', settings.config.srcDir));
+	const pagesDir = viteID(new URL('./pages', settings.config.srcDir));
 	const map = new Map<string, Map<string, number>>();
 	const sep = '-';
 	return function(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
