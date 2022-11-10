@@ -59,8 +59,12 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 
 	// Extract the skip from the props, if we've already attempted a previous render
 	let skip: Skip;
-	if (vnode.props[Skip.symbol]) {
-		skip = vnode.props[Skip.symbol];
+	if(vnode.props) {
+		if (vnode.props[Skip.symbol]) {
+			skip = vnode.props[Skip.symbol];
+		} else {
+			skip = new Skip(vnode);
+		}
 	} else {
 		skip = new Skip(vnode);
 	}
