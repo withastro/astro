@@ -7,6 +7,7 @@ import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
 import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
+import { removeTrailingForwardSlash } from '../core/path.js';
 import { runWithErrorHandling } from './controller.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
@@ -27,10 +28,10 @@ export async function handleRequest(
 	// routing behavior matches production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
-	const pathname = decodeURI(url.pathname);
+	const pathname = req.url ?? decodeURI(url.pathname);
 
 	// Add config.base back to url before passing it to SSR
-	url.pathname = config.base.substring(0, config.base.length - 1) + url.pathname;
+	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
 
 	// HACK! @astrojs/image uses query params for the injected route in `dev`
 	if (!buildingToSSR && pathname !== '/_image') {
