@@ -1,10 +1,10 @@
 import sharp from 'sharp';
 import type { SSRImageService } from '../loaders/index.js';
 import { BaseSSRService, isOutputFormatSupportsAlpha } from '../loaders/index.js';
-import type { OutputFormat, TransformOptions } from './index.js';
+import type { OutputFormat, ImageTransform } from './index.js';
 
 class SharpService extends BaseSSRService {
-	async transform(inputBuffer: Buffer, transform: TransformOptions) {
+	async transform(inputBuffer: Buffer, transform: ImageTransform) {
 		const sharpImage = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
 		// always call rotate to adjust for EXIF data orientation

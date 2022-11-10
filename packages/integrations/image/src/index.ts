@@ -1,6 +1,6 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { ssgBuild } from './build/ssg.js';
-import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
+import type { ImageService, ImageTransform } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
 import { copyWasmFiles } from './vendor/squoosh/copy-wasm.js';
@@ -26,7 +26,7 @@ interface BuildConfig {
 
 interface ImageIntegration {
 	loader?: ImageService;
-	addStaticImage?: (transform: TransformOptions) => string;
+	addStaticImage?: (transform: ImageTransform) => string;
 }
 
 declare global {
@@ -56,7 +56,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	let needsBuildConfig = false;
 
 	// During SSG builds, this is used to track all transformed images required.
-	const staticImages = new Map<string, Map<string, TransformOptions>>();
+	const staticImages = new Map<string, Map<string, ImageTransform>>();
 
 	function getViteConfiguration(isDev: boolean) {
 		return {
@@ -113,10 +113,10 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			'astro:build:setup': async () => {
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				function addStaticImage(transform: TransformOptions) {
+				function addStaticImage(transform: ImageTransform) {
 					const srcTranforms = staticImages.has(transform.src)
 						? staticImages.get(transform.src)!
-						: new Map<string, TransformOptions>();
+						: new Map<string, ImageTransform>();
 
 					const filename = propsToFilename(transform);
 

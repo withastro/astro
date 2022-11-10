@@ -4,13 +4,13 @@ import { error } from '../utils/logger.js';
 import { metadata } from '../utils/metadata.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { Operation } from '../vendor/squoosh/image.js';
-import type { OutputFormat, TransformOptions } from './index.js';
+import type { OutputFormat, ImageTransform } from './index.js';
 import { BaseSSRService } from './index.js';
 
 const imagePoolModulePromise = import('../vendor/squoosh/image-pool.js');
 
 class SquooshService extends BaseSSRService {
-	async processAvif(image: any, transform: TransformOptions) {
+	async processAvif(image: any, transform: ImageTransform) {
 		const encodeOptions = transform.quality
 			? { avif: { quality: transform.quality } }
 			: { avif: {} };
@@ -23,7 +23,7 @@ class SquooshService extends BaseSSRService {
 		};
 	}
 
-	async processJpeg(image: any, transform: TransformOptions) {
+	async processJpeg(image: any, transform: ImageTransform) {
 		const encodeOptions = transform.quality
 			? { mozjpeg: { quality: transform.quality } }
 			: { mozjpeg: {} };
@@ -36,7 +36,7 @@ class SquooshService extends BaseSSRService {
 		};
 	}
 
-	async processPng(image: any, transform: TransformOptions) {
+	async processPng(image: any, transform: ImageTransform) {
 		await image.encode({ oxipng: {} });
 		const data = await image.encodedWith.oxipng;
 
@@ -46,7 +46,7 @@ class SquooshService extends BaseSSRService {
 		};
 	}
 
-	async processWebp(image: any, transform: TransformOptions) {
+	async processWebp(image: any, transform: ImageTransform) {
 		const encodeOptions = transform.quality
 			? { webp: { quality: transform.quality } }
 			: { webp: {} };
@@ -60,7 +60,7 @@ class SquooshService extends BaseSSRService {
 	}
 
 	async autorotate(
-		transform: TransformOptions,
+		transform: ImageTransform,
 		inputBuffer: Buffer
 	): Promise<Operation | undefined> {
 		// check EXIF orientation data and rotate the image if needed
@@ -81,7 +81,7 @@ class SquooshService extends BaseSSRService {
 		} catch {}
 	}
 
-	async transform(inputBuffer: Buffer, transform: TransformOptions) {
+	async transform(inputBuffer: Buffer, transform: ImageTransform) {
 		const operations: Operation[] = [];
 
 		if (!isRemoteImage(transform.src)) {

@@ -6,7 +6,7 @@ import fs from 'node:fs/promises';
 import OS from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { SSRImageService, TransformOptions } from '../loaders/index.js';
+import type { ImageTransform, SSRImageService } from '../loaders/index.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
 import { ImageCache } from './cache.js';
@@ -85,7 +85,7 @@ function getTimeStat(timeStart: number, timeEnd: number) {
 
 export interface SSGBuildParams {
 	loader: SSRImageService;
-	staticImages: Map<string, Map<string, TransformOptions>>;
+	staticImages: Map<string, Map<string, ImageTransform>>;
 	config: AstroConfig;
 	outDir: URL;
 	logLevel: LoggerLevel;
@@ -124,7 +124,7 @@ export async function ssgBuild({
 
 	async function processStaticImage([src, transformsMap]: [
 		string,
-		Map<string, TransformOptions>
+		Map<string, ImageTransform>
 	]): Promise<void> {
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;

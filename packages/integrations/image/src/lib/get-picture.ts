@@ -77,7 +77,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					position,
 					background,
 					aspectRatio,
-				});
+				} as TransformOptions);
 
 				if (format === lastFormat && width === maxWidth) {
 					image = img;

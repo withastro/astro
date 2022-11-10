@@ -1,4 +1,4 @@
-import { TransformOptions } from '../loaders/index.js';
+import { ImageTransform } from '../loaders/index.js';
 import { shorthash } from './shorthash.js';
 
 export function isRemoteImage(src: string) {
@@ -35,7 +35,7 @@ function basename(src: string) {
 	return removeQueryString(src.replace(/^.*[\\\/]/, ''));
 }
 
-export function propsToFilename(transform: TransformOptions) {
+export function propsToFilename(transform: ImageTransform) {
 	// strip off the querystring first, then remove the file extension
 	let filename = removeQueryString(transform.src);
 	filename = basename(filename);

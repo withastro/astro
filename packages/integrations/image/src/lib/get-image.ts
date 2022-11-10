@@ -2,21 +2,16 @@
 import type {
 	ColorDefinition,
 	ImageService,
+	ImageTransform,
 	OutputFormat,
 	TransformOptions,
 } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
-import { isRemoteImage } from '../utils/paths.js';
-import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
-export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
-	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
-}
-
-function resolveSize(transform: TransformOptions): TransformOptions {
+function resolveSize(transform: TransformOptions): ImageTransform {
 	// keep width & height as provided
 	if (transform.width && transform.height) {
-		return transform;
+		return transform as ImageTransform;
 	}
 
 	if (!transform.width && !transform.height) {
@@ -45,23 +40,25 @@ function resolveSize(transform: TransformOptions): TransformOptions {
 			...transform,
 			width: transform.width,
 			height: Math.round(transform.width / aspectRatio),
-		} as TransformOptions;
+			aspectRatio: undefined,
+		} as ImageTransform;
 	} else if (transform.height) {
 		// only height was provided, calculate width
 		return {
 			...transform,
 			width: Math.round(transform.height * aspectRatio),
 			height: transform.height,
-		};
+			aspectRatio: undefined,
+		} as ImageTransform;
 	}
 
-	return transform;
+	return transform as ImageTransform;
 }
 
-async function resolveTransform(input: GetImageTransform): Promise<TransformOptions> {
+async function resolveTransform(input: TransformOptions): Promise<ImageTransform> {
 	// for remote images, only validate the width and height props
 	if (typeof input.src === 'string') {
-		return resolveSize(input as TransformOptions);
+		return resolveSize(input);
 	}
 
 	// resolve the metadata promise, usually when the ESM import is inlined
@@ -91,7 +88,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 		aspectRatio,
 		format: format as OutputFormat,
 		background: background as ColorDefinition | undefined,
-	};
+	} as ImageTransform;
 }
 
 /**
@@ -101,7 +98,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
 export async function getImage(
-	transform: GetImageTransform
+	transform: TransformOptions
 ): Promise<astroHTML.JSX.ImgHTMLAttributes> {
 	if (!transform.src) {
 		throw new Error('[@astrojs/image] `src` is required');
