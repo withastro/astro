@@ -187,7 +187,8 @@ describe('dev container', () => {
 				container.handle(r.req, r.res);
 				await r.done;
 
-				expect(r.res.statusCode).to.equal(404);
+				expect(r.res.statusCode).to.equal(301);
+				expect(r.res.getHeader('location')).to.equal('/sub/test.txt');
 			}
 		);
 	});
