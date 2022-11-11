@@ -117,14 +117,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
 					await fs.promises.rename(entryUrl, directoryUrl);
 
-					// this creates a _routes.json, in case there is none present
-					// to enable cloudflare to handle those files directly (without calling the worker)
-					if (
-						!(await fs.promises
-							.stat(new URL('./_routes.json', _buildConfig.client))
-							.then((stat) => stat.isFile())
-							.catch(() => false))
-					) {
+          const routesExists = await fs.promises
+            .stat(new URL('./_routes.json', _buildConfig.client))
+            .then((stat) => stat.isFile())
+            .catch(() => false);
+          // this creates a _routes.json, in case there is none present
+					// to enable cloudflare to handle static files directly (without calling the worker)
+					if (!routesExists) {
 						const specialFiles = ['_headers', '_redirects'],
 							staticFiles = (
 								await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
