@@ -26,7 +26,7 @@ export function createCollectionToGlobResultMap({
 
 export async function parseEntryData(
 	collection: string,
-	unparsedEntry: { id: string; data: any; rawData: string },
+	unparsedEntry: { id: string; data: any; _internal: { rawData: string; filePath: string } },
 	collectionToSchemaMap: CollectionToEntryMap
 ) {
 	let schemaImport = Object.values(collectionToSchemaMap[collection] ?? {})[0];
@@ -50,8 +50,8 @@ export async function parseEntryData(
 				].join('\n')
 			);
 			(formattedError as any).loc = {
-				file: 'TODO',
-				line: getFrontmatterErrorLine(unparsedEntry.rawData, String(e.errors[0].path[0])),
+				file: unparsedEntry._internal.filePath,
+				line: getFrontmatterErrorLine(unparsedEntry._internal.rawData, String(e.errors[0].path[0])),
 				column: 1,
 			};
 			throw formattedError;
