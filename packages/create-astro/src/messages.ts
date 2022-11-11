@@ -84,11 +84,6 @@ export async function error(prefix: string, text: string) {
 	}
 }
 
-export async function typescriptByDefault() {
-	await info('No worries!', `We'll default to the most relaxed settings for you.`);
-	await sleep(300);
-}
-
 export async function nextSteps({ projectDir, devCmd }: { projectDir: string; devCmd: string }) {
 	const max = process.stdout.columns;
 	const prefix = max < 80 ? ' ' : ' '.repeat(9);

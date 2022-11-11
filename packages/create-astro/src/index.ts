@@ -19,7 +19,6 @@ import {
 	getVersion,
 	info,
 	nextSteps,
-	typescriptByDefault,
 	welcome,
 } from './messages.js';
 import { TEMPLATES } from './templates.js';
@@ -281,7 +280,7 @@ export async function main() {
 		);
 	}
 
-	let tsResponse = null; // This isn't a const because it's value is reassigned in case the user is unsure
+	let tsResponse : prompts = null; // This isn't a const because it's value is reassigned in case the user is unsure
 	const choices = [
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
@@ -294,7 +293,7 @@ export async function main() {
 				type: 'select',
 				name: 'typescript',
 				message: 'How would you like to setup TypeScript?',
-				choices: choices,
+				choices,
 			},
 			{
 				onCancel: () => {
@@ -307,7 +306,7 @@ export async function main() {
 				},
 			}
 		);
-		if (tsResponse != null && await tsResponse.typescript === 'unsure') {
+		if (await tsResponse.typescript === 'unsure') {
 			// Prompt the user to look up the documentation
 			ora().info('No worries! Take a look at the documentation then come back to setup!\nhttps://docs.astro.build/en/guides/typescript/');
 			// Remove the unsure option because now the user knows what to expect
@@ -315,7 +314,7 @@ export async function main() {
 			if(index != -1)
 				choices.splice(index, 1);
 		}
-	} while (tsResponse == null || tsResponse === 'unsure');
+	} while (tsResponse === null || tsResponse === 'unsure');
 
 
 	if (args.dryRun) {
