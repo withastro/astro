@@ -77,8 +77,7 @@ export const AstroConfigSchema = z.object({
 	base: z
 		.string()
 		.optional()
-		.default(ASTRO_CONFIG_DEFAULTS.base)
-		.transform((val) => prependForwardSlash(appendForwardSlash(trimSlashes(val)))),
+		.default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
@@ -326,6 +325,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 		) {
 			config.build.client = new URL('./dist/client/', config.outDir);
 		}
+		const trimmedBase = trimSlashes(config.base);
+		if(trimmedBase.length && config.trailingSlash === 'never') {
+      config.base = prependForwardSlash(trimmedBase);
+    } else {
+      config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+    }
 		return config;
 	});
 

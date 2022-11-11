@@ -25,7 +25,10 @@ describe('Astro Global', () => {
 		});
 
 		it('Astro.request.url', async () => {
-			const html = await fixture.fetch('/blog/?foo=42').then((res) => res.text());
+			const res = await await fixture.fetch('/blog/?foo=42');
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
 			const $ = cheerio.load(html);
 			expect($('#pathname').text()).to.equal('/blog/');
 			expect($('#searchparams').text()).to.equal('{}');
