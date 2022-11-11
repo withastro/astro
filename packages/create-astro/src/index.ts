@@ -285,7 +285,8 @@ export async function main() {
 	const choices = [
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
-				{ value: 'base', title: 'Relaxed' },					{ value: 'unsure', title: `I'm unsure` },
+				{ value: 'base', title: 'Relaxed' },
+				{ value: 'unsure', title: `I'm unsure` },
 			];
 	do {
 		tsResponse = await prompts(
@@ -310,7 +311,9 @@ export async function main() {
 			// Prompt the user to look up the documentation
 			ora().info('No worries! Take a look at the documentation then come back to setup!\nhttps://docs.astro.build/en/guides/typescript/');
 			// Remove the unsure option because now the user knows what to expect
-			choices.splice(choices.findIndex((choice) => choice.value === 'unsure'), 1);
+			const index = choices.findIndex((choice) => choice.value === 'unsure');
+			if(index != -1)
+				choices.splice(index, 1);
 		}
 	} while (tsResponse == null || tsResponse === 'unsure');
 
