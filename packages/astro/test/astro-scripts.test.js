@@ -116,18 +116,18 @@ describe('Scripts (hoisted and not)', () => {
 			it('External page builds the hoisted scripts to a single bundle', async () => {
 				let external = await fixture.readFile('/external/index.html');
 				let $ = cheerio.load(external);
-	
+
 				// test 1: there are two scripts
 				expect($('script')).to.have.lengthOf(2);
-	
+
 				let el = $('script').get(1);
 				expect($(el).attr('src')).to.equal(undefined, 'This should have been inlined');
 				let externalEntryJS = $(el).text();
-	
+
 				// test 2: the JS exists
 				expect(externalEntryJS).to.be.ok;
 			});
-		})
+		});
 	});
 
 	describe('Dev', () => {

@@ -11,12 +11,12 @@ describe('Asset URL resolution in build', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/asset-url-base/',
-					site: 'http://example.com/sub/path/'
+					site: 'http://example.com/sub/path/',
 				});
 				await fixture.build();
 			});
-			
-			it('does not include the site\'s subpath', async () => {
+
+			it("does not include the site's subpath", async () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 				const href = $('link[rel=stylesheet]').attr('href');
@@ -29,12 +29,12 @@ describe('Asset URL resolution in build', () => {
 				fixture = await loadFixture({
 					root: './fixtures/asset-url-base/',
 					site: 'http://example.com/sub/path/',
-					base: '/another/base/'
+					base: '/another/base/',
 				});
 				await fixture.build();
 			});
-			
-			it('does not include the site\'s subpath', async () => {
+
+			it("does not include the site's subpath", async () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 				const href = $('link[rel=stylesheet]').attr('href');

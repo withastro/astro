@@ -41,7 +41,10 @@ export function vitePluginHoistedScripts(
 
 		async generateBundle(_options, bundle) {
 			let assetInlineLimit = 4096;
-			if(settings.config.vite?.build && settings.config.vite.build.assetsInlineLimit !== undefined) {
+			if (
+				settings.config.vite?.build &&
+				settings.config.vite.build.assetsInlineLimit !== undefined
+			) {
 				assetInlineLimit = settings.config.vite?.build.assetsInlineLimit;
 			}
 

@@ -14,7 +14,6 @@ import type {
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import {
-	joinPaths,
 	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
@@ -292,7 +291,10 @@ async function generatePath(
 	debug('build', `Generating: ${pathname}`);
 
 	const links = createLinkStylesheetElementSet(linkIds, settings.config.base);
-	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], settings.config.base);
+	const scripts = createModuleScriptsSet(
+		hoistedScripts ? [hoistedScripts] : [],
+		settings.config.base
+	);
 
 	if (settings.scripts.some((script) => script.stage === 'page')) {
 		const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);

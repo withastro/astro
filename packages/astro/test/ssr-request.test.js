@@ -15,9 +15,9 @@ describe('Using Astro.request in SSR', () => {
 			base: '/subpath/',
 			vite: {
 				build: {
-					assetsInlineLimit: 0
-				}
-			}
+					assetsInlineLimit: 0,
+				},
+			},
 		});
 		await fixture.build();
 	});

@@ -326,19 +326,19 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 
 		// If there is no base but there is a base for site config, warn.
 		const sitePathname = config.site && new URL(config.site).pathname;
-		if(!trimmedBase.length && sitePathname && sitePathname !== '/') {
+		if (!trimmedBase.length && sitePathname && sitePathname !== '/') {
 			config.base = sitePathname;
 			/* eslint-disable no-console */
 			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
 			
-A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`)
+A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
 		}
 
-		if(trimmedBase.length && config.trailingSlash === 'never') {
-      config.base = prependForwardSlash(trimmedBase);
-    } else {
-      config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
-    }
+		if (trimmedBase.length && config.trailingSlash === 'never') {
+			config.base = prependForwardSlash(trimmedBase);
+		} else {
+			config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
+		}
 
 		return config;
 	});

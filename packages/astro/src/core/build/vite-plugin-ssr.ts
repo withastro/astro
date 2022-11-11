@@ -139,15 +139,16 @@ function buildManifest(
 	for (const pageData of eachPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
-			scripts.unshift(Object.assign({}, pageData.hoistedScript, {
-				value: joinBase(pageData.hoistedScript.value)
-			}));
+			scripts.unshift(
+				Object.assign({}, pageData.hoistedScript, {
+					value: joinBase(pageData.hoistedScript.value),
+				})
+			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
 		}
 
-		
 		const links = sortedCSS(pageData).map((pth) => joinBase(pth));
 
 		routes.push({
