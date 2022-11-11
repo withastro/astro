@@ -95,6 +95,8 @@ type RSSFeedItem = {
 	pubDate: Date;
 	/** Item description */
 	description?: string;
+	/** Full content of the item, should be valid HTML */
+	content?: string;
 	/** Append some other XML-valid data to this item */
 	customData?: string;
 };
