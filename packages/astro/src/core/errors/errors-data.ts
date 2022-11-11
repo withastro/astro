@@ -17,6 +17,11 @@ export const AstroErrorData = defineErrors({
 	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
 	/**
 	 * @docs
+	 * @kind heading
+	 * @name Astro Errors
+	 */
+	/**
+	 * @docs
 	 * @see
 	 * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
 	 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
@@ -34,6 +39,7 @@ export const AstroErrorData = defineErrors({
 	/**
 	 * @docs
 	 * @see
+	 * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
 	 * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
 	 * @description
 	 * The adapter you're using unfortunately does not support `Astro.clientAddress`.
@@ -64,7 +70,7 @@ export const AstroErrorData = defineErrors({
 	 * @see
 	 * - [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 * @description
-	 * A [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes) was matched, but no corresponding path was found for the requested parameters.
+	 * A [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes) was matched, but no corresponding path was found for the requested parameters. This is often caused by a typo in either the generated or the requested path.
 	 */
 	NoMatchingStaticPathFound: {
 		code: 3004,
@@ -73,6 +79,26 @@ export const AstroErrorData = defineErrors({
 		hint: (possibleRoutes: string[]) =>
 			`Possible dynamic routes being matched: ${possibleRoutes.join(', ')}.`,
 	},
+	/**
+	 * @docs
+	 * @message Route returned a `returnedValue`. Only a Response can be returned from Astro files.
+	 * @see
+	 * - [Response](https://docs.astro.build/en/guides/server-side-rendering/#response)
+	 * @description
+	 * Only instances of [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned inside Astro files.
+	 * ```astro
+	 * ---
+	 * return new Response(null, {
+	 *  status: 404,
+	 *  statusText: 'Not found'
+	 * });
+	 *
+	 * // Alternative, for redirects, Astro.redirect also returns an instance of Response
+	 * return Astro.redirect('/login');
+	 * ---
+	 * ```
+	 *
+	 */
 	OnlyResponseCanBeReturned: {
 		code: 3005,
 		message: (route: string | undefined, returnedValue: string) =>
@@ -81,11 +107,33 @@ export const AstroErrorData = defineErrors({
 			} returned a ${returnedValue}. Only a Response can be returned from Astro files.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#response for more information.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [client:media](https://docs.astro.build/en/reference/directives-reference/#clientmedia)
+	 * @description
+	 * A [media query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries) parameter is required when using the `client:media` directive.
+	 *
+	 * ```astro
+	 * <Counter client:media="(max-width: 640px)" />
+	 * ```
+	 */
 	MissingMediaQueryDirective: {
 		code: 3006,
 		message: (componentName: string) =>
 			`Media query not provided for "client:media" directive. A media query similar to <${componentName} client:media="(max-width: 600px)" /> must be provided`,
 	},
+	/**
+	 * @docs
+	 * @message Unable to render `componentName`! There are `rendererCount` renderer(s) configured in your `astro.config.mjs` file, but none were able to server-side render `componentName`
+	 * @see
+	 * - [Frameworks components](https://docs.astro.build/en/core-concepts/framework-components/)
+	 * - [UI Frameworks](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+	 * @description
+	 * None of the installed integrations were able to render the component you imported. Make sure to install the appropriate integration for the type of component you are trying to include in your page.
+	 *
+	 * For JSX / TSX files, [@astrojs/react](https://docs.astro.build/en/guides/integrations-guide/react/), [@astrojs/preact](https://docs.astro.build/en/guides/integrations-guide/preact/) or [@astrojs/solid-js](https://docs.astro.build/en/guides/integrations-guide/solid-js/) can be used. For Vue and Svelte files, the [@astrojs/vue](https://docs.astro.build/en/guides/integrations-guide/vue/) and [@astrojs/svelte](https://docs.astro.build/en/guides/integrations-guide/svelte/) integrations can be used respectively
+	 */
 	NoMatchingRenderer: {
 		code: 3007,
 		message: (
@@ -111,6 +159,16 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render ${componen
 		hint: (probableRenderers: string) =>
 			`Did you mean to enable the ${probableRenderers} integration?\n\nSee https://docs.astro.build/en/core-concepts/framework-components/ for more information on how to install and configure integrations.`,
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [addRenderer option](https://docs.astro.build/en/reference/integrations-reference/#addrenderer-option)
+	 * - [Hydrating framework components](https://docs.astro.build/en/core-concepts/framework-components/#hydrating-interactive-components)
+	 * @description
+	 * Astro tried to hydrate a component on the client, but the renderer used does not provide a client entrypoint to use to hydrate.
+	 *
+	 *
+	 */
 	NoClientEntrypoint: {
 		code: 3008,
 		message: (componentName: string, clientDirective: string, rendererName: string) =>
@@ -178,28 +236,38 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`Could not render ${componentName}. No matching import has been found for ${componentName}.`,
 		hint: 'Please make sure the component is properly imported.',
 	},
-	// CSS Errors - 4xxx
-	UnknownCSSError: {
+	// Vite Errors - 4xxx
+	UnknownViteError: {
 		code: 4000,
 	},
-	CSSSyntaxError: {
-		code: 4001,
-	},
-	// Vite Errors - 5xxx
-	UnknownViteError: {
-		code: 5000,
-	},
 	FailedToLoadModuleSSR: {
-		code: 5001,
+		code: 4001,
 		message: (importName: string) => `Could not import "${importName}".`,
 		hint: 'This is often caused by a typo in the import path. Please make sure the file exists.',
 	},
 	InvalidGlob: {
-		code: 5002,
+		code: 4002,
 		message: (globPattern: string) =>
 			`Invalid glob pattern: "${globPattern}". Glob patterns must start with './', '../' or '/'.`,
 		hint: 'See https://docs.astro.build/en/guides/imports/#glob-patterns for more information on supported glob patterns.',
 	},
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name CSS Errors
+	 */
+	// CSS Errors - 5xxx
+	UnknownCSSError: {
+		code: 5000,
+	},
+	CSSSyntaxError: {
+		code: 5001,
+	},
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Markdown Errors
+	 */
 	// Markdown Errors - 6xxx
 	UnknownMarkdownError: {
 		code: 6000,

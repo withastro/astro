@@ -11,8 +11,8 @@
 Choose any available error code in the appropriate range:
 - 01xxx and 02xxx are reserved for compiler errors and warnings respectively
 - 03xxx: Astro errors (your error most likely goes here!)
-- 04xxx: CSS errors
-- 05xxx: Vite errors
+- 04xxx: Vite errors
+- 05xxx: CSS errors
 - 06xxx: Markdown errors
 - 07xxx: Configuration errors
 - 07xxx-98xxx <- Need to add a category? Add it here!
@@ -42,6 +42,34 @@ If you are unsure about which error code to choose, ask [Erika](https://github.c
 - **Error codes and names are permanent**, and should never be changed, nor deleted. Users should always be able to find an error by searching, and this ensures a matching result. When an error is no longer relevant, it should be deprecated, not removed.
 - Contextual information may be used to enhance the message or the hint. However, the error code itself should not be included in the message as it will already be shown as part of the the error.
 - Do not prefix `message` and `hint` with descriptive words such as "Error:" or "Hint:" as it may lead to duplicated labels in the UI / CLI.
+
+### Documentation support through JSDoc
+
+Using JSDoc comments, [a reference for every error message](https://docs.astro.build/en/reference/error-reference/) is built automatically on our docs. Users can then search for a error code to find more information on how to fix the error they encountered.
+
+Here's how to create and format the comments:
+
+```js
+/**
+  * @docs <- Needed for the comment to be used for docs
+  * @message <- (Optional) Clearer error message to show in cases where the original one is too complex (ex: because of conditional messages)
+  * @see <- List of additional references users can look at
+  * @description <- Description of the error
+  */
+```
+Example:
+```js
+/**
+  * @docs
+  * @message Route returned a `returnedValue`. Only a Response can be returned from Astro files.
+  * @see
+  * - [Response](https://docs.astro.build/en/guides/server-side-rendering/#response)
+  * @description
+  * Only instances of [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned inside Astro files.
+  */
+```
+
+For `@message`, the property is intended to provider a slightly cleaned error message, not a different one from the original error message. Avoid doing substantial changes as some users might search for the error message
 
 ### Always remember
 
