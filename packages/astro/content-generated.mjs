@@ -1,58 +1,39 @@
-import { getErrorMsg, parseEntryData, createRenderContent } from 'astro/content/internal';
+import {
+	createFetchContent,
+	createFetchContentByEntry,
+	createRenderContent,
+	createCollectionToGlobResultMap,
+} from 'astro/content/internal';
 
-const defaultSchemaFileResolved = { schema: { parse: (mod) => mod } };
-/** Used to stub out `schemaMap` entries that don't have a `~schema.ts` file */
-const defaultSchemaFile = (/** @type {string} */ collection) =>
-	new Promise((/** @type {(value: typeof defaultSchemaFileResolved) => void} */ resolve) => {
-		console.warn(getErrorMsg.schemaMissing(collection));
-		resolve(defaultSchemaFileResolved);
-	});
+const contentDir = 'CONTENT_DIR';
 
-export const contentMap = {
-	// GENERATED_CONTENT_MAP_ENTRIES
-};
+const contentGlob = import.meta.glob('FETCH_CONTENT_GLOB_PATH', {
+	query: { content: true },
+});
+const collectionToContentMap = createCollectionToGlobResultMap({
+	globResult: contentGlob,
+	contentDir,
+});
 
-export const schemaMap = {
-	// GENERATED_SCHEMA_MAP_ENTRIES
-};
+const schemaGlob = import.meta.glob('SCHEMA_GLOB_PATH');
+const collectionToSchemaMap = createCollectionToGlobResultMap({
+	globResult: schemaGlob,
+	contentDir,
+});
 
-export const renderContentMap = {
-	// GENERATED_RENDER_CONTENT_MAP_ENTRIES
-};
+const renderContentMap = import.meta.glob('RENDER_CONTENT_GLOB_PATH', {
+	query: { astroAssetSsr: true },
+});
 
-export async function fetchContentByEntry(
-	/** @type {string} */ collection,
-	/** @type {string} */ entryKey
-) {
-	const entry = contentMap[collection][entryKey];
+export const fetchContent = createFetchContent({
+	collectionToContentMap,
+	collectionToSchemaMap,
+});
 
-	return {
-		id: entry.id,
-		slug: entry.slug,
-		body: entry.body,
-		data: await parseEntryData(collection, entryKey, entry, { schemaMap }),
-	};
-}
-
-export async function fetchContent(
-	/** @type {string} */ collection,
-	/** @type {undefined | (() => boolean)} */ filter
-) {
-	const entries = Promise.all(
-		Object.entries(contentMap[collection]).map(async ([key, entry]) => {
-			return {
-				id: entry.id,
-				slug: entry.slug,
-				body: entry.body,
-				data: await parseEntryData(collection, key, entry, { schemaMap }),
-			};
-		})
-	);
-	if (typeof filter === 'function') {
-		return (await entries).filter(filter);
-	} else {
-		return entries;
-	}
-}
+export const fetchContentByEntry = createFetchContentByEntry({
+	collectionToContentMap,
+	collectionToSchemaMap,
+	contentDir,
+});
 
 export const renderContent = createRenderContent(renderContentMap);

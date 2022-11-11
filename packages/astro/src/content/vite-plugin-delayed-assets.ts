@@ -13,7 +13,7 @@ import { createViteLoader } from '../core/module-loader/vite.js';
 const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
 const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
 
-export const DELAYED_ASSET_FLAG = '?astro-asset-ssr';
+export const DELAYED_ASSET_FLAG = '?astroAssetSsr';
 
 export function astroDelayedAssetPlugin({
 	settings,
