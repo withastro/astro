@@ -7,6 +7,8 @@ import {
 	startContainer,
 } from '../../../dist/core/dev/index.js';
 import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
+import { createSettings, openConfig } from '../../../dist/core/config/index.js';
+import { defaultLogging } from '../../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -102,6 +104,42 @@ describe('dev container restarts', () => {
 			// Trigger a change
 			let restartComplete = restart.restarted();
 			triggerFSEvent(restart.container, fs, '/astro.config.mjs', 'change');
+			await restartComplete;
+
+			expect(isStarted(restart.container)).to.equal(true);
+		} finally {
+			await restart.container.close();
+		}
+	});
+
+	it.only('Is able to restart project using Tailwind + astro.config.ts', async () => {
+		const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': ``,
+				'/astro.config.ts': ``,
+			},
+			root
+		);
+
+		const { astroConfig } = await openConfig({
+			cwd: root,
+			flags: {},
+			cmd: 'dev',
+			logging: defaultLogging,
+		});
+		const settings = createSettings(astroConfig);
+
+		let restart = await createContainerWithAutomaticRestart({
+			params: { fs, root, settings },
+		});
+		await startContainer(restart.container);
+		expect(isStarted(restart.container)).to.equal(true);
+
+		try {
+			// Trigger a change
+			let restartComplete = restart.restarted();
+			triggerFSEvent(restart.container, fs, '/astro.config.ts', 'change');
 			await restartComplete;
 
 			expect(isStarted(restart.container)).to.equal(true);

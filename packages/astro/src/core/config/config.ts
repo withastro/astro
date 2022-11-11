@@ -1,20 +1,16 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
 
-import load, { ProloadError, resolve } from '@proload/core';
-import loadTypeScript from '@proload/plugin-tsm';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
-
-load.use([loadTypeScript]);
+import { loadConfigWithVite } from './vite-load.js';
 
 export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
@@ -165,14 +161,10 @@ export async function resolveConfigPath(
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	try {
-		const configPath = await resolve('astro', {
-			mustExist: !!userConfigPath,
-			cwd: root,
-			filePath: userConfigPath,
-		});
-		return configPath;
+		const config = await loadConfigWithVite(root);
+		return config.filePath;
 	} catch (e) {
-		if (e instanceof ProloadError && flags.config) {
+		if (flags.config) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
 				message: AstroErrorData.ConfigNotFound.message(flags.config),
@@ -246,52 +238,10 @@ async function tryLoadConfig(
 			};
 			configPath = tempConfigPath;
 		}
-
-		const config = await load('astro', {
-			mustExist: !!configPath,
-			cwd: root,
-			filePath: configPath,
-		});
-
+		
+		// Create a vite server to load the config
+		const config = await loadConfigWithVite(root);
 		return config as TryLoadConfigResult;
-	} catch (e) {
-		if (e instanceof ProloadError && flags.config) {
-			throw new AstroError({
-				...AstroErrorData.ConfigNotFound,
-				message: AstroErrorData.ConfigNotFound.message(flags.config),
-			});
-		}
-
-		const configPath = await resolveConfigPath(configOptions);
-		if (!configPath) {
-			throw e;
-		}
-
-		// Fallback to use Vite DevServer
-		const viteServer = await vite.createServer({
-			server: { middlewareMode: true, hmr: false },
-			optimizeDeps: { entries: [] },
-			clearScreen: false,
-			appType: 'custom',
-			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
-			// these dependencies trip up Vite's dev SSR transform. In the future, we should
-			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
-			ssr: {
-				external: ['@astrojs/mdx', '@astrojs/react'],
-			},
-		});
-		try {
-			const mod = await viteServer.ssrLoadModule(configPath);
-
-			if (mod?.default) {
-				return {
-					value: mod.default,
-					filePath: configPath,
-				};
-			}
-		} finally {
-			await viteServer.close();
-		}
 	} finally {
 		await finallyCleanup();
 	}
