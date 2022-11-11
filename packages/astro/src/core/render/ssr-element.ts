@@ -3,34 +3,34 @@ import type { SSRElement } from '../../@types/astro';
 import npath from 'path-browserify';
 import { appendForwardSlash } from '../../core/path.js';
 
-function getRootPath(site?: string): string {
-	return appendForwardSlash(new URL(site || 'http://localhost/').pathname);
+function getRootPath(base?: string): string {
+	return appendForwardSlash(new URL(base || '/', 'http://localhost/').pathname);
 }
 
-function joinToRoot(href: string, site?: string): string {
-	return npath.posix.join(getRootPath(site), href);
+function joinToRoot(href: string, base?: string): string {
+	return npath.posix.join(getRootPath(base), href);
 }
 
-export function createLinkStylesheetElement(href: string, site?: string): SSRElement {
+export function createLinkStylesheetElement(href: string, base?: string): SSRElement {
 	return {
 		props: {
 			rel: 'stylesheet',
-			href: joinToRoot(href, site),
+			href: joinToRoot(href, base),
 		},
 		children: '',
 	};
 }
 
-export function createLinkStylesheetElementSet(hrefs: string[], site?: string) {
-	return new Set<SSRElement>(hrefs.map((href) => createLinkStylesheetElement(href, site)));
+export function createLinkStylesheetElementSet(hrefs: string[], base?: string) {
+	return new Set<SSRElement>(hrefs.map((href) => createLinkStylesheetElement(href, base)));
 }
 
 export function createModuleScriptElement(
 	script: { type: 'inline' | 'external'; value: string },
-	site?: string
+	base?: string
 ): SSRElement {
 	if (script.type === 'external') {
-		return createModuleScriptElementWithSrc(script.value, site);
+		return createModuleScriptElementWithSrc(script.value, base);
 	} else {
 		return {
 			props: {
@@ -60,7 +60,7 @@ export function createModuleScriptElementWithSrcSet(
 
 export function createModuleScriptsSet(
 	scripts: { type: 'inline' | 'external'; value: string }[],
-	site?: string
+	base?: string
 ): Set<SSRElement> {
-	return new Set<SSRElement>(scripts.map((script) => createModuleScriptElement(script, site)));
+	return new Set<SSRElement>(scripts.map((script) => createModuleScriptElement(script, base)));
 }

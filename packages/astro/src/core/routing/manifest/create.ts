@@ -61,7 +61,11 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(segments: RoutePart[][], addTrailingSlash: AstroConfig['trailingSlash']) {
+function getPattern(
+	segments: RoutePart[][],
+	base: string,
+	addTrailingSlash: AstroConfig['trailingSlash']
+) {
 	const pathname = segments
 		.map((segment) => {
 			if (segment.length === 1 && segment[0].spread) {
@@ -93,7 +97,11 @@ function getPattern(segments: RoutePart[][], addTrailingSlash: AstroConfig['trai
 
 	const trailing =
 		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
-	return new RegExp(`^${pathname || '\\/'}${trailing}`);
+	let initial = '\\/';
+	if (addTrailingSlash === 'never' && base !== '/') {
+		initial = '';
+	}
+	return new RegExp(`^${pathname || initial}${trailing}`);
 }
 
 function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
@@ -306,7 +314,7 @@ export function createRouteManifest(
 				components.push(item.file);
 				const component = item.file;
 				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
-				const pattern = getPattern(segments, trailingSlash);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -367,7 +375,7 @@ export function createRouteManifest(
 			const isPage = type === 'page';
 			const trailingSlash = isPage ? config.trailingSlash : 'never';
 
-			const pattern = getPattern(segments, trailingSlash);
+			const pattern = getPattern(segments, settings.config.base, trailingSlash);
 			const generate = getRouteGenerator(segments, trailingSlash);
 			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 				? `/${segments.map((segment) => segment[0].content).join('/')}`

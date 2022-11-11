@@ -62,6 +62,7 @@ export async function createVite(
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
 		isBuild: mode === 'build',
+		viteUserConfig: settings.config.vite,
 		isFrameworkPkgByJson(pkgJson) {
 			return (
 				// Attempt: package relies on `astro`. ✅ Definitely an Astro package
