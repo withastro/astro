@@ -45,7 +45,11 @@ async function tryLoadWith(root: string, paths: string[], cb: (path: string) => 
 	return null;
 }
 
-export async function loadConfigWithVite(root: string): Promise<{
+interface LoadConfigWithViteOptions {
+	mustExist: boolean;
+}
+
+export async function loadConfigWithVite(root: string, { mustExist }: LoadConfigWithViteOptions): Promise<{
 	value: Record<string, any>;
 	filePath?: string;
 }> {
@@ -70,5 +74,13 @@ export async function loadConfigWithVite(root: string): Promise<{
 	}
 
 	await loader.viteServer.close();
-	throw new Error(`Unable to find a config in ${root}`);
+
+	if(mustExist) {
+		throw new Error(`Unable to find a config in ${root}`);
+	}
+
+	return {
+		value: {},
+		filePath: undefined
+	};
 }

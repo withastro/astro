@@ -161,7 +161,9 @@ export async function resolveConfigPath(
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	try {
-		const config = await loadConfigWithVite(root);
+		const config = await loadConfigWithVite(root, {
+			mustExist: !!userConfigPath
+		});
 		return config.filePath;
 	} catch (e) {
 		if (flags.config) {
@@ -240,7 +242,9 @@ async function tryLoadConfig(
 		}
 		
 		// Create a vite server to load the config
-		const config = await loadConfigWithVite(root);
+		const config = await loadConfigWithVite(root, {
+			mustExist: !!configPath
+		});
 		return config as TryLoadConfigResult;
 	} finally {
 		await finallyCleanup();
