@@ -72,6 +72,9 @@ export async function matchRoute(
 		}
 	}
 
+	// Try without `.html` extensions or `index.html` in request URLs to mimic
+	// routing behavior in production builds. This supports both file and directory
+	// build formats, and is necessary based on how the manifest tracks build targets.
 	const altPathname = pathname.replace(/(index)?\.html$/, '');
 	if (altPathname !== pathname) {
 		return await matchRoute(altPathname, env, manifest);
