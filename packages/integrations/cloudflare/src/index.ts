@@ -46,8 +46,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				needsBuildConfig = !config.build.client;
 				updateConfig({
 					build: {
-						client: new URL('./static/', config.outDir),
-						server: new URL('./', config.outDir),
+						client: new URL(`.${config.base}`, config.outDir),
+						server: new URL('./server/', config.outDir),
 						serverEntry: '_worker.js',
 					},
 				});
@@ -85,19 +85,20 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:build:start': ({ buildConfig }) => {
 				// Backwards compat
 				if (needsBuildConfig) {
-					buildConfig.client = new URL('./static/', _config.outDir);
-					buildConfig.server = new URL('./', _config.outDir);
+					buildConfig.client = new URL(`.${_config.base}`, _config.outDir);
+					buildConfig.server = new URL('./server/', _config.outDir);
 					buildConfig.serverEntry = '_worker.js';
 				}
 			},
 			'astro:build:done': async () => {
-				const entryUrl = new URL(_buildConfig.serverEntry, _buildConfig.server);
-				const pkg = fileURLToPath(entryUrl);
+				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server)),
+					entryUrl = new URL(_buildConfig.serverEntry, _config.outDir),
+					buildPath = fileURLToPath(entryUrl);
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
-					entryPoints: [pkg],
-					outfile: pkg,
+					entryPoints: [entryPath],
+					outfile: buildPath,
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
@@ -108,49 +109,58 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				});
 
 				// throw the server folder in the bin
-				const chunksUrl = new URL('./chunks', _buildConfig.server);
-				await fs.promises.rm(chunksUrl, { recursive: true, force: true });
+				const serverUrl = new URL(_buildConfig.server);
+				await fs.promises.rm(serverUrl, { recursive: true, force: true });
+
+				// move cloudflare specific files to the root
+				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
+				if (_config.base !== '/') {
+					for (const file of cloudflareSpecialFiles) {
+						try {
+							await fs.promises.rename(
+								new URL(file, _buildConfig.client),
+								new URL(file, _config.outDir)
+							);
+						} catch (e) {
+							// ignore
+						}
+					}
+				}
+
+				const routesExists = await fs.promises
+					.stat(new URL('./_routes.json', _config.outDir))
+					.then((stat) => stat.isFile())
+					.catch(() => false);
+
+				// this creates a _routes.json, in case there is none present
+				// to enable cloudflare to handle static files directly (without calling the worker)
+				if (!routesExists) {
+					const staticFiles = (
+						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
+							cwd: fileURLToPath(_config.outDir),
+							filesOnly: true,
+						})
+					).filter((file) => cloudflareSpecialFiles.indexOf(file) < 0);
+
+					await fs.promises.writeFile(
+						new URL('./_routes.json', _config.outDir),
+						JSON.stringify(
+							{
+								version: 1,
+								include: ['/*'],
+								exclude: staticFiles.map((file) => `/${file}`),
+							},
+							null,
+							2
+						)
+					);
+				}
 
 				if (isModeDirectory) {
 					const functionsUrl = new URL(`file://${process.cwd()}/functions/`);
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
 					await fs.promises.rename(entryUrl, directoryUrl);
-
-          const routesExists = await fs.promises
-            .stat(new URL('./_routes.json', _buildConfig.client))
-            .then((stat) => stat.isFile())
-            .catch(() => false);
-          // this creates a _routes.json, in case there is none present
-					// to enable cloudflare to handle static files directly (without calling the worker)
-					if (!routesExists) {
-						const specialFiles = ['_headers', '_redirects'],
-							staticFiles = (
-								await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
-									cwd: fileURLToPath(_buildConfig.client),
-									filesOnly: true,
-								})
-							).filter((file) => specialFiles.indexOf(file) < 0);
-
-						await fs.promises.writeFile(
-							new URL('./_routes.json', _buildConfig.client),
-							JSON.stringify(
-								{
-									version: 1,
-									include: ['/*'],
-									exclude: staticFiles.map((file) => `/${file}`),
-								},
-								null,
-								2
-							)
-						);
-
-						// move the files onto the root
-						await fs.promises.cp(_buildConfig.client, _buildConfig.server, {
-							recursive: true,
-						});
-						await fs.promises.rm(_buildConfig.client, { recursive: true, force: true });
-					}
 				}
 			},
 		},

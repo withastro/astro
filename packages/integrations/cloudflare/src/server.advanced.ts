@@ -15,12 +15,11 @@ export function createExports(manifest: SSRManifest) {
 	const fetch = async (request: Request, env: Env, context: any) => {
 		process.env = env as any;
 
-		const { origin, pathname } = new URL(request.url);
+		const { pathname } = new URL(request.url);
 
-		// static assets
+		// static assets fallback, in case default _routes.json is not used
 		if (manifest.assets.has(pathname)) {
-			const assetRequest = new Request(`${origin}/static/${app.removeBase(pathname)}`, request);
-			return env.ASSETS.fetch(assetRequest);
+			return env.ASSETS.fetch(request);
 		}
 
 		let routeData = app.match(request, { matchNotFound: true });
