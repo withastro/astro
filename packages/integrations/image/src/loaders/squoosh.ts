@@ -3,11 +3,10 @@ import { red } from 'kleur/colors';
 import { error } from '../utils/logger.js';
 import { metadata } from '../utils/metadata.js';
 import { isRemoteImage } from '../utils/paths.js';
+import { processBuffer } from '../vendor/squoosh/image-pool.js';
 import type { Operation } from '../vendor/squoosh/image.js';
 import type { OutputFormat, TransformOptions } from './index.js';
 import { BaseSSRService } from './index.js';
-
-const imagePoolModulePromise = import('../vendor/squoosh/image-pool.js');
 
 class SquooshService extends BaseSSRService {
 	async processAvif(image: any, transform: TransformOptions) {
@@ -113,7 +112,7 @@ class SquooshService extends BaseSSRService {
 			});
 			throw new Error(`Unknown image output: "${transform.format}" used for ${transform.src}`);
 		}
-		const { processBuffer } = await imagePoolModulePromise;
+
 		const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality);
 
 		return {
