@@ -281,34 +281,40 @@ export async function main() {
 		);
 	}
 
-	const tsResponse = await prompts(
-		{
-			type: 'select',
-			name: 'typescript',
-			message: 'How would you like to setup TypeScript?',
-			choices: [
+	let tsResponse = null; // This isn't a const because it's value is reassigned in case the user is unsure
+	const choices = [
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
-				{ value: 'base', title: 'Relaxed' },
-				{ value: 'unsure', title: `I'm Unsure` },
-			],
-		},
-		{
-			onCancel: () => {
-				ora().info(
-					dim(
-						'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
-					)
-				);
-				process.exit(1);
+				{ value: 'base', title: 'Relaxed' },					{ value: 'unsure', title: `I'm unsure` },
+			];
+	do {
+		tsResponse = await prompts(
+			{
+				type: 'select',
+				name: 'typescript',
+				message: 'How would you like to setup TypeScript?',
+				choices: choices,
 			},
+			{
+				onCancel: () => {
+					ora().info(
+						dim(
+							'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
+						)
+					);
+					process.exit(1);
+				},
+			}
+		);
+		if (tsResponse != null && await tsResponse.typescript === 'unsure') {
+			// Prompt the user to look up the documentation
+			ora().info('No worries! Take a look at the documentation then come back to setup!\nhttps://docs.astro.build/en/guides/typescript/');
+			// Remove the unsure option because now the user knows what to expect
+			choices.splice(choices.findIndex((choice) => choice.value === 'unsure'), 1);
 		}
-	);
+	} while (tsResponse == null || tsResponse === 'unsure');
 
-	if (tsResponse.typescript === 'unsure') {
-		await typescriptByDefault();
-		tsResponse.typescript = 'base';
-	}
+
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
