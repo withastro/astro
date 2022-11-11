@@ -101,6 +101,11 @@ describe('getStaticPaths - route params type validation', () => {
 		await devServer.stop();
 	});
 
+	it('resolves 200 on nested array parameters', async () => {
+		const res = await fixture.fetch('/nested-arrays/slug1');
+		expect(res.status).to.equal(200);
+	});
+
 	it('resolves 200 on matching static path - string params', async () => {
 		// route provided with { params: { year: "2022", slug: "post-2" }}
 		const res = await fixture.fetch('/blog/2022/post-1');
