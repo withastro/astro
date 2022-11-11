@@ -326,13 +326,13 @@ describe('Development Routing', () => {
 		it('200 when loading /html-ext/1', async () => {
 			const response = await fixture.fetch('/html-ext/1');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('none: 1')
+			expect(await response.text()).includes('none: 1');
 		});
 
 		it('200 when loading /html-ext/1.html', async () => {
 			const response = await fixture.fetch('/html-ext/1.html');
 			expect(response.status).to.equal(200);
-			expect(await response.text()).includes('html: 1')
+			expect(await response.text()).includes('html: 1');
 		});
 	});
 });
