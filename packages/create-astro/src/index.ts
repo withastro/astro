@@ -290,7 +290,7 @@ export async function main() {
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
 				{ value: 'base', title: 'Relaxed' },
-				{ value: 'unsure', title: 'Help me choose' },
+				{ value: 'unsure', title: `I'm Unsure` },
 			],
 		},
 		{

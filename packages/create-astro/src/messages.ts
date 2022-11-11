@@ -85,10 +85,7 @@ export async function error(prefix: string, text: string) {
 }
 
 export async function typescriptByDefault() {
-	await info(`Cool!`, 'Astro comes with TypeScript support enabled by default.');
-	console.log(
-		`${' '.repeat(3)}${color.dim(`We'll default to the most relaxed settings for you.`)}`
-	);
+	await info('No worries!', `We'll default to the most relaxed settings for you.`);
 	await sleep(300);
 }
 
