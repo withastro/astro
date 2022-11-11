@@ -61,16 +61,16 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       astro: link:../../packages/astro
 
   examples/blog:
     specifiers:
-      '@astrojs/mdx': ^0.11.5
+      '@astrojs/mdx': ^0.11.6
       '@astrojs/rss': ^1.0.3
       '@astrojs/sitemap': ^1.0.0
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/rss': link:../../packages/astro-rss
@@ -79,14 +79,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/deno:
     specifiers:
       '@astrojs/deno': ^2.0.0
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       astro: link:../../packages/astro
     devDependencies:
@@ -102,7 +102,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
-      astro: ^1.6.5
+      astro: ^1.6.7
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -125,7 +125,7 @@ importers:
       '@astrojs/alpinejs': ^0.1.2
       '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       '@astrojs/alpinejs': link:../../packages/integrations/alpinejs
       '@types/alpinejs': 3.7.1
@@ -136,7 +136,7 @@ importers:
     specifiers:
       '@astrojs/lit': ^1.0.0
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.6.5
+      astro: ^1.6.7
       lit: ^2.2.5
     dependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
@@ -151,7 +151,7 @@ importers:
       '@astrojs/solid-js': ^1.2.2
       '@astrojs/svelte': ^1.0.2
       '@astrojs/vue': ^1.2.1
-      astro: ^1.6.5
+      astro: ^1.6.7
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -169,14 +169,14 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
 
   examples/framework-preact:
     specifiers:
       '@astrojs/preact': ^1.2.0
       '@preact/signals': ^1.1.0
-      astro: ^1.6.5
+      astro: ^1.6.7
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -189,7 +189,7 @@ importers:
       '@astrojs/react': ^1.2.2
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      astro: ^1.6.5
+      astro: ^1.6.7
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -203,7 +203,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/solid-js': ^1.2.2
-      astro: ^1.6.5
+      astro: ^1.6.7
       solid-js: ^1.4.3
     dependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
@@ -213,52 +213,52 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/svelte': ^1.0.2
-      astro: ^1.6.5
+      astro: ^1.6.7
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   examples/framework-vue:
     specifiers:
       '@astrojs/vue': ^1.2.1
-      astro: ^1.6.5
+      astro: ^1.6.7
       vue: ^3.2.37
     dependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
-      vue: 3.2.42
+      vue: 3.2.44
 
   examples/hackernews:
     specifiers:
       '@astrojs/node': ^3.0.0
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       '@astrojs/node': link:../../packages/integrations/node
       astro: link:../../packages/astro
 
   examples/integration:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       astro: link:../../packages/astro
 
@@ -266,7 +266,7 @@ importers:
     specifiers:
       '@astrojs/node': ^3.0.0
       '@astrojs/svelte': ^1.0.2
-      astro: ^1.6.5
+      astro: ^1.6.7
       concurrently: ^7.2.1
       svelte: ^3.48.0
       unocss: ^0.15.6
@@ -276,14 +276,14 @@ importers:
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
       concurrently: 7.5.0
-      svelte: 3.52.0
+      svelte: 3.53.0
       unocss: 0.15.6
       vite-imagetools: 4.0.11
 
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^1.1.3
-      astro: ^1.6.5
+      astro: ^1.6.7
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -300,15 +300,15 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
     dependencies:
       astro: link:../../packages/astro
 
   examples/with-mdx:
     specifiers:
-      '@astrojs/mdx': ^0.11.5
+      '@astrojs/mdx': ^0.11.6
       '@astrojs/preact': ^1.2.0
-      astro: ^1.6.5
+      astro: ^1.6.7
       preact: ^10.6.5
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
@@ -320,7 +320,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^1.2.0
       '@nanostores/preact': ^0.1.3
-      astro: ^1.6.5
+      astro: ^1.6.7
       nanostores: ^0.5.12
       preact: ^10.7.3
     dependencies:
@@ -332,10 +332,10 @@ importers:
 
   examples/with-tailwindcss:
     specifiers:
-      '@astrojs/mdx': ^0.11.5
+      '@astrojs/mdx': ^0.11.6
       '@astrojs/tailwind': ^2.1.2
       '@types/canvas-confetti': ^1.4.3
-      astro: ^1.6.5
+      astro: ^1.6.7
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
@@ -348,11 +348,11 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.18
       canvas-confetti: 1.6.0
       postcss: 8.4.18
-      tailwindcss: 3.2.2_postcss@8.4.18
+      tailwindcss: 3.2.3_postcss@8.4.18
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.3
     dependencies:
@@ -362,7 +362,7 @@ importers:
 
   examples/with-vitest:
     specifiers:
-      astro: ^1.6.5
+      astro: ^1.6.7
       vitest: ^0.20.3
     dependencies:
       astro: link:../../packages/astro
@@ -621,7 +621,7 @@ importers:
     dependencies:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/e2e/fixtures/client-only:
     specifiers:
@@ -642,8 +642,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -715,8 +715,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
 
   packages/astro/e2e/fixtures/hydration-race:
     specifiers:
@@ -770,8 +770,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/lit': link:../../../../integrations/lit
       '@astrojs/preact': link:../../../../integrations/preact
@@ -813,8 +813,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -842,8 +842,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -871,8 +871,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -900,8 +900,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -929,8 +929,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -958,8 +958,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -1056,7 +1056,7 @@ importers:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/e2e/fixtures/tailwindcss:
     specifiers:
@@ -1070,7 +1070,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.13_postcss@8.4.18
       postcss: 8.4.18
-      tailwindcss: 3.2.2_postcss@8.4.18
+      tailwindcss: 3.2.3_postcss@8.4.18
 
   packages/astro/e2e/fixtures/ts-resolution:
     specifiers:
@@ -1094,7 +1094,7 @@ importers:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/test/benchmark/simple:
     specifiers:
@@ -1121,8 +1121,8 @@ importers:
       astro: link:../../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
 
   packages/astro/test/fixtures/alias:
     specifiers:
@@ -1132,7 +1132,7 @@ importers:
     dependencies:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/alias-tsconfig:
     specifiers:
@@ -1142,7 +1142,7 @@ importers:
     dependencies:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/api-routes:
     specifiers:
@@ -1211,8 +1211,8 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
       preact: 10.11.2
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
 
   packages/astro/test/fixtures/astro-class-list:
     specifiers:
@@ -1236,7 +1236,7 @@ importers:
       astro: link:../../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/astro-client-only/pkg:
     specifiers: {}
@@ -1297,7 +1297,7 @@ importers:
       astro: link:../../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/astro-envs:
     specifiers:
@@ -1307,7 +1307,7 @@ importers:
     dependencies:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/test/fixtures/astro-expr:
     specifiers:
@@ -1733,8 +1733,8 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
       preact: 10.11.2
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
 
   packages/astro/test/fixtures/fontsource-package:
     specifiers:
@@ -1847,8 +1847,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -1885,7 +1885,7 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
       preact: 10.11.2
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/legacy-build:
     specifiers:
@@ -1977,8 +1977,8 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.18
       postcss: 8.4.18
       solid-js: 1.6.1
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
     devDependencies:
       postcss-preset-env: 7.8.2_postcss@8.4.18
 
@@ -2048,7 +2048,7 @@ importers:
       astro: link:../../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/test/fixtures/react-jsx-export:
     specifiers:
@@ -2151,7 +2151,7 @@ importers:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/slots-vue:
     specifiers:
@@ -2163,7 +2163,7 @@ importers:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/test/fixtures/solid-component:
     specifiers:
@@ -2366,7 +2366,7 @@ importers:
     dependencies:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/astro/test/fixtures/tailwindcss:
     specifiers:
@@ -2382,7 +2382,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.13_postcss@8.4.18
       postcss: 8.4.18
-      tailwindcss: 3.2.2_postcss@8.4.18
+      tailwindcss: 3.2.3_postcss@8.4.18
 
   packages/astro/test/fixtures/third-party-astro:
     specifiers:
@@ -2418,7 +2418,7 @@ importers:
     dependencies:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/test/fixtures/vue-jsx:
     specifiers:
@@ -2428,7 +2428,7 @@ importers:
     dependencies:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/astro/test/fixtures/vue-with-multi-renderer:
     specifiers:
@@ -2441,8 +2441,8 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      svelte: 3.52.0
-      vue: 3.2.42
+      svelte: 3.53.0
+      vue: 3.2.44
 
   packages/astro/test/fixtures/with-endpoint-routes:
     specifiers:
@@ -3135,14 +3135,14 @@ importers:
       svelte2tsx: ^0.5.11
       vite: ^3.0.0
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.1.0_svelte@3.52.0+vite@3.2.3
+      '@sveltejs/vite-plugin-svelte': 1.1.0_svelte@3.53.0+vite@3.2.3
       postcss-load-config: 3.1.4
-      svelte-preprocess: 4.10.7_pmwall27st3tiaqmx3ffy3cd34
-      svelte2tsx: 0.5.20_svelte@3.52.0
+      svelte-preprocess: 4.10.7_ddyxnro7q4t7jafmacky4t23xi
+      svelte2tsx: 0.5.20_svelte@3.53.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      svelte: 3.52.0
+      svelte: 3.53.0
       vite: 3.2.3
 
   packages/integrations/tailwind:
@@ -3160,7 +3160,7 @@ importers:
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      tailwindcss: 3.2.2_postcss@8.4.18
+      tailwindcss: 3.2.3_postcss@8.4.18
 
   packages/integrations/turbolinks:
     specifiers:
@@ -3213,10 +3213,10 @@ importers:
       vite: ^3.0.0
       vue: ^3.2.37
     dependencies:
-      '@vitejs/plugin-vue': 3.2.0_vite@3.2.3+vue@3.2.42
-      '@vitejs/plugin-vue-jsx': 2.1.1_vite@3.2.3+vue@3.2.42
+      '@vitejs/plugin-vue': 3.2.0_vite@3.2.3+vue@3.2.44
+      '@vitejs/plugin-vue-jsx': 2.1.1_vite@3.2.3+vue@3.2.44
       '@vue/babel-plugin-jsx': 1.1.1
-      '@vue/compiler-sfc': 3.2.42
+      '@vue/compiler-sfc': 3.2.44
     devDependencies:
       '@types/chai': 4.3.4
       astro: link:../../astro
@@ -3225,7 +3225,7 @@ importers:
       linkedom: 0.14.19
       mocha: 9.2.2
       vite: 3.2.3
-      vue: 3.2.42
+      vue: 3.2.44
 
   packages/integrations/vue/test/fixtures/app-entrypoint:
     specifiers:
@@ -3273,7 +3273,7 @@ importers:
       '@astrojs/svelte': link:../../../../../integrations/svelte
       astro: link:../../../../../astro
       preact: 10.11.2
-      svelte: 3.52.0
+      svelte: 3.53.0
 
   packages/markdown/component/test/fixtures/astro-markdown-plugins:
     specifiers:
@@ -3534,7 +3534,7 @@ importers:
       esbuild: 0.14.54
       globby: 12.2.0
       kleur: 4.1.5
-      svelte: 3.52.0
+      svelte: 3.53.0
       tar: 6.1.12
     devDependencies:
       tsconfig-resolver: 3.0.1
@@ -9441,7 +9441,7 @@ packages:
       string.prototype.matchall: 4.0.8
     dev: false
 
-  /@sveltejs/vite-plugin-svelte/1.1.0_svelte@3.52.0+vite@3.2.3:
+  /@sveltejs/vite-plugin-svelte/1.1.0_svelte@3.53.0+vite@3.2.3:
     resolution: {integrity: sha512-cFRfEdztubtj1c/rYh7ArK7XCfFJn6wG6+J8/e9amFsKtEJILovoBrK0/mxt1AjPQg0vaX+fHPKvhx+q8mTPaQ==}
     engines: {node: ^14.18.0 || >= 16}
     peerDependencies:
@@ -9458,8 +9458,8 @@ packages:
       deepmerge: 4.2.2
       kleur: 4.1.5
       magic-string: 0.26.7
-      svelte: 3.52.0
-      svelte-hmr: 0.15.0_svelte@3.52.0
+      svelte: 3.53.0
+      svelte-hmr: 0.15.0_svelte@3.53.0
       vite: 3.2.3
     transitivePeerDependencies:
       - supports-color
@@ -9488,7 +9488,7 @@ packages:
   /@types/alpinejs/3.7.1:
     resolution: {integrity: sha512-gzwyuHXH/meGQQhurMGWlZgMQxe18lMOoSPd7X6CvGoDelHte9EsU7SpTIoRu8yYir0tbHDeaSMdX9LeQz/QtA==}
     dependencies:
-      '@vue/reactivity': 3.2.42
+      '@vue/reactivity': 3.2.44
     dev: false
 
   /@types/babel__core/7.1.20:
@@ -10121,7 +10121,7 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue-jsx/2.1.1_vite@3.2.3+vue@3.2.42:
+  /@vitejs/plugin-vue-jsx/2.1.1_vite@3.2.3+vue@3.2.44:
     resolution: {integrity: sha512-JgDhxstQlwnHBvZ1BSnU5mbmyQ14/t5JhREc6YH5kWyu2QdAAOsLF6xgHoIWarj8tddaiwFrNzLbWJPudpXKYA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -10135,12 +10135,12 @@ packages:
       '@babel/plugin-transform-typescript': 7.20.2_@babel+core@7.20.2
       '@vue/babel-plugin-jsx': 1.1.1_@babel+core@7.20.2
       vite: 3.2.3
-      vue: 3.2.42
+      vue: 3.2.44
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue/3.2.0_vite@3.2.3+vue@3.2.42:
+  /@vitejs/plugin-vue/3.2.0_vite@3.2.3+vue@3.2.44:
     resolution: {integrity: sha512-E0tnaL4fr+qkdCNxJ+Xd0yM31UwMkQje76fsDVBBUCoGOUPexu2VDUYHL8P4CwV+zMvWw6nlRw19OnRKmYAJpw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -10151,7 +10151,7 @@ packages:
         optional: true
     dependencies:
       vite: 3.2.3
-      vue: 3.2.42
+      vue: 3.2.44
     dev: false
 
   /@vscode/emmet-helper/2.8.4:
@@ -10203,46 +10203,46 @@ packages:
       - supports-color
     dev: false
 
-  /@vue/compiler-core/3.2.42:
-    resolution: {integrity: sha512-qKpDdoGaKq53T1+U4R7pk62QeDe8Kc6RN1xSd7tGi4DK3mGrqT32gyOL542wpt73Ftza0AvWmVCchmKtTpwxDg==}
+  /@vue/compiler-core/3.2.44:
+    resolution: {integrity: sha512-TwzeVSnaklb8wIvMtwtkPkt9wnU+XD70xJ7N9+eIHtjKAG7OoZttm+14ZL6vWOL+2RcMtSZ+cYH+gvkUqsrmSQ==}
     dependencies:
       '@babel/parser': 7.20.3
-      '@vue/shared': 3.2.42
+      '@vue/shared': 3.2.44
       estree-walker: 2.0.2
       source-map: 0.6.1
 
-  /@vue/compiler-dom/3.2.42:
-    resolution: {integrity: sha512-QVrAVX9zzvLltyQy1uxxgOmsKLStFalw0f/8HEdWIR95YjJsNo3S3SwBJDR2cnjwcVGftXBLksf1ikMyAl8bUw==}
+  /@vue/compiler-dom/3.2.44:
+    resolution: {integrity: sha512-wPDR+gOn2Qi7SudPJ+gE62vuO/aKXIiIFALvHpztXmDdbAHGy3CDfmBgOGchTgTlSeDJHe9olEMkgOdmyXTjUg==}
     dependencies:
-      '@vue/compiler-core': 3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/compiler-core': 3.2.44
+      '@vue/shared': 3.2.44
 
-  /@vue/compiler-sfc/3.2.42:
-    resolution: {integrity: sha512-lWiyxMfQ3SXGhFszSpKuPT5JcSM1ypAbLJOpHpCqvbSaJE+FAZYMbFzAC/y4MC3jSbNQ0moWncOS1gO4aXMbNQ==}
+  /@vue/compiler-sfc/3.2.44:
+    resolution: {integrity: sha512-8cFZcUWlrtnfM/GlRwYJdlfgbEOy0OZ/osLDU3h/wJu24HuYAc7QIML1USaKqiZzkjOaTd4y8mvYvcWXq3o5dA==}
     dependencies:
       '@babel/parser': 7.20.3
-      '@vue/compiler-core': 3.2.42
-      '@vue/compiler-dom': 3.2.42
-      '@vue/compiler-ssr': 3.2.42
-      '@vue/reactivity-transform': 3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/compiler-core': 3.2.44
+      '@vue/compiler-dom': 3.2.44
+      '@vue/compiler-ssr': 3.2.44
+      '@vue/reactivity-transform': 3.2.44
+      '@vue/shared': 3.2.44
       estree-walker: 2.0.2
       magic-string: 0.25.9
       postcss: 8.4.18
       source-map: 0.6.1
 
-  /@vue/compiler-ssr/3.2.42:
-    resolution: {integrity: sha512-2Q0IclcvsX1A8N8/M7Ub32gitdnKdsjRHdj6R3Z/HGW34CXGsb4tHzjthOuT5fiyPG+CzyyAn4HiqCN8oI4iqg==}
+  /@vue/compiler-ssr/3.2.44:
+    resolution: {integrity: sha512-tAkUFLgvxds3l5KPyAH77OIYrEeLngNYQfWA9GocHiy2nlyajjqAH/Jq93Bq29Y20GeJzblmRp9DVYCVkJ5Rsw==}
     dependencies:
-      '@vue/compiler-dom': 3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/compiler-dom': 3.2.44
+      '@vue/shared': 3.2.44
 
-  /@vue/reactivity-transform/3.2.42:
-    resolution: {integrity: sha512-u5Qp09PCGa0yJqfbHbJXDfm9BrNx5xYtHIl5CuWbnUtBAxr8vKRjMZmFpa4CmSufixWcbwvKvSD9weamEVbfeA==}
+  /@vue/reactivity-transform/3.2.44:
+    resolution: {integrity: sha512-WGbEiXaS2qAOTS9Z3kKk2Nk4bi8OUl73Sih+h0XV9RTUATnaJSEQedveHUDQnHyXiZwyBMKosrxJg8aThHO/rw==}
     dependencies:
       '@babel/parser': 7.20.3
-      '@vue/compiler-core': 3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/compiler-core': 3.2.44
+      '@vue/shared': 3.2.44
       estree-walker: 2.0.2
       magic-string: 0.25.9
 
@@ -10252,39 +10252,39 @@ packages:
       '@vue/shared': 3.1.5
     dev: false
 
-  /@vue/reactivity/3.2.42:
-    resolution: {integrity: sha512-X30I+iS7d6c8DZDY7SqahkTRN2THfnkNtf0oCUktuk2gTKRxNOzaARItSmsPKLC7UVUG61Hne8Si3wtQBBDj+A==}
+  /@vue/reactivity/3.2.44:
+    resolution: {integrity: sha512-Fe0s52fTsPl+RSdvoqUZ3HRKlaVsKhIh1mea5EWOedFvZCjnymzlj3YC1wZMxi89qXRFSdEASVA/BWUGypk0Ig==}
     dependencies:
-      '@vue/shared': 3.2.42
+      '@vue/shared': 3.2.44
 
-  /@vue/runtime-core/3.2.42:
-    resolution: {integrity: sha512-9JCPD4k/p4eXXc5ja+YcYwGu+ES9BIgoVty7UlOMEG0Bdz7awxxY78PXIHg1b7HlxQuUdGq6r3COg1cyvDrRCw==}
+  /@vue/runtime-core/3.2.44:
+    resolution: {integrity: sha512-uwEV1cttL33k2dC+CNGYhKEYqGejT9KmgQ+4n/LmYUfZ1Gorl8F32DlIX+1pANyGHL1tBAisqHDxKyQBp2oBNA==}
     dependencies:
-      '@vue/reactivity': 3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/reactivity': 3.2.44
+      '@vue/shared': 3.2.44
 
-  /@vue/runtime-dom/3.2.42:
-    resolution: {integrity: sha512-i4OZblZQvFjJ/isNo+jrqXsjJgq4Nz0R/W2iNu40pTLJrikijYPaUOcOJcjVih9eL7zz101RJsbP8zKluQLqRA==}
+  /@vue/runtime-dom/3.2.44:
+    resolution: {integrity: sha512-LDzNwXpU/nSpxrLk5jS0bfStgt88msgsgFzj6vHrl7es3QktIrCGybQS5CB/p/TO0q98iAiYtEVmi+Lej7Vgjg==}
     dependencies:
-      '@vue/runtime-core': 3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/runtime-core': 3.2.44
+      '@vue/shared': 3.2.44
       csstype: 2.6.21
 
-  /@vue/server-renderer/3.2.42_vue@3.2.42:
-    resolution: {integrity: sha512-xo6XMaJTuKmYRlnS53QN358j0pmZMFNtisLkzV7oXFww0bpkn2MzjkPt4YvOjMNto9NlI609xQKJboEk5nMu2A==}
+  /@vue/server-renderer/3.2.44_vue@3.2.44:
+    resolution: {integrity: sha512-3+ArN07UgOAdbGKIp3uVqeC3bnR3J324QNjPR6vxHbLrTlkibFv8QNled/ux3fVq0KDCkVVKGOKB2V4sCIYOgg==}
     peerDependencies:
-      vue: 3.2.42
+      vue: 3.2.44
     dependencies:
-      '@vue/compiler-ssr': 3.2.42
-      '@vue/shared': 3.2.42
-      vue: 3.2.42
+      '@vue/compiler-ssr': 3.2.44
+      '@vue/shared': 3.2.44
+      vue: 3.2.44
 
   /@vue/shared/3.1.5:
     resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
     dev: false
 
-  /@vue/shared/3.2.42:
-    resolution: {integrity: sha512-cheJw3tpW34LWVUL3fySuwCmF1/gFBHWZ3WjmMcBIHMcnKrS/SRapvkbYWzyw5FiM8OcpYHO5e7hWYOFCsyHmA==}
+  /@vue/shared/3.2.44:
+    resolution: {integrity: sha512-mGZ44bnn0zpZ36nXtxbrBPno43yr96wjQE1dBEKS1Sieugt27HS4OGZVBRIgsdGzosB7vqZAvu0ttu1FDVdolA==}
 
   /@webcomponents/template-shadowroot/0.1.0:
     resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
@@ -10486,8 +10486,8 @@ packages:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
     dev: true
 
-  /array-iterate/1.1.4:
-    resolution: {integrity: sha512-sNRaPGh9nnmdC8Zf+pT3UqP8rnWj5Hf9wiFGsX3wUQ2yVSIhO2ShFwCoceIPpB41QF6i2OEmrHmCo36xronCVA==}
+  /array-iterate/2.0.1:
+    resolution: {integrity: sha512-I1jXZMjAgCMmxT4qxXfPXa6SthSoE8h6gkSI9BGGNv8mP8G/v0blc+qFnZu6K42vTOiuME596QaLO0TP3Lk0xg==}
     dev: false
 
   /array-timsort/1.0.3:
@@ -14902,10 +14902,6 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: true
 
-  /nlcst-to-string/2.0.4:
-    resolution: {integrity: sha512-3x3jwTd6UPG7vi5k4GEzvxJ5rDA7hVUIRNHPblKuMVP9Z3xmlsd9cgLcpAMkc5uPOBna82EeshROFhsPkbnTZg==}
-    dev: false
-
   /nlcst-to-string/3.1.0:
     resolution: {integrity: sha512-Y8HQWKw/zrHTCnu2zcFBN1dV6vN0NUG7s5fkEj380G8tF3R+vA2KG+tDl2QoHVQCTHGHVXwoni2RQkDSFQb1PA==}
     dependencies:
@@ -15274,12 +15270,12 @@ packages:
       lines-and-columns: 1.2.4
     dev: true
 
-  /parse-latin/5.0.0:
-    resolution: {integrity: sha512-Ht+4/+AUySMS5HKGAiQpBmkFsHSoGrj6Y83flLCa5OIBdtsVkO3UD4OtboJ0O0vZiOznH02x8qlwg9KLUVXuNg==}
+  /parse-latin/5.0.1:
+    resolution: {integrity: sha512-b/K8ExXaWC9t34kKeDV8kGXBkXZ1HCSAZRYE7HR14eA1GlXX5L8iWhs8USJNhQU9q5ci413jCKF0gOyovvyRBg==}
     dependencies:
-      nlcst-to-string: 2.0.4
-      unist-util-modify-children: 2.0.0
-      unist-util-visit-children: 1.1.4
+      nlcst-to-string: 3.1.0
+      unist-util-modify-children: 3.0.0
+      unist-util-visit-children: 2.0.0
     dev: false
 
   /parse-numeric-range/1.3.0:
@@ -16405,7 +16401,7 @@ packages:
     resolution: {integrity: sha512-5MrD1tuebzO8ppsja5eEu+ZbBeUNCjoEarn70tkXOS7Bdsdf6tNahsv2bY0Z8VooFF6cw7/6S+d3yI/TMlMVVQ==}
     dependencies:
       '@types/nlcst': 1.0.0
-      parse-latin: 5.0.0
+      parse-latin: 5.0.1
       unherit: 3.0.0
       unified: 10.1.2
     dev: false
@@ -17130,16 +17126,16 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte-hmr/0.15.0_svelte@3.52.0:
+  /svelte-hmr/0.15.0_svelte@3.53.0:
     resolution: {integrity: sha512-Aw21SsyoohyVn4yiKXWPNCSW2DQNH/76kvUnE9kpt4h9hcg9tfyQc6xshx9hzgMfGF0kVx0EGD8oBMWSnATeOg==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
     peerDependencies:
       svelte: '>=3.19.0'
     dependencies:
-      svelte: 3.52.0
+      svelte: 3.53.0
     dev: false
 
-  /svelte-preprocess/4.10.7_pmwall27st3tiaqmx3ffy3cd34:
+  /svelte-preprocess/4.10.7_ddyxnro7q4t7jafmacky4t23xi:
     resolution: {integrity: sha512-sNPBnqYD6FnmdBrUmBCaqS00RyCsCpj2BG58A1JBswNF7b0OKviwxqVrOL/CKyJrLSClrSeqQv5BXNg2RUbPOw==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -17187,14 +17183,14 @@ packages:
       postcss-load-config: 3.1.4
       sorcery: 0.10.0
       strip-indent: 3.0.0
-      svelte: 3.52.0
+      svelte: 3.53.0
     dev: false
 
-  /svelte/3.52.0:
-    resolution: {integrity: sha512-FxcnEUOAVfr10vDU5dVgJN19IvqeHQCS1zfe8vayTfis9A2t5Fhx+JDe5uv/C3j//bB1umpLJ6quhgs9xyUbCQ==}
+  /svelte/3.53.0:
+    resolution: {integrity: sha512-QwR6zwpcdpz5OqybIHlghM+qP2qKbzsKQuU9npgAmnI6zoTDIcjbcseUZA0AJGbotorltpQ0f413euKK4w+Piw==}
     engines: {node: '>= 8'}
 
-  /svelte2tsx/0.5.20_svelte@3.52.0:
+  /svelte2tsx/0.5.20_svelte@3.53.0:
     resolution: {integrity: sha512-yNHmN/uoAnJ7d1XqVohiNA6TMFOxibHyEddUAHVt1PiLXtbwAJF3WaGYlg8QbOdoXzOVsVNCAlqRUIdULUm+OA==}
     peerDependencies:
       svelte: ^3.24
@@ -17205,7 +17201,7 @@ packages:
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
-      svelte: 3.52.0
+      svelte: 3.53.0
     dev: false
 
   /svg-tags/1.0.0:
@@ -17219,8 +17215,8 @@ packages:
       '@pkgr/utils': 2.3.1
       tslib: 2.4.1
 
-  /tailwindcss/3.2.2_postcss@8.4.18:
-    resolution: {integrity: sha512-c2GtSdqg+harR4QeoTmex0Ngfg8IIHNeLQH5yr2B9uZbZR1Xt1rYbjWOWTcj3YLTZhrmZnPowoQDbSRFyZHQ5Q==}
+  /tailwindcss/3.2.3_postcss@8.4.18:
+    resolution: {integrity: sha512-Xt9D4PK4zuuQCEB8bwK9JUCKmTgUwyac/6b0/42Vqhgl6YJkep+Wf5wq+5uXYfmrupdAD0YY2NY1hyZp1HjRrg==}
     engines: {node: '>=12.13.0'}
     hasBin: true
     peerDependencies:
@@ -17762,10 +17758,11 @@ packages:
       '@types/unist': 2.0.6
     dev: false
 
-  /unist-util-modify-children/2.0.0:
-    resolution: {integrity: sha512-HGrj7JQo9DwZt8XFsX8UD4gGqOsIlCih9opG6Y+N11XqkBGKzHo8cvDi+MfQQgiZ7zXRUiQREYHhjOBHERTMdg==}
+  /unist-util-modify-children/3.0.0:
+    resolution: {integrity: sha512-cbDbx+4BeR4UzJXzvOgw6M/b69dKiaezt3gvN3ZbaJnGr0q719GKQCkMhdjPQiOBH6DnQ7TfHZs2aPY3vOkPyg==}
     dependencies:
-      array-iterate: 1.1.4
+      '@types/unist': 2.0.6
+      array-iterate: 2.0.1
     dev: false
 
   /unist-util-position-from-estree/1.1.1:
@@ -17801,8 +17798,10 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
 
-  /unist-util-visit-children/1.1.4:
-    resolution: {integrity: sha512-sA/nXwYRCQVRwZU2/tQWUqJ9JSFM1X3x7JIOsIgSzrFHcfVt6NkzDtKzyxg2cZWkCwGF9CO8x4QNZRJRMK8FeQ==}
+  /unist-util-visit-children/2.0.0:
+    resolution: {integrity: sha512-n8CvdoeexGn6EkAa865Wp9SFFuS1IKf1j0vMoEwHHfA5f48gJPK6rwS/s/P+ouRDfAklQaiBQtlloX3KadUrww==}
+    dependencies:
+      '@types/unist': 2.0.6
     dev: false
 
   /unist-util-visit-parents/2.1.2:
@@ -18271,14 +18270,14 @@ packages:
     resolution: {integrity: sha512-fmL7V1eiDBFRRnu+gfRWTzyPpNIHJTc4mWnFkwBUmO9U3KPgJAmTx7oxi2bl/Rh6HLdU7+4C9wlj0k2E4AdKFQ==}
     dev: false
 
-  /vue/3.2.42:
-    resolution: {integrity: sha512-gH7e5YD9IkX9Lv0QmB+Z7Jac2t7GYHg2AZrgkzQdCmyaUIdSbp6DhdeTM5HO6JbPuRgD1Iu06N9MXxjJ//NnNQ==}
+  /vue/3.2.44:
+    resolution: {integrity: sha512-nyNtFDh+0TpRgYCUVfPD1mJ9PpIsCPXaOF4DeGNIT5vQ4X23ykflGq3Sy2P+tEt1/pQZxZnAysuRKwyhNj+Cjw==}
     dependencies:
-      '@vue/compiler-dom': 3.2.42
-      '@vue/compiler-sfc': 3.2.42
-      '@vue/runtime-dom': 3.2.42
-      '@vue/server-renderer': 3.2.42_vue@3.2.42
-      '@vue/shared': 3.2.42
+      '@vue/compiler-dom': 3.2.44
+      '@vue/compiler-sfc': 3.2.44
+      '@vue/runtime-dom': 3.2.44
+      '@vue/server-renderer': 3.2.44_vue@3.2.44
+      '@vue/shared': 3.2.44
 
   /wcwidth/1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
