@@ -61,7 +61,11 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(segments: RoutePart[][], base: string, addTrailingSlash: AstroConfig['trailingSlash']) {
+function getPattern(
+	segments: RoutePart[][],
+	base: string,
+	addTrailingSlash: AstroConfig['trailingSlash']
+) {
 	const pathname = segments
 		.map((segment) => {
 			if (segment.length === 1 && segment[0].spread) {
@@ -94,7 +98,7 @@ function getPattern(segments: RoutePart[][], base: string, addTrailingSlash: Ast
 	const trailing =
 		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
 	let initial = '\\/';
-	if(addTrailingSlash === 'never' && base !== '/') {
+	if (addTrailingSlash === 'never' && base !== '/') {
 		initial = '';
 	}
 	return new RegExp(`^${pathname || initial}${trailing}`);

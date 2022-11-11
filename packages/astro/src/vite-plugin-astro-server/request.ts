@@ -27,7 +27,7 @@ export async function handleRequest(
 
 	const url = new URL(origin + req.url);
 	let pathname: string;
-	if(config.trailingSlash === 'never' && !req.url) {
+	if (config.trailingSlash === 'never' && !req.url) {
 		pathname = '';
 	} else {
 		pathname = decodeURI(url.pathname);
