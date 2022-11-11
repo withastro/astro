@@ -1,23 +1,43 @@
 import { z } from 'zod';
 import { prependForwardSlash } from '../core/path.js';
 
+type GlobResult = Record<string, () => Promise<any>>;
+type CollectionToEntryMap = Record<string, GlobResult>;
+
+export function createCollectionToGlobResultMap({
+	globResult,
+	contentDir,
+}: {
+	globResult: GlobResult;
+	contentDir: string;
+}) {
+	const collectionToGlobResultMap: CollectionToEntryMap = {};
+	for (const key in globResult) {
+		const keyRelativeToContentDir = key.replace(new RegExp(`^${contentDir}`), '');
+		const segments = keyRelativeToContentDir.split('/');
+		if (segments.length <= 1) continue;
+		const collection = segments[0];
+		const entryId = segments.slice(1).join('/');
+		collectionToGlobResultMap[collection] ??= {};
+		collectionToGlobResultMap[collection][entryId] = globResult[key];
+	}
+	return collectionToGlobResultMap;
+}
+
 export async function parseEntryData(
 	collection: string,
-	entryKey: string,
-	unparsedEntry: { data: any; rawData: string },
-	{ schemaMap }: { schemaMap: Record<string, any> }
+	unparsedEntry: { id: string; data: any; rawData: string },
+	collectionToSchemaMap: CollectionToEntryMap
 ) {
-	let schemaImport;
-	try {
-		schemaImport = (await schemaMap[collection]()) ?? {};
-	} catch {
-		schemaImport = { schema: z.any() };
-		console.warn(getErrorMsg.schemaMissing(collection));
+	let schemaImport = Object.values(collectionToSchemaMap[collection] ?? {})[0];
+	if (!schemaImport) {
+		console.warn(getErrorMsg.schemaFileMissing(collection));
 	}
-	if (!('schema' in (schemaImport ?? {}))) {
-		throw new Error(getErrorMsg.schemaNamedExp(collection));
+	const schemaValue = await schemaImport();
+	if (!('schema' in (schemaValue ?? {}))) {
+		throw new Error(getErrorMsg.schemaNamedExpMissing(collection));
 	}
-	const { schema } = schemaImport;
+	const { schema } = schemaValue;
 
 	try {
 		return schema.parse(unparsedEntry.data, { errorMap });
@@ -25,7 +45,7 @@ export async function parseEntryData(
 		if (e instanceof z.ZodError) {
 			const formattedError = new Error(
 				[
-					`Could not parse frontmatter in ${String(collection)} → ${String(entryKey)}`,
+					`Could not parse frontmatter in ${String(collection)} → ${String(unparsedEntry.id)}`,
 					...e.errors.map((e) => e.message),
 				].join('\n')
 			);
@@ -64,10 +84,62 @@ function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string)
 }
 
 export const getErrorMsg = {
-	schemaMissing: (collection: string) =>
+	schemaFileMissing: (collection: string) =>
 		`${collection} does not have a ~schema file. We suggest adding one for type safety!`,
-	schemaNamedExp: (collection: string) => `${collection}/~schema needs a named \`schema\` export.`,
+	schemaNamedExpMissing: (collection: string) =>
+		`${collection}/~schema needs a named \`schema\` export.`,
 };
+
+export function createFetchContent({
+	collectionToContentMap,
+	collectionToSchemaMap,
+}: {
+	collectionToContentMap: CollectionToEntryMap;
+	collectionToSchemaMap: CollectionToEntryMap;
+}) {
+	return async function fetchContent(collection: string, filter?: () => boolean) {
+		const lazyImports = Object.values(collectionToContentMap[collection] ?? {});
+		const entries = Promise.all(
+			lazyImports.map(async (lazyImport) => {
+				const entry = await lazyImport();
+				const data = await parseEntryData(collection, entry, collectionToSchemaMap);
+				return {
+					id: entry.id,
+					slug: entry.slug,
+					body: entry.body,
+					data,
+				};
+			})
+		);
+		if (typeof filter === 'function') {
+			return (await entries).filter(filter);
+		} else {
+			return entries;
+		}
+	};
+}
+
+export function createFetchContentByEntry({
+	collectionToContentMap,
+	collectionToSchemaMap,
+}: {
+	collectionToSchemaMap: CollectionToEntryMap;
+	collectionToContentMap: CollectionToEntryMap;
+}) {
+	return async function fetchContentByEntry(collection: string, entryId: string) {
+		const lazyImport = collectionToContentMap[collection]?.[entryId];
+		if (!lazyImport) throw new Error(`Ah! ${entryId}`);
+
+		const entry = await lazyImport();
+		const data = await parseEntryData(collection, entry, collectionToSchemaMap);
+		return {
+			id: entry.id,
+			slug: entry.slug,
+			body: entry.body,
+			data,
+		};
+	};
+}
 
 export function createRenderContent(renderContentMap: Record<string, () => Promise<any>>) {
 	return async function renderContent(this: any, entryOrEntryId: { id: string } | string) {
