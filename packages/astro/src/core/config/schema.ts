@@ -325,10 +325,11 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 		) {
 			config.build.client = new URL('./dist/client/', config.outDir);
 		}
-		if(trimSlashes(config.base).length && config.trailingSlash === 'never') {
-      config.base = prependForwardSlash(trimSlashes(config.base));
+		const trimmedBase = trimSlashes(config.base);
+		if(trimmedBase.length && config.trailingSlash === 'never') {
+      config.base = prependForwardSlash(trimmedBase);
     } else {
-      config.base = prependForwardSlash(appendForwardSlash(trimSlashes(config.base)));
+      config.base = prependForwardSlash(appendForwardSlash(trimmedBase));
     }
 		return config;
 	});
