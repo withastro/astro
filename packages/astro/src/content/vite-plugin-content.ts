@@ -44,7 +44,7 @@ export function astroContentPlugin({
 				const { pathname, searchParams } = new URL(id, 'file://');
 				if (searchParams.has('content') && contentFileExts.some((ext) => pathname.endsWith(ext))) {
 					const rawContents = await fs.readFile(pathname, 'utf-8');
-					const { content: body, data } = parseFrontmatter(rawContents, pathname);
+					const { content: body, data, matter: rawData } = parseFrontmatter(rawContents, pathname);
 					const entryInfo = parseEntryInfo(pathname, { contentDir: dirs.contentDir });
 					if (entryInfo instanceof Error) return;
 					return {
@@ -54,6 +54,10 @@ export const collection = ${JSON.stringify(entryInfo.collection)};
 export const slug = ${JSON.stringify(entryInfo.slug)};
 export const body = ${JSON.stringify(body)};
 export const data = ${JSON.stringify(data)};
+export const _internal = {
+	filePath: ${JSON.stringify(pathname)},
+	rawData: ${JSON.stringify(rawData)},
+};
 `,
 					};
 				}
