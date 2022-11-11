@@ -24,10 +24,8 @@ export async function handleRequest(
 	const { config } = settings;
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = config.output === 'server';
-	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
-	// routing behavior matches production builds. This supports both file and directory
-	// build formats, and is necessary based on how the manifest tracks build targets.
-	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
+
+	const url = new URL(origin + req.url);
 	let pathname: string;
 	if(config.trailingSlash === 'never' && !req.url) {
 		pathname = '';
@@ -66,8 +64,18 @@ export async function handleRequest(
 		pathname,
 		async run() {
 			const matchedRoute = await matchRoute(pathname, env, manifest);
-
-			return await handleRoute(matchedRoute, url, pathname, body, origin, env, manifest, req, res);
+			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
+			return await handleRoute(
+				matchedRoute,
+				url,
+				resolvedPathname,
+				body,
+				origin,
+				env,
+				manifest,
+				req,
+				res
+			);
 		},
 		onError(_err) {
 			const err = createSafeError(_err);
