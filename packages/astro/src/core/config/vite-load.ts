@@ -1,5 +1,6 @@
 import * as vite from 'vite';
 import npath from 'path';
+import { pathToFileURL } from 'url';
 
 export interface ViteLoader {
 	root: string;
@@ -53,7 +54,7 @@ export async function loadConfigWithVite(root: string, { mustExist }: LoadConfig
 	value: Record<string, any>;
 	filePath?: string;
 }> {
-	let config = await tryLoadWith(root, ['astro.config.mjs', 'astro.config.js'], path => import(path));
+	let config = await tryLoadWith(root, ['astro.config.mjs', 'astro.config.js'], path => import(pathToFileURL(path).toString()));
 	if(config) {
 		return config;
 	}
