@@ -170,7 +170,7 @@ export class App {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
-		const links = createLinkStylesheetElementSet(info.links, manifest.base);
+		const links = createLinkStylesheetElementSet(info.links);
 
 		let scripts = new Set<SSRElement>();
 		for (const script of info.scripts) {
@@ -182,7 +182,7 @@ export class App {
 					});
 				}
 			} else {
-				scripts.add(createModuleScriptElement(script, manifest.base));
+				scripts.add(createModuleScriptElement(script));
 			}
 		}
 

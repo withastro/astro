@@ -133,17 +133,22 @@ function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
+	const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
+	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
+
 	for (const pageData of eachPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
-			scripts.unshift(pageData.hoistedScript);
+			scripts.unshift(Object.assign({}, pageData.hoistedScript, {
+				value: joinBase(pageData.hoistedScript.value)
+			}));
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
 		}
 
-		const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
-		const links = sortedCSS(pageData).map((pth) => (bareBase ? bareBase + '/' + pth : pth));
+		
+		const links = sortedCSS(pageData).map((pth) => joinBase(pth));
 
 		routes.push({
 			file: '',

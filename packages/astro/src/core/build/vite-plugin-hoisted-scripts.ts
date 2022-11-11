@@ -40,7 +40,7 @@ export function vitePluginHoistedScripts(
 		},
 
 		async generateBundle(_options, bundle) {
-			let assetInlineLimit = settings.config.vite?.build?.assetsInlineLimit || 4096;
+			let assetInlineLimit = settings.config.vite?.build?.assetsInlineLimit ?? 4096;
 
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.
 			// This is used when we render so that we can add the script to the head.

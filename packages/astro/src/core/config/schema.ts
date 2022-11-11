@@ -326,7 +326,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 
 		// If there is no base but there is a base for site config, warn.
 		const sitePathname = config.site && new URL(config.site).pathname;
-		if(trimmedBase.length && sitePathname && sitePathname !== '/') {
+		if(!trimmedBase.length && sitePathname && sitePathname !== '/') {
 			config.base = sitePathname;
 			/* eslint-disable no-console */
 			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
