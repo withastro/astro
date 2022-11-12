@@ -3,4 +3,4 @@
 '@astrojs/vercel': patch
 ---
 
-Make vercel and image work well together
+Allows @astrojs/image to be used in Vercel SSR
