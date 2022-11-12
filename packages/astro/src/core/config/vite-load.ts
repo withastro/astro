@@ -2,6 +2,12 @@ import * as vite from 'vite';
 import npath from 'path';
 import { pathToFileURL } from 'url';
 
+// Fallback for legacy
+import load, { ProloadError, resolve } from '@proload/core';
+import loadTypeScript from '@proload/plugin-tsm';
+
+load.use([loadTypeScript]);
+
 export interface ViteLoader {
 	root: string;
 	viteServer: vite.ViteDevServer;
@@ -59,12 +65,14 @@ export async function loadConfigWithVite(root: string, { mustExist }: LoadConfig
 		return config;
 	}
 
-	const loader = await createViteLoader(root);
-	config = await tryLoadWith(root, [
+	const paths = [
 		'astro.config.ts',
 		'astro.config.mts',
 		'astro.config.cts'
-	], async path => {
+	];
+
+	const loader = await createViteLoader(root);
+	config = await tryLoadWith(root, paths, async path => {
 		const mod = await loader.viteServer.ssrLoadModule(path);
 		await loader.viteServer.close();
 		return mod;
@@ -75,6 +83,18 @@ export async function loadConfigWithVite(root: string, { mustExist }: LoadConfig
 	}
 
 	await loader.viteServer.close();
+
+	// TODO deprecate
+	// Fallback to use Proload. This is only for legacy compatibility. In 2.0
+	// we should remove this.
+	config = await tryLoadWith(root, paths, async path => {
+		const res = await load('astro', {
+			mustExist,
+			cwd: root,
+			filePath: path,
+		});
+		return res?.value ?? {};
+	});
 
 	if(mustExist) {
 		throw new Error(`Unable to find a config in ${root}`);

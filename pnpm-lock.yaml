@@ -382,6 +382,8 @@ importers:
       '@babel/traverse': ^7.18.2
       '@babel/types': ^7.18.4
       '@playwright/test': ^1.22.2
+      '@proload/core': ^0.3.3
+      '@proload/plugin-tsm': ^0.2.1
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.1
@@ -478,6 +480,8 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.20.2
       '@babel/traverse': 7.20.1
       '@babel/types': 7.20.2
+      '@proload/core': 0.3.3
+      '@proload/plugin-tsm': 0.2.1_@proload+core@0.3.3
       '@types/babel__core': 7.1.20
       '@types/html-escaper': 3.0.0
       '@types/yargs-parser': 21.0.0
@@ -6441,6 +6445,15 @@ packages:
     dependencies:
       deepmerge: 4.2.2
       escalade: 3.1.1
+    dev: false
+
+  /@proload/plugin-tsm/0.2.1_@proload+core@0.3.3:
+    resolution: {integrity: sha512-Ex1sL2BxU+g8MHdAdq9SZKz+pU34o8Zcl9PHWo2WaG9hrnlZme607PU6gnpoAYsDBpHX327+eu60wWUk+d/b+A==}
+    peerDependencies:
+      '@proload/core': ^0.3.2
+    dependencies:
+      '@proload/core': 0.3.3
+      tsm: 2.2.2
     dev: false
 
   /@react-aria/actiongroup/3.4.2_react@18.2.0:
@@ -17465,6 +17478,14 @@ packages:
 
   /tslib/2.4.1:
     resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
+
+  /tsm/2.2.2:
+    resolution: {integrity: sha512-bXkt675NbbqfwRHSSn8kSNEEHvoIUFDM9G6tUENkjEKpAEbrEzieO3PxUiRJylMw8fEGpcf5lSjadzzz12pc2A==}
+    engines: {node: '>=12'}
+    hasBin: true
+    dependencies:
+      esbuild: 0.14.54
+    dev: false
 
   /tsutils/3.21.0_typescript@4.7.4:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
