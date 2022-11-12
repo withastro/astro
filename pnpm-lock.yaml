@@ -348,7 +348,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.19
       canvas-confetti: 1.6.0
       postcss: 8.4.19
-      tailwindcss: 3.2.3_postcss@8.4.19
+      tailwindcss: 3.2.4_postcss@8.4.19
 
   examples/with-vite-plugin-pwa:
     specifiers:
@@ -469,7 +469,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.29.11
+      '@astrojs/compiler': 0.29.13
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -527,7 +527,7 @@ importers:
       unist-util-visit: 4.1.1
       vfile: 5.3.5
       vite: 3.2.3_sass@1.56.1
-      vitefu: 0.2.0_vite@3.2.3
+      vitefu: 0.2.1_vite@3.2.3
       yargs-parser: 21.1.1
       zod: 3.19.1
     devDependencies:
@@ -560,7 +560,7 @@ importers:
       memfs: 3.4.10
       mocha: 9.2.2
       node-fetch: 3.3.0
-      node-mocks-http: 1.11.0
+      node-mocks-http: 1.12.1
       rehype-autolink-headings: 6.1.1
       rehype-slug: 5.1.0
       rehype-toc: 3.0.2
@@ -1070,7 +1070,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.13_postcss@8.4.19
       postcss: 8.4.19
-      tailwindcss: 3.2.3_postcss@8.4.19
+      tailwindcss: 3.2.4_postcss@8.4.19
 
   packages/astro/e2e/fixtures/ts-resolution:
     specifiers:
@@ -2388,7 +2388,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.13_postcss@8.4.19
       postcss: 8.4.19
-      tailwindcss: 3.2.3_postcss@8.4.19
+      tailwindcss: 3.2.4_postcss@8.4.19
 
   packages/astro/test/fixtures/third-party-astro:
     specifiers:
@@ -2986,7 +2986,7 @@ importers:
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       mocha: 9.2.2
-      node-mocks-http: 1.11.0
+      node-mocks-http: 1.12.1
 
   packages/integrations/node/test/fixtures/api-route:
     specifiers:
@@ -3124,7 +3124,7 @@ importers:
       vitefu: ^0.2.0
     dependencies:
       babel-preset-solid: 1.6.2
-      vitefu: 0.2.0
+      vitefu: 0.2.1
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -3166,7 +3166,7 @@ importers:
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      tailwindcss: 3.2.3_postcss@8.4.19
+      tailwindcss: 3.2.4_postcss@8.4.19
 
   packages/integrations/turbolinks:
     specifiers:
@@ -3845,8 +3845,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler/0.29.11:
-    resolution: {integrity: sha512-iNJMknLhALllV69eSsdDK9o+xEPOiOaCKN9Sv5VK33cbOmcRI8ICFaUN8lMIQnVSXWyKFvX1o9w08PivJ24NfQ==}
+  /@astrojs/compiler/0.29.13:
+    resolution: {integrity: sha512-C9+91vsWiJspj/VkVp6UtSIrJGuj/Aia1KCEDzg2Ge27uSDCOl1QlUQuAAnAbGpFBF71uaYOUZOPCbptQeGbdQ==}
 
   /@astrojs/language-server/0.28.3:
     resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}
@@ -14969,8 +14969,8 @@ packages:
     hasBin: true
     dev: false
 
-  /node-mocks-http/1.11.0:
-    resolution: {integrity: sha512-jS/WzSOcKbOeGrcgKbenZeNhxUNnP36Yw11+hL4TTxQXErGfqYZ+MaYNNvhaTiGIJlzNSqgQkk9j8dSu1YWSuw==}
+  /node-mocks-http/1.12.1:
+    resolution: {integrity: sha512-jrA7Sn3qI6GsHgWtUW3gMj0vO6Yz0nJjzg3jRZYjcfj4tzi8oWPauDK1qHVJoAxTbwuDHF1JiM9GISZ/ocI/ig==}
     engines: {node: '>=0.6'}
     dependencies:
       accepts: 1.3.8
@@ -15886,7 +15886,7 @@ packages:
     resolution: {integrity: sha512-ehCUx7MqHWvkHwUmxxAWLsL35pFaCTM5YXQ8xjG/1W6dY2yBhvEks+2aCfjeI5zmMrZNCXkiMQtpznSlLSLrxw==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
-      '@astrojs/compiler': 0.29.11
+      '@astrojs/compiler': 0.29.13
       prettier: 2.7.1
       sass-formatter: 0.7.5
       synckit: 0.8.4
@@ -17223,8 +17223,8 @@ packages:
       '@pkgr/utils': 2.3.1
       tslib: 2.4.1
 
-  /tailwindcss/3.2.3_postcss@8.4.19:
-    resolution: {integrity: sha512-Xt9D4PK4zuuQCEB8bwK9JUCKmTgUwyac/6b0/42Vqhgl6YJkep+Wf5wq+5uXYfmrupdAD0YY2NY1hyZp1HjRrg==}
+  /tailwindcss/3.2.4_postcss@8.4.19:
+    resolution: {integrity: sha512-AhwtHCKMtR71JgeYDaswmZXhPcW9iuI9Sp2LvZPo9upDZ7231ZJ7eA9RaURbhpXGVlrjX4cFNlB4ieTetEb7hQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
     peerDependencies:
@@ -18139,8 +18139,8 @@ packages:
       fsevents: 2.3.2
     dev: false
 
-  /vitefu/0.2.0:
-    resolution: {integrity: sha512-58946QxFCr0OnNbF73JPA3nyzfI65G82bWwKV8zxAcQfTeAyGU99ejSFIG7RBUDBUr1RonXI/VEMzIrNl/euXA==}
+  /vitefu/0.2.1:
+    resolution: {integrity: sha512-clkvXTAeUf+XQKm3bhWUhT4pye+3acm6YCTGaWhxxIvZZ/QjnA3JA8Zud+z/mO5y5XYvJJhevs5Sjkv/FI8nRw==}
     peerDependencies:
       vite: ^3.0.0
     peerDependenciesMeta:
@@ -18148,8 +18148,8 @@ packages:
         optional: true
     dev: false
 
-  /vitefu/0.2.0_vite@3.2.3:
-    resolution: {integrity: sha512-58946QxFCr0OnNbF73JPA3nyzfI65G82bWwKV8zxAcQfTeAyGU99ejSFIG7RBUDBUr1RonXI/VEMzIrNl/euXA==}
+  /vitefu/0.2.1_vite@3.2.3:
+    resolution: {integrity: sha512-clkvXTAeUf+XQKm3bhWUhT4pye+3acm6YCTGaWhxxIvZZ/QjnA3JA8Zud+z/mO5y5XYvJJhevs5Sjkv/FI8nRw==}
     peerDependencies:
       vite: ^3.0.0
     peerDependenciesMeta:
