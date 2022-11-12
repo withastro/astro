@@ -105,6 +105,7 @@ describe('Scripts (hoisted and not)', () => {
 
 		describe('Inlining', () => {
 			/** @type {import('./test-utils').Fixture} */
+			// eslint-disable-next-line @typescript-eslint/no-shadow
 			let fixture;
 			before(async () => {
 				fixture = await loadFixture({
