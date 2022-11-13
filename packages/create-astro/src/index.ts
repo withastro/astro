@@ -280,7 +280,7 @@ export async function main() {
 		);
 	}
 
-	let tsResponse : prompts.Answers<string> | null = null; // This isn't a const because it's value is reassigned in case the user is unsure
+	let tsResponse : prompts.Answers<string> = null; // This isn't a const anymore because it's value is reassigned in case the user is unsure
 	const choices = [
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
