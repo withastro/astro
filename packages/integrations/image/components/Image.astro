@@ -3,10 +3,17 @@ import type { HTMLAttributes } from 'astro/types';
 // @ts-ignore
 import { getImage } from '../dist/index.js';
 import { warnForMissingAlt } from './index.js';
-import type { TransformOptions } from '../dist/index.js';
+import type { LocalTransformOptions, RemoteTransformOptions } from '../dist/index.js';
 
-export interface Props extends TransformOptions,
-	Omit<HTMLAttributes<'img'>, keyof TransformOptions> { }
+interface LocalProps extends LocalTransformOptions,
+  Omit<HTMLAttributes<'img'>, keyof LocalTransformOptions> { }
+
+interface RemoteProps extends RemoteTransformOptions,
+	Omit<HTMLAttributes<'img'>, keyof RemoteTransformOptions> { }
+
+
+export type Props = LocalProps | RemoteProps
+
 
 const { loading = 'lazy', decoding = 'async', ...props } = Astro.props as Props;
 

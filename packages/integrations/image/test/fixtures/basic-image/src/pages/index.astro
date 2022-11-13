@@ -10,7 +10,7 @@ const publicImage = new URL('./hero.jpg', Astro.url);
     <!-- Head Stuff -->
   </head>
   <body>
-		<Image id="hero" src={publicImage.pathname} width={768} height={414} format="webp" alt="hero" />
+		<Image id="hero" src={publicImage.pathname} width="768" height="414" alt="hero" format="webp" />
 		<br />
 		<Image id="spaces" src={introJpg} width={768} height={414} format="webp" alt="spaces" />
 		<br />
