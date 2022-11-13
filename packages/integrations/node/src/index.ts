@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
+import webapi from '@astrojs/webapi/rollup';
 import type { Options, UserOptions } from './types';
 
 export function getAdapter(options: Options): AstroAdapter {
@@ -27,6 +28,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						ssr: {
 							noExternal: ['@astrojs/node'],
 						},
+						plugins: [
+							webapi()
+						]
 					},
 				});
 			},

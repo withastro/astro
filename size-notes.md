@@ -2,7 +2,7 @@
 
 - Replace `mime` with `mrmime`
 - Remove `path-browserify`
-- Allow `minify` during build? ~10kB extra for base
+- Allow `minify` during build? ~10kB reduction for base
 
 ## `@astrojs/node`
 

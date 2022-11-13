@@ -10,6 +10,9 @@
     },
     "./apply": {
       "import": "./apply.js"
+    },
+    "./rollup": {
+      "import": "./rollup.js"
     }
   },
   "main": "mod.js",
@@ -50,6 +53,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "dependencies": {
+    "acorn-globals": "^7.0.1",
     "global-agent": "^3.0.0",
     "node-fetch": "^3.2.5"
   },

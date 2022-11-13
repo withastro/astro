@@ -1104,6 +1104,9 @@ importers:
       '@astrojs/node': link:../../../../integrations/node
       astro: link:../../..
 
+  packages/astro/test/benchmark/simple/dist/server:
+    specifiers: {}
+
   packages/astro/test/fixtures/0-css:
     specifiers:
       '@astrojs/react': workspace:*
@@ -3479,6 +3482,7 @@ importers:
       '@types/node': ^14.18.21
       '@ungap/structured-clone': ^0.3.4
       abort-controller: ^3.0.0
+      acorn-globals: ^7.0.1
       chai: ^4.3.6
       event-target-shim: ^6.0.2
       fetch-blob: ^3.1.5
@@ -3494,6 +3498,7 @@ importers:
       urlpattern-polyfill: ^1.0.0-rc5
       web-streams-polyfill: ^3.2.1
     dependencies:
+      acorn-globals: 7.0.1
       global-agent: 3.0.0
       node-fetch: 3.3.0
     devDependencies:
@@ -10313,6 +10318,13 @@ packages:
       negotiator: 0.6.3
     dev: true
 
+  /acorn-globals/7.0.1:
+    resolution: {integrity: sha512-umOSDSDrfHbTNPuNpC2NSnnA3LUrqpevPb4T9jRx4MagXNS0rs+gwiTcAvqCRmsD6utzsrzNt+ebm00SNWiC3Q==}
+    dependencies:
+      acorn: 8.8.1
+      acorn-walk: 8.2.0
+    dev: false
+
   /acorn-jsx/5.3.2_acorn@8.8.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -10334,7 +10346,6 @@ packages:
   /acorn-walk/8.2.0:
     resolution: {integrity: sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==}
     engines: {node: '>=0.4.0'}
-    dev: true
 
   /acorn/7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
