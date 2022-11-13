@@ -280,7 +280,7 @@ export async function main() {
 		);
 	}
 
-	let tsResponse : prompts.Answers<string> = null; // This isn't a const anymore because it's value is reassigned in case the user is unsure
+	let tsResponse : prompts.Answers<string> | null = null; // This isn't a const anymore because it's value is reassigned in case the user is unsure
 	const choices = [
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
@@ -306,7 +306,7 @@ export async function main() {
 				},
 			}
 		);
-		if (await tsResponse.typescript === 'unsure') {
+		if (await tsResponse?.typescript === 'unsure') {
 			// Prompt the user to look up the documentation
 			ora().info('No worries! Take a look at the documentation then come back to setup!\nhttps://docs.astro.build/en/guides/typescript/');
 			// Remove the unsure option because now the user knows what to expect
@@ -314,19 +314,18 @@ export async function main() {
 			if(index != -1)
 				choices.splice(index, 1);
 		}
-	} while (tsResponse === null || tsResponse.typescript === 'unsure');
-
+	} while (tsResponse === null || tsResponse?.typescript === 'unsure');
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (tsResponse.typescript) {
+	} else if (tsResponse?.typescript) {
 		const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
 		fs.readFile(templateTSConfigPath, (err, data) => {
 			if (err && err.code === 'ENOENT') {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				fs.writeFileSync(
 					templateTSConfigPath,
-					stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
+					stringify({ extends: `astro/tsconfigs/${tsResponse?.typescript}` }, null, 2)
 				);
 
 				return;
@@ -336,7 +335,7 @@ export async function main() {
 
 			if (templateTSConfig && typeof templateTSConfig === 'object') {
 				const result = assign(templateTSConfig, {
-					extends: `astro/tsconfigs/${tsResponse.typescript}`,
+					extends: `astro/tsconfigs/${tsResponse?.typescript}`,
 				});
 
 				fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
