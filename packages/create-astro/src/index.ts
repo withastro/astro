@@ -280,7 +280,7 @@ export async function main() {
 		);
 	}
 
-	let tsResponse : prompts = null; // This isn't a const because it's value is reassigned in case the user is unsure
+	let tsResponse : prompts.Answers<string> | null = null; // This isn't a const because it's value is reassigned in case the user is unsure
 	const choices = [
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
@@ -314,7 +314,7 @@ export async function main() {
 			if(index != -1)
 				choices.splice(index, 1);
 		}
-	} while (tsResponse === null || tsResponse === 'unsure');
+	} while (tsResponse === null || tsResponse.typescript === 'unsure');
 
 
 	if (args.dryRun) {
