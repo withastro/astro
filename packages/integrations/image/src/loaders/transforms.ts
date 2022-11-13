@@ -1,8 +1,11 @@
 /// <reference types="astro/astro-jsx" />
-
-import { transferableAbortController } from 'util';
+import { ImageService } from '../index.js';
 import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
+
+export type RequireSome<T, P extends keyof T> =
+	Omit<T, P>
+	& Required<Pick<T, P>>;
 
 export type InputFormat =
 	| 'heic'
@@ -87,10 +90,13 @@ export function parseAspectRatio(aspectRatio?: AspectRatio) {
 	}
 }
 
+export type AsyncImageMetadata = Promise<{ default: ImageMetadata }>;
+
 /**
  * Defines the original image and transforms that need to be applied to it.
  */
-interface BaseTransform {
+interface BaseTransformOptions {
+	loader?: ImageService;
 	/**
 	 * The output format to be used in the optimized image.
 	 *
@@ -124,108 +130,54 @@ interface BaseTransform {
 	 * @default 'centre'
 	 */
 	position?: CropPosition;
-}
-
-export type AsyncImageMetadata = Promise<{ default: ImageMetadata }>;
-
-interface LocalTransform extends BaseTransform {
-	/**
-	 * Source for the original image file.
-	 *
-	 * For images in your project's repository, use the `src` relative to the `public` directory.
-	 * For remote images, provide the full URL.
-	 */
-	src: ImageMetadata | AsyncImageMetadata;
 	/**
 	 * The desired width of the output image. Combine with `height` to crop the image
 	 * to an exact size, or `aspectRatio` to automatically calculate and crop the height.
 	 */
-	width?: number;
-	/**
-	 * The desired height of the output image. Combine with `height` to crop the image
-	 * to an exact size, or `aspectRatio` to automatically calculate and crop the width.
-	 */
-	height?: number;
-	/**
-	 * The desired aspect ratio of the output image. Combine with either `width` or `height`
-	 * to automatically calculate and crop the other dimension.
-	 *
-	 * @example 1.777 - numbers can be used for computed ratios, useful for doing `{width/height}`
-	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
-	 */
-	aspectRatio?: AspectRatio;
+	 width?: string | number;
+	 /**
+		* The desired height of the output image. Combine with `height` to crop the image
+		* to an exact size, or `aspectRatio` to automatically calculate and crop the width.
+		*/
+	 height?: string | number;
+	 /**
+		* The desired aspect ratio of the output image. Combine with either `width` or `height`
+		* to automatically calculate and crop the other dimension.
+		*
+		* @example 1.777 - numbers can be used for computed ratios, useful for doing `{width/height}`
+		* @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
+		*/
+	 aspectRatio?: AspectRatio;
 }
 
-interface BaseRemoteTransform extends BaseTransform {
+export interface LocalTransformOptions extends BaseTransformOptions {
 	/**
 	 * Source for the original image file.
 	 *
 	 * For images in your project's repository, use the `src` relative to the `public` directory.
 	 * For remote images, provide the full URL.
 	 */
+	 src: ImageMetadata | AsyncImageMetadata;
+}
+
+export interface RemoteTransformOptions extends RequireSome<BaseTransformOptions, 'format'> {
+	/**
+	 * Source for the original image file.
+	 *
+	 * For images in your project's repository, use the `src` relative to the `public` directory.
+	 * For remote images, provide the full URL.
+	 */
+	 src: string;
+}
+
+export type TransformOptions = LocalTransformOptions | RemoteTransformOptions;
+
+export function isRemoteTransform(options: TransformOptions): options is RemoteTransformOptions {
+	return typeof options.src === 'string';
+}
+
+export interface ImageTransform extends Omit<LocalTransformOptions, 'src'|'width'|'height'> {
 	src: string;
-}
-
-interface RemoteCropTransform extends BaseRemoteTransform {
-	/**
-	 * The desired width of the output image. Combine with `height` to crop the image
-	 * to an exact size, or `aspectRatio` to automatically calculate and crop the height.
-	 */
-	width: number;
-	/**
-	 * The desired height of the output image. Combine with `height` to crop the image
-	 * to an exact size, or `aspectRatio` to automatically calculate and crop the width.
-	 */
-	height: number;
-	aspectRatio: undefined;
-}
-
-interface RemoteCropWidthTransform extends BaseRemoteTransform {
-	/**
-	 * The desired height of the output image. Combine with `height` to crop the image
-	 * to an exact size, or `aspectRatio` to automatically calculate and crop the width.
-	 */
-	height: number;
-	/**
-	 * The desired aspect ratio of the output image. Combine with either `width` or `height`
-	 * to automatically calculate and crop the other dimension.
-	 *
-	 * @example 1.777 - numbers can be used for computed ratios, useful for doing `{width/height}`
-	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
-	 */
-	aspectRatio: AspectRatio;
-	width: undefined;
-}
-
-interface RemoteCropHeightTransform extends BaseRemoteTransform {
-	/**
-	 * The desired width of the output image. Combine with `height` to crop the image
-	 * to an exact size, or `aspectRatio` to automatically calculate and crop the height.
-	 */
-	width: number;
-	/**
-	 * The desired aspect ratio of the output image. Combine with either `width` or `height`
-	 * to automatically calculate and crop the other dimension.
-	 *
-	 * @example 1.777 - numbers can be used for computed ratios, useful for doing `{width/height}`
-	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
-	 */
-	 aspectRatio: AspectRatio;
-	 height: undefined;
-}
-
-export type RemoteTransform = RemoteCropTransform | RemoteCropHeightTransform | RemoteCropWidthTransform;
-
-export type TransformOptions = LocalTransform | RemoteTransform;
-
-export type ImageTransform =
-  RemoteTransform
-	| Omit<LocalTransform, 'src'> & {
-		src: `/^[\/\\]?@astroimage/${string}` | `__ASTRO_IMAGE_ASSET__${string}`
-		width: number
-		height: number
-	};
-
-export function isRemoteTransform(transform: TransformOptions): transform is RemoteTransform {
-	return typeof transform.src === 'string';
+	width?: number;
+	height?: number;
 }

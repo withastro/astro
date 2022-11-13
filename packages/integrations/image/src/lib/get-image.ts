@@ -1,53 +1,71 @@
 /// <reference types="astro/astro-jsx" />
-import type {
+import {
 	ColorDefinition,
 	ImageService,
 	ImageTransform,
+	isRemoteTransform,
 	OutputFormat,
 	TransformOptions,
 } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 
+function safeParseInt(candidate?: string | number): number | undefined {
+	if (typeof candidate === 'number') {
+		return candidate;
+	}
+
+	if (typeof candidate !== 'string') {
+		return undefined;
+	}
+
+	try {
+		return parseInt(candidate)
+	} catch {
+		return undefined
+	}
+}
+
 function resolveSize(transform: TransformOptions): ImageTransform {
+	const safeWidth = safeParseInt(transform.width);
+	const safeHeight = safeParseInt(transform.height);
+
 	// keep width & height as provided
-	if (transform.width && transform.height) {
+	if (safeWidth && safeHeight) {
+		return {
+			...transform,
+			height: safeHeight,
+			width: safeWidth
+		} as ImageTransform;
+	}
+
+	if (!safeWidth && !safeHeight) {
 		return transform as ImageTransform;
 	}
 
-	if (!transform.width && !transform.height) {
-		throw new Error(`"width" and "height" cannot both be undefined`);
-	}
-
-	if (!transform.aspectRatio) {
-		throw new Error(
-			`"aspectRatio" must be included if only "${transform.width ? 'width' : 'height'}" is provided`
-		);
-	}
-
-	let aspectRatio: number;
+	let aspectRatio: number | undefined = undefined;
 
 	// parse aspect ratio strings, if required (ex: "16:9")
 	if (typeof transform.aspectRatio === 'number') {
 		aspectRatio = transform.aspectRatio;
-	} else {
+	} else if (typeof transform.aspectRatio === 'string') {
 		const [width, height] = transform.aspectRatio.split(':');
 		aspectRatio = Number.parseInt(width) / Number.parseInt(height);
 	}
 
-	if (transform.width) {
+	if (safeWidth) {
 		// only width was provided, calculate height
 		return {
 			...transform,
-			width: transform.width,
-			height: Math.round(transform.width / aspectRatio),
+			width: safeWidth,
+			height: aspectRatio ? Math.round(safeWidth / aspectRatio) : undefined,
 			aspectRatio: undefined,
 		} as ImageTransform;
-	} else if (transform.height) {
+	} else if (safeHeight) {
 		// only height was provided, calculate width
 		return {
 			...transform,
-			width: Math.round(transform.height * aspectRatio),
-			height: transform.height,
+			width: aspectRatio ? Math.round(safeHeight * aspectRatio) : undefined,
+			height: safeHeight,
 			aspectRatio: undefined,
 		} as ImageTransform;
 	}
@@ -56,15 +74,18 @@ function resolveSize(transform: TransformOptions): ImageTransform {
 }
 
 async function resolveTransform(input: TransformOptions): Promise<ImageTransform> {
-	// for remote images, only validate the width and height props
-	if (typeof input.src === 'string') {
-		return resolveSize(input);
+	// for remote images, return the transform as-is since we can't use metadata from the original image
+	if (isRemoteTransform(input)) {
+		return resolveSize(input) as ImageTransform;
 	}
 
 	// resolve the metadata promise, usually when the ESM import is inlined
 	const metadata = 'then' in input.src ? (await input.src).default : input.src;
 
 	let { width, height, aspectRatio, background, format = metadata.format, ...rest } = input;
+
+	width = safeParseInt(width);
+	height = safeParseInt(height);
 
 	if (!width && !height) {
 		// neither dimension was provided, use the file metadata
@@ -104,7 +125,11 @@ export async function getImage(
 		throw new Error('[@astrojs/image] `src` is required');
 	}
 
-	let loader = globalThis.astroImage?.loader;
+	if (isRemoteTransform(transform) && !transform.format) {
+		throw new Error('[@astrojs/image] `format` is required for remote images');
+	}
+
+	let loader = transform.loader || globalThis.astroImage?.loader;
 
 	if (!loader) {
 		// @ts-ignore

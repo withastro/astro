@@ -1,14 +1,12 @@
 ---
+import type { HTMLAttributes } from 'astro/types';
 // @ts-ignore
 import { getImage } from '../dist/index.js';
 import { warnForMissingAlt } from './index.js';
-import type { ImgHTMLAttributes } from './index.js';
-import type { TransformOptions, OutputFormat } from '../dist/index.js';
+import type { TransformOptions } from '../dist/index.js';
 
-export interface Props extends TransformOptions, astroHTML.JSX.ImgHTMLAttributes {
-	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
-	alt: string;
-}
+export interface Props extends TransformOptions,
+	Omit<HTMLAttributes<'img'>, keyof TransformOptions> { }
 
 const { loading = 'lazy', decoding = 'async', ...props } = Astro.props as Props;
 
@@ -19,4 +17,4 @@ if (props.alt === undefined || props.alt === null) {
 const attrs = await getImage(props);
 ---
 
-<img {...attrs} {loading} {decoding} />
+<img {...attrs} loading={loading} decoding={decoding} />
