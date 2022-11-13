@@ -1,5 +1,5 @@
 import { dim } from 'kleur/colors';
-import stringWidth from 'string-width';
+// import stringWidth from 'string-width';
 
 interface LogWritable<T> {
 	write: (chunk: T) => boolean;
@@ -91,7 +91,7 @@ export function debug(...args: any[]) {
 }
 
 function padStr(str: string, len: number) {
-	const strLen = stringWidth(str);
+	const strLen = str.length;
 	if (strLen > len) {
 		return str.substring(0, len - 3) + '...';
 	}

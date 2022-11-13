@@ -37,7 +37,6 @@
     "astro": "^1.6.7"
   },
   "devDependencies": {
-    "@types/send": "^0.17.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",

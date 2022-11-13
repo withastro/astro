@@ -8,7 +8,7 @@ import type {
 import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
-import mime from 'mime';
+import { lookup as mime } from 'mrmime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -239,7 +239,7 @@ export class App {
 		} else {
 			const body = result.body;
 			const headers = new Headers();
-			const mimeType = mime.getType(url.pathname);
+			const mimeType = mime(url.pathname);
 			if (mimeType) {
 				headers.set('Content-Type', `${mimeType};charset=utf-8`);
 			} else {

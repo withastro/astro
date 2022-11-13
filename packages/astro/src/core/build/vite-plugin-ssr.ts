@@ -71,7 +71,23 @@ if(_start in adapter) {
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					internals.staticFiles.add(chunk.fileName);
-				}
+				} 
+				// else {
+				// 	const items = [];
+				// 	for (const [name, info] of Object.entries(chunk.modules)) {
+				// 		if (name.includes('node_modules')) {
+				// 			items.push([name, info.renderedLength]);
+				// 		}
+				// 	}
+				// 	const sorted = items.sort(([_1, a], [_2, b]) => {
+				// 		if (a > b) return -1;
+				// 		if (b > a) return 1;
+				// 		return 0;
+				// 	})
+				// 	for (const [name, size] of sorted) {
+				// 		console.log(name, size);
+				// 	}
+				// }
 			}
 
 			for (const [chunkName, chunk] of Object.entries(bundle)) {

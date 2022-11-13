@@ -1,5 +1,5 @@
 import type http from 'http';
-import mime from 'mime';
+import { lookup as mime } from 'mrmime';
 import type { AstroSettings, ComponentInstance, ManifestData, RouteData } from '../@types/astro';
 import { ComponentPreload, DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
@@ -191,7 +191,7 @@ export async function handleRoute(
 			const filepath =
 				route.pathname ||
 				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
-			const computedMimeType = mime.getType(filepath);
+			const computedMimeType = mime(filepath);
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}

@@ -431,8 +431,8 @@ importers:
       kleur: ^4.1.4
       magic-string: ^0.25.9
       memfs: ^3.4.7
-      mime: ^3.0.0
       mocha: ^9.2.2
+      mrmime: ^1.0.0
       node-fetch: ^3.2.5
       node-mocks-http: ^1.11.0
       ora: ^6.1.0
@@ -503,7 +503,7 @@ importers:
       import-meta-resolve: 2.1.0
       kleur: 4.1.5
       magic-string: 0.25.9
-      mime: 3.0.0
+      mrmime: 1.0.1
       ora: 6.1.2
       path-browserify: 1.0.1
       path-to-regexp: 6.2.1
@@ -2970,7 +2970,6 @@ importers:
   packages/integrations/node:
     specifiers:
       '@astrojs/webapi': ^1.1.1
-      '@types/send': ^0.17.1
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
@@ -2981,7 +2980,6 @@ importers:
       '@astrojs/webapi': link:../../webapi
       send: 0.18.0
     devDependencies:
-      '@types/send': 0.17.1
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
