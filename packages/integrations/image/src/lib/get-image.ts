@@ -125,10 +125,6 @@ export async function getImage(
 		throw new Error('[@astrojs/image] `src` is required');
 	}
 
-	if (isRemoteTransform(transform) && !transform.format) {
-		throw new Error('[@astrojs/image] `format` is required for remote images');
-	}
-
 	let loader = transform.loader || globalThis.astroImage?.loader;
 
 	if (!loader) {

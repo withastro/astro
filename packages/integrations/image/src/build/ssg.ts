@@ -2,11 +2,12 @@ import { doWork } from '@altano/tiny-async-pool';
 import type { AstroConfig } from 'astro';
 import CachePolicy from 'http-cache-semantics';
 import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
+import mime from 'mime/lite';
 import fs from 'node:fs/promises';
 import OS from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ImageTransform, SSRImageService } from '../loaders/index.js';
+import type { ImageTransform, OutputFormat, SSRImageService } from '../loaders/index.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
 import { ImageCache } from './cache.js';
@@ -65,6 +66,10 @@ async function loadRemoteImage(src: string) {
 			return undefined;
 		}
 
+		// get the image format based on the response headers
+		const contentType = res.headers.get('Content-Type');
+		const mimeType = contentType && mime.getExtension(contentType);
+
 		// calculate an expiration date based on the response's TTL
 		const policy = new CachePolicy(webToCachePolicyRequest(req), webToCachePolicyResponse(res));
 		const expires = policy.storable() ? policy.timeToLive() : 0;
@@ -72,6 +77,7 @@ async function loadRemoteImage(src: string) {
 		return {
 			data: Buffer.from(await res.arrayBuffer()),
 			expires: Date.now() + expires,
+			format: mimeType,
 		};
 	} catch {
 		return undefined;
@@ -129,6 +135,8 @@ export async function ssgBuild({
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;
 
+		let inputFormat: OutputFormat | undefined = undefined;
+
 		// tracks the cache duration for the original source image
 		let expires = 0;
 
@@ -144,6 +152,7 @@ export async function ssgBuild({
 
 			inputBuffer = res?.data;
 			expires = res?.expires || 0;
+			inputFormat = res?.format as OutputFormat;
 		} else {
 			const inputFileURL = new URL(`.${src}`, outDir);
 			inputFile = fileURLToPath(inputFileURL);
@@ -189,7 +198,10 @@ export async function ssgBuild({
 
 			// a valid cache file wasn't found, transform the image and cache it
 			if (!data) {
-				const transformed = await loader.transform(inputBuffer, transform);
+				const transformed = await loader.transform(inputBuffer, {
+					...transform,
+					format: transform.format || inputFormat
+				});
 				data = transformed.data;
 
 				// cache the image, if available

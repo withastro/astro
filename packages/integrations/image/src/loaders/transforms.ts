@@ -3,10 +3,6 @@ import { ImageService } from '../index.js';
 import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
-export type RequireSome<T, P extends keyof T> =
-	Omit<T, P>
-	& Required<Pick<T, P>>;
-
 export type InputFormat =
 	| 'heic'
 	| 'heif'
@@ -160,7 +156,7 @@ export interface LocalTransformOptions extends BaseTransformOptions {
 	 src: ImageMetadata | AsyncImageMetadata;
 }
 
-export interface RemoteTransformOptions extends RequireSome<BaseTransformOptions, 'format'> {
+export interface RemoteTransformOptions extends BaseTransformOptions {
 	/**
 	 * Source for the original image file.
 	 *
