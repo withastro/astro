@@ -315,18 +315,17 @@ export async function main() {
 				choices.splice(index, 1);
 		}
 	} while (tsResponse === null || tsResponse?.typescript === 'unsure');
-	tsResponse.typescript = tsResponse!.typescript;
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (tsResponse.typescript) {
+	} else if (tsResponse!.typescript) {
 		const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
 		fs.readFile(templateTSConfigPath, (err, data) => {
 			if (err && err.code === 'ENOENT') {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				fs.writeFileSync(
 					templateTSConfigPath,
-					stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
+					stringify({ extends: `astro/tsconfigs/${tsResponse!.typescript}` }, null, 2)
 				);
 
 				return;
@@ -336,7 +335,7 @@ export async function main() {
 
 			if (templateTSConfig && typeof templateTSConfig === 'object') {
 				const result = assign(templateTSConfig, {
-					extends: `astro/tsconfigs/${tsResponse.typescript}`,
+					extends: `astro/tsconfigs/${tsResponse!.typescript}`,
 				});
 
 				fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
