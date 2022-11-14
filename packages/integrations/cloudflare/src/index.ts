@@ -33,6 +33,8 @@ const SHIM = `globalThis.process = {
 	env: {},
 };`;
 
+const SERVER_BUILD_FOLDER = '/$server_build/';
+
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
@@ -47,7 +49,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				updateConfig({
 					build: {
 						client: new URL(`.${config.base}`, config.outDir),
-						server: new URL('./server/', config.outDir),
+						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
 						serverEntry: '_worker.js',
 					},
 				});
@@ -62,6 +64,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
   [@astrojs/cloudflare] \`output: "server"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
 
 `);
+				}
+
+				if (config.base === SERVER_BUILD_FOLDER) {
+					throw new Error(`
+  [@astrojs/cloudflare] \`base: "${SERVER_BUILD_FOLDER}"\` is not allowed. Please change your \`base\` config to something else.`);
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
@@ -86,7 +93,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// Backwards compat
 				if (needsBuildConfig) {
 					buildConfig.client = new URL(`.${_config.base}`, _config.outDir);
-					buildConfig.server = new URL('./server/', _config.outDir);
+					buildConfig.server = new URL(`.${SERVER_BUILD_FOLDER}`, _config.outDir);
 					buildConfig.serverEntry = '_worker.js';
 				}
 			},

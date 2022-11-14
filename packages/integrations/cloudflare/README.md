@@ -107,6 +107,12 @@ export function get({ params }) {
 }
 ```
 
+## Headers, Redirects and function invocation routes
+
+Cloudflare has support for adding custom [headers](https://developers.cloudflare.com/pages/platform/headers/), configuring static [redirects](https://developers.cloudflare.com/pages/platform/redirects/) and defining which routes should [invoke functions](https://developers.cloudflare.com/pages/platform/functions/function-invocation-routes/). This is handled via the special files called _headers, _redirects and _routes.json which can be placed in the `public` folder to take effect.
+
+The _routes.json file is generated during build to prevent a function invocation on assets paths. This will be overwritten when a custom _routes.json is provided. If that is the case the static files will still be served, but the request will go through a function invocation and will count against the request limits of your Cloudflare plan.
+
 ## Troubleshooting
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
