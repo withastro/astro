@@ -1,9 +1,11 @@
 import * as vite from 'vite';
 import npath from 'path';
 import { pathToFileURL } from 'url';
+import fs from 'fs';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 // Fallback for legacy
-import load, { ProloadError, resolve } from '@proload/core';
+import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 
 load.use([loadTypeScript]);
@@ -33,71 +35,93 @@ async function createViteLoader(root: string): Promise<ViteLoader> {
 	};
 }
 
-interface TryLoadResult {
-	value: Record<string, any>;
-	filePath?: string;
-}
-
-async function tryLoadWith(root: string, paths: string[], cb: (path: string) => Promise<Record<string, any>>): Promise<TryLoadResult | null> {
-	for(const path of paths) {
-		const file = npath.join(root, path);
-		try {
-			const config = await cb(file);
-			return {
-				value: config.default ?? {},
-				filePath: file
-			};
-		} catch {}
-	}
-	return null;
-}
-
 interface LoadConfigWithViteOptions {
-	mustExist: boolean;
+	configPath: string | undefined;
 }
 
-export async function loadConfigWithVite(root: string, { mustExist }: LoadConfigWithViteOptions): Promise<{
+export async function loadConfigWithVite(root: string, { configPath }: LoadConfigWithViteOptions): Promise<{
 	value: Record<string, any>;
 	filePath?: string;
 }> {
-	let config = await tryLoadWith(root, ['astro.config.mjs', 'astro.config.js'], path => import(pathToFileURL(path).toString()));
-	if(config) {
-		return config;
+	let paths: string [];
+	if(configPath) {
+		// Go ahead and check if the file exists and throw if not.
+		try {
+			await fs.promises.stat(configPath);
+		} catch {
+			throw new AstroError({
+				...AstroErrorData.ConfigNotFound,
+				message: AstroErrorData.ConfigNotFound.message(configPath),
+			});
+		}
+
+		paths = [configPath];
+	} else {
+		paths = [
+			'astro.config.mjs',
+			'astro.config.js',
+			'astro.config.ts',
+			'astro.config.mts',
+			'astro.config.cjs'
+		].map(path => npath.join(root, path));
 	}
 
-	const paths = [
-		'astro.config.ts',
-		'astro.config.mts',
-		'astro.config.cts'
-	];
+	// Initialize a ViteLoader variable. We may never need to create one
+	// but if we do, we only want to create it once.
+	let loader: ViteLoader | null = null;
 
-	const loader = await createViteLoader(root);
-	config = await tryLoadWith(root, paths, async path => {
-		const mod = await loader.viteServer.ssrLoadModule(path);
-		await loader.viteServer.close();
-		return mod;
-	});
-
-	if(config) {
-		return config;
+	try {
+		for(const file of paths) {
+			// Try loading with Node import()
+			if(/\.(m?)js$/.test(file)) {
+				try {
+					const config = await import(pathToFileURL(file).toString());
+					return {
+						value: config.default ?? {},
+						filePath: file
+					};
+				} catch {}
+			}
+	
+			// Try Loading with Vite
+			if(!loader) {
+				loader = await createViteLoader(root);
+			}
+	
+			try {
+				const mod = await loader.viteServer.ssrLoadModule(file);
+				return {
+					value: mod.default ?? {},
+					filePath: file
+				}
+			} catch {}
+	
+			// Try loading with Proload
+			// TODO deprecate - this is only for legacy compatibility
+			try {
+				const res = await load('astro', {
+					mustExist: !!configPath,
+					cwd: root,
+					filePath: file,
+				});
+				return {
+					value: res?.value ?? {},
+					filePath: file
+				};
+			} catch {}
+		}
+	} finally {
+		// Tear-down the ViteLoader, if one was created.
+		if(loader) {
+			await loader.viteServer.close();
+		}
 	}
 
-	await loader.viteServer.close();
-
-	// TODO deprecate
-	// Fallback to use Proload. This is only for legacy compatibility. In 2.0
-	// we should remove this.
-	config = await tryLoadWith(root, paths, async path => {
-		const res = await load('astro', {
-			mustExist,
-			cwd: root,
-			filePath: path,
+	if(configPath) {
+		throw new AstroError({
+			...AstroErrorData.ConfigNotFound,
+			message: `Unable to find an Astro config file.`,
 		});
-		return res?.value ?? {};
-	});
-
-	if(mustExist) {
-		throw new Error(`Unable to find a config in ${root}`);
 	}
 
 	return {
