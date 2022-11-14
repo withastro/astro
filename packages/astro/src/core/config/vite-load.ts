@@ -64,6 +64,7 @@ export async function loadConfigWithVite({ configPath, fs, root }: LoadConfigWit
 			'astro.config.js',
 			'astro.config.ts',
 			'astro.config.mts',
+			'astro.config.cjs',
 			'astro.config.cjs'
 		].map(path => npath.join(root, path));
 	}
