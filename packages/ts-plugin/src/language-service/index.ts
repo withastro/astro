@@ -1,12 +1,13 @@
 import type ts from 'typescript/lib/tsserverlibrary';
-import { AstroSnapshotManager } from '../astro-snapshots.js';
-import { Logger } from '../logger';
-import { isAstroFilePath } from '../utils.js';
+import type { AstroSnapshotManager } from '../astro-snapshots.js';
+import type { Logger } from '../logger';
 import { decorateCompletions } from './completions.js';
 import { decorateGetDefinition } from './definition.js';
 import { decorateDiagnostics } from './diagnostics.js';
+import { decorateGetFileReferences } from './file-references.js';
 import { decorateFindReferences } from './find-references.js';
 import { decorateGetImplementation } from './implementation.js';
+import { decorateLineColumnOffset } from './line-column-offset.js';
 import { decorateRename } from './rename.js';
 
 export function decorateLanguageService(
@@ -14,30 +15,14 @@ export function decorateLanguageService(
 	snapshotManager: AstroSnapshotManager,
 	logger: Logger
 ): ts.LanguageService {
-	patchLineColumnOffset(ls, snapshotManager);
+	decorateLineColumnOffset(ls, snapshotManager);
 	decorateRename(ls, snapshotManager, logger);
-	decorateDiagnostics(ls, logger);
+	decorateDiagnostics(ls);
 	decorateFindReferences(ls, snapshotManager, logger);
 	decorateCompletions(ls, logger);
-	decorateGetDefinition(ls, snapshotManager, logger);
-	decorateGetImplementation(ls, snapshotManager, logger);
+	decorateGetDefinition(ls, snapshotManager);
+	decorateGetImplementation(ls, snapshotManager);
+	decorateGetFileReferences(ls, snapshotManager);
+
 	return ls;
-}
-
-function patchLineColumnOffset(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager) {
-	if (!ls.toLineColumnOffset) {
-		return;
-	}
-
-	// We need to patch this because (according to source, only) getDefinition uses this
-	const toLineColumnOffset = ls.toLineColumnOffset;
-	ls.toLineColumnOffset = (fileName, position) => {
-		if (isAstroFilePath(fileName)) {
-			const snapshot = snapshotManager.get(fileName);
-			if (snapshot) {
-				return snapshot.positionAt(position);
-			}
-		}
-		return toLineColumnOffset(fileName, position);
-	};
 }

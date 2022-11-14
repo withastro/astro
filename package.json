@@ -16,7 +16,7 @@
     "format:code": "prettier -w . --cache",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json",
     "lint": "eslint . --ext .js,.ts,.mjs,.cjs",
-    "test": "turbo run test --scope=@astrojs/language-server --scope=astro-vscode"
+    "test": "turbo run test --scope=@astrojs/language-server --scope=astro-vscode && turbo run test --scope=@astrojs/ts-plugin --no-deps"
   },
   "devDependencies": {
     "@changesets/cli": "^2.16.0",

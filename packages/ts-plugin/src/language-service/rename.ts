@@ -1,6 +1,6 @@
 import type ts from 'typescript/lib/tsserverlibrary';
-import { AstroSnapshotManager } from '../astro-snapshots.js';
-import { Logger } from '../logger.js';
+import type { AstroSnapshotManager } from '../astro-snapshots.js';
+import type { Logger } from '../logger.js';
 import { isAstroFilePath, isNotNullOrUndefined } from '../utils.js';
 
 export function decorateRename(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager, logger: Logger): void {

@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2020",
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "checkJs": false,
+    "rootDir": ".",
+    "emitDeclarationOnly": false,
+    "noEmit": true
+  },
+  "include": ["**/*.js"]
+}

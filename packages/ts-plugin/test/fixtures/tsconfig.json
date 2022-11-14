@@ -1,0 +1,3 @@
+{
+  // Purposely empty, this is done so TypeScript knows where the root of the project is and doesn't try to go too high into the monorepo
+}

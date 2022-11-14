@@ -1,8 +1,8 @@
+import { EncodedSourceMap, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
 import type ts from 'typescript/lib/tsserverlibrary';
 import { astro2tsx } from './astro2tsx.js';
-import { Logger } from './logger.js';
-import { SourceMapper } from './source-mapper.js';
-import { isAstroFilePath, isNoTextSpanInGeneratedCode } from './utils.js';
+import type { Logger } from './logger.js';
+import { isAstroFilePath } from './utils.js';
 
 export class AstroSnapshot {
 	private scriptInfo?: ts.server.ScriptInfo;
@@ -13,23 +13,18 @@ export class AstroSnapshot {
 		private typescript: typeof ts,
 		private fileName: string,
 		private astroCode: string,
-		private mapper: SourceMapper,
-		private logger: Logger,
-		public readonly isTsFile: boolean
+		private traceMap: TraceMap,
+		private logger: Logger
 	) {}
 
-	update(astroCode: string, mapper: SourceMapper) {
+	update(astroCode: string, traceMap: TraceMap) {
 		this.astroCode = astroCode;
-		this.mapper = mapper;
+		this.traceMap = traceMap;
 		this.lineOffsets = undefined;
 		this.log('Updated Snapshot');
 	}
 
 	getOriginalTextSpan(textSpan: ts.TextSpan): ts.TextSpan | null {
-		if (!isNoTextSpanInGeneratedCode(this.getText(), textSpan)) {
-			return null;
-		}
-
 		const start = this.getOriginalOffset(textSpan.start);
 		if (start === -1) {
 			return null;
@@ -50,16 +45,17 @@ export class AstroSnapshot {
 		this.toggleMappingMode(true);
 		const lineOffset = this.scriptInfo.positionToLineOffset(generatedOffset);
 		this.debug('try convert offset', generatedOffset, '/', lineOffset);
-		const original = this.mapper.getOriginalPosition({
-			line: lineOffset.line - 1,
-			character: lineOffset.offset - 1,
+		const original = originalPositionFor(this.traceMap, {
+			line: lineOffset.line,
+			column: lineOffset.offset,
 		});
 		this.toggleMappingMode(false);
-		if (original.line === -1) {
+
+		if (!original.line) {
 			return -1;
 		}
 
-		const originalOffset = this.scriptInfo.lineOffsetToPosition(original.line + 1, original.character + 1);
+		const originalOffset = this.scriptInfo.lineOffsetToPosition(original.line, original.column);
 		this.debug('converted offset to', original, '/', originalOffset);
 		return originalOffset;
 	}
@@ -250,14 +246,10 @@ export class AstroSnapshotManager {
 				this.logger.debug('Read Astro file:', path);
 				const astroCode = readFile(path) || '';
 				try {
-					const isTsFile = true;
-					const result = astro2tsx(astroCode, {
-						filename: path.split('/').pop(),
-						isTsFile,
-					});
+					const result = astro2tsx(astroCode, path);
 					const existingSnapshot = this.snapshots.get(path);
 					if (existingSnapshot) {
-						existingSnapshot.update(astroCode, new SourceMapper(result.map.mappings));
+						existingSnapshot.update(astroCode, new TraceMap(result.map as EncodedSourceMap));
 					} else {
 						this.snapshots.set(
 							path,
@@ -265,9 +257,8 @@ export class AstroSnapshotManager {
 								this.typescript,
 								path,
 								astroCode,
-								new SourceMapper(result.map.mappings),
-								this.logger,
-								isTsFile
+								new TraceMap(result.map as EncodedSourceMap),
+								this.logger
 							)
 						);
 					}

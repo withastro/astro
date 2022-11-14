@@ -1,5 +1,5 @@
 import type ts from 'typescript/lib/tsserverlibrary';
-import { Logger } from '../logger.js';
+import type { Logger } from '../logger.js';
 import { isAstroFilePath, replaceDeep } from '../utils.js';
 
 const componentPostfix = '__AstroComponent_';
@@ -27,9 +27,20 @@ export function decorateCompletions(ls: ts.LanguageService, logger: Logger): voi
 
 	const getCompletionEntryDetails = ls.getCompletionEntryDetails;
 	ls.getCompletionEntryDetails = (fileName, position, entryName, formatOptions, source, preferences, data) => {
-		const details = getCompletionEntryDetails(fileName, position, entryName, formatOptions, source, preferences, data);
-		if (details || !isAstroFilePath(source || '')) {
-			return details;
+		if (!isAstroFilePath(source || '')) {
+			const details = getCompletionEntryDetails(
+				fileName,
+				position,
+				entryName,
+				formatOptions,
+				source,
+				preferences,
+				data
+			);
+
+			if (details) {
+				return details;
+			}
 		}
 
 		// In the completion list we removed the component postfix. Internally,

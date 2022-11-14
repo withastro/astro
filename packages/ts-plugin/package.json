@@ -12,17 +12,26 @@
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "node ./test/runTest.js"
   },
   "author": "withastro",
   "license": "MIT",
-  "devDependencies": {
-    "@tsconfig/node12": "^1.0.0",
-    "@types/node": "^13.9.0",
-    "typescript": "*",
-    "astro-scripts": "*"
-  },
   "dependencies": {
-    "sourcemap-codec": "^1.4.8"
+    "@astrojs/compiler": "^0.29.15",
+    "@jridgewell/trace-mapping": "^0.3.15",
+    "synckit": "^0.8.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^16.11.58",
+    "@types/vscode": "^1.67.0",
+    "@vscode/test-electron": "^2.1.5",
+    "astro-scripts": "*",
+    "chai": "^4.3.6",
+    "glob": "^8.0.3",
+    "mocha": "^9.2.2",
+    "typescript": "~4.8.2"
   }
 }

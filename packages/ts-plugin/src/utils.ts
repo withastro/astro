@@ -19,26 +19,6 @@ export function isNotNullOrUndefined<T>(val: T | undefined | null): val is T {
 }
 
 /**
- * Checks if this a section that should be completely ignored
- * because it's purely generated.
- */
-export function isInGeneratedCode(text: string, start: number, end: number) {
-	const lineStart = text.lastIndexOf('\n', start);
-	const lineEnd = text.indexOf('\n', end);
-	const lastStart = text.substring(lineStart, start).lastIndexOf('/*Ωignore_startΩ*/');
-	const lastEnd = text.substring(lineStart, start).lastIndexOf('/*Ωignore_endΩ*/');
-	return lastStart > lastEnd && text.substring(end, lineEnd).includes('/*Ωignore_endΩ*/');
-}
-
-/**
- * Checks that this isn't a text span that should be completely ignored
- * because it's purely generated.
- */
-export function isNoTextSpanInGeneratedCode(text: string, span: ts.TextSpan) {
-	return !isInGeneratedCode(text, span.start, span.start + span.length);
-}
-
-/**
  * Replace all occurrences of a string within an object with another string,
  */
 export function replaceDeep<T extends Record<string, any>>(
@@ -63,4 +43,33 @@ export function replaceDeep<T extends Record<string, any>>(
 		}
 		return _obj;
 	}
+}
+
+export function getConfigPathForProject(project: ts.server.Project) {
+	return (
+		(project as ts.server.ConfiguredProject).canonicalConfigFilePath ??
+		(project.getCompilerOptions() as any).configFilePath
+	);
+}
+
+export function readProjectAstroFilesFromFs(
+	ts: typeof import('typescript/lib/tsserverlibrary'),
+	project: ts.server.Project,
+	parsedCommandLine: ts.ParsedCommandLine
+) {
+	const fileSpec: TsFilesSpec = parsedCommandLine.raw;
+	const { include, exclude } = fileSpec;
+
+	if (include?.length === 0) {
+		return [];
+	}
+
+	return ts.sys
+		.readDirectory(project.getCurrentDirectory() || process.cwd(), ['.astro'], exclude, include)
+		.map(ts.server.toNormalizedPath);
+}
+
+export interface TsFilesSpec {
+	include?: readonly string[];
+	exclude?: readonly string[];
 }

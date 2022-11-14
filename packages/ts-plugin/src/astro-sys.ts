@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { Logger } from './logger.js';
+import type { Logger } from './logger.js';
 import { ensureRealAstroFilePath, isVirtualAstroFilePath, toRealAstroFilePath } from './utils.js';
 
 /**

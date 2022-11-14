@@ -11,23 +11,15 @@ pnpm
 pnpm build
 ```
 
-## Debugging
+## VS Code extension
+
+### Debugging
 
 During the normal course of development on the VSCode extension you'll want to run the debugger. First run the build in watch mode with:
 
 ```shell
 pnpm dev
 ```
-
-### Turn Off Extension
-
-If you have the Extension installed you'll need to turn it off, or your development extension will not be used and you'll be confused why your changes are not working.
-
-1. Click on **Extensions**.
-2. Search for _astro_.
-3. Click the extension and then click **Disable**.
-
-<img width="1530" alt="Show the steps of disabling the extension" src="https://user-images.githubusercontent.com/361671/130800518-177b2e9f-f2e0-46ff-adac-31ff099b67fe.png">
 
 ### Start Debugger
 
@@ -60,3 +52,34 @@ Now you can start developing your changes. You can set breakpoints or add `debug
 This will restart the extension and reload your test window.
 
 <img width="406" alt="Shows how to restart the extension" src="https://user-images.githubusercontent.com/361671/130806011-c36b6b50-d2f1-4ef3-a2da-ca7e9ab2a8fe.png">
+
+### Troubleshooting
+
+### Changes are not picked up
+
+If you have the Extension installed you'll need to turn it off, or your development extension will not be used and you'll be confused why your changes are not working.
+
+1. Click on **Extensions**.
+2. Search for _astro_.
+3. Click the extension and then click **Disable**.
+
+<img width="1530" alt="Show the steps of disabling the extension" src="https://user-images.githubusercontent.com/361671/130800518-177b2e9f-f2e0-46ff-adac-31ff099b67fe.png">
+
+## TS Plugin
+
+To start development on the TS Plugin, you'll need to first run the following command:
+
+```shell
+pnpm dev
+```
+
+### Logging
+
+Logs from TypeScript plugins are shown in the TSServer log. To open this log, follow these steps:
+
+1. Ctrl+Shift+P (CMD+Shift+P on OSX) opens the command palette.
+2. Select **TypeScript: Open TS Server log**.
+
+If you've never openned the TS Server log before, you'll first need to enable logging and restart the TSServer. The command will prompt you to do this if needed
+
+> Hint: TSServer's logs are really noisy, even at the lowest level. Make sure to disable other plugins when working on the TS Plugin. Alternatively, grepping for "Astro Plugin" can help
