@@ -112,18 +112,18 @@ describe('dev container restarts', () => {
 		}
 	});
 
-	it.only('Is able to restart project using Tailwind + astro.config.ts', async () => {
-		const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
+	it('Is able to restart project using Tailwind + astro.config.ts', async () => {
+		const troot = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': ``,
 				'/astro.config.ts': ``,
 			},
-			root
+			troot
 		);
 
 		const { astroConfig } = await openConfig({
-			cwd: root,
+			cwd: troot,
 			flags: {},
 			cmd: 'dev',
 			logging: defaultLogging,
