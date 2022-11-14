@@ -19,19 +19,19 @@ describe('Sharp service', () => {
 			['crop position', { src, position: 'center' }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
-				const { src } = await sharp.getImageAttributes(props);
+				const attrs = await sharp.getImageAttributes(props);
 
-				const [pathname, search] = src.split('?');
+				const [pathname, search] = attrs.src.split('?');
 
 				expect(pathname).to.equal('/_image');
 
 				const searchParams = new URLSearchParams(search);
 
-				function verifyProp(expected, search) {
+				function verifyProp(expected, prop) {
 					if (expected) {
-						expect(searchParams.get(search)).to.equal(expected.toString());
+						expect(searchParams.get(prop)).to.equal(expected.toString());
 					} else {
-						expect(searchParams.has(search)).to.be.false;
+						expect(searchParams.has(prop)).to.be.false;
 					}
 				}
 
