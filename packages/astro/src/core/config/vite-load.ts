@@ -82,7 +82,7 @@ export async function loadConfigWithVite({ configPath, fs, root }: LoadConfigWit
 			}
 
 			// Try loading with Node import()
-			if(/\.(m?)js$/.test(file)) {
+			if(/\.[cm]?js$/.test(file)) {
 				try {
 					const config = await import(pathToFileURL(file).toString());
 					return {
