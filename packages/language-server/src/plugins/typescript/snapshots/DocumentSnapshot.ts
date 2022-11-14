@@ -9,8 +9,8 @@ import {
 	IdentityMapper,
 	offsetAt,
 	positionAt,
-	TagInformation,
 	SourceMapDocumentMapper,
+	TagInformation,
 } from '../../../core/documents';
 import { pathToUrl } from '../../../utils';
 

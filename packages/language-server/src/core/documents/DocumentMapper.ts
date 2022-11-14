@@ -1,3 +1,5 @@
+import { generatedPositionFor, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
+import type ts from 'typescript';
 import {
 	CodeAction,
 	ColorPresentation,
@@ -14,10 +16,8 @@ import {
 	TextDocumentEdit,
 	TextEdit,
 } from 'vscode-languageserver';
-import { TagInformation, offsetAt, positionAt, getLineOffsets } from './utils';
-import { generatedPositionFor, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
 import { DocumentSnapshot, ScriptTagDocumentSnapshot } from '../../plugins/typescript/snapshots/DocumentSnapshot';
-import type ts from 'typescript';
+import { getLineOffsets, offsetAt, positionAt, TagInformation } from './utils';
 
 export interface DocumentMapper {
 	/**

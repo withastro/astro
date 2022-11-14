@@ -1,6 +1,6 @@
 import { DiagnosticMessage } from '@astrojs/compiler/shared/types';
 import type ts from 'typescript';
-import { Diagnostic, DiagnosticSeverity, Range } from 'vscode-languageserver-types';
+import { Diagnostic, Range } from 'vscode-languageserver-types';
 import { AstroDocument } from '../../../core/documents';
 import { DiagnosticsProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../../typescript/LanguageServiceManager';

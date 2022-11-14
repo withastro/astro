@@ -1,7 +1,7 @@
+import { resolve } from 'path';
 import type { Position, Range } from 'vscode-languageserver';
 import { URI } from 'vscode-uri';
 import { getPackagePath } from './importPackage';
-import { resolve } from 'path';
 
 /** Normalizes a document URI */
 export function normalizeUri(uri: string): string {

@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import ts from 'typescript/lib/tsserverlibrary';
-import { TextDocumentChangeEvent } from 'vscode-languageserver';
 import { CodeActionKind, Position, Range, TextDocumentEdit } from 'vscode-languageserver-types';
 import {
 	CodeActionsProviderImpl,
