@@ -1,10 +1,12 @@
+import type { AstroConfig } from 'astro';
 import { fileURLToPath } from 'url';
 import { crawlFrameworkPkgs } from 'vitefu';
 
-export async function getSolidPkgsConfig(root: URL, isBuild: boolean) {
+export async function getSolidPkgsConfig(isBuild: boolean, astroConfig: AstroConfig) {
 	return await crawlFrameworkPkgs({
-		root: fileURLToPath(root),
+		root: fileURLToPath(astroConfig.root),
 		isBuild,
+		viteUserConfig: astroConfig.vite,
 		isFrameworkPkgByJson(pkgJson) {
 			return containsSolidField(pkgJson.exports || {});
 		},

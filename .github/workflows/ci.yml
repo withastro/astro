@@ -6,8 +6,8 @@ on:
       - main
   pull_request:
     paths-ignore:
-      - '.vscode/**'
-      - '**/*.md'
+      - ".vscode/**"
+      - "**/*.md"
 
 # Automatically cancel older in-progress jobs on the same branch
 concurrency:
@@ -23,10 +23,10 @@ env:
   FORCE_COLOR: true
   ASTRO_TELEMETRY_DISABLED: true
 
-
 jobs:
   lint:
     name: Lint
+    timeout-minutes: 3
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
@@ -65,7 +65,7 @@ jobs:
           auto_fix: false
           git_name: fredkbot
           git_email: fred+astrobot@astro.build
-          commit_message: 'chore(lint): ${linter} fix'
+          commit_message: "chore(lint): ${linter} fix"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
@@ -76,8 +76,9 @@ jobs:
 
   # Build primes out build caches for Turbo
   build:
-    name: 'Build: ${{ matrix.os }}'
+    name: "Build: ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 3
     strategy:
       matrix:
         OS: [ubuntu-latest]
@@ -94,7 +95,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
@@ -103,8 +104,9 @@ jobs:
         run: pnpm run build
 
   test:
-    name: 'Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
+    name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
     needs: build
     strategy:
       matrix:
@@ -128,7 +130,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Use Deno
         uses: denoland/setup-deno@v1
@@ -145,7 +147,7 @@ jobs:
         run: pnpm run test
 
   e2e:
-    name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
+    name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     needs: build
@@ -167,7 +169,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
@@ -179,8 +181,9 @@ jobs:
         run: pnpm run test:e2e
 
   smoke:
-    name: 'Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
+    name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
     needs: build
     strategy:
       matrix:
@@ -199,7 +202,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Checkout docs
         uses: actions/checkout@v3

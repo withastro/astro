@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.11.4
+
+### Patch Changes
+
+- [#5360](https://github.com/withastro/astro/pull/5360) [`20e60c6e0`](https://github.com/withastro/astro/commit/20e60c6e0857f7b6938494df6027e8c1ad74cdc1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression with local builds
+
 ## 0.11.3
 
 ### Patch Changes

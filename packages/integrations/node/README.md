@@ -97,7 +97,7 @@ app.use(ssrHandler);
 app.listen(8080);
 ```
 
-Note that middleware mode does not do file servering. You'll need to configure your HTTP framework to do that for you. By default the client assets are written to `./dist/client/`.
+Note that middleware mode does not do file serving. You'll need to configure your HTTP framework to do that for you. By default the client assets are written to `./dist/client/`.
 
 ### Standalone
 
