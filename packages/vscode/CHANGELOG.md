@@ -1,5 +1,21 @@
 # astro-vscode
 
+## 0.29.0
+
+### Minor Changes
+
+- c8cdef9: Improved support for `.astro` imports inside JavaScript/TypeScript files:
+  - Added support for finding file references inside Astro files
+  - Added support for path completions for .astro, .md and .mdx files
+  - Fixed cases where our TypeScript plugin would fail to load under certain circumstance
+  - Fixed certain cases where Go to definition / implementation would fail
+- 291ff7c: Migrate the language-server to use a new TSX output using the Astro compiler. This should make things such as autocomplete and hover information much more accurate, in addition to bringing support for numerous Astro features that were previously not working (such as support for the shorthand syntax for props, support for `is:raw` and more!)
+
+### Patch Changes
+
+- Updated dependencies [c8cdef9]
+  - @astrojs/ts-plugin@0.4.0
+
 ## 0.28.3
 
 ### Patch Changes
