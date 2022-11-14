@@ -370,7 +370,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.29.11
+      '@astrojs/compiler': ^0.29.14
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^1.1.3
       '@astrojs/telemetry': ^1.0.1
@@ -469,7 +469,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.29.13
+      '@astrojs/compiler': 0.29.14
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -1103,6 +1103,9 @@ importers:
     dependencies:
       '@astrojs/node': link:../../../../integrations/node
       astro: link:../../..
+
+  packages/astro/test/benchmark/simple/dist/server:
+    specifiers: {}
 
   packages/astro/test/fixtures/0-css:
     specifiers:
@@ -3843,8 +3846,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler/0.29.13:
-    resolution: {integrity: sha512-C9+91vsWiJspj/VkVp6UtSIrJGuj/Aia1KCEDzg2Ge27uSDCOl1QlUQuAAnAbGpFBF71uaYOUZOPCbptQeGbdQ==}
+  /@astrojs/compiler/0.29.14:
+    resolution: {integrity: sha512-L1wyCsXCU8RYmivf8tr4OSoh347F6RyWAZoSoMYfRLT1t27ieEBs00bya0whG4cAj4AuSsG2+pthXet6985Cow==}
 
   /@astrojs/language-server/0.28.3:
     resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}
@@ -15885,7 +15888,7 @@ packages:
     resolution: {integrity: sha512-ehCUx7MqHWvkHwUmxxAWLsL35pFaCTM5YXQ8xjG/1W6dY2yBhvEks+2aCfjeI5zmMrZNCXkiMQtpznSlLSLrxw==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
-      '@astrojs/compiler': 0.29.13
+      '@astrojs/compiler': 0.29.14
       prettier: 2.7.1
       sass-formatter: 0.7.5
       synckit: 0.8.4
