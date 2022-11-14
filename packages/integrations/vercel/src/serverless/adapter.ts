@@ -1,10 +1,10 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
+import glob from 'fast-glob';
+import { pathToFileURL } from 'url';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
-import glob from 'fast-glob';
-import { pathToFileURL } from 'url';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 
@@ -70,13 +70,13 @@ export default function vercelServerless({
 			'astro:build:done': async ({ routes }) => {
 				// Merge any includes from `vite.assetsInclude
 				const inc = includeFiles?.map((file) => new URL(file, _config.root)) || [];
-				if(_config.vite.assetsInclude) {
+				if (_config.vite.assetsInclude) {
 					const mergeGlobbedIncludes = (globPattern: unknown) => {
-						if(typeof globPattern === 'string') {
-							const entries = glob.sync(globPattern).map(p => pathToFileURL(p));
+						if (typeof globPattern === 'string') {
+							const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
 							inc.push(...entries);
-						} else if(Array.isArray(globPattern)) {
-							for(const pattern of globPattern) {
+						} else if (Array.isArray(globPattern)) {
+							for (const pattern of globPattern) {
 								mergeGlobbedIncludes(pattern);
 							}
 						}
