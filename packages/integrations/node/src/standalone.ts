@@ -45,6 +45,7 @@ export default function startServer(app: NodeApp, options: Options) {
 			client,
 			port,
 			host,
+			removeBase: app.removeBase.bind(app),
 		},
 		handler
 	);

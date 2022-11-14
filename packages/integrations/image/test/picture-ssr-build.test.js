@@ -175,7 +175,7 @@ describe('SSR pictures with subpath - build', function () {
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
-			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
+			query: { f: 'jpg', w: '768', h: '414', href: '/docs/hero.jpg' },
 			alt: 'Hero image',
 		},
 		{
@@ -195,7 +195,7 @@ describe('SSR pictures with subpath - build', function () {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
 
-			const request = new Request('http://example.com/');
+			const request = new Request('http://example.com/docs/');
 			const response = await app.render(request);
 			const html = await response.text();
 			const $ = cheerio.load(html);

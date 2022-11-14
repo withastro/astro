@@ -2,12 +2,12 @@ import type { GetModuleInfo } from 'rollup';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
 
-import crypto from 'crypto';
 import esbuild from 'esbuild';
-import npath from 'path';
 import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
-import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+
+import * as assetName from './css-asset-name.js';
+import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
@@ -28,20 +28,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 	let resolvedConfig: ResolvedConfig;
 
-	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
-		const parents = Array.from(getTopLevelPages(id, ctx));
-		const firstParentId = parents[0]?.[0].id;
-		const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index';
-
-		const hash = crypto.createHash('sha256');
-		for (const [page] of parents) {
-			hash.update(page.id, 'utf-8');
-		}
-		const h = hash.digest('hex').slice(0, 8);
-		const proposedName = firstParentName + '.' + h;
-		return proposedName;
-	}
-
 	function* getParentClientOnlys(
 		id: string,
 		ctx: { getModuleInfo: GetModuleInfo }
@@ -57,6 +43,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 			outputOptions(outputOptions) {
 				const manualChunks = outputOptions.manualChunks || Function.prototype;
+				const assetFileNames = outputOptions.assetFileNames;
+				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
+				const createNameForParentPages = namingIncludesHash
+					? assetName.shortHashedName
+					: assetName.createSlugger(settings);
 				outputOptions.manualChunks = function (id, ...args) {
 					// Defer to user-provided `manualChunks`, if it was provided.
 					if (typeof manualChunks == 'object') {

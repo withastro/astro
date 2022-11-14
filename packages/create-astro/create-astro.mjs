@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 'use strict';
 
 const currentVersion = process.versions.node;

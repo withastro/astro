@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../app/index.js';
+import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachPageData, sortedCSS } from './internal.js';
@@ -132,18 +133,27 @@ function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
+	const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
+	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
+
 	for (const pageData of eachPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
-			scripts.unshift(pageData.hoistedScript);
+			scripts.unshift(
+				Object.assign({}, pageData.hoistedScript, {
+					value: joinBase(pageData.hoistedScript.value),
+				})
+			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
 		}
 
+		const links = sortedCSS(pageData).map((pth) => joinBase(pth));
+
 		routes.push({
 			file: '',
-			links: sortedCSS(pageData),
+			links,
 			scripts: [
 				...scripts,
 				...settings.scripts
@@ -172,7 +182,7 @@ function buildManifest(
 		pageMap: null as any,
 		renderers: [],
 		entryModules,
-		assets: staticFiles.map((s) => '/' + s),
+		assets: staticFiles.map((s) => settings.config.base + s),
 	};
 
 	return ssrManifest;

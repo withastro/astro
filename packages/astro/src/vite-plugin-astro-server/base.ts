@@ -1,7 +1,8 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 
-import { LogOptions } from '../core/logger/core.js';
+import * as fs from 'fs';
+import { LogOptions, warn } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { log404 } from './common.js';
 import { writeHtmlResponse } from './response.js';
@@ -12,15 +13,17 @@ export function baseMiddleware(
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
 	const site = config.site ? new URL(config.base, config.site) : undefined;
-	const devRoot = site ? site.pathname : '/';
+	const devRootURL = new URL(config.base, 'http://localhost');
+	const devRoot = site ? site.pathname : devRootURL.pathname;
+	const devRootReplacement = devRoot.endsWith('/') ? '/' : '';
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
 
-		const pathname = decodeURI(new URL(url, 'http://vitejs.dev').pathname);
+		const pathname = decodeURI(new URL(url, 'http://localhost').pathname);
 
 		if (pathname.startsWith(devRoot)) {
-			req.url = url.replace(devRoot, '/');
+			req.url = url.replace(devRoot, devRootReplacement);
 			return next();
 		}
 
@@ -41,6 +44,23 @@ export function baseMiddleware(
 			return writeHtmlResponse(res, 404, html);
 		}
 
-		next();
+		// Check to see if it's in public and if so 404
+		const publicPath = new URL('.' + req.url, config.publicDir);
+		fs.stat(publicPath, (_err, stats) => {
+			if (stats) {
+				const expectedLocation = new URL('.' + url, devRootURL).pathname;
+				warn(
+					logging,
+					'dev',
+					`Requests for items in your public folder must also include your base. ${url} should be ${expectedLocation}. Omitting the base will break in production.`
+				);
+				res.writeHead(301, {
+					Location: expectedLocation,
+				});
+				res.end();
+			} else {
+				next();
+			}
+		});
 	};
 }

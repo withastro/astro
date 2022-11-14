@@ -50,20 +50,36 @@ export default function createVitePluginAstroServer({
 					});
 				}
 				viteServer.middlewares.use(async (req, res) => {
-					if (!req.url || !req.method) {
-						throw new Error('Incomplete request');
+					if (req.url === undefined || !req.method) {
+						res.writeHead(500, 'Incomplete request');
+						res.end();
+						return;
 					}
 					handleRequest(env, manifest, serverController, req, res);
 				});
 			};
 		},
-		// HACK: hide `.tip` in Vite's ErrorOverlay and replace [vite] messages with [astro]
+		// HACK: Manually replace code in Vite's overlay to fit it to our needs
+		// In the future, we'll instead take over the overlay entirely, which should be safer and cleaner
 		transform(code, id, opts = {}) {
 			if (opts.ssr) return;
 			if (!id.includes('vite/dist/client/client.mjs')) return;
-			return code
-				.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
-				.replace(/\[vite\]/g, '[astro]');
+			return (
+				code
+					// Transform links in the message to clickable links
+					.replace(
+						"this.text('.message-body', message.trim());",
+						`const urlPattern = /(\\b(https?|ftp):\\/\\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
+						function escapeHtml(unsafe){return unsafe.replace(/</g, "&lt;").replace(/>/g, "&gt;");}
+ 					const escapedMessage = escapeHtml(message);
+					this.root.querySelector(".message-body").innerHTML = escapedMessage.trim().replace(urlPattern, '<a href="$1" target="_blank">$1</a>');`
+					)
+					.replace('</style>', '.message-body a {\n  color: #ededed;\n}\n</style>')
+					// Hide `.tip` in Vite's ErrorOverlay
+					.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
+					// Replace [vite] messages with [astro]
+					.replace(/\[vite\]/g, '[astro]')
+			);
 		},
 	};
 }

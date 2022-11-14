@@ -106,4 +106,105 @@ describe('dev container', () => {
 			expect($('body.two')).to.have.a.lengthOf(1);
 		});
 	});
+
+	it('Allows dynamic segments in injected routes', async () => {
+		const fs = createFs(
+			{
+				'/src/components/test.astro': `<h1>{Astro.params.slug}</h1>`,
+				'/src/pages/test-[slug].astro': `<h1>{Astro.params.slug}</h1>`,
+			},
+			root
+		);
+
+		await runInContainer(
+			{
+				fs,
+				root,
+				userConfig: {
+					output: 'server',
+					integrations: [
+						{
+							name: '@astrojs/test-integration',
+							hooks: {
+								'astro:config:setup': ({ injectRoute }) => {
+									injectRoute({
+										pattern: '/another-[slug]',
+										entryPoint: './src/components/test.astro',
+									});
+								},
+							},
+						},
+					],
+				},
+			},
+			async (container) => {
+				let r = createRequestAndResponse({
+					method: 'GET',
+					url: '/test-one',
+				});
+				container.handle(r.req, r.res);
+				await r.done;
+				expect(r.res.statusCode).to.equal(200);
+
+				// Try with the injected route
+				r = createRequestAndResponse({
+					method: 'GET',
+					url: '/another-two',
+				});
+				container.handle(r.req, r.res);
+				await r.done;
+				expect(r.res.statusCode).to.equal(200);
+			}
+		);
+	});
+
+	it('items in public/ are not available from root when using a base', async () => {
+		await runInContainer(
+			{
+				root,
+				userConfig: {
+					base: '/sub/',
+				},
+			},
+			async (container) => {
+				// First try the subpath
+				let r = createRequestAndResponse({
+					method: 'GET',
+					url: '/sub/test.txt',
+				});
+
+				container.handle(r.req, r.res);
+				await r.done;
+
+				expect(r.res.statusCode).to.equal(200);
+
+				// Next try the root path
+				r = createRequestAndResponse({
+					method: 'GET',
+					url: '/test.txt',
+				});
+
+				container.handle(r.req, r.res);
+				await r.done;
+
+				expect(r.res.statusCode).to.equal(301);
+				expect(r.res.getHeader('location')).to.equal('/sub/test.txt');
+			}
+		);
+	});
+
+	it('items in public/ are available from root when not using a base', async () => {
+		await runInContainer({ root }, async (container) => {
+			// Try the root path
+			let r = createRequestAndResponse({
+				method: 'GET',
+				url: '/test.txt',
+			});
+
+			container.handle(r.req, r.res);
+			await r.done;
+
+			expect(r.res.statusCode).to.equal(200);
+		});
+	});
 });

@@ -1,6 +1,12 @@
-import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
+import type {
+	AstroComponentMetadata,
+	RouteData,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
@@ -27,9 +33,15 @@ function guessRenderers(componentUrl?: string): string[] {
 			return ['@astrojs/vue'];
 		case 'jsx':
 		case 'tsx':
-			return ['@astrojs/react', '@astrojs/preact', '@astrojs/vue (jsx)'];
+			return ['@astrojs/react', '@astrojs/preact', '@astrojs/solid', '@astrojs/vue (jsx)'];
 		default:
-			return ['@astrojs/react', '@astrojs/preact', '@astrojs/vue', '@astrojs/svelte'];
+			return [
+				'@astrojs/react',
+				'@astrojs/preact',
+				'@astrojs/solid',
+				'@astrojs/vue',
+				'@astrojs/svelte',
+			];
 	}
 }
 
@@ -54,7 +66,8 @@ export async function renderComponent(
 	displayName: string,
 	Component: unknown,
 	_props: Record<string | number, any>,
-	slots: any = {}
+	slots: any = {},
+	route?: RouteData | undefined
 ): Promise<ComponentIterable> {
 	Component = (await Component) ?? Component;
 
@@ -100,7 +113,7 @@ export async function renderComponent(
 	const { renderers } = result._metadata;
 	const metadata: AstroComponentMetadata = { displayName };
 
-	const { hydration, isPage, props } = extractDirectives(_props);
+	const { hydration, isPage, props } = extractDirectives(displayName, _props);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 
@@ -110,21 +123,9 @@ export async function renderComponent(
 		metadata.componentExport = hydration.componentExport;
 		metadata.componentUrl = hydration.componentUrl;
 	}
+
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
-
-	if (
-		Array.isArray(renderers) &&
-		renderers.length === 0 &&
-		typeof Component !== 'string' &&
-		!componentIsHTMLElement(Component)
-	) {
-		const message = `Unable to render ${metadata.displayName}!
-
-There are no \`integrations\` set in your \`astro.config.mjs\` file.
-Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
-		throw new Error(message);
-	}
-
+	const validRenderers = renderers.filter((r) => r.name !== 'astro:jsx');
 	const { children, slotInstructions } = await renderSlots(result, slots);
 
 	// Call the renderers `check` hook to see if any claim this component.
@@ -182,8 +183,8 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 			);
 		}
 		// Attempt: user only has a single renderer, default to that
-		if (!renderer && renderers.length === 1) {
-			renderer = renderers[0];
+		if (!renderer && validRenderers.length === 1) {
+			renderer = validRenderers[0];
 		}
 		// Attempt: can we guess the renderer from the export extension?
 		if (!renderer) {
@@ -197,26 +198,31 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	// If no one claimed the renderer
 	if (!renderer) {
 		if (metadata.hydrate === 'only') {
-			// TODO: improve error message
-			throw new Error(`Unable to render ${metadata.displayName}!
-
-Using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.
-Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames
-				.map((r) => r.replace('@astrojs/', ''))
-				.join('|')}" />
-`);
+			throw new AstroError({
+				...AstroErrorData.NoClientOnlyHint,
+				message: AstroErrorData.NoClientOnlyHint.message(metadata.displayName),
+				hint: AstroErrorData.NoClientOnlyHint.hint(
+					probableRendererNames.map((r) => r.replace('@astrojs/', '')).join('|')
+				),
+			});
 		} else if (typeof Component !== 'string') {
-			const matchingRenderers = renderers.filter((r) => probableRendererNames.includes(r.name));
-			const plural = renderers.length > 1;
+			const matchingRenderers = validRenderers.filter((r) =>
+				probableRendererNames.includes(r.name)
+			);
+			const plural = validRenderers.length > 1;
 			if (matchingRenderers.length === 0) {
-				throw new Error(`Unable to render ${metadata.displayName}!
-
-There ${plural ? 'are' : 'is'} ${renderers.length} renderer${
-					plural ? 's' : ''
-				} configured in your \`astro.config.mjs\` file,
-but ${plural ? 'none were' : 'it was not'} able to server-side render ${metadata.displayName}.
-
-Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`);
+				throw new AstroError({
+					...AstroErrorData.NoMatchingRenderer,
+					message: AstroErrorData.NoMatchingRenderer.message(
+						metadata.displayName,
+						metadata?.componentUrl?.split('.').pop(),
+						plural,
+						validRenderers.length
+					),
+					hint: AstroErrorData.NoMatchingRenderer.hint(
+						formatList(probableRendererNames.map((r) => '`' + r + '`'))
+					),
+				});
 			} else if (matchingRenderers.length === 1) {
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
@@ -264,9 +270,14 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		renderer.name !== '@astrojs/lit' &&
 		metadata.hydrate
 	) {
-		throw new Error(
-			`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`
-		);
+		throw new AstroError({
+			...AstroErrorData.NoClientEntrypoint,
+			message: AstroErrorData.NoClientEntrypoint.message(
+				displayName,
+				metadata.hydrate,
+				renderer.name
+			),
+		});
 	}
 
 	// This is a custom element without a renderer. Because of that, render it

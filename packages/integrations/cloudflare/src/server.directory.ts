@@ -1,7 +1,8 @@
-import './shim.js';
-
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import { getProcessEnvProxy } from './util.js';
+
+process.env = getProcessEnvProxy();
 
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest, false);
@@ -14,10 +15,12 @@ export function createExports(manifest: SSRManifest) {
 		request: Request;
 		next: (request: Request) => void;
 	} & Record<string, unknown>) => {
+		process.env = runtimeEnv.env as any;
+
 		const { origin, pathname } = new URL(request.url);
 		// static assets
 		if (manifest.assets.has(pathname)) {
-			const assetRequest = new Request(`${origin}/static${pathname}`, request);
+			const assetRequest = new Request(`${origin}/static/${app.removeBase(pathname)}`, request);
 			return next(assetRequest);
 		}
 

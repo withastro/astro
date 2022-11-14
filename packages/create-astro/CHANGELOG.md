@@ -1,5 +1,11 @@
 # create-astro
 
+## 1.2.2
+
+### Patch Changes
+
+- [#5319](https://github.com/withastro/astro/pull/5319) [`b211eadef`](https://github.com/withastro/astro/commit/b211eadeffd6260700254c1492c8e6528d279ad1) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix bug with `setRawMode`. Respect `--skip-houston` in all cases.
+
 ## 1.2.1
 
 ### Patch Changes
