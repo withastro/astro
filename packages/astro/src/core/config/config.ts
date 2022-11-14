@@ -147,7 +147,7 @@ interface LoadConfigOptions {
  * instead of the resolved config
  */
 export async function resolveConfigPath(
-	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>
+	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'> & { fs: typeof fs }
 ): Promise<string | undefined> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
@@ -161,8 +161,10 @@ export async function resolveConfigPath(
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	try {
-		const config = await loadConfigWithVite(root, {
-			configPath: userConfigPath
+		const config = await loadConfigWithVite({
+			configPath: userConfigPath,
+			root,
+			fs: configOptions.fs
 		});
 		return config.filePath;
 	} catch (e) {
@@ -189,7 +191,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
 
-	const config = await tryLoadConfig(configOptions, flags, root);
+	const config = await tryLoadConfig(configOptions, root);
 	if (config) {
 		userConfig = config.value;
 	}
@@ -210,7 +212,6 @@ interface TryLoadConfigResult {
 
 async function tryLoadConfig(
 	configOptions: LoadConfigOptions,
-	flags: CLIFlags,
 	root: string
 ): Promise<TryLoadConfigResult | undefined> {
 	const fsMod = configOptions.fsMod ?? fs;
@@ -219,6 +220,7 @@ async function tryLoadConfig(
 		let configPath = await resolveConfigPath({
 			cwd: configOptions.cwd,
 			flags: configOptions.flags,
+			fs: fsMod
 		});
 		if (!configPath) return undefined;
 		if (configOptions.isRestart) {
@@ -242,8 +244,10 @@ async function tryLoadConfig(
 		}
 		
 		// Create a vite server to load the config
-		const config = await loadConfigWithVite(root, {
-			configPath
+		const config = await loadConfigWithVite({
+			configPath,
+			fs: fsMod,
+			root
 		});
 		return config as TryLoadConfigResult;
 	} finally {
@@ -260,7 +264,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
 
-	const config = await tryLoadConfig(configOptions, flags, root);
+	const config = await tryLoadConfig(configOptions, root);
 	if (config) {
 		userConfig = config.value;
 	}

@@ -1,7 +1,7 @@
 import * as vite from 'vite';
 import npath from 'path';
 import { pathToFileURL } from 'url';
-import fs from 'fs';
+import type fsType from 'fs';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 // Fallback for legacy
@@ -36,10 +36,12 @@ async function createViteLoader(root: string): Promise<ViteLoader> {
 }
 
 interface LoadConfigWithViteOptions {
+	root: string;
 	configPath: string | undefined;
+	fs: typeof fsType;
 }
 
-export async function loadConfigWithVite(root: string, { configPath }: LoadConfigWithViteOptions): Promise<{
+export async function loadConfigWithVite({ configPath, fs, root }: LoadConfigWithViteOptions): Promise<{
 	value: Record<string, any>;
 	filePath?: string;
 }> {
@@ -72,6 +74,13 @@ export async function loadConfigWithVite(root: string, { configPath }: LoadConfi
 
 	try {
 		for(const file of paths) {
+			// First verify the file event exists
+			try {
+				await fs.promises.stat(file);
+			} catch {
+				continue;
+			}
+
 			// Try loading with Node import()
 			if(/\.(m?)js$/.test(file)) {
 				try {
@@ -100,7 +109,7 @@ export async function loadConfigWithVite(root: string, { configPath }: LoadConfi
 			// TODO deprecate - this is only for legacy compatibility
 			try {
 				const res = await load('astro', {
-					mustExist: !!configPath,
+					mustExist: true,
 					cwd: root,
 					filePath: file,
 				});
