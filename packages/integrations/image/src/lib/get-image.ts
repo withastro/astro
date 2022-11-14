@@ -3,9 +3,9 @@ import {
 	ColorDefinition,
 	ImageService,
 	ImageTransform,
-	isRemoteTransform,
+	isRemoteImage,
 	OutputFormat,
-	TransformOptions,
+	ImageOptions,
 } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 
@@ -25,7 +25,7 @@ function safeParseInt(candidate?: string | number): number | undefined {
 	}
 }
 
-function resolveSize(transform: TransformOptions): ImageTransform {
+function resolveSize(transform: ImageOptions): ImageTransform {
 	const safeWidth = safeParseInt(transform.width);
 	const safeHeight = safeParseInt(transform.height);
 
@@ -73,9 +73,9 @@ function resolveSize(transform: TransformOptions): ImageTransform {
 	return transform as ImageTransform;
 }
 
-async function resolveTransform(input: TransformOptions): Promise<ImageTransform> {
+async function resolveTransform(input: ImageOptions): Promise<ImageTransform> {
 	// for remote images, return the transform as-is since we can't use metadata from the original image
-	if (isRemoteTransform(input)) {
+	if (isRemoteImage(input)) {
 		return resolveSize(input) as ImageTransform;
 	}
 
@@ -115,11 +115,11 @@ async function resolveTransform(input: TransformOptions): Promise<ImageTransform
 /**
  * Gets the HTML attributes required to build an `<img />` for the transformed image.
  *
- * @param transform @type {TransformOptions} The transformations requested for the optimized image.
+ * @param transform @type {ImageOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
 export async function getImage(
-	transform: TransformOptions
+	transform: ImageOptions
 ): Promise<astroHTML.JSX.ImgHTMLAttributes> {
 	if (!transform.src) {
 		throw new Error('[@astrojs/image] `src` is required');

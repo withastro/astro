@@ -91,7 +91,7 @@ export type AsyncImageMetadata = Promise<{ default: ImageMetadata }>;
 /**
  * Defines the original image and transforms that need to be applied to it.
  */
-interface BaseTransformOptions {
+interface BaseImageOptions {
 	loader?: ImageService;
 	/**
 	 * The output format to be used in the optimized image.
@@ -146,7 +146,7 @@ interface BaseTransformOptions {
 	 aspectRatio?: AspectRatio;
 }
 
-export interface LocalTransformOptions extends BaseTransformOptions {
+export interface LocalImageOptions extends BaseImageOptions {
 	/**
 	 * Source for the original image file.
 	 *
@@ -156,7 +156,7 @@ export interface LocalTransformOptions extends BaseTransformOptions {
 	 src: ImageMetadata | AsyncImageMetadata;
 }
 
-export interface RemoteTransformOptions extends BaseTransformOptions {
+export interface RemoteImageOptions extends BaseImageOptions {
 	/**
 	 * Source for the original image file.
 	 *
@@ -166,13 +166,13 @@ export interface RemoteTransformOptions extends BaseTransformOptions {
 	 src: string;
 }
 
-export type TransformOptions = LocalTransformOptions | RemoteTransformOptions;
+export type ImageOptions = LocalImageOptions | RemoteImageOptions;
 
-export function isRemoteTransform(options: TransformOptions): options is RemoteTransformOptions {
+export function isRemoteImage(options: ImageOptions): options is RemoteImageOptions {
 	return typeof options.src === 'string';
 }
 
-export interface ImageTransform extends Omit<LocalTransformOptions, 'src'|'width'|'height'> {
+export interface ImageTransform extends Omit<LocalImageOptions, 'src'|'width'|'height'> {
 	src: string;
 	width?: number;
 	height?: number;

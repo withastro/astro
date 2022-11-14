@@ -1,6 +1,6 @@
 /// <reference types="astro/astro-jsx" />
 import mime from 'mime/lite';
-import { OutputFormat, parseAspectRatio, TransformOptions } from '../loaders/index.js';
+import { OutputFormat, parseAspectRatio, ImageOptions } from '../loaders/index.js';
 import { extname } from '../utils/paths.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 import { getImage } from './get-image.js';
@@ -9,10 +9,10 @@ export interface GetPictureParams {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
 	widths: number[];
 	formats: OutputFormat[];
-	aspectRatio?: TransformOptions['aspectRatio'];
-	fit?: TransformOptions['fit'];
-	background?: TransformOptions['background'];
-	position?: TransformOptions['position'];
+	aspectRatio?: ImageOptions['aspectRatio'];
+	fit?: ImageOptions['fit'];
+	background?: ImageOptions['background'];
+	position?: ImageOptions['position'];
 }
 
 export interface GetPictureResult {
@@ -77,7 +77,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					position,
 					background,
 					aspectRatio,
-				} as TransformOptions);
+				} as ImageOptions);
 
 				if (format === lastFormat && width === maxWidth) {
 					image = img;
