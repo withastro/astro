@@ -4,14 +4,13 @@ import { pathToUrl } from '../../../utils';
 import { FileReferencesProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../LanguageServiceManager';
 import { convertToLocationRange } from '../utils';
-import { SnapshotFragmentMap } from './utils';
+import { SnapshotMap } from './utils';
 
 export class FileReferencesProviderImpl implements FileReferencesProvider {
 	constructor(private languageServiceManager: LanguageServiceManager) {}
 
 	async fileReferences(document: AstroDocument): Promise<Location[] | null> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		const mainFragment = await tsDoc.createFragment();
 
 		const references = lang.getFileReferences(tsDoc.filePath);
 
@@ -19,14 +18,14 @@ export class FileReferencesProviderImpl implements FileReferencesProvider {
 			return null;
 		}
 
-		const docs = new SnapshotFragmentMap(this.languageServiceManager);
-		docs.set(tsDoc.filePath, { fragment: mainFragment, snapshot: tsDoc });
+		const snapshots = new SnapshotMap(this.languageServiceManager);
+		snapshots.set(tsDoc.filePath, tsDoc);
 
 		const locations = await Promise.all(
 			references.map(async (ref) => {
-				const defDoc = await docs.retrieveFragment(ref.fileName);
+				const snapshot = await snapshots.retrieve(ref.fileName);
 
-				return Location.create(pathToUrl(ref.fileName), convertToLocationRange(defDoc, ref.textSpan));
+				return Location.create(pathToUrl(ref.fileName), convertToLocationRange(snapshot, ref.textSpan));
 			})
 		);
 

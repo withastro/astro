@@ -11,11 +11,16 @@ import {
 	TextEdit,
 } from 'vscode-languageserver-types';
 import type { ConfigManager } from '../../../core/config';
-import { AstroDocument, getLineAtPosition, mapRangeToOriginal } from '../../../core/documents';
+import {
+	AstroDocument,
+	getLineAtPosition,
+	mapRangeToOriginal,
+	mapScriptSpanStartToSnapshot,
+} from '../../../core/documents';
 import { modifyLines } from '../../../utils';
 import type { CodeActionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
-import type { AstroSnapshot, AstroSnapshotFragment, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
+import type { AstroSnapshot, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import { checkEndOfFileCodeInsert, convertRange, getScriptTagSnapshot, removeAstroComponentSuffix } from '../utils';
 import { codeActionChangeToTextEdit } from './CompletionsProvider';
 import { findContainingNode } from './utils';
@@ -37,8 +42,6 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 		cancellationToken?: CancellationToken
 	): Promise<CodeAction[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-
-		const fragment = await tsDoc.createFragment();
 
 		const tsPreferences = await this.configManager.getTSPreferences(document);
 		const formatOptions = await this.configManager.getTSFormatConfig(document);
@@ -97,8 +100,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
 				isInsideScript = true;
 			} else {
-				const start = fragment.offsetAt(fragment.getGeneratedPosition(range.start));
-				const end = fragment.offsetAt(fragment.getGeneratedPosition(range.end));
+				const start = tsDoc.offsetAt(tsDoc.getGeneratedPosition(range.start));
+				const end = tsDoc.offsetAt(tsDoc.getGeneratedPosition(range.end));
 
 				codeFixes = errorCodes.includes(2304)
 					? this.getComponentQuickFix(start, end, lang, tsDoc.filePath, formatOptions, tsPreferences)
@@ -134,13 +137,13 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 				return TextDocumentEdit.create(
 					OptionalVersionedTextDocumentIdentifier.create(document.getURL(), null),
 					change.textChanges.map((edit) => {
-						let originalRange = mapRangeToOriginal(fragment, convertRange(fragment, edit.span));
+						let originalRange = mapRangeToOriginal(tsDoc, convertRange(tsDoc, edit.span));
 
 						// Inside scripts, we don't need to restrain the insertion of code inside a specific zone as it will be
 						// restricted to the area of the script tag by default
 						if (!isInsideScript) {
 							if (codeFix.fixName === 'import') {
-								return codeActionChangeToTextEdit(document, fragment as AstroSnapshotFragment, false, edit, ts);
+								return codeActionChangeToTextEdit(document, tsDoc, false, edit, ts);
 							}
 
 							if (codeFix.fixName === 'fixMissingFunctionDeclaration') {
@@ -179,9 +182,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 		function mapScriptTagFixToOriginal(changes: FileTextChanges[], scriptTagSnapshot: ScriptTagDocumentSnapshot) {
 			return changes.map((change) => {
 				change.textChanges.map((edit) => {
-					edit.span.start = fragment.offsetAt(
-						scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(edit.span.start))
-					);
+					edit.span.start = mapScriptSpanStartToSnapshot(edit.span, scriptTagSnapshot, tsDoc);
 
 					return edit;
 				});
@@ -249,7 +250,6 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
 		const filePath = tsDoc.filePath;
-		const fragment = await tsDoc.createFragment();
 
 		if (cancellationToken?.isCancellationRequested) {
 			return [];
@@ -278,9 +278,14 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 				edit.fileName = tsDoc.filePath;
 				edit.textChanges = edit.textChanges
 					.map((change) => {
-						change.span.start = fragment.offsetAt(
-							scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(change.span.start))
-						);
+						change.span.start = mapScriptSpanStartToSnapshot(change.span, scriptTagSnapshot, tsDoc);
+
+						// If the result ending position is unmapped, it usually means the ending position has a newline
+						// inside the virtual part of the script tag, so let's just make it a character shorter
+						const range = mapRangeToOriginal(tsDoc, convertRange(tsDoc, change.span));
+						if (range.end.character === 0 && range.end.line === 0) {
+							change.span.length -= 1;
+						}
 
 						return change;
 					})
@@ -303,7 +308,13 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 			return TextDocumentEdit.create(
 				OptionalVersionedTextDocumentIdentifier.create(document.url, null),
 				change.textChanges.map((edit) => {
-					const range = mapRangeToOriginal(fragment, convertRange(fragment, edit.span));
+					const range = mapRangeToOriginal(tsDoc, convertRange(tsDoc, edit.span));
+
+					if (document.offsetAt(range.start) < (document.astroMeta.content.firstNonWhitespaceOffset ?? 0)) {
+						if (document.offsetAt(range.end) > document.astroMeta.frontmatter.endOffset!) {
+							range.end = document.positionAt(document.astroMeta.frontmatter.endOffset!);
+						}
+					}
 
 					return TextEdit.replace(range, this.fixIndentationOfImports(edit.newText, range, document));
 				})

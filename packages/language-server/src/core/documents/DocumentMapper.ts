@@ -1,4 +1,3 @@
-import type { SourceMapConsumer } from 'source-map';
 import {
 	CodeAction,
 	ColorPresentation,
@@ -15,7 +14,10 @@ import {
 	TextDocumentEdit,
 	TextEdit,
 } from 'vscode-languageserver';
-import { getLineOffsets, offsetAt, positionAt, TagInformation } from './utils';
+import { TagInformation, offsetAt, positionAt, getLineOffsets } from './utils';
+import { generatedPositionFor, originalPositionFor, TraceMap } from '@jridgewell/trace-mapping';
+import { DocumentSnapshot, ScriptTagDocumentSnapshot } from '../../plugins/typescript/snapshots/DocumentSnapshot';
+import type ts from 'typescript';
 
 export interface DocumentMapper {
 	/**
@@ -122,7 +124,7 @@ export class FragmentMapper implements DocumentMapper {
 }
 
 export class SourceMapDocumentMapper implements DocumentMapper {
-	constructor(protected consumer: SourceMapConsumer, protected sourceUri: string, private parent?: DocumentMapper) {}
+	constructor(protected traceMap: TraceMap, protected sourceUri: string, private parent?: DocumentMapper) {}
 
 	getOriginalPosition(generatedPosition: Position): Position {
 		if (this.parent) {
@@ -133,7 +135,7 @@ export class SourceMapDocumentMapper implements DocumentMapper {
 			return { line: -1, character: -1 };
 		}
 
-		const mapped = this.consumer.originalPositionFor({
+		const mapped = originalPositionFor(this.traceMap, {
 			line: generatedPosition.line + 1,
 			column: generatedPosition.character,
 		});
@@ -158,7 +160,7 @@ export class SourceMapDocumentMapper implements DocumentMapper {
 			originalPosition = this.parent.getGeneratedPosition(originalPosition);
 		}
 
-		const mapped = this.consumer.generatedPositionFor({
+		const mapped = generatedPositionFor(this.traceMap, {
 			line: originalPosition.line + 1,
 			column: originalPosition.character,
 			source: this.sourceUri,
@@ -192,13 +194,28 @@ export class SourceMapDocumentMapper implements DocumentMapper {
 	getURL(): string {
 		return this.sourceUri;
 	}
+}
 
-	/**
-	 * Needs to be called when source mapper is no longer needed in order to prevent memory leaks.
-	 */
-	destroy() {
-		this.parent?.destroy?.();
-		this.consumer.destroy();
+export class ConsumerDocumentMapper extends SourceMapDocumentMapper {
+	constructor(traceMap: TraceMap, sourceUri: string, private nrPrependesLines: number) {
+		super(traceMap, sourceUri);
+	}
+
+	getOriginalPosition(generatedPosition: Position): Position {
+		return super.getOriginalPosition(
+			Position.create(generatedPosition.line - this.nrPrependesLines, generatedPosition.character)
+		);
+	}
+
+	getGeneratedPosition(originalPosition: Position): Position {
+		const result = super.getGeneratedPosition(originalPosition);
+		result.line += this.nrPrependesLines;
+		return result;
+	}
+
+	isInGenerated(): boolean {
+		// always return true and map outliers case by case
+		return true;
 	}
 }
 
@@ -337,6 +354,15 @@ export function mapCodeActionToOriginal(fragment: DocumentMapper, codeAction: Co
 		},
 		codeAction.kind
 	);
+}
+
+export function mapScriptSpanStartToSnapshot(
+	span: ts.TextSpan,
+	scriptTagSnapshot: ScriptTagDocumentSnapshot,
+	tsSnapshot: DocumentSnapshot
+) {
+	const originalPosition = scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(span.start));
+	return tsSnapshot.offsetAt(tsSnapshot.getGeneratedPosition(originalPosition));
 }
 
 export function mapFoldingRangeToParent(fragment: DocumentMapper, foldingRange: FoldingRange): FoldingRange {

@@ -48,12 +48,21 @@ export class FoldingRangesProviderImpl implements FoldingRangesProvider {
 		const foldingRanges: FoldingRange[] = [];
 
 		for (const span of [...outliningSpans, ...scriptOutliningSpans]) {
-			const start = document.positionAt(span.textSpan.start);
-			const end = adjustFoldingEnd(start, document.positionAt(span.textSpan.start + span.textSpan.length), document);
+			const start = tsDoc.getOriginalPosition(tsDoc.positionAt(span.textSpan.start));
+			const end = adjustFoldingEnd(
+				start,
+				document.positionAt(document.offsetAt(start) + span.textSpan.length),
+				document
+			);
 
 			// When using this method for generating folding ranges, TypeScript tend to return some
 			// one line / one character ones that we should be able to safely ignore
 			if (start.line === end.line && start.character === end.character) {
+				continue;
+			}
+
+			// Ignore folding ranges that are from unmapped regions
+			if (start.line < 0 || end.line < 0) {
 				continue;
 			}
 

@@ -1,28 +1,28 @@
 import type ts from 'typescript/lib/tsserverlibrary';
 import { LocationLink, Position } from 'vscode-languageserver-types';
-import type { AstroDocument } from '../../../core/documents';
+import { AstroDocument, mapScriptSpanStartToSnapshot } from '../../../core/documents';
 import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
 import type { DefinitionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import {
+	convertRange,
 	convertToLocationRange,
 	ensureRealFilePath,
 	getScriptTagSnapshot,
 	isAstroFilePath,
 	isFrameworkFilePath,
 } from '../utils';
-import { SnapshotFragmentMap } from './utils';
+import { SnapshotMap } from './utils';
 
 export class DefinitionsProviderImpl implements DefinitionsProvider {
 	constructor(private languageServiceManager: LanguageServiceManager) {}
 
 	async getDefinitions(document: AstroDocument, position: Position): Promise<LocationLink[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		const mainFragment = await tsDoc.createFragment();
 
-		const fragmentPosition = mainFragment.getGeneratedPosition(position);
-		const fragmentOffset = mainFragment.offsetAt(fragmentPosition);
+		const fragmentPosition = tsDoc.getGeneratedPosition(position);
+		const fragmentOffset = tsDoc.offsetAt(fragmentPosition);
 
 		let defs: ts.DefinitionInfoAndBoundSpan | undefined;
 
@@ -45,17 +45,13 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 					def.fileName = isInSameFile ? tsDoc.filePath : def.fileName;
 
 					if (isInSameFile) {
-						def.textSpan.start = mainFragment.offsetAt(
-							scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(def.textSpan.start))
-						);
+						def.textSpan.start = mapScriptSpanStartToSnapshot(def.textSpan, scriptTagSnapshot, tsDoc);
 					}
 
 					return def;
 				});
 
-				defs.textSpan.start = mainFragment.offsetAt(
-					scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(defs.textSpan.start))
-				);
+				defs.textSpan.start = mapScriptSpanStartToSnapshot(defs.textSpan, scriptTagSnapshot, tsDoc);
 			}
 		} else {
 			defs = lang.getDefinitionAndBoundSpan(tsDoc.filePath, fragmentOffset);
@@ -65,25 +61,29 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 			return [];
 		}
 
-		const docs = new SnapshotFragmentMap(this.languageServiceManager);
-		docs.set(tsDoc.filePath, { fragment: mainFragment, snapshot: tsDoc });
+		const snapshots = new SnapshotMap(this.languageServiceManager);
+		snapshots.set(tsDoc.filePath, tsDoc);
 
 		const result = await Promise.all(
 			defs.definitions!.map(async (def) => {
-				const { fragment, snapshot } = await docs.retrieve(def.fileName);
+				const snapshot = await snapshots.retrieve(def.fileName);
 
 				const fileName = ensureRealFilePath(def.fileName);
 
 				// For Astro, Svelte and Vue, the position is wrongly mapped to the end of the file due to the TSX output
 				// So we'll instead redirect to the beginning of the file
-				const isFramework = isFrameworkFilePath(def.fileName) || isAstroFilePath(def.fileName);
-				const textSpan = isFramework && tsDoc.filePath !== def.fileName ? { start: 0, length: 0 } : def.textSpan;
+				const isFramework =
+					(isFrameworkFilePath(def.fileName) || isAstroFilePath(def.fileName)) && tsDoc.filePath !== def.fileName;
+
+				const targetRange = isFramework
+					? convertRange(document, { start: 0, length: 0 })
+					: convertToLocationRange(snapshot, def.textSpan);
 
 				return LocationLink.create(
 					pathToUrl(fileName),
-					convertToLocationRange(fragment, textSpan),
-					convertToLocationRange(fragment, textSpan),
-					convertToLocationRange(mainFragment, defs!.textSpan)
+					targetRange,
+					targetRange,
+					convertToLocationRange(tsDoc, defs!.textSpan)
 				);
 			})
 		);

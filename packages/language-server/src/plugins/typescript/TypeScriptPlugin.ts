@@ -1,3 +1,4 @@
+import type { TSXResult } from '@astrojs/compiler/shared/types';
 import {
 	CancellationToken,
 	CodeAction,
@@ -23,7 +24,7 @@ import {
 import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';
 import type { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
-import astro2tsx, { Astro2TSXResult } from './astro2tsx';
+import astro2tsx from './astro2tsx';
 import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { CompletionItemData, CompletionsProviderImpl } from './features/CompletionsProvider';
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
@@ -39,7 +40,6 @@ import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { TypeDefinitionsProviderImpl } from './features/TypeDefinitionsProvider';
 import type { LanguageServiceManager } from './LanguageServiceManager';
-import { classNameFromFilename } from './snapshots/utils';
 import {
 	convertToLocationRange,
 	ensureRealFilePath,
@@ -102,9 +102,8 @@ export class TypeScriptPlugin implements Plugin {
 
 	async rename(document: AstroDocument, position: Position, newName: string): Promise<WorkspaceEdit | null> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		const fragment = await tsDoc.createFragment();
 
-		const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
+		const offset = tsDoc.offsetAt(tsDoc.getGeneratedPosition(position));
 
 		let renames = lang.findRenameLocations(tsDoc.filePath, offset, false, false, true);
 		if (!renames) {
@@ -123,7 +122,7 @@ export class TypeScriptPlugin implements Plugin {
 
 			edit.changes![filePath].push({
 				newText: newName,
-				range: convertToLocationRange(fragment, rename.textSpan),
+				range: convertToLocationRange(tsDoc, rename.textSpan),
 			});
 		});
 
@@ -268,8 +267,8 @@ export class TypeScriptPlugin implements Plugin {
 		return this.signatureHelpProvider.getSignatureHelp(document, position, context, cancellationToken);
 	}
 
-	getTSXForDocument(document: AstroDocument): Astro2TSXResult {
-		return astro2tsx(document.getText(), classNameFromFilename(document.getURL()));
+	getTSXForDocument(document: AstroDocument): TSXResult {
+		return astro2tsx(document.getText(), document.getURL());
 	}
 
 	/**

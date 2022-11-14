@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import ts from 'typescript/lib/tsserverlibrary';
-import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
+import { TextDocumentChangeEvent } from 'vscode-languageserver';
+import { CodeActionKind, Position, Range, TextDocumentEdit } from 'vscode-languageserver-types';
 import {
 	CodeActionsProviderImpl,
 	sortImportKind,
@@ -66,7 +67,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 	it('organize imports', async () => {
 		const { provider, document } = setup('sortOrganizeImports.astro');
 
-		const codeActions = await provider.getCodeActions(
+		let codeActions = await provider.getCodeActions(
 			document,
 			Range.create(Position.create(6, 0), Position.create(6, 0)),
 			{
@@ -74,6 +75,12 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 				only: [CodeActionKind.SourceOrganizeImports],
 			}
 		);
+
+		// Due to how organize imports work, it'll return an edit to change the ending newline of the first import
+		// on Windows, but not on other platforms (since they already use `\n`). We'll filter out that change to make the test work on both Windows and Unix
+		(codeActions[0].edit?.documentChanges?.[0] as TextDocumentEdit).edits = (
+			codeActions[0].edit?.documentChanges?.[0] as TextDocumentEdit
+		).edits.filter((edit) => !edit.newText.endsWith('\r\n'));
 
 		expect(codeActions).to.deep.equal([
 			{
@@ -402,7 +409,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 								edits: [
 									{
 										newText: '',
-										range: Range.create(11, 0, 12, 0),
+										range: Range.create(11, 0, 11, 44),
 									},
 								],
 								textDocument: {

@@ -25,12 +25,7 @@ import { getRegExpMatches, isNotNullOrUndefined } from '../../../utils';
 import type { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { getMarkdownDocumentation } from '../previewer';
-import type {
-	AstroSnapshot,
-	AstroSnapshotFragment,
-	ScriptTagDocumentSnapshot,
-	SnapshotFragment,
-} from '../snapshots/DocumentSnapshot';
+import type { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import {
 	convertRange,
 	ensureFrontmatterInsert,
@@ -123,16 +118,17 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		}
 
 		const html = document.html;
-		const offset = document.offsetAt(position);
-		const node = html.findNodeAt(offset);
+		const documentOffset = document.offsetAt(position);
+		const node = html.findNodeAt(documentOffset);
 
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
+		const offset = tsDoc.offsetAt(tsDoc.getGeneratedPosition(position));
 		let filePath = tsDoc.filePath;
 
 		let completions: ts.CompletionInfo | undefined;
 
-		const isCompletionInsideFrontmatter = isInsideFrontmatter(document.getText(), offset);
-		const isCompletionInsideExpression = isInsideExpression(document.getText(), node.start, offset);
+		const isCompletionInsideFrontmatter = isInsideFrontmatter(document.getText(), documentOffset);
+		const isCompletionInsideExpression = isInsideExpression(document.getText(), node.start, documentOffset);
 
 		const tsPreferences = await this.configManager.getTSPreferences(document);
 		const formatOptions = await this.configManager.getTSFormatConfig(document);
@@ -203,13 +199,12 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			: undefined;
 		const wordRangeStartPosition = wordRange?.start;
 
-		const fragment = await tsDoc.createFragment();
 		const existingImports = this.getExistingImports(document);
 		const completionItems = completions.entries
 			.filter((completion) => this.isValidCompletion(completion, this.ts))
 			.map((entry: ts.CompletionEntry) =>
 				this.toCompletionItem(
-					fragment,
+					tsDoc,
 					entry,
 					filePath,
 					offset,
@@ -242,7 +237,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			return item;
 		}
 
-		const fragment = await tsDoc.createFragment();
 		const detail = lang.getCompletionEntryDetails(
 			data.filePath, // fileName
 			data.offset, // position
@@ -286,21 +280,17 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 				for (const change of action.changes) {
 					if (isInsideScriptTag) {
 						change.textChanges.forEach((textChange) => {
-							textChange.span.start = fragment.offsetAt(
-								scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(textChange.span.start))
+							const originalPosition = scriptTagSnapshot.getOriginalPosition(
+								scriptTagSnapshot.positionAt(textChange.span.start)
 							);
+
+							textChange.span.start = tsDoc.offsetAt(tsDoc.getGeneratedPosition(originalPosition));
 						});
 					}
 
 					edit.push(
 						...change.textChanges.map((textChange) =>
-							codeActionChangeToTextEdit(
-								document,
-								fragment as AstroSnapshotFragment,
-								isInsideScriptTag,
-								textChange,
-								this.ts
-							)
+							codeActionChangeToTextEdit(document, tsDoc, isInsideScriptTag, textChange, this.ts)
 						)
 					);
 				}
@@ -313,7 +303,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 	}
 
 	private toCompletionItem(
-		fragment: SnapshotFragment,
+		snapshot: DocumentSnapshot,
 		comp: ts.CompletionEntry,
 		filePath: string,
 		offset: number,
@@ -379,14 +369,14 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			item.insertText = comp.insertText ? removeAstroComponentSuffix(comp.insertText) : undefined;
 			item.insertTextFormat = comp.isSnippet ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
 			item.textEdit = comp.replacementSpan
-				? TextEdit.replace(convertRange(fragment, comp.replacementSpan), item.insertText ?? item.label)
+				? TextEdit.replace(convertRange(snapshot, comp.replacementSpan), item.insertText ?? item.label)
 				: undefined;
 		}
 
 		return {
 			...item,
 			data: {
-				uri: fragment.getURL(),
+				uri: snapshot.getURL(),
 				filePath,
 				scriptTagIndex,
 				offset,
@@ -510,7 +500,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 
 export function codeActionChangeToTextEdit(
 	document: AstroDocument,
-	fragment: AstroSnapshotFragment,
+	snapshot: DocumentSnapshot,
 	isInsideScriptTag: boolean,
 	change: ts.TextChange,
 	ts: typeof import('typescript/lib/tsserverlibrary')
@@ -519,9 +509,9 @@ export function codeActionChangeToTextEdit(
 
 	const { span } = change;
 	let range: Range;
-	const virtualRange = convertRange(fragment, span);
+	const virtualRange = convertRange(snapshot, span);
 
-	range = mapRangeToOriginal(fragment, virtualRange);
+	range = mapRangeToOriginal(snapshot, virtualRange);
 
 	if (!isInsideScriptTag) {
 		// If we don't have a frontmatter already, create one with the import

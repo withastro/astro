@@ -17,7 +17,7 @@ import { isInComponentStartTag, isInsideExpression, isPossibleComponent } from '
 import { astroDirectives } from '../../html/features/astro-attributes';
 import { removeDataAttrCompletion } from '../../html/utils';
 import type { AppCompletionList, CompletionsProvider } from '../../interfaces';
-import type { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
+import type { LanguageServiceManager } from '../../typescript/LanguageServiceManager';
 import { toVirtualFilePath } from '../../typescript/utils';
 
 type LastCompletion = {
@@ -27,7 +27,7 @@ type LastCompletion = {
 };
 
 export class CompletionsProviderImpl implements CompletionsProvider {
-	private readonly languageServiceManager: TypeScriptLanguageServiceManager;
+	private readonly languageServiceManager: LanguageServiceManager;
 	private readonly ts: typeof import('typescript/lib/tsserverlibrary');
 	private lastCompletion: LastCompletion | null = null;
 
@@ -36,7 +36,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		useDefaultDataProvider: false,
 	});
 
-	constructor(languageServiceManager: TypeScriptLanguageServiceManager) {
+	constructor(languageServiceManager: LanguageServiceManager) {
 		this.languageServiceManager = languageServiceManager;
 		this.ts = languageServiceManager.docContext.ts;
 	}

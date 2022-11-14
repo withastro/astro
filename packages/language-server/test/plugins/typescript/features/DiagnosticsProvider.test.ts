@@ -195,29 +195,4 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		const rangesStart = diagnostics.map((diag) => diag.range.start.line);
 		expect(rangesStart).to.satisfy((ranges: number[]) => ranges.every((start) => start <= document.lineCount));
 	});
-
-	describe('Astro2TSX', async () => {
-		it('correctly convert HTML comments', async () => {
-			const { provider, document } = setup('multipleComments.astro');
-
-			const diagnostics = await provider.getDiagnostics(document);
-			expect(diagnostics).to.be.empty;
-		});
-
-		it('types Astro.props using the Props interface when available', async () => {
-			const { provider, document } = setup('propsTypes.astro');
-
-			const diagnostics = await provider.getDiagnostics(document);
-			expect(diagnostics).to.deep.equal([
-				{
-					code: 2322,
-					message: "Type 'number' is not assignable to type 'string'.",
-					range: Range.create(7, 0, 7, 8),
-					severity: DiagnosticSeverity.Error,
-					source: 'ts',
-					tags: [],
-				},
-			]);
-		});
-	});
 });

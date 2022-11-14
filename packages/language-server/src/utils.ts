@@ -1,6 +1,7 @@
 import type { Position, Range } from 'vscode-languageserver';
 import { URI } from 'vscode-uri';
 import { getPackagePath } from './importPackage';
+import { resolve } from 'path';
 
 /** Normalizes a document URI */
 export function normalizeUri(uri: string): string {
@@ -255,7 +256,7 @@ export function getAstroInstall(basePaths: string[]): AstroInstall | undefined {
 			throw Error;
 		}
 
-		version = require(path + '/package.json').version;
+		version = require(resolve(path, 'package.json')).version;
 	} catch {
 		// If we couldn't find it inside the workspace's node_modules, it might means we're in the monorepo
 		try {
@@ -265,7 +266,7 @@ export function getAstroInstall(basePaths: string[]): AstroInstall | undefined {
 				throw Error;
 			}
 
-			version = require(path + '/package.json').version;
+			version = require(resolve(path, 'package.json')).version;
 		} catch (e) {
 			// If we still couldn't find it, it probably just doesn't exist
 			console.error(

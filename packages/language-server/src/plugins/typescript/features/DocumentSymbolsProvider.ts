@@ -3,7 +3,7 @@ import { Range, SymbolInformation, SymbolKind, SymbolTag } from 'vscode-language
 import { AstroDocument, mapSymbolInformationToOriginal } from '../../../core/documents';
 import type { DocumentSymbolsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
-import type { SnapshotFragment } from '../snapshots/DocumentSnapshot';
+import type { DocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import { symbolKindFromString } from '../utils';
 
 export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
@@ -15,7 +15,6 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 
 	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		const fragment = await tsDoc.createFragment();
 
 		const navTree = lang.getNavigationTree(tsDoc.filePath + '?documentSymbols');
 		if (!navTree) {
@@ -23,7 +22,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 		}
 
 		const symbols: SymbolInformation[] = [];
-		this.collectSymbols(navTree, fragment, undefined, (symbol) => symbols.push(symbol));
+		this.collectSymbols(navTree, document, undefined, (symbol) => symbols.push(symbol));
 
 		const originalContainerName = symbols[0].name;
 		const result: SymbolInformation[] = [];
@@ -57,8 +56,6 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 		);
 
 		for (let symbol of symbols.splice(1)) {
-			symbol = mapSymbolInformationToOriginal(fragment, symbol);
-
 			if (document.offsetAt(symbol.location.range.end) >= (document.astroMeta.content.firstNonWhitespaceOffset ?? 0)) {
 				if (symbol.containerName === originalContainerName) {
 					symbol.containerName = 'Template';
@@ -86,7 +83,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 
 	private collectSymbols(
 		item: ts.NavigationTree,
-		fragment: SnapshotFragment,
+		document: AstroDocument,
 		container: string | undefined,
 		cb: (symbol: SymbolInformation) => void
 	) {
@@ -94,8 +91,8 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 			const symbol = SymbolInformation.create(
 				item.text,
 				symbolKindFromString(item.kind),
-				Range.create(fragment.positionAt(span.start), fragment.positionAt(span.start + span.length)),
-				fragment.getURL(),
+				Range.create(document.positionAt(span.start), document.positionAt(span.start + span.length)),
+				document.getURL(),
 				container
 			);
 
@@ -111,7 +108,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 
 		if (item.childItems) {
 			for (const child of item.childItems) {
-				this.collectSymbols(child, fragment, item.text, cb);
+				this.collectSymbols(child, document, item.text, cb);
 			}
 		}
 	}

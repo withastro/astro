@@ -11,7 +11,7 @@ import {
 } from 'vscode-languageserver';
 import { AstroDocument, mapRangeToOriginal, TagInformation } from '../../core/documents';
 import { pathToUrl } from '../../utils';
-import type { AstroSnapshot, ScriptTagDocumentSnapshot, SnapshotFragment } from './snapshots/DocumentSnapshot';
+import type { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
 
 export const enum TokenType {
 	class,
@@ -275,7 +275,7 @@ export function convertRange(
 	);
 }
 
-export function convertToLocationRange(defDoc: SnapshotFragment, textSpan: ts.TextSpan): Range {
+export function convertToLocationRange(defDoc: DocumentSnapshot, textSpan: ts.TextSpan): Range {
 	const range = mapRangeToOriginal(defDoc, convertRange(defDoc, textSpan));
 	// Some definition like the svelte component class definition don't exist in the original, so we map to 0,1
 	if (range.start.line < 0) {

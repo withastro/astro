@@ -71,7 +71,7 @@ describe('TypeScript Plugin', () => {
 				},
 			});
 
-			const completions = await plugin.doHover(document, Position.create(1, 8));
+			const completions = await plugin.getCompletions(document, Position.create(1, 8));
 
 			const isEnabled = await configManager.isEnabled(document, 'typescript', 'completions');
 

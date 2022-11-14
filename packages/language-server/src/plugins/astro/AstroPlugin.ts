@@ -1,5 +1,6 @@
 import {
 	CompletionContext,
+	Diagnostic,
 	FoldingRange,
 	FoldingRangeKind,
 	FormattingOptions,
@@ -13,22 +14,23 @@ import { getPrettierPluginPath, importPrettier } from '../../importPackage';
 import type { AppCompletionList, Plugin } from '../interfaces';
 import type { LanguageServiceManager } from '../typescript/LanguageServiceManager';
 import { CompletionsProviderImpl } from './features/CompletionsProvider';
+import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 
 export class AstroPlugin implements Plugin {
 	__name = 'astro';
 
 	private configManager: ConfigManager;
 	private readonly languageServiceManager: LanguageServiceManager;
-	private readonly ts: typeof import('typescript/lib/tsserverlibrary');
 
 	private readonly completionProvider: CompletionsProviderImpl;
+	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 
 	constructor(configManager: ConfigManager, languageServiceManager: LanguageServiceManager) {
 		this.configManager = configManager;
 		this.languageServiceManager = languageServiceManager;
-		this.ts = languageServiceManager.docContext.ts;
 
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
+		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
 	}
 
 	async getCompletions(
@@ -38,6 +40,10 @@ export class AstroPlugin implements Plugin {
 	): Promise<AppCompletionList | null> {
 		const completions = this.completionProvider.getCompletions(document, position, completionContext);
 		return completions;
+	}
+
+	async getDiagnostics(document: AstroDocument): Promise<Diagnostic[]> {
+		return await this.diagnosticsProvider.getDiagnostics(document);
 	}
 
 	async formatDocument(document: AstroDocument, options: FormattingOptions): Promise<TextEdit[]> {

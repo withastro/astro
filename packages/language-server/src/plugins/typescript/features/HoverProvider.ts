@@ -1,6 +1,6 @@
 import type ts from 'typescript';
 import type { Hover, Position } from 'vscode-languageserver';
-import { AstroDocument, mapObjWithRangeToOriginal } from '../../../core/documents';
+import { AstroDocument, mapObjWithRangeToOriginal, mapScriptSpanStartToSnapshot } from '../../../core/documents';
 import type { HoverProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { getMarkdownDocumentation } from '../previewer';
@@ -18,9 +18,7 @@ export class HoverProviderImpl implements HoverProvider {
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		const fragment = await tsDoc.createFragment();
-
-		const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
+		const offset = tsDoc.offsetAt(tsDoc.getGeneratedPosition(position));
 
 		const html = document.html;
 		const documentOffset = document.offsetAt(position);
@@ -38,9 +36,7 @@ export class HoverProviderImpl implements HoverProvider {
 			info = lang.getQuickInfoAtPosition(scriptFilePath, scriptOffset);
 
 			if (info) {
-				info.textSpan.start = fragment.offsetAt(
-					scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(info.textSpan.start))
-				);
+				info.textSpan.start = mapScriptSpanStartToSnapshot(info.textSpan, scriptTagSnapshot, tsDoc);
 			}
 		} else {
 			info = lang.getQuickInfoAtPosition(tsDoc.filePath, offset);
@@ -64,8 +60,8 @@ export class HoverProviderImpl implements HoverProvider {
 			.concat(documentation ? ['---', documentation] : [])
 			.join('\n');
 
-		return mapObjWithRangeToOriginal(fragment, {
-			range: convertRange(fragment, textSpan),
+		return mapObjWithRangeToOriginal(tsDoc, {
+			range: convertRange(tsDoc, textSpan),
 			contents,
 		});
 	}

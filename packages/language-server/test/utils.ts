@@ -15,7 +15,9 @@ import { pathToUrl } from '../src/utils';
 export function createEnvironment(filePath: string, baseDir: string, pathPrefix?: string) {
 	const fixtureDir = join(__dirname, 'plugins', baseDir, 'fixtures');
 
-	const docManager = new DocumentManager((astroDocument) => new AstroDocument(astroDocument.uri, astroDocument.text));
+	const docManager = new DocumentManager(
+		(astroDocument) => new AstroDocument(astroDocument.uri, harmonizeNewLines(astroDocument.text))
+	);
 	const configManager = new ConfigManager();
 	const document = openDocument(filePath, join(fixtureDir, pathPrefix ?? ''), docManager);
 
@@ -31,7 +33,7 @@ export function openDocument(filePath: string, baseDir: string, docManager: Docu
 
 	const document = docManager.openDocument({
 		uri: pathToUrl(path),
-		text: harmonizeNewLines(ts.sys.readFile(path) || ''),
+		text: ts.sys.readFile(path) || '',
 	});
 
 	return document;

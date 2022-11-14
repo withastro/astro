@@ -1,4 +1,6 @@
-import type { Position, TextDocumentContentChangeEvent } from 'vscode-languageserver';
+import type { DiagnosticMessage } from '@astrojs/compiler/shared/types';
+import { EncodedSourceMap, TraceMap } from '@jridgewell/trace-mapping';
+import { Position, TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import {
 	AstroDocument,
 	DocumentMapper,
@@ -8,27 +10,16 @@ import {
 	offsetAt,
 	positionAt,
 	TagInformation,
+	SourceMapDocumentMapper,
 } from '../../../core/documents';
 import { pathToUrl } from '../../../utils';
 
-export interface DocumentSnapshot extends ts.IScriptSnapshot {
+export interface DocumentSnapshot extends ts.IScriptSnapshot, DocumentMapper {
 	version: number;
 	filePath: string;
 	scriptKind: ts.ScriptKind;
 	positionAt(offset: number): Position;
-	/**
-	 * Instantiates a source mapper.
-	 * `destroyFragment` needs to be called when
-	 * it's no longer needed / the class should be cleaned up
-	 * in order to prevent memory leaks.
-	 */
-	createFragment(): Promise<SnapshotFragment>;
-	/**
-	 * Needs to be called when source mapper
-	 * is no longer needed / the class should be cleaned up
-	 * in order to prevent memory leaks.
-	 */
-	destroyFragment(): void;
+	offsetAt(position: Position): number;
 	/**
 	 * Convenience function for getText(0, getLength())
 	 */
@@ -36,37 +27,30 @@ export interface DocumentSnapshot extends ts.IScriptSnapshot {
 }
 
 /**
- * The mapper to get from original snapshot positions to generated and vice versa.
- */
-export interface SnapshotFragment extends DocumentMapper {
-	positionAt(offset: number): Position;
-	offsetAt(position: Position): number;
-}
-
-/**
  * Snapshots used for Astro files
  */
 export class AstroSnapshot implements DocumentSnapshot {
-	private fragment?: AstroSnapshotFragment;
-	version = this.parent.version;
+	private mapper?: DocumentMapper;
+	private lineOffsets?: number[];
+	private url = pathToUrl(this.filePath);
 	public scriptTagSnapshots: ScriptTagDocumentSnapshot[] = [];
+
+	version = this.parent.version;
 
 	constructor(
 		public readonly parent: AstroDocument,
 		private readonly text: string,
-		public readonly scriptKind: ts.ScriptKind
+		private readonly tsxMap: EncodedSourceMap,
+		public readonly scriptKind: ts.ScriptKind,
+		public readonly compilerDiagnostics: DiagnosticMessage[]
 	) {}
 
-	async createFragment() {
-		if (!this.fragment) {
-			const uri = pathToUrl(this.filePath);
-			this.fragment = new AstroSnapshotFragment(new IdentityMapper(uri), this.parent, this.text, uri);
-		}
-		return this.fragment;
+	isInGenerated(pos: Position): boolean {
+		throw new Error('Method not implemented.');
 	}
 
-	destroyFragment() {
-		return null;
+	getURL(): string {
+		return this.url;
 	}
 
 	get filePath() {
@@ -89,47 +73,41 @@ export class AstroSnapshot implements DocumentSnapshot {
 		return undefined;
 	}
 
-	positionAt(offset: number) {
-		return positionAt(offset, this.text);
-	}
-}
-
-export class AstroSnapshotFragment implements SnapshotFragment {
-	private lineOffsets = getLineOffsets(this.text);
-
-	constructor(
-		private readonly mapper: DocumentMapper,
-		public readonly parent: AstroDocument,
-		public readonly text: string,
-		private readonly url: string
-	) {}
-
-	positionAt(offset: number) {
-		return positionAt(offset, this.text, this.lineOffsets);
+	positionAt(offset: number): Position {
+		return positionAt(offset, this.text, this.getLineOffsets());
 	}
 
-	offsetAt(position: Position) {
-		return offsetAt(position, this.text, this.lineOffsets);
+	offsetAt(position: Position): number {
+		return offsetAt(position, this.text, this.getLineOffsets());
 	}
 
 	getOriginalPosition(pos: Position): Position {
-		return this.mapper.getOriginalPosition(pos);
+		return this.getMapper().getOriginalPosition(pos);
 	}
 
 	getGeneratedPosition(pos: Position): Position {
-		return this.mapper.getGeneratedPosition(pos);
+		return this.getMapper().getGeneratedPosition(pos);
 	}
 
-	isInGenerated(pos: Position): boolean {
-		throw new Error('Method not implemented.');
+	private getLineOffsets() {
+		if (!this.lineOffsets) {
+			this.lineOffsets = getLineOffsets(this.text);
+		}
+		return this.lineOffsets;
 	}
 
-	getURL(): string {
-		return this.url;
+	private getMapper() {
+		if (!this.mapper) {
+			this.mapper = new ConsumerDocumentMapper(new TraceMap(this.tsxMap), this.url, 0);
+		}
+		return this.mapper;
 	}
 }
 
-export class ScriptTagDocumentSnapshot extends FragmentMapper implements DocumentSnapshot, SnapshotFragment {
+/**
+ * Snapshots used for script tags inside Astro files
+ */
+export class ScriptTagDocumentSnapshot extends FragmentMapper implements DocumentSnapshot {
 	readonly version = this.parent.version;
 	private text = this.parent.getText().slice(this.scriptTag.start, this.scriptTag.end) + '\nexport {}';
 	private lineOffsets?: number[];
@@ -149,14 +127,6 @@ export class ScriptTagDocumentSnapshot extends FragmentMapper implements Documen
 
 	offsetAt(position: Position): number {
 		return offsetAt(position, this.text, this.getLineOffsets());
-	}
-
-	async createFragment(): Promise<SnapshotFragment> {
-		return this;
-	}
-
-	destroyFragment(): void {
-		//
 	}
 
 	getText(start: number, end: number) {
@@ -187,7 +157,7 @@ export class ScriptTagDocumentSnapshot extends FragmentMapper implements Documen
  * Snapshot used for anything that is not an Astro file
  * It's both used for .js(x)/.ts(x) files and .svelte/.vue files
  */
-export class TypeScriptDocumentSnapshot extends IdentityMapper implements DocumentSnapshot, SnapshotFragment {
+export class TypeScriptDocumentSnapshot extends IdentityMapper implements DocumentSnapshot {
 	scriptKind: ts.ScriptKind;
 	private lineOffsets?: number[];
 
@@ -227,12 +197,8 @@ export class TypeScriptDocumentSnapshot extends IdentityMapper implements Docume
 		return offsetAt(position, this.text, this.getLineOffsets());
 	}
 
-	async createFragment() {
+	createFragment() {
 		return this;
-	}
-
-	destroyFragment() {
-		// nothing to clean up
 	}
 
 	update(changes: TextDocumentContentChangeEvent[]): void {
@@ -258,5 +224,28 @@ export class TypeScriptDocumentSnapshot extends IdentityMapper implements Docume
 			this.lineOffsets = getLineOffsets(this.text);
 		}
 		return this.lineOffsets;
+	}
+}
+
+export class ConsumerDocumentMapper extends SourceMapDocumentMapper {
+	constructor(traceMap: TraceMap, sourceUri: string, private nrPrependesLines: number) {
+		super(traceMap, sourceUri);
+	}
+
+	getOriginalPosition(generatedPosition: Position): Position {
+		return super.getOriginalPosition(
+			Position.create(generatedPosition.line - this.nrPrependesLines, generatedPosition.character)
+		);
+	}
+
+	getGeneratedPosition(originalPosition: Position): Position {
+		const result = super.getGeneratedPosition(originalPosition);
+		result.line += this.nrPrependesLines;
+		return result;
+	}
+
+	isInGenerated(): boolean {
+		// always return true and map outliers case by case
+		return true;
 	}
 }

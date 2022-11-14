@@ -36,6 +36,7 @@ require('esbuild').build({
 	platform: 'browser',
 	format: 'iife',
 	tsconfig: './tsconfig.json',
+	external: ['synckit'],
 	minify: isDev ? false : true,
 	watch: isDev ? watchMode : false,
 	plugins: [

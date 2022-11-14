@@ -22,11 +22,6 @@ export class GlobalSnapshotManager {
 
 	set(fileName: string, document: DocumentSnapshot) {
 		fileName = normalizePath(fileName);
-		const prev = this.get(fileName);
-		if (prev) {
-			prev.destroyFragment();
-		}
-
 		this.documents.set(fileName, document);
 		this.emitter.emit('change', fileName, document);
 	}

@@ -1,12 +1,12 @@
 import type ts from 'typescript';
 import { Location, Position } from 'vscode-languageserver-protocol';
-import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
+import { AstroDocument, mapRangeToOriginal, mapScriptSpanStartToSnapshot } from '../../../core/documents';
 import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
 import type { TypeDefinitionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import { convertRange, ensureRealFilePath, getScriptTagSnapshot } from '../utils';
-import { SnapshotFragmentMap } from './utils';
+import { SnapshotMap } from './utils';
 
 export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {
 	constructor(private languageServiceManager: LanguageServiceManager) {}
@@ -14,8 +14,8 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {
 	async getTypeDefinitions(document: AstroDocument, position: Position): Promise<Location[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
-		const mainFragment = await tsDoc.createFragment();
-		const fragmentOffset = mainFragment.offsetAt(mainFragment.getGeneratedPosition(position));
+		const fragmentPosition = tsDoc.getGeneratedPosition(position);
+		const fragmentOffset = tsDoc.offsetAt(fragmentPosition);
 
 		const html = document.html;
 		const offset = document.offsetAt(position);
@@ -38,9 +38,7 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {
 					def.fileName = isInSameFile ? tsDoc.filePath : def.fileName;
 
 					if (isInSameFile) {
-						def.textSpan.start = mainFragment.offsetAt(
-							scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(def.textSpan.start))
-						);
+						def.textSpan.start = mapScriptSpanStartToSnapshot(def.textSpan, scriptTagSnapshot, tsDoc);
 					}
 
 					return def;
@@ -50,8 +48,8 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {
 			typeDefs = lang.getTypeDefinitionAtPosition(tsDoc.filePath, fragmentOffset);
 		}
 
-		const docs = new SnapshotFragmentMap(this.languageServiceManager);
-		docs.set(tsDoc.filePath, { fragment: mainFragment, snapshot: tsDoc });
+		const snapshots = new SnapshotMap(this.languageServiceManager);
+		snapshots.set(tsDoc.filePath, tsDoc);
 
 		if (!typeDefs) {
 			return [];
@@ -59,10 +57,10 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {
 
 		const result = await Promise.all(
 			typeDefs.map(async (typeDef) => {
-				const { fragment } = await docs.retrieve(typeDef.fileName);
+				const snapshot = await snapshots.retrieve(typeDef.fileName);
 				const fileName = ensureRealFilePath(typeDef.fileName);
 
-				const range = mapRangeToOriginal(fragment, convertRange(fragment, typeDef.textSpan));
+				const range = mapRangeToOriginal(snapshot, convertRange(snapshot, typeDef.textSpan));
 
 				if (range.start.line >= 0 && range.end.line >= 0) {
 					return Location.create(pathToUrl(fileName), range);

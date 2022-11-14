@@ -1,3 +1,4 @@
+import { EncodedSourceMap } from '@jridgewell/trace-mapping';
 import { URI, Utils } from 'vscode-uri';
 import type { AstroDocument } from '../../../core/documents';
 import { importSvelteIntegration, importVueIntegration } from '../../../importPackage';
@@ -14,9 +15,10 @@ import { AstroSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
 
 // Utilities to create Snapshots from different contexts
 export function createFromDocument(document: AstroDocument, ts: typeof import('typescript/lib/tsserverlibrary')) {
-	const { code } = astro2tsx(document.getText(), classNameFromFilename(document.getURL()));
+	const { code, map, diagnostics } = astro2tsx(document.getText(), document.getURL());
 
-	return new AstroSnapshot(document, code, ts.ScriptKind.TSX);
+	const sourceMap = map as EncodedSourceMap;
+	return new AstroSnapshot(document, code, sourceMap, ts.ScriptKind.TSX, diagnostics);
 }
 
 /**

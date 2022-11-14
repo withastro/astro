@@ -3,7 +3,7 @@ import { Diagnostic, DiagnosticTag } from 'vscode-languageserver-types';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import type { DiagnosticsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
-import type { AstroSnapshot, SnapshotFragment } from '../snapshots/DocumentSnapshot';
+import type { AstroSnapshot, DocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import { convertRange, getScriptTagSnapshot } from '../utils';
 
 type BoundaryTuple = [number, number];
@@ -18,7 +18,6 @@ export enum DiagnosticCodes {
 	SPREAD_EXPECTED = 1005, // '{0}' expected.
 	IS_NOT_A_MODULE = 2306, // '{0}' is not a module.
 	DUPLICATED_JSX_ATTRIBUTES = 17001, // JSX elements cannot have multiple attributes with the same name.
-	MUST_HAVE_PARENT_ELEMENT = 2657, // JSX expressions must have one parent element.
 	CANT_RETURN_OUTSIDE_FUNC = 1108, // A 'return' statement can only be used within a function body.
 	ISOLATED_MODULE_COMPILE_ERR = 1208, // '{0}' cannot be compiled under '--isolatedModules' because it is considered a global script file.
 	TYPE_NOT_ASSIGNABLE = 2322, // Type '{0}' is not assignable to type '{1}'.
@@ -41,7 +40,14 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 		}
 
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		const fragment = await tsDoc.createFragment();
+
+		// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
+		if (
+			(tsDoc as AstroSnapshot).compilerDiagnostics.filter((diag) => diag.severity === DiagnosticSeverity.Error).length >
+			0
+		) {
+			return [];
+		}
 
 		let scriptDiagnostics: Diagnostic[] = [];
 
@@ -92,7 +98,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					code: diagnostic.code,
 					tags: getDiagnosticTag(diagnostic),
 				}))
-				.map(mapRange(fragment, document)),
+				.map(mapRange(tsDoc, document)),
 			...scriptDiagnostics,
 		]
 			.filter((diag) => {
@@ -100,8 +106,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					// Make sure the diagnostic is inside the document and not in generated code
 					diag.range.start.line <= document.lineCount &&
 					hasNoNegativeLines(diag) &&
-					isNoJSXMustHaveOneParent(diag) &&
-					isNoSpreadExpected(diag, document) &&
 					isNoCantReturnOutsideFunction(diag) &&
 					isNoIsolatedModuleError(diag) &&
 					isNoJsxCannotHaveMultipleAttrsError(diag)
@@ -192,9 +196,9 @@ function isNoWithinBoundary(
 	return !diagnosticIsWithinBoundaries(undefined, boundaries, diagnostic, ts);
 }
 
-function mapRange(fragment: SnapshotFragment, _document: AstroDocument): (value: Diagnostic) => Diagnostic {
+function mapRange(snapshot: DocumentSnapshot, _document: AstroDocument): (value: Diagnostic) => Diagnostic {
 	return (diagnostic) => {
-		let range = mapRangeToOriginal(fragment, diagnostic.range);
+		let range = mapRangeToOriginal(snapshot, diagnostic.range);
 
 		return { ...diagnostic, range };
 	};
@@ -214,28 +218,6 @@ function hasNoNegativeLines(diagnostic: Diagnostic): boolean {
  */
 function isNoJsxCannotHaveMultipleAttrsError(diagnostic: Diagnostic) {
 	return diagnostic.code !== DiagnosticCodes.DUPLICATED_JSX_ATTRIBUTES;
-}
-
-/** Astro allows component with multiple root elements */
-function isNoJSXMustHaveOneParent(diagnostic: Diagnostic) {
-	return diagnostic.code !== DiagnosticCodes.MUST_HAVE_PARENT_ELEMENT;
-}
-
-/**
- * When using the shorthand syntax for props TSX expects you to use the spread operator
- * Since the shorthand syntax works differently in Astro and this is not required, hide this message
- * However, the error code used here is quite generic, as such we need to make we only ignore in valid cases
- */
-function isNoSpreadExpected(diagnostic: Diagnostic, document: AstroDocument) {
-	if (
-		diagnostic.code === DiagnosticCodes.SPREAD_EXPECTED &&
-		diagnostic.message.includes('...') &&
-		document.offsetAt(diagnostic.range.start) > (document.astroMeta.frontmatter.endOffset ?? 0)
-	) {
-		return false;
-	}
-
-	return true;
 }
 
 /**
