@@ -26,6 +26,7 @@
     "dist"
   ],
   "dependencies": {
+    "@astrojs/webapi": "workspace:*",
     "ci-info": "^3.3.1",
     "debug": "^4.3.4",
     "dlv": "^1.1.3",

@@ -44,7 +44,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^1.1.1",
+    "@astrojs/webapi": "workspace:*",
     "@vercel/nft": "^0.22.1",
     "fast-glob": "^3.2.11"
   },

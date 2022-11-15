@@ -374,7 +374,7 @@ importers:
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^1.1.3
       '@astrojs/telemetry': ^1.0.1
-      '@astrojs/webapi': ^1.1.1
+      '@astrojs/webapi': workspace:*
       '@babel/core': ^7.18.2
       '@babel/generator': ^7.18.2
       '@babel/parser': ^7.18.4
@@ -2912,7 +2912,7 @@ importers:
 
   packages/integrations/netlify:
     specifiers:
-      '@astrojs/webapi': ^1.1.1
+      '@astrojs/webapi': workspace:*
       '@netlify/edge-handler-types': ^0.34.1
       '@netlify/functions': ^1.0.0
       '@types/node': ^14.18.20
@@ -2969,7 +2969,7 @@ importers:
 
   packages/integrations/node:
     specifiers:
-      '@astrojs/webapi': ^1.1.1
+      '@astrojs/webapi': workspace:*
       '@types/send': ^0.17.1
       astro: workspace:*
       astro-scripts: workspace:*
@@ -3181,7 +3181,7 @@ importers:
 
   packages/integrations/vercel:
     specifiers:
-      '@astrojs/webapi': ^1.1.1
+      '@astrojs/webapi': workspace:*
       '@vercel/nft': ^0.22.1
       astro: workspace:*
       astro-scripts: workspace:*
@@ -3438,6 +3438,7 @@ importers:
 
   packages/telemetry:
     specifiers:
+      '@astrojs/webapi': workspace:*
       '@types/debug': ^4.1.7
       '@types/dlv': ^1.1.2
       '@types/node': ^14.18.21
@@ -3453,6 +3454,7 @@ importers:
       mocha: ^9.2.2
       which-pm-runs: ^1.1.0
     dependencies:
+      '@astrojs/webapi': link:../webapi
       ci-info: 3.6.1
       debug: 4.3.4
       dlv: 1.1.3
