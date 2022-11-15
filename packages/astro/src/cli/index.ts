@@ -3,6 +3,7 @@ import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
+import fs from 'fs';
 import {
 	createSettings,
 	openConfig,
@@ -88,7 +89,7 @@ async function handleConfigError(
 	e: any,
 	{ cwd, flags, logging }: { cwd?: string; flags?: Flags; logging: LogOptions }
 ) {
-	const path = await resolveConfigPath({ cwd, flags });
+	const path = await resolveConfigPath({ cwd, flags, fs });
 	if (e instanceof Error) {
 		if (path) {
 			error(logging, 'astro', `Unable to load ${colors.bold(path)}\n`);
@@ -173,7 +174,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { default: devServer } = await import('../core/dev/index.js');
 
 			const configFlag = resolveFlags(flags).config;
-			const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags }) : undefined;
+			const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags, fs }) : undefined;
 
 			await devServer(settings, {
 				configFlag,
