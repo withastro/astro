@@ -66,7 +66,7 @@ Several official projects are maintained outside of this repo:
 
 | Project                                                             | Repository                                                              |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [@astrojs/compiler](packages/integrations/compiler)                 | [withastro/compiler](https://github.com/withastro/compiler)             |
+| [@astrojs/compiler](https://github.com/withastro/compiler)                 | [withastro/compiler](https://github.com/withastro/compiler)             |
 | [Astro Language Tools](https://github.com/withastro/language-tools) | [withastro/language-tools](https://github.com/withastro/language-tools) |
 
 

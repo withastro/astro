@@ -1,4 +1,4 @@
-# @astrojs/node
+# @astrojs/deno
 
 ## 2.0.0
 
