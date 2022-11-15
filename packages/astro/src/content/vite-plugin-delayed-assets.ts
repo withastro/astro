@@ -70,15 +70,15 @@ export function astroDelayedAssetPlugin({
 			}
 
 			if (id.endsWith('.astro')) {
-				let renderContentImportName = getRenderContentImportName(
+				let renderEntryImportName = getRenderEntryImportName(
 					await parseImports(escapeViteEnvReferences(code))
 				);
-				if (!renderContentImportName) return;
+				if (!renderEntryImportName) return;
 
 				const s = new MagicString(code, {
 					filename: normalizeFilename({ fileName: id, projectRoot: settings.config.root }),
 				});
-				s.prepend(`import { renderContent as $$renderContent } from '.astro';\n`);
+				s.prepend(`import { renderEntry as $$renderEntry } from '.astro';\n`);
 				// TODO: not this
 				const frontmatterPreamble = '$$createComponent(async ($$result, $$props, $$slots) => {';
 				const indexOfFrontmatterPreamble = code.indexOf(frontmatterPreamble);
@@ -87,7 +87,7 @@ export function astroDelayedAssetPlugin({
 
 				s.appendLeft(
 					indexOfFrontmatterPreamble + frontmatterPreamble.length,
-					`\nlet ${renderContentImportName} = $$renderContent.bind($$result);\n`
+					`\nlet ${renderEntryImportName} = $$renderEntry.bind($$result);\n`
 				);
 
 				return {
@@ -130,12 +130,12 @@ export function astroBundleDelayedAssetPlugin({
 	};
 }
 
-function getRenderContentImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
+function getRenderEntryImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
 	for (const imp of parseImportRes) {
 		if (imp.moduleSpecifier.value === '.astro' && imp.importClause?.named) {
 			for (const namedImp of imp.importClause.named) {
-				if (namedImp.specifier === 'renderContent') {
-					// Use `binding` to support `import { renderContent as somethingElse }...
+				if (namedImp.specifier === 'renderEntry') {
+					// Use `binding` to support `import { renderEntry as somethingElse }...
 					return namedImp.binding;
 				}
 			}
