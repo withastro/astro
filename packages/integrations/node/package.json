@@ -34,7 +34,7 @@
     "send": "^0.18.0"
   },
   "peerDependencies": {
-    "astro": "^1.6.7"
+    "astro": "^1.6.8"
   },
   "devDependencies": {
     "@types/send": "^0.17.1",
