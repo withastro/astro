@@ -26,6 +26,9 @@ export function getHighlighter(opts) {
 		themes
 	};
 
+	// Do not pass through the theme as that will attempt to load it, even if it's included in themes
+	delete highlighterOptions['theme'];
+
 	// Start the async getHighlighter call and cache the Promise
 	const highlighter = getShikiHighlighter(highlighterOptions).then((hl) => {
 		hl.setColorReplacements({
