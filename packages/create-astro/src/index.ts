@@ -163,7 +163,7 @@ export async function main() {
 		{ onCancel: () => ora().info(dim('Operation cancelled. See you later, astronaut!')) }
 	);
 
-  if (!options.template || options.template === true) {
+	if (!options.template || options.template === true) {
 		ora().info(dim('No template provided. See you later, astronaut!'));
 		process.exit(1);
 	}
