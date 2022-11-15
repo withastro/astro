@@ -5,7 +5,7 @@ const dir = await fs.promises.readdir('packages/astro/node_modules/shiki/themes/
 const themeImports = dir.map(f => {
 	return [
 		f.slice(0, f.indexOf('.json')),
-		`import('shiki/themes/${f}')`
+		`import('shiki/themes/${f}').then(mod => mod.default)`
 	];
 });
 

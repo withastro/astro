@@ -28,7 +28,7 @@ async function resolveHighlighter(opts) {
 		resolvedLanguages = opts.langs;
 	} else {
 		if(!_allLanguages) {
-			_allLanguages = Promise.all(Object.values(languages).map(fn => fn()));
+			_allLanguages = (await Promise.all(Object.values(languages).map(fn => fn()))).filter(Boolean);
 		}
 		resolvedLanguages = await _allLanguages;
 	}
