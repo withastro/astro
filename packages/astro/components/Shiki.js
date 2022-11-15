@@ -1,4 +1,5 @@
 import { getHighlighter as getShikiHighlighter } from 'shiki';
+import { themes } from './shiki-themes.js';
 
 // Caches Promise<Highligher> for reuse when the same theme and langs are provided
 const _resolvedHighlighters = new Map();
@@ -20,8 +21,13 @@ export function getHighlighter(opts) {
 		return _resolvedHighlighters.get(key);
 	}
 
+	const highlighterOptions = {
+		...opts,
+		themes
+	};
+
 	// Start the async getHighlighter call and cache the Promise
-	const highlighter = getShikiHighlighter(opts).then((hl) => {
+	const highlighter = getShikiHighlighter(highlighterOptions).then((hl) => {
 		hl.setColorReplacements({
 			'#000001': 'var(--astro-code-color-text)',
 			'#000002': 'var(--astro-code-color-background)',
