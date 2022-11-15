@@ -52,6 +52,7 @@ function repairShikiTheme(html: string): string {
 }
 
 const highlighter = await getHighlighter({
+	theme,
 	// Load custom lang if passed an object, otherwise load the default
 	langs: typeof lang !== 'string' ? [lang] : undefined,
 });

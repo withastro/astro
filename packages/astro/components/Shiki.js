@@ -1,8 +1,12 @@
 import { getHighlighter as getShikiHighlighter } from 'shiki';
 import { themes } from './shiki-themes.js';
+import { languages } from './shiki-languages.js';
 
 // Caches Promise<Highligher> for reuse when the same theme and langs are provided
 const _resolvedHighlighters = new Map();
+
+/** @type {Promise<any>} */
+let _allLanguages;
 
 function stringify(opts) {
 	// Always sort keys before stringifying to make sure objects match regardless of parameter ordering
@@ -13,17 +17,27 @@ function stringify(opts) {
  * @param {import('shiki').HighlighterOptions} opts
  * @returns {Promise<import('shiki').Highlighter>}
  */
-export function getHighlighter(opts) {
-	const key = stringify(opts);
-
-	// Highlighter has already been requested, reuse the same instance
-	if (_resolvedHighlighters.has(key)) {
-		return _resolvedHighlighters.get(key);
+async function resolveHighlighter(opts) {
+	const resolvedThemes = [];
+	if(opts.theme && (opts.theme in themes)) {
+		resolvedThemes.push(await themes[opts.theme]());
 	}
 
+	let resolvedLanguages;
+	if(opts.langs) {
+		resolvedLanguages = opts.langs;
+	} else {
+		if(!_allLanguages) {
+			_allLanguages = Promise.all(Object.values(languages).map(fn => fn()));
+		}
+		resolvedLanguages = await _allLanguages;
+	}
+
+	/** @type {import('shiki').HighlighterOptions} */
 	const highlighterOptions = {
 		...opts,
-		themes
+		themes: resolvedThemes,
+		langs: resolvedLanguages
 	};
 
 	// Do not pass through the theme as that will attempt to load it, even if it's included in themes
@@ -46,6 +60,23 @@ export function getHighlighter(opts) {
 		});
 		return hl;
 	});
+
+	return highlighter;
+}
+
+/**
+ * @param {import('shiki').HighlighterOptions} opts
+ * @returns {Promise<import('shiki').Highlighter>}
+ */
+export function getHighlighter(opts) {
+	const key = stringify(opts);
+
+	// Highlighter has already been requested, reuse the same instance
+	if (_resolvedHighlighters.has(key)) {
+		return _resolvedHighlighters.get(key);
+	}
+
+	const highlighter = resolveHighlighter(opts);
 	_resolvedHighlighters.set(key, highlighter);
 
 	return highlighter;
