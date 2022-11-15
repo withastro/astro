@@ -1,22 +1,23 @@
 ---
-import { fetchContent } from '.astro';
+import { getCollection, getEntry } from '.astro';
 import Layout from '../layouts/Layout.astro';
 
-const spaceBlog = await fetchContent('blog');
+const blog = await getCollection('blog', ({ data }) => !data.tags.includes('announcement'));
+const promo = await getEntry('blog', 'promo/launch-week.mdx');
 ---
 
 <Layout title="Content time.">
 	<h1>My <span class="text-gradient">space blog</span> 🚀</h1>
+	<p>
+		It's launch week! <a href={promo.slug}>Learn more here</a>
+	</p>
 	<ul>
-		{spaceBlog.map(entry => (
-			<li class="link-card">
-				<a href={entry.slug}>
-					<h2>{entry.data.title}</h2>
-					<p>{entry.data.description}</p>
-					<time datetime={entry.data.publishedDate.toISOString()}>{entry.data.publishedDate.toDateString()}</time>
-				</a>	
-			</li>
-		))}
+		{blog.map(post => <li class="link-card">
+			<a href={post.slug}>
+					<h2>{post.data.title}</h2>
+					<time datetime={post.data.publishedDate.toISOString()}>{post.data.publishedDate}</time>
+				</a>
+			</li>)}
 	</ul>
 </Layout>
 

@@ -88,15 +88,15 @@ export const _internal = {
 						path.relative(settings.config.root.pathname, dirs.contentDir.pathname)
 					)
 				);
-				const contentGlob = relContentDir + '**/*.{md,mdx}';
+				const entryGlob = relContentDir + '**/*.{md,mdx}';
 				const schemaGlob = relContentDir + '**/~schema.{ts,js,mjs}';
 				await fs.writeFile(
 					new URL(CONTENT_FILE, dirs.cacheDir),
 					contentJsFile
-						.replace('CONTENT_DIR', relContentDir)
-						.replace('FETCH_CONTENT_GLOB_PATH', contentGlob)
-						.replace('RENDER_CONTENT_GLOB_PATH', contentGlob)
-						.replace('SCHEMA_GLOB_PATH', schemaGlob)
+						.replace('@@CONTENT_DIR@@', relContentDir)
+						.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
+						.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob)
+						.replace('@@SCHEMA_GLOB_PATH@@', schemaGlob)
 				);
 
 				await contentGenerator.init();
@@ -417,8 +417,8 @@ async function writeContentFiles({
 		schemaTypesStr += stringifyObjKeyValue(collectionKey, entry);
 	}
 
-	contentTypesBase = contentTypesBase.replace('// GENERATED_CONTENT_MAP_ENTRIES', contentTypesStr);
-	contentTypesBase = contentTypesBase.replace('// GENERATED_SCHEMA_MAP_ENTRIES', schemaTypesStr);
+	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
+	contentTypesBase = contentTypesBase.replace('// @@SCHEMA_MAP@@', schemaTypesStr);
 
 	try {
 		await fs.stat(dirs.cacheDir);

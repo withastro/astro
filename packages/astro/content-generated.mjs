@@ -1,43 +1,43 @@
 import {
-	createFetchContent,
-	createFetchContentByEntry,
+	createGetCollection,
+	createGetEntry,
 	createRenderEntry,
 	createCollectionToGlobResultMap,
 } from 'astro/content/internal';
 
-const contentDir = 'CONTENT_DIR';
+const contentDir = '@@CONTENT_DIR@@';
 
-const contentGlob = import.meta.glob('FETCH_CONTENT_GLOB_PATH', {
+const entryGlob = import.meta.glob('@@ENTRY_GLOB_PATH@@', {
 	query: { astroContent: true },
 });
-const collectionToContentMap = createCollectionToGlobResultMap({
-	globResult: contentGlob,
+const collectionToEntryMap = createCollectionToGlobResultMap({
+	globResult: entryGlob,
 	contentDir,
 });
 
-const schemaGlob = import.meta.glob('SCHEMA_GLOB_PATH');
+const schemaGlob = import.meta.glob('@@SCHEMA_GLOB_PATH@@');
 const collectionToSchemaMap = createCollectionToGlobResultMap({
 	globResult: schemaGlob,
 	contentDir,
 });
 
-const renderContentGlob = import.meta.glob('RENDER_CONTENT_GLOB_PATH', {
+const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
 	query: { astroAssetSsr: true },
 });
-const collectionToRenderContentMap = createCollectionToGlobResultMap({
-	globResult: renderContentGlob,
+const collectionToRenderEntryMap = createCollectionToGlobResultMap({
+	globResult: renderEntryGlob,
 	contentDir,
 });
 
-export const fetchContent = createFetchContent({
-	collectionToContentMap,
+export const getCollection = createGetCollection({
+	collectionToEntryMap,
 	collectionToSchemaMap,
 });
 
-export const fetchContentByEntry = createFetchContentByEntry({
-	collectionToContentMap,
+export const getEntry = createGetEntry({
+	collectionToEntryMap,
 	collectionToSchemaMap,
 	contentDir,
 });
 
-export const renderContent = createRenderEntry({ collectionToRenderContentMap });
+export const renderEntry = createRenderEntry({ collectionToRenderEntryMap });

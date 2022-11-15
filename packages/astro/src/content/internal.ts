@@ -97,15 +97,15 @@ export const getErrorMsg = {
 		`${collection}/~schema needs a named \`schema\` export.`,
 };
 
-export function createFetchContent({
-	collectionToContentMap,
+export function createGetCollection({
+	collectionToEntryMap,
 	collectionToSchemaMap,
 }: {
-	collectionToContentMap: CollectionToEntryMap;
+	collectionToEntryMap: CollectionToEntryMap;
 	collectionToSchemaMap: CollectionToEntryMap;
 }) {
-	return async function fetchContent(collection: string, filter?: () => boolean) {
-		const lazyImports = Object.values(collectionToContentMap[collection] ?? {});
+	return async function getCollection(collection: string, filter?: () => boolean) {
+		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
 		const entries = Promise.all(
 			lazyImports.map(async (lazyImport) => {
 				const entry = await lazyImport();
@@ -127,15 +127,15 @@ export function createFetchContent({
 	};
 }
 
-export function createFetchContentByEntry({
-	collectionToContentMap,
+export function createGetEntry({
+	collectionToEntryMap,
 	collectionToSchemaMap,
 }: {
 	collectionToSchemaMap: CollectionToEntryMap;
-	collectionToContentMap: CollectionToEntryMap;
+	collectionToEntryMap: CollectionToEntryMap;
 }) {
-	return async function fetchContentByEntry(collection: string, entryId: string) {
-		const lazyImport = collectionToContentMap[collection]?.[entryId];
+	return async function getEntry(collection: string, entryId: string) {
+		const lazyImport = collectionToEntryMap[collection]?.[entryId];
 		if (!lazyImport) throw new Error(`Ah! ${entryId}`);
 
 		const entry = await lazyImport();
@@ -151,12 +151,12 @@ export function createFetchContentByEntry({
 }
 
 export function createRenderEntry({
-	collectionToRenderContentMap,
+	collectionToRenderEntryMap,
 }: {
-	collectionToRenderContentMap: CollectionToEntryMap;
+	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
 	return async function renderEntry(this: any, entry: { collection: string; id: string }) {
-		const lazyImport = collectionToRenderContentMap[entry.collection]?.[entry.id];
+		const lazyImport = collectionToRenderEntryMap[entry.collection]?.[entry.id];
 		if (!lazyImport)
 			throw new Error(`${String(entry.collection)} → ${String(entry.id)} does not exist.`);
 
