@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
+import fs from 'fs';
 import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import fs from 'fs';
 import {
 	createSettings,
 	openConfig,
@@ -174,7 +174,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { default: devServer } = await import('../core/dev/index.js');
 
 			const configFlag = resolveFlags(flags).config;
-			const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags, fs }) : undefined;
+			const configFlagPath = configFlag
+				? await resolveConfigPath({ cwd: root, flags, fs })
+				: undefined;
 
 			await devServer(settings, {
 				configFlag,

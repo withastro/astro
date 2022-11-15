@@ -1,7 +1,7 @@
-import * as vite from 'vite';
+import type fsType from 'fs';
 import npath from 'path';
 import { pathToFileURL } from 'url';
-import type fsType from 'fs';
+import * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 // Fallback for legacy
@@ -25,8 +25,8 @@ async function createViteLoader(root: string): Promise<ViteLoader> {
 			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
 			// these dependencies trip up Vite's dev SSR transform. In the future, we should
 			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
-			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react']
-		}
+			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react'],
+		},
 	});
 
 	return {
@@ -40,7 +40,7 @@ async function stat(fs: typeof fsType, configPath: string, mustExist: boolean): 
 		await fs.promises.stat(configPath);
 		return true;
 	} catch {
-		if(mustExist) {
+		if (mustExist) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
 				message: AstroErrorData.ConfigNotFound.message(configPath),
@@ -57,13 +57,13 @@ async function search(fs: typeof fsType, root: string) {
 		'astro.config.ts',
 		'astro.config.mts',
 		'astro.config.cjs',
-		'astro.config.cjs'
-	].map(path => npath.join(root, path));
+		'astro.config.cjs',
+	].map((path) => npath.join(root, path));
 
-	for(const file of paths) {
+	for (const file of paths) {
 		// First verify the file event exists
 		const exists = await stat(fs, file, false);
-		if(exists) {
+		if (exists) {
 			return file;
 		}
 	}
@@ -75,35 +75,38 @@ interface LoadConfigWithViteOptions {
 	fs: typeof fsType;
 }
 
-export async function loadConfigWithVite({ configPath, fs, root }: LoadConfigWithViteOptions): Promise<{
+export async function loadConfigWithVite({
+	configPath,
+	fs,
+	root,
+}: LoadConfigWithViteOptions): Promise<{
 	value: Record<string, any>;
 	filePath?: string;
 }> {
 	let file: string;
-	if(configPath) {
+	if (configPath) {
 		// Go ahead and check if the file exists and throw if not.
 		await stat(fs, configPath, true);
 		file = configPath;
 	} else {
 		const found = await search(fs, root);
-		if(!found) {
+		if (!found) {
 			// No config file found, return an empty config that will be populated with defaults
 			return {
 				value: {},
-				filePath: undefined
+				filePath: undefined,
 			};
 		} else {
 			file = found;
 		}
 	}
 
-
 	// Try loading with Node import()
-	if(/\.[cm]?js$/.test(file)) {
+	if (/\.[cm]?js$/.test(file)) {
 		const config = await import(pathToFileURL(file).toString());
 		return {
 			value: config.default ?? {},
-			filePath: file
+			filePath: file,
 		};
 	}
 
@@ -114,10 +117,9 @@ export async function loadConfigWithVite({ configPath, fs, root }: LoadConfigWit
 		const mod = await loader.viteServer.ssrLoadModule(file);
 		return {
 			value: mod.default ?? {},
-			filePath: file
-		}
+			filePath: file,
+		};
 	} catch {
-
 		// Try loading with Proload
 		// TODO deprecate - this is only for legacy compatibility
 		const res = await load('astro', {
@@ -127,11 +129,10 @@ export async function loadConfigWithVite({ configPath, fs, root }: LoadConfigWit
 		});
 		return {
 			value: res?.value ?? {},
-			filePath: file
+			filePath: file,
 		};
-
 	} finally {
-		if(loader) {
+		if (loader) {
 			await loader.viteServer.close();
 		}
 	}

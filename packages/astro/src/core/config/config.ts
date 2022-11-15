@@ -164,7 +164,7 @@ export async function resolveConfigPath(
 		const config = await loadConfigWithVite({
 			configPath: userConfigPath,
 			root,
-			fs: configOptions.fs
+			fs: configOptions.fs,
 		});
 		return config.filePath;
 	} catch (e) {
@@ -220,7 +220,7 @@ async function tryLoadConfig(
 		let configPath = await resolveConfigPath({
 			cwd: configOptions.cwd,
 			flags: configOptions.flags,
-			fs: fsMod
+			fs: fsMod,
 		});
 		if (!configPath) return undefined;
 		if (configOptions.isRestart) {
@@ -242,12 +242,12 @@ async function tryLoadConfig(
 			};
 			configPath = tempConfigPath;
 		}
-		
+
 		// Create a vite server to load the config
 		const config = await loadConfigWithVite({
 			configPath,
 			fs: fsMod,
-			root
+			root,
 		});
 		return config as TryLoadConfigResult;
 	} finally {
