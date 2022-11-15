@@ -20,6 +20,4 @@ export declare function fetchContent<
 export declare function renderContent<
 	C extends keyof typeof contentMap,
 	E extends keyof typeof contentMap[C]
->(
-	entryOrEntryId: typeof contentMap[C][E] | typeof contentMap[C][E]['id']
-): Promise<{ Content: any }>;
+>(entry: { collection: C; id: E }): Promise<{ Content: any }>;

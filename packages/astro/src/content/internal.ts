@@ -26,7 +26,7 @@ export function createCollectionToGlobResultMap({
 
 export async function parseEntryData(
 	collection: string,
-	unparsedEntry: { id: string; data: any; _internal: { rawData: string; filePath: string } },
+	entry: { id: string; data: any; _internal: { rawData: string; filePath: string } },
 	collectionToSchemaMap: CollectionToEntryMap
 ) {
 	let schemaImport = Object.values(collectionToSchemaMap[collection] ?? {})[0];
@@ -40,22 +40,29 @@ export async function parseEntryData(
 	const { schema } = schemaValue;
 
 	try {
-		return schema.parse(unparsedEntry.data, { errorMap });
+		return schema.parse(entry.data, { errorMap });
 	} catch (e) {
 		if (e instanceof z.ZodError) {
 			const formattedError = new Error(
 				[
-					`Could not parse frontmatter in ${String(collection)} → ${String(unparsedEntry.id)}`,
+					`Could not parse frontmatter in ${String(collection)} → ${String(entry.id)}`,
 					...e.errors.map((e) => e.message),
 				].join('\n')
 			);
 			(formattedError as any).loc = {
-				file: unparsedEntry._internal.filePath,
-				line: getFrontmatterErrorLine(unparsedEntry._internal.rawData, String(e.errors[0].path[0])),
+				file: entry._internal.filePath,
+				line: getFrontmatterErrorLine(entry._internal.rawData, String(e.errors[0].path[0])),
 				column: 1,
 			};
 			throw formattedError;
 		}
+		if (e instanceof Error) {
+			e.message = `There was a problem parsing frontmatter in ${String(collection)} → ${String(
+				entry.id
+			)}\n${e.message}`;
+			throw e;
+		}
+		throw e;
 	}
 }
 
@@ -107,6 +114,7 @@ export function createFetchContent({
 					id: entry.id,
 					slug: entry.slug,
 					body: entry.body,
+					collection: entry.collection,
 					data,
 				};
 			})
@@ -136,18 +144,23 @@ export function createFetchContentByEntry({
 			id: entry.id,
 			slug: entry.slug,
 			body: entry.body,
+			collection: entry.collection,
 			data,
 		};
 	};
 }
 
-export function createRenderContent(renderContentMap: Record<string, () => Promise<any>>) {
-	return async function renderContent(this: any, entryOrEntryId: { id: string } | string) {
-		const contentKey = typeof entryOrEntryId === 'object' ? entryOrEntryId.id : entryOrEntryId;
-		const modImport = renderContentMap[contentKey];
-		if (!modImport) throw new Error(`${JSON.stringify(contentKey)} does not exist!`);
+export function createRenderEntry({
+	collectionToRenderContentMap,
+}: {
+	collectionToRenderContentMap: CollectionToEntryMap;
+}) {
+	return async function renderEntry(this: any, entry: { collection: string; id: string }) {
+		const lazyImport = collectionToRenderContentMap[entry.collection]?.[entry.id];
+		if (!lazyImport)
+			throw new Error(`${String(entry.collection)} → ${String(entry.id)} does not exist.`);
 
-		const mod = await modImport();
+		const mod = await lazyImport();
 
 		if ('collectedLinks' in mod && 'links' in (this ?? {})) {
 			for (const link of mod.collectedLinks) {

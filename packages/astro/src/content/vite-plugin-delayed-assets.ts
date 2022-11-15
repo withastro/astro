@@ -9,11 +9,17 @@ import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
 import { createViteLoader } from '../core/module-loader/vite.js';
+import { contentFileExts, DELAYED_ASSET_FLAG } from './consts.js';
 
 const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
 const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
 
-export const DELAYED_ASSET_FLAG = '?astroAssetSsr';
+function isDelayedAsset(url: URL): boolean {
+	return (
+		url.searchParams.has(DELAYED_ASSET_FLAG) &&
+		contentFileExts.some((ext) => url.pathname.endsWith(ext))
+	);
+}
 
 export function astroDelayedAssetPlugin({
 	settings,
@@ -32,9 +38,10 @@ export function astroDelayedAssetPlugin({
 			}
 		},
 		load(id) {
-			if (id.endsWith(DELAYED_ASSET_FLAG)) {
+			const url = new URL(id, 'file://');
+			if (isDelayedAsset(url)) {
 				const code = `
-					export { Content } from ${JSON.stringify(id.replace(DELAYED_ASSET_FLAG, ''))};
+					export { Content } from ${JSON.stringify(url.pathname)};
 					export const collectedLinks = ${LINKS_PLACEHOLDER};
 					export const collectedStyles = ${STYLES_PLACEHOLDER};
 				`;
@@ -43,13 +50,14 @@ export function astroDelayedAssetPlugin({
 		},
 		async transform(code, id, options) {
 			if (!options?.ssr) return;
-			if (id.endsWith(DELAYED_ASSET_FLAG) && devModuleLoader) {
-				const baseId = id.replace(DELAYED_ASSET_FLAG, '');
-				if (!devModuleLoader.getModuleById(baseId)?.ssrModule) {
-					await devModuleLoader.import(baseId);
+			const url = new URL(id, 'file://');
+			if (devModuleLoader && isDelayedAsset(url)) {
+				const { pathname } = url;
+				if (!devModuleLoader.getModuleById(pathname)?.ssrModule) {
+					await devModuleLoader.import(pathname);
 				}
 				const { stylesMap, urls } = await getStylesForURL(
-					pathToFileURL(baseId),
+					pathToFileURL(pathname),
 					devModuleLoader,
 					'development'
 				);

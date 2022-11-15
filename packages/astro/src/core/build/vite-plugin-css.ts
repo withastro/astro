@@ -16,7 +16,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
-import { DELAYED_ASSET_FLAG } from '../../content/vite-plugin-delayed-assets.js';
+import { DELAYED_ASSET_FLAG } from '../../content/consts.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -90,7 +90,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 						for (const [pageInfo] of walkParentInfos(id, {
 							getModuleInfo: args[0].getModuleInfo,
 						})) {
-							if (pageInfo.id.endsWith(DELAYED_ASSET_FLAG)) {
+							if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
 								return createNameHash(id, [id]);
@@ -183,10 +183,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										id,
 										this,
 										function until(importer) {
-											return importer.endsWith(DELAYED_ASSET_FLAG);
+											return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
 										}
 									)) {
-										if (pageInfo.id.endsWith(DELAYED_ASSET_FLAG)) {
+										if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
 											for (const parent of walkParentInfos(id, this)) {
 												const parentInfo = parent[0];
 												if (moduleIsTopLevelPage(parentInfo)) {
