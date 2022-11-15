@@ -7,6 +7,7 @@ import matter from 'gray-matter';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
+import { contentFileExts, CONTENT_FLAG } from './consts.js';
 
 type Dirs = {
 	contentDir: URL;
@@ -17,8 +18,6 @@ type Dirs = {
 const CONTENT_BASE = 'content-generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
-
-const contentFileExts = ['.md', '.mdx'];
 
 export function astroContentPlugin({
 	settings,
@@ -42,7 +41,10 @@ export function astroContentPlugin({
 			enforce: 'pre',
 			async load(id) {
 				const { pathname, searchParams } = new URL(id, 'file://');
-				if (searchParams.has('content') && contentFileExts.some((ext) => pathname.endsWith(ext))) {
+				if (
+					searchParams.has(CONTENT_FLAG) &&
+					contentFileExts.some((ext) => pathname.endsWith(ext))
+				) {
 					const rawContents = await fs.readFile(pathname, 'utf-8');
 					const { content: body, data, matter: rawData } = parseFrontmatter(rawContents, pathname);
 					const entryInfo = parseEntryInfo(pathname, { contentDir: dirs.contentDir });
@@ -327,9 +329,9 @@ function addEntry(
 	entryKey: string,
 	slug: string
 ) {
-	contentTypes[collectionKey][entryKey] = `{\n id: ${entryKey},\n  slug: ${JSON.stringify(
+	contentTypes[collectionKey][entryKey] = `{\n  id: ${entryKey},\n  slug: ${JSON.stringify(
 		slug
-	)},\n  body: string,\n data: z.infer<typeof schemaMap[${collectionKey}]['schema']>\n}`;
+	)},\n  body: string,\n  collection: ${collectionKey},\n  data: z.infer<typeof schemaMap[${collectionKey}]['schema']>\n}`;
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {

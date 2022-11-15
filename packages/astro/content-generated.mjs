@@ -1,14 +1,14 @@
 import {
 	createFetchContent,
 	createFetchContentByEntry,
-	createRenderContent,
+	createRenderEntry,
 	createCollectionToGlobResultMap,
 } from 'astro/content/internal';
 
 const contentDir = 'CONTENT_DIR';
 
 const contentGlob = import.meta.glob('FETCH_CONTENT_GLOB_PATH', {
-	query: { content: true },
+	query: { astroContent: true },
 });
 const collectionToContentMap = createCollectionToGlobResultMap({
 	globResult: contentGlob,
@@ -21,8 +21,12 @@ const collectionToSchemaMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
-const renderContentMap = import.meta.glob('RENDER_CONTENT_GLOB_PATH', {
+const renderContentGlob = import.meta.glob('RENDER_CONTENT_GLOB_PATH', {
 	query: { astroAssetSsr: true },
+});
+const collectionToRenderContentMap = createCollectionToGlobResultMap({
+	globResult: renderContentGlob,
+	contentDir,
 });
 
 export const fetchContent = createFetchContent({
@@ -36,4 +40,4 @@ export const fetchContentByEntry = createFetchContentByEntry({
 	contentDir,
 });
 
-export const renderContent = createRenderContent(renderContentMap);
+export const renderContent = createRenderEntry({ collectionToRenderContentMap });
