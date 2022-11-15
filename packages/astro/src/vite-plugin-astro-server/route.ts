@@ -1,7 +1,7 @@
 import type http from 'http';
 import mime from 'mime';
-import type { AstroSettings, ManifestData } from '../@types/astro';
-import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
+import type { AstroSettings, ComponentInstance, ManifestData, RouteData } from '../@types/astro';
+import { ComponentPreload, DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
@@ -23,6 +23,14 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
+interface MatchedRoute {
+	route: RouteData;
+	filePath: URL;
+	resolvedPathname: string;
+	preloadedComponent: ComponentPreload;
+	mod: ComponentInstance;
+}
+
 function getCustom404Route({ config }: AstroSettings, manifest: ManifestData) {
 	// For Windows compat, use relative page paths to match the 404 route
 	const relPages = resolvePages(config).href.replace(config.root.href, '');
@@ -34,7 +42,7 @@ export async function matchRoute(
 	pathname: string,
 	env: DevelopmentEnvironment,
 	manifest: ManifestData
-) {
+): Promise<MatchedRoute | undefined> {
 	const { logging, settings, routeCache } = env;
 	const matches = matchAllRoutes(pathname, manifest);
 
@@ -57,10 +65,19 @@ export async function matchRoute(
 			return {
 				route: maybeRoute,
 				filePath,
+				resolvedPathname: pathname,
 				preloadedComponent,
 				mod,
 			};
 		}
+	}
+
+	// Try without `.html` extensions or `index.html` in request URLs to mimic
+	// routing behavior in production builds. This supports both file and directory
+	// build formats, and is necessary based on how the manifest tracks build targets.
+	const altPathname = pathname.replace(/(index)?\.html$/, '');
+	if (altPathname !== pathname) {
+		return await matchRoute(altPathname, env, manifest);
 	}
 
 	if (matches.length) {
@@ -86,6 +103,7 @@ export async function matchRoute(
 		return {
 			route: custom404,
 			filePath,
+			resolvedPathname: pathname,
 			preloadedComponent,
 			mod,
 		};

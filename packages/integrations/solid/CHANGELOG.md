@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 1.2.3
+
+### Patch Changes
+
+- [#5345](https://github.com/withastro/astro/pull/5345) [`3ae2a961b`](https://github.com/withastro/astro/commit/3ae2a961b77da179d24c44734af54424e76a5049) Thanks [@bluwy](https://github.com/bluwy)! - Respect Vite user config for third-party packages config handling
+
 ## 1.2.2
 
 ### Patch Changes

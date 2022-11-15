@@ -1,4 +1,4 @@
-import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
 import { getSolidPkgsConfig } from './dependencies.js';
 
 function getRenderer(): AstroRenderer {
@@ -24,11 +24,11 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-async function getViteConfiguration(isDev: boolean, root: URL) {
+async function getViteConfiguration(isDev: boolean, astroConfig: AstroConfig) {
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitely wants it or if we are in dev (serve) mode
 	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
-	const solidPkgsConfig = await getSolidPkgsConfig(root, !isDev);
+	const solidPkgsConfig = await getSolidPkgsConfig(!isDev, astroConfig);
 	return {
 		/**
 		 * We only need esbuild on .ts or .js files.
@@ -58,7 +58,7 @@ export default function (): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({ command, addRenderer, updateConfig, config }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: await getViteConfiguration(command === 'dev', config.root) });
+				updateConfig({ vite: await getViteConfiguration(command === 'dev', config) });
 			},
 		},
 	};
