@@ -25,7 +25,7 @@ export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo 
 
 export function createSlugger(settings: AstroSettings) {
 	const pagesDir = viteID(new URL('./pages', settings.config.srcDir));
-	const indexPage = viteID(new URL("./pages/index", settings.config.srcDir));
+	const indexPage = viteID(new URL('./pages/index', settings.config.srcDir));
 	const map = new Map<string, Map<string, number>>();
 	const sep = '-';
 	return function (id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
