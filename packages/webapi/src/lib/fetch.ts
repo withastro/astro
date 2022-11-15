@@ -1,6 +1,5 @@
 import { bootstrap as bootstrapGlobalAgent } from 'global-agent'
-import type { RequestInit } from 'node-fetch'
-import { default as nodeFetch, Headers, Request, Response } from 'node-fetch'
+import { default as nodeFetch, Headers, Request, Response } from 'node-fetch/src/index.js'
 import Stream from 'node:stream'
 import * as _ from './utils'
 
@@ -12,7 +11,7 @@ export { Headers, Request, Response }
 
 export const fetch = {
 	fetch(
-		resource: string | Request,
+		resource: string | URL | Request,
 		init?: Partial<FetchInit>
 	): Promise<Response> {
 		const resourceURL = new URL(
@@ -63,7 +62,13 @@ export const fetch = {
 type USVString = {} & string
 
 interface FetchInit {
-	body: RequestInit['body']
+	body: 
+	| Blob
+	| BufferSource
+	| FormData
+	| URLSearchParams
+	| ReadableStream
+	| USVString
 	cache:
 		| 'default'
 		| 'no-store'

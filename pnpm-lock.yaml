@@ -3451,7 +3451,6 @@ importers:
       is-docker: ^3.0.0
       is-wsl: ^2.2.0
       mocha: ^9.2.2
-      node-fetch: ^3.2.5
       which-pm-runs: ^1.1.0
     dependencies:
       ci-info: 3.6.1
@@ -3460,7 +3459,6 @@ importers:
       dset: 3.1.2
       is-docker: 3.0.0
       is-wsl: 2.2.0
-      node-fetch: 3.3.0
       which-pm-runs: 1.1.0
     devDependencies:
       '@types/debug': 4.1.7
@@ -3499,7 +3497,6 @@ importers:
       web-streams-polyfill: ^3.2.1
     dependencies:
       global-agent: 3.0.0
-      node-fetch: 3.3.0
     devDependencies:
       '@rollup/plugin-alias': 3.1.9_rollup@2.79.1
       '@rollup/plugin-inject': 4.0.4_rollup@2.79.1
@@ -3517,6 +3514,7 @@ importers:
       formdata-polyfill: 4.0.10
       magic-string: 0.25.9
       mocha: 9.2.2
+      node-fetch: 3.3.0
       rollup: 2.79.1
       rollup-plugin-terser: 7.0.2_rollup@2.79.1
       tslib: 2.4.1

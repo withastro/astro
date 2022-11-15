@@ -1,4 +1,8 @@
-import fetch from 'node-fetch';
+import { polyfill } from '@astrojs/webapi'
+
+polyfill(globalThis, {
+	exclude: 'window document',
+});
 
 const ASTRO_TELEMETRY_ENDPOINT = `https://telemetry.astro.build/api/v1/record`;
 
