@@ -1,6 +1,7 @@
 import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Readable } from 'stream';
+import { responseIterator } from './response-iterator';
 
 export default function (app: NodeApp) {
 	return async function (
@@ -38,7 +39,7 @@ export default function (app: NodeApp) {
 }
 
 async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response) {
-	const { status, headers, body } = webResponse;
+	const { status, headers } = webResponse;
 
 	if (app.setCookieHeaders) {
 		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
@@ -48,8 +49,8 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 	}
 
 	res.writeHead(status, Object.fromEntries(headers.entries()));
-	if (body) {
-		for await (const chunk of body as unknown as Readable) {
+	if (webResponse.body) {
+		for await (const chunk of responseIterator(webResponse) as unknown as Readable) {
 			res.write(chunk);
 		}
 	}
