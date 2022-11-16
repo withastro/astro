@@ -27,7 +27,7 @@ export function createSettings(config: AstroConfig, cwd?: string): AstroSettings
 
 	const watchFiles = tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [];
 
-	if(cwd) {
+	if (cwd) {
 		watchFiles.push(fileURLToPath(new URL('./package.json', pathToFileURL(cwd))));
 	}
 
