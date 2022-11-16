@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { fileURLToPath } from 'url';
 
 import {
 	createContainerWithAutomaticRestart,
@@ -143,6 +144,38 @@ describe('dev container restarts', () => {
 			await restartComplete;
 
 			expect(isStarted(restart.container)).to.equal(true);
+		} finally {
+			await restart.container.close();
+		}
+	});
+
+	it('Is able to restart project on package.json changes', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': ``,
+			},
+			root
+		);
+
+		const { astroConfig } = await openConfig({
+			cwd: root,
+			flags: {},
+			cmd: 'dev',
+			logging: defaultLogging,
+		});
+		const settings = createSettings(astroConfig, fileURLToPath(root));
+
+		let restart = await createContainerWithAutomaticRestart({
+			params: { fs, root, settings },
+		});
+		await startContainer(restart.container);
+		expect(isStarted(restart.container)).to.equal(true);
+
+		try {
+			let restartComplete = restart.restarted();
+			fs.writeFileSync('/package.json', `{}`);
+			triggerFSEvent(restart.container, fs, '/package.json', 'change');
+			await restartComplete;
 		} finally {
 			await restart.container.close();
 		}
