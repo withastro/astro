@@ -9,6 +9,7 @@ import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
+import { fileURLToPath } from 'node:url';
 
 type Dirs = {
 	contentDir: URL;
@@ -19,6 +20,11 @@ type Dirs = {
 const CONTENT_BASE = 'content-generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
+
+function getEnvReference({ srcDir, contentTypesFile }: { srcDir: URL; contentTypesFile: URL }) {
+	const relToSrcDir = path.relative(fileURLToPath(srcDir), fileURLToPath(contentTypesFile));
+	return `/// <reference path=${JSON.stringify(relToSrcDir)} />`;
+}
 
 export function astroContentPlugin({
 	settings,
@@ -111,6 +117,19 @@ export const _internal = {
 
 				contentGenerator = await toGenerateContent({ logging, dirs });
 				await contentGenerator.init();
+
+				const typeEnvPath = new URL('./env.d.ts', settings.config.srcDir);
+				const typeEnvContent = await fs.readFile(
+					new URL('./env.d.ts', settings.config.srcDir),
+					'utf-8'
+				);
+				const envReference = getEnvReference({
+					srcDir: settings.config.srcDir,
+					contentTypesFile: new URL(CONTENT_TYPES_FILE, dirs.cacheDir),
+				});
+				if (!typeEnvContent.includes(envReference)) {
+					await fs.writeFile(typeEnvPath, `${envReference}\n${typeEnvContent}`);
+				}
 			},
 			async configureServer(viteServer) {
 				if (contentDirExists) {
