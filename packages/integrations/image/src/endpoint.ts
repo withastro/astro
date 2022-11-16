@@ -15,7 +15,7 @@ async function loadRemoteImage(src: URL) {
 
 		return Buffer.from(await res.arrayBuffer());
 	} catch (err: unknown) {
-		console.error(err)
+		console.error(err);
 		return undefined;
 	}
 }

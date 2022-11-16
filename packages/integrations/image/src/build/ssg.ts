@@ -74,7 +74,7 @@ async function loadRemoteImage(src: string) {
 			expires: Date.now() + expires,
 		};
 	} catch (err: unknown) {
-		console.error(err)
+		console.error(err);
 		return undefined;
 	}
 }
