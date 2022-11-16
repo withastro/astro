@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.4.1
+
+### Patch Changes
+
+- 985515d: Update `@astrojs/compiler`, fixing a few bugs
+
 ## 0.4.0
 
 ### Minor Changes

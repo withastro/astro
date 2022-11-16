@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.29.1
+
+### Patch Changes
+
+- 985515d: Update `@astrojs/compiler`, fixing a few bugs
+- Updated dependencies [985515d]
+  - @astrojs/ts-plugin@0.4.1
+
 ## 0.29.0
 
 ### Minor Changes

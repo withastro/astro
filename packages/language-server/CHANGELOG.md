@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.29.1
+
+### Patch Changes
+
+- 985515d: Update `@astrojs/compiler`, fixing a few bugs
+
 ## 0.29.0
 
 ### Minor Changes
