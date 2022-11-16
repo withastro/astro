@@ -1,6 +1,7 @@
 import { Plugin, ErrorPayload as ViteErrorPayload, normalizePath } from 'vite';
 import glob from 'fast-glob';
 import * as fs from 'node:fs/promises';
+import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { bold, cyan } from 'kleur/colors';
 import matter from 'gray-matter';
@@ -35,7 +36,37 @@ export function astroContentPlugin({
 	let contentDirExists = false;
 	let contentGenerator: GenerateContent;
 
+	const relContentDir = appendForwardSlash(
+		prependForwardSlash(path.relative(settings.config.root.pathname, dirs.contentDir.pathname))
+	);
+	const entryGlob = relContentDir + '**/*.{md,mdx}';
+	const schemaGlob = relContentDir + '**/~schema.{ts,js,mjs}';
+	const astroContentModContents = fsSync
+		.readFileSync(new URL(CONTENT_FILE, dirs.generatedInputDir), 'utf-8')
+		.replace('@@CONTENT_DIR@@', relContentDir)
+		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
+		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob)
+		.replace('@@SCHEMA_GLOB_PATH@@', schemaGlob);
+
+	const virtualModuleId = 'astro:content';
+	const resolvedVirtualModuleId = '\0' + virtualModuleId;
+
 	return [
+		{
+			name: 'astro-content-virtual-module-plugin',
+			resolveId(id) {
+				if (id === virtualModuleId) {
+					return resolvedVirtualModuleId;
+				}
+			},
+			load(id) {
+				if (id === resolvedVirtualModuleId) {
+					return {
+						code: astroContentModContents,
+					};
+				}
+			},
+		},
 		{
 			name: 'content-flag-plugin',
 			enforce: 'pre',
@@ -79,26 +110,6 @@ export const _internal = {
 				info(logging, 'content', 'Generating entries...');
 
 				contentGenerator = await toGenerateContent({ logging, dirs });
-				const contentJsFile = await fs.readFile(
-					new URL(CONTENT_FILE, dirs.generatedInputDir),
-					'utf-8'
-				);
-				const relContentDir = appendForwardSlash(
-					prependForwardSlash(
-						path.relative(settings.config.root.pathname, dirs.contentDir.pathname)
-					)
-				);
-				const entryGlob = relContentDir + '**/*.{md,mdx}';
-				const schemaGlob = relContentDir + '**/~schema.{ts,js,mjs}';
-				await fs.writeFile(
-					new URL(CONTENT_FILE, dirs.cacheDir),
-					contentJsFile
-						.replace('@@CONTENT_DIR@@', relContentDir)
-						.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
-						.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob)
-						.replace('@@SCHEMA_GLOB_PATH@@', schemaGlob)
-				);
-
 				await contentGenerator.init();
 			},
 			async configureServer(viteServer) {
@@ -331,7 +342,7 @@ function addEntry(
 ) {
 	contentTypes[collectionKey][entryKey] = `{\n  id: ${entryKey},\n  slug: ${JSON.stringify(
 		slug
-	)},\n  body: string,\n  collection: ${collectionKey},\n  data: z.infer<typeof schemaMap[${collectionKey}]['schema']>\n}`;
+	)},\n  body: string,\n  collection: ${collectionKey},\n  data: import('zod').infer<typeof schemaMap[${collectionKey}]['schema']>\n}`;
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
