@@ -56,7 +56,10 @@ const highlighter = await getHighlighter({
 	// Load custom lang if passed an object, otherwise load the default
 	langs: typeof lang !== 'string' ? [lang] : undefined,
 });
-const _html = highlighter.codeToHtml(code, { lang: typeof lang === 'string' ? lang : lang.id });
+const _html = highlighter.codeToHtml(code, {
+	lang: typeof lang === 'string' ? lang : lang.id,
+	theme,
+});
 const html = repairShikiTheme(_html);
 ---
 
