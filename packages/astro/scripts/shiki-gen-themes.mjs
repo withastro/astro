@@ -20,6 +20,7 @@ for(const [key, imp] of themeImports) {
 }
 code += '\n};';
 
+// eslint-disable-next-line no-console
 console.log(code);
 
 /**

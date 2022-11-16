@@ -32,6 +32,7 @@ for(const [key, imp] of langImports) {
 }
 code += '\n};';
 
+// eslint-disable-next-line no-console
 console.log(code);
 
 /**
