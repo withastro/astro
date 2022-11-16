@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntry } from '.astro';
+import { getCollection, getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
 const blog = await getCollection('blog', ({ data }) => !data.tags.includes('announcement'));

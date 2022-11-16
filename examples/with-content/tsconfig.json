@@ -2,9 +2,5 @@
   "extends": "astro/tsconfigs/base",
   "compilerOptions": {
     "strictNullChecks": true,
-    "baseUrl": ".",
-    "paths": {
-      ".astro": [".astro/content-generated"],
-    }
   }
 }
