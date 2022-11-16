@@ -40,7 +40,7 @@ export function astroContentPlugin({
 		prependForwardSlash(path.relative(settings.config.root.pathname, dirs.contentDir.pathname))
 	);
 	const entryGlob = relContentDir + '**/*.{md,mdx}';
-	const schemaGlob = relContentDir + '**/~schema.{ts,js,mjs}';
+	const schemaGlob = relContentDir + '**/index.{ts,js,mjs}';
 	const astroContentModContents = fsSync
 		.readFileSync(new URL(CONTENT_FILE, dirs.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
@@ -194,7 +194,7 @@ async function toGenerateContent({
 	);
 
 	async function init() {
-		const pattern = new URL('./**/', dirs.contentDir).pathname + '{*.{md,mdx},~schema.{js,mjs,ts}}';
+		const pattern = new URL('./**/', dirs.contentDir).pathname + '{*.{md,mdx},index.{js,mjs,ts}}';
 		const entries = await glob(pattern);
 		for (const entry of entries) {
 			queueEvent({ name: 'add', entry }, { shouldLog: false });
@@ -240,7 +240,7 @@ async function toGenerateContent({
 			const { id, slug, collection } = entryInfo;
 			const collectionKey = JSON.stringify(collection);
 			const entryKey = JSON.stringify(id);
-			if (fileType === 'schema') {
+			if (fileType === 'collection-config') {
 				switch (event.name) {
 					case 'add':
 						if (!(collectionKey in schemaTypes)) {
@@ -342,7 +342,7 @@ function addEntry(
 ) {
 	contentTypes[collectionKey][entryKey] = `{\n  id: ${entryKey},\n  slug: ${JSON.stringify(
 		slug
-	)},\n  body: string,\n  collection: ${collectionKey},\n  data: import('zod').infer<typeof schemaMap[${collectionKey}]['schema']>\n}`;
+	)},\n  body: string,\n  collection: ${collectionKey},\n  data: import('zod').infer<typeof schemaMap[${collectionKey}]['default']['schema']>\n}`;
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
@@ -366,12 +366,12 @@ function parseEntryInfo(
 	};
 }
 
-function getEntryType(entryPath: string): 'content' | 'schema' | 'unknown' {
+function getEntryType(entryPath: string): 'content' | 'collection-config' | 'unknown' {
 	const { base, ext } = path.parse(entryPath);
 	if (['.md', '.mdx'].includes(ext)) {
 		return 'content';
-	} else if (['~schema.js', '~schema.mjs', '~schema.ts'].includes(base)) {
-		return 'schema';
+	} else if (['index.js', 'index.mjs', 'index.ts'].includes(base)) {
+		return 'collection-config';
 	} else {
 		return 'unknown';
 	}

@@ -34,10 +34,10 @@ export async function parseEntryData(
 		console.warn(getErrorMsg.schemaFileMissing(collection));
 	}
 	const schemaValue = await schemaImport();
-	if (!('schema' in (schemaValue ?? {}))) {
+	if (!('schema' in (schemaValue?.default ?? {}))) {
 		throw new Error(getErrorMsg.schemaNamedExpMissing(collection));
 	}
-	const { schema } = schemaValue;
+	const { schema } = schemaValue.default;
 
 	try {
 		return schema.parse(entry.data, { errorMap });
@@ -92,9 +92,9 @@ function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string)
 
 export const getErrorMsg = {
 	schemaFileMissing: (collection: string) =>
-		`${collection} does not have a ~schema file. We suggest adding one for type safety!`,
+		`${collection} does not have a config. We suggest adding one for type safety!`,
 	schemaNamedExpMissing: (collection: string) =>
-		`${collection}/~schema needs a named \`schema\` export.`,
+		`${collection}/index needs a default export. Try using \`defineCollection\`.`,
 };
 
 export function createGetCollection({
