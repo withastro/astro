@@ -30,7 +30,7 @@ export async function parseEntryData(
 	collectionToSchemaMap: CollectionToEntryMap
 ) {
 	let schemaImport = Object.values(collectionToSchemaMap[collection] ?? {})[0];
-	if (!schemaImport) {
+	if (typeof schemaImport !== 'function') {
 		console.warn(getErrorMsg.schemaFileMissing(collection));
 	}
 	const schemaValue = await schemaImport();
