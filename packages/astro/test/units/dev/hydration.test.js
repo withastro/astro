@@ -1,4 +1,3 @@
-
 import { expect } from 'chai';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
@@ -25,29 +24,36 @@ describe('dev container', () => {
 						<Bar client:load />
 					</body>
 				</html>
-			`
+			`,
 			},
 			root
 		);
 
-		await runInContainer({
-			fs, root,
-			logging: {
-				...defaultLogging,
-				// Error is expected in this test
-				level: 'silent'
+		await runInContainer(
+			{
+				fs,
+				root,
+				logging: {
+					...defaultLogging,
+					// Error is expected in this test
+					level: 'silent',
+				},
+				userConfig: {
+					integrations: [svelte()],
+				},
 			},
-			userConfig: {
-				integrations: [svelte()]
+			async (container) => {
+				const { req, res, done } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+				const html = await done;
+				expect(res.statusCode).to.equal(
+					200,
+					"We get a 200 because the error occurs in the template, but we didn't crash!"
+				);
 			}
-		}, async (container) => {
-			const { req, res, done } = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(req, res);
-			const html = await done;
-			expect(res.statusCode).to.equal(200, 'We get a 200 because the error occurs in the template, but we didn\'t crash!');
-		});
+		);
 	});
 });
