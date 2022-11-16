@@ -19,16 +19,18 @@ function stringify(opts) {
  */
 async function resolveHighlighter(opts) {
 	const resolvedThemes = [];
-	if(opts.theme && (opts.theme in themes)) {
+	if (opts.theme && opts.theme in themes) {
 		resolvedThemes.push(await themes[opts.theme]());
 	}
 
 	let resolvedLanguages;
-	if(opts.langs) {
+	if (opts.langs) {
 		resolvedLanguages = opts.langs;
 	} else {
-		if(!_allLanguages) {
-			_allLanguages = (await Promise.all(Object.values(languages).map(fn => fn()))).filter(Boolean);
+		if (!_allLanguages) {
+			_allLanguages = (await Promise.all(Object.values(languages).map((fn) => fn()))).filter(
+				Boolean
+			);
 		}
 		resolvedLanguages = await _allLanguages;
 	}
@@ -37,7 +39,7 @@ async function resolveHighlighter(opts) {
 	const highlighterOptions = {
 		...opts,
 		themes: resolvedThemes,
-		langs: resolvedLanguages
+		langs: resolvedLanguages,
 	};
 
 	// Do not pass through the theme as that will attempt to load it, even if it's included in themes

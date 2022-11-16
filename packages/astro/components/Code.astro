@@ -58,7 +58,7 @@ const highlighter = await getHighlighter({
 });
 const _html = highlighter.codeToHtml(code, {
 	lang: typeof lang === 'string' ? lang : lang.id,
-	theme
+	theme,
 });
 const html = repairShikiTheme(_html);
 ---
