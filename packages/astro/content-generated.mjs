@@ -5,6 +5,12 @@ import {
 	createCollectionToGlobResultMap,
 } from 'astro/content/internal';
 
+export { z } from 'zod';
+
+export function defineCollection(input) {
+	return input;
+}
+
 const contentDir = '@@CONTENT_DIR@@';
 
 const entryGlob = import.meta.glob('@@ENTRY_GLOB_PATH@@', {
