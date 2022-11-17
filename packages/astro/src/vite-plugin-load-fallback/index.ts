@@ -46,9 +46,13 @@ export default function loadFallbackPlugin({
 				// See if this can be loaded from our fs
 				if (parent) {
 					const candidateId = npath.posix.join(npath.posix.dirname(parent), id);
-					if(fs.existsSync(candidateId)) {
-						return candidateId;
-					}
+					try {
+						// Check to see if this file exists and is not a directory.
+						const stats = await fs.promises.stat(candidateId);
+						if(!stats.isDirectory()) {
+							return candidateId;
+						}
+					} catch {}
 				} 
 
 				let resolved = await this.resolve(id, parent, { skipSelf: true });
