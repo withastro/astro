@@ -166,7 +166,7 @@ module.exports = {
 
 ### Class-based directives like `dark:text-pink` with `@apply` does not work
 
-Astro `<style>` tags are scoped by default. As `dark:text-pink` compiles into `.dark > .text-pink`, it does not match any markup in the Astro file and is hence removed, causing the class to not be applied. This may also happen for integrations like Vue and Svelte that supports scoped styles.
+Astro `<style>` tags are scoped by default. As `dark:text-pink` compiles into `.dark .text-pink`, it does not match any markup in the Astro file and is hence removed, causing the class to not be applied. This may also happen for integrations like Vue and Svelte that supports scoped styles.
 
 To fix this, you can use inline classes instead:
 
