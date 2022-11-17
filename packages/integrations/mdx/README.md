@@ -518,6 +518,12 @@ These are plugins that modify the output [estree](https://github.com/estree/estr
 
 We suggest [using AST Explorer](https://astexplorer.net/) to play with estree outputs, and trying [`estree-util-visit`](https://unifiedjs.com/explore/package/estree-util-visit/) for searching across JavaScript nodes.
 
+### remarkRehype
+
+Options for `remarkRehype`. See [markdown.remarkRehype](https://docs.astro.build/en/reference/configuration-reference/#markdownremarkrehype).
+
+When `extendPlugins` is set to `'markdown'` (default), this config is extended with `remarkRehype` from Astro's default markdown config.
+
 ## Examples
 
 - The [Astro MDX example](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.
