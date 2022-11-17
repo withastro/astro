@@ -1,3 +1,4 @@
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -33,6 +34,7 @@ export type MdxOptions = {
 	 * - false - do not inherit any plugins
 	 */
 	extendPlugins?: 'markdown' | 'astroDefaults' | false;
+	remarkRehype?: RemarkRehypeOptions;
 };
 
 export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
@@ -62,6 +64,15 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					console.info(`See "extendPlugins" option to configure this behavior.`);
 				}
 
+				let remarkRehypeOptions = mdxOptions.remarkRehype;
+
+				if (mdxOptions.extendPlugins === 'markdown') {
+					remarkRehypeOptions = {
+						...remarkRehypeOptions,
+						...config.markdown.remarkRehype,
+					};
+				}
+
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions, config),
@@ -71,7 +82,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
-					remarkRehypeOptions: config.markdown.remarkRehype,
+					remarkRehypeOptions,
 				};
 
 				let importMetaEnv: Record<string, any> = {
