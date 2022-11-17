@@ -40,7 +40,9 @@ export default function startServer(app: NodeApp, options: Options) {
 	const handler = middleware(app);
 
 	// Allow to provide host value at runtime
-	const host = getResolvedHostForHttpServer(process.env.HOST !== undefined && process.env.HOST !== '' ? process.env.HOST : options.host);
+	const host = getResolvedHostForHttpServer(
+		process.env.HOST !== undefined && process.env.HOST !== '' ? process.env.HOST : options.host
+	);
 	const server = createServer(
 		{
 			client,
