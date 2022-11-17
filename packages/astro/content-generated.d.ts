@@ -9,7 +9,6 @@ declare module 'astro:content' {
 	export { z } from 'zod';
 	export function defineCollection<T extends import('zod').ZodObject<O>, O>(input: {
 		schema: T;
-		external?: Record<string, { id?(filePath: string): string; slug?(filePath: string): string }>;
 	}): typeof input;
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(
 		collection: C,
@@ -25,5 +24,11 @@ declare module 'astro:content' {
 	export function renderEntry<
 		C extends keyof typeof entryMap,
 		E extends keyof typeof entryMap[C]
-	>(entry: { collection: C; id: E }): Promise<{ Content: any }>;
+	>(entry: {
+		collection: C;
+		id: E;
+	}): Promise<{
+		Content: import('astro').MarkdownInstance<{}>['Content'];
+		headings: import('astro').MarkdownHeading[];
+	}>;
 }

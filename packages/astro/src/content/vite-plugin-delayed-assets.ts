@@ -41,7 +41,7 @@ export function astroDelayedAssetPlugin({
 			const url = new URL(id, 'file://');
 			if (isDelayedAsset(url)) {
 				const code = `
-					export { Content } from ${JSON.stringify(url.pathname)};
+					export { Content, getHeadings } from ${JSON.stringify(url.pathname)};
 					export const collectedLinks = ${LINKS_PLACEHOLDER};
 					export const collectedStyles = ${STYLES_PLACEHOLDER};
 				`;

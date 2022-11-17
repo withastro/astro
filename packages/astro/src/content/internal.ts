@@ -178,6 +178,9 @@ export function createRenderEntry({
 				});
 			}
 		}
-		return mod;
+		return {
+			Content: mod.Content,
+			headings: mod.getHeadings(),
+		};
 	};
 }
