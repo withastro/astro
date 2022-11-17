@@ -110,10 +110,9 @@ node ./dist/server/entry.mjs
 For standalone mode the server handles file servering in addition to the page and API routes.
 
 
-#### Runtime HOST and PORT
+#### Custom host and port
 
-It is possible to override built HOST and PORT values with [runtime environment variables](https://docs.astro.
-build/en/guides/environment-variables/#using-the-cli)
+You can override the host and port the standalone server runs on by passing them as environment variables at runtime:
 
 ```shell
 HOST=0.0.0.0 PORT=3000 node ./dist/server/entry.mjs
