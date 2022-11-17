@@ -5,7 +5,7 @@ import {
 	createCollectionToGlobResultMap,
 } from 'astro/content/internal';
 
-export { z } from 'zod';
+export { z } from 'astro/zod';
 
 export function defineCollection(input) {
 	return input;

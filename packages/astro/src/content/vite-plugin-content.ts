@@ -361,7 +361,7 @@ function addEntry(
 ) {
 	contentTypes[collectionKey][entryKey] = `{\n  id: ${entryKey},\n  slug: ${JSON.stringify(
 		slug
-	)},\n  body: string,\n  collection: ${collectionKey},\n  data: import('zod').infer<typeof schemaMap[${collectionKey}]['default']['schema']>\n}`;
+	)},\n  body: string,\n  collection: ${collectionKey},\n  data: import('astro/zod').infer<typeof schemaMap[${collectionKey}]['default']['schema']>\n}`;
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
