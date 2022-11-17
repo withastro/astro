@@ -1,7 +1,7 @@
 import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { createDefaultDevConfig } from './config.js';
 import { loadTSConfig } from './tsconfig.js';
@@ -24,9 +24,16 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
 	const tsconfig = loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
+
+	const watchFiles = tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [];
+
+	if (cwd) {
+		watchFiles.push(fileURLToPath(new URL('./package.json', pathToFileURL(cwd))));
+	}
+
 	settings.tsConfig = tsconfig?.config;
 	settings.tsConfigPath = tsconfig?.path;
-	settings.watchFiles = tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [];
+	settings.watchFiles = watchFiles;
 	return settings;
 }
 

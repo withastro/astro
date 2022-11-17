@@ -1,5 +1,11 @@
 # create-astro
 
+## 1.2.3
+
+### Patch Changes
+
+- [#5404](https://github.com/withastro/astro/pull/5404) [`505abfd64`](https://github.com/withastro/astro/commit/505abfd6430b1f71e52d10b02bf9beb5847df8b6) Thanks [@liruifengv](https://github.com/liruifengv)! - fix error when don't have template input
+
 ## 1.2.2
 
 ### Patch Changes

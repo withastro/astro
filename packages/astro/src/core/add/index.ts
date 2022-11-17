@@ -2,7 +2,7 @@ import type { AstroTelemetry } from '@astrojs/telemetry';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
-import { existsSync, promises as fs } from 'fs';
+import fsMod, { existsSync, promises as fs } from 'fs';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
@@ -164,7 +164,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 		}
 	}
 
-	const rawConfigPath = await resolveConfigPath({ cwd, flags });
+	const rawConfigPath = await resolveConfigPath({ cwd, flags, fs: fsMod });
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 
 	if (configURL) {

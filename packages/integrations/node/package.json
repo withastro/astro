@@ -34,9 +34,10 @@
     "send": "^0.18.0"
   },
   "peerDependencies": {
-    "astro": "^1.6.8"
+    "astro": "^1.6.9"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.6.2",
     "@types/send": "^0.17.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
