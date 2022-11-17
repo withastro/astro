@@ -6,8 +6,8 @@ declare const schemaMap: {
 };
 
 declare module 'astro:content' {
-	export { z } from 'zod';
-	export function defineCollection<T extends import('zod').ZodObject<O>, O>(input: {
+	export { z } from 'astro/zod';
+	export function defineCollection<T extends import('astro/zod').ZodObject<O>, O>(input: {
 		schema: T;
 	}): typeof input;
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(

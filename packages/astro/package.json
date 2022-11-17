@@ -42,12 +42,12 @@
       "types": "./config.d.ts",
       "default": "./config.mjs"
     },
-    "./content/internal": "./dist/content/internal.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./content/internal": "./dist/content/internal.js",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
@@ -63,7 +63,11 @@
     "./vite-plugin-markdown-legacy/*": "./dist/vite-plugin-markdown-legacy/*",
     "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
     "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
-    "./dist/jsx/*": "./dist/jsx/*"
+    "./dist/jsx/*": "./dist/jsx/*",
+    "./zod": {
+      "types": "./zod.d.ts",
+      "default": "./zod.mjs"
+    }
   },
   "imports": {
     "#astro/*": "./dist/*.js"
