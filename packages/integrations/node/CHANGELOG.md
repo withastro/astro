@@ -1,5 +1,22 @@
 # @astrojs/node
 
+## 3.1.0
+
+### Minor Changes
+
+- [#5418](https://github.com/withastro/astro/pull/5418) [`aa16b6ceb`](https://github.com/withastro/astro/commit/aa16b6cebc08e0a10a17024d31ee7d2319258a34) Thanks [@jbanety](https://github.com/jbanety)! - Sometimes Astro sends a ReadableStream as a response and it raise an error **TypeError: body is not async iterable.**
+
+  I added a function to get a response iterator from different response types (sourced from apollo-client).
+
+  With this, node adapter can handle all the Astro response types.
+
+- [#5421](https://github.com/withastro/astro/pull/5421) [`12236dbc0`](https://github.com/withastro/astro/commit/12236dbc06e1e43618b61d180020a67cb31499f8) Thanks [@Scttpr](https://github.com/Scttpr)! - Allow HOST env variable to be provided at runtime
+
+### Patch Changes
+
+- Updated dependencies [[`1ab505855`](https://github.com/withastro/astro/commit/1ab505855f9942659e3d23cb1ac668f04b98889d), [`ff35b4759`](https://github.com/withastro/astro/commit/ff35b4759bd0fecfee6c99bf510c2e32d2574992), [`b22ba1c03`](https://github.com/withastro/astro/commit/b22ba1c03a3e384dad569feb38fa34ecf7ec3b93), [`a9f7ff966`](https://github.com/withastro/astro/commit/a9f7ff96676a40b78e22379edc8eb9ce60a29fb8)]:
+  - astro@1.6.10
+
 ## 3.0.0
 
 ### Major Changes
