@@ -156,6 +156,47 @@ module.exports = {
 - [Browse Astro Tailwind projects on GitHub](https://github.com/search?q=%22%40astrojs%2Ftailwind%22+filename%3Apackage.json&type=Code) for more examples!
 
 ## Troubleshooting
+
+### Class does not exist with `@apply` directives
+
+When using the `@apply` directive in an Astro, Vue, Svelte, or another component integration's `<style>` tag, it may generate errors about your custom Tailwind class not existing and cause your build to fail.
+
+```
+error   The `text-special` class does not exist. If `text-special` is a custom class, make sure it is defined within a `@layer` directive.
+```
+
+[Instead of using `@layer` directives in a global stylesheet](https://tailwindcss.com/docs/functions-and-directives#using-apply-with-per-component-css), define your custom styles by adding a plugin to your Tailwind config to fix it:
+
+
+```js
+// tailwind.config.cjs
+module.exports = {
+  // ...
+  plugins: [
+    function ({ addComponents, theme }) {
+      addComponents({
+        '.btn': {
+          padding: theme('spacing.4'),
+          margin: 'auto'
+        }
+      })
+    }
+  ]
+}
+```
+
+### Class-based directives like `dark:text-pink` with `@apply` does not work
+
+Astro `<style>` tags are scoped by default. As `dark:text-pink` compiles into `.dark > .text-pink`, it does not match any markup in the Astro file and is hence removed, causing the class to not be applied. This may also happen for integrations like Vue and Svelte that supports scoped styles.
+
+To fix this, you can use inline classes instead:
+
+```astro
+<p class="text-yellow dark:text-pink">Astro</p>
+```
+
+### Others
+
 - If your installation doesn't seem to be working, try restarting the dev server.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
