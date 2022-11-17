@@ -3,6 +3,7 @@ import npath from 'path';
 import { pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 
 // Fallback for legacy
 import load from '@proload/core';
@@ -15,7 +16,7 @@ export interface ViteLoader {
 	viteServer: vite.ViteDevServer;
 }
 
-async function createViteLoader(root: string): Promise<ViteLoader> {
+async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLoader> {
 	const viteServer = await vite.createServer({
 		server: { middlewareMode: true, hmr: false },
 		optimizeDeps: { entries: [] },
@@ -27,6 +28,7 @@ async function createViteLoader(root: string): Promise<ViteLoader> {
 			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
 			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react'],
 		},
+		plugins: [ loadFallbackPlugin({ fs, root: pathToFileURL(root) })]
 	});
 
 	return {
@@ -103,17 +105,22 @@ export async function loadConfigWithVite({
 
 	// Try loading with Node import()
 	if (/\.[cm]?js$/.test(file)) {
-		const config = await import(pathToFileURL(file).toString());
-		return {
-			value: config.default ?? {},
-			filePath: file,
-		};
+		try {
+			const config = await import(pathToFileURL(file).toString());
+			return {
+				value: config.default ?? {},
+				filePath: file,
+			};
+		} catch {
+			// We do not need to keep the error here because with fallback the error will be rethrown
+			// when/if it fails in Proload.
+		}
 	}
 
 	// Try Loading with Vite
 	let loader: ViteLoader | undefined;
 	try {
-		loader = await createViteLoader(root);
+		loader = await createViteLoader(root, fs);
 		const mod = await loader.viteServer.ssrLoadModule(file);
 		return {
 			value: mod.default ?? {},
