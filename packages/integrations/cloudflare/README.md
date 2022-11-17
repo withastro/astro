@@ -113,7 +113,7 @@ Cloudflare has support for adding custom [headers](https://developers.cloudflare
 
 ### Custom `_routes.json`
 
-By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists all files from your `dist` folder in the respective exclude section. This will enable Cloudflare to serve files without a function invocation and therefore not count against the request limits of your Cloudflare plan. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations and therefore count against the request limits of your Cloudflare plan.
+By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists all files from your `dist/` folder in the `exclude` array. This will enable Cloudflare to serve files without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
 
 ## Troubleshooting
 
