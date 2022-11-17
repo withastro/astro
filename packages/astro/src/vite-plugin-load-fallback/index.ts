@@ -2,7 +2,6 @@ import nodeFs from 'fs';
 import npath from 'path';
 import slashify from 'slash';
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro';
 
 type NodeFileSystemModule = typeof nodeFs;
 
@@ -49,11 +48,11 @@ export default function loadFallbackPlugin({
 					try {
 						// Check to see if this file exists and is not a directory.
 						const stats = await fs.promises.stat(candidateId);
-						if(!stats.isDirectory()) {
+						if (!stats.isDirectory()) {
 							return candidateId;
 						}
 					} catch {}
-				} 
+				}
 
 				let resolved = await this.resolve(id, parent, { skipSelf: true });
 				if (resolved) {

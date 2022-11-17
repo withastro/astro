@@ -2,8 +2,8 @@ import type fsType from 'fs';
 import npath from 'path';
 import { pathToFileURL } from 'url';
 import * as vite from 'vite';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 // Fallback for legacy
 import load from '@proload/core';
@@ -28,7 +28,7 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
 			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react'],
 		},
-		plugins: [ loadFallbackPlugin({ fs, root: pathToFileURL(root) })]
+		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
 	});
 
 	return {

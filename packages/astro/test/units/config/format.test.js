@@ -2,9 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'url';
 
-import {
-	runInContainer,
-} from '../../../dist/core/dev/index.js';
+import { runInContainer } from '../../../dist/core/dev/index.js';
 import { openConfig, createSettings } from '../../../dist/core/config/index.js';
 import { createFs } from '../test-utils.js';
 import { defaultLogging } from '../../test-utils.js';
@@ -30,12 +28,15 @@ describe('Astro config formats', () => {
 			flags: {},
 			cmd: 'dev',
 			logging: defaultLogging,
-			fsMod: fs
+			fsMod: fs,
 		});
 		const settings = createSettings(astroConfig);
 
 		await runInContainer({ fs, root, settings }, () => {
-			expect(true).to.equal(true, 'We were able to get into the container which means the config loaded.');
+			expect(true).to.equal(
+				true,
+				'We were able to get into the container which means the config loaded.'
+			);
 		});
 	});
 });
