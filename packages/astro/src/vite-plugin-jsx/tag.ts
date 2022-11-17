@@ -67,8 +67,14 @@ export default async function tagExportsWithRenderer({
 					const node = path.node;
 					if (node.type !== 'ExportDefaultDeclaration') return;
 
-					if (node.declaration?.type === 'ArrowFunctionExpression') {
-						const uidIdentifier = path.scope.generateUidIdentifier('_arrow_function');
+					if (
+						t.isArrowFunctionExpression(node.declaration) ||
+						t.isCallExpression(node.declaration)
+					) {
+						const varName = t.isArrowFunctionExpression(node.declaration)
+							? '_arrow_function'
+							: '_hoc_function';
+						const uidIdentifier = path.scope.generateUidIdentifier(varName);
 						path.insertBefore(
 							t.variableDeclaration('const', [
 								t.variableDeclarator(uidIdentifier, node.declaration),
