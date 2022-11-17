@@ -24,5 +24,8 @@
     "@types/react": "^17.0.45",
     "@types/node": "^18.0.0",
     "@types/react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "html-escaper": "^3.0.3"
   }
 }
