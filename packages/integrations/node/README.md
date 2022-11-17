@@ -109,6 +109,16 @@ node ./dist/server/entry.mjs
 
 For standalone mode the server handles file servering in addition to the page and API routes.
 
+
+#### Runtime HOST and PORT
+
+It is possible to override built HOST and PORT values with [runtime environment variables](https://docs.astro.
+build/en/guides/environment-variables/#using-the-cli)
+
+```shell
+HOST=0.0.0.0 PORT=3000 node ./dist/server/entry.mjs
+```
+
 #### HTTPS
 
 By default the standalone server uses HTTP. This works well if you have a proxy server in front of it that does HTTPS. If you need the standalone server to run HTTPS itself you need to provide your SSL key and certificate.
