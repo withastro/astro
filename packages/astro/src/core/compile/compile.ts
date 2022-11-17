@@ -22,6 +22,7 @@ export interface CompileProps {
 	viteConfig: ResolvedConfig;
 	filename: string;
 	source: string;
+	resolve: (specifier: string, parent: string) => Promise<string | undefined>;
 }
 
 async function compile({
@@ -29,6 +30,7 @@ async function compile({
 	viteConfig,
 	filename,
 	source,
+	resolve
 }: CompileProps): Promise<CompileResult> {
 	let cssDeps = new Set<string>();
 	let cssTransformErrors: AstroError[] = [];
@@ -54,6 +56,10 @@ async function compile({
 			cssTransformErrors,
 		}),
 		async resolvePath(specifier) {
+			const resolved = await resolve(specifier, filename);
+			if(resolved) {
+				return resolved;
+			}
 			return resolvePath(specifier, filename);
 		},
 	})

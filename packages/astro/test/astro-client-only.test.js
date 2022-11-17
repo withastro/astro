@@ -93,4 +93,14 @@ describe('Client only components subpath', () => {
 		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
 		expect(css).to.match(/Courier New/, 'Global styles are added');
 	});
+
+	it('Adds the CSS to the page for TSX components', async () => {
+		const html = await fixture.readFile('/tsx-no-extension/index.html');
+		const $ = cheerioLoad(html);
+
+		const href = $('link[rel=stylesheet]').attr('href');
+		const css = await fixture.readFile(href.replace(/\/blog/, ''));
+
+		expect(css).to.match(/purple/, 'Global styles from tsx component are added');
+	});
 });

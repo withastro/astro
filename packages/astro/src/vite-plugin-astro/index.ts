@@ -56,6 +56,15 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 		return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
 	}
 
+	function makeCompileResolve(ctx: PluginContext) {
+		return async function(specifier: string, parent: string): Promise<string | undefined> {
+			const resolveResult = await ctx.resolve(specifier, parent);
+			return resolveResult?.id ?? undefined;
+		};
+	}
+
+	let pluginContext: PluginContext;
+
 	return {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
@@ -64,6 +73,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.glob, etc.)
 		async resolveId(id, from, opts) {
+			// Cache the pluginContext the first time this runs so we can use it in HMR updates
+			if(pluginContext === undefined) {
+				pluginContext = this;
+			}
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.
 			if (from) {
@@ -117,6 +130,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				viteConfig: resolvedConfig,
 				filename,
 				source,
+				resolve: makeCompileResolve(this),
 			};
 
 			switch (query.type) {
@@ -212,6 +226,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				viteConfig: resolvedConfig,
 				filename,
 				source,
+				resolve: makeCompileResolve(this),
 			};
 
 			try {
@@ -334,6 +349,7 @@ ${source}
 				viteConfig: resolvedConfig,
 				filename: context.file,
 				source: await context.read(),
+				resolve: makeCompileResolve(pluginContext),
 			};
 			const compile = () => cachedCompilation(compileProps);
 			return handleHotUpdate(context, {
