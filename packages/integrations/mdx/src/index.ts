@@ -71,6 +71,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
+					remarkRehypeOptions: config.markdown.remarkRehype,
 				};
 
 				let importMetaEnv: Record<string, any> = {
