@@ -17,6 +17,7 @@ import { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { createFetchWithCache } from './fetch-cache.js';
 
 const defaultLogging: LogOptions = {
 	dest: nodeLogDestination,
@@ -59,6 +60,8 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 
 	// Initialize
 	applyPolyfill();
+	globalThis.fetch = createFetchWithCache({ root: settings.config.root, fetch: globalThis.fetch })
+
 	settings = await runHookConfigSetup({
 		settings,
 		command: 'dev',
