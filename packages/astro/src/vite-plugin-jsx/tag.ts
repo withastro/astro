@@ -65,7 +65,7 @@ export default async function tagExportsWithRenderer({
 				 */
 				enter(path) {
 					const node = path.node;
-					if (node.type !== 'ExportDefaultDeclaration') return;
+					if (!t.isExportDefaultDeclaration(node)) return;
 
 					if (
 						t.isArrowFunctionExpression(node.declaration) ||
@@ -81,10 +81,7 @@ export default async function tagExportsWithRenderer({
 							])
 						);
 						node.declaration = uidIdentifier;
-					} else if (
-						node.declaration?.type === 'FunctionDeclaration' &&
-						!node.declaration.id?.name
-					) {
+					} else if (t.isFunctionDeclaration(node.declaration) && !node.declaration.id?.name) {
 						const uidIdentifier = path.scope.generateUidIdentifier('_function');
 						node.declaration.id = uidIdentifier;
 					}
@@ -92,12 +89,12 @@ export default async function tagExportsWithRenderer({
 				exit(path, state) {
 					const node = path.node;
 					if (node.exportKind === 'type') return;
-					if (node.type === 'ExportAllDeclaration') return;
+					if (t.isExportAllDeclaration(node)) return;
 					const addTag = (id: string) => {
 						const tags = state.get('astro:tags') ?? [];
 						state.set('astro:tags', [...tags, id]);
 					};
-					if (node.type === 'ExportNamedDeclaration' || node.type === 'ExportDefaultDeclaration') {
+					if (t.isExportNamedDeclaration(node) || t.isExportDefaultDeclaration(node)) {
 						if (t.isIdentifier(node.declaration)) {
 							addTag(node.declaration.name);
 						} else if (t.isFunctionDeclaration(node.declaration) && node.declaration.id?.name) {
