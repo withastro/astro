@@ -1,6 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
+import * as os from 'os';
 import glob from 'tiny-glob';
 import { fileURLToPath } from 'url';
 
@@ -139,15 +140,53 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					.then((stat) => stat.isFile())
 					.catch(() => false);
 
-				// this creates a _routes.json, in case there is none present
-				// to enable cloudflare to handle static files directly (without calling the worker)
+				// this creates a _routes.json, in case there is none present to enable
+				// cloudflare to handle static files and support _redirects configuration
+				// (without calling the function)
 				if (!routesExists) {
-					const staticFiles = (
+					const staticPathList: Array<string> = (
 						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
 							cwd: fileURLToPath(_config.outDir),
 							filesOnly: true,
 						})
-					).filter((file) => cloudflareSpecialFiles.indexOf(file) < 0);
+					)
+						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
+						.map((file: string) => `/${file}`);
+
+					const redirectsExists = await fs.promises
+						.stat(new URL('./_redirects', _config.outDir))
+						.then((stat) => stat.isFile())
+						.catch(() => false);
+
+          // convert all redirect source paths into a list of routes
+          // and add them to the static path
+					if (redirectsExists) {
+						const redirects = (
+							await fs.promises.readFile(new URL('./_redirects', _config.outDir), 'utf-8')
+						)
+							.split(os.EOL)
+							.map((line) => {
+								const parts = line.split(' ');
+								if (parts.length < 2) {
+									return null;
+								} else {
+									// convert /products/:id to /products/*
+									return (
+										parts[0]
+											.replace(/\/:.*?(?=\/|$)/g, '/*')
+											// remove query params as they are not supported by cloudflare
+											.replace(/\?.*$/, '')
+									);
+								}
+							})
+							.filter(
+								(line, index, arr) => line !== null && arr.indexOf(line) === index
+							) as string[];
+
+						if (redirects.length > 0) {
+							staticPathList.push(...redirects);
+						}
+					}
 
 					await fs.promises.writeFile(
 						new URL('./_routes.json', _config.outDir),
@@ -155,7 +194,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								version: 1,
 								include: ['/*'],
-								exclude: staticFiles.map((file) => `/${file}`),
+								exclude: staticPathList,
 							},
 							null,
 							2
