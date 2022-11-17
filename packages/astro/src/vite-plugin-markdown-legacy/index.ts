@@ -1,3 +1,4 @@
+import type { PluginContext } from 'rollup';
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -62,6 +63,13 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			filename = new URL('.' + filename, config.root).pathname;
 		}
 		return filename;
+	}
+
+	function makeCompileResolve(ctx: PluginContext) {
+		return async function(specifier: string, parent: string): Promise<string | undefined> {
+			const resolveResult = await ctx.resolve(specifier, parent);
+			return resolveResult?.id ?? undefined;
+		};
 	}
 
 	// Weird Vite behavior: Vite seems to use a fake "index.html" importer when you
@@ -218,6 +226,7 @@ ${setup}`.trim();
 					viteConfig: resolvedConfig,
 					filename,
 					source: astroResult,
+					resolve: makeCompileResolve(this),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);
