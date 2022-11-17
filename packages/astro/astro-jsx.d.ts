@@ -663,6 +663,7 @@ declare namespace astroHTML.JSX {
 		allow?: string | undefined | null;
 		allowfullscreen?: boolean | string | undefined | null;
 		allowtransparency?: boolean | string | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		/** @deprecated */
 		frameborder?: number | string | undefined | null;
 		height?: number | string | undefined | null;
@@ -686,6 +687,7 @@ declare namespace astroHTML.JSX {
 		alt?: string | undefined | null;
 		crossorigin?: 'anonymous' | 'use-credentials' | '' | undefined | null;
 		decoding?: 'async' | 'auto' | 'sync' | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		height?: number | string | undefined | null;
 		loading?: 'eager' | 'lazy' | undefined | null;
 		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
@@ -784,6 +786,7 @@ declare namespace astroHTML.JSX {
 		crossorigin?: boolean | string | undefined | null;
 		href?: string | URL | undefined | null;
 		hreflang?: string | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		integrity?: string | undefined | null;
 		media?: string | undefined | null;
 		imageSrcSet?: string | undefined | null;
@@ -893,6 +896,7 @@ declare namespace astroHTML.JSX {
 		charset?: string | undefined | null;
 		crossorigin?: string | undefined | null;
 		defer?: boolean | string | undefined | null;
+		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		integrity?: string | undefined | null;
 		nomodule?: boolean | string | undefined | null;
 		nonce?: string | undefined | null;
