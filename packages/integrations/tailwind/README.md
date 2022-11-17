@@ -127,27 +127,6 @@ export default {
 
 You can now [import your own `base.css` as a local stylesheet](https://docs.astro.build/en/guides/styling/#import-a-local-stylesheet).
 
-When using the `@apply` directive in an Astro, Vue, Svelte, or another component integration's `<style>` tag, it may generate errors about your custom Tailwind class not existing and cause your builds to fail. Using nested classes like `dark:text-pink` would also not work in scoped `<style>`.
-
-Instead, you should stick to inline classes as much as possible, or define your custom styles by adding a plugin to your Tailwind config (avoid using the [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#using-apply-with-per-component-css)): 
-
-```js
-// tailwind.config.cjs
-module.exports = {
-  // ...
-  plugins: [
-    function ({ addComponents, theme }) {
-      addComponents({
-        '.btn': {
-          padding: theme('spacing.4'),
-          margin: 'auto'
-        }
-      })
-    }
-  ]
-}
-```
-
 ## Examples
 
 - The [Astro Tailwind Starter](https://github.com/withastro/astro/tree/latest/examples/with-tailwindcss?on=github) gets you up and running with a base for your project that uses Tailwind for styling
