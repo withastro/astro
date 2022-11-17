@@ -4,6 +4,7 @@ import type { RenderInstruction } from './types';
 
 import { HTMLBytes, markHTMLString } from '../escape.js';
 import { HydrationDirectiveProps } from '../hydration.js';
+import { isPromise } from '../util.js';
 import { renderChild } from './any.js';
 import { HTMLParts } from './common.js';
 
@@ -26,10 +27,25 @@ function validateComponentProps(props: any, displayName: string) {
 export class AstroComponent {
 	private htmlParts: TemplateStringsArray;
 	private expressions: any[];
+	private error: Error | undefined;
 
 	constructor(htmlParts: TemplateStringsArray, expressions: any[]) {
 		this.htmlParts = htmlParts;
-		this.expressions = expressions;
+		this.error = undefined;
+		this.expressions = expressions.map((expression) => {
+			// Wrap Promise expressions so we can catch errors
+			// There can only be 1 error that we rethrow from an Astro component,
+			// so this keeps track of whether or not we have already done so.
+			if (isPromise(expression)) {
+				return Promise.resolve(expression).catch((err) => {
+					if (!this.error) {
+						this.error = err;
+						throw err;
+					}
+				});
+			}
+			return expression;
+		});
 	}
 
 	get [Symbol.toStringTag]() {

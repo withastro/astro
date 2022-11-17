@@ -26,7 +26,7 @@ describe('vite-plugin-astro-server', () => {
 		it('renders a request', async () => {
 			const env = await createDevEnvironment({
 				loader: createLoader({
-					import(id) {
+					import() {
 						const Page = createComponent(() => {
 							return render`<div id="test">testing</div>`;
 						});
@@ -53,11 +53,13 @@ describe('vite-plugin-astro-server', () => {
 
 			try {
 				await handleRequest(env, manifest, controller, req, res);
-				const html = await text();
-				expect(html).to.include('<div id="test">');
 			} catch (err) {
-				expect(err).to.be.undefined();
+				expect(err.message).to.be.undefined();
 			}
+
+			const html = await text();
+			expect(res.statusCode).to.equal(200);
+			expect(html).to.include('<div id="test">');
 		});
 	});
 });

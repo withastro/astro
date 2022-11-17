@@ -49,11 +49,15 @@ export async function callGetStaticPaths({
 		},
 	});
 
+	// Flatten the array before validating the content, otherwise users using `.map` will run into errors
+	if (Array.isArray(staticPaths)) {
+		staticPaths = staticPaths.flat();
+	}
+
 	if (isValidate) {
 		validateGetStaticPathsResult(staticPaths, logging, route);
 	}
 
-	staticPaths = staticPaths.flat();
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
 

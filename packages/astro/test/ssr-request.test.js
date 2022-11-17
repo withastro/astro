@@ -13,6 +13,11 @@ describe('Using Astro.request in SSR', () => {
 			adapter: testAdapter(),
 			output: 'server',
 			base: '/subpath/',
+			vite: {
+				build: {
+					assetsInlineLimit: 0,
+				},
+			},
 		});
 		await fixture.build();
 	});
@@ -49,6 +54,25 @@ describe('Using Astro.request in SSR', () => {
 		expect(response.status).to.equal(200);
 		const css = await response.text();
 		expect(css).to.not.be.an('undefined');
+	});
+
+	it('script assets have their base prefix', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		let request = new Request('http://example.com/subpath/request');
+		let response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		const scriptSrc = $('script').attr('src');
+		expect(scriptSrc.startsWith('/subpath/')).to.equal(true);
+
+		request = new Request('http://example.com' + scriptSrc);
+		response = await app.render(request);
+
+		expect(response.status).to.equal(200);
+		const js = await response.text();
+		expect(js).to.not.be.an('undefined');
 	});
 
 	it('assets can be fetched', async () => {

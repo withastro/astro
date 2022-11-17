@@ -82,7 +82,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			'astro:config:setup': async ({ command, config, updateConfig, injectRoute }) => {
 				needsBuildConfig = !config.build?.server;
 				_config = config;
-				updateConfig({ vite: getViteConfiguration(command === 'dev') });
+				updateConfig({
+					vite: getViteConfiguration(command === 'dev'),
+				});
 
 				if (command === 'dev' || config.output === 'server') {
 					injectRoute({
@@ -171,7 +173,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:build:ssr': async () => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(_buildConfig.server);
+					await copyWasmFiles(new URL('./chunks/', _buildConfig.server));
 				}
 			},
 		},

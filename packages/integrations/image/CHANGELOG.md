@@ -1,5 +1,29 @@
 # @astrojs/image
 
+## 0.11.6
+
+### Patch Changes
+
+- [#5393](https://github.com/withastro/astro/pull/5393) [`e2fb0c4ff`](https://github.com/withastro/astro/commit/e2fb0c4ff29d27bbd39193127c64fd4f312129e3) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Log error if failed to fetch remote image
+
+## 0.11.5
+
+### Patch Changes
+
+- [#5361](https://github.com/withastro/astro/pull/5361) [`ee750087c`](https://github.com/withastro/astro/commit/ee750087ce360c54d349f160d84bbdafb0ec83b4) Thanks [@matthewp](https://github.com/matthewp)! - Allows @astrojs/image to be used in Vercel SSR
+
+## 0.11.4
+
+### Patch Changes
+
+- [#5360](https://github.com/withastro/astro/pull/5360) [`20e60c6e0`](https://github.com/withastro/astro/commit/20e60c6e0857f7b6938494df6027e8c1ad74cdc1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression with local builds
+
+## 0.11.3
+
+### Patch Changes
+
+- [#5324](https://github.com/withastro/astro/pull/5324) [`dc00ca464`](https://github.com/withastro/astro/commit/dc00ca464865feccd3760b54e0ccc58dbc1e804d) Thanks [@bluwy](https://github.com/bluwy)! - Share fallback img src with source of Picture component
+
 ## 0.11.2
 
 ### Patch Changes

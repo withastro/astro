@@ -126,13 +126,15 @@ export function resolveServerUrls({
 	let network: string | null = null;
 
 	if (networkLogging === 'visible') {
-		const nodeVersion = Number(process.version.substring(1, process.version.indexOf('.', 5)));
 		const ipv4Networks = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
 			.filter(
 				(networkInterface) =>
 					networkInterface?.address &&
-					networkInterface?.family === (nodeVersion < 18 || nodeVersion >= 18.4 ? 'IPv4' : 4)
+					// Node < v18
+					((typeof networkInterface.family === 'string' && networkInterface.family === 'IPv4') ||
+						// Node >= v18
+						(typeof networkInterface.family === 'number' && networkInterface.family === 4))
 			);
 		for (let { address: ipv4Address } of ipv4Networks) {
 			if (ipv4Address.includes('127.0.0.1')) {

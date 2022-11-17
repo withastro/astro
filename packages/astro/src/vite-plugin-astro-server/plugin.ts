@@ -50,8 +50,10 @@ export default function createVitePluginAstroServer({
 					});
 				}
 				viteServer.middlewares.use(async (req, res) => {
-					if (!req.url || !req.method) {
-						throw new Error('Incomplete request');
+					if (req.url === undefined || !req.method) {
+						res.writeHead(500, 'Incomplete request');
+						res.end();
+						return;
 					}
 					handleRequest(env, manifest, serverController, req, res);
 				});

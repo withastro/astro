@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js';
 import './Counter.css';
 
-export default function Counter({ children }) {
+export default function Counter(props) {
 	const [count, setCount] = createSignal(0);
 	const add = () => setCount(count() + 1);
 	const subtract = () => setCount(count() - 1);
@@ -13,7 +13,7 @@ export default function Counter({ children }) {
 				<pre>{count()}</pre>
 				<button onClick={add}>+</button>
 			</div>
-			<div class="counter-message">{children}</div>
+			<div class="counter-message">{props.children}</div>
 		</>
 	);
 }
