@@ -24,7 +24,7 @@ function onlyAvailableInSSR(name: 'Astro.redirect') {
 	return function _onlyAvailableInSSR() {
 		switch (name) {
 			case 'Astro.redirect':
-				throw new AstroError(AstroErrorData.StaticRedirectNotAllowed);
+				throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 		}
 	};
 }

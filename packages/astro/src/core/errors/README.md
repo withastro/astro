@@ -5,6 +5,26 @@
 ## Writing error messages for Astro
 
 ### Tips
+    
+**Error Format**
+
+Name (key of the object definition):
+- Similarly to the error code, this property is used to have a static reference to any error. The shape should be similar to JavaScript's native errors (TypeError, ReferenceError) so pascal-cased, no spaces, no special characters etc. (ex: `ClientAddressNotAvailable`)
+
+Title:
+- Use this property to quickly describe what happened in a few words. This is intended as a very quick way to see what happened and will be shown fairly prominently in the UI (ex: `{feature} is not available in static mode`) with no further details on why and how to fix
+
+Message:
+- Begin with **what happened** and **why** (ex: `Could not use {feature} because Server⁠-⁠side Rendering is not enabled`)
+- Then, **describe the action the user should take** (ex: `Update your Astro config with `output: 'server'` to enable Server⁠-⁠side Rendering.`)
+
+Hint:
+- A `hint` can be used for any additional info that might help the user (ex: a link to the documentation, or a common cause)
+
+**Writing Style**
+- Technical jargon is mostly okay! But, most abbreviations should be avoided. If a developer is unfamiliar with a technical term, spelling it out in full allows them to look it up on the web more easily.
+- Describe the what, why and action to take from the user's perspective. Assume they don't know Astro internals, and care only about how  Astro is _used_ (ex: `You are missing...` vs `Astro/file cannot find...`)
+- Avoid using cutesy language (ex: Oops!). This tone minimizes the significance of the error, which _is_ important to the developer. The developer may be frustrated and your error message shouldn't be making jokes about their struggles. Only include words and phrases that help the developer **interpret the error** and **fix the problem**.
 
 **Choosing an Error Code**
 
@@ -23,25 +43,15 @@ As long as it is unique, the exact error code used is unimportant. For example, 
 Users are not reading codes sequentially. They're much more likely to directly land on the error or search for a specific code.
 
 If you are unsure about which error code to choose, ask [Erika](https://github.com/Princesseuh)!
-    
-**Error Code Format**
-- Begin with **what happened** and **why** (ex: `Could not use {feature} because Server⁠-⁠side Rendering is not enabled`)
-- Then, **describe the action the user should take** (ex: `Update your Astro config with `output: 'server'` to enable Server⁠-⁠side Rendering.`)
-- A `hint` can be used for any additional info that might help the user (ex: a link to the documentation, or a common cause)
 
-**Error Code Writing Style**
-- Technical jargon is mostly okay! But, most abbreviations should be avoided. If a developer is unfamiliar with a technical term, spelling it out in full allows them to look it up on the web more easily.
-- Describe the what, why and action to take from the user's perspective. Assume they don't know Astro internals, and care only about how  Astro is _used_ (ex: `You are missing...` vs `Astro/file cannot find...`)
-- Avoid using cutesy language (ex: Oops!). This tone minimizes the significance of the error, which _is_ important to the developer. The developer may be frustrated and your error message shouldn't be making jokes about their struggles. Only include words and phrases that help the developer **interpret the error** and **fix the problem**.
-
-### CLI specifics:
+### CLI specifics tips:
 - If the error happened **during an action that changes the state of the project** (ex: editing configuration, creating files), the error should **reassure the user** about the state of their project (ex: "Failed to update configuration. Your project has been restored to its previous state.")
 - If an "error" happened because of a conscious user action (ex: pressing CTRL+C during a choice), it is okay to add more personality (ex: "Operation cancelled. See you later, astronaut!"). Do keep in mind the previous point however (ex: "Operation cancelled. No worries, your project folder has already been created")
 
 ### Shape
 - **Error codes and names are permanent**, and should never be changed, nor deleted. Users should always be able to find an error by searching, and this ensures a matching result. When an error is no longer relevant, it should be deprecated, not removed.
-- Contextual information may be used to enhance the message or the hint. However, the error code itself should not be included in the message as it will already be shown as part of the the error.
-- Do not prefix `message` and `hint` with descriptive words such as "Error:" or "Hint:" as it may lead to duplicated labels in the UI / CLI.
+- Contextual information may be used to enhance the message or the hint. However, the code that caused the error or the position of the error should not be included in the message as they will already be shown as part of the error.
+- Do not prefix `title`, `message` and `hint` with descriptive words such as "Error:" or "Hint:" as it may lead to duplicated labels in the UI / CLI.
 
 ### Documentation support through JSDoc
 
@@ -69,7 +79,7 @@ Example:
   */
 ```
 
-For `@message`, the property is intended to provider a slightly cleaned error message, not a different one from the original error message. Avoid doing substantial changes as some users might search for the error message
+For `@message`, the property is intended to provider a slightly cleaned error message or if there's multiple messages possible, a collection of common messages. If possible, avoid doing substantial changes to messages as some users might search for the error message
 
 ### Always remember
 

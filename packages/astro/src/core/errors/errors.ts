@@ -5,6 +5,7 @@ import { getErrorDataByCode } from './utils.js';
 
 interface ErrorProperties {
 	code: AstroErrorCodes | DiagnosticCode;
+	title?: string;
 	name?: string;
 	message?: string;
 	location?: ErrorLocation;
@@ -30,6 +31,7 @@ type ErrorTypes =
 export class AstroError extends Error {
 	public code: AstroErrorCodes | DiagnosticCode;
 	public loc: ErrorLocation | undefined;
+	public title: string | undefined;
 	public hint: string | undefined;
 	public frame: string | undefined;
 
@@ -38,7 +40,7 @@ export class AstroError extends Error {
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const { code, name, message, stack, location, hint, frame } = props;
+		const { code, name, title, message, stack, location, hint, frame } = props;
 
 		this.code = code;
 		if (name) {
@@ -47,6 +49,7 @@ export class AstroError extends Error {
 			// If we don't have a name, let's generate one from the code
 			this.name = getErrorDataByCode(this.code)?.name ?? 'UnknownError';
 		}
+		this.title = title;
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
 		this.stack = stack ? stack : this.stack;

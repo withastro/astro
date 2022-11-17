@@ -74,8 +74,8 @@ export function validateGetStaticPathsResult(
 
 		if (typeof pathObject.params !== 'object') {
 			throw new AstroError({
-				...AstroErrorData.InvalidStaticPathParam,
-				message: AstroErrorData.InvalidStaticPathParam.message(typeof pathObject.params),
+				...AstroErrorData.InvalidGetStaticPathParam,
+				message: AstroErrorData.InvalidGetStaticPathParam.message(typeof pathObject.params),
 				location: {
 					file: route.component,
 				},
