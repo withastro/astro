@@ -99,8 +99,6 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						const resolvedId = await this.resolve(c.specifier, id);
 						if (resolvedId) {
 							clientOnlys.push(resolvedId.id);
-						} else if(c.resolvedPath) {
-							clientOnlys.push(decodeURI(c.resolvedPath));
 						}
 					}
 
