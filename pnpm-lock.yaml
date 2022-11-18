@@ -2178,12 +2178,20 @@ importers:
     specifiers:
       '@astrojs/solid-js': workspace:*
       '@solidjs/router': ^0.5.0
+      '@test/solid-jsx-component': file:./deps/solid-jsx-component
       astro: workspace:*
       solid-js: ^1.5.6
     dependencies:
       '@astrojs/solid-js': link:../../../../integrations/solid
       '@solidjs/router': 0.5.0_solid-js@1.6.2
+      '@test/solid-jsx-component': file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component
       astro: link:../../..
+      solid-js: 1.6.2
+
+  packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
+    specifiers:
+      solid-js: ^1.5.6
+    dependencies:
       solid-js: 1.6.2
 
   packages/astro/test/fixtures/sourcemap:
@@ -18820,4 +18828,12 @@ packages:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
     name: '@astrojs/renderer-two'
     version: 1.0.0
+    dev: false
+
+  file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
+    resolution: {directory: packages/astro/test/fixtures/solid-component/deps/solid-jsx-component, type: directory}
+    name: '@test/solid-jsx-component'
+    version: 0.0.0
+    dependencies:
+      solid-js: 1.6.2
     dev: false

@@ -5,6 +5,7 @@
   "dependencies": {
     "@astrojs/solid-js": "workspace:*",
     "@solidjs/router": "^0.5.0",
+    "@test/solid-jsx-component": "file:./deps/solid-jsx-component",
     "astro": "workspace:*",
     "solid-js": "^1.5.6"
   }
