@@ -9,22 +9,26 @@
 **Error Format**
 
 Name (key of the object definition):
-- Similarly to the error code, this property is used to have a static reference to any error. The shape should be similar to JavaScript's native errors (TypeError, ReferenceError) so pascal-cased, no spaces, no special characters etc. (ex: `ClientAddressNotAvailable`)
+- As with the error code, this property is a static reference to the error. The shape should be similar to JavaScript's native errors (TypeError, ReferenceError): pascal-cased, no spaces, no special characters etc. (ex: `ClientAddressNotAvailable`)
+- This is the only part of the error message that should not be written as a full, proper sentence complete with Capitalization and end punctuation.
 
 Title:
-- Use this property to quickly describe what happened in a few words. This is intended as a very quick way to see what happened and will be shown fairly prominently in the UI (ex: `{feature} is not available in static mode`) with no further details on why and how to fix
+- Use this property to briefly describe the error in a few words. This is the user's way to see at a glance what has happened and will be prominently displayed in the UI (ex: `{feature} is not available in static mode.`) Do not include further details such as why this error occured or possible solutions.
 
 Message:
-- Begin with **what happened** and **why** (ex: `Could not use {feature} because Server⁠-⁠side Rendering is not enabled`)
-- Then, **describe the action the user should take** (ex: `Update your Astro config with `output: 'server'` to enable Server⁠-⁠side Rendering.`)
+- Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server⁠-⁠side Rendering is not enabled.`)
+- Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server⁠-⁠side Rendering.`)
+- Although this does not need to be as brief as the `title`, try keep sentences short, clear and direct to give the reader all the necessary information quickly as possible.
+- - Instead of writing a longer message, consider using a `hint`.
 
 Hint:
-- A `hint` can be used for any additional info that might help the user (ex: a link to the documentation, or a common cause)
+- A `hint` can be used for any additional info that might help the user. (ex: a link to the documentation, or a common cause)
 
 **Writing Style**
+- Write in proper sentences. Include periods at the end of sentences. Avoid using exclamation marks! (Leave them to Houston!)
 - Technical jargon is mostly okay! But, most abbreviations should be avoided. If a developer is unfamiliar with a technical term, spelling it out in full allows them to look it up on the web more easily.
-- Describe the what, why and action to take from the user's perspective. Assume they don't know Astro internals, and care only about how  Astro is _used_ (ex: `You are missing...` vs `Astro/file cannot find...`)
-- Avoid using cutesy language (ex: Oops!). This tone minimizes the significance of the error, which _is_ important to the developer. The developer may be frustrated and your error message shouldn't be making jokes about their struggles. Only include words and phrases that help the developer **interpret the error** and **fix the problem**.
+- Describe the _what_, _why_ and _action to take_ from the user's perspective. Assume they don't know Astro internals, and care only about how  Astro is _used_. (ex: `You are missing...` vs `Astro/file cannot find...`)
+- Avoid using cutesy language. (ex: Oops!) This tone minimizes the significance of the error, which _is_ important to the developer. The developer may be frustrated and your error message shouldn't be making jokes about their struggles. Only include words and phrases that help the developer **interpret the error** and **fix the problem**.
 
 **Choosing an Error Code**
 
