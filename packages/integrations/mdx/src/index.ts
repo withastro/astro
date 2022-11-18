@@ -88,8 +88,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
-								async transform(_, unresolvedId) {
-									let id = unresolvedId;
+								async transform(_, id) {
 									if (!id.endsWith('mdx')) return;
 
 									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
@@ -118,8 +117,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 							{
 								name: '@astrojs/mdx-postprocess',
 								// These transforms must happen *after* JSX runtime transformations
-								transform(code, unresolvedId) {
-									let id = unresolvedId;
+								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 
 									// Ensures styles and scripts are injected into a `<head>`
