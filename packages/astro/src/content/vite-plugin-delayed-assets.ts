@@ -9,7 +9,7 @@ import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
 import { createViteLoader } from '../core/module-loader/vite.js';
-import { contentFileExts, DELAYED_ASSET_FLAG } from './consts.js';
+import { contentFileExts, DELAYED_ASSET_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 
 const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
 const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
@@ -78,7 +78,9 @@ export function astroDelayedAssetPlugin({
 				const s = new MagicString(code, {
 					filename: normalizeFilename({ fileName: id, projectRoot: settings.config.root }),
 				});
-				s.prepend(`import { renderEntry as $$renderEntry } from '.astro';\n`);
+				s.prepend(
+					`import { renderEntry as $$renderEntry } from ${JSON.stringify(VIRTUAL_MODULE_ID)};\n`
+				);
 				// TODO: not this
 				const frontmatterPreamble = '$$createComponent(async ($$result, $$props, $$slots) => {';
 				const indexOfFrontmatterPreamble = code.indexOf(frontmatterPreamble);
@@ -132,7 +134,7 @@ export function astroBundleDelayedAssetPlugin({
 
 function getRenderEntryImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
 	for (const imp of parseImportRes) {
-		if (imp.moduleSpecifier.value === '.astro' && imp.importClause?.named) {
+		if (imp.moduleSpecifier.value === VIRTUAL_MODULE_ID && imp.importClause?.named) {
 			for (const namedImp of imp.importClause.named) {
 				if (namedImp.specifier === 'renderEntry') {
 					// Use `binding` to support `import { renderEntry as somethingElse }...
