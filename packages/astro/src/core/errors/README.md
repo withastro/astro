@@ -83,7 +83,7 @@ Example:
   */
 ```
 
-For `@message`, the property is intended to provider a slightly cleaned error message or if there's multiple messages possible, a collection of common messages. If possible, avoid doing substantial changes to messages as some users might search for the error message
+The `@message` property is intended to provide slightly more context when it is helpful: a more descriptive error message or a collection of common messages if there are multiple possible error messages. Try to avoid making substantial changes to existing messages so that they are easy to find for users who copy and search the exact content of an error message.
 
 ### Always remember
 
