@@ -3,17 +3,37 @@
   https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
+:root {
+	--background-color: #fff;
+	--heading-color: #222;
+	--text-color: #444;
+	--link-color: #3273dc;
+	--code-background-color: #f2f2f2;
+	--blockquote-color: #222;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background-color: #01242e;
+		--heading-color: #eee;
+		--text-color: #ddd;
+		--link-color: #8cc2dd;
+		--code-background-color: #000;
+		--blockquote-color: #ccc;
+	}
+}
+
 body {
 	font-family: Verdana, sans-serif;
 	margin: auto;
 	padding: 20px;
 	max-width: 65ch;
 	text-align: left;
-	background-color: #fff;
+	background-color: var(--background-color);
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	line-height: 1.5;
-	color: #444;
+	color: var(--text-color);
 }
 h1,
 h2,
@@ -23,10 +43,10 @@ h5,
 h6,
 strong,
 b {
-	color: #222;
+	color: var(--heading-color);
 }
 a {
-	color: #3273dc;
+	color: var(--link-color);
 }
 nav a {
 	margin-right: 10px;
@@ -50,7 +70,7 @@ img {
 }
 code {
 	padding: 2px 5px;
-	background-color: #f2f2f2;
+	background-color: var(--code-background-color);
 }
 pre {
 	padding: 1rem;
@@ -60,7 +80,7 @@ pre > code {
 }
 blockquote {
 	border: 1px solid #999;
-	color: #222;
+	color: var(--blockquote-color);
 	padding: 2px 0px 2px 20px;
 	margin: 0px;
 	font-style: italic;

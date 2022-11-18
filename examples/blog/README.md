@@ -20,6 +20,7 @@ Features:
 - ✅ Sitemap support
 - ✅ RSS Feed support
 - ✅ Markdown & MDX support
+- ✅ Dark and Light Mode
 
 ## 🚀 Project Structure
 
