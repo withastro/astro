@@ -89,7 +89,8 @@
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
-    "vendor"
+    "vendor",
+    "src/content/templates"
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",

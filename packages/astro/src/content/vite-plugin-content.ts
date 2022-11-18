@@ -9,7 +9,6 @@ import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
-import { fileURLToPath } from 'node:url';
 
 type Dirs = {
 	contentDir: URL;
@@ -17,14 +16,9 @@ type Dirs = {
 	generatedInputDir: URL;
 };
 
-const CONTENT_BASE = 'content-generated';
+const CONTENT_BASE = 'types.generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
-
-function getEnvReference({ srcDir, contentTypesFile }: { srcDir: URL; contentTypesFile: URL }) {
-	const relToSrcDir = path.relative(fileURLToPath(srcDir), fileURLToPath(contentTypesFile));
-	return `/// <reference path=${JSON.stringify(relToSrcDir)} />`;
-}
 
 export function astroContentPlugin({
 	settings,
@@ -35,9 +29,10 @@ export function astroContentPlugin({
 }): Plugin[] {
 	const { root, srcDir } = settings.config;
 	const dirs: Dirs = {
-		cacheDir: new URL('./.astro/', root),
+		// Output generated types in content directory. May change in the future!
+		cacheDir: new URL('./content/', srcDir),
 		contentDir: new URL('./content/', srcDir),
-		generatedInputDir: new URL('../../', import.meta.url),
+		generatedInputDir: new URL('../../src/content/templates/', import.meta.url),
 	};
 	let contentDirExists = false;
 	let contentGenerator: GenerateContent;
@@ -117,19 +112,6 @@ export const _internal = {
 
 				contentGenerator = await toGenerateContent({ logging, dirs });
 				await contentGenerator.init();
-
-				const typeEnvPath = new URL('./env.d.ts', settings.config.srcDir);
-				const typeEnvContent = await fs.readFile(
-					new URL('./env.d.ts', settings.config.srcDir),
-					'utf-8'
-				);
-				const envReference = getEnvReference({
-					srcDir: settings.config.srcDir,
-					contentTypesFile: new URL(CONTENT_TYPES_FILE, dirs.cacheDir),
-				});
-				if (!typeEnvContent.includes(envReference)) {
-					await fs.writeFile(typeEnvPath, `${envReference}\n${typeEnvContent}`);
-				}
 			},
 			async configureServer(viteServer) {
 				if (contentDirExists) {
@@ -307,6 +289,7 @@ async function toGenerateContent({
 
 	function queueEvent(event: ContentEvent, eventOpts?: { shouldLog: boolean }) {
 		if (!event.entry.startsWith(dirs.contentDir.pathname)) return;
+		if (event.entry.endsWith(CONTENT_TYPES_FILE)) return;
 
 		events.push(onEvent(event, eventOpts));
 		runEventsDebounced();
