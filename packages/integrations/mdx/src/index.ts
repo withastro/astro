@@ -68,8 +68,8 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 
 				if (mdxOptions.extendPlugins === 'markdown') {
 					remarkRehypeOptions = {
-						...remarkRehypeOptions,
 						...config.markdown.remarkRehype,
+						...remarkRehypeOptions,
 					};
 				}
 
