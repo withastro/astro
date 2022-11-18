@@ -8,7 +8,7 @@ import matter from 'gray-matter';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
-import { contentFileExts, CONTENT_FLAG } from './consts.js';
+import { contentFileExts, CONTENT_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 
 type Dirs = {
 	contentDir: URL;
@@ -49,14 +49,13 @@ export function astroContentPlugin({
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@SCHEMA_GLOB_PATH@@', schemaGlob);
 
-	const virtualModuleId = 'astro:content';
-	const resolvedVirtualModuleId = '\0' + virtualModuleId;
+	const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 	return [
 		{
 			name: 'astro-content-virtual-module-plugin',
 			resolveId(id) {
-				if (id === virtualModuleId) {
+				if (id === VIRTUAL_MODULE_ID) {
 					return resolvedVirtualModuleId;
 				}
 			},
