@@ -520,9 +520,20 @@ We suggest [using AST Explorer](https://astexplorer.net/) to play with estree ou
 
 ### remarkRehype
 
-Options for `remarkRehype`. See [markdown.remarkRehype](https://docs.astro.build/en/reference/configuration-reference/#markdownremarkrehype).
+Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
 
-When `extendPlugins` is set to `'markdown'` (default), this config is extended with `remarkRehype` from Astro's default markdown config.
+You can use remark-rehype options in your MDX integration config file like so:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    remarkRehype: {
+      footnoteLabel: 'Catatan kaki',
+      footnoteBackLabel: 'Kembali ke konten',
+    },
+  })],
+};
 
 ## Examples
 
