@@ -82,6 +82,8 @@
     "astro.js",
     "config.d.ts",
     "config.mjs",
+    "zod.d.ts",
+    "zod.mjs",
     "env.d.ts",
     "client.d.ts",
     "client-base.d.ts",
