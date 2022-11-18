@@ -150,6 +150,20 @@ export function createGetEntry({
 	};
 }
 
+export function createCollectionToPaths({
+	getCollection,
+}: {
+	getCollection: ReturnType<typeof createGetCollection>;
+}) {
+	return async function collectionToPaths(collection: string) {
+		const entries = await getCollection(collection);
+		return entries.map((entry) => ({
+			params: { slug: entry.slug },
+			props: entry,
+		}));
+	};
+}
+
 export function createRenderEntry({
 	collectionToRenderEntryMap,
 }: {
