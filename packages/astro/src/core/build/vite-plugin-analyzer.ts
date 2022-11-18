@@ -95,7 +95,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						const cid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 						internals.discoveredClientOnlyComponents.add(cid);
 						clientOnlys.push(cid);
-						
+
 						const resolvedId = await this.resolve(c.specifier, id);
 						if (resolvedId) {
 							clientOnlys.push(resolvedId.id);
