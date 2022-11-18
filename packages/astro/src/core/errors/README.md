@@ -13,13 +13,13 @@ Name (key of the object definition):
 - This is the only part of the error message that should not be written as a full, proper sentence complete with Capitalization and end punctuation.
 
 Title:
-- Use this property to briefly describe the error in a few words. This is the user's way to see at a glance what has happened and will be prominently displayed in the UI (ex: `{feature} is not available in static mode.`) Do not include further details such as why this error occured or possible solutions.
+- Use this property to briefly describe the error in a few words. This is the user's way to see at a glance what has happened and will be prominently displayed in the UI (ex: `{feature} is not available in static mode.`) Do not include further details such as why this error occurred or possible solutions.
 
 Message:
 - Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server⁠-⁠side Rendering is not enabled.`)
 - Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server⁠-⁠side Rendering.`)
-- Although this does not need to be as brief as the `title`, try keep sentences short, clear and direct to give the reader all the necessary information quickly as possible.
-- - Instead of writing a longer message, consider using a `hint`.
+- Although this does not need to be as brief as the `title`, try to keep sentences short, clear and direct to give the reader all the necessary information quickly as possible.
+- Instead of writing a longer message, consider using a `hint`.
 
 Hint:
 - A `hint` can be used for any additional info that might help the user. (ex: a link to the documentation, or a common cause)
@@ -89,7 +89,7 @@ The `@message` property is intended to provide slightly more context when it is 
 
 Error are a reactive strategy. They are the last line of defense against a mistake.
 
-Before adding a new error message, ask yourself, "Was there a way this situation could've been avoided in the first place?" (docs, editor tooling etc). 
+While adding a new error message, ask yourself, "Was there a way this situation could've been avoided in the first place?" (docs, editor tooling etc). 
 
 **If you can prevent the error, you don't need an error message!**
 
