@@ -87,7 +87,7 @@ export const AstroErrorData = defineErrors({
 	},
 	/**
 	 * @docs
-	 * @message Route returned a `$RETURNED_VALUE`. Only a Response can be returned from Astro files.
+	 * @message Route returned a `RETURNED_VALUE`. Only a Response can be returned from Astro files.
 	 * @see
 	 * - [Response](https://docs.astro.build/en/guides/server-side-rendering/#response)
 	 * @description
