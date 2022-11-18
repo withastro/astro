@@ -12,6 +12,5 @@ const { Content, headings } = await renderEntry(post);
 ---
 
 <MainLayout headings={headings} {...post.data}>
-	<h1>{post.data.title}</h1>
 	<Content />
 </MainLayout>
