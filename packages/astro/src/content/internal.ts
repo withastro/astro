@@ -46,7 +46,7 @@ export async function parseEntryData(
 			const formattedError = new Error(
 				[
 					`Could not parse frontmatter in ${String(collection)} → ${String(entry.id)}`,
-					...e.errors.map((e) => e.message),
+					...e.errors.map((zodError) => zodError.message),
 				].join('\n')
 			);
 			(formattedError as any).loc = {
