@@ -25,6 +25,7 @@ export function shortHashedName(id: string, ctx: { getModuleInfo: GetModuleInfo 
 
 export function createSlugger(settings: AstroSettings) {
 	const pagesDir = viteID(new URL('./pages', settings.config.srcDir));
+	const indexPage = viteID(new URL('./pages/index', settings.config.srcDir));
 	const map = new Map<string, Map<string, number>>();
 	const sep = '-';
 	return function (id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
@@ -33,7 +34,7 @@ export function createSlugger(settings: AstroSettings) {
 			.map(([page]) => page.id)
 			.sort()
 			.join('-');
-		const firstParentId = parents[0]?.[0].id || 'index';
+		const firstParentId = parents[0]?.[0].id || indexPage;
 
 		// Use the last two segments, for ex /docs/index
 		let dir = firstParentId;

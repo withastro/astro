@@ -311,45 +311,57 @@ h2.heading {
 	margin-bottom: 0.5rem;
 }
 
-.heading-link {
-	font-size: 1rem;
-	padding: 0.1rem 0 0.1rem 1rem;
+.header-link {
+	font-size: 1em;
+	transition: border-inline-start-color 100ms ease-out, background-color 200ms ease-out;
 	border-left: 4px solid var(--theme-divider);
 }
 
-.heading-link:hover,
-.heading-link:focus {
-	border-left-color: var(--theme-accent);
-	color: var(--theme-accent);
-}
-.heading-link:focus-within {
-	color: var(--theme-text-light);
-	border-left-color: hsla(var(--color-gray-40), 1);
-}
-.heading-link svg {
-	opacity: 0.6;
-}
-.heading-link:hover svg {
-	opacity: 0.8;
-}
-.heading-link a {
+.header-link a {
 	display: inline-flex;
 	gap: 0.5em;
 	width: 100%;
-	padding: 0.15em 0 0.15em 0;
-}
-
-.heading-link.depth-3 {
-	padding-left: 2rem;
-}
-.heading-link.depth-4 {
-	padding-left: 3rem;
-}
-
-.heading-link a {
 	font: inherit;
+	padding: 0.4rem 0;
+	line-height: 1.3;
 	color: inherit;
 	text-decoration: none;
+	unicode-bidi: plaintext;
+}
+
+@media (min-width: 50em) {
+	.header-link a {
+		padding: 0.275rem 0;
+	}
+}
+
+.header-link:hover,
+.header-link:focus,
+.header-link:focus-within {
+	border-inline-start-color: var(--theme-accent-secondary);
+}
+
+.header-link:hover a,
+.header-link a:focus {
+	color: var(--theme-text);
+	text-decoration: underline;
+}
+.header-link svg {
+	opacity: 0.6;
+}
+.header-link:hover svg {
+	opacity: 0.8;
+}
+
+/* Add line and padding on the left side */
+.header-link {
+	padding-inline-start: 1rem;
+}
+.header-link.depth-3 {
+	padding-inline-start: 2rem;
+}
+.header-link.depth-4 {
+	padding-inline-start: 3rem;
 }
 
 /* Screenreader Only Text */
@@ -379,4 +391,21 @@ h2.heading {
 
 :target {
 	scroll-margin: calc(var(--theme-sidebar-offset, 5rem) + 2rem) 0 2rem;
+}
+
+/* Highlight TOC header link matching the current scroll position */
+.current-header-link {
+	background-color: var(--theme-bg-accent);
+	/* Indicates the current heading for forced colors users in older browsers */
+	outline: 1px solid transparent;
+}
+
+@media (forced-colors: active) {
+	.current-header-link {
+		border: 1px solid CanvasText;
+	}
+}
+
+.current-header-link a {
+	color: var(--theme-text);
 }

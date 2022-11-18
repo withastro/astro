@@ -36,7 +36,7 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 				config = _config;
 			},
 			'astro:server:setup': ({ server }) => {
-				const lib = `${config.base}~partytown/`;
+				const lib = `/~partytown/`;
 				server.middlewares.use(
 					sirv(partytownLibDirectory, {
 						mount: lib,
