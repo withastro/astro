@@ -11,6 +11,7 @@ import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
+import { removeQueryString } from '../core/path.js';
 import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
 
@@ -187,6 +188,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 		},
 		async transform(code, id, opts) {
 			const ssr = Boolean(opts?.ssr);
+			id = removeQueryString(id);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
 				return null;
 			}
