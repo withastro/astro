@@ -1,0 +1,17 @@
+---
+import { CollectionEntry, collectionToPaths, getCollection, renderEntry } from "astro:content";
+import BlogPost from "../../layouts/BlogPost.astro";
+
+export function getStaticPaths() {
+	return collectionToPaths('blog');
+}
+export type Props = CollectionEntry<'blog'>;
+
+const post = Astro.props as Props;
+const { Content } = await renderEntry(post);
+---
+
+<BlogPost {...post.data}>
+	<h1>{post.data.title}</h1>
+	<Content />
+</BlogPost>

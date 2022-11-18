@@ -2,19 +2,12 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { CollectionEntry } from 'astro:content';
 
-export interface Props {
-	content: {
-		title: string;
-		description: string;
-		pubDate?: string;
-		updatedDate?: string;
-		heroImage?: string;
-	};
-}
+type Props = CollectionEntry<'blog'>['data'];
 
 const {
-	content: { title, description, pubDate, updatedDate, heroImage },
+	title, description, pubDate, updatedDate, heroImage,
 } = Astro.props;
 ---
 
