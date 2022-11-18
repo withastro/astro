@@ -8,7 +8,7 @@ export default defineCollection({
 		updatedDate: z
 			.string()
 			.optional()
-			.transform((str) => new Date(str)),
+			.transform((str) => (str ? new Date(str) : undefined)),
 		heroImage: z.string().optional(),
 	}),
 });
