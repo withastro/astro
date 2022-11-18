@@ -1,4 +1,3 @@
-import type { PluginContext } from 'rollup';
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
