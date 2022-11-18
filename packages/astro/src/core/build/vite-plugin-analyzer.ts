@@ -95,13 +95,10 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						const cid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 						internals.discoveredClientOnlyComponents.add(cid);
 						clientOnlys.push(cid);
-						// Bare module specifiers need to be resolved so that the CSS
-						// plugin can walk up the graph to find which page they belong to.
-						if (c.resolvedPath === c.specifier) {
-							const resolvedId = await this.resolve(c.specifier, id);
-							if (resolvedId) {
-								clientOnlys.push(resolvedId.id);
-							}
+						
+						const resolvedId = await this.resolve(c.specifier, id);
+						if (resolvedId) {
+							clientOnlys.push(resolvedId.id);
 						}
 					}
 
