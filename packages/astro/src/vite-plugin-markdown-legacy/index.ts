@@ -65,13 +65,6 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 		return filename;
 	}
 
-	function makeCompileResolve(ctx: PluginContext) {
-		return async function(specifier: string, parent: string): Promise<string | undefined> {
-			const resolveResult = await ctx.resolve(specifier, parent);
-			return resolveResult?.id ?? undefined;
-		};
-	}
-
 	// Weird Vite behavior: Vite seems to use a fake "index.html" importer when you
 	// have `enforce: pre`. This can probably be removed once the vite issue is fixed.
 	// see: https://github.com/vitejs/vite/issues/5981
@@ -226,7 +219,6 @@ ${setup}`.trim();
 					viteConfig: resolvedConfig,
 					filename,
 					source: astroResult,
-					resolve: makeCompileResolve(this),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);
