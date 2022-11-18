@@ -1,8 +1,8 @@
 export const SITE = {
 	title: 'Documentation',
 	description: 'Your website description.',
-	defaultLanguage: 'en_US',
-};
+	defaultLanguage: 'en-us',
+} as const;
 
 export const OPEN_GRAPH = {
 	image: {
@@ -12,17 +12,6 @@ export const OPEN_GRAPH = {
 			' with a purple saturn-like planet floating in the right foreground',
 	},
 	twitter: 'astrodotbuild',
-};
-
-// This is the type of the frontmatter you put in the docs markdown files.
-export type Frontmatter = {
-	title: string;
-	description: string;
-	layout: string;
-	image?: { src: string; alt: string };
-	dir?: 'ltr' | 'rtl';
-	ogLocale?: string;
-	lang?: string;
 };
 
 export const KNOWN_LANGUAGES = {
