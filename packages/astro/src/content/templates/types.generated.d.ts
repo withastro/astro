@@ -7,8 +7,11 @@ declare const schemaMap: {
 
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
-	export type Collection<C extends keyof typeof entryMap> =
+	export type CollectionEntry<C extends keyof typeof entryMap> =
 		typeof entryMap[C][keyof typeof entryMap[C]];
+	export function collectionToPaths<C extends keyof typeof entryMap>(
+		collection: C
+	): Promise<import('astro').GetStaticPathsResult>;
 	export function defineCollection<T extends import('astro/zod').ZodObject<O>, O>(input: {
 		schema: T;
 	}): typeof input;
@@ -19,7 +22,10 @@ declare module 'astro:content' {
 	export function getCollection<
 		C extends keyof typeof entryMap,
 		E extends keyof typeof entryMap[C]
-	>(collection: C, filter?: (data: typeof entryMap[C][E]) => boolean): Promise<Collection<C>[]>;
+	>(
+		collection: C,
+		filter?: (data: typeof entryMap[C][E]) => boolean
+	): Promise<typeof entryMap[C][keyof typeof entryMap[C]][]>;
 	export function renderEntry<
 		C extends keyof typeof entryMap,
 		E extends keyof typeof entryMap[C]
