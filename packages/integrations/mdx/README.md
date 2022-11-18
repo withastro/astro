@@ -534,6 +534,9 @@ export default {
     },
   })],
 };
+```
+
+This inherits the configuration of `markdown.remarkRehype`. This behavior can be changed by configuring `extendPlugins`.
 
 ## Examples
 
