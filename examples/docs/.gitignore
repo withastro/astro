@@ -1,6 +1,5 @@
 # build output
 dist/
-types.generated.d.ts
 
 # dependencies
 node_modules/
