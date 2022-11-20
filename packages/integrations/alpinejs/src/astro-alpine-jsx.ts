@@ -1,10 +1,14 @@
 // Temporary While I'm Working On Alpine Attributes With Modifiers
 type WorkInProgress = never;
 
-interface AlpineAttributes {
+interface XShowAttributes {
+    'x-show': string | undefined | null;
+    'x-show.important': string | undefined | null;
+}
+
+interface AlpineAttributes extends XShowAttributes {
     'x-data'?: string | boolean | undefined | null;
     'x-init'?: boolean | undefined | null;
-    'x-show'?: WorkInProgress;
     'x-bind'?: WorkInProgress;
     'x-on'?: WorkInProgress;
     'x-text'?: string | undefined | null;
