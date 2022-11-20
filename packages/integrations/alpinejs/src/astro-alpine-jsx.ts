@@ -6,14 +6,23 @@ interface XShowAttributes {
     'x-show.important': string | undefined | null;
 }
 
+
+// Technically `x-bind` sets the native HTML attributes...
+// So while this works, it's kind of just a quick fix
+// As the key doesn't type check for valid HTML attributes
+interface XBindAttributes {
+    [key: `x-bind:${string}`]: string | undefined | null;
+    [key: `:${string}`]: string | undefined | null;
+}
+
 interface XModelAttributes {
     'x-model'?: string | undefined | null;
     'x-model.lazy'?: string | undefined | null;
     'x-model.number'?: string | undefined | null;
     'x-model.throttle'?: string | undefined | null;
     'x-model.debounce'?: string | undefined | null;
-    [throttle: `x-model.throttle.${number}ms`]: string | undefined | null;
-    [debounce: `x-model.debounce.${number}ms`]: string | undefined | null;
+    [key: `x-model.throttle.${number}ms`]: string | undefined | null;
+    [key: `x-model.debounce.${number}ms`]: string | undefined | null;
 }
 
 interface AlpineAttributes extends XShowAttributes, XModelAttributes {
