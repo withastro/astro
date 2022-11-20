@@ -6,14 +6,23 @@ interface XShowAttributes {
     'x-show.important': string | undefined | null;
 }
 
-interface AlpineAttributes extends XShowAttributes {
+interface XModelAttributes {
+    'x-model'?: string | undefined | null;
+    'x-model.lazy'?: string | undefined | null;
+    'x-model.number'?: string | undefined | null;
+    'x-model.throttle'?: string | undefined | null;
+    'x-model.debounce'?: string | undefined | null;
+    [throttle: `x-model.throttle.${number}ms`]: string | undefined | null;
+    [debounce: `x-model.debounce.${number}ms`]: string | undefined | null;
+}
+
+interface AlpineAttributes extends XShowAttributes, XModelAttributes {
     'x-data'?: string | boolean | undefined | null;
     'x-init'?: boolean | undefined | null;
     'x-bind'?: WorkInProgress;
     'x-on'?: WorkInProgress;
     'x-text'?: string | undefined | null;
     'x-html'?: string | undefined | null;
-    'x-model'?: WorkInProgress;
     'x-modelable'?: string | undefined | null;
     'x-for'?: string | undefined | null;
     'x-transition'?: WorkInProgress;
