@@ -166,7 +166,7 @@ module.exports = {
 
 ### Class-based modifiers do not work with `@apply` directives
 
-Astro `<style>` tags are scoped by default. As `dark:text-pink` compiles into `.dark .text-pink`, it does not match any markup in the Astro file and is hence removed, causing the class to not be applied. This may also happen for integrations like Vue and Svelte that supports scoped styles.
+Certain Tailwind classes with modifiers rely on combining classes across multiple elements. For example, `dark:text-pink` compiles to `.dark .text-pink`. When this is used with the `@apply` directive in Astro `<style>` tags, the compiled styles are removed from the build output because they do not match any markup in the `.astro` file. The same issue may also happen in framework components that support scoped styles like Vue and Svelte.
 
 To fix this, you can use inline classes instead:
 
