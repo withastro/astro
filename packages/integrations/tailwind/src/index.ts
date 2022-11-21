@@ -48,7 +48,7 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 				filePath: tempConfigPath,
 			});
 		} catch (err) {
-			console.error(err)
+			console.error(err);
 		} finally {
 			await fs.unlink(tempConfigPath);
 		}
