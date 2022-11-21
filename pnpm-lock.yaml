@@ -2546,6 +2546,19 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
+  packages/integrations/aws:
+    specifiers:
+      '@astrojs/webapi': ^1.1.1
+      '@types/aws-lambda': ^8.10.108
+      astro: workspace:*
+      astro-scripts: workspace:*
+    dependencies:
+      '@astrojs/webapi': link:../../webapi
+    devDependencies:
+      '@types/aws-lambda': 8.10.108
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/integrations/cloudflare:
     specifiers:
       astro: workspace:*
@@ -9524,6 +9537,10 @@ packages:
     dependencies:
       '@vue/reactivity': 3.2.45
     dev: false
+
+  /@types/aws-lambda/8.10.108:
+    resolution: {integrity: sha512-1yh1W1WoqK3lGHy+V/Fi55zobxrDHUUsluCWdMlOXkCvtsCmHPXOG+CQ2STIL4B1g6xi6I6XzxaF8V9+zeIFLA==}
+    dev: true
 
   /@types/babel__core/7.1.20:
     resolution: {integrity: sha512-PVb6Bg2QuscZ30FvOU7z4guG6c926D9YRvOxEaelzndpMsvP+YM74Q/dAFASpg2l6+XLalxSGxcq/lrgYWZtyQ==}

@@ -1,0 +1,49 @@
+{
+  "name": "@astrojs/aws",
+  "description": "Deploy your site to Vercel",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/aws"
+  },
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/aws/",
+  "exports": {
+    "./edge": "./dist/edge/adapter.js",
+    "./edge/entrypoint": "./dist/edge/entrypoint.js",
+    "./lambda": "./dist/lambda/adapter.js",
+    "./lambda/entrypoint": "./dist/lambda/entrypoint.js",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "edge": [
+        "dist/edge/adapter.d.ts"
+      ],
+      "lambda": [
+        "dist/lambda/adapter.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@astrojs/webapi": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.108",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*"
+  }
+}
