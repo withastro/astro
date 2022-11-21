@@ -29,7 +29,10 @@ type ErrorTypes =
 	| 'AggregateError';
 
 export class AstroError extends Error {
-	public code: AstroErrorCodes | DiagnosticCode;
+	// NOTE: If this property is named `code`, Rollup will use it to fill the `pluginCode` property downstream
+	// This cause issues since we expect `pluginCode` to be a string containing code
+	// @see https://github.com/rollup/rollup/blob/9a741639f69f204ded8ea404675f725b8d56adca/src/utils/error.ts#L725
+	public errorCode: AstroErrorCodes | DiagnosticCode;
 	public loc: ErrorLocation | undefined;
 	public title: string | undefined;
 	public hint: string | undefined;
@@ -42,12 +45,12 @@ export class AstroError extends Error {
 
 		const { code, name, title, message, stack, location, hint, frame } = props;
 
-		this.code = code;
+		this.errorCode = code;
 		if (name) {
 			this.name = name;
 		} else {
 			// If we don't have a name, let's generate one from the code
-			this.name = getErrorDataByCode(this.code)?.name ?? 'UnknownError';
+			this.name = getErrorDataByCode(this.errorCode)?.name ?? 'UnknownError';
 		}
 		this.title = title;
 		if (message) this.message = message;
@@ -59,9 +62,9 @@ export class AstroError extends Error {
 	}
 
 	public setErrorCode(errorCode: AstroErrorCodes) {
-		this.code = errorCode;
+		this.errorCode = errorCode;
 
-		this.name = getErrorDataByCode(this.code)?.name ?? 'UnknownError';
+		this.name = getErrorDataByCode(this.errorCode)?.name ?? 'UnknownError';
 	}
 
 	public setLocation(location: ErrorLocation): void {
