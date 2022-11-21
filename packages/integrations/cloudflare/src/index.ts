@@ -158,8 +158,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						.then((stat) => stat.isFile())
 						.catch(() => false);
 
-          // convert all redirect source paths into a list of routes
-          // and add them to the static path
+					// convert all redirect source paths into a list of routes
+					// and add them to the static path
 					if (redirectsExists) {
 						const redirects = (
 							await fs.promises.readFile(new URL('./_redirects', _config.outDir), 'utf-8')
