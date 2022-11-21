@@ -231,4 +231,4 @@ When in prerelease mode, the automatic PR release process will no longer release
 
 Help us make [docs.astro.build](https://docs.astro.build/) as accurate and easy-to-use as possible. Contributing to documentation can be a great way to get involved with open source development without having to code.
 
-Head over to [the `withastro/docs` repo](https://github.com/withastro/docs) to get involved!
+Head over to the [`withastro/docs`](https://github.com/withastro/docs) to get involved!
