@@ -6,7 +6,7 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { pagesVirtualModuleId } from '../core/app/index.js';
+import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
 import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
@@ -75,7 +75,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 		if (importer === fakeRootImporter) {
 			return true;
 		}
-		if (importer === '\0' + pagesVirtualModuleId) {
+		if (importer === resolvedPagesVirtualModuleId) {
 			return true;
 		}
 		return false;

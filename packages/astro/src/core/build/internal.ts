@@ -1,10 +1,13 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
+import type { ResolvedConfig } from 'vite';
 import type { PageBuildData, ViteID } from './types';
 
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
+	finalViteConfig: ResolvedConfig;
+
 	/**
 	 * The module ids of all CSS chunks, used to deduplicate CSS assets between
 	 * SSR build and client build in vite-plugin-css.
@@ -69,6 +72,9 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
+		// @ts-expect-error set by vite-plugin-internals
+		finalViteConfig: null,
+
 		cssChunkModuleIds: new Set(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
