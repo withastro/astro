@@ -87,10 +87,7 @@ export function extractDirectives(
 						extracted.hydration.directive === 'media' &&
 						typeof extracted.hydration.value !== 'string'
 					) {
-						throw new AstroError({
-							...AstroErrorData.MissingMediaQueryDirective,
-							message: AstroErrorData.MissingMediaQueryDirective.message(displayName),
-						});
+						throw new AstroError(AstroErrorData.MissingMediaQueryDirective);
 					}
 
 					break;
