@@ -59,3 +59,8 @@ export function removeFileExtension(path: string) {
 	let idx = path.lastIndexOf('.');
 	return idx === -1 ? path : path.slice(0, idx);
 }
+
+export function removeQueryString(path: string) {
+	const index = path.lastIndexOf('?');
+	return index > 0 ? path.substring(0, index) : path;
+}

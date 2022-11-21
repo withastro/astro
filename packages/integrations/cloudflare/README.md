@@ -66,7 +66,7 @@ In order for preview to work you must install `wrangler`
 $ pnpm install wrangler --save-dev
 ```
 
-It's then possible to update the preview script in your `package.json` to `"preview": "wrangler pages dev ./dist"`.This will allow you run your entire application locally with [Wrangler](https://github.com/cloudflare/wrangler2), which supports secrets, environment variables, KV namespaces, Durable Objects and [all other supported Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/#adding-bindings).
+It's then possible to update the preview script in your `package.json` to `"preview": "wrangler pages dev ./dist"`. This will allow you run your entire application locally with [Wrangler](https://github.com/cloudflare/wrangler2), which supports secrets, environment variables, KV namespaces, Durable Objects and [all other supported Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/#adding-bindings).
 
 ## Access to the Cloudflare runtime
 
@@ -106,6 +106,14 @@ export function get({ params }) {
   };
 }
 ```
+
+## Headers, Redirects and function invocation routes
+
+Cloudflare has support for adding custom [headers](https://developers.cloudflare.com/pages/platform/headers/), configuring static [redirects](https://developers.cloudflare.com/pages/platform/redirects/) and defining which routes should [invoke functions](https://developers.cloudflare.com/pages/platform/functions/routing/#function-invocation-routes). Cloudflare looks for `_headers`, `_redirects`, and `_routes.json` files in your build output directory to configure these features. This means they should be placed in your Astro project’s `public/` directory.
+
+### Custom `_routes.json`
+
+By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists all files from your `dist/` folder and redirects from the `_redirects` file in the `exclude` array. This will enable Cloudflare to serve files and process static redirects without a function invocation. Creating a custom `_routes.json` will override this automatic optimization and, if not configured manually, cause function invocations that will count against the request limits of your Cloudflare plan.
 
 ## Troubleshooting
 
