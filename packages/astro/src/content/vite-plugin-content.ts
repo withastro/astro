@@ -332,10 +332,10 @@ function parseEntryInfo(
 }
 
 function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | 'unknown' {
-	const { base, ext } = path.parse(entryPath);
+	const { dir, ext, name } = path.parse(entryPath);
 	if (['.md', '.mdx'].includes(ext)) {
 		return 'content';
-	} else if (entryPath === paths.config.pathname) {
+	} else if (path.join(dir, name) === paths.config.pathname) {
 		return 'config';
 	} else {
 		return 'unknown';
