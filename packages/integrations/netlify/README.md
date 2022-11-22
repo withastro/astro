@@ -46,7 +46,8 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js title="astro.config.mjs" ins={2, 5-6}
+    ```js ins={3, 6-7}
+    // astro.config.mjs
     import { defineConfig } from 'astro/config';
     import netlify from '@astrojs/netlify/functions';
 
@@ -58,18 +59,20 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 ### Edge Functions
 
-Netlify has two serverless platforms, Netlify Functions and [Netlify's experimental Edge Functions](https://docs.netlify.com/netlify-labs/experimental-features/edge-functions/#app). With Edge Functions your code is distributed closer to your users, lowering latency. You can use Edge Functions by changing the `netlify/functions` import in the Astro config file to use `netlify/edge-functions`.
+Netlify has two serverless platforms, Netlify Functions and [Netlify's experimental Edge Functions](https://docs.netlify.com/netlify-labs/experimental-features/edge-functions/#app). With Edge Functions your code is distributed closer to your users, lowering latency.
 
-      ```js title="astro.config.mjs" ins={3} del={2}
-      import { defineConfig } from 'astro/config';
-      import netlify from '@astrojs/netlify/functions';
-      import netlify from '@astrojs/netlify/edge-functions';
+To deploy with Edge Functions, use `netlify/edge-functions` in the Astro config file instead of `netlify/functions`.
 
-      export default defineConfig({
-        output: 'server',
-        adapter: netlify(),
-      });
-      ```
+```js ins={3}
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/edge-functions';
+
+export default defineConfig({
+  output: 'server',
+  adapter: netlify(),
+});
+```
 
 ## Usage
 
@@ -95,6 +98,7 @@ To configure this adapter, pass an object to the `netlify()` function call in `a
 We build to the `dist` directory at the base of your project. To change this, use the `dist` option:
 
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/functions';
 
@@ -108,7 +112,7 @@ export default defineConfig({
 
 And then point to the dist in your `netlify.toml`:
 
-```toml
+```toml title="netlify.toml"
 [functions]
 directory = "dist/functions"
 ```
@@ -121,7 +125,9 @@ Netlify Functions requires binary data in the `body` to be base64 encoded. The `
 
 We check for common mime types for audio, image, and video files. To include specific mime types that should be treated as binary data, include the `binaryMediaTypes` option with a list of binary mime types.
 
-```js
+```js {12}
+// src/pages/image.jpg.ts
+
 import fs from 'node:fs';
 
 export function get() {
