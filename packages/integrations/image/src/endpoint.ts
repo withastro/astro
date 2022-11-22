@@ -36,20 +36,20 @@ export const get: APIRoute = async ({ request }) => {
 		if (!inputBuffer) {
 			return new Response('Not Found', { status: 404 });
 		}
-		let result;
+		let transformed;
 		if (transform.src.includes('.gif')) {
 			const gifLoader = await (await import('./loaders/sharp.js')).default;
-			result = gifLoader.transform(inputBuffer, transform);
+			transformed = await gifLoader.transform(inputBuffer, transform);
 		} else {
-			result = loader.transform(inputBuffer, transform);
+			transformed = await loader.transform(inputBuffer, transform);
 		}
 
-		return new Response(result.data, {
+		return new Response(transformed.data, {
 			status: 200,
 			headers: {
-				'Content-Type': mime.getType(result.ormat) || '',
+				'Content-Type': mime.getType(transformed.format) || '',
 				'Cache-Control': 'public, max-age=31536000',
-				ETag: etag(result.data.toString()),
+				ETag: etag(transformed.data.toString()),
 				Date: new Date().toUTCString(),
 			},
 		});

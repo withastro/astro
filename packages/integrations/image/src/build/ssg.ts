@@ -190,7 +190,13 @@ export async function ssgBuild({
 
 			// a valid cache file wasn't found, transform the image and cache it
 			if (!data) {
-				const transformed = await loader.transform(inputBuffer, transform);
+				let transformed;
+				if (transform.src.includes('.gif')) {
+					const gifLoader = await (await import('../loaders/sharp.js')).default;
+					transformed = await gifLoader.transform(inputBuffer, transform);
+				} else {
+					transformed = await loader.transform(inputBuffer, transform);
+				}
 				data = transformed.data;
 
 				// cache the image, if available
