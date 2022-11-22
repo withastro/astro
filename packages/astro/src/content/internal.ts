@@ -3,6 +3,7 @@ import { prependForwardSlash } from '../core/path.js';
 
 type GlobResult = Record<string, () => Promise<any>>;
 type CollectionToEntryMap = Record<string, GlobResult>;
+type CollectionsConfig = Record<string, { schema: z.ZodRawShape }>;
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -27,42 +28,32 @@ export function createCollectionToGlobResultMap({
 export async function parseEntryData(
 	collection: string,
 	entry: { id: string; data: any; _internal: { rawData: string; filePath: string } },
-	collectionToSchemaMap: CollectionToEntryMap
+	collectionsConfig: CollectionsConfig
 ) {
-	let schemaImport = Object.values(collectionToSchemaMap[collection] ?? {})[0];
-	if (typeof schemaImport !== 'function') {
-		console.warn(getErrorMsg.schemaFileMissing(collection));
+	if (!('schema' in (collectionsConfig[collection] ?? {}))) {
+		throw new Error(getErrorMsg.schemaDefMissing(collection));
 	}
-	const schemaValue = await schemaImport();
-	if (!('schema' in (schemaValue?.default ?? {}))) {
-		throw new Error(getErrorMsg.schemaNamedExpMissing(collection));
-	}
-	const { schema } = schemaValue.default;
+	const { schema } = collectionsConfig[collection];
+	const parsed = z.object(schema).safeParse(entry.data, { errorMap });
 
-	try {
-		return schema.parse(entry.data, { errorMap });
-	} catch (e) {
-		if (e instanceof z.ZodError) {
-			const formattedError = new Error(
-				[
-					`Could not parse frontmatter in ${String(collection)} → ${String(entry.id)}`,
-					...e.errors.map((zodError) => zodError.message),
-				].join('\n')
-			);
-			(formattedError as any).loc = {
-				file: entry._internal.filePath,
-				line: getFrontmatterErrorLine(entry._internal.rawData, String(e.errors[0].path[0])),
-				column: 1,
-			};
-			throw formattedError;
-		}
-		if (e instanceof Error) {
-			e.message = `There was a problem parsing frontmatter in ${String(collection)} → ${String(
-				entry.id
-			)}\n${e.message}`;
-			throw e;
-		}
-		throw e;
+	if (parsed.success) {
+		return parsed.data;
+	} else {
+		const formattedError = new Error(
+			[
+				`Could not parse frontmatter in ${String(collection)} → ${String(entry.id)}`,
+				...parsed.error.errors.map((zodError) => zodError.message),
+			].join('\n')
+		);
+		(formattedError as any).loc = {
+			file: entry._internal.filePath,
+			line: getFrontmatterErrorLine(
+				entry._internal.rawData,
+				String(parsed.error.errors[0].path[0])
+			),
+			column: 1,
+		};
+		throw formattedError;
 	}
 }
 
@@ -93,23 +84,24 @@ function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string)
 export const getErrorMsg = {
 	schemaFileMissing: (collection: string) =>
 		`${collection} does not have a config. We suggest adding one for type safety!`,
-	schemaNamedExpMissing: (collection: string) =>
-		`${collection}/index needs a default export. Try using \`defineCollection\`.`,
+	schemaDefMissing: (collection: string) =>
+		`${collection} needs a schema definition. Check your src/content/index file.`,
 };
 
 export function createGetCollection({
 	collectionToEntryMap,
-	collectionToSchemaMap,
+	getCollectionsConfig,
 }: {
 	collectionToEntryMap: CollectionToEntryMap;
-	collectionToSchemaMap: CollectionToEntryMap;
+	getCollectionsConfig: () => Promise<CollectionsConfig>;
 }) {
 	return async function getCollection(collection: string, filter?: () => boolean) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
+		const collectionsConfig = await getCollectionsConfig();
 		const entries = Promise.all(
 			lazyImports.map(async (lazyImport) => {
 				const entry = await lazyImport();
-				const data = await parseEntryData(collection, entry, collectionToSchemaMap);
+				const data = await parseEntryData(collection, entry, collectionsConfig);
 				return {
 					id: entry.id,
 					slug: entry.slug,
@@ -129,17 +121,18 @@ export function createGetCollection({
 
 export function createGetEntry({
 	collectionToEntryMap,
-	collectionToSchemaMap,
+	getCollectionsConfig,
 }: {
-	collectionToSchemaMap: CollectionToEntryMap;
 	collectionToEntryMap: CollectionToEntryMap;
+	getCollectionsConfig: () => Promise<CollectionsConfig>;
 }) {
 	return async function getEntry(collection: string, entryId: string) {
 		const lazyImport = collectionToEntryMap[collection]?.[entryId];
+		const collectionsConfig = await getCollectionsConfig();
 		if (!lazyImport) throw new Error(`Ah! ${entryId}`);
 
 		const entry = await lazyImport();
-		const data = await parseEntryData(collection, entry, collectionToSchemaMap);
+		const data = await parseEntryData(collection, entry, collectionsConfig);
 		return {
 			id: entry.id,
 			slug: entry.slug,
