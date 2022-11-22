@@ -8,7 +8,7 @@ import {
 
 export { z } from 'astro/zod';
 
-export function defineCollection(input) {
+export function defineCollections(input) {
 	return input;
 }
 
@@ -22,11 +22,13 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
-const schemaGlob = import.meta.glob('@@SCHEMA_GLOB_PATH@@');
-const collectionToSchemaMap = createCollectionToGlobResultMap({
-	globResult: schemaGlob,
-	contentDir,
-});
+async function getCollectionsConfig() {
+	const res = await import('@@COLLECTIONS_IMPORT_PATH@@');
+	if ('default' in res) {
+		return res.default;
+	}
+	return {};
+}
 
 const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
 	query: { astroAssetSsr: true },
@@ -38,12 +40,12 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 
 export const getCollection = createGetCollection({
 	collectionToEntryMap,
-	collectionToSchemaMap,
+	getCollectionsConfig,
 });
 
 export const getEntry = createGetEntry({
 	collectionToEntryMap,
-	collectionToSchemaMap,
+	getCollectionsConfig,
 	contentDir,
 });
 
