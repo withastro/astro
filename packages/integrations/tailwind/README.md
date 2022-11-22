@@ -170,8 +170,9 @@ Certain Tailwind classes with modifiers rely on combining classes across multipl
 
 To fix this, you can use inline classes instead:
 
-```astro
+```html
 <p class="text-black group-hover:text-gray">Astro</p>
+```
 
 ### Others
 
