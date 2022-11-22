@@ -47,10 +47,10 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 				cwd: resolvedRoot,
 				filePath: tempConfigPath,
 			});
-
+		} catch (err) {
+			console.error(err);
+		} finally {
 			await fs.unlink(tempConfigPath);
-		} catch {
-			/** file already removed */
 		}
 
 		return {
