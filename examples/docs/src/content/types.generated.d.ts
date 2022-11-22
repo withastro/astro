@@ -1,41 +1,3 @@
-declare const entryMap: {
-	"docs": {
-"en/introduction.md": {
-  id: "en/introduction.md",
-  slug: "en/introduction",
-  body: string,
-  collection: "docs",
-  data: import('astro/zod').infer<typeof schemaMap["docs"]['default']['schema']>
-},
-"en/page-2.md": {
-  id: "en/page-2.md",
-  slug: "en/page-2",
-  body: string,
-  collection: "docs",
-  data: import('astro/zod').infer<typeof schemaMap["docs"]['default']['schema']>
-},
-"en/page-3.md": {
-  id: "en/page-3.md",
-  slug: "en/page-3",
-  body: string,
-  collection: "docs",
-  data: import('astro/zod').infer<typeof schemaMap["docs"]['default']['schema']>
-},
-"en/page-4.md": {
-  id: "en/page-4.md",
-  slug: "en/page-4",
-  body: string,
-  collection: "docs",
-  data: import('astro/zod').infer<typeof schemaMap["docs"]['default']['schema']>
-},
-},
-
-};
-declare const schemaMap: {
-	"docs": typeof import("/Users/benholmes/Repositories/astro/examples/docs/src/content/docs/index"),
-
-};
-
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
 	export type CollectionEntry<C extends keyof typeof entryMap> =
@@ -43,9 +5,9 @@ declare module 'astro:content' {
 	export function collectionToPaths<C extends keyof typeof entryMap>(
 		collection: C
 	): Promise<import('astro').GetStaticPathsResult>;
-	export function defineCollection<T extends import('astro/zod').ZodObject<O>, O>(input: {
-		schema: T;
-	}): typeof input;
+	export function defineCollections<
+		C extends Record<string, { schema: import('astro/zod').ZodRawShape }>
+	>(input: C): C;
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(
 		collection: C,
 		entryKey: E
@@ -67,4 +29,40 @@ declare module 'astro:content' {
 		Content: import('astro').MarkdownInstance<{}>['Content'];
 		headings: import('astro').MarkdownHeading[];
 	}>;
+
+	const entryMap: {
+		"docs": {
+"en/introduction.md": {
+  id: "en/introduction.md",
+  slug: "en/introduction",
+  body: string,
+  collection: "docs",
+  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+},
+"en/page-2.md": {
+  id: "en/page-2.md",
+  slug: "en/page-2",
+  body: string,
+  collection: "docs",
+  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+},
+"en/page-3.md": {
+  id: "en/page-3.md",
+  slug: "en/page-3",
+  body: string,
+  collection: "docs",
+  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+},
+"en/page-4.md": {
+  id: "en/page-4.md",
+  slug: "en/page-4",
+  body: string,
+  collection: "docs",
+  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+},
+},
+
+	};
+
+	type CollectionsConfig = typeof import('/Users/benholmes/Repositories/astro/examples/docs/src/content/index');
 }
