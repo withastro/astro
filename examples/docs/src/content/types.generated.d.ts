@@ -6,7 +6,7 @@ declare module 'astro:content' {
 		collection: C
 	): Promise<import('astro').GetStaticPathsResult>;
 	export function defineCollections<
-		C extends Record<string, { schema: import('astro/zod').ZodRawShape }>
+		C extends Record<keyof typeof entryMap, { schema: import('astro/zod').ZodRawShape }>
 	>(input: C): C;
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(
 		collection: C,
