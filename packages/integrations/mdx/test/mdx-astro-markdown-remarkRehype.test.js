@@ -30,12 +30,14 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 	it('Renders footnotes with values from custom configuration extending the default', async () => {
 		const fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-astro-markdown-remarkRehype/', import.meta.url),
-			integrations: [mdx({
-				remarkRehype: {
-					footnoteLabel: 'Catatan kaki',
-					footnoteBackLabel: 'Kembali ke konten',
-				},
-			})],
+			integrations: [
+				mdx({
+					remarkRehype: {
+						footnoteLabel: 'Catatan kaki',
+						footnoteBackLabel: 'Kembali ke konten',
+					},
+				}),
+			],
 			markdown: {
 				remarkRehype: {
 					footnoteBackLabel: 'Replace me',
@@ -56,12 +58,14 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 	it('Renders footnotes with values from custom configuration without extending the default', async () => {
 		const fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-astro-markdown-remarkRehype/', import.meta.url),
-			integrations: [mdx({
-				extendPlugins: 'astroDefaults',
-				remarkRehype: {
-					footnoteLabel: 'Catatan kaki',
-				},
-			})],
+			integrations: [
+				mdx({
+					extendPlugins: 'astroDefaults',
+					remarkRehype: {
+						footnoteLabel: 'Catatan kaki',
+					},
+				}),
+			],
 			markdown: {
 				remarkRehype: {
 					footnoteBackLabel: 'Kembali ke konten',
