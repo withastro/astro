@@ -2,9 +2,15 @@
 
 This adapter allows Astro to deploy your SSR site to [AWS](https://aws.amazon.com/).
 
+<!--
+TODO: link to the deploy to AWS guide after the @astrojs/aws adapter is released.
+
 Learn how to deploy your Astro site in our [AWS deployment guide](https://docs.astro.build/en/guides/deploy/aws/).
+-->
 
 - <strong>[Installation](#installation)</strong>
+- <strong>[Configuration](#configuration)</strong>
+- <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
 
@@ -54,6 +60,14 @@ You can change where to target by changing the import:
 import aws from '@astrojs/aws/lambda';
 import aws from '@astrojs/aws/edge';
 ```
+
+## Configuration
+
+There are no configuration options available for this adapter.
+
+## Examples
+
+We don't have any example projects using this new adaptor yet. Submit a PR to this page and add yours!
 
 ## Troubleshooting
 
