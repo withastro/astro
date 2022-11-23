@@ -141,7 +141,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 						const pageInfo = internals.pagesByViteID.get(id);
 						if (pageInfo) {
 							// pages should go in their own chunks/pages/ directory
-							return `pages${pageInfo.route.pathname?.replace(/\/$/, '/index')}`;
+							return `pages${pageInfo.route.route.replace(/\/$/, '/index')}`;
 						}
 					},
 				},
