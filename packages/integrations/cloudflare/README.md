@@ -25,7 +25,8 @@ npm install @astrojs/cloudflare
 
 2. Add the following to your `astro.config.mjs` file:
 
-```js title="astro.config.mjs" ins={2, 5-6}
+```js ins={3, 6-7}
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 
