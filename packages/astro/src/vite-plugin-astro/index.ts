@@ -86,6 +86,13 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				if (query.type === 'style' && isBrowserPath(id)) {
 					return relativeToRoot(id);
 				}
+				if (query.type === 'style' && id.startsWith('/@fs')) {
+					// Strip `/@fs` from linked dependencies outside of root so we can normalize
+					// it in the condition below. This ensures that the style module shared the same is
+					// part of the same "file" as the main Astro module in the module graph.
+					// "file" refers to `moduleGraph.fileToModulesMap`.
+					id = id.slice(4);
+				}
 				// Convert file paths to ViteID, meaning on Windows it omits the leading slash
 				if (isFullFilePath(id)) {
 					return viteID(new URL('file://' + id));

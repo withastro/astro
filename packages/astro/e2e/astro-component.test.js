@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
-import os from 'os';
-import { testFactory } from './test-utils.js';
+import { getColor, testFactory } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/astro-component/' });
 
@@ -78,5 +77,33 @@ test.describe('Astro component HMR', () => {
 		);
 
 		await updatedLog;
+	});
+
+	test('update linked dep Astro html', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		let h1 = page.locator('#astro-linked-lib');
+		expect(await h1.textContent()).toBe('astro-linked-lib');
+		await Promise.all([
+			page.waitForLoadState('networkidle'),
+			await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
+				content.replace('>astro-linked-lib<', '>astro-linked-lib-update<')
+			),
+		]);
+		h1 = page.locator('#astro-linked-lib');
+		expect(await h1.textContent()).toBe('astro-linked-lib-update');
+	});
+
+	test('update linked dep Astro style', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		let h1 = page.locator('#astro-linked-lib');
+		expect(await getColor(h1)).toBe('rgb(255, 0, 0)');
+		await Promise.all([
+			page.waitForLoadState('networkidle'),
+			await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
+				content.replace('color: red', 'color: green')
+			),
+		]);
+		h1 = page.locator('#astro-linked-lib');
+		expect(await getColor(h1)).toBe('rgb(0, 128, 0)');
 	});
 });
