@@ -26,7 +26,6 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 		}
 		return filename;
 	}
-	
 	return {
 		name: 'astro:scanner',
 		enforce: 'post',
@@ -46,7 +45,6 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			// if (!includesExport(code)) return;
 
 			await eslexer.init;
 			const [_, exports] = eslexer.parse(code, id);
@@ -54,7 +52,6 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			for (const e of exports) {
 				if (BOOLEAN_EXPORTS.has(e.n)) {
 					pageOptions[e.n as keyof PageOptions] = true;
-					
 					let expr = code.slice(e.le).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
 					if (expr !== 'true') {
 						// TODO: warn
@@ -63,12 +60,15 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			}
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
-			if (!meta.astro) meta.astro = { hydratedComponents: [], clientOnlyComponents: [], scripts: [], pageOptions: pageOptions };
-			if (!meta.astro.pageOptions) meta.astro.pageOptions = pageOptions;
-
 			return {
 				code,
-				meta
+				meta: {
+					...meta,
+					astro: {
+						...(meta.astro ?? { hydratedComponents: [], clientOnlyComponents: [], scripts: [] }),
+						pageOptions,
+					},
+				},
 			};
 		},
 	};

@@ -72,12 +72,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
-	// HACK: force generated `.js` files to be treated as ESM
-	fs.writeFileSync(new URL('./package.json', outFolder), JSON.stringify({ type: 'module' }, null, 2));
 
 	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
 	const timer = performance.now();
-	const verb = (opts.settings.config.output === 'server') ? 'prerendering' : 'generating';
+	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
