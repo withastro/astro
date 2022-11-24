@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 4.1.0
+
+### Minor Changes
+
+- [#5347](https://github.com/withastro/astro/pull/5347) [`743000cc7`](https://github.com/withastro/astro/commit/743000cc70274a2d2fed01c72e2ac51aa6b876a6) Thanks [@AirBorne04](https://github.com/AirBorne04)! - Now building for Cloudflare directory mode takes advantage of the standard asset handling from Cloudflare Pages, and therefore does not call a function script to deliver static assets anymore.
+  Also supports the use of `_routes.json`, `_redirects` and `_headers` files when placed into the `public` folder.
+
+### Patch Changes
+
+- Updated dependencies [[`936c1e411`](https://github.com/withastro/astro/commit/936c1e411d77c69b2b60a061c54704200716800a), [`4b188132e`](https://github.com/withastro/astro/commit/4b188132ef68f8d9951cec86418ef50bb4df4a96), [`f5ed630bc`](https://github.com/withastro/astro/commit/f5ed630bca05ebbfcc6ac994ced3911e41daedcc)]:
+  - astro@1.6.11
+
 ## 4.0.1
 
 ### Patch Changes
