@@ -34,7 +34,7 @@
     "send": "^0.18.0"
   },
   "peerDependencies": {
-    "astro": "^1.6.10"
+    "astro": "^1.6.11"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.2",
