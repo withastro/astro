@@ -97,13 +97,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					content
 						.replace(
 							/import(.*?)from.*?"node:(.*?)"/g,
-							'import$1from "https://deno.land/std/node/$2.ts"'
+							'/**#__REPLACE_BY_DENO__*/import$1from "https://deno.land/std/node/$2.ts"'
 						)
 						.replace(
 							// replace other node builtins but didn't start with node:
 							// also ignore deno modules start with http(s)://
 							/import(.*?)from.*?"((?!(http|https):\/\/)(.*?))"/g,
-							'import$1from "https://deno.land/std/node/$2.ts"'
+							'/**#__REPLACE_BY_DENO__*/import$1from "https://deno.land/std/node/$2.ts"'
 						),
 					'utf-8'
 				);

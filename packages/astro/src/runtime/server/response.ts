@@ -1,6 +1,9 @@
 const isNodeJS =
 	typeof process === 'object' && Object.prototype.toString.call(process) === '[object process]';
 
+declare const Deno: any;
+const isDeno = typeof Deno !== 'undefined' && Deno?.build?.target != null;
+
 let StreamingCompatibleResponse: typeof Response | undefined;
 
 function createResponseClass() {

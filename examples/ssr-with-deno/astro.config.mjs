@@ -11,5 +11,8 @@ export default defineConfig({
 	// 	mode: 'standalone',
 	// }),
 	adapter: deno(),
-	integrations: [svelte(), image()],
+	integrations: [
+		svelte(),
+		image()
+	],
 });
