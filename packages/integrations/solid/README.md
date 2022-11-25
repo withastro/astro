@@ -44,12 +44,13 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 __`astro.config.mjs`__
 
 ```js
+import { defineConfig } from 'astro/config';
 import solid from '@astrojs/solid-js';
 
-export default {
-  // ...
-  integrations: [solid()],
-}
+export default defineConfig({
+   // ...
+   integrations: [solid()],
+});
 ```
 
 ## Getting started
