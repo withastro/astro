@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.11.6",
+  "version": "0.12.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
