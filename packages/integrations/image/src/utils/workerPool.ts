@@ -1,5 +1,5 @@
 /* tslint-disable ban-types */
-import { TransformStream } from 'web-streams-polyfill';
+import { TransformStream } from 'web-streams-polyfill/dist/ponyfill.js';
 import { parentPort, Worker } from 'worker_threads';
 
 function uuid() {
