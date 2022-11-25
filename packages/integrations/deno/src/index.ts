@@ -70,7 +70,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 
 					vite.ssr = {
-						noExternal: true,
+						noExternal: undefined,
 					};
 				}
 			},
@@ -78,8 +78,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const entryUrl = new URL(_buildConfig.serverEntry, _buildConfig.server);
 				const pth = fileURLToPath(entryUrl);
 				await esbuild.build({
-					target: 'es2020',
-					platform: 'browser',
+					target: 'esnext',
+					platform: 'node',
 					entryPoints: [pth],
 					outfile: pth,
 					allowOverwrite: true,
@@ -90,6 +90,23 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						js: SHIM,
 					},
 				});
+
+				const content = fs.readFileSync(pth, 'utf-8');
+				fs.writeFileSync(
+					pth,
+					content
+						.replace(
+							/import(.*?)from.*?"node:(.*?)"/g,
+							'import$1from "https://deno.land/std/node/$2.ts"'
+						)
+						.replace(
+							// replace other node builtins but didn't start with node:
+							// also ignore deno modules start with http(s)://
+							/import(.*?)from.*?"((?!(http|https):\/\/)(.*?))"/g,
+							'import$1from "https://deno.land/std/node/$2.ts"'
+						),
+					'utf-8'
+				);
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
 				try {
