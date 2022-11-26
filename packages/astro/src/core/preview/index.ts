@@ -1,5 +1,6 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
 import { createRequire } from 'module';
+import { pathToFileURL } from 'url';
 import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import type { LogOptions } from '../logger/core';
@@ -41,9 +42,11 @@ export default async function preview(
 	// don't treat this as a dependency of Astro itself. This correctly resolves the
 	// preview entrypoint of the integration package, relative to the user's project root.
 	const require = createRequire(settings.config.root);
-	const previewEntrypoint = require.resolve(settings.adapter.previewEntrypoint);
+	const previewEntrypointUrl = pathToFileURL(
+		require.resolve(settings.adapter.previewEntrypoint)
+	).href;
 
-	const previewModule = (await import(previewEntrypoint)) as Partial<PreviewModule>;
+	const previewModule = (await import(previewEntrypointUrl)) as Partial<PreviewModule>;
 	if (typeof previewModule.default !== 'function') {
 		throw new Error(`[preview] ${settings.adapter.name} cannot preview your app.`);
 	}
