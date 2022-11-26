@@ -432,6 +432,8 @@ export interface AstroUserConfig {
 	 * @description
 	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
 	 *
+	 * You can access this value in your app via `import.meta.env.BASE_URL`.
+	 *
 	 * ```js
 	 * {
 	 *   base: '/docs'
