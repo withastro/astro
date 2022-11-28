@@ -9,7 +9,12 @@ import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { cachedCompilation, CompileProps, getCachedSource } from '../core/compile/index.js';
-import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
+import {
+	isRelativePath,
+	prependForwardSlash,
+	removeLeadingForwardSlashWindows,
+	startsWithForwardSlash,
+} from '../core/path.js';
 import { viteID } from '../core/util.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { handleHotUpdate } from './hmr.js';
@@ -92,7 +97,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				// part of the same "file" as the main Astro module in the module graph.
 				// "file" refers to `moduleGraph.fileToModulesMap`.
 				if (query.type === 'style' && id.startsWith('/@fs')) {
-					id = id.slice(4);
+					id = removeLeadingForwardSlashWindows(id.slice(4));
 				}
 				// Convert file paths to ViteID, meaning on Windows it omits the leading slash
 				if (isFullFilePath(id)) {
