@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 2.1.3
+
+### Patch Changes
+
+- [#5450](https://github.com/withastro/astro/pull/5450) [`cef33dd84`](https://github.com/withastro/astro/commit/cef33dd841b7d4d9437efac54f7e185a40cc3d4b) Thanks [@chenxsan](https://github.com/chenxsan)! - Remove temp tailwind config file in finally
+
 ## 2.1.2
 
 ### Patch Changes
