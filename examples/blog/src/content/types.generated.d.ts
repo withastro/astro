@@ -71,5 +71,5 @@ declare module 'astro:content' {
 
 	};
 
-	type CollectionsConfig = typeof import('/Users/benholmes/Repositories/astro/examples/blog/src/content/index');
+	type CollectionsConfig = typeof import('/Users/benholmes/Repositories/astro/examples/blog/src/content/config');
 }

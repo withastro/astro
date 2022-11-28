@@ -34,7 +34,7 @@ export function astroContentPlugin({
 		cacheDir: new URL('./content/', srcDir),
 		contentDir: new URL('./content/', srcDir),
 		generatedInputDir: new URL('../../src/content/templates/', import.meta.url),
-		config: new URL('./content/index', srcDir),
+		config: new URL('./content/config', srcDir),
 	};
 	let contentDirExists = false;
 	let contentGenerator: GenerateContent;

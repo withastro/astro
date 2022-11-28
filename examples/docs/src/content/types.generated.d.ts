@@ -64,5 +64,5 @@ declare module 'astro:content' {
 
 	};
 
-	type CollectionsConfig = typeof import('/Users/benholmes/Repositories/astro/examples/docs/src/content/index');
+	type CollectionsConfig = typeof import('/Users/benholmes/Repositories/astro/examples/docs/src/content/config');
 }
