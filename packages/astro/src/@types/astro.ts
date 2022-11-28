@@ -1047,7 +1047,10 @@ export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 	rss(): never;
 }
 
-export type GetStaticPathsItem = { params: Params; props?: Props };
+export type GetStaticPathsItem = {
+	params: { [K in keyof Params]: Params[K] | number };
+	props?: Props;
+};
 export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
@@ -1146,7 +1149,7 @@ export interface Page<T = any> {
 
 export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
-export type Params = Record<string, string | number | undefined>;
+export type Params = Record<string, string | undefined>;
 
 export interface AstroAdapter {
 	name: string;
