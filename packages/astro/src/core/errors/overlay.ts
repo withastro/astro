@@ -6,6 +6,14 @@ const style = /* css */ `
 }
 
 :host {
+	/** Needed so Playwright can find the element */
+	position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+
   /* Colors */
   --background: #ffffff;
   --error-text: #ba1212;
@@ -498,6 +506,7 @@ class ErrorOverlay extends HTMLElement {
 		const linkContainer = document.createElement('div');
 		const linkElement = document.createElement('a');
 		linkElement.innerHTML = text;
+		linkElement.target = '_blank';
 
 		if (href) {
 			linkElement.href = href;
