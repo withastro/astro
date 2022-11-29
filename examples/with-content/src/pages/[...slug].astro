@@ -1,5 +1,5 @@
 ---
-import { getCollection, renderEntry, Collection } from 'astro:content';
+import { getCollection, renderEntry, CollectionEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
 export async function getStaticPaths() {
@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-	post: Collection<'blog'>;
+	post: CollectionEntry<'blog'>;
 }
 
 const { post } = Astro.props as Props;
