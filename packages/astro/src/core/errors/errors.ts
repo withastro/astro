@@ -46,7 +46,7 @@ export class AstroError extends Error {
 		const { code, name, title, message, stack, location, hint, frame } = props;
 
 		this.errorCode = code;
-		if (name) {
+		if (name && name !== 'Error') {
 			this.name = name;
 		} else {
 			// If we don't have a name, let's generate one from the code
@@ -63,8 +63,6 @@ export class AstroError extends Error {
 
 	public setErrorCode(errorCode: AstroErrorCodes) {
 		this.errorCode = errorCode;
-
-		this.name = getErrorDataByCode(this.errorCode)?.name ?? 'UnknownError';
 	}
 
 	public setLocation(location: ErrorLocation): void {
@@ -154,15 +152,17 @@ export class AggregateError extends AstroError {
 export interface ErrorWithMetadata {
 	[name: string]: any;
 	name: string;
+	title?: string;
 	type?: ErrorTypes;
 	message: string;
 	stack: string;
-	code?: number;
+	errorCode?: number;
 	hint?: string;
 	id?: string;
 	frame?: string;
 	plugin?: string;
 	pluginCode?: string;
+	fullCode?: string;
 	loc?: {
 		file?: string;
 		line?: number;
