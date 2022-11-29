@@ -1,3 +1,4 @@
+import ancestor from 'common-ancestor-path';
 import { Data } from 'vfile';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
 import { appendExtension, appendForwardSlash } from '../core/path.js';
@@ -47,4 +48,21 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
 	}
 
 	return astro;
+}
+
+/**
+ * Normalizes different file names like:
+ *
+ * - /@fs/home/user/project/src/pages/index.astro
+ * - /src/pages/index.astro
+ *
+ * as absolute file paths.
+ */
+export function normalizeFilename(filename: string, config: AstroConfig) {
+	if (filename.startsWith('/@fs')) {
+		filename = filename.slice('/@fs'.length);
+	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
+		filename = new URL('.' + filename, config.root).pathname;
+	}
+	return filename;
 }
