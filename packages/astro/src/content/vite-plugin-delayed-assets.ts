@@ -9,10 +9,13 @@ import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
 import { createViteLoader } from '../core/module-loader/vite.js';
-import { contentFileExts, DELAYED_ASSET_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
-
-const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
-const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
+import {
+	contentFileExts,
+	DELAYED_ASSET_FLAG,
+	LINKS_PLACEHOLDER,
+	STYLES_PLACEHOLDER,
+	VIRTUAL_MODULE_ID,
+} from './consts.js';
 
 function isDelayedAsset(url: URL): boolean {
 	return (
@@ -31,7 +34,7 @@ export function astroDelayedAssetPlugin({
 	let devModuleLoader: ModuleLoader;
 	return {
 		name: 'astro-delayed-asset-plugin',
-		enforce: 'post',
+		enforce: 'pre',
 		configureServer(server) {
 			if (mode === 'dev') {
 				devModuleLoader = createViteLoader(server);
@@ -42,10 +45,10 @@ export function astroDelayedAssetPlugin({
 			if (isDelayedAsset(url)) {
 				const code = `
 					export { Content, getHeadings } from ${JSON.stringify(url.pathname)};
-					export const collectedLinks = ${LINKS_PLACEHOLDER};
-					export const collectedStyles = ${STYLES_PLACEHOLDER};
+					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
+					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
 				`;
-				return code;
+				return { code };
 			}
 		},
 		async transform(code, id, options) {
@@ -64,8 +67,8 @@ export function astroDelayedAssetPlugin({
 
 				return {
 					code: code
-						.replace(LINKS_PLACEHOLDER, JSON.stringify([...urls]))
-						.replace(STYLES_PLACEHOLDER, JSON.stringify([...stylesMap.values()])),
+						.replace(JSON.stringify(LINKS_PLACEHOLDER), JSON.stringify([...urls]))
+						.replace(JSON.stringify(STYLES_PLACEHOLDER), JSON.stringify([...stylesMap.values()])),
 				};
 			}
 
@@ -120,7 +123,7 @@ export function astroBundleDelayedAssetPlugin({
 								const entryDeferredCss = pageData.contentDeferredCss?.get(id);
 								if (!entryDeferredCss) continue;
 								chunk.code = chunk.code.replace(
-									LINKS_PLACEHOLDER,
+									JSON.stringify(LINKS_PLACEHOLDER),
 									JSON.stringify([...entryDeferredCss])
 								);
 							}

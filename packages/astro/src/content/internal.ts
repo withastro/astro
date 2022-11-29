@@ -169,7 +169,7 @@ export function createRenderEntry({
 
 		const mod = await lazyImport();
 
-		if ('collectedLinks' in mod && 'links' in (this ?? {})) {
+		if (Array.isArray(mod?.collectedLinks) && 'links' in (this ?? {})) {
 			for (const link of mod.collectedLinks) {
 				this.links.add({
 					props: { rel: 'stylesheet', href: prependForwardSlash(link) },
@@ -177,7 +177,7 @@ export function createRenderEntry({
 				});
 			}
 		}
-		if ('collectedStyles' in mod && 'styles' in (this ?? {})) {
+		if (Array.isArray(mod?.collectedStyles) && 'styles' in (this ?? {})) {
 			for (const style of mod.collectedStyles) {
 				this.styles.add({
 					props: {},
