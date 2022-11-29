@@ -18,8 +18,15 @@ export async function getStylesForURL(
 	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
 		const ext = path.extname(importedModule.url).toLowerCase();
 		if (STYLE_EXTENSIONS.has(ext)) {
-			// The SSR module is possibly not loaded. Load it if it's null.
-			const ssrModule = importedModule.ssrModule ?? (await loader.import(importedModule.url));
+			let ssrModule: Record<string, any>;
+			try {
+				// The SSR module is possibly not loaded. Load it if it's null.
+				ssrModule = importedModule.ssrModule ?? (await loader.import(importedModule.url));
+			} catch {
+				// The module may not be inline-able, e.g. SCSS partials. Skip it as it may already
+				// be inlined into other modules if it happens to be in the graph.
+				continue;
+			}
 			if (
 				mode === 'development' && // only inline in development
 				typeof ssrModule?.default === 'string' // ignore JS module styles

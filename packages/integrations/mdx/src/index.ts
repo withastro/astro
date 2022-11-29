@@ -5,6 +5,7 @@ import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import { blue, bold } from 'kleur/colors';
 import fs from 'node:fs/promises';
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import {
@@ -33,6 +34,7 @@ export type MdxOptions = {
 	 * - false - do not inherit any plugins
 	 */
 	extendPlugins?: 'markdown' | 'astroDefaults' | false;
+	remarkRehype?: RemarkRehypeOptions;
 };
 
 export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
@@ -62,6 +64,15 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					console.info(`See "extendPlugins" option to configure this behavior.`);
 				}
 
+				let remarkRehypeOptions = mdxOptions.remarkRehype;
+
+				if (mdxOptions.extendPlugins === 'markdown') {
+					remarkRehypeOptions = {
+						...config.markdown.remarkRehype,
+						...remarkRehypeOptions,
+					};
+				}
+
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions, config),
@@ -71,6 +82,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
+					remarkRehypeOptions,
 				};
 
 				let importMetaEnv: Record<string, any> = {

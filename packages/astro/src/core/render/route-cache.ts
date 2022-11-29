@@ -45,7 +45,7 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		paginate: generatePaginateFunction(route),
 		rss() {
-			throw new AstroError(AstroErrorData.GetStaticPathsDeprecatedRSS);
+			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
 		},
 	});
 

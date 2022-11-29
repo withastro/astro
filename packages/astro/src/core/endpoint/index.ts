@@ -54,8 +54,8 @@ function createAPIContext({
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
 					throw new AstroError({
-						...AstroErrorData.SSRClientAddressNotAvailableInAdapter,
-						message: AstroErrorData.SSRClientAddressNotAvailableInAdapter.message(adapterName),
+						...AstroErrorData.ClientAddressNotAvailable,
+						message: AstroErrorData.ClientAddressNotAvailable.message(adapterName),
 					});
 				} else {
 					throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
@@ -124,6 +124,6 @@ function isRedirect(statusCode: number) {
 
 export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
 	if (config.output !== 'server' && isRedirect(response.status)) {
-		throw new AstroError(AstroErrorData.StaticRedirectNotAllowed);
+		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 	}
 }

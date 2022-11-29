@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to cloudflare workers or cloudflare pages",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -34,10 +34,11 @@
     "test": "mocha --exit --timeout 30000 test/"
   },
   "dependencies": {
-    "esbuild": "^0.14.42"
+    "esbuild": "^0.14.42",
+    "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
-    "astro": "^1.6.10"
+    "astro": "^1.6.11"
   },
   "devDependencies": {
     "astro": "workspace:*",
