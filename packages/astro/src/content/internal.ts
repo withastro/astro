@@ -188,6 +188,7 @@ export function createRenderEntry({
 		return {
 			Content: mod.Content,
 			headings: mod.getHeadings(),
+			injectedFrontmatter: mod._internal.injectedFrontmatter,
 		};
 	};
 }

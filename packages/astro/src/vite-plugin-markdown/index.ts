@@ -93,6 +93,9 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				const html = ${JSON.stringify(html)};
 
+				export const _internal = {
+					injectedFrontmatter: ${JSON.stringify(injectedFrontmatter)},
+				}
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
 				export const url = ${JSON.stringify(fileUrl)};
