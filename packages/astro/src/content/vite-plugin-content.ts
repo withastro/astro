@@ -33,7 +33,7 @@ export function astroContentPlugin({
 		// Output generated types in content directory. May change in the future!
 		cacheDir: new URL('./content/', srcDir),
 		contentDir: new URL('./content/', srcDir),
-		generatedInputDir: new URL('../../src/content/templates/', import.meta.url),
+		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
 		config: new URL('./content/config', srcDir),
 	};
 	let contentDirExists = false;
@@ -307,7 +307,7 @@ function addEntry(
 ) {
 	contentTypes[collectionKey][entryKey] = `{\n  id: ${entryKey},\n  slug: ${JSON.stringify(
 		slug
-	)},\n  body: string,\n  collection: ${collectionKey},\n  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default'][${collectionKey}]['schema']>>\n}`;
+	)},\n  body: string,\n  collection: ${collectionKey},\n  data: InferEntrySchema<${collectionKey}>\n}`;
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {

@@ -85,7 +85,7 @@ export const getErrorMsg = {
 	schemaFileMissing: (collection: string) =>
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 	schemaDefMissing: (collection: string) =>
-		`${collection} needs a schema definition. Check your src/content/index file.`,
+		`${collection} needs a schema definition. Check your src/content/config!`,
 };
 
 export function createGetCollection({

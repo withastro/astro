@@ -8,8 +8,8 @@ import {
 
 export { z } from 'astro/zod';
 
-export function defineCollections(input) {
-	return input;
+export function defineCollection(config) {
+	return config;
 }
 
 const contentDir = '@@CONTENT_DIR@@';
@@ -24,8 +24,8 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 
 async function getCollectionsConfig() {
 	const res = await import('@@COLLECTIONS_IMPORT_PATH@@');
-	if ('default' in res) {
-		return res.default;
+	if ('collections' in res) {
+		return res.collections;
 	}
 	return {};
 }

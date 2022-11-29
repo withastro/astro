@@ -5,9 +5,10 @@ declare module 'astro:content' {
 	export function collectionToPaths<C extends keyof typeof entryMap>(
 		collection: C
 	): Promise<import('astro').GetStaticPathsResult>;
-	export function defineCollections<
-		C extends Record<keyof typeof entryMap, { schema: import('astro/zod').ZodRawShape }>
-	>(input: C): C;
+
+	type BaseCollectionConfig = { schema: import('astro/zod').ZodRawShape };
+	export function defineCollection<C extends BaseCollectionConfig>(input: C): C;
+
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(
 		collection: C,
 		entryKey: E
@@ -29,6 +30,10 @@ declare module 'astro:content' {
 		Content: import('astro').MarkdownInstance<{}>['Content'];
 		headings: import('astro').MarkdownHeading[];
 	}>;
+
+	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
+		import('astro/zod').ZodObject<CollectionsConfig['collections'][C]['schema']>
+	>;
 
 	const entryMap: {
 		// @@ENTRY_MAP@@
