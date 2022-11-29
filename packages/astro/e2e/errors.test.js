@@ -38,9 +38,7 @@ test.describe('Error display', () => {
 		await page.goto(astro.resolveUrl('/import-not-found'));
 
 		const message = await getErrorOverlayMessage(page);
-		expect(message).toMatch(
-			'Could not import `../abc.astro`.\n\nThis is often caused by a typo in the import path. Please make sure the file exists.'
-		);
+		expect(message).toMatch('Could not import ../abc.astro');
 
 		await Promise.all([
 			// Wait for page reload
