@@ -5,9 +5,10 @@ declare module 'astro:content' {
 	export function collectionToPaths<C extends keyof typeof entryMap>(
 		collection: C
 	): Promise<import('astro').GetStaticPathsResult>;
-	export function defineCollections<
-		C extends Record<keyof typeof entryMap, { schema: import('astro/zod').ZodRawShape }>
-	>(input: C): C;
+
+	type BaseCollectionConfig = { schema: import('astro/zod').ZodRawShape };
+	export function defineCollection<C extends BaseCollectionConfig>(input: C): C;
+
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(
 		collection: C,
 		entryKey: E
@@ -30,6 +31,10 @@ declare module 'astro:content' {
 		headings: import('astro').MarkdownHeading[];
 	}>;
 
+	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
+		import('astro/zod').ZodObject<CollectionsConfig['collections'][C]['schema']>
+	>;
+
 	const entryMap: {
 		"docs": {
 "en/introduction.md": {
@@ -37,28 +42,28 @@ declare module 'astro:content' {
   slug: "en/introduction",
   body: string,
   collection: "docs",
-  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+  data: InferEntrySchema<"docs">
 },
 "en/page-2.md": {
   id: "en/page-2.md",
   slug: "en/page-2",
   body: string,
   collection: "docs",
-  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+  data: InferEntrySchema<"docs">
 },
 "en/page-3.md": {
   id: "en/page-3.md",
   slug: "en/page-3",
   body: string,
   collection: "docs",
-  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+  data: InferEntrySchema<"docs">
 },
 "en/page-4.md": {
   id: "en/page-4.md",
   slug: "en/page-4",
   body: string,
   collection: "docs",
-  data: import('astro/zod').infer<import('astro/zod').ZodObject<CollectionsConfig['default']["docs"]['schema']>>
+  data: InferEntrySchema<"docs">
 },
 },
 
