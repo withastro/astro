@@ -15,15 +15,15 @@ Inside of your Astro project, you'll see the following folders and files:
 ├── src/
 │   └── content/
 │       └── blog/
-│           ├── ~schema.ts
 │           ├── first.md
 │           └── second.md
+│       └── config.ts
 │   └── pages/
 │       └── index.astro
 └── package.json
 ```
 
-`src/content/` contains "collections" of Markdown or MDX documents you'll use in your website. Astro will generate a `getCollection` function to grab posts from `src/content/` (see the generated `.astro` directory), with type-checked frontmatter based on a schema.
+`src/content/` contains "collections" of Markdown or MDX documents you'll use in your website. Astro will generate a `getCollection` function to grab posts from `src/content/`, with type-checked frontmatter (see `src/content/config.ts`).
 
 Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
