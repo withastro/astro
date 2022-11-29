@@ -30,11 +30,18 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		}
 
 		// If we don't have a frame, but we have a location let's try making up a frame for it
-		if (!error.frame && error.loc) {
+		if (error.loc && (!error.frame || !error.fullCode)) {
 			try {
 				const fileContents = fs.readFileSync(error.loc.file!, 'utf8');
-				const frame = codeFrame(fileContents, error.loc);
-				error.frame = frame;
+
+				if (!error.frame) {
+					const frame = codeFrame(fileContents, error.loc);
+					error.frame = frame;
+				}
+
+				if (!error.fullCode) {
+					error.fullCode = fileContents;
+				}
 			} catch {}
 		}
 
@@ -66,13 +73,17 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 				}
 			}
 
-			const possibleFilePath = err[i].pluginCode || err[i].id || location?.file;
-			if (possibleFilePath && !err[i].frame) {
+			const possibleFilePath = location?.file ?? err[i].id;
+			if (possibleFilePath && err[i].loc && (!err[i].frame || !err[i].fullCode)) {
 				try {
 					const fileContents = fs.readFileSync(possibleFilePath, 'utf8');
-					err[i].frame = codeFrame(fileContents, { ...err[i].loc, file: possibleFilePath });
+					if (!err[i].frame) {
+						err[i].frame = codeFrame(fileContents, { ...err[i].loc, file: possibleFilePath });
+					}
+
+					err[i].fullCode = fileContents;
 				} catch {
-					// do nothing, code frame isn't that big a deal
+					err[i].fullCode = err[i].pluginCode;
 				}
 			}
 
@@ -89,15 +100,17 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 }
 
 function generateHint(err: ErrorWithMetadata): string | undefined {
+	const commonBrowserAPIs = ['document', 'window'];
+
 	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
-	} else if (err.toString().includes('document')) {
+	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
 
 ${
 	err.loc?.file?.endsWith('.astro')
-		? 'Move your code to a <script> tag outside of the frontmatter, so the code runs on the client'
-		: 'If the code is in a framework component, try to access these objects after rendering using lifecycle methods or use a `client:only` directive to make the component exclusively run on the client'
+		? 'Move your code to a <script> tag outside of the frontmatter, so the code runs on the client.'
+		: 'If the code is in a framework component, try to access these objects after rendering using lifecycle methods or use a `client:only` directive to make the component exclusively run on the client.'
 }
 
 See https://docs.astro.build/en/guides/troubleshooting/#document-or-window-is-not-defined for more information.

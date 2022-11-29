@@ -6,6 +6,8 @@ import { AstroErrorData } from '../errors-data.js';
 import { type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import { incompatPackageExp } from './utils.js';
+import { escape } from 'html-escaper';
+import { getHighlighter } from 'shiki';
 
 /**
  * Custom logger with better error reporting for incompatible packages
@@ -46,6 +48,8 @@ export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: Mod
 		if (/failed to load module for ssr:/.test(safeError.message)) {
 			const importName = safeError.message.split('for ssr:').at(1)?.trim();
 			if (importName) {
+				safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
+				safeError.name = 'FailedToLoadModuleSSR';
 				safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
 				safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
 				safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
@@ -69,8 +73,10 @@ export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: Mod
 
 			if (globPattern) {
 				safeError.message = AstroErrorData.InvalidGlob.message(globPattern);
+				safeError.name = 'InvalidGlob';
 				safeError.hint = AstroErrorData.InvalidGlob.hint;
 				safeError.code = AstroErrorData.InvalidGlob.code;
+				safeError.title = AstroErrorData.InvalidGlob.title;
 
 				const line = lns.findIndex((ln) => ln.includes(globPattern));
 
@@ -90,31 +96,86 @@ export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: Mod
 	return safeError;
 }
 
+export interface AstroErrorPayload {
+	type: ErrorPayload['type'];
+	err: Omit<ErrorPayload['err'], 'loc'> & {
+		name?: string;
+		title?: string;
+		hint?: string;
+		docslink?: string;
+		highlightedCode?: string;
+		loc: {
+			file?: string;
+			line?: number;
+			column?: number;
+		};
+	};
+}
+
 /**
  * Generate a payload for Vite's error overlay
  */
-export function getViteErrorPayload(err: ErrorWithMetadata): ErrorPayload {
+export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<AstroErrorPayload> {
 	let plugin = err.plugin;
 	if (!plugin && err.hint) {
 		plugin = 'astro';
 	}
-	const message = `${err.message}\n\n${err.hint ?? ''}`;
-	// Vite doesn't handle tabs correctly in its frames, so let's replace them with spaces
-	const frame = err.frame?.replace(/\t/g, ' ');
+
+	const message = markdownToHTML(err.message.trim());
+	const hint = err.hint ? markdownToHTML(err.hint.trim()) : undefined;
+
+	const hasDocs = err.type &&
+		err.name && [
+			'AstroError',
+			'AggregateError',
+			/* 'CompilerError' ,*/
+			'CSSError',
+			'MarkdownError',
+		];
+
+	const docslink = hasDocs
+		? 'https://docs.astro.build/en/reference/error-reference/#' + err.name
+		: undefined;
+
+	const highlighter = await getHighlighter({ theme: 'css-variables' });
+	const highlightedCode = err.fullCode
+		? highlighter.codeToHtml(err.fullCode, {
+				lang: err.loc?.file?.split('.').pop(),
+				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
+		  })
+		: undefined;
+
 	return {
 		type: 'error',
 		err: {
 			...err,
-			frame: frame,
+			name: err.name,
+			type: err.type,
+			message,
+			hint,
+			frame: err.frame,
+			highlightedCode,
+			docslink,
 			loc: {
 				file: err.loc?.file,
-				// If we don't have a line and column, Vite won't make a clickable link, so let's fake 0:0 if we don't have a location
-				line: err.loc?.line ?? 0,
-				column: err.loc?.column ?? 0,
+				line: err.loc?.line,
+				column: err.loc?.column,
 			},
 			plugin,
-			message: message.trim(),
 			stack: err.stack,
 		},
 	};
+}
+
+function markdownToHTML(markdown: string) {
+	const linkRegex = /\[(.+)\]\((.+)\)/gm;
+	const boldRegex = /\*\*(.+)\*\*/gm;
+	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|]) /gim;
+	const codeRegex = /`([^`]+)`/gim;
+
+	return escape(markdown)
+		.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
+		.replace(boldRegex, '<b>$1</b>')
+		.replace(urlRegex, ' <a href="$1" target="_blank">$1</a> ')
+		.replace(codeRegex, '<code>$1</code>');
 }
