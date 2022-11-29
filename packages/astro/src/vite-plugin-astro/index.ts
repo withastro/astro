@@ -1,4 +1,4 @@
-import type { PluginContext, SourceDescription } from 'rollup';
+import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
@@ -23,13 +23,6 @@ interface AstroPluginOptions {
 /** Transform .astro files for Vite */
 export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin {
 	const { config } = settings;
-
-	function relativeToRoot(pathname: string) {
-		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
-		const url = new URL(arg, config.root);
-		return slash(fileURLToPath(url)) + url.search;
-	}
-
 	let resolvedConfig: vite.ResolvedConfig;
 
 	// Variables for determining if an id starts with /src...
@@ -37,6 +30,12 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
 	const isFullFilePath = (path: string) =>
 		path.startsWith(prependForwardSlash(slash(fileURLToPath(config.root))));
+
+	function relativeToRoot(pathname: string) {
+		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
+		const url = new URL(arg, config.root);
+		return slash(fileURLToPath(url)) + url.search;
+	}
 
 	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
 		const filename = normalizeFilename(parsedFrom.filename, config);
@@ -187,10 +186,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 					return null;
 			}
 		},
-		async transform(this: PluginContext, source, id, opts) {
+		async transform(source, id) {
 			const parsedId = parseAstroRequest(id);
-			const query = parsedId.query;
-			if (!id.endsWith('.astro') || query.astro) {
+			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
+			if (!id.endsWith('.astro') || parsedId.query.astro) {
 				return;
 			}
 			// if we still get a relative path here, vite couldn't resolve the import
