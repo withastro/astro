@@ -1,5 +1,5 @@
 ---
-import { CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import { SITE, OPEN_GRAPH } from '../consts';
 
 type Props = { canonicalUrl: URL } & CollectionEntry<'docs'>['data'];
