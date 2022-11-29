@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.11.6",
+  "version": "0.12.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -63,6 +63,7 @@
     "mocha": "^9.2.2",
     "reading-time": "^1.5.0",
     "rehype-pretty-code": "^0.4.0",
+    "remark-rehype": "^10.1.0",
     "remark-shiki-twoslash": "^3.1.0",
     "remark-toc": "^8.0.1",
     "vite": "^3.0.0"

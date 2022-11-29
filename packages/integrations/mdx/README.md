@@ -518,6 +518,26 @@ These are plugins that modify the output [estree](https://github.com/estree/estr
 
 We suggest [using AST Explorer](https://astexplorer.net/) to play with estree outputs, and trying [`estree-util-visit`](https://unifiedjs.com/explore/package/estree-util-visit/) for searching across JavaScript nodes.
 
+### remarkRehype
+
+Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
+
+You can use remark-rehype options in your MDX integration config file like so:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    remarkRehype: {
+      footnoteLabel: 'Catatan kaki',
+      footnoteBackLabel: 'Kembali ke konten',
+    },
+  })],
+};
+```
+
+This inherits the configuration of `markdown.remarkRehype`. This behavior can be changed by configuring `extendPlugins`.
+
 ## Examples
 
 - The [Astro MDX example](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.

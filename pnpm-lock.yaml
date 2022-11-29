@@ -61,16 +61,16 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       astro: link:../../packages/astro
 
   examples/blog:
     specifiers:
-      '@astrojs/mdx': ^0.11.6
+      '@astrojs/mdx': ^0.12.0
       '@astrojs/rss': ^1.0.3
       '@astrojs/sitemap': ^1.0.0
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/rss': link:../../packages/astro-rss
@@ -79,14 +79,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     devDependencies:
       astro: link:../../packages/astro
 
   examples/deno:
     specifiers:
       '@astrojs/deno': ^2.0.0
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       astro: link:../../packages/astro
     devDependencies:
@@ -102,7 +102,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
-      astro: ^1.6.10
+      astro: ^1.6.11
       html-escaper: ^3.0.3
       preact: ^10.7.3
       react: ^18.1.0
@@ -128,7 +128,7 @@ importers:
       '@astrojs/alpinejs': ^0.1.2
       '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       '@astrojs/alpinejs': link:../../packages/integrations/alpinejs
       '@types/alpinejs': 3.7.1
@@ -139,7 +139,7 @@ importers:
     specifiers:
       '@astrojs/lit': ^1.0.0
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.6.10
+      astro: ^1.6.11
       lit: ^2.2.5
     dependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
@@ -154,7 +154,7 @@ importers:
       '@astrojs/solid-js': ^1.2.3
       '@astrojs/svelte': ^1.0.2
       '@astrojs/vue': ^1.2.1
-      astro: ^1.6.10
+      astro: ^1.6.11
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -179,7 +179,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^1.2.0
       '@preact/signals': ^1.1.0
-      astro: ^1.6.10
+      astro: ^1.6.11
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -192,7 +192,7 @@ importers:
       '@astrojs/react': ^1.2.2
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      astro: ^1.6.10
+      astro: ^1.6.11
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -206,7 +206,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/solid-js': ^1.2.3
-      astro: ^1.6.10
+      astro: ^1.6.11
       solid-js: ^1.4.3
     dependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
@@ -216,7 +216,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/svelte': ^1.0.2
-      astro: ^1.6.10
+      astro: ^1.6.11
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
@@ -226,7 +226,7 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/vue': ^1.2.1
-      astro: ^1.6.10
+      astro: ^1.6.11
       vue: ^3.2.37
     dependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
@@ -236,32 +236,32 @@ importers:
   examples/hackernews:
     specifiers:
       '@astrojs/node': ^3.1.0
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       '@astrojs/node': link:../../packages/integrations/node
       astro: link:../../packages/astro
 
   examples/integration:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     devDependencies:
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       astro: link:../../packages/astro
 
@@ -269,7 +269,7 @@ importers:
     specifiers:
       '@astrojs/node': ^3.1.0
       '@astrojs/svelte': ^1.0.2
-      astro: ^1.6.10
+      astro: ^1.6.11
       concurrently: ^7.2.1
       svelte: ^3.48.0
       unocss: ^0.15.6
@@ -286,7 +286,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^1.1.3
-      astro: ^1.6.10
+      astro: ^1.6.11
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -303,15 +303,15 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
     dependencies:
       astro: link:../../packages/astro
 
   examples/with-mdx:
     specifiers:
-      '@astrojs/mdx': ^0.11.6
+      '@astrojs/mdx': ^0.12.0
       '@astrojs/preact': ^1.2.0
-      astro: ^1.6.10
+      astro: ^1.6.11
       preact: ^10.6.5
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
@@ -323,7 +323,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^1.2.0
       '@nanostores/preact': ^0.1.3
-      astro: ^1.6.10
+      astro: ^1.6.11
       nanostores: ^0.5.12
       preact: ^10.7.3
     dependencies:
@@ -335,10 +335,10 @@ importers:
 
   examples/with-tailwindcss:
     specifiers:
-      '@astrojs/mdx': ^0.11.6
-      '@astrojs/tailwind': ^2.1.2
+      '@astrojs/mdx': ^0.12.0
+      '@astrojs/tailwind': ^2.1.3
       '@types/canvas-confetti': ^1.4.3
-      astro: ^1.6.10
+      astro: ^1.6.11
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
@@ -355,7 +355,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.3
     dependencies:
@@ -365,7 +365,7 @@ importers:
 
   examples/with-vitest:
     specifiers:
-      astro: ^1.6.10
+      astro: ^1.6.11
       vitest: ^0.20.3
     dependencies:
       astro: link:../../packages/astro
@@ -2276,6 +2276,12 @@ importers:
       '@astrojs/partytown': link:../../../../integrations/partytown
       astro: link:../../..
 
+  packages/astro/test/fixtures/ssr-preview:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/ssr-redirect:
     specifiers:
       astro: workspace:*
@@ -2817,6 +2823,7 @@ importers:
       rehype-raw: ^6.1.1
       remark-frontmatter: ^4.0.1
       remark-gfm: ^3.0.1
+      remark-rehype: ^10.1.0
       remark-shiki-twoslash: ^3.1.0
       remark-smartypants: ^2.0.0
       remark-toc: ^8.0.1
@@ -2857,6 +2864,7 @@ importers:
       mocha: 9.2.2
       reading-time: 1.5.0
       rehype-pretty-code: 0.4.0_shiki@0.11.1
+      remark-rehype: 10.1.0
       remark-shiki-twoslash: 3.1.0
       remark-toc: 8.0.1
       vite: 3.2.3
@@ -3829,7 +3837,7 @@ packages:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-vimeo': 0.1.1_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.2.1_astro@packages+astro
-      astro: link:packages/astro
+      astro: link:packages\astro
       unist-util-select: 4.0.1
     dev: false
 
@@ -3839,7 +3847,7 @@ packages:
       astro: ^1.0.0-beta.10
     dependencies:
       '@astro-community/astro-embed-utils': 0.0.3
-      astro: link:packages/astro
+      astro: link:packages\astro
     dev: false
 
   /@astro-community/astro-embed-utils/0.0.3:
@@ -3851,7 +3859,7 @@ packages:
     peerDependencies:
       astro: ^1.0.0-beta.10
     dependencies:
-      astro: link:packages/astro
+      astro: link:packages\astro
       lite-vimeo-embed: 0.1.0
     dev: false
 
@@ -3860,7 +3868,7 @@ packages:
     peerDependencies:
       astro: ^1.0.0-beta.10
     dependencies:
-      astro: link:packages/astro
+      astro: link:packages\astro
       lite-youtube-embed: 0.2.0
     dev: false
 
@@ -10592,7 +10600,7 @@ packages:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-vimeo': 0.1.1_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.2.1_astro@packages+astro
-      astro: link:packages/astro
+      astro: link:packages\astro
     dev: false
 
   /async-sema/3.1.1:
@@ -14173,7 +14181,6 @@ packages:
       '@types/mdast': 3.0.10
       '@types/unist': 2.0.6
       unist-util-visit: 4.1.1
-    dev: false
 
   /mdast-util-find-and-replace/2.2.1:
     resolution: {integrity: sha512-SobxkQXFAdd4b5WmEakmkVoh18icjQRxGy5OWTCzgsLRm1Fu/KCtwD1HIQSsmq5ZRjVH0Ehwg6/Fn3xIUk+nKw==}
@@ -14333,7 +14340,6 @@ packages:
       unist-util-generated: 2.0.0
       unist-util-position: 4.0.3
       unist-util-visit: 4.1.1
-    dev: false
 
   /mdast-util-to-markdown/1.3.0:
     resolution: {integrity: sha512-6tUSs4r+KK4JGTTiQ7FfHmVOaDrLQJPmpjD6wPMlHGUVXoG9Vjc3jIeP+uyBWRf8clwB2blM+W7+KrlMYQnftA==}
@@ -16384,7 +16390,6 @@ packages:
       '@types/mdast': 3.0.10
       mdast-util-to-hast: 12.2.4
       unified: 10.1.2
-    dev: false
 
   /remark-shiki-twoslash/3.1.0:
     resolution: {integrity: sha512-6LqSqVtHQR4S0DKfdQ2/ePn9loTKUtpyopYvwk8johjDTeUW5MkaLQuZHlWNkkST/4aMbz6aTkstIcwfwcHpXg==}
@@ -17449,7 +17454,6 @@ packages:
 
   /trim-lines/3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
-    dev: false
 
   /trim-newlines/3.0.1:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
@@ -17805,11 +17809,9 @@ packages:
     resolution: {integrity: sha512-GFxmfEAa0vi9i5sd0R2kcrI9ks0r82NasRq5QHh2ysGngrc6GiqD5CDf1FjPenY4vApmFASBIIlk/jj5J5YbmQ==}
     dependencies:
       '@types/unist': 2.0.6
-    dev: false
 
   /unist-util-generated/2.0.0:
     resolution: {integrity: sha512-TiWE6DVtVe7Ye2QxOVW9kqybs6cZexNwTwSMVgkfjEReqy/xwGpAXb99OxktoWwmL+Z+Epb0Dn8/GNDYP1wnUw==}
-    dev: false
 
   /unist-util-is/3.0.0:
     resolution: {integrity: sha512-sVZZX3+kspVNmLWBPAB6r+7D9ZgAFPNWm66f7YNb420RlQSbn+n8rG8dGZSkrER7ZIXGQYNm5pqC3v3HopH24A==}
@@ -17844,7 +17846,6 @@ packages:
     resolution: {integrity: sha512-p/5EMGIa1qwbXjA+QgcBXaPWjSnZfQ2Sc3yBEEfgPwsEmJd8Qh+DSk3LGnmOM4S1bY2C0AjmMnB8RuEYxpPwXQ==}
     dependencies:
       '@types/unist': 2.0.6
-    dev: false
 
   /unist-util-remove-position/4.0.1:
     resolution: {integrity: sha512-0yDkppiIhDlPrfHELgB+NLQD5mfjup3a8UYclHruTJWmY74je8g+CIFr79x5f6AkmzSwlvKLbs63hC0meOMowQ==}

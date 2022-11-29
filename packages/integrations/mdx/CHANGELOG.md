@@ -1,5 +1,15 @@
 # @astrojs/mdx
 
+## 0.12.0
+
+### Minor Changes
+
+- [#5427](https://github.com/withastro/astro/pull/5427) [`2a1c085b1`](https://github.com/withastro/astro/commit/2a1c085b199f24e34424ec8c19041c03602c53c5) Thanks [@backflip](https://github.com/backflip)! - Uses remark-rehype options from astro.config.mjs
+
+### Patch Changes
+
+- [#5448](https://github.com/withastro/astro/pull/5448) [`ef2ffc7ae`](https://github.com/withastro/astro/commit/ef2ffc7ae9ff554860238ecd2fb3bf6d82b5801b) Thanks [@delucis](https://github.com/delucis)! - Fix broken link in README
+
 ## 0.11.6
 
 ### Patch Changes
