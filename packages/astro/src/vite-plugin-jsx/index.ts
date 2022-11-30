@@ -10,8 +10,8 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
 import { removeQueryString } from '../core/path.js';
-import tagExportsPlugin from './tag.js';
 import { detectImportSource } from './import-source.js';
+import tagExportsPlugin from './tag.js';
 
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
