@@ -411,6 +411,7 @@ const openNewWindowIcon =
 	/* html */
 	'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 2h-4m4 0L8 8m6-6v4"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M14 8.667V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.333"/></svg>';
 
+// Make HTMLElement available in non-browser environments
 const { HTMLElement = class {} } = globalThis;
 class ErrorOverlay extends HTMLElement {
 	root: ShadowRoot;
