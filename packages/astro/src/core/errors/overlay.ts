@@ -14,6 +14,17 @@ const style = /* css */ `
   height: 100%;
   z-index: 99999;
 
+	  /* Fonts */
+  --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
+    "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
+    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+	  /* Borders */
+  --roundiness: 4px;
+
   /* Colors */
   --background: #ffffff;
   --error-text: #ba1212;
@@ -28,9 +39,6 @@ const style = /* css */ `
   --accent-hover: #792bc0;
   --stack-text: #3d4663;
   --misc-text: #6474a2;
-
-  /* Borders */
-  --roundiness: 4px;
 
   --houston-overlay: linear-gradient(
     180deg,
@@ -52,13 +60,17 @@ const style = /* css */ `
     #ffffff 89.84%
   );
 
-  /* Fonts */
-  --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", Arial, sans-serif;
-  --font-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
-    "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
-    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+	/* Syntax Highlighting */
+	--shiki-color-text: #000000;
+  --shiki-token-constant: #4CA48F;
+  --shiki-token-string: #9F722A;
+  --shiki-token-comment: #8490b5;
+  --shiki-token-keyword: var(--accent);
+  --shiki-token-parameter: #aa0000;
+ 	--shiki-token-function: #4CA48F;
+ 	--shiki-token-string-expression: #9F722A;
+ 	--shiki-token-punctuation: #ffffff;
+ 	--shiki-token-link: #ee0000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -277,6 +289,10 @@ const style = /* css */ `
   vertical-align: text-top;
 }
 
+#code {
+	display: none;
+}
+
 #code header {
   padding: 24px;
   display: flex;
@@ -418,28 +434,31 @@ class ErrorOverlay extends HTMLElement {
 
 	constructor(err: AstroErrorPayload['err']) {
 		super();
-		this.root = (this as any).attachShadow({ mode: 'open' });
+		this.root = (this as unknown as HTMLElement).attachShadow({ mode: 'open' });
 		this.root.innerHTML = overlayTemplate;
 
 		this.text('#name', err.name);
 		this.text('#title', err.title);
 		this.text('#message-content', err.message, true);
 
-		if (err.hint) {
+		const hint = this.root.querySelector<HTMLElement>('#hint');
+		if (hint && err.hint) {
 			this.text('#hint-content', err.hint, true);
-			this.root.querySelector<HTMLDivElement>('#hint')!.style.display = 'flex';
+			hint.style.display = 'flex';
 		}
 
-		if (err.docslink) {
-			this.root
-				.querySelector('#message')!
-				.appendChild(this.createLink(`See Docs Reference${openNewWindowIcon}`, err.docslink));
+		const docslink = this.root.querySelector<HTMLElement>('#message');
+		if (docslink && err.docslink) {
+			docslink.appendChild(this.createLink(`See Docs Reference${openNewWindowIcon}`, err.docslink));
 		}
 
-		if (err.loc) {
-			const codeHeader = this.root.querySelector('#code header');
+		const code = this.root.querySelector<HTMLElement>('#code');
+		if (code && err.loc.file) {
+			code.style.display = 'block';
+			const codeHeader = code.querySelector<HTMLHeadingElement>('#code header');
+			const codeContent = code.querySelector<HTMLDivElement>('#code-content');
 
-			if (codeHeader && err.loc.file) {
+			if (codeHeader) {
 				const cleanFile = err.loc.file.split('/').slice(-2).join('/');
 				const fileLocation = [cleanFile, err.loc.line, err.loc.column].filter(Boolean).join(':');
 				const absoluteFileLocation = [err.loc.file, err.loc.line, err.loc.column]
@@ -457,20 +476,18 @@ class ErrorOverlay extends HTMLElement {
 
 				codeHeader.appendChild(editorLink);
 			}
-		}
 
-		if (err.highlightedCode) {
-			const codeContent = this.root.querySelector('#code-content');
-
-			if (codeContent) {
+			if (codeContent && err.highlightedCode) {
 				codeContent.innerHTML = err.highlightedCode;
 
 				window.requestAnimationFrame(() => {
-					const errorLine = this.root.querySelector('.error-line');
+					// NOTE: This cannot be `codeContent.querySelector` because `codeContent` still contain the old HTML
+					const errorLine = this.root.querySelector<HTMLSpanElement>('.error-line');
 
 					if (errorLine) {
 						errorLine.scrollIntoView(true);
 
+						// Add an empty line below the error line so we can show a caret under the error
 						if (err.loc.column) {
 							errorLine.insertAdjacentHTML(
 								'afterend',
