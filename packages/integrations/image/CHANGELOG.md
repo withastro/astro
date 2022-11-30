@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.12.0
+
+### Minor Changes
+
+- [#5474](https://github.com/withastro/astro/pull/5474) [`299ae9bb6`](https://github.com/withastro/astro/commit/299ae9bb6a84e178e742cceb20d87190e64653fc) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - added a warning if the image was GIF
+
 ## 0.11.6
 
 ### Patch Changes
