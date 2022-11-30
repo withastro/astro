@@ -9,7 +9,12 @@ import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { cachedCompilation, CompileProps, getCachedSource } from '../core/compile/index.js';
-import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
+import {
+	isRelativePath,
+	prependForwardSlash,
+	removeLeadingForwardSlashWindows,
+	startsWithForwardSlash,
+} from '../core/path.js';
 import { viteID } from '../core/util.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { handleHotUpdate } from './hmr.js';
@@ -80,11 +85,19 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			// serve sub-part requests (*?astro) as virtual modules
 			const { query } = parseAstroRequest(id);
 			if (query.astro) {
+				// TODO: Try to remove these custom resolve so HMR is more predictable.
 				// Convert /src/pages/index.astro?astro&type=style to /Users/name/
 				// Because this needs to be the id for the Vite CSS plugin to property resolve
 				// relative @imports.
 				if (query.type === 'style' && isBrowserPath(id)) {
 					return relativeToRoot(id);
+				}
+				// Strip `/@fs` from linked dependencies outside of root so we can normalize
+				// it in the condition below. This ensures that the style module shared the same is
+				// part of the same "file" as the main Astro module in the module graph.
+				// "file" refers to `moduleGraph.fileToModulesMap`.
+				if (query.type === 'style' && id.startsWith('/@fs')) {
+					id = removeLeadingForwardSlashWindows(id.slice(4));
 				}
 				// Convert file paths to ViteID, meaning on Windows it omits the leading slash
 				if (isFullFilePath(id)) {
