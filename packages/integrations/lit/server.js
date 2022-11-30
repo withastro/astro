@@ -59,10 +59,15 @@ function* render(Component, attrs, slots) {
 	}
 	if (slots) {
 		for (const [slot, value] of Object.entries(slots)) {
+			const htmlString = value || '';
+
 			if (slot === 'default') {
-				yield `<astro-slot>${value || ''}</astro-slot>`;
+				// This will render inside the Lit Component default slot.
+				yield htmlString;
 			} else {
-				yield `<astro-slot slot="${slot}">${value || ''}</astro-slot>`;
+				// Add the slot attribute to all the nested HTML elements,
+				// so that it can be rendered inside the appropriate Lit Component slot.
+				yield htmlString.replace(/<(?<tag>\w+)/gm, `<$<tag> slot="${slot}"`);
 			}
 		}
 	}
