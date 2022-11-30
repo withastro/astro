@@ -129,7 +129,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
 							return opts.buildConfig.serverEntry;
 						} else {
-							return '[name].js';
+							return '[name].mjs';
 						}
 					},
 				},

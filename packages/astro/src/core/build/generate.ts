@@ -3,7 +3,7 @@ import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -74,9 +74,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr
-		? opts.buildConfig.server
-		: getOutDirWithinCwd(pathToFileURL(npath.join(internals.finalViteConfig.build.outDir, '/')));
+	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
