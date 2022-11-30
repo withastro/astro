@@ -20,7 +20,7 @@ export async function detectImportSource(
 // Matches import statements and dynamic imports. Captures import specifiers only.
 // Adapted from: https://github.com/vitejs/vite/blob/97f8b4df3c9eb817ab2669e5c10b700802eec900/packages/vite/src/node/optimizer/scan.ts#L47-L48
 const importsRE =
-	/(?<!\/\/.*)(?<=^|;|\*\/)\s*(?:import(?:[\w*{}\n\r\t, ]+from)?\s*("[^"]+"|'[^']+')\s*(?=$|;|\/\/|\/\*)|import\s*\(\s*("[^"]+"|'[^']+')\s*\))/gm;
+	/(?<!\/\/.*)(?<=^|;|\*\/)\s*(?:import(?!\s+type)(?:[\w*{}\n\r\t, ]+from)?\s*("[^"]+"|'[^']+')\s*(?=$|;|\/\/|\/\*)|import\s*\(\s*("[^"]+"|'[^']+')\s*\))/gm;
 
 /**
  * Scan a file's imports to detect which renderer it may need.
