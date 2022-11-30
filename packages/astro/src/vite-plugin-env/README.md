@@ -2,10 +2,7 @@
 
 Improves Vite's [Env Variables](https://vitejs.dev/guide/env-and-mode.html#env-files) support to include **private** env variables during Server-Side Rendering (SSR) but never in client-side rendering (CSR).
 
-Note that for added security, this plugin does not include **globally available env variable** that exist on `process.env`. It only loads variables defined in your local `.env` files. 
+Private env variables can be accessed through `import.meta.env.SECRET` like Vite. Where the env variable is declared changes how it is replaced when transforming it:
 
-Because of this, `MY_CLI_ARG` will never be added to `import.meta.env` during SSR or CSR.
-
-```shell
-MY_CLI_ARG=1 npm run dev
-```
+- If it's from a `.env` file, it gets replaced with the actual value. (static)
+- If it's from `process.env`, it gets replaced as `process.env.SECRET`. (dynamic)

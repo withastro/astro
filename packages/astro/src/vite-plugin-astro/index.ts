@@ -1,10 +1,9 @@
-import type { PluginContext, SourceDescription } from 'rollup';
+import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
 
-import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
@@ -16,7 +15,7 @@ import {
 	startsWithForwardSlash,
 } from '../core/path.js';
 import { viteID } from '../core/util.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfo, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
 
@@ -29,20 +28,6 @@ interface AstroPluginOptions {
 /** Transform .astro files for Vite */
 export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin {
 	const { config } = settings;
-	function normalizeFilename(filename: string) {
-		if (filename.startsWith('/@fs')) {
-			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-			filename = new URL('.' + filename, config.root).pathname;
-		}
-		return filename;
-	}
-	function relativeToRoot(pathname: string) {
-		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
-		const url = new URL(arg, config.root);
-		return slash(fileURLToPath(url)) + url.search;
-	}
-
 	let resolvedConfig: vite.ResolvedConfig;
 
 	// Variables for determining if an id starts with /src...
@@ -51,8 +36,14 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 	const isFullFilePath = (path: string) =>
 		path.startsWith(prependForwardSlash(slash(fileURLToPath(config.root))));
 
+	function relativeToRoot(pathname: string) {
+		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
+		const url = new URL(arg, config.root);
+		return slash(fileURLToPath(url)) + url.search;
+	}
+
 	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
-		const filename = normalizeFilename(parsedFrom.filename);
+		const filename = normalizeFilename(parsedFrom.filename, config);
 		const resolvedURL = new URL(id, `file://${filename}`);
 		const resolved = resolvedURL.pathname;
 		if (isBrowserPath(resolved)) {
@@ -208,10 +199,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 					return null;
 			}
 		},
-		async transform(this: PluginContext, source, id, opts) {
+		async transform(source, id) {
 			const parsedId = parseAstroRequest(id);
-			const query = parsedId.query;
-			if (!id.endsWith('.astro') || query.astro) {
+			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
+			if (!id.endsWith('.astro') || parsedId.query.astro) {
 				return;
 			}
 			// if we still get a relative path here, vite couldn't resolve the import
@@ -219,7 +210,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				return;
 			}
 
-			const filename = normalizeFilename(parsedId.filename);
+			const filename = normalizeFilename(parsedId.filename, config);
 			const compileProps: CompileProps = {
 				astroConfig: config,
 				viteConfig: resolvedConfig,
