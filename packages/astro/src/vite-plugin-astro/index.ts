@@ -18,6 +18,8 @@ import { viteID } from '../core/util.js';
 import { getFileInfo, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
+import { CompileResult } from '../core/compile/compile';
+import { cachedFullCompilation } from './compile';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -203,39 +205,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			};
 
 			try {
-				const transformResult = await cachedCompilation(compileProps);
-				const { fileId: file, fileUrl: url } = getFileInfo(id, config);
+				const transformResult = await cachedFullCompilation(compileProps, id);
 
 				for (const dep of transformResult.cssDeps) {
 					this.addWatchFile(dep);
-				}
-
-				// Compile all TypeScript to JavaScript.
-				// Also, catches invalid JS/TS in the compiled output before returning.
-				const { code, map } = await esbuild.transform(transformResult.code, {
-					loader: 'ts',
-					sourcemap: 'external',
-					sourcefile: id,
-					// Pass relevant Vite options, if needed:
-					define: config.vite?.define,
-				});
-
-				let SUFFIX = '';
-				SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
-					url
-				)};export { $$file as file, $$url as url };\n`;
-				// Add HMR handling in dev mode.
-				if (!resolvedConfig.isProduction) {
-					let i = 0;
-					while (i < transformResult.scripts.length) {
-						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
-						i++;
-					}
-				}
-
-				// Prefer live reload to HMR in `.astro` files
-				if (!resolvedConfig.isProduction) {
-					SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
 				}
 
 				const astroMetadata: AstroPluginMetadata['astro'] = {
@@ -245,8 +218,8 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				};
 
 				return {
-					code: `${code}${SUFFIX}`,
-					map,
+					code: transformResult.code,
+					map: transformResult.map,
 					meta: {
 						astro: astroMetadata,
 						vite: {
