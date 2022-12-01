@@ -8,14 +8,6 @@ import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
-type CompilationCache = Map<string, CompileResult>;
-type CompileResult = TransformResult & {
-	cssDeps: Set<string>;
-	source: string;
-};
-
-const configCache = new WeakMap<AstroConfig, CompilationCache>();
-
 export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
@@ -23,14 +15,19 @@ export interface CompileProps {
 	source: string;
 }
 
-async function compile({
+export interface CompileResult extends TransformResult {
+	cssDeps: Set<string>;
+	source: string;
+}
+
+export async function compile({
 	astroConfig,
 	viteConfig,
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
-	let cssDeps = new Set<string>();
-	let cssTransformErrors: AstroError[] = [];
+	const cssDeps = new Set<string>();
+	const cssTransformErrors: AstroError[] = [];
 
 	// Transform from `.astro` to valid `.ts`
 	// use `sourcemap: "both"` so that sourcemap is included in the code
@@ -112,41 +109,5 @@ async function compile({
 		},
 	});
 
-	return compileResult;
-}
-
-export function isCached(config: AstroConfig, filename: string) {
-	return configCache.has(config) && configCache.get(config)!.has(filename);
-}
-
-export function getCachedCompileResult(
-	config: AstroConfig,
-	filename: string
-): CompileResult | null {
-	if (!isCached(config, filename)) return null;
-	return configCache.get(config)!.get(filename)!;
-}
-
-export function invalidateCompilation(config: AstroConfig, filename: string) {
-	if (configCache.has(config)) {
-		const cache = configCache.get(config)!;
-		cache.delete(filename);
-	}
-}
-
-export async function cachedCompilation(props: CompileProps): Promise<CompileResult> {
-	const { astroConfig, filename } = props;
-	let cache: CompilationCache;
-	if (!configCache.has(astroConfig)) {
-		cache = new Map();
-		configCache.set(astroConfig, cache);
-	} else {
-		cache = configCache.get(astroConfig)!;
-	}
-	if (cache.has(filename)) {
-		return cache.get(filename)!;
-	}
-	const compileResult = await compile(props);
-	cache.set(filename, compileResult);
 	return compileResult;
 }
