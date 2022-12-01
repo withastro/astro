@@ -28,77 +28,45 @@ export async function compile({
 }: CompileProps): Promise<CompileResult> {
 	const cssDeps = new Set<string>();
 	const cssTransformErrors: AstroError[] = [];
+	let transformResult: TransformResult;
 
-	// Transform from `.astro` to valid `.ts`
-	// use `sourcemap: "both"` so that sourcemap is included in the code
-	// result passed to esbuild, but also available in the catch handler.
-	const transformResult = await transform(source, {
-		pathname: filename,
-		projectRoot: astroConfig.root.toString(),
-		site: astroConfig.site?.toString(),
-		sourcefile: filename,
-		sourcemap: 'both',
-		internalURL: 'astro/server/index.js',
-		// TODO: baseline flag
-		experimentalStaticExtraction: true,
-		preprocessStyle: createStylePreprocessor({
-			filename,
-			viteConfig,
-			cssDeps,
-			cssTransformErrors,
-		}),
-		async resolvePath(specifier) {
-			return resolvePath(specifier, filename);
-		},
-	})
-		.catch((err: Error) => {
-			// The compiler should be able to handle errors by itself, however
-			// for the rare cases where it can't let's directly throw here with as much info as possible
-			throw new CompilerError({
-				...AstroErrorData.UnknownCompilerError,
-				message: err.message ?? 'Unknown compiler error',
-				stack: err.stack,
-				location: {
-					file: filename,
-				},
-			});
-		})
-		.then((result) => {
-			const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
-
-			if (compilerError) {
-				throw new CompilerError({
-					code: compilerError.code,
-					message: compilerError.text,
-					location: {
-						line: compilerError.location.line,
-						column: compilerError.location.column,
-						file: compilerError.location.file,
-					},
-					hint: compilerError.hint,
-				});
-			}
-
-			switch (cssTransformErrors.length) {
-				case 0:
-					return result;
-				case 1: {
-					let error = cssTransformErrors[0];
-					if (!error.errorCode) {
-						error.errorCode = AstroErrorData.UnknownCSSError.code;
-					}
-
-					throw cssTransformErrors[0];
-				}
-				default: {
-					throw new AggregateError({
-						...cssTransformErrors[0],
-						code: cssTransformErrors[0].errorCode,
-						errors: cssTransformErrors,
-					});
-				}
-			}
+	try {
+		// Transform from `.astro` to valid `.ts`
+		// use `sourcemap: "both"` so that sourcemap is included in the code
+		// result passed to esbuild, but also available in the catch handler.
+		transformResult = await transform(source, {
+			pathname: filename,
+			projectRoot: astroConfig.root.toString(),
+			site: astroConfig.site?.toString(),
+			sourcefile: filename,
+			sourcemap: 'both',
+			internalURL: 'astro/server/index.js',
+			// TODO: baseline flag
+			experimentalStaticExtraction: true,
+			preprocessStyle: createStylePreprocessor({
+				filename,
+				viteConfig,
+				cssDeps,
+				cssTransformErrors,
+			}),
+			async resolvePath(specifier) {
+				return resolvePath(specifier, filename);
+			},
 		});
+	} catch (err: any) {
+		// The compiler should be able to handle errors by itself, however
+		// for the rare cases where it can't let's directly throw here with as much info as possible
+		throw new CompilerError({
+			...AstroErrorData.UnknownCompilerError,
+			message: err.message ?? 'Unknown compiler error',
+			stack: err.stack,
+			location: {
+				file: filename,
+			},
+		});
+	}
+
+	handleCompileResultErrors(transformResult, cssTransformErrors);
 
 	const compileResult: CompileResult = Object.create(transformResult, {
 		cssDeps: {
@@ -110,4 +78,38 @@ export async function compile({
 	});
 
 	return compileResult;
+}
+
+function handleCompileResultErrors(result: TransformResult, cssTransformErrors: AstroError[]) {
+	const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
+
+	if (compilerError) {
+		throw new CompilerError({
+			code: compilerError.code,
+			message: compilerError.text,
+			location: {
+				line: compilerError.location.line,
+				column: compilerError.location.column,
+				file: compilerError.location.file,
+			},
+			hint: compilerError.hint,
+		});
+	}
+
+	switch (cssTransformErrors.length) {
+		case 1: {
+			const error = cssTransformErrors[0];
+			if (!error.errorCode) {
+				error.errorCode = AstroErrorData.UnknownCSSError.code;
+			}
+			throw cssTransformErrors[0];
+		}
+		default: {
+			throw new AggregateError({
+				...cssTransformErrors[0],
+				code: cssTransformErrors[0].errorCode,
+				errors: cssTransformErrors,
+			});
+		}
+	}
 }
