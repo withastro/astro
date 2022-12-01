@@ -74,7 +74,7 @@ export function astroDelayedAssetPlugin({
 
 			if (id.endsWith('.astro')) {
 				let renderEntryImportName = getRenderEntryImportName(
-					await parseImports(escapeViteEnvReferences(code))
+					await parseImports(escapeImportMetaReferences(code))
 				);
 				if (!renderEntryImportName) return;
 
@@ -150,6 +150,6 @@ function getRenderEntryImportName(parseImportRes: Awaited<ReturnType<typeof pars
 }
 
 // Necessary to avoid checking `import.meta` during import crawl
-function escapeViteEnvReferences(code: string) {
+function escapeImportMetaReferences(code: string) {
 	return code.replace(/import\.meta/g, 'import\\u002Emeta');
 }

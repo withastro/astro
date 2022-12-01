@@ -7,6 +7,15 @@ import {
 	removeLeadingForwardSlashWindows,
 } from '../core/path.js';
 
+/**
+ * Converts the first dot in `import.meta.env` to its Unicode escape sequence,
+ * which prevents Vite from replacing strings like `import.meta.env.SITE`
+ * in our JS representation of modules like Markdown
+ */
+export function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
+}
+
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
 		config.site ? new URL(config.base, config.site).pathname : config.base

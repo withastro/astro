@@ -10,7 +10,11 @@ import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
+import {
+	escapeViteEnvReferences,
+	getFileInfo,
+	safelyGetAstroData,
+} from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -171,11 +175,4 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 			}
 		},
 	};
-}
-
-// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
-// which prevents Vite from replacing strings like `import.meta.env.SITE`
-// in our JS representation of loaded Markdown files
-function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

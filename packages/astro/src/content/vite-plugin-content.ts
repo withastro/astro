@@ -9,6 +9,7 @@ import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
+import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 
 type Paths = {
 	contentDir: URL;
@@ -86,7 +87,7 @@ export function astroContentPlugin({
 export const id = ${JSON.stringify(entryInfo.id)};
 export const collection = ${JSON.stringify(entryInfo.collection)};
 export const slug = ${JSON.stringify(entryInfo.slug)};
-export const body = ${JSON.stringify(body)};
+export const body = ${JSON.stringify(escapeViteEnvReferences(body))};
 export const data = ${JSON.stringify(data)};
 export const _internal = {
 	filePath: ${JSON.stringify(pathname)},
