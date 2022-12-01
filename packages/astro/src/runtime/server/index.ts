@@ -90,8 +90,3 @@ export function defineStyleVars(defs: Record<any, any> | Record<any, any>[]) {
 	}
 	return markHTMLString(output);
 }
-
-
-
-
-//////////////////////// new stuff

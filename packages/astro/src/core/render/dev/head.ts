@@ -27,8 +27,8 @@ export async function getPropagationMap(
 function addInjection(map: SSRResult['propagation'], modInfo: ModuleInfo | null) {
 	if(modInfo) {
 		const astro = getAstroMetadata(modInfo);
-		if(astro && astro.headInjection) {
-			map.set(modInfo.id, astro.headInjection)
+		if(astro && astro.propagation) {
+			map.set(modInfo.id, astro.propagation)
 		}
 	}
 }

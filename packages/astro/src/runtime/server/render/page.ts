@@ -51,8 +51,9 @@ async function iterableToHTMLBytes(
 	return parts.toArrayBuffer();
 }
 
+// Recursively calls component instances that might have head content
+// to be propagated up.
 async function bufferHeadContent(result: SSRResult) {
-	debugger;
 	const iterator = result.propagators.values();
 	while(true) {
 		const { value, done } = iterator.next();

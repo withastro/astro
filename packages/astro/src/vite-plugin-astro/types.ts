@@ -6,6 +6,6 @@ export interface PluginMetadata {
 		hydratedComponents: TransformResult['hydratedComponents'];
 		clientOnlyComponents: TransformResult['clientOnlyComponents'];
 		scripts: TransformResult['scripts'];
-		headInjection: PropagationHint;
+		propagation: PropagationHint;
 	};
 }

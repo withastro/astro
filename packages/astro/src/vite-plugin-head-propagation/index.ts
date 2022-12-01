@@ -27,7 +27,7 @@ export default function configAliasVitePlugin({
 				const info = getInfo(parent.id);
 				if(info?.meta.astro) {
 					const astroMetadata = info.meta.astro as AstroPluginMetadata['astro'];
-					astroMetadata.headInjection = 'in-tree';
+					astroMetadata.propagation = 'in-tree';
 				}
 				addHeadInjectionInTree(graph, parent.id, getInfo, seen);
 			}
