@@ -119,11 +119,12 @@ export function isCached(config: AstroConfig, filename: string) {
 	return configCache.has(config) && configCache.get(config)!.has(filename);
 }
 
-export function getCachedSource(config: AstroConfig, filename: string): string | null {
+export function getCachedCompileResult(
+	config: AstroConfig,
+	filename: string
+): CompileResult | null {
 	if (!isCached(config, filename)) return null;
-	let src = configCache.get(config)!.get(filename);
-	if (!src) return null;
-	return src.source;
+	return configCache.get(config)!.get(filename)!;
 }
 
 export function invalidateCompilation(config: AstroConfig, filename: string) {

@@ -7,7 +7,7 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { cachedCompilation, CompileProps, getCachedSource } from '../core/compile/index.js';
+import { cachedCompilation, CompileProps, getCachedCompileResult } from '../core/compile/index.js';
 import {
 	isRelativePath,
 	prependForwardSlash,
@@ -103,35 +103,22 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			if (!query.astro) {
 				return null;
 			}
-			let filename = parsedId.filename;
-			// For CSS / hoisted scripts we need to load the source ourselves.
-			// It should be in the compilation cache at this point.
-			let raw = await this.resolve(filename, undefined);
-			if (!raw) {
+			// For CSS / hoisted scripts, the main Astro module should already be cached
+			const filename = normalizeFilename(parsedId.filename, config);
+			const compileResult = getCachedCompileResult(config, filename);
+			if (!compileResult) {
 				return null;
 			}
-
-			let source = getCachedSource(config, raw.id);
-			if (!source) {
-				return null;
-			}
-
-			const compileProps: CompileProps = {
-				astroConfig: config,
-				viteConfig: resolvedConfig,
-				filename,
-				source,
-			};
-
 			switch (query.type) {
 				case 'style': {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(compileProps);
-					const csses = transformResult.css;
-					const code = csses[query.index];
+					const code = compileResult.css[query.index];
+					if (!code) {
+						throw new Error(`No Astro CSS at index ${query.index}`);
+					}
 
 					return {
 						code,
@@ -153,10 +140,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 						};
 					}
 
-					const transformResult = await cachedCompilation(compileProps);
-					const scripts = transformResult.scripts;
-					const hoistedScript = scripts[query.index];
-
+					const hoistedScript = compileResult.scripts[query.index];
 					if (!hoistedScript) {
 						throw new Error(`No hoisted script at index ${query.index}`);
 					}
@@ -171,7 +155,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 						}
 					}
 
-					let result: SourceDescription & { meta: any } = {
+					const result: SourceDescription = {
 						code: '',
 						meta: {
 							vite: {
@@ -182,7 +166,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 
 					switch (hoistedScript.type) {
 						case 'inline': {
-							let { code, map } = hoistedScript;
+							const { code, map } = hoistedScript;
 							result.code = appendSourceMap(code, map);
 							break;
 						}
