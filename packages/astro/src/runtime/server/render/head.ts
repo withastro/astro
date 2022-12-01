@@ -53,9 +53,9 @@ export function renderHead(result: SSRResult) {
 // This accommodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string> {
+export async function* maybeRenderHead(result: SSRResult) {
 	if (result._metadata.hasRenderedHead) {
 		return;
 	}
-	yield renderHead(result);
+	yield renderHead(result)();
 }

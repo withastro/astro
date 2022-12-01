@@ -48,9 +48,9 @@ export class AstroComponentInstance {
 	}
 }
 
-// In dev mode, check props and make sure they are valid for an Astro component
+// Issue warnings for invalid props for Astro components
 function validateComponentProps(props: any, displayName: string) {
-	if (import.meta.env?.DEV && props != null) {
+	if (props != null) {
 		for (const prop of Object.keys(props)) {
 			if (HydrationDirectiveProps.has(prop)) {
 				// eslint-disable-next-line
