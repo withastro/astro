@@ -67,7 +67,7 @@ function* render(Component, attrs, slots) {
 			} else {
 				// Add the slot attribute to all the nested HTML elements,
 				// so that it can be rendered inside the appropriate Lit Component slot.
-				yield htmlString.replace(/<(?<tag>\w+)/gm, `<$<tag> slot="${slot}"`);
+				yield htmlString.replace(/<(?<tag>(?:\w+-?)+)/gm, `<$<tag> slot="${slot}"`);
 			}
 		}
 	}
