@@ -1,5 +1,6 @@
 import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
-import { AstroComponent, renderAstroComponent } from './astro.js';
+import { isRenderTemplateResult, renderAstroTemplateResult } from './astro/index.js';
+import { isAstroComponentInstance } from './astro/index.js';
 import { SlotString } from './slot.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {
@@ -25,13 +26,10 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	}
-	// Add a comment explaining why each of these are needed.
-	// Maybe create clearly named function for what this is doing.
-	else if (
-		child instanceof AstroComponent ||
-		Object.prototype.toString.call(child) === '[object AstroComponent]'
-	) {
-		yield* renderAstroComponent(child);
+	else if(isRenderTemplateResult(child)) {
+		yield* renderAstroTemplateResult(child);
+	} else if(isAstroComponentInstance(child)) {
+		yield* child.render();
 	} else if (ArrayBuffer.isView(child)) {
 		yield child;
 	} else if (

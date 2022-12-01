@@ -2,6 +2,7 @@ import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
 import { renderElement } from './util.js';
+import { renderChild } from './any.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -12,8 +13,14 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	);
 };
 
-export function renderHead(result: SSRResult): Promise<string> {
-	result._metadata.hasRenderedHead = true;
+async function * renderExtraHead(result: SSRResult, base: string) {
+	yield base;
+	for(const part of result.extraHead) {
+		yield * renderChild(part);
+	}
+}
+
+function renderAllHeadContent(result: SSRResult) {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
@@ -27,7 +34,19 @@ export function renderHead(result: SSRResult): Promise<string> {
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
-	return markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n'));
+
+	const baseHeadContent = markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n'))
+
+	if(result.extraHead.length > 0) {
+		return renderExtraHead(result, baseHeadContent);
+	} else {
+		return baseHeadContent;
+	}
+}
+
+export function renderHead(result: SSRResult) {
+	result._metadata.hasRenderedHead = true;
+	return renderAllHeadContent.bind(null, result);
 }
 
 // This function is called by Astro components that do not contain a <head> component

@@ -4,11 +4,13 @@ export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from 
 export { renderJSX } from './jsx.js';
 export {
 	addAttribute,
+	createHeadAndContent,
 	defineScriptVars,
 	Fragment,
 	maybeRenderHead,
-	renderAstroComponent,
+	renderAstroTemplateResult as renderAstroComponent,
 	renderComponent,
+	renderComponentToIterable,
 	Renderer as Renderer,
 	renderHead,
 	renderHTMLElement,
@@ -16,25 +18,17 @@ export {
 	renderSlot,
 	renderTemplate as render,
 	renderTemplate,
+	renderUniqueStylesheet,
 	renderToString,
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
-export type { AstroComponentFactory, RenderInstruction } from './render/index.js';
-import type { AstroComponentFactory } from './render/index.js';
+export { createComponent } from './astro-component.js';
+export type { AstroComponentFactory, AstroComponentInstance, RenderInstruction } from './render/index.js';
 
 import { markHTMLString } from './escape.js';
 import { Renderer } from './render/index.js';
-
 import { addAttribute } from './render/index.js';
-
-// Used in creating the component. aka the main export.
-export function createComponent(cb: AstroComponentFactory) {
-	// Add a flag to this callback to mark it as an Astro component
-	// INVESTIGATE does this need to cast
-	(cb as any).isAstroComponentFactory = true;
-	return cb;
-}
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
@@ -96,3 +90,8 @@ export function defineStyleVars(defs: Record<any, any> | Record<any, any>[]) {
 	}
 	return markHTMLString(output);
 }
+
+
+
+
+//////////////////////// new stuff

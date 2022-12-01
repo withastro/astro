@@ -16,7 +16,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
-import type { AstroComponentFactory } from '../runtime/server';
+import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
@@ -1398,10 +1398,15 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 }
 
+export type PropagationHint = 'none' | 'self' | 'in-tree';
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
+	propagation: Map<string, PropagationHint>;
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	extraHead: Array<any>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
