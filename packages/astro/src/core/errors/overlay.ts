@@ -511,7 +511,7 @@ class ErrorOverlay extends HTMLElement {
 		this.text('#stack-content', err.stack);
 	}
 
-	text(selector: string, text: string | undefined, html = false) {
+	text(selector: string, text: string | undefined, html = false): void {
 		if (!text) {
 			return;
 		}
@@ -527,7 +527,7 @@ class ErrorOverlay extends HTMLElement {
 		}
 	}
 
-	createLink(text: string, href: string | undefined) {
+	createLink(text: string, href: string | undefined): HTMLDivElement {
 		const linkContainer = document.createElement('div');
 		const linkElement = href ? document.createElement('a') : document.createElement('button');
 		linkElement.innerHTML = text;
@@ -541,6 +541,10 @@ class ErrorOverlay extends HTMLElement {
 		linkContainer.className = 'link';
 
 		return linkContainer;
+	}
+
+	close(): void {
+		this.parentNode?.removeChild(this);
 	}
 }
 
