@@ -29,6 +29,7 @@ declare module 'astro:content' {
 	}): Promise<{
 		Content: import('astro').MarkdownInstance<{}>['Content'];
 		headings: import('astro').MarkdownHeading[];
+		injectedFrontmatter: Record<string, any>;
 	}>;
 
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
