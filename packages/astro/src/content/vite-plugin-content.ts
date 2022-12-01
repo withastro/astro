@@ -1,3 +1,4 @@
+import { escape } from 'html-escaper';
 import { Plugin, ErrorPayload as ViteErrorPayload, normalizePath } from 'vite';
 import glob from 'fast-glob';
 import * as fs from 'node:fs/promises';
@@ -21,6 +22,10 @@ type Paths = {
 const CONTENT_BASE = 'types.generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
+
+function isContentFlagImport({ searchParams, pathname }: Pick<URL, 'searchParams' | 'pathname'>) {
+	return searchParams.has(CONTENT_FLAG) && contentFileExts.some((ext) => pathname.endsWith(ext));
+}
 
 export function astroContentPlugin({
 	settings,
@@ -71,30 +76,32 @@ export function astroContentPlugin({
 		},
 		{
 			name: 'content-flag-plugin',
-			enforce: 'pre',
 			async load(id) {
 				const { pathname, searchParams } = new URL(id, 'file://');
-				if (
-					searchParams.has(CONTENT_FLAG) &&
-					contentFileExts.some((ext) => pathname.endsWith(ext))
-				) {
+				if (isContentFlagImport({ pathname, searchParams })) {
 					const rawContents = await fs.readFile(pathname, 'utf-8');
 					const { content: body, data, matter: rawData } = parseFrontmatter(rawContents, pathname);
 					const entryInfo = parseEntryInfo(pathname, { contentDir: paths.contentDir });
 					if (entryInfo instanceof Error) return;
-					return {
-						code: `
+					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};
 export const collection = ${JSON.stringify(entryInfo.collection)};
 export const slug = ${JSON.stringify(entryInfo.slug)};
-export const body = ${JSON.stringify(escapeViteEnvReferences(body))};
+export const body = ${JSON.stringify(body)};
 export const data = ${JSON.stringify(data)};
 export const _internal = {
 	filePath: ${JSON.stringify(pathname)},
 	rawData: ${JSON.stringify(rawData)},
 };
-`,
-					};
+`);
+					return { code };
+				}
+			},
+			async transform(code, id) {
+				if (isContentFlagImport(new URL(id, 'file://'))) {
+					// Escape before Rollup internal transform.
+					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
+					return { code: escapeViteEnvReferences(code) };
 				}
 			},
 		},
