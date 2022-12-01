@@ -4,7 +4,6 @@ import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
 
-import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { cachedCompilation, CompileProps, getCachedCompileResult } from '../core/compile/index.js';
@@ -15,13 +14,11 @@ import {
 	startsWithForwardSlash,
 } from '../core/path.js';
 import { viteID } from '../core/util.js';
-import { getFileInfo, normalizeFilename } from '../vite-plugin-utils/index.js';
+import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
-import { CompileResult } from '../core/compile/compile';
 import { cachedFullCompilation } from './compile';
 
-const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
@@ -204,89 +201,34 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				source,
 			};
 
-			try {
-				const transformResult = await cachedFullCompilation(compileProps, id);
+			const transformResult = await cachedFullCompilation({
+				compileProps,
+				rawId: id,
+				logging,
+			});
 
-				for (const dep of transformResult.cssDeps) {
-					this.addWatchFile(dep);
-				}
-
-				const astroMetadata: AstroPluginMetadata['astro'] = {
-					clientOnlyComponents: transformResult.clientOnlyComponents,
-					hydratedComponents: transformResult.hydratedComponents,
-					scripts: transformResult.scripts,
-				};
-
-				return {
-					code: transformResult.code,
-					map: transformResult.map,
-					meta: {
-						astro: astroMetadata,
-						vite: {
-							// Setting this vite metadata to `ts` causes Vite to resolve .js
-							// extensions to .ts files.
-							lang: 'ts',
-						},
-					},
-				};
-			} catch (err: any) {
-				// Verify frontmatter: a common reason that this plugin fails is that
-				// the user provided invalid JS/TS in the component frontmatter.
-				// If the frontmatter is invalid, the `err` object may be a compiler
-				// panic or some other vague/confusing compiled error message.
-				//
-				// Before throwing, it is better to verify the frontmatter here, and
-				// let esbuild throw a more specific exception if the code is invalid.
-				// If frontmatter is valid or cannot be parsed, then continue.
-				const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
-				if (scannedFrontmatter) {
-					try {
-						await esbuild.transform(scannedFrontmatter[1], {
-							loader: 'ts',
-							sourcemap: false,
-							sourcefile: id,
-						});
-					} catch (frontmatterErr: any) {
-						// Improve the error by replacing the phrase "unexpected end of file"
-						// with "unexpected end of frontmatter" in the esbuild error message.
-						if (frontmatterErr && frontmatterErr.message) {
-							frontmatterErr.message = frontmatterErr.message.replace(
-								'end of file',
-								'end of frontmatter'
-							);
-						}
-						throw frontmatterErr;
-					}
-				}
-
-				// improve compiler errors
-				if (err.stack && err.stack.includes('wasm-function')) {
-					const search = new URLSearchParams({
-						labels: 'compiler',
-						title: '🐛 BUG: `@astrojs/compiler` panic',
-						template: '---01-bug-report.yml',
-						'bug-description': `\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
-
-**${id.replace(fileURLToPath(config.root), '')}**
-\`\`\`astro
-${source}
-\`\`\``,
-					});
-					err.url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
-					err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
-
-    Please open
-    a GitHub issue using the link below:
-    ${err.url}`;
-
-					if (logging.level !== 'debug') {
-						// TODO: remove stack replacement when compiler throws better errors
-						err.stack = `    at ${id}`;
-					}
-				}
-
-				throw err;
+			for (const dep of transformResult.cssDeps) {
+				this.addWatchFile(dep);
 			}
+
+			const astroMetadata: AstroPluginMetadata['astro'] = {
+				clientOnlyComponents: transformResult.clientOnlyComponents,
+				hydratedComponents: transformResult.hydratedComponents,
+				scripts: transformResult.scripts,
+			};
+
+			return {
+				code: transformResult.code,
+				map: transformResult.map,
+				meta: {
+					astro: astroMetadata,
+					vite: {
+						// Setting this vite metadata to `ts` causes Vite to resolve .js
+						// extensions to .ts files.
+						lang: 'ts',
+					},
+				},
+			};
 		},
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
