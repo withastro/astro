@@ -10,6 +10,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
+import { pathToFileURL } from 'node:url';
 
 type Paths = {
 	contentDir: URL;
@@ -343,9 +344,10 @@ function parseEntryInfo(
 
 function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | 'unknown' {
 	const { dir, ext, name } = path.parse(entryPath);
+	const { pathname } = new URL(name, appendForwardSlash(pathToFileURL(dir).href));
 	if (['.md', '.mdx'].includes(ext)) {
 		return 'content';
-	} else if (path.join(dir, name) === paths.config.pathname) {
+	} else if (pathname === paths.config.pathname) {
 		return 'config';
 	} else {
 		return 'unknown';
