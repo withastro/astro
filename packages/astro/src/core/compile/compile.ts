@@ -5,8 +5,7 @@ import type { AstroConfig } from '../../@types/astro';
 import { transform } from '@astrojs/compiler';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
-import { prependForwardSlash } from '../path.js';
-import { resolvePath, viteID } from '../util.js';
+import { resolvePath } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
@@ -42,9 +41,7 @@ async function compile({
 		site: astroConfig.site?.toString(),
 		sourcefile: filename,
 		sourcemap: 'both',
-		internalURL: `/@fs${prependForwardSlash(
-			viteID(new URL('../../runtime/server/index.js', import.meta.url))
-		)}`,
+		internalURL: 'astro/server/index.js',
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
 		preprocessStyle: createStylePreprocessor({
