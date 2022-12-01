@@ -221,6 +221,9 @@ async function toGenerateContent({
 			}
 		} else {
 			const fileType = getEntryType(event.entry, paths);
+			if (fileType === 'config') {
+				return;
+			}
 			if (fileType === 'unknown') {
 				warn(
 					logging,
