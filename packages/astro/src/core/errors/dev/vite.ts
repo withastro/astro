@@ -5,8 +5,7 @@ import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroErrorData } from '../errors-data.js';
 import { type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
-import { incompatPackageExp } from './utils.js';
-import { escape } from 'html-escaper';
+import { incompatPackageExp, renderErrorMarkdown } from './utils.js';
 import { getHighlighter } from 'shiki';
 
 /**
@@ -121,8 +120,8 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		plugin = 'astro';
 	}
 
-	const message = markdownToHTML(err.message.trim());
-	const hint = err.hint ? markdownToHTML(err.hint.trim()) : undefined;
+	const message = renderErrorMarkdown(err.message.trim(), 'html');
+	const hint = err.hint ? renderErrorMarkdown(err.hint.trim(), 'html') : undefined;
 
 	const hasDocs =
 		(err.type &&
@@ -167,17 +166,4 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 			stack: err.stack,
 		},
 	};
-}
-
-function markdownToHTML(markdown: string) {
-	const linkRegex = /\[(.+)\]\((.+)\)/gm;
-	const boldRegex = /\*\*(.+)\*\*/gm;
-	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|]) /gim;
-	const codeRegex = /`([^`]+)`/gim;
-
-	return escape(markdown)
-		.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
-		.replace(boldRegex, '<b>$1</b>')
-		.replace(urlRegex, ' <a href="$1" target="_blank">$1</a> ')
-		.replace(codeRegex, '<code>$1</code>');
 }

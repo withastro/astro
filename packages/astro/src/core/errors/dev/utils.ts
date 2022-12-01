@@ -7,6 +7,8 @@ import type { SSRError } from '../../../@types/astro.js';
 import { AggregateError, ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
+import { escape } from 'html-escaper';
+import { bold, reset, underline } from 'kleur/colors';
 
 export const incompatiblePackages = {
 	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`,
@@ -180,4 +182,27 @@ function cleanErrorStack(stack: string) {
 		.split(/\n/g)
 		.map((l) => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
+}
+
+/**
+ * Render a subset of Markdown to HTML or a CLI output
+ */
+export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
+	const linkRegex = /\[(.+)\]\((.+)\)/gm;
+	const boldRegex = /\*\*(.+)\*\*/gm;
+	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|]) /gim;
+	const codeRegex = /`([^`]+)`/gim;
+
+	if (target === 'html') {
+		return escape(markdown)
+			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
+			.replace(boldRegex, '<b>$1</b>')
+			.replace(urlRegex, ' <a href="$1" target="_blank">$1</a> ')
+			.replace(codeRegex, '<code>$1</code>');
+	} else {
+		return markdown
+			.replace(linkRegex, (fullMatch, m1, m2) => `${bold(m1)} ${underline(m2)}`)
+			.replace(urlRegex, (fullMatch, m1) => ` ${underline(fullMatch.trim())} `)
+			.replace(boldRegex, (fullMatch, m1) => `${bold(m1)}`);
+	}
 }
