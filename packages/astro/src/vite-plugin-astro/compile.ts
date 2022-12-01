@@ -1,10 +1,9 @@
 import { fileURLToPath } from 'url';
 import { ESBuildTransformResult, transformWithEsbuild } from 'vite';
 import { AstroConfig } from '../@types/astro';
-import { cachedCompilation, CompileProps } from '../core/compile';
-import { CompileResult } from '../core/compile/compile';
-import { LogOptions } from '../core/logger/core';
-import { getFileInfo } from '../vite-plugin-utils';
+import { cachedCompilation, CompileProps, CompileResult } from '../core/compile/index.js';
+import { LogOptions } from '../core/logger/core.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface CachedFullCompilation {
 	compileProps: CompileProps;
@@ -40,6 +39,7 @@ export async function cachedFullCompilation({
 		// Also, catches invalid JS/TS in the compiled output before returning.
 		esbuildResult = await transformWithEsbuild(transformResult.code, rawId, {
 			loader: 'ts',
+			target: 'esnext',
 			sourcemap: 'external',
 		});
 	} catch (err: any) {
@@ -76,7 +76,7 @@ export async function cachedFullCompilation({
 
 	return {
 		...transformResult,
-		code: esbuildResult.code,
+		code: esbuildResult.code + SUFFIX,
 		map: esbuildResult.map,
 	};
 }
@@ -101,6 +101,7 @@ async function enhanceCompileError({
 		try {
 			await transformWithEsbuild(scannedFrontmatter[1], id, {
 				loader: 'ts',
+				target: 'esnext',
 				sourcemap: false,
 			});
 		} catch (frontmatterErr: any) {

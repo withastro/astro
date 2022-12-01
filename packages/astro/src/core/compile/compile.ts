@@ -68,16 +68,11 @@ export async function compile({
 
 	handleCompileResultErrors(transformResult, cssTransformErrors);
 
-	const compileResult: CompileResult = Object.create(transformResult, {
-		cssDeps: {
-			value: cssDeps,
-		},
-		source: {
-			value: source,
-		},
-	});
-
-	return compileResult;
+	return {
+		...transformResult,
+		cssDeps,
+		source,
+	};
 }
 
 function handleCompileResultErrors(result: TransformResult, cssTransformErrors: AstroError[]) {
@@ -97,6 +92,8 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 	}
 
 	switch (cssTransformErrors.length) {
+		case 0:
+			break;
 		case 1: {
 			const error = cssTransformErrors[0];
 			if (!error.errorCode) {
