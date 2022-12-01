@@ -272,14 +272,21 @@ const style = /* css */ `
   padding-top: 8px;
 }
 
-.link a {
+.link button {
+	background: none;
+	border: none;
+	font-size: inherit;
+	font-family: inherit;
+}
+
+.link a, .link button {
   color: var(--accent);
   text-decoration: none;
   display: flex;
   gap: 8px;
 }
 
-.link a:hover {
+.link a:hover, .link button:hover {
   color: var(--accent-hover);
   text-decoration: underline;
   cursor: pointer;
@@ -522,12 +529,12 @@ class ErrorOverlay extends HTMLElement {
 
 	createLink(text: string, href: string | undefined) {
 		const linkContainer = document.createElement('div');
-		const linkElement = document.createElement('a');
+		const linkElement = href ? document.createElement('a') : document.createElement('button');
 		linkElement.innerHTML = text;
-		linkElement.target = '_blank';
 
-		if (href) {
+		if (href && linkElement instanceof HTMLAnchorElement) {
 			linkElement.href = href;
+			linkElement.target = '_blank';
 		}
 
 		linkContainer.appendChild(linkElement);
