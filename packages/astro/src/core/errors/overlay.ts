@@ -6,15 +6,15 @@ const style = /* css */ `
 }
 
 :host {
-	/** Needed so Playwright can find the element */
-	position: fixed;
+  /** Needed so Playwright can find the element */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   z-index: 99999;
 
-	  /* Fonts */
+  /* Fonts */
   --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", Arial, sans-serif;
@@ -22,7 +22,7 @@ const style = /* css */ `
     "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
     "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
-	  /* Borders */
+  /* Borders */
   --roundiness: 4px;
 
   /* Colors */
@@ -60,17 +60,17 @@ const style = /* css */ `
     #ffffff 89.84%
   );
 
-	/* Syntax Highlighting */
-	--shiki-color-text: #000000;
-  --shiki-token-constant: #4CA48F;
-  --shiki-token-string: #9F722A;
+  /* Syntax Highlighting */
+  --shiki-color-text: #000000;
+  --shiki-token-constant: #4ca48f;
+  --shiki-token-string: #9f722a;
   --shiki-token-comment: #8490b5;
   --shiki-token-keyword: var(--accent);
   --shiki-token-parameter: #aa0000;
- 	--shiki-token-function: #4CA48F;
- 	--shiki-token-string-expression: #9F722A;
- 	--shiki-token-punctuation: #ffffff;
- 	--shiki-token-link: #ee0000;
+  --shiki-token-function: #4ca48f;
+  --shiki-token-string-expression: #9f722a;
+  --shiki-token-punctuation: #ffffff;
+  --shiki-token-link: #ee0000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -290,7 +290,7 @@ const style = /* css */ `
 }
 
 #code {
-	display: none;
+  display: none;
 }
 
 #code header {
@@ -428,13 +428,13 @@ const openNewWindowIcon =
 	'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 2h-4m4 0L8 8m6-6v4"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M14 8.667V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.333"/></svg>';
 
 // Make HTMLElement available in non-browser environments
-const { HTMLElement = class {} } = globalThis;
+const { HTMLElement = class {} as typeof globalThis.HTMLElement } = globalThis;
 class ErrorOverlay extends HTMLElement {
 	root: ShadowRoot;
 
 	constructor(err: AstroErrorPayload['err']) {
 		super();
-		this.root = (this as unknown as HTMLElement).attachShadow({ mode: 'open' });
+		this.root = this.attachShadow({ mode: 'open' });
 		this.root.innerHTML = overlayTemplate;
 
 		this.text('#name', err.name);
@@ -541,18 +541,10 @@ function getOverlayCode() {
 	return `
 		const overlayTemplate = \`${overlayTemplate}\`;
 		const openNewWindowIcon = \`${openNewWindowIcon}\`;
-
-		const { HTMLElement = class {} } = globalThis;
 		${ErrorOverlay.toString()}
 	`;
 }
 
 export function patchOverlay(code: string) {
-	return (
-		getOverlayCode() +
-		code.replace(
-			'const { HTMLElement = class {\n} } = globalThis;\nclass ErrorOverlay',
-			'class ViteOverlay'
-		)
-	);
+	return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
 }
