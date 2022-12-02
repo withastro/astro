@@ -62,13 +62,13 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
  * - /@fs/home/user/project/src/pages/index.astro
  * - /src/pages/index.astro
  *
- * as absolute file paths.
+ * as absolute file paths with forward slashes.
  */
 export function normalizeFilename(filename: string, config: AstroConfig) {
 	if (filename.startsWith('/@fs')) {
-		filename = removeLeadingForwardSlashWindows(filename.slice('/@fs'.length));
+		filename = filename.slice('/@fs'.length);
 	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		filename = path.join(fileURLToPath(config.root), filename);
+		filename = new URL('.' + filename, config.root).pathname;
 	}
-	return filename;
+	return removeLeadingForwardSlashWindows(filename);
 }
