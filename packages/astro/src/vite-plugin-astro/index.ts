@@ -102,12 +102,18 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			if (!query.astro) {
 				return null;
 			}
+
+			const raw = await this.resolve(parsedId.filename, undefined);
+			if (!raw) {
+				return null;
+			}
+
 			// For CSS / hoisted scripts, the main Astro module should already be cached
-			const filename = normalizeFilename(parsedId.filename, config);
-			const compileResult = getCachedCompileResult(config, filename);
+			const compileResult = getCachedCompileResult(config, raw.id);
 			if (!compileResult) {
 				return null;
 			}
+
 			switch (query.type) {
 				case 'style': {
 					if (typeof query.index === 'undefined') {
