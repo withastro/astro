@@ -103,7 +103,8 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				return null;
 			}
 
-			const raw = await this.resolve(parsedId.filename, undefined);
+			const filename = parsedId.filename;
+			const raw = await this.resolve(filename, undefined);
 			if (!raw) {
 				return null;
 			}
