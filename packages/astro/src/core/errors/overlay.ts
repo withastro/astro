@@ -492,7 +492,10 @@ class ErrorOverlay extends HTMLElement {
 					const errorLine = this.root.querySelector<HTMLSpanElement>('.error-line');
 
 					if (errorLine) {
-						errorLine.scrollIntoView(true);
+						if (errorLine.parentElement && errorLine.parentElement.parentElement) {
+							errorLine.parentElement.parentElement.scrollTop =
+								errorLine.offsetTop - errorLine.parentElement.parentElement.offsetTop - 8;
+						}
 
 						// Add an empty line below the error line so we can show a caret under the error
 						if (err.loc.column) {
