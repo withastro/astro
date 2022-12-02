@@ -34,7 +34,8 @@ export async function parseEntryData(
 		throw new Error(getErrorMsg.schemaDefMissing(collection));
 	}
 	const { schema } = collectionsConfig[collection];
-	const parsed = z.object(schema).safeParse(entry.data, { errorMap });
+	// Use `safeParseAsync` to allow async transforms
+	const parsed = await z.object(schema).safeParseAsync(entry.data, { errorMap });
 
 	if (parsed.success) {
 		return parsed.data;
