@@ -1,14 +1,14 @@
 import type { BuildResult } from 'esbuild';
+import { escape } from 'html-escaper';
+import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import type { SSRError } from '../../../@types/astro.js';
 import { AggregateError, ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
-import { escape } from 'html-escaper';
-import { bold, reset, underline } from 'kleur/colors';
 
 export const incompatiblePackages = {
 	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`,
@@ -27,7 +27,16 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 			error = collectInfoFromStacktrace(e);
 		}
 
-		if (error.loc?.file && rootFolder && !error.loc.file.startsWith('/')) {
+		// Make sure the file location is absolute, otherwise:
+		// - It won't be clickable in the terminal
+		// - We'll fail to show the file's content in the browser
+		// - We'll fail to show the code frame in the terminal
+		// - The "Open in Editor" button won't work
+		if (
+			error.loc?.file &&
+			rootFolder &&
+			(!error.loc.file.startsWith(rootFolder.pathname) || !isAbsolute(error.loc.file))
+		) {
 			error.loc.file = join(fileURLToPath(rootFolder), error.loc.file);
 		}
 
@@ -51,13 +60,16 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		error.hint = generateHint(e);
 	});
 
-	// If we received an array of errors and it's not from us, it should be from ESBuild, try to extract info for Vite to display
+	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
+	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
 	if (!AggregateError.is(e) && Array.isArray((e as any).errors)) {
 		(e as BuildResult).errors.forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
-			err[i].message = text;
+			if (text) {
+				err[i].message = text;
+			}
 
 			if (location) {
 				err[i].loc = { file: location.file, line: location.line, column: location.column };
