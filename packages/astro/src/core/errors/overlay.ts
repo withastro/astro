@@ -228,7 +228,7 @@ const style = /* css */ `
 
 #message-content,
 #hint-content {
-  white-space: pre-line;
+  white-space: pre-wrap;
   line-height: 24px;
   flex-grow: 1;
 }
