@@ -46,9 +46,11 @@
   "dependencies": {
     "@astrojs/webapi": "^1.1.1",
     "@vercel/nft": "^0.22.1",
-    "fast-glob": "^3.2.11"
+    "fast-glob": "^3.2.11",
+    "set-cookie-parser": "^2.5.1"
   },
   "devDependencies": {
+    "@types/set-cookie-parser": "^2.4.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
