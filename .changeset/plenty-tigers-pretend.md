@@ -2,4 +2,4 @@
 '@astrojs/vercel': patch
 ---
 
-Update set-cookie header hanlder
+Updated request-transform methods
