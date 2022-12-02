@@ -79,7 +79,7 @@ export class AstroPlugin implements Plugin {
 
 		const result = prettier.format(document.getText(), {
 			...resultConfig,
-			plugins: getAstroPrettierPlugin(),
+			plugins: [...getAstroPrettierPlugin(), ...(resultConfig.plugins ?? [])],
 			parser: 'astro',
 		});
 
