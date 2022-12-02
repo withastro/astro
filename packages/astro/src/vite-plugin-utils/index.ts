@@ -1,7 +1,13 @@
 import ancestor from 'common-ancestor-path';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { Data } from 'vfile';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
-import { appendExtension, appendForwardSlash } from '../core/path.js';
+import {
+	appendExtension,
+	appendForwardSlash,
+	removeLeadingForwardSlashWindows,
+} from '../core/path.js';
 
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
@@ -60,9 +66,9 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
  */
 export function normalizeFilename(filename: string, config: AstroConfig) {
 	if (filename.startsWith('/@fs')) {
-		filename = filename.slice('/@fs'.length);
+		filename = removeLeadingForwardSlashWindows(filename.slice('/@fs'.length));
 	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		filename = new URL('.' + filename, config.root).pathname;
+		filename = path.join(fileURLToPath(config.root), filename);
 	}
 	return filename;
 }
