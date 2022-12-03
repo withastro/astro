@@ -132,10 +132,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 
-									// Ensures styles and scripts are injected into a `<head>`
-									// When a layout is not applied
-									code += `\nMDXContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
-
 									const [, moduleExports] = parseESM(code);
 
 									const { fileUrl, fileId } = getFileInfo(id, config);
@@ -164,6 +160,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										});
 										export default Content;`;
 									}
+
+									// Ensures styles and scripts are injected into a `<head>`
+									// When a layout is not applied
+									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
