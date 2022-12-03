@@ -7,6 +7,7 @@ import { getImage } from './get-image.js';
 
 export interface GetPictureParams {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
+	alt: string;
 	widths: number[];
 	formats: OutputFormat[];
 	aspectRatio?: TransformOptions['aspectRatio'];
@@ -43,7 +44,7 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 }
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {
-	const { src, widths, fit, position, background } = params;
+	const { src, alt, widths, fit, position, background } = params;
 
 	if (!src) {
 		throw new Error('[@astrojs/image] `src` is required');
@@ -71,6 +72,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 			widths.map(async (width) => {
 				const img = await getImage({
 					src,
+					alt,
 					format,
 					width,
 					fit,
