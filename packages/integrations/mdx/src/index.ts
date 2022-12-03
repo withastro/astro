@@ -156,7 +156,13 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										)}) };`;
 									}
 									if (!moduleExports.includes('Content')) {
-										code += `\nexport const Content = MDXContent;`;
+										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
+										code = code.replace('export default MDXContent;', '');
+										code += `\nexport const Content = (props = {}) => MDXContent({
+											...props,
+											components: { Fragment, ...props.components },
+										});
+										export default Content;`;
 									}
 
 									if (command === 'dev') {
