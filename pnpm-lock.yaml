@@ -433,6 +433,7 @@ importers:
       cookie: ^0.5.0
       debug: ^4.3.4
       deepmerge-ts: ^4.2.2
+      devalue: ^4.2.0
       diff: ^5.1.0
       eol: ^0.9.1
       es-module-lexer: ^1.1.0
@@ -507,6 +508,7 @@ importers:
       cookie: 0.5.0
       debug: 4.3.4
       deepmerge-ts: 4.2.2
+      devalue: 4.2.0
       diff: 5.1.0
       es-module-lexer: 1.1.0
       execa: 6.1.0
@@ -11704,6 +11706,10 @@ packages:
       acorn-node: 1.8.2
       defined: 1.0.1
       minimist: 1.2.7
+
+  /devalue/4.2.0:
+    resolution: {integrity: sha512-mbjoAaCL2qogBKgeFxFPOXAUsZchircF+B/79LD4sHH0+NHfYm8gZpQrskKDn5gENGt35+5OI1GUF7hLVnkPDw==}
+    dev: false
 
   /didyoumean/1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
