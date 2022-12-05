@@ -19,7 +19,7 @@ export default function astroScriptsPostPlugin({
 			const hasInjectedScript = settings.scripts.some((s) => s.stage === 'page-ssr');
 			if (!hasInjectedScript) return;
 
-			const filename = normalizeFilename({ fileName: id, projectRoot: settings.config.root });
+			const filename = normalizeFilename(id, settings.config);
 			let fileURL: URL;
 			try {
 				fileURL = new URL(`file://${filename}`);

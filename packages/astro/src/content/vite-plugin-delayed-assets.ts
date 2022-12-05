@@ -79,7 +79,7 @@ export function astroDelayedAssetPlugin({
 				if (!renderEntryImportName) return;
 
 				const s = new MagicString(code, {
-					filename: normalizeFilename({ fileName: id, projectRoot: settings.config.root }),
+					filename: normalizeFilename(id, settings.config),
 				});
 				s.prepend(
 					`import { renderEntry as $$renderEntry } from ${JSON.stringify(VIRTUAL_MODULE_ID)};\n`
