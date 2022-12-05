@@ -132,7 +132,18 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 
-									const [, moduleExports] = parseESM(code);
+									const [moduleImports, moduleExports] = parseESM(code);
+
+									// Fragment import should already be injected, but check just to be safe.
+									const importsFromJSXRuntime = moduleImports
+										.filter(({ n }) => n === 'astro/jsx-runtime')
+										.map(({ ss, se }) => code.substring(ss, se));
+									const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
+										/[\s,{](Fragment,|Fragment\s*})/.test(statement)
+									);
+									if (!hasFragmentImport) {
+										code = 'import { Fragment } from "astro/jsx-runtime"\n' + code;
+									}
 
 									const { fileUrl, fileId } = getFileInfo(id, config);
 									if (!moduleExports.includes('url')) {
