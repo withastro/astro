@@ -113,6 +113,7 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 	}
 
 	// HACK: expose `Fragment` for all MDX components
+	// TODO: Remove in Astro v2 — redundant as of @astrojs/mdx@>0.12.0
 	if (typeof mod.default === 'function' && mod.default.name.startsWith('MDX')) {
 		Object.assign(pageProps, {
 			components: Object.assign((pageProps?.components as any) ?? {}, { Fragment }),
