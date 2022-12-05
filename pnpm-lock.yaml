@@ -373,7 +373,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': 0.0.0-module-id-20221205155408
+      '@astrojs/compiler': 0.0.0-module-id-20221205161912
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^1.1.3
       '@astrojs/telemetry': ^1.0.1
@@ -472,7 +472,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.0.0-module-id-20221205155408
+      '@astrojs/compiler': 0.0.0-module-id-20221205161912
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -3892,8 +3892,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler/0.0.0-module-id-20221205155408:
-    resolution: {integrity: sha512-g27avw7U72aE8fBNfo7F5UCbaHQpPvANNt6I7JguzXcDin9apvCvO4uqjAMWIiXsj3G+sswo0mP4QICvXyEcMw==}
+  /@astrojs/compiler/0.0.0-module-id-20221205161912:
+    resolution: {integrity: sha512-wP5D3C68zgLtA8uKBGLekvqKVzHcum3GGI8DfAW7hiQ3AL66Khg962q2Lxg6JBulC2QmQFKnz06pbmTMAmL19Q==}
     dev: false
 
   /@astrojs/compiler/0.29.15:
