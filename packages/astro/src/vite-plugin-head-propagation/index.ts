@@ -4,7 +4,7 @@ import type { ModuleInfo } from 'rollup';
 
 import * as vite from 'vite';
 
-const injectExp = /^\/\/[ ]*astro-head-inject/;
+const injectExp = /^\/\/\s*astro-head-inject/;
 
 /**
  * If any component is marked as doing head injection, walk up the tree
