@@ -112,6 +112,11 @@ export function createRenderEntry({
 				});
 			}
 		}
+		if (!mod._internal && entry.id.endsWith('.mdx')) {
+			throw new Error(
+				`[Content] Failed to render MDX entry. Try installing @astrojs/mdx@next--content-schemas`
+			);
+		}
 		return {
 			Content: mod.Content,
 			headings: mod.getHeadings(),
