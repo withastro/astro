@@ -22,14 +22,6 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
-async function getCollectionsConfig() {
-	const res = await import('@@COLLECTIONS_IMPORT_PATH@@');
-	if ('collections' in res) {
-		return res.collections;
-	}
-	return {};
-}
-
 const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
 	query: { astroAssetSsr: true },
 });
@@ -40,13 +32,10 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 
 export const getCollection = createGetCollection({
 	collectionToEntryMap,
-	getCollectionsConfig,
 });
 
 export const getEntry = createGetEntry({
 	collectionToEntryMap,
-	getCollectionsConfig,
-	contentDir,
 });
 
 export const renderEntry = createRenderEntry({ collectionToRenderEntryMap });

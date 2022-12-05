@@ -1,16 +1,23 @@
-import { Plugin, ErrorPayload as ViteErrorPayload, normalizePath } from 'vite';
+import { Plugin, normalizePath } from 'vite';
 import glob from 'fast-glob';
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { bold, cyan } from 'kleur/colors';
-import matter from 'gray-matter';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { pathToFileURL } from 'node:url';
+import {
+	CollectionConfig,
+	ContentConfig,
+	getEntryData,
+	getEntrySlug,
+	parseFrontmatter,
+} from './utils.js';
+import * as devalue from 'devalue';
 
 type Paths = {
 	contentDir: URL;
@@ -27,24 +34,18 @@ function isContentFlagImport({ searchParams, pathname }: Pick<URL, 'searchParams
 	return searchParams.has(CONTENT_FLAG) && contentFileExts.some((ext) => pathname.endsWith(ext));
 }
 
-export function astroContentPlugin({
-	settings,
-	logging,
-}: {
-	logging: LogOptions;
-	settings: AstroSettings;
-}): Plugin[] {
-	const { root, srcDir } = settings.config;
-	const paths: Paths = {
+export function getPaths({ srcDir }: { srcDir: URL }): Paths {
+	return {
 		// Output generated types in content directory. May change in the future!
 		cacheDir: new URL('./content/', srcDir),
 		contentDir: new URL('./content/', srcDir),
 		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
 		config: new URL('./content/config', srcDir),
 	};
-	let contentDirExists = false;
-	let contentGenerator: GenerateContent;
+}
 
+export function astroContentVirtualModPlugin({ settings }: { settings: AstroSettings }): Plugin {
+	const paths = getPaths({ srcDir: settings.config.srcDir });
 	const relContentDir = appendForwardSlash(
 		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
 	);
@@ -53,42 +54,74 @@ export function astroContentPlugin({
 		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
-		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob)
-		.replace('@@COLLECTIONS_IMPORT_PATH@@', paths.config.pathname);
+		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
 
-	const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-	return [
-		{
-			name: 'astro-content-virtual-module-plugin',
-			resolveId(id) {
-				if (id === VIRTUAL_MODULE_ID) {
-					return resolvedVirtualModuleId;
-				}
-			},
-			load(id) {
-				if (id === resolvedVirtualModuleId) {
-					return {
-						code: astroContentModContents,
-					};
-				}
-			},
+	return {
+		name: 'astro-content-virtual-mod-plugin',
+		enforce: 'pre',
+		resolveId(id) {
+			if (id === VIRTUAL_MODULE_ID) {
+				return astroContentVirtualModuleId;
+			}
 		},
+		load(id) {
+			if (id === astroContentVirtualModuleId) {
+				return {
+					code: astroContentModContents,
+				};
+			}
+		},
+	};
+}
+
+export function astroContentServerPlugin({
+	settings,
+	contentConfig,
+	logging,
+}: {
+	logging: LogOptions;
+	settings: AstroSettings;
+	contentConfig: ContentConfig | Error;
+}): Plugin[] {
+	const paths: Paths = getPaths({ srcDir: settings.config.srcDir });
+	let contentDirExists = false;
+	let contentGenerator: GenerateContent;
+	return [
 		{
 			name: 'content-flag-plugin',
 			async load(id) {
 				const { pathname, searchParams } = new URL(id, 'file://');
 				if (isContentFlagImport({ pathname, searchParams })) {
 					const rawContents = await fs.readFile(pathname, 'utf-8');
-					const { content: body, data, matter: rawData } = parseFrontmatter(rawContents, pathname);
-					const entryInfo = parseEntryInfo(pathname, { contentDir: paths.contentDir });
+					const {
+						content: body,
+						data: unparsedData,
+						matter: rawData,
+					} = parseFrontmatter(rawContents, pathname);
+					const entryInfo = getEntryInfo({ entryPath: pathname, contentDir: paths.contentDir });
 					if (entryInfo instanceof Error) return;
+
+					const _internal = { filePath: pathname, rawData };
+					const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
+					const collectionConfig =
+						contentConfig instanceof Error
+							? undefined
+							: contentConfig.collections[entryInfo.collection];
+					const data = collectionConfig
+						? await getEntryData(partialEntry, collectionConfig)
+						: unparsedData;
+					const slug = collectionConfig
+						? await getEntrySlug({ ...partialEntry, data }, collectionConfig)
+						: entryInfo.slug;
+
 					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};
 export const collection = ${JSON.stringify(entryInfo.collection)};
-export const slug = ${JSON.stringify(entryInfo.slug)};
+export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(body)};
-export const data = ${JSON.stringify(data)};
+export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
 	filePath: ${JSON.stringify(pathname)},
 	rawData: ${JSON.stringify(rawData)},
@@ -106,7 +139,7 @@ export const _internal = {
 			},
 		},
 		{
-			name: 'astro-fetch-content-plugin',
+			name: 'astro-content-server-plugin',
 			async config() {
 				try {
 					await fs.stat(paths.contentDir);
@@ -118,7 +151,7 @@ export const _internal = {
 
 				info(logging, 'content', 'Generating entries...');
 
-				contentGenerator = await toGenerateContent({ logging, paths });
+				contentGenerator = await toGenerateContent({ logging, paths, contentConfig });
 				await contentGenerator.init();
 			},
 			async configureServer(viteServer) {
@@ -126,7 +159,9 @@ export const _internal = {
 					info(
 						logging,
 						'content',
-						`Watching ${cyan(paths.contentDir.href.replace(root.href, ''))} for changes`
+						`Watching ${cyan(
+							paths.contentDir.href.replace(settings.config.root.href, '')
+						)} for changes`
 					);
 					attachListeners();
 				} else {
@@ -184,9 +219,11 @@ const msg = {
 async function toGenerateContent({
 	logging,
 	paths,
+	contentConfig,
 }: {
 	logging: LogOptions;
 	paths: Paths;
+	contentConfig: ContentConfig | Error;
 }): Promise<GenerateContent> {
 	const contentTypes: ContentTypes = {};
 
@@ -242,20 +279,22 @@ async function toGenerateContent({
 				);
 				return;
 			}
-			const entryInfo = parseEntryInfo(event.entry, paths);
+			const entryInfo = getEntryInfo({ entryPath: event.entry, contentDir: paths.contentDir });
 			// Not a valid `src/content/` entry. Silently return, but should be impossible?
 			if (entryInfo instanceof Error) return;
 
 			const { id, slug, collection } = entryInfo;
 			const collectionKey = JSON.stringify(collection);
 			const entryKey = JSON.stringify(id);
+			const collectionConfig =
+				contentConfig instanceof Error ? undefined : contentConfig.collections[collection];
 			switch (event.name) {
 				case 'add':
 					if (!(collectionKey in contentTypes)) {
 						addCollection(contentTypes, collectionKey);
 					}
 					if (!(entryKey in contentTypes[collectionKey])) {
-						addEntry(contentTypes, collectionKey, entryKey, slug);
+						addEntry(contentTypes, collectionKey, entryKey, slug, collectionConfig);
 					}
 					if (shouldLog) {
 						info(logging, 'content', msg.entryAdded(entryInfo.slug, entryInfo.collection));
@@ -291,6 +330,7 @@ async function toGenerateContent({
 						contentTypes,
 						paths,
 						contentTypesBase,
+						hasContentConfig: !(contentConfig instanceof Error),
 					});
 					resolve();
 				}, 50 /* debounce 50 ms to batch chokidar events */);
@@ -314,21 +354,29 @@ function addEntry(
 	contentTypes: ContentTypes,
 	collectionKey: string,
 	entryKey: string,
-	slug: string
+	slug: string,
+	collectionConfig?: CollectionConfig
 ) {
-	contentTypes[collectionKey][entryKey] = `{\n  id: ${entryKey},\n  slug: ${JSON.stringify(
-		slug
-	)},\n  body: string,\n  collection: ${collectionKey},\n  data: InferEntrySchema<${collectionKey}>\n}`;
+	const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+	// If user has custom slug function, we can't predict slugs at type compilation.
+	// Would require parsing all data and evaluating ahead-of-time;
+	// We evaluate with lazy imports at dev server runtime
+	// to prevent excessive errors
+	const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(slug);
+
+	contentTypes[collectionKey][
+		entryKey
+	] = `{\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n}`;
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
 	delete contentTypes[collectionKey][entryKey];
 }
 
-function parseEntryInfo(
-	entryPath: string,
-	{ contentDir }: Pick<Paths, 'contentDir'>
-): EntryInfo | Error {
+function getEntryInfo({
+	entryPath,
+	contentDir,
+}: Pick<Paths, 'contentDir'> & { entryPath: string }): EntryInfo | Error {
 	const relativeEntryPath = normalizePath(path.relative(contentDir.pathname, entryPath));
 	const collection = path.dirname(relativeEntryPath).split(path.sep).shift();
 	if (!collection) return new Error();
@@ -354,51 +402,32 @@ function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | '
 	}
 }
 
-/**
- * Match YAML exception handling from Astro core errors
- * @see 'astro/src/core/errors.ts'
- */
-function parseFrontmatter(fileContents: string, filePath: string) {
-	try {
-		return matter(fileContents);
-	} catch (e: any) {
-		if (e.name === 'YAMLException') {
-			const err: Error & ViteErrorPayload['err'] = e;
-			err.id = filePath;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
-			throw err;
-		} else {
-			throw e;
-		}
-	}
-}
-
-function stringifyObjKeyValue(key: string, value: string) {
-	return `${key}: ${value},\n`;
-}
-
 async function writeContentFiles({
 	paths,
 	contentTypes,
 	contentTypesBase,
+	hasContentConfig,
 }: {
 	paths: Paths;
 	contentTypes: ContentTypes;
 	contentTypesBase: string;
+	hasContentConfig: boolean;
 }) {
 	let contentTypesStr = '';
 	for (const collectionKey in contentTypes) {
 		contentTypesStr += `${collectionKey}: {\n`;
 		for (const entryKey in contentTypes[collectionKey]) {
 			const entry = contentTypes[collectionKey][entryKey];
-			contentTypesStr += stringifyObjKeyValue(entryKey, entry);
+			contentTypesStr += `${entryKey}: ${entry},\n`;
 		}
 		contentTypesStr += `},\n`;
 	}
 
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
-	contentTypesBase = contentTypesBase.replace('@@COLLECTIONS_IMPORT_PATH@@', paths.config.pathname);
+	contentTypesBase = contentTypesBase.replace(
+		"'@@CONTENT_CONFIG_TYPE@@'",
+		hasContentConfig ? `typeof import(${JSON.stringify(paths.config.pathname)})` : 'never'
+	);
 
 	try {
 		await fs.stat(paths.cacheDir);

@@ -1,9 +1,7 @@
-import { z } from 'zod';
 import { prependForwardSlash } from '../core/path.js';
 
 type GlobResult = Record<string, () => Promise<any>>;
 type CollectionToEntryMap = Record<string, GlobResult>;
-type CollectionsConfig = Record<string, { schema: z.ZodRawShape }>;
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -25,90 +23,22 @@ export function createCollectionToGlobResultMap({
 	return collectionToGlobResultMap;
 }
 
-export async function parseEntryData(
-	collection: string,
-	entry: { id: string; data: any; _internal: { rawData: string; filePath: string } },
-	collectionsConfig: CollectionsConfig
-) {
-	if (!('schema' in (collectionsConfig[collection] ?? {}))) {
-		throw new Error(getErrorMsg.schemaDefMissing(collection));
-	}
-	const { schema } = collectionsConfig[collection];
-	// Use `safeParseAsync` to allow async transforms
-	const parsed = await z.object(schema).safeParseAsync(entry.data, { errorMap });
-
-	if (parsed.success) {
-		return parsed.data;
-	} else {
-		const formattedError = new Error(
-			[
-				`Could not parse frontmatter in ${String(collection)} → ${String(entry.id)}`,
-				...parsed.error.errors.map((zodError) => zodError.message),
-			].join('\n')
-		);
-		(formattedError as any).loc = {
-			file: entry._internal.filePath,
-			line: getFrontmatterErrorLine(
-				entry._internal.rawData,
-				String(parsed.error.errors[0].path[0])
-			),
-			column: 1,
-		};
-		throw formattedError;
-	}
-}
-
-const flattenPath = (path: (string | number)[]) => path.join('.');
-
-const errorMap: z.ZodErrorMap = (error, ctx) => {
-	if (error.code === 'invalid_type') {
-		const badKeyPath = JSON.stringify(flattenPath(error.path));
-		if (error.received === 'undefined') {
-			return { message: `${badKeyPath} is required.` };
-		} else {
-			return { message: `${badKeyPath} should be ${error.expected}, not ${error.received}.` };
-		}
-	}
-	return { message: ctx.defaultError };
-};
-
-// WARNING: MAXIMUM JANK AHEAD
-function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string) {
-	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
-	if (indexOfFrontmatterKey === -1) return 0;
-
-	const frontmatterBeforeKey = rawFrontmatter.substring(0, indexOfFrontmatterKey + 1);
-	const numNewlinesBeforeKey = frontmatterBeforeKey.split('\n').length;
-	return numNewlinesBeforeKey;
-}
-
-export const getErrorMsg = {
-	schemaFileMissing: (collection: string) =>
-		`${collection} does not have a config. We suggest adding one for type safety!`,
-	schemaDefMissing: (collection: string) =>
-		`${collection} needs a schema definition. Check your src/content/config!`,
-};
-
 export function createGetCollection({
 	collectionToEntryMap,
-	getCollectionsConfig,
 }: {
 	collectionToEntryMap: CollectionToEntryMap;
-	getCollectionsConfig: () => Promise<CollectionsConfig>;
 }) {
 	return async function getCollection(collection: string, filter?: () => boolean) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
-		const collectionsConfig = await getCollectionsConfig();
 		const entries = Promise.all(
 			lazyImports.map(async (lazyImport) => {
 				const entry = await lazyImport();
-				const data = await parseEntryData(collection, entry, collectionsConfig);
 				return {
 					id: entry.id,
 					slug: entry.slug,
 					body: entry.body,
 					collection: entry.collection,
-					data,
+					data: entry.data,
 				};
 			})
 		);
@@ -122,24 +52,20 @@ export function createGetCollection({
 
 export function createGetEntry({
 	collectionToEntryMap,
-	getCollectionsConfig,
 }: {
 	collectionToEntryMap: CollectionToEntryMap;
-	getCollectionsConfig: () => Promise<CollectionsConfig>;
 }) {
 	return async function getEntry(collection: string, entryId: string) {
 		const lazyImport = collectionToEntryMap[collection]?.[entryId];
-		const collectionsConfig = await getCollectionsConfig();
 		if (!lazyImport) throw new Error(`Ah! ${entryId}`);
 
 		const entry = await lazyImport();
-		const data = await parseEntryData(collection, entry, collectionsConfig);
 		return {
 			id: entry.id,
 			slug: entry.slug,
 			body: entry.body,
 			collection: entry.collection,
-			data,
+			data: entry.data,
 		};
 	};
 }
