@@ -1,8 +1,8 @@
 import type { AstroSettings } from '../@types/astro';
-import type { AstroPluginMetadata } from '../vite-plugin-astro/index';
 import type { ModuleInfo } from 'rollup';
 
 import * as vite from 'vite';
+import { getAstroMetadata } from '../vite-plugin-astro/index';
 
 const injectExp = /^\/\/\s*astro-head-inject/;
 
@@ -26,8 +26,10 @@ export default function configAliasVitePlugin({
 				}
 				const info = getInfo(parent.id);
 				if(info?.meta.astro) {
-					const astroMetadata = info.meta.astro as AstroPluginMetadata['astro'];
-					astroMetadata.propagation = 'in-tree';
+					const astroMetadata = getAstroMetadata(info);
+					if(astroMetadata) {
+						astroMetadata.propagation = 'in-tree';
+					}
 				}
 				addHeadInjectionInTree(graph, parent.id, getInfo, seen);
 			}
