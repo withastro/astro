@@ -423,7 +423,6 @@ importers:
       diff: ^5.1.0
       eol: ^0.9.1
       es-module-lexer: ^0.10.5
-      esbuild: ^0.14.43
       execa: ^6.1.0
       fast-glob: ^3.2.11
       github-slugger: ^1.4.0
@@ -496,7 +495,6 @@ importers:
       deepmerge-ts: 4.2.2
       diff: 5.1.0
       es-module-lexer: 0.10.5
-      esbuild: 0.14.54
       execa: 6.1.0
       fast-glob: 3.2.12
       github-slugger: 1.5.0

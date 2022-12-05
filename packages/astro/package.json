@@ -124,7 +124,6 @@
     "deepmerge-ts": "^4.2.2",
     "diff": "^5.1.0",
     "es-module-lexer": "^0.10.5",
-    "esbuild": "^0.14.43",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
     "github-slugger": "^1.4.0",
