@@ -70,14 +70,6 @@ export async function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.root)
 		throw new Error("Must provide { root: './fixtures/...' }");
 
-	// Compatible with different Node versions (https://vitejs.dev/guide/migration.html#dev-server-changes)
-	// TODO: Remove this to test in Node >= 17 where the dns resolver is verbatim
-	if (!inlineConfig?.server) {
-		inlineConfig.server = { host: '127.0.0.1' };
-	} else {
-		inlineConfig.server.host = '127.0.0.1';
-	}
-
 	// load config
 	let cwd = inlineConfig.root;
 	delete inlineConfig.root;
@@ -118,7 +110,7 @@ export async function loadFixture(inlineConfig) {
 	};
 
 	const resolveUrl = (url) =>
-		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+		`http://${config.server.host}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
 	// A map of files that have been editted.
 	let fileEdits = new Map();
@@ -149,6 +141,7 @@ export async function loadFixture(inlineConfig) {
 		build: (opts = {}) => build(settings, { logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
 			devServer = await dev(settings, { logging, telemetry, ...opts });
+			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
 		},
@@ -157,6 +150,8 @@ export async function loadFixture(inlineConfig) {
 		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
+			config.server.host = parseAddressToHost(previewServer.host); // update host
+			config.server.port = previewServer.port; // update port
 			return previewServer;
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
@@ -199,6 +194,16 @@ export async function loadFixture(inlineConfig) {
 		},
 		resetAllFiles,
 	};
+}
+
+/**
+ * @param {string} [address]
+ */
+function parseAddressToHost(address) {
+	if (address?.startsWith('::')) {
+		return `[${address}]`;
+	}
+	return address;
 }
 
 /**
