@@ -15,9 +15,9 @@ import {
 } from '../core/path.js';
 import { viteID } from '../core/util.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
+import { cachedFullCompilation } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
-import { cachedFullCompilation } from './compile.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;

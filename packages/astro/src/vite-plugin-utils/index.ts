@@ -1,6 +1,4 @@
 import ancestor from 'common-ancestor-path';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { Data } from 'vfile';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
 import {
