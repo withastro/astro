@@ -126,6 +126,9 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 	}
 }
 
+export class NotFoundError extends TypeError {}
+export class ZodParseError extends TypeError {}
+
 export async function loadContentConfig({
 	settings,
 }: {
@@ -145,7 +148,7 @@ export async function loadContentConfig({
 	try {
 		unparsedConfig = await tempConfigServer.ssrLoadModule(paths.config.pathname);
 	} catch {
-		return new Error('Failed to resolve content config.');
+		return new NotFoundError('Failed to resolve content config.');
 	} finally {
 		await tempConfigServer.close();
 	}
@@ -153,6 +156,6 @@ export async function loadContentConfig({
 	if (config.success) {
 		return config.data;
 	} else {
-		return new TypeError('Content config file is invalid.');
+		return new ZodParseError('Content config file is invalid.');
 	}
 }
