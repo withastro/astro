@@ -3,7 +3,7 @@ import type { LogOptions } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 
-import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
+import { Fragment, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
@@ -110,6 +110,13 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 	// Support `export const components` for `MDX` pages
 	if (typeof (mod as any).components === 'object') {
 		Object.assign(pageProps, { components: (mod as any).components });
+	}
+
+	// HACK: expose `Fragment` for all MDX components
+	if (typeof mod.default === 'function' && mod.default.name.startsWith('MDX')) {
+		Object.assign(pageProps, {
+			components: Object.assign((pageProps?.components as any) ?? {}, { Fragment }),
+		});
 	}
 
 	const response = await runtimeRenderPage(
