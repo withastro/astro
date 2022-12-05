@@ -2,7 +2,7 @@ import type { AstroSettings } from '../@types/astro';
 import type { ModuleInfo } from 'rollup';
 
 import * as vite from 'vite';
-import { getAstroMetadata } from '../vite-plugin-astro/index';
+import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 
 const injectExp = /^\/\/\s*astro-head-inject/;
 
