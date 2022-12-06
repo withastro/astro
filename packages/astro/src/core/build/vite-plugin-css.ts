@@ -2,8 +2,7 @@ import type { GetModuleInfo } from 'rollup';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
 
-import esbuild from 'esbuild';
-import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
+import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 
 import * as assetName from './css-asset-name.js';
@@ -207,11 +206,16 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
 								const cssTarget = settings.config.vite.build?.cssTarget;
 								const minify = settings.config.vite.build?.minify !== false;
-								const { code: minifiedCSS } = await esbuild.transform(output.source, {
-									loader: 'css',
-									minify,
-									...(cssTarget ? { target: cssTarget } : {}),
-								});
+								const { code: minifiedCSS } = await transformWithEsbuild(
+									output.source,
+									output.name,
+									{
+										loader: 'css',
+										minify,
+										target: cssTarget || undefined,
+										sourcemap: false,
+									}
+								);
 								output.source = minifiedCSS;
 							}
 						}
