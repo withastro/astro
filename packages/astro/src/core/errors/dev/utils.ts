@@ -1,12 +1,14 @@
-import type { BuildResult } from 'esbuild';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
+import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
 import { AggregateError, ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
+
+type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 
 export const incompatiblePackages = {
 	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`,
@@ -44,7 +46,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 	// If we received an array of errors and it's not from us, it should be from ESBuild, try to extract info for Vite to display
 	if (!AggregateError.is(e) && Array.isArray((e as any).errors)) {
-		(e as BuildResult).errors.forEach((buildError, i) => {
+		(e.errors as EsbuildMessage[]).forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
