@@ -8,7 +8,7 @@ import { createSafeError } from '../core/errors/index.js';
 import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { removeTrailingForwardSlash } from '../core/path.js';
-import { eventError, telemetry } from '../events';
+import { eventError, telemetry } from '../events/index.js';
 import { runWithErrorHandling } from './controller.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';

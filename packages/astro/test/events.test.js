@@ -428,6 +428,7 @@ describe('Events', () => {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					code: AstroErrorData.UnknownConfigError.code,
+					name: 'ZodError',
 					isFatal: true,
 					isConfig: true,
 					cliCommand: 'COMMAND_NAME',
