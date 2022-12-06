@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.3.5
+
+### Patch Changes
+
+- [#5514](https://github.com/withastro/astro/pull/5514) [`a1885ea2f`](https://github.com/withastro/astro/commit/a1885ea2f59f26cbdae10c298e1e0d1063d9dca1) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated request-transform methods
+
 ## 2.3.4
 
 ### Patch Changes
