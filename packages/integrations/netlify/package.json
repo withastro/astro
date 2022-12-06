@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^1.1.1",
-    "esbuild": "^0.14.43"
+    "esbuild": "^0.15.18"
   },
   "devDependencies": {
     "@netlify/edge-handler-types": "^0.34.1",
