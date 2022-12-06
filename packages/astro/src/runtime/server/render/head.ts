@@ -44,10 +44,12 @@ function renderAllHeadContent(result: SSRResult) {
 	}
 }
 
-export function renderHead(result: SSRResult) {
+export function createRenderHead(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	return renderAllHeadContent.bind(null, result);
 }
+
+export const renderHead = createRenderHead;
 
 // This function is called by Astro components that do not contain a <head> component
 // This accommodates the fact that using a <head> is optional in Astro, so this
@@ -57,5 +59,5 @@ export async function* maybeRenderHead(result: SSRResult) {
 	if (result._metadata.hasRenderedHead) {
 		return;
 	}
-	yield renderHead(result)();
+	yield createRenderHead(result)();
 }
