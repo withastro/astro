@@ -1398,6 +1398,16 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 }
 
+/**
+ * A hint on whether the Astro runtime needs to wait on a component to render head
+ * content. The meanings:
+ * 
+ * - __none__ (default) The component does not propagation head content.
+ * - __self__ The component appends head content.
+ * - __in-tree__ Another component within this component's dependency tree appends head content.
+ * 
+ * These are used within the runtime to know whether or not a component should be waited on.
+ */
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
 export interface SSRResult {
