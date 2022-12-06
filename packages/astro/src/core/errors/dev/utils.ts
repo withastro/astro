@@ -18,7 +18,7 @@ export const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackage
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
 export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
-	const err = AggregateError.is(e) ? (e.errors as SSRError[]) : [e as SSRError];
+	const err = AggregateError.is(e) || Array.isArray((e as any).errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
 	err.forEach((error) => {
 		if (error.stack) {
