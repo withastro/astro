@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.12.1
+
+### Patch Changes
+
+- [#5521](https://github.com/withastro/astro/pull/5521) [`65d27666e`](https://github.com/withastro/astro/commit/65d27666e1a0e668d02f7106e89f6d7b45f5de02) Thanks [@truesri](https://github.com/truesri)! - Allows passing alt to getPicture
+
 ## 0.12.0
 
 ### Minor Changes

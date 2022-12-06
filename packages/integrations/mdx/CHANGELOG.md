@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.12.1
+
+### Patch Changes
+
+- [#5522](https://github.com/withastro/astro/pull/5522) [`efc4363e0`](https://github.com/withastro/astro/commit/efc4363e0baf7f92900e20af339811bb3df42b0e) Thanks [@delucis](https://github.com/delucis)! - Support use of `<Fragment>` in MDX files rendered with `<Content />` component
+
 ## 0.12.0
 
 ### Minor Changes
