@@ -16,7 +16,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
-import type { AstroComponentFactory } from '../runtime/server';
+import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
@@ -1398,10 +1398,25 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 }
 
+/**
+ * A hint on whether the Astro runtime needs to wait on a component to render head
+ * content. The meanings:
+ * 
+ * - __none__ (default) The component does not propagation head content.
+ * - __self__ The component appends head content.
+ * - __in-tree__ Another component within this component's dependency tree appends head content.
+ * 
+ * These are used within the runtime to know whether or not a component should be waited on.
+ */
+export type PropagationHint = 'none' | 'self' | 'in-tree';
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
+	propagation: Map<string, PropagationHint>;
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	extraHead: Array<any>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

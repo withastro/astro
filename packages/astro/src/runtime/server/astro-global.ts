@@ -39,6 +39,7 @@ export function createAstro(
 		fetchContent: createDeprecatedFetchContentFn(),
 		glob: createAstroGlobFn(),
 		// INVESTIGATE is there a use-case for multi args?
+		// TODO remove in 2.0
 		resolve(...segments: string[]) {
 			let resolved = segments.reduce((u, segment) => new URL(segment, u), referenceURL).pathname;
 			// When inside of project root, remove the leading path so you are

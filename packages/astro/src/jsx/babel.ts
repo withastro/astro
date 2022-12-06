@@ -145,6 +145,7 @@ export default function astroJSX(): PluginObj {
 							clientOnlyComponents: [],
 							hydratedComponents: [],
 							scripts: [],
+							propagation: 'none',
 						};
 					}
 					path.node.body.splice(

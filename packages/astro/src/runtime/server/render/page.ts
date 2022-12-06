@@ -5,7 +5,13 @@ import type { AstroComponentFactory } from './index';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import { isHTMLString } from '../escape.js';
 import { createResponse } from '../response.js';
-import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
+import {
+	isAstroComponentFactory,
+	isAstroComponentInstance,
+	isRenderTemplateResult,
+	isHeadAndContent,
+	renderAstroTemplateResult
+} from './astro/index.js';
 import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
@@ -45,6 +51,22 @@ async function iterableToHTMLBytes(
 	return parts.toArrayBuffer();
 }
 
+// Recursively calls component instances that might have head content
+// to be propagated up.
+async function bufferHeadContent(result: SSRResult) {
+	const iterator = result.propagators.values();
+	while(true) {
+		const { value, done } = iterator.next();
+		if(done) {
+			break;
+		}
+		const returnValue = await value.init();
+		if(isHeadAndContent(returnValue)) {
+			result.extraHead.push(returnValue.head);
+		}
+	}
+}
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory | NonAstroPageComponent,
@@ -57,16 +79,19 @@ export async function renderPage(
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
 		let output: ComponentIterable;
-
 		try {
-			output = await renderComponent(
+			const renderResult = await renderComponent(
 				result,
 				componentFactory.name,
 				componentFactory,
 				pageProps,
 				null,
-				route
 			);
+			if(isAstroComponentInstance(renderResult)) {
+				output = renderResult.render();
+			} else {
+				output = renderResult;
+			}
 		} catch (e) {
 			if (AstroError.is(e) && !e.loc) {
 				e.setLocation({
@@ -94,9 +119,13 @@ export async function renderPage(
 		});
 	}
 	const factoryReturnValue = await componentFactory(result, props, children);
+	const factoryIsHeadAndContent = isHeadAndContent(factoryReturnValue);
+	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {
+		// Wait for head content to be buffered up
+		await bufferHeadContent(result);
+		const templateResult = factoryIsHeadAndContent ? factoryReturnValue.content : factoryReturnValue;
 
-	if (isAstroComponent(factoryReturnValue)) {
-		let iterable = renderAstroComponent(factoryReturnValue);
+		let iterable = renderAstroTemplateResult(templateResult);
 		let init = result.response;
 		let headers = new Headers(init.headers);
 		let body: BodyInit;

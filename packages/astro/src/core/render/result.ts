@@ -45,6 +45,7 @@ export interface CreateResultArgs {
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
+	propagation?: SSRResult['propagation'];
 	request: Request;
 	status: number;
 }
@@ -154,6 +155,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
+		propagation: args.propagation ?? new Map(),
+		propagators: new Map(),
+		extraHead: [],
 		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(
