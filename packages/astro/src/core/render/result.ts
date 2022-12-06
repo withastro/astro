@@ -194,13 +194,13 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				url,
 				redirect: args.ssr
 					? (path, status) => {
-						return new Response(null, {
-							status: status || 302,
-							headers: {
-								Location: path,
-							},
-						});
-					}
+							return new Response(null, {
+								status: status || 302,
+								headers: {
+									Location: path,
+								},
+							});
+					  }
 					: onlyAvailableInSSR('Astro.redirect'),
 				resolve(path: string) {
 					let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
