@@ -56,7 +56,6 @@ function getFunctionExpression(slot: any) {
 }
 
 class Slots {
-	#cache = new Map<string, string>();
 	#result: SSRResult;
 	#slots: Record<string, any> | null;
 	#loggingOpts: LogOptions;
@@ -90,42 +89,36 @@ class Slots {
 	}
 
 	public async render(name: string, args: any[] = []) {
-		const cacheable = args.length === 0;
-		if (!this.#slots) return undefined;
-		if (cacheable && this.#cache.has(name)) {
-			const result = this.#cache.get(name);
-			return result;
-		}
-		if (!this.has(name)) return undefined;
-		if (!cacheable) {
+		if (!this.#slots || !this.has(name)) return;
+
+		if (!Array.isArray(args)) {
+			warn(
+				this.#loggingOpts,
+				'Astro.slots.render',
+				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
+			);
+		} else if (args.length > 0) {
 			const component = await this.#slots[name]();
-			if (!Array.isArray(args)) {
-				warn(
-					this.#loggingOpts,
-					'Astro.slots.render',
-					`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
+
+			// Astro
+			const expression = getFunctionExpression(component);
+			if (expression) {
+				const slot = expression(...args);
+				return await renderSlot(this.#result, slot).then((res) =>
+					res != null ? String(res) : res
 				);
-			} else {
-				// Astro
-				const expression = getFunctionExpression(component);
-				if (expression) {
-					const slot = expression(...args);
-					return await renderSlot(this.#result, slot).then((res) =>
-						res != null ? String(res) : res
-					);
-				}
-				// JSX
-				if (typeof component === 'function') {
-					return await renderJSX(this.#result, component(...args)).then((res) =>
-						res != null ? String(res) : res
-					);
-				}
+			}
+			// JSX
+			if (typeof component === 'function') {
+				return await renderJSX(this.#result, component(...args)).then((res) =>
+					res != null ? String(res) : res
+				);
 			}
 		}
+
 		const content = await renderSlot(this.#result, this.#slots[name]);
 		const outHTML = stringifyChunk(this.#result, content);
 
-		if (cacheable) this.#cache.set(name, outHTML);
 		return outHTML;
 	}
 }
@@ -201,13 +194,13 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				url,
 				redirect: args.ssr
 					? (path, status) => {
-							return new Response(null, {
-								status: status || 302,
-								headers: {
-									Location: path,
-								},
-							});
-					  }
+						return new Response(null, {
+							status: status || 302,
+							headers: {
+								Location: path,
+							},
+						});
+					}
 					: onlyAvailableInSSR('Astro.redirect'),
 				resolve(path: string) {
 					let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
