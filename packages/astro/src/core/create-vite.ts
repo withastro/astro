@@ -93,7 +93,7 @@ export async function createVite(
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],
-			exclude: ['node-fetch'],
+			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
 			configAliasVitePlugin({ settings }),
