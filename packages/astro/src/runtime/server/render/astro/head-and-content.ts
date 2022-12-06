@@ -5,11 +5,11 @@ const headAndContentSym = Symbol.for('astro.headAndContent');
 export type HeadAndContent = {
 	[headAndContentSym]: true;
 	head: string | RenderTemplateResult;
-	content: RenderTemplateResult;	
-}
+	content: RenderTemplateResult;
+};
 
 export function isHeadAndContent(obj: unknown): obj is HeadAndContent {
-	return typeof obj === 'object' && !!((obj as any)[headAndContentSym]);
+	return typeof obj === 'object' && !!(obj as any)[headAndContentSym];
 }
 
 export function createHeadAndContent(
@@ -19,6 +19,6 @@ export function createHeadAndContent(
 	return {
 		[headAndContentSym]: true,
 		head,
-		content
-	}
+		content,
+	};
 }

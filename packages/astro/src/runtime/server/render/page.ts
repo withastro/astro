@@ -8,9 +8,9 @@ import { createResponse } from '../response.js';
 import {
 	isAstroComponentFactory,
 	isAstroComponentInstance,
-	isRenderTemplateResult,
 	isHeadAndContent,
-	renderAstroTemplateResult
+	isRenderTemplateResult,
+	renderAstroTemplateResult,
 } from './astro/index.js';
 import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
@@ -55,13 +55,13 @@ async function iterableToHTMLBytes(
 // to be propagated up.
 async function bufferHeadContent(result: SSRResult) {
 	const iterator = result.propagators.values();
-	while(true) {
+	while (true) {
 		const { value, done } = iterator.next();
-		if(done) {
+		if (done) {
 			break;
 		}
 		const returnValue = await value.init();
-		if(isHeadAndContent(returnValue)) {
+		if (isHeadAndContent(returnValue)) {
 			result.extraHead.push(returnValue.head);
 		}
 	}
@@ -85,9 +85,9 @@ export async function renderPage(
 				componentFactory.name,
 				componentFactory,
 				pageProps,
-				null,
+				null
 			);
-			if(isAstroComponentInstance(renderResult)) {
+			if (isAstroComponentInstance(renderResult)) {
 				output = renderResult.render();
 			} else {
 				output = renderResult;
@@ -123,7 +123,9 @@ export async function renderPage(
 	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {
 		// Wait for head content to be buffered up
 		await bufferHeadContent(result);
-		const templateResult = factoryIsHeadAndContent ? factoryReturnValue.content : factoryReturnValue;
+		const templateResult = factoryIsHeadAndContent
+			? factoryReturnValue.content
+			: factoryReturnValue;
 
 		let iterable = renderAstroTemplateResult(templateResult);
 		let init = result.response;

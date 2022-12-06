@@ -52,9 +52,7 @@ export class RenderTemplateResult {
 
 // Determines if a component is an .astro component
 export function isRenderTemplateResult(obj: unknown): obj is RenderTemplateResult {
-	return (
-		typeof obj === 'object' && !!((obj as any)[renderTemplateResultSym])
-	);
+	return typeof obj === 'object' && !!(obj as any)[renderTemplateResultSym];
 }
 
 export async function* renderAstroTemplateResult(

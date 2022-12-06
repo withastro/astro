@@ -55,24 +55,28 @@ describe('head injection', () => {
 			root
 		);
 
-		await runInContainer({
-			fs, root,
-			userConfig: {
-				vite: { server: { middlewareMode: true } }
-			}
-		}, async (container) => {
-			const { req, res, done, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(req, res);
-			await done;
-			const html = await text();
-			const $ = cheerio.load(html);
+		await runInContainer(
+			{
+				fs,
+				root,
+				userConfig: {
+					vite: { server: { middlewareMode: true } },
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+				await done;
+				const html = await text();
+				const $ = cheerio.load(html);
 
-			expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
-			expect($('#other')).to.have.a.lengthOf(1);
-		});
+				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
+				expect($('#other')).to.have.a.lengthOf(1);
+			}
+		);
 	});
 
 	it('Dynamic injection from a layout component', async () => {
@@ -138,23 +142,27 @@ describe('head injection', () => {
 			root
 		);
 
-		await runInContainer({
-			fs, root,
-			userConfig: {
-				vite: { server: { middlewareMode: true } }
-			}
-		}, async (container) => {
-			const { req, res, done, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(req, res);
-			await done;
-			const html = await text();
-			const $ = cheerio.load(html);
+		await runInContainer(
+			{
+				fs,
+				root,
+				userConfig: {
+					vite: { server: { middlewareMode: true } },
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+				await done;
+				const html = await text();
+				const $ = cheerio.load(html);
 
-			expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
-			expect($('#other')).to.have.a.lengthOf(1);
-		});
+				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
+				expect($('#other')).to.have.a.lengthOf(1);
+			}
+		);
 	});
 });

@@ -1,3 +1,4 @@
+export { createComponent } from './astro-component.js';
 export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';
 export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from './escape.js';
@@ -18,17 +19,19 @@ export {
 	renderSlot,
 	renderTemplate as render,
 	renderTemplate,
-	renderUniqueStylesheet,
 	renderToString,
+	renderUniqueStylesheet,
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
-export { createComponent } from './astro-component.js';
-export type { AstroComponentFactory, AstroComponentInstance, RenderInstruction } from './render/index.js';
+export type {
+	AstroComponentFactory,
+	AstroComponentInstance,
+	RenderInstruction,
+} from './render/index.js';
 
 import { markHTMLString } from './escape.js';
-import { Renderer } from './render/index.js';
-import { addAttribute } from './render/index.js';
+import { addAttribute, Renderer } from './render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};

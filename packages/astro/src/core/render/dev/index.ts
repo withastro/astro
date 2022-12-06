@@ -15,8 +15,8 @@ import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
-import { getScriptsForURL } from './scripts.js';
 import { getPropagationMap } from './head.js';
+import { getScriptsForURL } from './scripts.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 

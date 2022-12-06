@@ -21,7 +21,7 @@ function createComponentWithOptions(opts: CreateComponentOptions) {
 }
 // Used in creating the component. aka the main export.
 export function createComponent(arg1: AstroComponentFactory, moduleId: string) {
-	if(typeof arg1 === 'function') {
+	if (typeof arg1 === 'function') {
 		return baseCreateComponent(arg1, moduleId);
 	} else {
 		return createComponentWithOptions(arg1);

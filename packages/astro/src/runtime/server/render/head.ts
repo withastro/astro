@@ -1,8 +1,8 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { renderElement } from './util.js';
 import { renderChild } from './any.js';
+import { renderElement } from './util.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -13,10 +13,10 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	);
 };
 
-async function * renderExtraHead(result: SSRResult, base: string) {
+async function* renderExtraHead(result: SSRResult, base: string) {
 	yield base;
-	for(const part of result.extraHead) {
-		yield * renderChild(part);
+	for (const part of result.extraHead) {
+		yield* renderChild(part);
 	}
 }
 
@@ -35,9 +35,9 @@ function renderAllHeadContent(result: SSRResult) {
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
 
-	const baseHeadContent = markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n'))
+	const baseHeadContent = markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n'));
 
-	if(result.extraHead.length > 0) {
+	if (result.extraHead.length > 0) {
 		return renderExtraHead(result, baseHeadContent);
 	} else {
 		return baseHeadContent;

@@ -1,9 +1,4 @@
-import type {
-	AstroComponentMetadata,
-	RouteData,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../@types/astro';
+import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
@@ -11,19 +6,19 @@ import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
+import { isPromise } from '../util.js';
 import {
 	createAstroComponentInstance,
 	isAstroComponentFactory,
 	isAstroComponentInstance,
 	renderAstroTemplateResult,
 	renderTemplate,
-	type AstroComponentInstance
+	type AstroComponentInstance,
 } from './astro/index.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { renderSlot, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
-import { isPromise } from '../util.js';
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
 
@@ -55,9 +50,7 @@ function isFragmentComponent(Component: unknown) {
 }
 
 function isHTMLComponent(Component: unknown) {
-	return (
-		Component && typeof Component === 'object' && (Component as any)['astro:html']
-	);
+	return Component && typeof Component === 'object' && (Component as any)['astro:html'];
 }
 
 async function renderFrameworkComponent(
@@ -65,7 +58,7 @@ async function renderFrameworkComponent(
 	displayName: string,
 	Component: unknown,
 	_props: Record<string | number, any>,
-	slots: any = {},
+	slots: any = {}
 ): Promise<ComponentIterable> {
 	if (!Component && !_props['client:only']) {
 		throw new Error(
@@ -358,22 +351,22 @@ export function renderComponent(
 	props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<ComponentIterable> | ComponentIterable | AstroComponentInstance {
-	if(isPromise(Component)) {
-		return Promise.resolve(Component).then(Unwrapped => {
+	if (isPromise(Component)) {
+		return Promise.resolve(Component).then((Unwrapped) => {
 			return renderComponent(result, displayName, Unwrapped, props, slots) as any;
 		});
 	}
 
-	if(isFragmentComponent(Component)) {
+	if (isFragmentComponent(Component)) {
 		return renderFragmentComponent(result, slots);
 	}
 
 	// .html components
-	if(isHTMLComponent(Component)) {
+	if (isHTMLComponent(Component)) {
 		return renderHTMLComponent(result, Component, props, slots);
 	}
 
-	if(isAstroComponentFactory(Component)) {
+	if (isAstroComponentFactory(Component)) {
 		return createAstroComponentInstance(result, displayName, Component, props, slots);
 	}
 
@@ -388,7 +381,7 @@ export function renderComponentToIterable(
 	slots: any = {}
 ): Promise<ComponentIterable> | ComponentIterable {
 	const renderResult = renderComponent(result, displayName, Component, props, slots);
-	if(isAstroComponentInstance(renderResult)) {
+	if (isAstroComponentInstance(renderResult)) {
 		return renderResult.render();
 	}
 	return renderResult;

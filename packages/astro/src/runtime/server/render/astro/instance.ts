@@ -2,10 +2,10 @@ import type { SSRResult } from '../../../../@types/astro';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 
 import { HydrationDirectiveProps } from '../../hydration.js';
-import { renderChild } from '../any.js';
-import { isHeadAndContent } from './head-and-content.js';
-import { isAPropagatingComponent } from './factory.js';
 import { isPromise } from '../../util.js';
+import { renderChild } from '../any.js';
+import { isAPropagatingComponent } from './factory.js';
+import { isHeadAndContent } from './head-and-content.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -19,7 +19,12 @@ export class AstroComponentInstance {
 	private readonly slots: any;
 	private readonly factory: AstroComponentFactory;
 	private returnValue: ReturnType<AstroComponentFactory> | undefined;
-	constructor(result: SSRResult, props: ComponentProps, slots: any, factory: AstroComponentFactory) {
+	constructor(
+		result: SSRResult,
+		props: ComponentProps,
+		slots: any,
+		factory: AstroComponentFactory
+	) {
 		this.result = result;
 		this.props = props;
 		this.slots = slots;
@@ -32,18 +37,18 @@ export class AstroComponentInstance {
 	}
 
 	async *render() {
-		if(this.returnValue === undefined) {
+		if (this.returnValue === undefined) {
 			await this.init();
 		}
 
 		let value: AstroFactoryReturnValue | undefined = this.returnValue;
-		if(isPromise(value)) {
+		if (isPromise(value)) {
 			value = await value;
 		}
-		if(isHeadAndContent(value)) {
-			yield * value.content;
+		if (isHeadAndContent(value)) {
+			yield* value.content;
 		} else {
-			yield * renderChild(value);
+			yield* renderChild(value);
 		}
 	}
 }
@@ -71,12 +76,12 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
-	if(isAPropagatingComponent(result, factory) && !result.propagators.has(factory)) {
+	if (isAPropagatingComponent(result, factory) && !result.propagators.has(factory)) {
 		result.propagators.set(factory, instance);
 	}
 	return instance;
 }
 
 export function isAstroComponentInstance(obj: unknown): obj is AstroComponentInstance {
-	return typeof obj === 'object' && !!((obj as any)[astroComponentInstanceSym]);
+	return typeof obj === 'object' && !!(obj as any)[astroComponentInstanceSym];
 }

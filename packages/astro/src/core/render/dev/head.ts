@@ -2,8 +2,8 @@ import type { SSRResult } from '../../../@types/astro';
 
 import type { ModuleInfo, ModuleLoader } from '../../module-loader/index';
 
-import { viteID } from '../../util.js';
 import { getAstroMetadata } from '../../../vite-plugin-astro/index.js';
+import { viteID } from '../../util.js';
 import { crawlGraph } from './vite.js';
 
 export async function getPropagationMap(
@@ -13,7 +13,7 @@ export async function getPropagationMap(
 	const map: SSRResult['propagation'] = new Map();
 
 	const rootID = viteID(filePath);
-	addInjection(map, loader.getModuleInfo(rootID))
+	addInjection(map, loader.getModuleInfo(rootID));
 	for await (const moduleNode of crawlGraph(loader, rootID, true)) {
 		const id = moduleNode.id;
 		if (id) {
@@ -25,10 +25,10 @@ export async function getPropagationMap(
 }
 
 function addInjection(map: SSRResult['propagation'], modInfo: ModuleInfo | null) {
-	if(modInfo) {
+	if (modInfo) {
 		const astro = getAstroMetadata(modInfo);
-		if(astro && astro.propagation) {
-			map.set(modInfo.id, astro.propagation)
+		if (astro && astro.propagation) {
+			map.set(modInfo.id, astro.propagation);
 		}
 	}
 }

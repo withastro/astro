@@ -233,7 +233,7 @@ ${tsResult}`;
 					clientOnlyComponents: transformResult.clientOnlyComponents,
 					hydratedComponents: transformResult.hydratedComponents,
 					scripts: transformResult.scripts,
-					propagation: 'none'
+					propagation: 'none',
 				};
 
 				return {

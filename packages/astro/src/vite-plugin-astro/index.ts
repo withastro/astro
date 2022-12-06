@@ -18,8 +18,8 @@ import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { cachedFullCompilation } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
-export type { AstroPluginMetadata };
 export { getAstroMetadata } from './metadata.js';
+export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;

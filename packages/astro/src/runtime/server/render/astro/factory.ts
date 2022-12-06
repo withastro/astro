@@ -1,10 +1,10 @@
-import type { SSRResult, PropagationHint } from '../../../../@types/astro';
+import type { PropagationHint, SSRResult } from '../../../../@types/astro';
 import type { HeadAndContent } from './head-and-content';
 import type { RenderTemplateResult } from './render-template';
 
-import { renderAstroTemplateResult } from './render-template.js';
-import { isHeadAndContent } from './head-and-content.js';
 import { HTMLParts } from '../common.js';
+import { isHeadAndContent } from './head-and-content.js';
+import { renderAstroTemplateResult } from './render-template.js';
 
 export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent;
 
@@ -40,13 +40,15 @@ export async function renderToString(
 		parts.append(chunk, result);
 	}
 
-
 	return parts.toString();
 }
 
-export function isAPropagatingComponent(result: SSRResult, factory: AstroComponentFactory): boolean {
+export function isAPropagatingComponent(
+	result: SSRResult,
+	factory: AstroComponentFactory
+): boolean {
 	let hint: PropagationHint = factory.propagation || 'none';
-	if(factory.moduleId && result.propagation.has(factory.moduleId) && hint === 'none') {
+	if (factory.moduleId && result.propagation.has(factory.moduleId) && hint === 'none') {
 		hint = result.propagation.get(factory.moduleId)!;
 	}
 	return hint === 'in-tree' || hint === 'self';
