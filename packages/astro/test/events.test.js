@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { AstroErrorData } from '../dist/core/errors/errors-data.js';
+import { AstroError } from '../dist/core/errors/errors.js';
 import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
@@ -451,9 +452,34 @@ describe('Events', () => {
 				payload: {
 					code: 1234,
 					plugin: 'TEST PLUGIN',
+					name: 'Error',
 					isFatal: true,
 					cliCommand: 'COMMAND_NAME',
 					anonymousMessageHint: 'TEST ERROR MESSAGE',
+				},
+			});
+		});
+
+		it('returns the expected event payload for AstroError', () => {
+			const [event] = events.eventError({
+				err: new AstroError({
+					...AstroErrorData.ClientAddressNotAvailable,
+					message: AstroErrorData.ClientAddressNotAvailable.message('mysuperadapter'),
+				}),
+				cmd: 'COMMAND_NAME',
+				isFatal: false,
+			});
+
+			expect(event).to.deep.equal({
+				eventName: 'ASTRO_CLI_ERROR',
+				payload: {
+					anonymousMessageHint:
+						'`Astro.clientAddress` is not available in the `ADAPTER_NAME` adapter. File an issue with the adapter to add support.',
+					cliCommand: 'COMMAND_NAME',
+					code: 3002,
+					isFatal: false,
+					name: 'ClientAddressNotAvailable',
+					plugin: undefined,
 				},
 			});
 		});
@@ -468,6 +494,7 @@ describe('Events', () => {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					code: AstroErrorData.UnknownError.code,
+					name: 'Error',
 					plugin: undefined,
 					isFatal: false,
 					cliCommand: 'COMMAND_NAME',
@@ -480,6 +507,7 @@ describe('Events', () => {
 			const [event] = events.eventError({
 				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"'),
 				cmd: 'COMMAND_NAME',
+				name: 'Error',
 				isFatal: true,
 			});
 			expect(event.payload.anonymousMessageHint).to.equal('TEST ERROR MESSAGE');

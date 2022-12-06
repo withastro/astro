@@ -157,6 +157,7 @@ export interface ErrorWithMetadata {
 	type?: ErrorTypes;
 	message: string;
 	stack: string;
+	errorCode?: number;
 	code?: number;
 	hint?: string;
 	id?: string;
