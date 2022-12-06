@@ -25,7 +25,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
  * We also trim this value even further to just a few words.
  *
  * This is only used for errors that do not come from us so we can get a basic
- * idea of what the error is about.
+ * and anonymous idea of what the error is about.
  */
 const ANONYMIZE_MESSAGE_REGEX = /^(\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {

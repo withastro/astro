@@ -51,6 +51,10 @@ describe('vite-plugin-astro-server', () => {
 				logging
 			);
 
+			// `handleRequest` below has a call to telemetry when an error is found. Telemetry should already be disabled
+			// in CI by default, but we'll make sure to disable it here too just in case.
+			process.env.ASTRO_TELEMETRY_DISABLED = true;
+
 			try {
 				await handleRequest(env, manifest, controller, req, res);
 			} catch (err) {

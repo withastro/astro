@@ -8,6 +8,7 @@ import { createSafeError } from '../core/errors/index.js';
 import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { removeTrailingForwardSlash } from '../core/path.js';
+import { eventError, telemetry } from '../events';
 import { runWithErrorHandling } from './controller.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
@@ -82,6 +83,7 @@ export async function handleRequest(
 			// This is our last line of defense regarding errors where we still might have some information about the request
 			// Our error should already be complete, but let's try to add a bit more through some guesswork
 			const errorWithMetadata = collectErrorMetadata(err, config.root);
+			telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
 
 			error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 			handle500Response(moduleLoader, res, errorWithMetadata);
