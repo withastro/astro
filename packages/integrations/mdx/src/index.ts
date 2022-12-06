@@ -132,11 +132,18 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 
-									// Ensures styles and scripts are injected into a `<head>`
-									// When a layout is not applied
-									code += `\nMDXContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
+									const [moduleImports, moduleExports] = parseESM(code);
 
-									const [, moduleExports] = parseESM(code);
+									// Fragment import should already be injected, but check just to be safe.
+									const importsFromJSXRuntime = moduleImports
+										.filter(({ n }) => n === 'astro/jsx-runtime')
+										.map(({ ss, se }) => code.substring(ss, se));
+									const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
+										/[\s,{](Fragment,|Fragment\s*})/.test(statement)
+									);
+									if (!hasFragmentImport) {
+										code = 'import { Fragment } from "astro/jsx-runtime"\n' + code;
+									}
 
 									const { fileUrl, fileId } = getFileInfo(id, config);
 									if (!moduleExports.includes('url')) {
@@ -156,8 +163,18 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										)}) };`;
 									}
 									if (!moduleExports.includes('Content')) {
-										code += `\nexport const Content = MDXContent;`;
+										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
+										code = code.replace('export default MDXContent;', '');
+										code += `\nexport const Content = (props = {}) => MDXContent({
+											...props,
+											components: { Fragment, ...props.components },
+										});
+										export default Content;`;
 									}
+
+									// Ensures styles and scripts are injected into a `<head>`
+									// When a layout is not applied
+									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach

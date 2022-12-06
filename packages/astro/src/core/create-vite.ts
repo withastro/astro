@@ -151,6 +151,8 @@ export async function createVite(
 				},
 			],
 			conditions: ['astro'],
+			// Astro imports in third-party packages should use the same version as root
+			dedupe: ['astro'],
 		},
 		ssr: {
 			noExternal: [
