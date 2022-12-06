@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { getHighlighter } from 'shiki';
 import { fileURLToPath } from 'url';
 import { createLogger, type ErrorPayload, type Logger, type LogLevel } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
@@ -6,7 +7,6 @@ import { AstroErrorData } from '../errors-data.js';
 import { type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import { incompatPackageExp, renderErrorMarkdown } from './utils.js';
-import { getHighlighter } from 'shiki';
 
 /**
  * Custom logger with better error reporting for incompatible packages
@@ -135,7 +135,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		['FailedToLoadModuleSSR', 'InvalidGlob'].includes(err.name);
 
 	const docslink = hasDocs
-		? 'https://docs.astro.build/en/reference/error-reference/#' + err.name
+		? `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`
 		: undefined;
 
 	const highlighter = await getHighlighter({ theme: 'css-variables' });
@@ -166,4 +166,12 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 			stack: err.stack,
 		},
 	};
+
+	/**
+	 * The docs has kebab-case urls for errors, so we need to convert the error name
+	 * @param errorName
+	 */
+	function getKebabErrorName(errorName: string): string {
+		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+	}
 }
