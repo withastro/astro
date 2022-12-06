@@ -14,8 +14,8 @@ export function* walkParentInfos(
 	seen.add(id);
 	const info = ctx.getModuleInfo(id);
 	if (info) {
-		if(childId) {
-			order += info.importedIds.indexOf(childId)
+		if (childId) {
+			order += info.importedIds.indexOf(childId);
 		}
 		yield [info, depth, order];
 	}

@@ -43,20 +43,19 @@ describe('CSS ordering - import order with layouts', () => {
 		it('Page level CSS is defined lower in the page', async () => {
 			let html = await fixture.readFile('/index.html');
 
-
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 
 			let specialButtonCSS = -1;
 			let globalCSS = -1;
-			for(let i = 0; i < content.length; i++) {
-				if(content[i].css.indexOf('.SpecialButton') !== -1) {
+			for (let i = 0; i < content.length; i++) {
+				if (content[i].css.indexOf('.SpecialButton') !== -1) {
 					specialButtonCSS = i;
-				} else if(content[i].css.indexOf('green') !== -1) {
+				} else if (content[i].css.indexOf('green') !== -1) {
 					globalCSS = i;
 				}
 			}
 
-			expect(globalCSS).to.equal(0, 'global css sorted on top')
+			expect(globalCSS).to.equal(0, 'global css sorted on top');
 			expect(specialButtonCSS).to.equal(1, 'component level css sorted last');
 		});
 	});
