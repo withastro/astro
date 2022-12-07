@@ -48,9 +48,11 @@ jobs:
       - name: Run benchmark
         id: benchmark-pr
         run: |
-          pnpm run --silent benchmark > ./bench-result.md
+          pnpm run --silent benchmark 2> ./bench-result.md
           result=$(awk '/requests in/' ./bench-result.md)
           echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
+          echo "$result"
+        shell: bash
 
       # main benchmark
       - uses: actions/checkout@v3
@@ -68,9 +70,11 @@ jobs:
       - name: Run benchmark
         id: benchmark-main
         run: |
-          pnpm run --silent benchmark > ./bench-result.md
+          pnpm run --silent benchmark 2> ./bench-result.md
           result=$(awk '/requests in/' ./bench-result.md)
           echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
+          echo "$result"
+        shell: bash
 
   output-benchmark:
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}

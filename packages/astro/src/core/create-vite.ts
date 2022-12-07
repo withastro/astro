@@ -10,6 +10,7 @@ import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
+import astroHeadPropagationPlugin from '../vite-plugin-head-propagation/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
@@ -93,7 +94,7 @@ export async function createVite(
 		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],
-			exclude: ['node-fetch'],
+			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
 			configAliasVitePlugin({ settings }),
@@ -112,6 +113,7 @@ export async function createVite(
 			astroPostprocessVitePlugin({ settings }),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
+			astroHeadPropagationPlugin({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

@@ -18,6 +18,8 @@ import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { cachedFullCompilation } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
+export { getAstroMetadata } from './metadata.js';
+export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -108,6 +110,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			if (!compileResult) {
 				return null;
 			}
+
 			switch (query.type) {
 				case 'style': {
 					if (typeof query.index === 'undefined') {
@@ -198,6 +201,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				astroConfig: config,
 				viteConfig: resolvedConfig,
 				filename,
+				id,
 				source,
 			};
 
@@ -215,6 +219,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				clientOnlyComponents: transformResult.clientOnlyComponents,
 				hydratedComponents: transformResult.hydratedComponents,
 				scripts: transformResult.scripts,
+				propagation: 'none',
 			};
 
 			return {
@@ -236,6 +241,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				astroConfig: config,
 				viteConfig: resolvedConfig,
 				filename: context.file,
+				id: context.modules[0]?.id ?? undefined,
 				source: await context.read(),
 			};
 			const compile = () => cachedCompilation(compileProps);
