@@ -6,8 +6,19 @@ declare module 'astro:content' {
 		collection: C
 	): Promise<import('astro').GetStaticPathsResult>;
 
-	type BaseCollectionConfig = { schema: import('astro/zod').ZodRawShape };
-	export function defineCollection<C extends BaseCollectionConfig>(input: C): C;
+	type BaseCollectionConfig<S extends import('astro/zod').ZodRawShape> = {
+		schema?: S;
+		slug?: (entry: {
+			id: CollectionEntry<keyof typeof entryMap>['id'];
+			defaultSlug: CollectionEntry<keyof typeof entryMap>['slug'];
+			collection: string;
+			body: string;
+			data: import('astro/zod').infer<import('astro/zod').ZodObject<S>>;
+		}) => string | Promise<string>;
+	};
+	export function defineCollection<S extends import('astro/zod').ZodRawShape>(
+		input: BaseCollectionConfig<S>
+	): BaseCollectionConfig<S>;
 
 	export function getEntry<C extends keyof typeof entryMap, E extends keyof typeof entryMap[C]>(
 		collection: C,
@@ -33,7 +44,7 @@ declare module 'astro:content' {
 	}>;
 
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
-		import('astro/zod').ZodObject<CollectionsConfig['collections'][C]['schema']>
+		import('astro/zod').ZodObject<Required<ContentConfig['collections'][C]>['schema']>
 	>;
 
 	const entryMap: {
@@ -77,5 +88,5 @@ declare module 'astro:content' {
 
 	};
 
-	type CollectionsConfig = typeof import('/Users/benholmes/Repositories/astro/examples/blog/src/content/config');
+	type ContentConfig = typeof import("/Users/benholmes/Repositories/astro/examples/blog/src/content/config");
 }
