@@ -168,7 +168,7 @@ export class App {
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
-		const manifest = this.#manifest;
+		const pathname = '/' + this.removeBase(url.pathname);
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links);
 
@@ -190,7 +190,7 @@ export class App {
 			const ctx = createRenderContext({
 				request,
 				origin: url.origin,
-				pathname: url.pathname,
+				pathname,
 				scripts,
 				links,
 				route: routeData,
@@ -215,12 +215,13 @@ export class App {
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
+		const pathname = '/' + this.removeBase(url.pathname);
 		const handler = mod as unknown as EndpointHandler;
 
 		const ctx = createRenderContext({
 			request,
 			origin: url.origin,
-			pathname: url.pathname,
+			pathname,
 			route: routeData,
 			status,
 		});
