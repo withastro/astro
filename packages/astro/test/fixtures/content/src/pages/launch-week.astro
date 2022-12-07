@@ -1,0 +1,15 @@
+---
+import { getCollection, renderEntry } from 'astro:content';
+
+const blog = await getCollection('blog');
+const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
+const { Content } = await renderEntry(launchWeekEntry);
+---
+<html>
+<head>
+	<title>Launch Week</title>
+</head>
+<body>
+	<Content />
+</body>
+</html>
