@@ -39,7 +39,7 @@ test.describe('Error display', () => {
 
 		const message = await getErrorOverlayMessage(page);
 		expect(message).toMatch(
-			'Could not import "../abc.astro".\n\nThis is often caused by a typo in the import path. Please make sure the file exists.'
+			'Could not import `../abc.astro`.\n\nThis is often caused by a typo in the import path. Please make sure the file exists.'
 		);
 
 		await Promise.all([

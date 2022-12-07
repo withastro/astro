@@ -29,10 +29,10 @@
     "test": "deno test --allow-run --allow-env --allow-read --allow-net ./test/"
   },
   "dependencies": {
-    "esbuild": "^0.14.43"
+    "esbuild": "^0.15.18"
   },
   "peerDependencies": {
-    "astro": "^1.6.10"
+    "astro": "^1.6.13"
   },
   "devDependencies": {
     "astro": "workspace:*",

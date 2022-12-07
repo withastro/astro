@@ -10,7 +10,7 @@ export function validateGetStaticPathsParameter([key, value]: [string, any], rou
 	if (!VALID_PARAM_TYPES.includes(typeof value)) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsInvalidRouteParam,
-			message: AstroErrorData.GetStaticPathsInvalidRouteParam.message(key, value),
+			message: AstroErrorData.GetStaticPathsInvalidRouteParam.message(key, value, typeof value),
 			location: {
 				file: route,
 			},
@@ -74,8 +74,8 @@ export function validateGetStaticPathsResult(
 
 		if (typeof pathObject.params !== 'object') {
 			throw new AstroError({
-				...AstroErrorData.InvalidStaticPathParam,
-				message: AstroErrorData.InvalidStaticPathParam.message(typeof pathObject.params),
+				...AstroErrorData.InvalidGetStaticPathParam,
+				message: AstroErrorData.InvalidGetStaticPathParam.message(typeof pathObject.params),
 				location: {
 					file: route.component,
 				},

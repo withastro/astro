@@ -1,10 +1,8 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
-import ancestor from 'common-ancestor-path';
-import esbuild from 'esbuild';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
-import type { Plugin, ResolvedConfig } from 'vite';
+import { Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
@@ -12,7 +10,7 @@ import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfo, normalizeFilename } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -50,19 +48,10 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
-// TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
 // logic in how that is done.
 export default function markdown({ settings }: AstroPluginOptions): Plugin {
 	const { config } = settings;
-	function normalizeFilename(filename: string) {
-		if (filename.startsWith('/@fs')) {
-			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-			filename = new URL('.' + filename, config.root).pathname;
-		}
-		return filename;
-	}
 
 	// Weird Vite behavior: Vite seems to use a fake "index.html" importer when you
 	// have `enforce: pre`. This can probably be removed once the vite issue is fixed.
@@ -152,7 +141,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// directly as a page in Vite, or it was a deferred render from a JS module.
 			// This returns the compiled markdown -> astro component that renders to HTML.
 			if (isMarkdownFile(id)) {
-				const filename = normalizeFilename(id);
+				const filename = normalizeFilename(id, config);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
 
@@ -218,6 +207,7 @@ ${setup}`.trim();
 					viteConfig: resolvedConfig,
 					filename,
 					source: astroResult,
+					id,
 				};
 
 				let transformResult = await cachedCompilation(compileProps);
@@ -234,16 +224,16 @@ export function compiledContent() {
 ${tsResult}`;
 
 				// Compile from `.ts` to `.js`
-				const { code } = await esbuild.transform(tsResult, {
+				const { code } = await transformWithEsbuild(tsResult, id, {
 					loader: 'ts',
 					sourcemap: false,
-					sourcefile: id,
 				});
 
 				const astroMetadata: AstroPluginMetadata['astro'] = {
 					clientOnlyComponents: transformResult.clientOnlyComponents,
 					hydratedComponents: transformResult.hydratedComponents,
 					scripts: transformResult.scripts,
+					propagation: 'none',
 				};
 
 				return {

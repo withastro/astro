@@ -39,6 +39,8 @@ type RSSFeedItem = {
 	pubDate: Date;
 	/** Item description */
 	description?: string;
+	/** Full content of the item, should be valid HTML */
+	content?: string;
 	/** Append some other XML-valid data to this item */
 	customData?: string;
 };
@@ -103,6 +105,15 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 		xml += `<?xml-stylesheet href="${rssOptions.stylesheet}" type="text/xsl"?>`;
 	}
 	xml += `<rss version="2.0"`;
+	if (items.find((result) => result.content)) {
+		// the namespace to be added to the xmlns:content attribute to enable the <content> RSS feature
+		const XMLContentNamespace = 'http://purl.org/rss/1.0/modules/content/';
+		xml += ` xmlns:content="${XMLContentNamespace}"`;
+		// Ensure that the user hasn't tried to manually include the necessary namespace themselves
+		if (rssOptions.xmlns?.content && rssOptions.xmlns.content === XMLContentNamespace) {
+			delete rssOptions.xmlns.content;
+		}
+	}
 
 	// xmlns
 	if (rssOptions.xmlns) {
@@ -138,6 +149,10 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 				throw new Error('[${filename}] rss.item().pubDate must be a Date');
 			}
 			xml += `<pubDate>${result.pubDate.toUTCString()}</pubDate>`;
+		}
+		// include the full content of the post if the user supplies it
+		if (typeof result.content === 'string') {
+			xml += `<content:encoded><![CDATA[${result.content}]]></content:encoded>`;
 		}
 		if (typeof result.customData === 'string') xml += result.customData;
 		xml += `</item>`;

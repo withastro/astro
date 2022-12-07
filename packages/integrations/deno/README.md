@@ -55,27 +55,26 @@ If you prefer to install the adapter manually instead, complete the following tw
     });
     ```
 
-Next, Update your `preview` script in `package.json` with the change below.
+Next, update your `preview` script in `package.json` to run `deno`:
 
-    ```json del={8} ins={9}
-    // package.json
-    {
-      // ...
-      "scripts": {
-        "dev": "astro dev",
-        "start": "astro dev",
-        "build": "astro build",
-        "preview": "astro preview"
-        "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs"
-      }
-    }
-    ```
-    
-    You can now use this command to preview your production Astro site locally with Deno.
-    
-    ```bash
-    npm run preview
-    ```
+```json ins={8}
+// package.json
+{
+  // ...
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs"
+  }
+}
+```
+
+You can now use this command to preview your production Astro site locally with Deno.
+
+```bash
+npm run preview
+```
   
 ## Usage
 
@@ -160,7 +159,7 @@ export default defineConfig({
 
 ## Examples
 
-The [Astro Deno](https://github.com/withastro/astro/tree/main/examples/deno) example includes a `preview:deno` command that runs the entry script directly. Run `npm run build` then `npm run preview:deno` to run the production deno server.
+The [Astro Deno](https://github.com/withastro/astro/tree/main/examples/deno) example includes a `preview` command that runs the entry script directly. Run `npm run build` then `npm run preview` to run the production deno server.
 
 ## Troubleshooting
 

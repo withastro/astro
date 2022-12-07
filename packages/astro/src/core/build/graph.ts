@@ -7,13 +7,16 @@ export function* walkParentInfos(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo },
 	depth = 0,
+	order = 0,
 	seen = new Set<string>(),
 	childId = ''
 ): Generator<[ModuleInfo, number, number], void, unknown> {
 	seen.add(id);
 	const info = ctx.getModuleInfo(id);
 	if (info) {
-		let order = childId ? info.importedIds.indexOf(childId) : 0;
+		if (childId) {
+			order += info.importedIds.indexOf(childId);
+		}
 		yield [info, depth, order];
 	}
 	const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
@@ -21,7 +24,7 @@ export function* walkParentInfos(
 		if (seen.has(imp)) {
 			continue;
 		}
-		yield* walkParentInfos(imp, ctx, ++depth, seen, id);
+		yield* walkParentInfos(imp, ctx, ++depth, order, seen, id);
 	}
 }
 

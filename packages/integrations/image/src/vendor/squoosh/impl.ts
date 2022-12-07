@@ -31,6 +31,10 @@ export async function decodeBuffer(
   const firstChunkString = Array.from(firstChunk)
     .map((v) => String.fromCodePoint(v))
     .join('')
+	// TODO (future PR): support more formats
+	if (firstChunkString.includes('GIF')) {
+		throw Error(`GIF images are not supported, please install the @astrojs/image/sharp plugin`)
+	}
   const key = Object.entries(supportedFormats).find(([, { detectors }]) =>
     detectors.some((detector) => detector.exec(firstChunkString))
   )?.[0] as EncoderKey | undefined
