@@ -65,7 +65,7 @@ describe('Collections API - renderEntry', () => {
 		);
 	});
 
-	it.skip('can be called in a layout component', async () => {
+	it('can be called in a layout component', async () => {
 		const fs = createFsWithFallback(
 			{
 				'/src/content/config.ts': `
@@ -87,8 +87,16 @@ describe('Collections API - renderEntry', () => {
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
 					const { Content } = await renderEntry(launchWeekEntry);
 					---
-					<slot name="title"></slot>
-					<Content />
+					<html>
+						<head></head>
+						<body>
+							<slot name="title"></slot>
+							<article>
+								<Content />
+							</article>
+						</body>
+					</html>
+
 				`,
 				'/src/pages/index.astro': `
 					---
@@ -119,7 +127,6 @@ describe('Collections API - renderEntry', () => {
 				container.handle(req, res);
 				await done;
 				const html = await text();
-				console.log(html);
 
 				const $ = cheerio.load(html);
 				// Rendered the content
@@ -131,7 +138,7 @@ describe('Collections API - renderEntry', () => {
 		);
 	});
 
-	it.skip('can be called from any js/ts file', async () => {
+	it('can be called from any js/ts file', async () => {
 		const fs = createFsWithFallback(
 			{
 				'/src/content/config.ts': `
@@ -154,7 +161,6 @@ describe('Collections API - renderEntry', () => {
 					const blog = await getCollection('blog');
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
 					const mod = await renderEntry(launchWeekEntry);
-					
 
 					Content = mod.Content;
 				`,
@@ -186,7 +192,6 @@ describe('Collections API - renderEntry', () => {
 				container.handle(req, res);
 				await done;
 				const html = await text();
-				console.log(html);
 
 				const $ = cheerio.load(html);
 				// Rendered the content

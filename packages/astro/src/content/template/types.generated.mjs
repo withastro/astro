@@ -1,3 +1,4 @@
+// astro-head-inject
 import {
 	createGetCollection,
 	createGetEntry,

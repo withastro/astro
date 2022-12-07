@@ -1,5 +1,15 @@
 import { prependForwardSlash } from '../core/path.js';
 
+import {
+	createComponent,
+	createHeadAndContent,
+	renderComponent,
+	renderTemplate,
+	renderUniqueStylesheet,
+	renderStyleElement,
+	unescapeHTML
+} from '../runtime/server/index.js';
+
 type GlobResult = Record<string, () => Promise<any>>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 
@@ -96,29 +106,35 @@ export function createRenderEntry({
 
 		const mod = await lazyImport();
 
-		if (Array.isArray(mod?.collectedLinks) && 'links' in (this ?? {})) {
-			for (const link of mod.collectedLinks) {
-				this.links.add({
-					props: { rel: 'stylesheet', href: prependForwardSlash(link) },
-					children: '',
-				});
-			}
-		}
-		if (Array.isArray(mod?.collectedStyles) && 'styles' in (this ?? {})) {
-			for (const style of mod.collectedStyles) {
-				this.styles.add({
-					props: {},
-					children: style,
-				});
-			}
-		}
+		const Content = createComponent({
+			factory(result, props, slots) {
+				let styles = '', links = '';
+				if (Array.isArray(mod?.collectedStyles)) {
+					styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+				}
+				if (Array.isArray(mod?.collectedLinks)) {
+					links = mod.collectedLinks.map((link: any) => {
+						return renderUniqueStylesheet(result, {
+							href: prependForwardSlash(link)
+						});
+					}).join('');
+				}
+
+				return createHeadAndContent(
+					unescapeHTML(styles + links) as any,
+					renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
+				);
+			},
+			propagation: 'self'
+		});
+
 		if (!mod._internal && entry.id.endsWith('.mdx')) {
 			throw new Error(
 				`[Content] Failed to render MDX entry. Try installing @astrojs/mdx@next--content-schemas`
 			);
 		}
 		return {
-			Content: mod.Content,
+			Content,
 			headings: mod.getHeadings(),
 			injectedFrontmatter: mod._internal.injectedFrontmatter,
 		};

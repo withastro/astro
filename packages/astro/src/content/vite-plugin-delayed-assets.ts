@@ -1,11 +1,9 @@
 import type { Plugin } from 'vite';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
-import MagicString from 'magic-string';
 import parseImports from 'parse-imports';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import { AstroSettings } from '../@types/astro.js';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
 import { createViteLoader } from '../core/module-loader/vite.js';
@@ -25,10 +23,8 @@ function isDelayedAsset(url: URL): boolean {
 }
 
 export function astroDelayedAssetPlugin({
-	settings,
 	mode,
 }: {
-	settings: AstroSettings;
 	mode: string;
 }): Plugin {
 	let devModuleLoader: ModuleLoader;
@@ -69,35 +65,6 @@ export function astroDelayedAssetPlugin({
 					code: code
 						.replace(JSON.stringify(LINKS_PLACEHOLDER), JSON.stringify([...urls]))
 						.replace(JSON.stringify(STYLES_PLACEHOLDER), JSON.stringify([...stylesMap.values()])),
-				};
-			}
-
-			if (id.endsWith('.astro')) {
-				let renderEntryImportName = getRenderEntryImportName(
-					await parseImports(escapeImportMetaReferences(code))
-				);
-				if (!renderEntryImportName) return;
-
-				const s = new MagicString(code, {
-					filename: normalizeFilename(id, settings.config),
-				});
-				s.prepend(
-					`import { renderEntry as $$renderEntry } from ${JSON.stringify(VIRTUAL_MODULE_ID)};\n`
-				);
-				// TODO: not this
-				const frontmatterPreamble = '$$createComponent(async ($$result, $$props, $$slots) => {';
-				const indexOfFrontmatterPreamble = code.indexOf(frontmatterPreamble);
-
-				if (indexOfFrontmatterPreamble < 0) return;
-
-				s.appendLeft(
-					indexOfFrontmatterPreamble + frontmatterPreamble.length,
-					`\nlet ${renderEntryImportName} = $$renderEntry.bind($$result);\n`
-				);
-
-				return {
-					code: s.toString(),
-					map: s.generateMap(),
 				};
 			}
 		},
@@ -147,9 +114,4 @@ function getRenderEntryImportName(parseImportRes: Awaited<ReturnType<typeof pars
 		}
 	}
 	return undefined;
-}
-
-// Necessary to avoid checking `import.meta` during import crawl
-function escapeImportMetaReferences(code: string) {
-	return code.replace(/import\.meta/g, 'import\\u002Emeta');
 }

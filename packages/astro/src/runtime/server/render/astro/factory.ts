@@ -10,9 +10,9 @@ export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndC
 
 // The callback passed to to $$createComponent
 export interface AstroComponentFactory {
-	(result: any, props: any, slots: any): AstroFactoryReturnValue;
+	(result: SSRResult, props: any, slots: any): AstroFactoryReturnValue;
 	isAstroComponentFactory?: boolean;
-	moduleId: string | undefined;
+	moduleId?: string | undefined;
 	propagation?: PropagationHint;
 }
 

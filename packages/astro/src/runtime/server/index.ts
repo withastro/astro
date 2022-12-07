@@ -21,6 +21,7 @@ export {
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
+	renderStyleElement,
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
