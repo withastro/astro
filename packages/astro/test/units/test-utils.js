@@ -1,11 +1,12 @@
 import httpMocks from 'node-mocks-http';
 import { EventEmitter } from 'events';
 import { Volume } from 'memfs';
+import realFS from 'node:fs';
 import { fileURLToPath } from 'url';
 import npath from 'path';
 import { unixify } from './correct-path.js';
 
-class MyVolume extends Volume {
+class VirtualVolume extends Volume {
 	#root = '';
 	constructor(root) {
 		super();
@@ -29,16 +30,33 @@ class MyVolume extends Volume {
 		return super.existsSync(this.#forcePath(p));
 	}
 
-	readFile(p, ...args) {
-		return super.readFile(this.#forcePath(p), ...args);
-	}
-
 	writeFileFromRootSync(pth, ...rest) {
 		return super.writeFileSync(this.getFullyResolvedPath(pth), ...rest);
 	}
 }
 
-export function createFs(json, root) {
+class VirtualVolumeWithFallback extends VirtualVolume {
+	// Fallback to the real fs
+	readFile(p, ...args) {
+		const cb = args[args.length - 1];
+		const argsMinusCallback = args.slice(0, args.length - 1);
+		return super.readFile(p, ...argsMinusCallback, function(err, data) {
+			if(err) {
+				realFS.readFile(p, ...argsMinusCallback, function(err2, data2) {
+					if(err2) {
+						cb(err);
+					} else {
+						cb(null, data2);
+					}
+				});
+			} else {
+				cb(null, data);
+			}
+		});
+	}
+}
+
+export function createFs(json, root, VolumeImpl = VirtualVolume) {
 	if (typeof root !== 'string') {
 		root = unixify(fileURLToPath(root));
 	}
@@ -49,9 +67,13 @@ export function createFs(json, root) {
 		structure[fullpath] = value;
 	}
 
-	const fs = new MyVolume(root);
+	const fs = new VolumeImpl(root);
 	fs.fromJSON(structure);
 	return fs;
+}
+
+export function createFsWithFallback(json, root) {
+	return createFs(json, root, VirtualVolumeWithFallback);
 }
 
 /**

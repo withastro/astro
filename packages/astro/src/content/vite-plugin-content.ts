@@ -1,7 +1,6 @@
 import { Plugin, normalizePath } from 'vite';
 import glob from 'fast-glob';
-import * as fs from 'node:fs/promises';
-import * as fsSync from 'node:fs';
+import fsMod from 'node:fs';
 import * as path from 'node:path';
 import { bold, cyan } from 'kleur/colors';
 import { info, LogOptions, warn } from '../core/logger/core.js';
@@ -52,13 +51,18 @@ const msg = {
 	entryAdded: (entry: string, collection: string) => `${cyan(entry)} added to ${bold(collection)}.`,
 };
 
-export function astroContentVirtualModPlugin({ settings }: { settings: AstroSettings }): Plugin {
+interface AstroContentVirtualModPluginParams {
+	fs: typeof fsMod;
+	settings: AstroSettings;
+}
+
+export function astroContentVirtualModPlugin({ fs, settings }: AstroContentVirtualModPluginParams): Plugin {
 	const paths = getPaths({ srcDir: settings.config.srcDir });
 	const relContentDir = appendForwardSlash(
 		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
 	);
 	const entryGlob = relContentDir + '**/*.{md,mdx}';
-	const astroContentModContents = fsSync
+	const astroContentModContents = fsMod
 		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
@@ -84,15 +88,19 @@ export function astroContentVirtualModPlugin({ settings }: { settings: AstroSett
 	};
 }
 
-export function astroContentServerPlugin({
-	settings,
-	contentConfig,
-	logging,
-}: {
+interface AstroContentServerPluginParams {
+	fs: typeof fsMod;
 	logging: LogOptions;
 	settings: AstroSettings;
 	contentConfig: ContentConfig | Error;
-}): Plugin[] {
+}
+
+export function astroContentServerPlugin({
+	fs,
+	settings,
+	contentConfig,
+	logging,
+}: AstroContentServerPluginParams): Plugin[] {
 	const paths: Paths = getPaths({ srcDir: settings.config.srcDir });
 	let contentDirExists = false;
 	let contentGenerator: GenerateContent;
@@ -104,14 +112,19 @@ export function astroContentServerPlugin({
 		let debounceTimeout: NodeJS.Timeout | undefined;
 		let eventsSettled: Promise<void> | undefined;
 
-		const contentTypesBase = await fs.readFile(
+		const contentTypesBase = await fsMod.promises.readFile(
 			new URL(CONTENT_TYPES_FILE, paths.generatedInputDir),
 			'utf-8'
 		);
 
 		async function init() {
 			const pattern = new URL('./**/', paths.contentDir).pathname + '*.{md,mdx}';
-			const entries = await glob(pattern);
+			const entries = await glob(pattern, {
+				fs: {
+					readdir: fs.readdir.bind(fs),
+					readdirSync: fs.readdirSync.bind(fs),
+				}
+			});
 			for (const entry of entries) {
 				queueEvent({ name: 'add', entry }, { shouldLog: false });
 			}
@@ -140,7 +153,7 @@ export function astroContentServerPlugin({
 			} else {
 				const fileType = getEntryType(event.entry, paths);
 				if (fileType === 'config') {
-					contentConfig = await loadContentConfig({ settings });
+					contentConfig = await loadContentConfig({ fs, settings });
 					return;
 				}
 				if (fileType === 'unknown') {
@@ -201,6 +214,7 @@ export function astroContentServerPlugin({
 					debounceTimeout = setTimeout(async () => {
 						await Promise.all(events);
 						await writeContentFiles({
+							fs,
 							contentTypes,
 							paths,
 							contentTypesBase,
@@ -222,7 +236,7 @@ export function astroContentServerPlugin({
 			async load(id) {
 				const { pathname, searchParams } = new URL(id, 'file://');
 				if (isContentFlagImport({ pathname, searchParams })) {
-					const rawContents = await fs.readFile(pathname, 'utf-8');
+					const rawContents = await fs.promises.readFile(pathname, 'utf-8');
 					const {
 						content: body,
 						data: unparsedData,
@@ -270,7 +284,7 @@ export const _internal = {
 			name: 'astro-content-server-plugin',
 			async config() {
 				try {
-					await fs.stat(paths.contentDir);
+					await fs.promises.stat(paths.contentDir);
 					contentDirExists = true;
 				} catch {
 					/* silently move on */
@@ -414,11 +428,13 @@ function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | '
 }
 
 async function writeContentFiles({
+	fs,
 	paths,
 	contentTypes,
 	contentTypesBase,
 	hasContentConfig,
 }: {
+	fs: typeof fsMod;
 	paths: Paths;
 	contentTypes: ContentTypes;
 	contentTypesBase: string;
@@ -441,10 +457,10 @@ async function writeContentFiles({
 	);
 
 	try {
-		await fs.stat(paths.cacheDir);
+		await fs.promises.stat(paths.cacheDir);
 	} catch {
-		await fs.mkdir(paths.cacheDir);
+		await fs.promises.mkdir(paths.cacheDir);
 	}
 
-	await fs.writeFile(new URL(CONTENT_TYPES_FILE, paths.cacheDir), contentTypesBase);
+	await fs.promises.writeFile(new URL(CONTENT_TYPES_FILE, paths.cacheDir), contentTypesBase);
 }

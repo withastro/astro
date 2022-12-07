@@ -1,3 +1,4 @@
+import type fsMod from 'node:fs';
 import matter from 'gray-matter';
 import { z } from 'zod';
 import { createServer, ErrorPayload as ViteErrorPayload, ViteDevServer } from 'vite';
@@ -130,8 +131,10 @@ export class NotFoundError extends TypeError {}
 export class ZodParseError extends TypeError {}
 
 export async function loadContentConfig({
+	fs,
 	settings,
 }: {
+	fs: typeof fsMod;
 	settings: AstroSettings;
 }): Promise<ContentConfig | Error> {
 	const paths = getPaths({ srcDir: settings.config.srcDir });
@@ -142,7 +145,7 @@ export async function loadContentConfig({
 		clearScreen: false,
 		appType: 'custom',
 		logLevel: 'silent',
-		plugins: [astroContentVirtualModPlugin({ settings })],
+		plugins: [astroContentVirtualModPlugin({ fs, settings })],
 	});
 	let unparsedConfig;
 	try {
