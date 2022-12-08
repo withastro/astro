@@ -126,6 +126,31 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
 	 */
 	url: AstroSharedContext['url'];
+	/**
+	 * Create a URL path that is joined to your `base` configuration.
+	 * 
+	 * Example config:
+	 * 
+	 * ```js
+	 * export default {
+	 *   base: '/blog/'
+	 * }
+	 * ```
+	 * 
+	 * Example usage:
+	 * 
+	 * ```astro
+	 * <img src={Astro.joinBase('/images/penguin.png')} />
+	 * ```
+	 * 
+	 * Will produce this HTML:
+	 * 
+	 * ```html
+	 * <img src="/blog/images/penguin.png" />
+	 * ```
+	 * @param path 
+	 */
+	joinBase(path: `/${string}`): string,
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:

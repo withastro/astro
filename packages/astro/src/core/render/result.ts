@@ -17,6 +17,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
 import { isCSSRequest } from './util.js';
+import { prependForwardSlash, removeTrailingForwardSlash, removeLeadingForwardSlash } from '../path.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
@@ -31,6 +32,7 @@ function onlyAvailableInSSR(name: 'Astro.redirect') {
 
 export interface CreateResultArgs {
 	adapterName: string | undefined;
+	base: string;
 	ssr: boolean;
 	logging: LogOptions;
 	origin: string;
@@ -127,7 +129,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, request, resolve } = args;
+	const { base, markdown, params, pathname, renderers, request, resolve } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -196,6 +198,13 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				props,
 				request,
 				url,
+				joinBase(path) {
+					return prependForwardSlash(
+						removeLeadingForwardSlash(removeTrailingForwardSlash(base)) +
+						'/' +
+						removeLeadingForwardSlash(path)
+					);
+				},
 				redirect: args.ssr
 					? (path, status) => {
 							return new Response(null, {
