@@ -26,7 +26,7 @@ const preview: CreatePreviewServer = async function ({
 		}
 	} catch (_err) {
 		throw new Error(
-			`The server entrypoint ${fileURLToPath} does not exist. Have you ran a build yet?`
+			`The server entrypoint ${fileURLToPath(serverEntrypoint)} does not exist. Have you ran a build yet?`
 		);
 	}
 
