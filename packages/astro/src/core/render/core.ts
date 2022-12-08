@@ -89,6 +89,7 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 
 	const result = createResult({
 		adapterName: env.adapterName,
+		base: env.base,
 		links: ctx.links,
 		styles: ctx.styles,
 		logging: env.logging,

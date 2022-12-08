@@ -20,6 +20,7 @@ export function createDevelopmentEnvironment(
 	const mode: RuntimeMode = 'development';
 	let env = createEnvironment({
 		adapterName: settings.adapter?.name,
+		base: settings.config.base,
 		logging,
 		markdown: {
 			...settings.config.markdown,

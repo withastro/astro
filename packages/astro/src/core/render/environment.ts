@@ -10,6 +10,7 @@ import { RouteCache } from './route-cache.js';
  */
 export interface Environment {
 	adapterName?: string;
+	base: string;
 	/** logging options */
 	logging: LogOptions;
 	markdown: MarkdownRenderingOptions;
@@ -37,6 +38,7 @@ export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Env
 	const mode = options.mode ?? 'development';
 	return createEnvironment({
 		...options,
+		base: '/',
 		markdown: options.markdown ?? {},
 		mode,
 		renderers: options.renderers ?? [],

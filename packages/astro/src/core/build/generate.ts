@@ -328,6 +328,7 @@ async function generatePath(
 	);
 	const env = createEnvironment({
 		adapterName: undefined,
+		base: settings.config.base,
 		logging,
 		markdown: {
 			...settings.config.markdown,
