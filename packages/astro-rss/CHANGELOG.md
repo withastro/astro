@@ -1,5 +1,16 @@
 # @astrojs/rss
 
+## 1.1.0
+
+### Minor Changes
+
+- [#5366](https://github.com/withastro/astro/pull/5366) [`081e0a9d2`](https://github.com/withastro/astro/commit/081e0a9d2070b23d596b687ad52ed3a68bc3ac24) Thanks [@smithbm2316](https://github.com/smithbm2316)! - Added the ability for users to include the full content of their posts/items in each RSS feed entry
+  via the new `content` key on the `RSSFeedItem` model.
+
+### Patch Changes
+
+- [#5550](https://github.com/withastro/astro/pull/5550) [`fe0da0185`](https://github.com/withastro/astro/commit/fe0da0185a85762ac5ac5bf66ea91947af1c329d) Thanks [@andersk](https://github.com/andersk)! - Generate RSS feed with proper XML escaping
+
 ## 1.0.3
 
 ### Patch Changes
