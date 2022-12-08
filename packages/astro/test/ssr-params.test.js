@@ -26,5 +26,4 @@ describe('Astro.params in SSR', () => {
 		const $ = cheerio.load(html);
 		expect($('.category').text()).to.equal('food');
 	});
-
 });
