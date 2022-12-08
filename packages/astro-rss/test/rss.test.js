@@ -1,8 +1,10 @@
 import rss from '../dist/index.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
+import chaiXml from 'chai-xml';
 
 chai.use(chaiPromises);
+chai.use(chaiXml);
 
 const title = 'My RSS feed';
 const description = 'This sure is a nice RSS feed';
@@ -49,7 +51,7 @@ describe('rss', () => {
 			site,
 		});
 
-		chai.expect(body).to.equal(validXmlResult);
+		chai.expect(body).xml.to.equal(validXmlResult);
 	});
 
 	it('should generate on valid RSSFeedItem array with HTML content included', async () => {
@@ -60,7 +62,7 @@ describe('rss', () => {
 			site,
 		});
 
-		chai.expect(body).to.equal(validXmlWithContentResult);
+		chai.expect(body).xml.to.equal(validXmlWithContentResult);
 	});
 
 	describe('glob result', () => {
@@ -97,7 +99,7 @@ describe('rss', () => {
 				site,
 			});
 
-			chai.expect(body).to.equal(validXmlResult);
+			chai.expect(body).xml.to.equal(validXmlResult);
 		});
 
 		it('should fail on missing "title" key', () => {

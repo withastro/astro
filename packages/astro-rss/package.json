@@ -31,6 +31,7 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "chai-xml": "^0.4.0",
     "mocha": "^9.2.2"
   },
   "dependencies": {

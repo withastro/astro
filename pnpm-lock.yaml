@@ -590,6 +590,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       chai-as-promised: ^7.1.1
+      chai-xml: ^0.4.0
       fast-xml-parser: ^4.0.8
       mocha: ^9.2.2
     dependencies:
@@ -602,6 +603,7 @@ importers:
       astro-scripts: link:../../scripts
       chai: 4.3.7
       chai-as-promised: 7.1.1_chai@4.3.7
+      chai-xml: 0.4.0_chai@4.3.7
       mocha: 9.2.2
 
   packages/astro/e2e/fixtures/_deps/astro-linked-lib:
@@ -10975,6 +10977,16 @@ packages:
     dependencies:
       chai: 4.3.7
       check-error: 1.0.2
+    dev: true
+
+  /chai-xml/0.4.0_chai@4.3.7:
+    resolution: {integrity: sha512-VjFPW64Hcp9CuuZbAC26cBWi+DPhyWOW8yxNpfQX3W+jQLPJxN/sm5FAaW+FOKTzsNeIFQpt5yhGbZA5s/pEyg==}
+    engines: {node: '>= 0.8.0'}
+    peerDependencies:
+      chai: '>=1.10.0 '
+    dependencies:
+      chai: 4.3.7
+      xml2js: 0.4.23
     dev: true
 
   /chai/4.3.7:
