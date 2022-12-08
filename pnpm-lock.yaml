@@ -1288,6 +1288,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-dev-headers:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-directives:
     specifiers:
       astro: workspace:*
@@ -1513,6 +1519,12 @@ importers:
       astro: link:../../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+
+  packages/astro/test/fixtures/astro-preview-headers:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
 
   packages/astro/test/fixtures/astro-public:
     specifiers:
