@@ -5,7 +5,7 @@ import * as path from 'node:path';
 import { bold, cyan } from 'kleur/colors';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
-import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
+import { appendForwardSlash, isRelativePath, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { pathToFileURL } from 'node:url';
@@ -470,10 +470,16 @@ async function writeContentFiles({
 		contentTypesStr += `},\n`;
 	}
 
+	let configPathRelativeToCacheDir = normalizePath(
+		path.relative(paths.cacheDir.pathname, paths.config.pathname)
+	);
+	if (!isRelativePath(configPathRelativeToCacheDir))
+		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
+
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
 	contentTypesBase = contentTypesBase.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		hasContentConfig ? `typeof import(${JSON.stringify(paths.config.pathname)})` : 'never'
+		hasContentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
 	);
 
 	try {
