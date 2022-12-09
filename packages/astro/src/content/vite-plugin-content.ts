@@ -42,6 +42,8 @@ type GenerateContent = {
 
 type ContentTypes = Record<string, Record<string, string>>;
 
+const validContentExts = ['.md', '.mdx'] as const;
+
 const CONTENT_BASE = 'types.generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
@@ -62,7 +64,7 @@ export function astroContentVirtualModPlugin({
 	const relContentDir = appendForwardSlash(
 		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
 	);
-	const entryGlob = relContentDir + '**/*.{md,mdx}';
+	const entryGlob = `${relContentDir}**/*.{${validContentExts.join(',')}}`;
 	const astroContentModContents = fsMod
 		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
@@ -170,6 +172,16 @@ export function astroContentServerPlugin({
 				const entryInfo = getEntryInfo({ entryPath: event.entry, contentDir: paths.contentDir });
 				// Not a valid `src/content/` entry. Silently return, but should be impossible?
 				if (entryInfo instanceof Error) return;
+				if (entryInfo.collection === '.') {
+					warn(
+						logging,
+						'content',
+						`${cyan(
+							path.relative(paths.contentDir.pathname, event.entry)
+						)} must be nested in a collection directory. Skipping.`
+					);
+					return;
+				}
 
 				const { id, slug, collection } = entryInfo;
 				const collectionKey = JSON.stringify(collection);
@@ -419,7 +431,7 @@ function getEntryInfo({
 function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | 'unknown' {
 	const { dir, ext, name } = path.parse(entryPath);
 	const { pathname } = new URL(name, appendForwardSlash(pathToFileURL(dir).href));
-	if (['.md', '.mdx'].includes(ext)) {
+	if ((validContentExts as readonly string[]).includes(ext)) {
 		return 'content';
 	} else if (pathname === paths.config.pathname) {
 		return 'config';
