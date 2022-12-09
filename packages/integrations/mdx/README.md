@@ -78,6 +78,12 @@ Visit the [MDX docs](https://mdxjs.com/docs/what-is-mdx/) to learn about using s
 
 Once the MDX integration is installed, no configuration is necessary to use `.mdx` files in your Astro project.
 
+- [`extendPlugins`](#extendplugins)
+- [`remarkRehype`](#remarkrehype)
+- [`remarkPlugins`](#remarkplugins)
+- [`rehypePlugins`](#rehypeplugins)
+- [`recmaPlugins`](#recmaplugins)
+
 You can extend how your MDX is rendered by adding remark, rehype and recma plugins.
 
 ### `remarkPlugins`
