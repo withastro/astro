@@ -96,6 +96,7 @@ interface AstroContentServerPluginParams {
 	logging: LogOptions;
 	settings: AstroSettings;
 	contentConfig: ContentConfig | Error;
+	mode: string;
 }
 
 export function astroContentServerPlugin({
@@ -103,6 +104,7 @@ export function astroContentServerPlugin({
 	settings,
 	contentConfig,
 	logging,
+	mode,
 }: AstroContentServerPluginParams): Plugin[] {
 	const paths: Paths = getPaths({ srcDir: settings.config.srcDir });
 	let contentDirExists = false;
@@ -295,7 +297,7 @@ export const _internal = {
 		},
 		{
 			name: 'astro-content-server-plugin',
-			async config() {
+			async config(viteConfig) {
 				try {
 					await fs.promises.stat(paths.contentDir);
 					contentDirExists = true;
@@ -304,12 +306,15 @@ export const _internal = {
 					return;
 				}
 
-				info(logging, 'content', 'Generating entries...');
-
-				contentGenerator = await createContentGenerator();
-				await contentGenerator.init();
+				if (mode === 'dev' || viteConfig.build?.ssr === true) {
+					info(logging, 'content', 'Generating entries...');
+					contentGenerator = await createContentGenerator();
+					await contentGenerator.init();
+				}
 			},
 			async configureServer(viteServer) {
+				if (mode !== 'dev') return;
+
 				if (contentDirExists) {
 					info(
 						logging,

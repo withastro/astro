@@ -145,7 +145,7 @@ export async function loadContentConfig({
 		clearScreen: false,
 		appType: 'custom',
 		logLevel: 'silent',
-		plugins: [astroContentVirtualModPlugin({ fs, settings })],
+		plugins: [astroContentVirtualModPlugin({ settings })],
 	});
 	let unparsedConfig;
 	try {
