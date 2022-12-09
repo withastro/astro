@@ -81,5 +81,5 @@ declare module 'astro:content' {
 
 	};
 
-	type ContentConfig = typeof import("/Users/benholmes/Repositories/astro/examples/docs/src/content/config");
+	type ContentConfig = typeof import("./config");
 }
