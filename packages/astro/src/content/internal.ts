@@ -7,7 +7,7 @@ import {
 	renderTemplate,
 	renderUniqueStylesheet,
 	renderStyleElement,
-	unescapeHTML
+	unescapeHTML,
 } from '../runtime/server/index.js';
 
 type GlobResult = Record<string, () => Promise<any>>;
@@ -67,7 +67,7 @@ export function createGetEntry({
 }) {
 	return async function getEntry(collection: string, entryId: string) {
 		const lazyImport = collectionToEntryMap[collection]?.[entryId];
-		if (!lazyImport) throw new Error(`Ah! ${entryId}`);
+		if (!lazyImport) throw new Error(`Failed to import ${JSON.stringify(entryId)}.`);
 
 		const entry = await lazyImport();
 		return {
@@ -108,16 +108,19 @@ export function createRenderEntry({
 
 		const Content = createComponent({
 			factory(result, props, slots) {
-				let styles = '', links = '';
+				let styles = '',
+					links = '';
 				if (Array.isArray(mod?.collectedStyles)) {
 					styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
 				}
 				if (Array.isArray(mod?.collectedLinks)) {
-					links = mod.collectedLinks.map((link: any) => {
-						return renderUniqueStylesheet(result, {
-							href: prependForwardSlash(link)
-						});
-					}).join('');
+					links = mod.collectedLinks
+						.map((link: any) => {
+							return renderUniqueStylesheet(result, {
+								href: prependForwardSlash(link),
+							});
+						})
+						.join('');
 				}
 
 				return createHeadAndContent(
@@ -125,7 +128,7 @@ export function createRenderEntry({
 					renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
 				);
 			},
-			propagation: 'self'
+			propagation: 'self',
 		});
 
 		if (!mod._internal && entry.id.endsWith('.mdx')) {
