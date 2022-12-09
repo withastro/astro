@@ -120,7 +120,7 @@ export default {
 
 Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
 
-You can use remark-rehype options in your config file like so:
+You can set remark-rehype options in your config file:
 
 ```js
 // astro.config.mjs
