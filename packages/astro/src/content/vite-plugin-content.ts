@@ -99,6 +99,28 @@ interface AstroContentServerPluginParams {
 	mode: string;
 }
 
+function warnNonexistentCollections({
+	contentConfig,
+	contentTypes,
+	logging,
+}: {
+	contentConfig: ContentConfig;
+	contentTypes: ContentTypes;
+	logging: LogOptions;
+}) {
+	for (const configuredCollection in contentConfig.collections) {
+		if (!contentTypes[JSON.stringify(configuredCollection)]) {
+			warn(
+				logging,
+				'content',
+				`${JSON.stringify(
+					configuredCollection
+				)} is not a collection. Check your content config for typos.`
+			);
+		}
+	}
+}
+
 export function astroContentServerPlugin({
 	fs,
 	settings,
@@ -135,6 +157,9 @@ export function astroContentServerPlugin({
 				queueEvent({ name: 'add', entry }, { shouldLog: false });
 			}
 			await eventsSettled;
+			if (!(contentConfig instanceof Error)) {
+				warnNonexistentCollections({ logging, contentConfig, contentTypes });
+			}
 		}
 
 		async function onEvent(event: ContentEvent, opts?: { shouldLog: boolean }) {
@@ -160,6 +185,9 @@ export function astroContentServerPlugin({
 				const fileType = getEntryType(event.entry, paths);
 				if (fileType === 'config') {
 					contentConfig = await loadContentConfig({ fs, settings });
+					if (!(contentConfig instanceof Error)) {
+						warnNonexistentCollections({ logging, contentConfig, contentTypes });
+					}
 					return;
 				}
 				if (fileType === 'unknown') {
