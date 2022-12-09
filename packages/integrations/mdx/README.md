@@ -70,7 +70,7 @@ With the Astro MDX integration, you can [add MDX pages to your project](/en/guid
 
 Astro's MDX integration adds extra features to standard MDX, including Markdown-style frontmatter. This allows you to use most of Astro's built-in Markdown features like a [special frontmatter `layout` property](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout) and a [property for marking a page as a draft](https://docs.astro.build/en/guides/markdown-content/#draft-pages).
 
-See how MDX works in Astro with examples in our [MD/MDX guide](https://docs.astro.build/en/guides/markdown-content/).
+See how MDX works in Astro with examples in our [Markdown & MDX guide](https://docs.astro.build/en/guides/markdown-content/).
 
 Visit the [MDX docs](https://mdxjs.com/docs/what-is-mdx/) to learn about using standard MDX features.
 
