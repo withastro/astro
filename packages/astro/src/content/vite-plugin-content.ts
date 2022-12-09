@@ -64,7 +64,7 @@ export function astroContentVirtualModPlugin({
 	const relContentDir = appendForwardSlash(
 		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
 	);
-	const entryGlob = `${relContentDir}**/*.{${validContentExts.join(',')}}`;
+	const entryGlob = `${relContentDir}**/*{${validContentExts.join(',')}}`;
 	const astroContentModContents = fsMod
 		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
@@ -123,7 +123,8 @@ export function astroContentServerPlugin({
 		);
 
 		async function init() {
-			const pattern = new URL('./**/', paths.contentDir).pathname + '*.{md,mdx}';
+			const pattern =
+				new URL('./**/', paths.contentDir).pathname + `*{${validContentExts.join(',')}}`;
 			const entries = await glob(pattern, {
 				fs: {
 					readdir: fs.readdir.bind(fs),
