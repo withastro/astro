@@ -86,61 +86,6 @@ Once the MDX integration is installed, no configuration is necessary to use `.md
 
 You can extend how your MDX is rendered by adding remark, rehype and recma plugins.
 
-### `remarkPlugins`
-
-Browse [awesome-remark](https://github.com/remarkjs/awesome-remark) for a full curated list of [remark plugins](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) to extend your Markdown's capabilities.
-
-This example applies the [`remark-toc`](https://github.com/remarkjs/remark-toc) plugin to `.mdx` files. To customize plugin inheritance from your Markdown config or Astro's defaults, [see the `extendPlugins` option](#extendplugins).
-
-```js
-// astro.config.mjs
-import remarkToc from 'remark-toc';
-
-export default {
-  integrations: [mdx({
-    remarkPlugins: [remarkToc],
-  })],
-}
-```
-
-### `rehypePlugins`
-
- Browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) to transform the HTML that your Markdown generates.
-
-We apply our own (non-removable) [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
-
-This example applies the [`rehype-accessible-emojis`](https://www.npmjs.com/package/rehype-accessible-emojis) plugin to `.mdx` files. To customize plugin inheritance from your Markdown config or Astro's defaults, [see the `extendPlugins` option](#extendplugins).
-
-```js
-// astro.config.mjs
-import rehypeAccessibleEmojis from 'rehype-accessible-emojis';
-
-export default {
-  integrations: [mdx({
-    rehypePlugins: [rehypeAccessibleEmojis],
-  })],
-}
-```
-
-### `remarkRehype`
-
-Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
-
-You can set remark-rehype options in your config file:
-
-```js
-// astro.config.mjs
-export default {
-  integrations: [mdx({
-    remarkRehype: {
-      footnoteLabel: 'Catatan kaki',
-      footnoteBackLabel: 'Kembali ke konten',
-    },
-  })],
-};
-```
-This inherits the configuration of [`markdown.remarkRehype`](https://docs.astro.build/en/reference/configuration-reference/#markdownremarkrehype). This behavior can be changed by configuring `extendPlugins`.
-
 ### `extendPlugins`
 
 You can customize how MDX files inherit your project’s existing Markdown configuration using the `extendPlugins` option.
@@ -186,6 +131,61 @@ export default {
     remarkPlugins: [remarkToc],
     // Astro defaults not applied
     extendPlugins: false,
+  })],
+}
+```
+
+### `remarkRehype`
+
+Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
+
+You can set remark-rehype options in your config file:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    remarkRehype: {
+      footnoteLabel: 'Catatan kaki',
+      footnoteBackLabel: 'Kembali ke konten',
+    },
+  })],
+};
+```
+This inherits the configuration of [`markdown.remarkRehype`](https://docs.astro.build/en/reference/configuration-reference/#markdownremarkrehype). This behavior can be changed by configuring `extendPlugins`.
+
+### `remarkPlugins`
+
+Browse [awesome-remark](https://github.com/remarkjs/awesome-remark) for a full curated list of [remark plugins](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) to extend your Markdown's capabilities.
+
+This example applies the [`remark-toc`](https://github.com/remarkjs/remark-toc) plugin to `.mdx` files. To customize plugin inheritance from your Markdown config or Astro's defaults, [see the `extendPlugins` option](#extendplugins).
+
+```js
+// astro.config.mjs
+import remarkToc from 'remark-toc';
+
+export default {
+  integrations: [mdx({
+    remarkPlugins: [remarkToc],
+  })],
+}
+```
+
+### `rehypePlugins`
+
+ Browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) to transform the HTML that your Markdown generates.
+
+We apply our own (non-removable) [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
+
+This example applies the [`rehype-accessible-emojis`](https://www.npmjs.com/package/rehype-accessible-emojis) plugin to `.mdx` files. To customize plugin inheritance from your Markdown config or Astro's defaults, [see the `extendPlugins` option](#extendplugins).
+
+```js
+// astro.config.mjs
+import rehypeAccessibleEmojis from 'rehype-accessible-emojis';
+
+export default {
+  integrations: [mdx({
+    rehypePlugins: [rehypeAccessibleEmojis],
   })],
 }
 ```
