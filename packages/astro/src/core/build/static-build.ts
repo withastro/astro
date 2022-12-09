@@ -4,7 +4,11 @@ import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { BuildInternals, createBuildInternals, eachPrerenderedPageData } from '../../core/build/internal.js';
+import {
+	BuildInternals,
+	createBuildInternals,
+	eachPrerenderedPageData,
+} from '../../core/build/internal.js';
 import { emptyDir, removeDir } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
@@ -95,7 +99,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			return;
 		}
 		case 'server': {
-			// Inject the manifest
 			await injectManifest(opts, internals);
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
@@ -134,7 +137,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					manualChunks(id) {
 						// Split the Astro runtime into a separate chunk for readability
 						if (id.includes('astro/dist')) {
-							return 'astro'
+							return 'astro';
 						}
 						// internals.pagesByOutput is not populated yet
 						// so we split all pages into their own chunk
@@ -258,7 +261,7 @@ async function clientBuild(
 async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
 	const allStaticFiles = new Set();
 	for (const pageData of eachPrerenderedPageData(internals)) {
-		allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier))
+		allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
 	}
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output is all .mjs files, the client output is not.
@@ -266,18 +269,19 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 		cwd: fileURLToPath(out),
 	});
 	if (files.length) {
-		// Remove all the SSR generated .mjs files
-		await Promise.all(
-			files.map(async (filename) => {
-				const url = new URL(filename, out);
-				const serverBase = opts.settings.config.build.server.toString().replace(opts.settings.config.outDir.toString(), '')
-				if (!allStaticFiles.has(filename.replace(serverBase, ''))) {
-					return;
-				}
-				// Replace file with `noop` export, removes static dependencies from build output
-				await fs.promises.writeFile(url, 'export const _ = () => {};', { encoding: 'utf-8' });
-			})
-		);
+		// TODO: Replace file with `noop` export, removes static dependencies from build output
+		// // Remove all the SSR generated .mjs files
+		// await Promise.all(
+		// 	files.map(async (filename) => {
+		// 		const url = new URL(filename, out);
+		// 		const serverBase = opts.settings.config.build.server
+		// 			.toString()
+		// 			.replace(opts.settings.config.outDir.toString(), '');
+		// 		if (!allStaticFiles.has(filename.replace(serverBase, ''))) {
+		// 			return;
+		// 		}
+		// 	})
+		// );
 		// Map directories heads from the .mjs files
 		const directories: Set<string> = new Set();
 		files.forEach((i) => {
