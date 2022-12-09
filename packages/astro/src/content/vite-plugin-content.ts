@@ -52,11 +52,12 @@ const msg = {
 };
 
 interface AstroContentVirtualModPluginParams {
-	fs: typeof fsMod;
 	settings: AstroSettings;
 }
 
-export function astroContentVirtualModPlugin({ fs, settings }: AstroContentVirtualModPluginParams): Plugin {
+export function astroContentVirtualModPlugin({
+	settings,
+}: AstroContentVirtualModPluginParams): Plugin {
 	const paths = getPaths({ srcDir: settings.config.srcDir });
 	const relContentDir = appendForwardSlash(
 		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
@@ -123,7 +124,7 @@ export function astroContentServerPlugin({
 				fs: {
 					readdir: fs.readdir.bind(fs),
 					readdirSync: fs.readdirSync.bind(fs),
-				}
+				},
 			});
 			for (const entry of entries) {
 				queueEvent({ name: 'add', entry }, { shouldLog: false });
@@ -441,9 +442,11 @@ async function writeContentFiles({
 	hasContentConfig: boolean;
 }) {
 	let contentTypesStr = '';
-	for (const collectionKey in contentTypes) {
+	const collectionKeys = Object.keys(contentTypes).sort();
+	for (const collectionKey of collectionKeys) {
 		contentTypesStr += `${collectionKey}: {\n`;
-		for (const entryKey in contentTypes[collectionKey]) {
+		const entryKeys = Object.keys(contentTypes[collectionKey]).sort();
+		for (const entryKey of entryKeys) {
 			const entry = contentTypes[collectionKey][entryKey];
 			contentTypesStr += `${entryKey}: ${entry},\n`;
 		}
