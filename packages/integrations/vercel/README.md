@@ -72,6 +72,43 @@ import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/static';
 ```
 
+### Middleware
+
+You can use vercel middleware to get the request and redirect before the user loaded the page. Vercel middleware can run on both astro Edge, SSR or Static. You don't need to install `@vercel/edge` to access the middleware but you can install it to get feature such as geolocation. For more information about [middleware](https://vercel.com/docs/concepts/functions/edge-middleware)
+
+1. Configure your `astro.config.mjs`
+
+    ```js
+    // astro.config.mjs
+    import { defineConfig } from 'astro/config';
+    import vercel from '@astrojs/vercel/static';
+
+    export default defineConfig({
+      output: 'static', // 'server' or 'edge'
+      adapter: vercel(),
+    });
+    ```
+1. Add `middleware.js` to your root of your project. 
+
+    ```js
+    //middleware.js
+    export const config = {
+    // Only run the middleware on the admin route
+    matcher: '/admin',
+    };
+
+  export default function middleware(request) {
+    const url = new URL(request.url);
+    //you can here get ip location or cookie
+    if(url.pathname === "/admin"){
+      url.pathname = "/"
+    }
+    return Response.redirect(url);
+  }
+    ```
+1. Run `vercel dev` to start running middleware. 
+
+
 ## Usage
 
 📚 **[Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/vercel/)**
