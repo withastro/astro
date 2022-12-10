@@ -18,10 +18,10 @@ describe('Using Astro.request in SSR', () => {
 					name: 'inject-script',
 					hooks: {
 						'astro:config:setup'({ injectScript }) {
-							injectScript('page', 'import "/src/scripts/inject-script.js";')
-						}
-					}
-				}
+							injectScript('page', 'import "/src/scripts/inject-script.js";');
+						},
+					},
+				},
 			],
 			vite: {
 				build: {
@@ -74,13 +74,13 @@ describe('Using Astro.request in SSR', () => {
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
-		for(const el of $('script')) {
+		for (const el of $('script')) {
 			const scriptSrc = $(el).attr('src');
 			expect(scriptSrc.startsWith('/subpath/')).to.equal(true);
 
 			request = new Request('http://example.com' + scriptSrc);
 			response = await app.render(request);
-	
+
 			expect(response.status).to.equal(200);
 			const js = await response.text();
 			expect(js).to.not.be.an('undefined');

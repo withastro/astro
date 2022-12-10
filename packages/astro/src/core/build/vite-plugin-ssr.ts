@@ -146,11 +146,11 @@ function buildManifest(
 			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
-			const src =  entryModules[PAGE_SCRIPT_ID];
+			const src = entryModules[PAGE_SCRIPT_ID];
 
 			scripts.push({
 				type: 'external',
-				value: joinBase(src)
+				value: joinBase(src),
 			});
 		}
 
