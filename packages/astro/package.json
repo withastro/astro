@@ -132,7 +132,7 @@
     "html-escaper": "^3.0.3",
     "import-meta-resolve": "^2.1.0",
     "kleur": "^4.1.4",
-    "magic-string": "^0.25.9",
+    "magic-string": "^0.27.0",
     "mime": "^3.0.0",
     "ora": "^6.1.0",
     "path-browserify": "^1.0.1",

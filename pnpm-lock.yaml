@@ -431,7 +431,7 @@ importers:
       html-escaper: ^3.0.3
       import-meta-resolve: ^2.1.0
       kleur: ^4.1.4
-      magic-string: ^0.25.9
+      magic-string: ^0.27.0
       memfs: ^3.4.7
       mime: ^3.0.0
       mocha: ^9.2.2
@@ -503,7 +503,7 @@ importers:
       html-escaper: 3.0.3
       import-meta-resolve: 2.1.0
       kleur: 4.1.5
-      magic-string: 0.25.9
+      magic-string: 0.27.0
       mime: 3.0.0
       ora: 6.1.2
       path-browserify: 1.0.1
@@ -14434,6 +14434,13 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       sourcemap-codec: 1.4.8
+    dev: false
+
+  /magic-string/0.27.0:
+    resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.14
     dev: false
 
   /make-dir/3.1.0:
