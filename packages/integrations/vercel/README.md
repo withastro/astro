@@ -43,7 +43,7 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js ins={3, 6-7}
+    ```js
     // astro.config.mjs
     import { defineConfig } from 'astro/config';
     import vercel from '@astrojs/vercel/serverless';
