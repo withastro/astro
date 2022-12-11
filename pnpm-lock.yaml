@@ -2531,7 +2531,7 @@ importers:
       chalk: ^5.0.1
       comment-json: ^4.2.3
       execa: ^6.1.0
-      giget: ^0.1.7
+      giget: ^1.0.0
       kleur: ^4.1.4
       mocha: ^9.2.2
       ora: ^6.1.0
@@ -2545,7 +2545,7 @@ importers:
       chalk: 5.1.2
       comment-json: 4.2.3
       execa: 6.1.0
-      giget: 0.1.7
+      giget: 1.0.0
       kleur: 4.1.5
       ora: 6.1.2
       prompts: 2.4.2
@@ -13256,16 +13256,19 @@ packages:
       - supports-color
     dev: true
 
-  /giget/0.1.7:
-    resolution: {integrity: sha512-bvIVgRxfiYDTr6MWOdNjTI5o87sDUjbiFdad4P7j5yYrBJN3c3l0vaNICSrVE81X0Z6qFG0GkAoDgTrJ3K63XA==}
+  /giget/1.0.0:
+    resolution: {integrity: sha512-KWELZn3Nxq5+0So485poHrFriK9Bn3V/x9y+wgqrHkbmnGbjfLmZ685/SVA/ovW+ewoqW0gVI47pI4yW/VNobQ==}
     hasBin: true
     dependencies:
       colorette: 2.0.19
       defu: 6.1.1
+      https-proxy-agent: 5.0.1
       mri: 1.2.0
-      node-fetch-native: 0.1.8
-      pathe: 0.3.9
+      node-fetch-native: 1.0.1
+      pathe: 1.0.0
       tar: 6.1.12
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /github-from-package/0.0.0:
@@ -15304,8 +15307,8 @@ packages:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
 
-  /node-fetch-native/0.1.8:
-    resolution: {integrity: sha512-ZNaury9r0NxaT2oL65GvdGDy+5PlSaHTovT6JV5tOW07k1TQmgC0olZETa4C9KZg0+6zBr99ctTYa3Utqj9P/Q==}
+  /node-fetch-native/1.0.1:
+    resolution: {integrity: sha512-VzW+TAk2wE4X9maiKMlT+GsPU4OMmR1U9CrHSmd3DFLn2IcZ9VJ6M6BBugGfYUnPCLSYxXdZy17M0BEJyhUTwg==}
     dev: false
 
   /node-fetch/2.6.7:
@@ -15729,8 +15732,8 @@ packages:
     resolution: {integrity: sha512-sTitTPYnn23esFR3RlqYBWn4c45WGeLcsKzQiUpXJAyfcWkolvlYpV8FLo7JishK946oQwMFUCHXQ9AjGPKExw==}
     dev: false
 
-  /pathe/0.3.9:
-    resolution: {integrity: sha512-6Y6s0vT112P3jD8dGfuS6r+lpa0qqNrLyHPOwvXMnyNTQaYiwgau2DP3aNDsR13xqtGj7rrPo+jFUATpU6/s+g==}
+  /pathe/1.0.0:
+    resolution: {integrity: sha512-nPdMG0Pd09HuSsr7QOKUXO2Jr9eqaDiZvDwdyIhNG5SHYujkQHYKDfGQkulBxvbDHz8oHLsTgKN86LSwYzSHAg==}
     dev: false
 
   /pathval/1.1.1:
