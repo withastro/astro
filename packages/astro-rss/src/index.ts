@@ -163,8 +163,9 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 		if (typeof result.content === 'string') {
 			item['content:encoded'] = result.content;
 		}
-		if (typeof rssOptions.customData === 'string')
-			Object.assign(item, parser.parse(`<item>${rssOptions.customData}</item>`).item);
+		if (typeof result.customData === 'string') {
+			Object.assign(item, parser.parse(`<item>${result.customData}</item>`).item);
+		}
 		return item;
 	});
 
