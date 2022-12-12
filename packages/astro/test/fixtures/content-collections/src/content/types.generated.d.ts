@@ -48,38 +48,84 @@ declare module 'astro:content' {
 	>;
 
 	const entryMap: {
-		"blog": {
+		"with-schema-config": {
+"one.md": {
+  id: "one.md",
+  slug: "one",
+  body: string,
+  collection: "with-schema-config",
+  data: InferEntrySchema<"with-schema-config">
+},
+"three.md": {
+  id: "three.md",
+  slug: "three",
+  body: string,
+  collection: "with-schema-config",
+  data: InferEntrySchema<"with-schema-config">
+},
+"two.md": {
+  id: "two.md",
+  slug: "two",
+  body: string,
+  collection: "with-schema-config",
+  data: InferEntrySchema<"with-schema-config">
+},
+},
+"with-slug-config": {
+"one.md": {
+  id: "one.md",
+  slug: string,
+  body: string,
+  collection: "with-slug-config",
+  data: InferEntrySchema<"with-slug-config">
+},
+"three.md": {
+  id: "three.md",
+  slug: string,
+  body: string,
+  collection: "with-slug-config",
+  data: InferEntrySchema<"with-slug-config">
+},
+"two.md": {
+  id: "two.md",
+  slug: string,
+  body: string,
+  collection: "with-slug-config",
+  data: InferEntrySchema<"with-slug-config">
+},
+},
+"without-config": {
 "columbia.md": {
   id: "columbia.md",
   slug: "columbia",
   body: string,
-  collection: "blog",
+  collection: "without-config",
   data: any
 },
 "endeavour.md": {
   id: "endeavour.md",
   slug: "endeavour",
   body: string,
-  collection: "blog",
+  collection: "without-config",
   data: any
 },
 "enterprise.md": {
   id: "enterprise.md",
   slug: "enterprise",
   body: string,
-  collection: "blog",
+  collection: "without-config",
   data: any
 },
 "promo/launch-week.mdx": {
   id: "promo/launch-week.mdx",
   slug: "promo/launch-week",
   body: string,
-  collection: "blog",
+  collection: "without-config",
   data: any
 },
 },
 
 	};
 
-	type ContentConfig = never;
+	type ContentConfig = typeof import("./config");
 }
