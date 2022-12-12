@@ -16,6 +16,7 @@ import {
 	getEntrySlug,
 	loadContentConfig,
 	NotFoundError,
+	observable,
 	parseFrontmatter,
 } from './utils.js';
 import * as devalue from 'devalue';
@@ -131,6 +132,7 @@ export function astroContentServerPlugin({
 	const paths: Paths = getPaths({ srcDir: settings.config.srcDir });
 	let contentDirExists = false;
 	let contentGenerator: GenerateContent;
+	let configFileLoading = observable({ isLoading: false });
 
 	async function createContentGenerator(): Promise<GenerateContent> {
 		const contentTypes: ContentTypes = {};
@@ -138,6 +140,7 @@ export function astroContentServerPlugin({
 		let events: Promise<void>[] = [];
 		let debounceTimeout: NodeJS.Timeout | undefined;
 		let eventsSettled: Promise<void> | undefined;
+		let shouldWriteTypesFile = false;
 
 		const contentTypesBase = await fsMod.promises.readFile(
 			new URL(CONTENT_TYPES_FILE, paths.generatedInputDir),
@@ -145,6 +148,7 @@ export function astroContentServerPlugin({
 		);
 
 		async function init() {
+			shouldWriteTypesFile = true;
 			const pattern =
 				new URL('./**/', paths.contentDir).pathname + `*{${validContentExts.join(',')}}`;
 			const entries = await glob(pattern, {
@@ -184,7 +188,11 @@ export function astroContentServerPlugin({
 			} else {
 				const fileType = getEntryType(event.entry, paths);
 				if (fileType === 'config') {
+					configFileLoading.ctx.isLoading = true;
 					contentConfig = await loadContentConfig({ fs, settings });
+					configFileLoading.ctx.isLoading = false;
+					configFileLoading.notify();
+					configFileLoading.clear();
 					if (!(contentConfig instanceof Error)) {
 						warnNonexistentCollections({ logging, contentConfig, contentTypes });
 					}
@@ -221,6 +229,7 @@ export function astroContentServerPlugin({
 					contentConfig instanceof Error ? undefined : contentConfig.collections[collection];
 				switch (event.name) {
 					case 'add':
+						shouldWriteTypesFile = true;
 						if (!(collectionKey in contentTypes)) {
 							addCollection(contentTypes, collectionKey);
 						}
@@ -232,6 +241,7 @@ export function astroContentServerPlugin({
 						}
 						break;
 					case 'unlink':
+						shouldWriteTypesFile = true;
 						if (collectionKey in contentTypes && entryKey in contentTypes[collectionKey]) {
 							removeEntry(contentTypes, collectionKey, entryKey);
 						}
@@ -257,13 +267,16 @@ export function astroContentServerPlugin({
 					debounceTimeout && clearTimeout(debounceTimeout);
 					debounceTimeout = setTimeout(async () => {
 						await Promise.all(events);
-						await writeContentFiles({
-							fs,
-							contentTypes,
-							paths,
-							contentTypesBase,
-							hasContentConfig: !(contentConfig instanceof NotFoundError),
-						});
+						if (shouldWriteTypesFile) {
+							await writeContentFiles({
+								fs,
+								contentTypes,
+								paths,
+								contentTypesBase,
+								hasContentConfig: !(contentConfig instanceof NotFoundError),
+							});
+							shouldWriteTypesFile = false;
+						}
 						resolve();
 					}, 50 /* debounce 50 ms to batch chokidar events */);
 				} catch (e) {
@@ -280,6 +293,11 @@ export function astroContentServerPlugin({
 			async load(id) {
 				const { pathname, searchParams } = new URL(id, 'file://');
 				if (isContentFlagImport({ pathname, searchParams })) {
+					if (configFileLoading.ctx.isLoading) {
+						await new Promise((resolve) => {
+							configFileLoading.subscribe(resolve);
+						});
+					}
 					const rawContents = await fs.promises.readFile(pathname, 'utf-8');
 					const {
 						content: body,

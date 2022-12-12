@@ -165,3 +165,23 @@ export async function loadContentConfig({
 		return new ZodParseError('Content config file is invalid.');
 	}
 }
+
+export function observable<C>(ctx: C) {
+	type Subscriber = (ctx: C) => void;
+	const subscribers = new Set<Subscriber>();
+	return {
+		ctx,
+		subscribe: (fn: Subscriber) => {
+			subscribers.add(fn);
+			return () => {
+				subscribers.delete(fn);
+			};
+		},
+		clear() {
+			subscribers.clear();
+		},
+		notify() {
+			subscribers.forEach((fn) => fn(ctx));
+		},
+	};
+}
