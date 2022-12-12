@@ -113,6 +113,9 @@ function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string)
  */
 export function parseFrontmatter(fileContents: string, filePath: string) {
 	try {
+		// `matter` is empty string on cache results
+		// clear cache to prevent this
+		(matter as any).clearCache();
 		return matter(fileContents);
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {

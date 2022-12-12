@@ -284,7 +284,7 @@ export function astroContentServerPlugin({
 					const {
 						content: body,
 						data: unparsedData,
-						matter: rawData,
+						matter: rawData = '',
 					} = parseFrontmatter(rawContents, pathname);
 					const entryInfo = getEntryInfo({ entryPath: pathname, contentDir: paths.contentDir });
 					if (entryInfo instanceof Error) return;
