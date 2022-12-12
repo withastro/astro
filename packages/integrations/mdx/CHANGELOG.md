@@ -1,5 +1,13 @@
 # @astrojs/mdx
 
+## 0.12.2
+
+### Patch Changes
+
+- [#5586](https://github.com/withastro/astro/pull/5586) [`f4ff69a3c`](https://github.com/withastro/astro/commit/f4ff69a3cd874c8804c6d01c7cbbaed8a8e90be7) Thanks [@delucis](https://github.com/delucis)! - Fix link in MDX integration README
+
+- [#5570](https://github.com/withastro/astro/pull/5570) [`3f811eb68`](https://github.com/withastro/astro/commit/3f811eb682d55bd1f908f9b4bc3b795d2859d713) Thanks [@sarah11918](https://github.com/sarah11918)! - Revise README
+
 ## 0.12.1
 
 ### Patch Changes
