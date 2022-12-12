@@ -74,7 +74,7 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 ## Options
 
-This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compiler, options can be provided to the integration. See the `@vitejs/plugin-vue` [docs](https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue) for more details.
+This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compiler, options can be provided to the integration. See the `@vitejs/plugin-vue` [docs](https://www.npmjs.com/package/@vitejs/plugin-vue) for more details.
 
 __`astro.config.mjs`__
 
@@ -142,7 +142,7 @@ export default defineConfig({
 });
 ```
 
-This will enable rendering for both Vue and Vue JSX components. To customize the Vue JSX compiler, pass an options object instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue-jsx) for more details.
+This will enable rendering for both Vue and Vue JSX components. To customize the Vue JSX compiler, pass an options object instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://www.npmjs.com/package/@vitejs/plugin-vue-jsx) for more details.
 
 __`astro.config.mjs`__
 
