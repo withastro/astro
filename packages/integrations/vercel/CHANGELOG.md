@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.3.6
+
+### Patch Changes
+
+- [#5587](https://github.com/withastro/astro/pull/5587) [`4d9ef23b6`](https://github.com/withastro/astro/commit/4d9ef23b6745b28a92ca985a6a1d86b45c894f3c) Thanks [@JuanM04](https://github.com/JuanM04)! - Support node-fetch and Node 18 fetch
+
 ## 2.3.5
 
 ### Patch Changes
