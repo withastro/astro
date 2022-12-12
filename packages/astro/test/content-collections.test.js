@@ -73,6 +73,10 @@ describe('Content Collections', () => {
 		it('Returns with schema config collection entry', async () => {
 			expect(json).to.haveOwnProperty('oneWithSchemaConfig');
 			expect(json.oneWithSchemaConfig.id).to.equal('one.md');
+			expect(json.oneWithSchemaConfig.data.publishedAt instanceof Date).to.equal(true);
+			expect(json.oneWithSchemaConfig.data.publishedAt.toISOString()).to.equal(
+				'2021-01-01T00:00:00.000Z'
+			);
 		});
 		it('Returns with slug config collection entry', async () => {
 			expect(json).to.haveOwnProperty('twoWithSlugConfig');
