@@ -106,7 +106,7 @@ You can use vercel middleware to get the request and redirect before the user lo
     return Response.redirect(url);
   }
     ```
-1. Run `vercel dev` to start running middleware. 
+1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
 
 ## Usage
