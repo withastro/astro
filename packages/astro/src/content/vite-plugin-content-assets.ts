@@ -1,9 +1,7 @@
 import type { Plugin } from 'vite';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
-import parseImports from 'parse-imports';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
-import { AstroSettings } from '../@types/astro.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
 import { createViteLoader } from '../core/module-loader/vite.js';
@@ -12,7 +10,6 @@ import {
 	DELAYED_ASSET_FLAG,
 	LINKS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
-	VIRTUAL_MODULE_ID,
 } from './consts.js';
 
 function isDelayedAsset(url: URL): boolean {
@@ -22,11 +19,7 @@ function isDelayedAsset(url: URL): boolean {
 	);
 }
 
-export function astroDelayedAssetPlugin({
-	mode,
-}: {
-	mode: string;
-}): Plugin {
+export function astroDelayedAssetPlugin({ mode }: { mode: string }): Plugin {
 	let devModuleLoader: ModuleLoader;
 	return {
 		name: 'astro-delayed-asset-plugin',
@@ -87,11 +80,11 @@ export function astroBundleDelayedAssetPlugin({
 								const pageViteID = pageInfo.id;
 								const pageData = getPageDataByViteID(internals, pageViteID);
 								if (!pageData) continue;
-								const entryDeferredCss = pageData.contentDeferredCss?.get(id);
-								if (!entryDeferredCss) continue;
+								const entryCss = pageData.contentCollectionCss?.get(id);
+								if (!entryCss) continue;
 								chunk.code = chunk.code.replace(
 									JSON.stringify(LINKS_PLACEHOLDER),
-									JSON.stringify([...entryDeferredCss])
+									JSON.stringify([...entryCss])
 								);
 							}
 						}
@@ -100,18 +93,4 @@ export function astroBundleDelayedAssetPlugin({
 			}
 		},
 	};
-}
-
-function getRenderEntryImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
-	for (const imp of parseImportRes) {
-		if (imp.moduleSpecifier.value === VIRTUAL_MODULE_ID && imp.importClause?.named) {
-			for (const namedImp of imp.importClause.named) {
-				if (namedImp.specifier === 'renderEntry') {
-					// Use `binding` to support `import { renderEntry as somethingElse }...
-					return namedImp.binding;
-				}
-			}
-		}
-	}
-	return undefined;
 }

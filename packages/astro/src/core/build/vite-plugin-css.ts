@@ -182,14 +182,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 													const pageViteID = parentInfo.id;
 													const pageData = getPageDataByViteID(internals, pageViteID);
 													if (pageData) {
-														if (!pageData.contentDeferredCss) {
-															// TODO: make required to avoid `!`
-															pageData.contentDeferredCss = new Map();
-														}
 														for (const css of meta.importedCss) {
 															const existingCss =
-																pageData.contentDeferredCss!.get(pageInfo.id) ?? new Set();
-															pageData.contentDeferredCss!.set(
+																pageData.contentCollectionCss.get(pageInfo.id) ?? new Set();
+															pageData.contentCollectionCss.set(
 																pageInfo.id,
 																new Set([...existingCss, css])
 															);

@@ -26,7 +26,7 @@ import {
 	astroContentServerPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/vite-plugin-content.js';
-import { astroDelayedAssetPlugin } from '../content/vite-plugin-delayed-assets.js';
+import { astroDelayedAssetPlugin } from '../content/vite-plugin-content-assets.js';
 import { loadContentConfig } from '../content/utils.js';
 
 interface CreateViteOptions {
