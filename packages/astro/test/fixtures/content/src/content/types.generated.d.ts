@@ -67,5 +67,5 @@ declare module 'astro:content' {
 
 	};
 
-	type ContentConfig = typeof import("/Users/matthew/dev/astro/packages/astro/test/fixtures/content/src/content/config");
+	type ContentConfig = typeof import("./config");
 }

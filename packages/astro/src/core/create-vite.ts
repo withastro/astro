@@ -124,9 +124,13 @@ export async function createVite(
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPropagationPlugin({ settings }),
 			settings.config.experimental.prerender && astroScannerPlugin({ settings, logging }),
-			astroContentVirtualModPlugin({ settings }),
-			astroContentServerPlugin({ fs, settings, logging, contentConfig, mode }),
-			astroDelayedAssetPlugin({ mode }),
+			...(settings.config.experimental.contentCollections
+				? [
+						astroContentVirtualModPlugin({ settings }),
+						astroContentServerPlugin({ fs, settings, logging, contentConfig, mode }),
+						astroDelayedAssetPlugin({ mode }),
+				  ]
+				: []),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

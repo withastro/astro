@@ -44,6 +44,7 @@ describe('Collections API - renderEntry', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
+					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {
@@ -117,6 +118,7 @@ describe('Collections API - renderEntry', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
+					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {
@@ -182,6 +184,7 @@ describe('Collections API - renderEntry', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
+					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {
