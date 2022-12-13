@@ -97,7 +97,6 @@ const errorMap: z.ZodErrorMap = (error, ctx) => {
 	return { message: ctx.defaultError };
 };
 
-// WARNING: MAXIMUM JANK AHEAD
 function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string) {
 	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
 	if (indexOfFrontmatterKey === -1) return 0;
