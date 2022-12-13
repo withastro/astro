@@ -27,6 +27,7 @@ import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
 import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
+import * as eslexer from 'es-module-lexer';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -134,16 +135,19 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
-					manualChunks(id) {
+					manualChunks(id, api) {
 						// Split the Astro runtime into a separate chunk for readability
 						if (id.includes('astro/dist')) {
 							return 'astro';
 						}
-						// internals.pagesByOutput is not populated yet
-						// so we split all pages into their own chunk
 						const pageInfo = internals.pagesByViteID.get(id);
 						if (pageInfo) {
-							// pages should go in their own chunks/pages/ directory
+							// prerendered pages should be split into their own chunk
+							// Important: this can't be in the `pages/` directory!
+							if (api.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
+								return `prerender`;
+							}
+							// pages should go in their own chunks/pages/* directory
 							return `pages${pageInfo.route.route.replace(/\/$/, '/index')}`;
 						}
 					},
@@ -263,25 +267,32 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 	for (const pageData of eachPrerenderedPageData(internals)) {
 		allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
 	}
-	const out = getOutDirWithinCwd(opts.settings.config.outDir);
+	const ssr = opts.settings.config.output === 'server';
+	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
 		cwd: fileURLToPath(out),
 	});
+
 	if (files.length) {
-		// TODO: Replace file with `noop` export, removes static dependencies from build output
-		// // Remove all the SSR generated .mjs files
-		// await Promise.all(
-		// 	files.map(async (filename) => {
-		// 		const url = new URL(filename, out);
-		// 		const serverBase = opts.settings.config.build.server
-		// 			.toString()
-		// 			.replace(opts.settings.config.outDir.toString(), '');
-		// 		if (!allStaticFiles.has(filename.replace(serverBase, ''))) {
-		// 			return;
-		// 		}
-		// 	})
-		// );
+		await eslexer.init;
+		// Remove all the SSR generated .mjs files
+		await Promise.all(
+			files.map(async (filename) => {
+				if (!allStaticFiles.has(filename)) {
+					return;
+				}
+				const url = new URL(filename, out);
+				const text = await fs.promises.readFile(url, { encoding: 'utf8' });
+				const [, exports] = eslexer.parse(text);
+				// Replace exports (prerendered pages) with a noop
+				let value = 'const noop = (() => {});';
+				for (const e of exports) {
+					value += `\nexport const ${e.n} = noop;`;
+				}
+				await fs.promises.writeFile(url, value, { encoding: 'utf8' });
+			})
+		);
 		// Map directories heads from the .mjs files
 		const directories: Set<string> = new Set();
 		files.forEach((i) => {
@@ -302,13 +313,18 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 			})
 		);
 	}
-	// Clean out directly if the outDir is outside of root
-	if (out.toString() !== opts.settings.config.outDir.toString()) {
-		// Copy assets before cleaning directory if outside root
-		copyFiles(out, opts.settings.config.outDir);
-		await fs.promises.rm(out, { recursive: true });
-		return;
-	}
+	try {
+		fs.rmSync(new URL('./package.json', out));
+	} catch (e) {}
+
+	// TODO: fix this!
+	// // Clean out directly if the outDir is outside of root
+	// if (out.toString() !== opts.settings.config.outDir.toString()) {
+	// 	// Copy assets before cleaning directory if outside root
+	// 	copyFiles(out, opts.settings.config.outDir);
+	// 	await fs.promises.rm(out, { recursive: true });
+	// 	return;
+	// }
 }
 
 async function cleanServerOutput(opts: StaticBuildOptions) {
