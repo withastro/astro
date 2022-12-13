@@ -99,7 +99,7 @@ You can use Vercel middleware to intercept a request and redirect before sending
 
   export default function middleware(request) {
     const url = new URL(request.url);
-    //you can here get ip location or cookie
+    // You can retrieve IP location or cookies here.
     if (url.pathname === "/admin") {
       url.pathname = "/"
     }
