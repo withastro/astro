@@ -1,24 +1,16 @@
-import { z, defineCollection } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 
-const withSlugConfig = defineCollection({
-	slug({ id, data }) {
-		return `${data.prefix}-${id}`;
-	},
-	schema: {
-		prefix: z.string(),
-	}
-});
-
-const withSchemaConfig = defineCollection({
+const blog = defineCollection({
 	schema: {
 		title: z.string(),
-		isDraft: z.boolean().default(false),
-		lang: z.enum(['en', 'fr', 'es']).default('en'),
-		publishedAt: z.date().transform((val) => new Date(val)),
-	}
+		description: z.string(),
+		pubDate: z.string().transform((str) => new Date(str)),
+		updatedDate: z
+			.string()
+			.optional()
+			.transform((str) => (str ? new Date(str) : undefined)),
+		heroImage: z.string().optional(),
+	},
 });
 
-export const collections = {
-	'with-slug-config': withSlugConfig,
-	'with-schema-config': withSchemaConfig,
-}
+export const collections = { blog };
