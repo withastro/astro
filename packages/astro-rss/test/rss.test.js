@@ -23,7 +23,7 @@ const phpFeedItemWithContent = {
 };
 const phpFeedItemWithCustomData = {
 	...phpFeedItem,
-	customData: '<dc:creator><![CDATA[Buster Bluth]]></dc:creator>'
+	customData: '<dc:creator><![CDATA[Buster Bluth]]></dc:creator>',
 };
 
 const web1FeedItem = {
