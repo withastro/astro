@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.3.4
+
+### Patch Changes
+
+- [#5361](https://github.com/withastro/astro/pull/5361) [`ee750087c`](https://github.com/withastro/astro/commit/ee750087ce360c54d349f160d84bbdafb0ec83b4) Thanks [@matthewp](https://github.com/matthewp)! - Allows @astrojs/image to be used in Vercel SSR
+
 ## 2.3.3
 
 ### Patch Changes

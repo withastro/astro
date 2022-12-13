@@ -42,7 +42,8 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js title="astro.config.mjs" ins={2, 5-8}
+    ```js ins={3, 6-9}
+    // astro.config.mjs
     import { defineConfig } from 'astro/config';
     import node from '@astrojs/node';
 
@@ -109,6 +110,15 @@ node ./dist/server/entry.mjs
 
 For standalone mode the server handles file servering in addition to the page and API routes.
 
+
+#### Custom host and port
+
+You can override the host and port the standalone server runs on by passing them as environment variables at runtime:
+
+```shell
+HOST=0.0.0.0 PORT=3000 node ./dist/server/entry.mjs
+```
+
 #### HTTPS
 
 By default the standalone server uses HTTP. This works well if you have a proxy server in front of it that does HTTPS. If you need the standalone server to run HTTPS itself you need to provide your SSL key and certificate.
@@ -125,7 +135,8 @@ SERVER_KEY_PATH=./private/key.pem SERVER_CERT_PATH=./private/cert.pem node ./dis
 
 You may see this when running the entry script if it was built with npm or Yarn. This is a [known issue](https://github.com/withastro/astro/issues/4974) that will be fixed in a future release. As a workaround, add `"path-to-regexp"` to the `noExternal` array:
 
-```js title="astro.config.mjs" ins={8-12}
+```js ins={9-13}
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 
 import node from "@astrojs/node";

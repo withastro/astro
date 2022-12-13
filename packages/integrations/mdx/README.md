@@ -191,7 +191,7 @@ export default {
 };
 ```
 
-…every MDX file will have `customProperty` in its frontmatter! See [our Markdown documentation](https://docs.astro.build/en/guides/markdown-content/#injecting-frontmatter) for more usage instructions and a [reading time plugin example](https://docs.astro.build/en/guides/markdown-content/#example-calculate-reading-time).
+…every MDX file will have `customProperty` in its frontmatter! See [our Markdown documentation](https://docs.astro.build/en/guides/markdown-content/#example-injecting-frontmatter) for more usage instructions and a [reading time plugin example](https://docs.astro.build/en/guides/markdown-content/#example-calculate-reading-time).
 
 ### Layouts
 Layouts can be applied [in the same way as standard Astro Markdown](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout). You can add a `layout` to [your frontmatter](#frontmatter) like so:
@@ -517,6 +517,26 @@ export default {
 These are plugins that modify the output [estree](https://github.com/estree/estree) directly. This is useful for modifying or injecting JavaScript variables in your MDX files.
 
 We suggest [using AST Explorer](https://astexplorer.net/) to play with estree outputs, and trying [`estree-util-visit`](https://unifiedjs.com/explore/package/estree-util-visit/) for searching across JavaScript nodes.
+
+### remarkRehype
+
+Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
+
+You can use remark-rehype options in your MDX integration config file like so:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    remarkRehype: {
+      footnoteLabel: 'Catatan kaki',
+      footnoteBackLabel: 'Kembali ke konten',
+    },
+  })],
+};
+```
+
+This inherits the configuration of `markdown.remarkRehype`. This behavior can be changed by configuring `extendPlugins`.
 
 ## Examples
 

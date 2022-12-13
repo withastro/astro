@@ -24,7 +24,7 @@ function onlyAvailableInSSR(name: 'Astro.redirect') {
 	return function _onlyAvailableInSSR() {
 		switch (name) {
 			case 'Astro.redirect':
-				throw new AstroError(AstroErrorData.StaticRedirectNotAllowed);
+				throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 		}
 	};
 }
@@ -177,10 +177,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
 							throw new AstroError({
-								...AstroErrorData.SSRClientAddressNotAvailableInAdapter,
-								message: AstroErrorData.SSRClientAddressNotAvailableInAdapter.message(
-									args.adapterName
-								),
+								...AstroErrorData.ClientAddressNotAvailable,
+								message: AstroErrorData.ClientAddressNotAvailable.message(args.adapterName),
 							});
 						} else {
 							throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);

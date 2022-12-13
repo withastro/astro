@@ -73,7 +73,8 @@ async function loadRemoteImage(src: string) {
 			data: Buffer.from(await res.arrayBuffer()),
 			expires: Date.now() + expires,
 		};
-	} catch {
+	} catch (err: unknown) {
+		console.error(err);
 		return undefined;
 	}
 }

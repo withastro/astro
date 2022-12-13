@@ -2,18 +2,17 @@ import nodeFs from 'fs';
 import npath from 'path';
 import slashify from 'slash';
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro';
 
 type NodeFileSystemModule = typeof nodeFs;
 
 export interface LoadFallbackPluginParams {
 	fs?: NodeFileSystemModule;
-	settings: AstroSettings;
+	root: URL;
 }
 
 export default function loadFallbackPlugin({
 	fs,
-	settings,
+	root,
 }: LoadFallbackPluginParams): vite.Plugin[] | false {
 	// Only add this plugin if a custom fs implementation is provided.
 	if (!fs || fs === nodeFs) {
@@ -29,7 +28,7 @@ export default function loadFallbackPlugin({
 				return await fs.promises.readFile(id, 'utf-8');
 			} catch (e2) {
 				try {
-					const fullpath = new URL('.' + id, settings.config.root);
+					const fullpath = new URL('.' + id, root);
 					return await fs.promises.readFile(fullpath, 'utf-8');
 				} catch (e3) {
 					// Let fall through to the next
@@ -43,15 +42,23 @@ export default function loadFallbackPlugin({
 			name: 'astro:load-fallback',
 			enforce: 'post',
 			async resolveId(id, parent) {
-				if (id.startsWith('.') && parent && fs.existsSync(parent)) {
-					return npath.posix.join(npath.posix.dirname(parent), id);
-				} else {
-					let resolved = await this.resolve(id, parent, { skipSelf: true });
-					if (resolved) {
-						return resolved.id;
-					}
-					return slashify(id);
+				// See if this can be loaded from our fs
+				if (parent) {
+					const candidateId = npath.posix.join(npath.posix.dirname(parent), id);
+					try {
+						// Check to see if this file exists and is not a directory.
+						const stats = await fs.promises.stat(candidateId);
+						if (!stats.isDirectory()) {
+							return candidateId;
+						}
+					} catch {}
 				}
+
+				let resolved = await this.resolve(id, parent, { skipSelf: true });
+				if (resolved) {
+					return resolved.id;
+				}
+				return slashify(id);
 			},
 			async load(id) {
 				const source = await tryLoadModule(id);

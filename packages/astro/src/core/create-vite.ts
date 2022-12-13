@@ -97,7 +97,7 @@ export async function createVite(
 		},
 		plugins: [
 			configAliasVitePlugin({ settings }),
-			astroLoadFallbackPlugin({ fs, settings }),
+			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logging }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes

@@ -74,13 +74,16 @@ export default {
 
 ### Installing `sharp` (optional)
 
-First, install the `sharp` package using your package manger. If you're using npm or aren't sure, run this in the terminal:
+First, install the `sharp` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
+
 ```sh
 npm install sharp
 ```
+
 Then, update the integration in your `astro.config.*` file to use the built-in `sharp` image transformer.
-```astro title="astro.config.mjs"
----
+
+```js ins={2,7}
+// astro.config.mjs
 import image from '@astrojs/image';
 
 export default {
@@ -89,7 +92,6 @@ export default {
     serviceEntryPoint: '@astrojs/image/sharp'
   })],
 }
----
 ```
 
 ### Update `env.d.ts`

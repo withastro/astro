@@ -90,14 +90,18 @@ async function compile({
 					return result;
 				case 1: {
 					let error = cssTransformErrors[0];
-					if (!error.code) {
-						error.code = AstroErrorData.UnknownCSSError.code;
+					if (!error.errorCode) {
+						error.errorCode = AstroErrorData.UnknownCSSError.code;
 					}
 
 					throw cssTransformErrors[0];
 				}
 				default: {
-					throw new AggregateError({ ...cssTransformErrors[0], errors: cssTransformErrors });
+					throw new AggregateError({
+						...cssTransformErrors[0],
+						code: cssTransformErrors[0].errorCode,
+						errors: cssTransformErrors,
+					});
 				}
 			}
 		});
