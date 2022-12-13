@@ -2,8 +2,8 @@ import type fsMod from 'node:fs';
 import matter from 'gray-matter';
 import { z } from 'zod';
 import { createServer, ErrorPayload as ViteErrorPayload, ViteDevServer } from 'vite';
-import { astroContentVirtualModPlugin, getPaths } from './vite-plugin-content.js';
 import { AstroSettings } from '../@types/astro.js';
+import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -140,7 +140,7 @@ export async function loadContentConfig({
 	fs: typeof fsMod;
 	settings: AstroSettings;
 }): Promise<ContentConfig | Error> {
-	const paths = getPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths({ srcDir: settings.config.srcDir });
 	const tempConfigServer: ViteDevServer = await createServer({
 		root: settings.config.root.pathname,
 		server: { middlewareMode: true, hmr: false },
@@ -152,7 +152,7 @@ export async function loadContentConfig({
 	});
 	let unparsedConfig;
 	try {
-		unparsedConfig = await tempConfigServer.ssrLoadModule(paths.config.pathname);
+		unparsedConfig = await tempConfigServer.ssrLoadModule(contentPaths.config.pathname);
 	} catch {
 		return new NotFoundError('Failed to resolve content config.');
 	} finally {
@@ -183,5 +183,22 @@ export function observable<C>(ctx: C) {
 		notify() {
 			subscribers.forEach((fn) => fn(ctx));
 		},
+	};
+}
+
+export type ContentPaths = {
+	contentDir: URL;
+	cacheDir: URL;
+	generatedInputDir: URL;
+	config: URL;
+};
+
+export function getContentPaths({ srcDir }: { srcDir: URL }): ContentPaths {
+	return {
+		// Output generated types in content directory. May change in the future!
+		cacheDir: new URL('./content/', srcDir),
+		contentDir: new URL('./content/', srcDir),
+		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
+		config: new URL('./content/config', srcDir),
 	};
 }

@@ -5,8 +5,8 @@ import * as path from 'node:path';
 import { bold, cyan } from 'kleur/colors';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
-import { appendForwardSlash, isRelativePath, prependForwardSlash } from '../core/path.js';
-import { contentFileExts, CONTENT_FLAG, VIRTUAL_MODULE_ID } from './consts.js';
+import { appendForwardSlash, isRelativePath } from '../core/path.js';
+import { contentFileExts, CONTENT_FLAG, CONTENT_TYPES_FILE } from './consts.js';
 import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { pathToFileURL } from 'node:url';
 import {
@@ -14,19 +14,14 @@ import {
 	ContentConfig,
 	getEntryData,
 	getEntrySlug,
+	getContentPaths,
 	loadContentConfig,
 	NotFoundError,
 	observable,
 	parseFrontmatter,
+	ContentPaths,
 } from './utils.js';
 import * as devalue from 'devalue';
-
-type Paths = {
-	contentDir: URL;
-	cacheDir: URL;
-	generatedInputDir: URL;
-	config: URL;
-};
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type ContentEvent = { name: ChokidarEvent; entry: string };
@@ -43,52 +38,10 @@ type GenerateContent = {
 
 type ContentTypes = Record<string, Record<string, string>>;
 
-const CONTENT_BASE = 'types.generated';
-const CONTENT_FILE = CONTENT_BASE + '.mjs';
-const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
-
 const msg = {
 	collectionAdded: (collection: string) => `${cyan(collection)} collection added`,
 	entryAdded: (entry: string, collection: string) => `${cyan(entry)} added to ${bold(collection)}.`,
 };
-
-interface AstroContentVirtualModPluginParams {
-	settings: AstroSettings;
-}
-
-export function astroContentVirtualModPlugin({
-	settings,
-}: AstroContentVirtualModPluginParams): Plugin {
-	const paths = getPaths({ srcDir: settings.config.srcDir });
-	const relContentDir = appendForwardSlash(
-		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
-	);
-	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
-	const astroContentModContents = fsMod
-		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
-		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
-		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
-
-	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
-
-	return {
-		name: 'astro-content-virtual-mod-plugin',
-		enforce: 'pre',
-		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return astroContentVirtualModuleId;
-			}
-		},
-		load(id) {
-			if (id === astroContentVirtualModuleId) {
-				return {
-					code: astroContentModContents,
-				};
-			}
-		},
-	};
-}
 
 interface AstroContentServerPluginParams {
 	fs: typeof fsMod;
@@ -127,7 +80,7 @@ export function astroContentServerPlugin({
 	logging,
 	mode,
 }: AstroContentServerPluginParams): Plugin[] {
-	const paths: Paths = getPaths({ srcDir: settings.config.srcDir });
+	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
 	let contentDirExists = false;
 	let contentGenerator: GenerateContent;
 	let configFileLoading = observable({ isLoading: false });
@@ -141,14 +94,14 @@ export function astroContentServerPlugin({
 		let shouldWriteTypesFile = false;
 
 		const contentTypesBase = await fsMod.promises.readFile(
-			new URL(CONTENT_TYPES_FILE, paths.generatedInputDir),
+			new URL(CONTENT_TYPES_FILE, contentPaths.generatedInputDir),
 			'utf-8'
 		);
 
 		async function init() {
 			shouldWriteTypesFile = true;
 			const pattern =
-				new URL('./**/', paths.contentDir).pathname + `*{${contentFileExts.join(',')}}`;
+				new URL('./**/', contentPaths.contentDir).pathname + `*{${contentFileExts.join(',')}}`;
 			const entries = await glob(pattern, {
 				fs: {
 					readdir: fs.readdir.bind(fs),
@@ -168,7 +121,7 @@ export function astroContentServerPlugin({
 			const shouldLog = opts?.shouldLog ?? true;
 
 			if (event.name === 'addDir' || event.name === 'unlinkDir') {
-				const collection = path.relative(paths.contentDir.pathname, event.entry);
+				const collection = path.relative(contentPaths.contentDir.pathname, event.entry);
 				// If directory is multiple levels deep, it is not a collection!
 				const isCollectionEvent = collection.split(path.sep).length === 1;
 				if (!isCollectionEvent) return;
@@ -184,7 +137,7 @@ export function astroContentServerPlugin({
 						break;
 				}
 			} else {
-				const fileType = getEntryType(event.entry, paths);
+				const fileType = getEntryType(event.entry, contentPaths);
 				if (fileType === 'config') {
 					configFileLoading.ctx.isLoading = true;
 					contentConfig = await loadContentConfig({ fs, settings });
@@ -201,12 +154,15 @@ export function astroContentServerPlugin({
 						logging,
 						'content',
 						`${cyan(
-							path.relative(paths.contentDir.pathname, event.entry)
+							path.relative(contentPaths.contentDir.pathname, event.entry)
 						)} is not a supported file type. Skipping.`
 					);
 					return;
 				}
-				const entryInfo = getEntryInfo({ entryPath: event.entry, contentDir: paths.contentDir });
+				const entryInfo = getEntryInfo({
+					entryPath: event.entry,
+					contentDir: contentPaths.contentDir,
+				});
 				// Not a valid `src/content/` entry. Silently return, but should be impossible?
 				if (entryInfo instanceof Error) return;
 				if (entryInfo.collection === '.') {
@@ -214,7 +170,7 @@ export function astroContentServerPlugin({
 						logging,
 						'content',
 						`${cyan(
-							path.relative(paths.contentDir.pathname, event.entry)
+							path.relative(contentPaths.contentDir.pathname, event.entry)
 						)} must be nested in a collection directory. Skipping.`
 					);
 					return;
@@ -252,7 +208,7 @@ export function astroContentServerPlugin({
 		}
 
 		function queueEvent(event: ContentEvent, eventOpts?: { shouldLog: boolean }) {
-			if (!event.entry.startsWith(paths.contentDir.pathname)) return;
+			if (!event.entry.startsWith(contentPaths.contentDir.pathname)) return;
 			if (event.entry.endsWith(CONTENT_TYPES_FILE)) return;
 
 			events.push(onEvent(event, eventOpts));
@@ -269,7 +225,7 @@ export function astroContentServerPlugin({
 							await writeContentFiles({
 								fs,
 								contentTypes,
-								paths,
+								paths: contentPaths,
 								contentTypesBase,
 								hasContentConfig: !(contentConfig instanceof NotFoundError),
 							});
@@ -302,7 +258,10 @@ export function astroContentServerPlugin({
 						data: unparsedData,
 						matter: rawData = '',
 					} = parseFrontmatter(rawContents, pathname);
-					const entryInfo = getEntryInfo({ entryPath: pathname, contentDir: paths.contentDir });
+					const entryInfo = getEntryInfo({
+						entryPath: pathname,
+						contentDir: contentPaths.contentDir,
+					});
 					if (entryInfo instanceof Error) return;
 
 					const _internal = { filePath: pathname, rawData };
@@ -344,7 +303,7 @@ export const _internal = {
 			name: 'astro-content-server-plugin',
 			async config(viteConfig) {
 				try {
-					await fs.promises.stat(paths.contentDir);
+					await fs.promises.stat(contentPaths.contentDir);
 					contentDirExists = true;
 				} catch {
 					/* silently move on */
@@ -365,13 +324,13 @@ export const _internal = {
 						logging,
 						'content',
 						`Watching ${cyan(
-							paths.contentDir.href.replace(settings.config.root.href, '')
+							contentPaths.contentDir.href.replace(settings.config.root.href, '')
 						)} for changes`
 					);
 					attachListeners();
 				} else {
 					viteServer.watcher.on('addDir', (dir) => {
-						if (dir === paths.contentDir.pathname) {
+						if (dir === contentPaths.contentDir.pathname) {
 							info(logging, 'content', `Content dir found. Watching for changes`);
 							contentDirExists = true;
 							attachListeners();
@@ -383,7 +342,7 @@ export const _internal = {
 					viteServer.watcher.on('all', async (event, entry) => {
 						if (
 							['add', 'unlink', 'change'].includes(event) &&
-							getEntryType(entry, paths) === 'config'
+							getEntryType(entry, contentPaths) === 'config'
 						) {
 							for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 								if (isContentFlagImport(new URL(modUrl, 'file://'))) {
@@ -414,16 +373,6 @@ export const _internal = {
 			},
 		},
 	];
-}
-
-export function getPaths({ srcDir }: { srcDir: URL }): Paths {
-	return {
-		// Output generated types in content directory. May change in the future!
-		cacheDir: new URL('./content/', srcDir),
-		contentDir: new URL('./content/', srcDir),
-		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
-		config: new URL('./content/config', srcDir),
-	};
 }
 
 function isContentFlagImport({ searchParams, pathname }: Pick<URL, 'searchParams' | 'pathname'>) {
@@ -464,7 +413,7 @@ function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey
 function getEntryInfo({
 	entryPath,
 	contentDir,
-}: Pick<Paths, 'contentDir'> & { entryPath: string }): EntryInfo | Error {
+}: Pick<ContentPaths, 'contentDir'> & { entryPath: string }): EntryInfo | Error {
 	const relativeEntryPath = normalizePath(path.relative(contentDir.pathname, entryPath));
 	const collection = path.dirname(relativeEntryPath).split(path.sep).shift();
 	if (!collection) return new Error();
@@ -478,7 +427,7 @@ function getEntryInfo({
 	};
 }
 
-function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | 'unknown' {
+function getEntryType(entryPath: string, paths: ContentPaths): 'content' | 'config' | 'unknown' {
 	const { dir, ext, name } = path.parse(entryPath);
 	const { pathname } = new URL(name, appendForwardSlash(pathToFileURL(dir).href));
 	if ((contentFileExts as readonly string[]).includes(ext)) {
@@ -498,7 +447,7 @@ async function writeContentFiles({
 	hasContentConfig,
 }: {
 	fs: typeof fsMod;
-	paths: Paths;
+	paths: ContentPaths;
 	contentTypes: ContentTypes;
 	contentTypesBase: string;
 	hasContentConfig: boolean;
