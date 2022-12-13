@@ -169,7 +169,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			vitePluginPrerender(opts, internals),
 			...(viteConfig.plugins || []),
-			astroBundleDelayedAssetPlugin({ internals }),
+			settings.config.experimental.contentCollections &&
+				astroBundleDelayedAssetPlugin({ internals }),
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
 		],
