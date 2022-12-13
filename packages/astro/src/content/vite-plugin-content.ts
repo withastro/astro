@@ -43,8 +43,6 @@ type GenerateContent = {
 
 type ContentTypes = Record<string, Record<string, string>>;
 
-const validContentExts = ['.md', '.mdx'] as const;
-
 const CONTENT_BASE = 'types.generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
@@ -65,7 +63,7 @@ export function astroContentVirtualModPlugin({
 	const relContentDir = appendForwardSlash(
 		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
 	);
-	const entryGlob = `${relContentDir}**/*{${validContentExts.join(',')}}`;
+	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
 	const astroContentModContents = fsMod
 		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
@@ -150,7 +148,7 @@ export function astroContentServerPlugin({
 		async function init() {
 			shouldWriteTypesFile = true;
 			const pattern =
-				new URL('./**/', paths.contentDir).pathname + `*{${validContentExts.join(',')}}`;
+				new URL('./**/', paths.contentDir).pathname + `*{${contentFileExts.join(',')}}`;
 			const entries = await glob(pattern, {
 				fs: {
 					readdir: fs.readdir.bind(fs),
@@ -483,7 +481,7 @@ function getEntryInfo({
 function getEntryType(entryPath: string, paths: Paths): 'content' | 'config' | 'unknown' {
 	const { dir, ext, name } = path.parse(entryPath);
 	const { pathname } = new URL(name, appendForwardSlash(pathToFileURL(dir).href));
-	if ((validContentExts as readonly string[]).includes(ext)) {
+	if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
 	} else if (pathname === paths.config.pathname) {
 		return 'config';
