@@ -65,7 +65,7 @@ export default function createVitePluginAstroServer({
 			if (!id.includes('vite/dist/client/client.mjs')) return;
 
 			// Replace the Vite overlay with ours
-			return patchOverlay(code);
+			return patchOverlay(code, settings.config);
 		},
 	};
 }
