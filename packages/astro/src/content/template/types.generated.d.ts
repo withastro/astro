@@ -38,7 +38,7 @@ declare module 'astro:content' {
 		collection: C;
 		id: E;
 	}): Promise<{
-		Content: import('astro').MarkdownInstance<{}>['Content'];
+		Content: () => import('astro').MarkdownInstance<{}>['Content'];
 		headings: import('astro').MarkdownHeading[];
 		injectedFrontmatter: Record<string, any>;
 	}>;
