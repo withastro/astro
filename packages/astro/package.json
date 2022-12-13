@@ -156,7 +156,7 @@
     "typescript": "*",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2",
-    "vite": "~3.2.5",
+    "vite": "4.0.0-beta.7",
     "vitefu": "^0.2.1",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"

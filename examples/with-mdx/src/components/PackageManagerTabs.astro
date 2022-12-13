@@ -1,0 +1,19 @@
+---
+
+---
+
+<div>
+	<Fragment slot="tab.npm">npm</Fragment>
+	<Fragment slot="tab.pnpm">pnpm</Fragment>
+	<Fragment slot="tab.yarn">Yarn</Fragment>
+
+	<Fragment slot="panel.npm">
+		<slot name="npm" />
+	</Fragment>
+	<Fragment slot="panel.pnpm">
+		<slot name="pnpm" />
+	</Fragment>
+	<Fragment slot="panel.yarn">
+		<slot name="yarn" />
+	</Fragment>
+</div>
