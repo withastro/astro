@@ -93,8 +93,8 @@ You can use Vercel middleware to intercept a request and redirect before sending
     ```js
     //middleware.js
     export const config = {
-    // Only run the middleware on the admin route
-    matcher: '/admin',
+      // Only run the middleware on the admin route
+      matcher: '/admin',
     };
 
   export default function middleware(request) {
