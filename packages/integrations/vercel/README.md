@@ -76,18 +76,6 @@ import vercel from '@astrojs/vercel/static';
 
 You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
 
-1. Configure your `astro.config.mjs`
-
-    ```js
-    // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-    import vercel from '@astrojs/vercel/static';
-
-    export default defineConfig({
-      output: 'static', // 'server' or 'edge'
-      adapter: vercel(),
-    });
-    ```
 1. Add `middleware.js` to your root of your project. 
 
     ```js
