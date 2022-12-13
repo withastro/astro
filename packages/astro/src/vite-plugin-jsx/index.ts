@@ -126,9 +126,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			}
 			defaultJSXRendererEntry = [...jsxRenderersIntegrationOnly.entries()][0];
 		},
-		async transform(code, unresolvedId, opts) {
-			let id = unresolvedId;
-
+		async transform(code, id, opts) {
 			const ssr = Boolean(opts?.ssr);
 			id = removeQueryString(id);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
