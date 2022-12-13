@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 1.2.2
+
+### Patch Changes
+
+- [#5571](https://github.com/withastro/astro/pull/5571) [`50ecb3005`](https://github.com/withastro/astro/commit/50ecb3005dae3d288e60c7a59c114d504193553b) Thanks [@matthewp](https://github.com/matthewp)! - Add primevue as an external Vue package
+
 ## 1.2.1
 
 ### Patch Changes

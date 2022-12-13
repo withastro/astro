@@ -129,6 +129,30 @@ export default defineConfig({
 });
 ```
 
+### Vercel Middleware
+
+You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
+
+1. Add a `middleware.js` file to the root of your project:
+
+    ```js
+    // middleware.js
+    export const config = {
+      // Only run the middleware on the admin route
+      matcher: '/admin',
+    };
+
+    export default function middleware(request) {
+      const url = new URL(request.url);
+      // You can retrieve IP location or cookies here.
+      if (url.pathname === "/admin") {
+        url.pathname = "/"
+      }
+      return Response.redirect(url);
+    }
+    ```
+1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
+
 ## Troubleshooting
 
 **A few known complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.** By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`.

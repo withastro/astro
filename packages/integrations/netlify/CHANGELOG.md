@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 1.2.2
+
+### Patch Changes
+
+- [#5534](https://github.com/withastro/astro/pull/5534) [`fabd9124b`](https://github.com/withastro/astro/commit/fabd9124bd3e654e885054f30e9c0d01eabf0470) Thanks [@bluwy](https://github.com/bluwy)! - Update esbuild dependency
+
 ## 1.2.1
 
 ### Patch Changes

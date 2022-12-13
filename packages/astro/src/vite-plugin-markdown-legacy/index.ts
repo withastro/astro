@@ -1,9 +1,8 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
-import esbuild from 'esbuild';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
-import type { Plugin, ResolvedConfig } from 'vite';
+import { Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
@@ -208,6 +207,7 @@ ${setup}`.trim();
 					viteConfig: resolvedConfig,
 					filename,
 					source: astroResult,
+					id,
 				};
 
 				let transformResult = await cachedCompilation(compileProps);
@@ -224,16 +224,16 @@ export function compiledContent() {
 ${tsResult}`;
 
 				// Compile from `.ts` to `.js`
-				const { code } = await esbuild.transform(tsResult, {
+				const { code } = await transformWithEsbuild(tsResult, id, {
 					loader: 'ts',
 					sourcemap: false,
-					sourcefile: id,
 				});
 
 				const astroMetadata: AstroPluginMetadata['astro'] = {
 					clientOnlyComponents: transformResult.clientOnlyComponents,
 					hydratedComponents: transformResult.hydratedComponents,
 					scripts: transformResult.scripts,
+					propagation: 'none',
 				};
 
 				return {

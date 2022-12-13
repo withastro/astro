@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/rss",
   "description": "Add RSS feeds to your Astro projects",
-  "version": "1.0.3",
+  "version": "1.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -31,6 +31,7 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "chai-xml": "^0.4.0",
     "mocha": "^9.2.2"
   },
   "dependencies": {

@@ -3,47 +3,22 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	RouteData,
-	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
-import { LogOptions } from '../../logger/core.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
-import { RouteCache } from '../route-cache.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
+import { getPropagationMap } from './head.js';
 import { getScriptsForURL } from './scripts.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
-
-export interface SSROptionsOld {
-	/** an instance of the AstroSettings */
-	settings: AstroSettings;
-	/** location of file on disk */
-	filePath: URL;
-	/** logging options */
-	logging: LogOptions;
-	/** "development" or "production" */
-	mode: RuntimeMode;
-	/** production website */
-	origin: string;
-	/** the web request (needed for dynamic routes) */
-	pathname: string;
-	/** optional, in case we need to render something outside of a dev server */
-	route?: RouteData;
-	/** pass in route cache because SSR can’t manage cache-busting */
-	routeCache: RouteCache;
-	/** Module loader (Vite) */
-	loader: ModuleLoader;
-	/** Request */
-	request: Request;
-}
 
 export interface SSROptions {
 	/** The environment instance */
@@ -163,7 +138,9 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 		});
 	});
 
-	return { scripts, styles, links };
+	const propagationMap = await getPropagationMap(filePath, env.loader);
+
+	return { scripts, styles, links, propagationMap };
 }
 
 export async function renderPage(options: SSROptions): Promise<Response> {
@@ -173,7 +150,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 	// The new instances are passed through.
 	options.env.renderers = renderers;
 
-	const { scripts, links, styles } = await getScriptsAndStyles({
+	const { scripts, links, styles, propagationMap } = await getScriptsAndStyles({
 		env: options.env,
 		filePath: options.filePath,
 	});
@@ -185,6 +162,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		scripts,
 		links,
 		styles,
+		propagation: propagationMap,
 		route: options.route,
 	});
 

@@ -1,14 +1,17 @@
-import type { BuildResult } from 'esbuild';
-import { escape } from 'html-escaper';
-import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
+import { escape } from 'html-escaper';
+import type { BuildResult } from 'esbuild';
+import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
 import { AggregateError, ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
+import { bold, underline } from 'kleur/colors';
+
+type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 
 export const incompatiblePackages = {
 	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`,
@@ -20,7 +23,10 @@ export const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackage
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
 export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
-	const err = AggregateError.is(e) ? (e.errors as SSRError[]) : [e as SSRError];
+	const err =
+		AggregateError.is(e) || Array.isArray((e as any).errors)
+			? (e.errors as SSRError[])
+			: [e as SSRError];
 
 	err.forEach((error) => {
 		if (error.stack) {
@@ -63,7 +69,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
 	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
 	if (!AggregateError.is(e) && Array.isArray((e as any).errors)) {
-		(e as BuildResult).errors.forEach((buildError, i) => {
+		(e.errors as EsbuildMessage[]).forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
