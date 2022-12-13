@@ -287,11 +287,11 @@ importers:
 
   examples/with-content:
     specifiers:
-      '@astrojs/mdx': ^0.11.4
+      '@astrojs/mdx': ^0.12.1
       astro: ^1.5.2
       zod: ^3.17.3
     dependencies:
-      '@astrojs/mdx': 0.11.6
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       astro: link:../../packages/astro
     devDependencies:
       zod: 3.19.1
@@ -3994,31 +3994,6 @@ packages:
       vscode-uri: 3.0.6
     dev: false
 
-  /@astrojs/mdx/0.11.6:
-    resolution: {integrity: sha512-MEi8CZuz4vXn74/jCb0CMOAKEqd6nsLrShYfE+ddb1//14CwuaVGbXN7V6/zGj8ZvBhFk/darBbNpJBmzfbI6A==}
-    engines: {node: ^14.18.0 || >=16.12.0}
-    dependencies:
-      '@astrojs/prism': 1.0.2
-      '@mdx-js/mdx': 2.1.5
-      '@mdx-js/rollup': 2.1.5
-      acorn: 8.8.1
-      es-module-lexer: 0.10.5
-      estree-util-visit: 1.2.0
-      github-slugger: 1.5.0
-      gray-matter: 4.0.3
-      kleur: 4.1.5
-      rehype-raw: 6.1.1
-      remark-frontmatter: 4.0.1
-      remark-gfm: 3.0.1
-      remark-smartypants: 2.0.0
-      shiki: 0.11.1
-      unist-util-visit: 4.1.1
-      vfile: 5.3.5
-    transitivePeerDependencies:
-      - rollup
-      - supports-color
-    dev: false
-
   /@astrojs/micromark-extension-mdx-jsx/1.0.3:
     resolution: {integrity: sha512-O15+i2DGG0qb1R/1SYbFXgOKDGbYdV8iJMtuboVb1S9YFQfMOJxaCMco0bhXQI7PmZcQ4pZWIjT5oZ64dXUtRA==}
     dependencies:
@@ -4037,13 +4012,6 @@ packages:
     resolution: {integrity: sha512-4KkCEFYtmTUSvU49UZSJD/VQfD/oKzf0ld8COjFW1pxfquBgvevLxRVpYLRanZB20L3c8/xyyQpDq7zMSMqQrg==}
     dependencies:
       '@astrojs/webapi': 1.1.1
-    dev: false
-
-  /@astrojs/prism/1.0.2:
-    resolution: {integrity: sha512-o3cUVoAuALDqdN5puNlsN2eO4Yi1kDh68YO8V7o6U4Ts+J/mMayzlJ7JsgYAmob0xrf/XnADVgu8khfMv/w3uA==}
-    engines: {node: ^14.18.0 || >=16.12.0}
-    dependencies:
-      prismjs: 1.29.0
     dev: false
 
   /@astrojs/webapi/1.1.1:

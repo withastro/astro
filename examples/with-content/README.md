@@ -2,7 +2,7 @@
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
-This project is based on **[the Content Schema RFC](https://www.notion.so/astroinc/Content-Schemas-35f1952fb0a24b30b681b0509ac4d7c2)**. We suggest reading the intro and "detailed usage" sections to understand how content works.
+This starter demos **[the experimental Content Collections API](https://docs.astro.build/en/guides/content-collections)**.
 
 ## 🚀 Project Structure
 
@@ -19,17 +19,12 @@ Inside of your Astro project, you'll see the following folders and files:
 │           └── second.md
 │       └── config.ts
 │   └── pages/
+│       ├── [...slug].astro
 │       └── index.astro
 └── package.json
 ```
 
-`src/content/` contains "collections" of Markdown or MDX documents you'll use in your website. Astro will generate a `getCollection` function to grab posts from `src/content/`, with type-checked frontmatter (see `src/content/config.ts`).
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
+`src/content/` contains "collections" of Markdown or MDX documents for you to query. Astro will generate a `getCollection` function to retrieve posts from `src/content/`, and type-check your frontmatter using an optional schema (see `src/content/config.ts`).
 
 ## 🧞 Commands
 

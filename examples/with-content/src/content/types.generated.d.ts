@@ -70,9 +70,9 @@ declare module 'astro:content' {
   collection: "blog",
   data: InferEntrySchema<"blog">
 },
-"promo/launch-week.mdx": {
-  id: "promo/launch-week.mdx",
-  slug: "promo/launch-week",
+"promo/launch-day.mdx": {
+  id: "promo/launch-day.mdx",
+  slug: "promo/launch-day",
   body: string,
   collection: "blog",
   data: InferEntrySchema<"blog">
