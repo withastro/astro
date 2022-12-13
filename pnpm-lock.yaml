@@ -287,14 +287,13 @@ importers:
 
   examples/with-content:
     specifiers:
-      '@astrojs/mdx': ^0.12.1
-      astro: ^1.5.2
-      zod: ^3.17.3
+      '@astrojs/mdx': ^0.12.2
+      '@astrojs/sitemap': ^1.0.0
+      astro: ^1.6.15
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/sitemap': link:../../packages/integrations/sitemap
       astro: link:../../packages/astro
-    devDependencies:
-      zod: 3.19.1
 
   examples/with-markdown-plugins:
     specifiers:
@@ -19222,6 +19221,7 @@ packages:
 
   /zod/3.19.1:
     resolution: {integrity: sha512-LYjZsEDhCdYET9ikFu6dVPGp2YH9DegXjdJToSzD9rO6fy4qiRYFoyEYwps88OseJlPyl2NOe2iJuhEhL7IpEA==}
+    dev: false
 
   /zwitch/2.0.3:
     resolution: {integrity: sha512-dn/sDAIuRCsXGnBD4P+SA6nv7Y54HQZjC4SPL8PToU3714zu7wSEc1129D/i0+vvjRfOlFo4Zqrpwj+Zhcykhw==}

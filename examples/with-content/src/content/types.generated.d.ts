@@ -49,30 +49,37 @@ declare module 'astro:content' {
 
 	const entryMap: {
 		"blog": {
-"columbia.md": {
-  id: "columbia.md",
-  slug: "columbia",
+"first-post.md": {
+  id: "first-post.md",
+  slug: "first-post",
   body: string,
   collection: "blog",
   data: InferEntrySchema<"blog">
 },
-"endeavour.md": {
-  id: "endeavour.md",
-  slug: "endeavour",
+"markdown-style-guide.md": {
+  id: "markdown-style-guide.md",
+  slug: "markdown-style-guide",
   body: string,
   collection: "blog",
   data: InferEntrySchema<"blog">
 },
-"enterprise.md": {
-  id: "enterprise.md",
-  slug: "enterprise",
+"second-post.md": {
+  id: "second-post.md",
+  slug: "second-post",
   body: string,
   collection: "blog",
   data: InferEntrySchema<"blog">
 },
-"promo/launch-day.mdx": {
-  id: "promo/launch-day.mdx",
-  slug: "promo/launch-day",
+"third-post.md": {
+  id: "third-post.md",
+  slug: "third-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"using-mdx.mdx": {
+  id: "using-mdx.mdx",
+  slug: "using-mdx",
   body: string,
   collection: "blog",
   data: InferEntrySchema<"blog">

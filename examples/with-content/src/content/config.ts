@@ -1,15 +1,17 @@
-import { z, defineCollection } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 
 const blog = defineCollection({
+	// Type-check frontmatter using a schema
 	schema: {
 		title: z.string(),
-		description: z.string().max(60, 'For SEO purposes, keep descriptions short!'),
-		// mark optional properties with `.optional()`
-		image: z.string().optional(),
-		tags: z.array(z.string()).default([]),
-		// transform to another data type with `transform`
-		// ex. convert date strings to Date objects
-		publishedDate: z.string().transform((str) => new Date(str)),
+		description: z.string(),
+		// Transform string to Date object
+		pubDate: z.string().transform((str) => new Date(str)),
+		updatedDate: z
+			.string()
+			.optional()
+			.transform((str) => (str ? new Date(str) : undefined)),
+		heroImage: z.string().optional(),
 	},
 });
 
