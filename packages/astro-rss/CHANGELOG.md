@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 1.2.0
+
+### Minor Changes
+
+- [`c76e1c810`](https://github.com/withastro/astro/commit/c76e1c810228fb53cd9c34edc73747b0ab64dc28) Thanks [@mattstein](https://github.com/mattstein)! - Fixes a bug that prevented an item’s `customData` from being included.
+
 ## 1.1.0
 
 ### Minor Changes
