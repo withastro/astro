@@ -54,6 +54,7 @@ function printAstroHelp() {
 				['--root <path>', 'Specify your project root folder.'],
 				['--site <url>', 'Specify your project site.'],
 				['--base <pathname>', 'Specify your project base.'],
+				['--output <type>', 'Specify your project output type, static or server.'],
 				['--verbose', 'Enable verbose logging.'],
 				['--silent', 'Disable all logging.'],
 				['--version', 'Show the version number and exit.'],

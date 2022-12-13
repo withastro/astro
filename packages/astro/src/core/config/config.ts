@@ -104,6 +104,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
+		output: typeof flags.output === 'string' ? flags.output : undefined,
 	};
 }
 
@@ -119,6 +120,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
+	if (flags.output === 'static' || flags.output === 'server') astroConfig.output = flags.output;
 	if (typeof flags.base === 'string') astroConfig.base = flags.base;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
