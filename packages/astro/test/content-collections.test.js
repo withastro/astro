@@ -119,10 +119,9 @@ describe('Content Collections', () => {
 		});
 
 		it('Generates expected pages', async () => {
-			expect(fixture.pathExists('/posts/first-post')).to.equal(true);
-			expect(fixture.pathExists('/posts/second-post')).to.equal(true);
-			expect(fixture.pathExists('/posts/third-post')).to.equal(true);
-			expect(fixture.pathExists('/posts/using-mdx')).to.equal(true);
+			for (const slug in blogSlugToContents) {
+				expect(fixture.pathExists(`/posts/${slug}`)).to.equal(true);
+			}
 		});
 
 		it('Renders titles', async () => {
