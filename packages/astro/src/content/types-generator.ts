@@ -71,16 +71,16 @@ export async function createContentTypesGenerator({
 			},
 		});
 		for (const entry of entries) {
-			await onEvent({ name: 'add', entry }, { shouldLog: false });
+			await handleEvent({ name: 'add', entry }, { shouldLog: false });
 		}
-		const observable = contentConfigObserver.get();
 		await runEventsDebounced();
+		const observable = contentConfigObserver.get();
 		if (observable.status === 'loaded') {
 			warnNonexistentCollections({ logging, contentConfig: observable.config, contentTypes });
 		}
 	}
 
-	async function onEvent(event: ContentEvent, opts?: { shouldLog: boolean }) {
+	async function handleEvent(event: ContentEvent, opts?: { shouldLog: boolean }) {
 		const shouldLog = opts?.shouldLog ?? true;
 
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
@@ -99,81 +99,81 @@ export async function createContentTypesGenerator({
 					removeCollection(contentTypes, JSON.stringify(collection));
 					break;
 			}
-		} else {
-			const fileType = getEntryType(event.entry, contentPaths);
-			if (fileType === 'config') {
-				contentConfigObserver.set({ status: 'loading' });
-				const config = await loadContentConfig({ fs, settings });
-				if (config instanceof Error) {
-					contentConfigObserver.set({ status: 'error', error: config });
-				} else {
-					contentConfigObserver.set({ status: 'loaded', config });
-				}
-
-				const observable = contentConfigObserver.get();
-				if (observable.status === 'loaded') {
-					warnNonexistentCollections({
-						logging,
-						contentConfig: observable.config,
-						contentTypes,
-					});
-				}
-				return;
-			}
-			if (fileType === 'unknown') {
-				warn(
-					logging,
-					'content',
-					`${cyan(
-						path.relative(contentPaths.contentDir.pathname, event.entry)
-					)} is not a supported file type. Skipping.`
-				);
-				return;
-			}
-			const entryInfo = getEntryInfo({
-				entryPath: event.entry,
-				contentDir: contentPaths.contentDir,
-			});
-			// Not a valid `src/content/` entry. Silently return.
-			if (entryInfo instanceof Error) return;
-			if (entryInfo.collection === '.') {
-				warn(
-					logging,
-					'content',
-					`${cyan(
-						path.relative(contentPaths.contentDir.pathname, event.entry)
-					)} must be nested in a collection directory. Skipping.`
-				);
-				return;
+			return;
+		}
+		const fileType = getEntryType(event.entry, contentPaths);
+		if (fileType === 'config') {
+			contentConfigObserver.set({ status: 'loading' });
+			const config = await loadContentConfig({ fs, settings });
+			if (config instanceof Error) {
+				contentConfigObserver.set({ status: 'error', error: config });
+			} else {
+				contentConfigObserver.set({ status: 'loaded', config });
 			}
 
-			const { id, slug, collection } = entryInfo;
-			const collectionKey = JSON.stringify(collection);
-			const entryKey = JSON.stringify(id);
 			const observable = contentConfigObserver.get();
-			const collectionConfig =
-				observable.status === 'loaded' ? observable.config.collections[collection] : undefined;
-			switch (event.name) {
-				case 'add':
-					if (!(collectionKey in contentTypes)) {
-						addCollection(contentTypes, collectionKey);
-					}
-					if (!(entryKey in contentTypes[collectionKey])) {
-						addEntry(contentTypes, collectionKey, entryKey, slug, collectionConfig);
-					}
-					if (shouldLog) {
-						info(logging, 'content', msg.entryAdded(entryInfo.slug, entryInfo.collection));
-					}
-					break;
-				case 'unlink':
-					if (collectionKey in contentTypes && entryKey in contentTypes[collectionKey]) {
-						removeEntry(contentTypes, collectionKey, entryKey);
-					}
-					break;
-				case 'change':
-					// noop. Frontmatter types are inferred from collection schema import, so they won't change!
-					break;
+			if (observable.status === 'loaded') {
+				warnNonexistentCollections({
+					logging,
+					contentConfig: observable.config,
+					contentTypes,
+				});
 			}
+			return;
+		}
+		if (fileType === 'unknown') {
+			warn(
+				logging,
+				'content',
+				`${cyan(
+					path.relative(contentPaths.contentDir.pathname, event.entry)
+				)} is not a supported file type. Skipping.`
+			);
+			return;
+		}
+		const entryInfo = getEntryInfo({
+			entryPath: event.entry,
+			contentDir: contentPaths.contentDir,
+		});
+		// Not a valid `src/content/` entry. Silently return.
+		if (entryInfo instanceof Error) return;
+		if (entryInfo.collection === '.') {
+			warn(
+				logging,
+				'content',
+				`${cyan(
+					path.relative(contentPaths.contentDir.pathname, event.entry)
+				)} must be nested in a collection directory. Skipping.`
+			);
+			return;
+		}
+
+		const { id, slug, collection } = entryInfo;
+		const collectionKey = JSON.stringify(collection);
+		const entryKey = JSON.stringify(id);
+		const observable = contentConfigObserver.get();
+		const collectionConfig =
+			observable.status === 'loaded' ? observable.config.collections[collection] : undefined;
+		switch (event.name) {
+			case 'add':
+				if (!(collectionKey in contentTypes)) {
+					addCollection(contentTypes, collectionKey);
+				}
+				if (!(entryKey in contentTypes[collectionKey])) {
+					addEntry(contentTypes, collectionKey, entryKey, slug, collectionConfig);
+				}
+				if (shouldLog) {
+					info(logging, 'content', msg.entryAdded(entryInfo.slug, entryInfo.collection));
+				}
+				break;
+			case 'unlink':
+				if (collectionKey in contentTypes && entryKey in contentTypes[collectionKey]) {
+					removeEntry(contentTypes, collectionKey, entryKey);
+				}
+				break;
+			case 'change':
+				// noop. Frontmatter types are inferred from collection schema import, so they won't change!
+				break;
 		}
 	}
 
@@ -181,7 +181,7 @@ export async function createContentTypesGenerator({
 		if (!event.entry.startsWith(contentPaths.contentDir.pathname)) return;
 		if (event.entry.endsWith(CONTENT_TYPES_FILE)) return;
 
-		events.push(onEvent(event, eventOpts));
+		events.push(handleEvent(event, eventOpts));
 		runEventsDebounced();
 	}
 
