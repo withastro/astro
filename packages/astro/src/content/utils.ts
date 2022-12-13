@@ -165,23 +165,40 @@ export async function loadContentConfig({
 	}
 }
 
-export function observable<C>(ctx: C) {
-	type Subscriber = (ctx: C) => void;
+type ContentCtx =
+	| { status: 'loading' }
+	| { status: 'loaded'; config: ContentConfig }
+	| { status: 'error'; error: NotFoundError | ZodParseError };
+
+type Observable<C> = {
+	get: () => C;
+	set: (ctx: C) => void;
+	subscribe: (fn: (ctx: C) => void) => () => void;
+};
+
+export type ContentObservable = Observable<ContentCtx>;
+
+export function contentObservable(initialCtx: ContentCtx): ContentObservable {
+	type Subscriber = (ctx: ContentCtx) => void;
 	const subscribers = new Set<Subscriber>();
+	let ctx = initialCtx;
+	function get() {
+		return ctx;
+	}
+	function set(_ctx: ContentCtx) {
+		ctx = _ctx;
+		subscribers.forEach((fn) => fn(ctx));
+	}
+	function subscribe(fn: Subscriber) {
+		subscribers.add(fn);
+		return () => {
+			subscribers.delete(fn);
+		};
+	}
 	return {
-		ctx,
-		subscribe: (fn: Subscriber) => {
-			subscribers.add(fn);
-			return () => {
-				subscribers.delete(fn);
-			};
-		},
-		clear() {
-			subscribers.clear();
-		},
-		notify() {
-			subscribers.forEach((fn) => fn(ctx));
-		},
+		get,
+		set,
+		subscribe,
 	};
 }
 

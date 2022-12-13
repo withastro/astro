@@ -25,7 +25,6 @@ import { resolveDependency } from './util.js';
 import { astroContentServerPlugin } from '../content/vite-plugin-content-server.js';
 import { astroContentVirtualModPlugin } from '../content/vite-plugin-content-virtual-mod.js';
 import { astroDelayedAssetPlugin } from '../content/vite-plugin-content-assets.js';
-import { loadContentConfig } from '../content/utils.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -91,8 +90,6 @@ export async function createVite(
 		},
 	});
 
-	const contentConfig = await loadContentConfig({ fs, settings });
-
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
@@ -125,7 +122,7 @@ export async function createVite(
 			...(settings.config.experimental.contentCollections
 				? [
 						astroContentVirtualModPlugin({ settings }),
-						astroContentServerPlugin({ fs, settings, logging, contentConfig, mode }),
+						astroContentServerPlugin({ fs, settings, logging, mode }),
 						astroDelayedAssetPlugin({ mode }),
 				  ]
 				: []),
