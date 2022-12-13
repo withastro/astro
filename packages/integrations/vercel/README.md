@@ -85,14 +85,14 @@ You can use Vercel middleware to intercept a request and redirect before sending
       matcher: '/admin',
     };
 
-  export default function middleware(request) {
-    const url = new URL(request.url);
-    // You can retrieve IP location or cookies here.
-    if (url.pathname === "/admin") {
-      url.pathname = "/"
+    export default function middleware(request) {
+      const url = new URL(request.url);
+      // You can retrieve IP location or cookies here.
+      if (url.pathname === "/admin") {
+        url.pathname = "/"
+      }
+      return Response.redirect(url);
     }
-    return Response.redirect(url);
-  }
     ```
 1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
