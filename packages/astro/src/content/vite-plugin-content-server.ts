@@ -61,7 +61,6 @@ export function astroContentServerPlugin({
 				}
 
 				if (mode === 'dev' || viteConfig.build?.ssr === true) {
-					info(logging, 'content', 'Generating entries...');
 					contentGenerator = await createContentTypesGenerator({
 						fs,
 						settings,
@@ -70,6 +69,7 @@ export function astroContentServerPlugin({
 						contentPaths,
 					});
 					await contentGenerator.init();
+					info(logging, 'content', 'Types generated');
 				}
 			},
 			async configureServer(viteServer) {
@@ -95,21 +95,6 @@ export function astroContentServerPlugin({
 				}
 
 				function attachListeners() {
-					viteServer.watcher.on('all', async (event, entry) => {
-						if (
-							['add', 'unlink', 'change'].includes(event) &&
-							getEntryType(entry, contentPaths) === 'config'
-						) {
-							for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
-								if (isContentFlagImport(new URL(modUrl, 'file://'))) {
-									const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
-									if (mod) {
-										viteServer.moduleGraph.invalidateModule(mod);
-									}
-								}
-							}
-						}
-					});
 					viteServer.watcher.on('add', (entry) => {
 						contentGenerator.queueEvent({ name: 'add', entry });
 					});
@@ -182,6 +167,24 @@ export const _internal = {
 `);
 					return { code };
 				}
+			},
+			configureServer(viteServer) {
+				viteServer.watcher.on('all', async (event, entry) => {
+					if (
+						['add', 'unlink', 'change'].includes(event) &&
+						getEntryType(entry, contentPaths) === 'config'
+					) {
+						// Content modules depend on config, so we need to invalidate them.
+						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
+							if (isContentFlagImport(new URL(modUrl, 'file://'))) {
+								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
+								if (mod) {
+									viteServer.moduleGraph.invalidateModule(mod);
+								}
+							}
+						}
+					}
+				});
 			},
 			async transform(code, id) {
 				if (isContentFlagImport(new URL(id, 'file://'))) {
