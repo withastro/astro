@@ -1,7 +1,10 @@
 import { expect } from '@playwright/test';
 import { testFactory, getErrorOverlayContent } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/error-sass/' });
+const test = testFactory({
+	experimentalErrorOverlay: true,
+	root: './fixtures/error-sass/'
+});
 
 let devServer;
 
