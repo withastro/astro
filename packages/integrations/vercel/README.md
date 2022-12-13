@@ -72,31 +72,6 @@ import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/static';
 ```
 
-### Vercel Middleware
-
-You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
-
-1. Add a `middleware.js` file to the root of your project:
-
-    ```js
-    // middleware.js
-    export const config = {
-      // Only run the middleware on the admin route
-      matcher: '/admin',
-    };
-
-    export default function middleware(request) {
-      const url = new URL(request.url);
-      // You can retrieve IP location or cookies here.
-      if (url.pathname === "/admin") {
-        url.pathname = "/"
-      }
-      return Response.redirect(url);
-    }
-    ```
-1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
-
-
 ## Usage
 
 📚 **[Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/vercel/)**
@@ -153,6 +128,30 @@ export default defineConfig({
   })
 });
 ```
+
+### Vercel Middleware
+
+You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
+
+1. Add a `middleware.js` file to the root of your project:
+
+    ```js
+    // middleware.js
+    export const config = {
+      // Only run the middleware on the admin route
+      matcher: '/admin',
+    };
+
+    export default function middleware(request) {
+      const url = new URL(request.url);
+      // You can retrieve IP location or cookies here.
+      if (url.pathname === "/admin") {
+        url.pathname = "/"
+      }
+      return Response.redirect(url);
+    }
+    ```
+1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
 ## Troubleshooting
 
