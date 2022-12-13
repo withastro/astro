@@ -1,15 +1,17 @@
 ---
+import type { Frontmatter } from '../../config';
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents';
 import type { MarkdownHeading } from 'astro';
 
 type Props = {
-	title: string;
+	frontmatter: Frontmatter;
 	headings: MarkdownHeading[];
 	githubEditUrl: string;
 };
 
-const { title, headings, githubEditUrl } = Astro.props as Props;
+const { frontmatter, headings, githubEditUrl } = Astro.props as Props;
+const title = frontmatter.title;
 ---
 
 <article id="article" class="content">
