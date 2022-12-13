@@ -146,7 +146,12 @@ function buildManifest(
 			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
-			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
+			const src = entryModules[PAGE_SCRIPT_ID];
+
+			scripts.push({
+				type: 'external',
+				value: joinBase(src),
+			});
 		}
 
 		const links = sortedCSS(pageData).map((pth) => joinBase(pth));

@@ -130,7 +130,7 @@ export default defineConfig({
 If you disable this, you need to write your own Deno web server. Import and call `handle` from the generated entry script to render requests:
 
 ```ts
-import { serve } from "https://deno.land/std@0.132.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.167.0/http/server.ts";
 import { handle } from './dist/entry.mjs';
 
 serve((req: Request) => {

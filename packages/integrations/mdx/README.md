@@ -13,7 +13,7 @@ This **[Astro integration][astro-integration]** enables the usage of [MDX](https
 
 ## Why MDX?
 
-MDX allows you to [use variables, JSX expressions and components within Markdown content](https://docs.astro.build/en/guides/markdown-content/#variables-and-components) in Astro. If you have existing content authored in MDX, this integration allows you to bring those files to your Astro project.
+MDX allows you to [use variables, JSX expressions and components within Markdown content](https://docs.astro.build/en/guides/markdown-content/#mdx-only-features) in Astro. If you have existing content authored in MDX, this integration allows you to bring those files to your Astro project.
 
 ## Installation
 
