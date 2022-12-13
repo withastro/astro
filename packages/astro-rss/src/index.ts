@@ -104,7 +104,8 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 	const parser = new XMLParser(xmlOptions);
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
 	if (typeof rssOptions.stylesheet === 'string') {
-		root['?xml-stylesheet'] = { '@_href': rssOptions.stylesheet, '@_encoding': 'UTF-8' };
+		const isXSL = /\.xsl$/i.test(rssOptions.stylesheet);
+		root['?xml-stylesheet'] = { '@_href': rssOptions.stylesheet, ...(isXSL && { '@_type': 'text/xsl' }) };
 	}
 	root.rss = { '@_version': '2.0' };
 	if (items.find((result) => result.content)) {
