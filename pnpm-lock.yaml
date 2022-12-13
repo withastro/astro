@@ -1688,6 +1688,22 @@ importers:
       '@astrojs/mdx': link:../../../../integrations/mdx
       astro: link:../../..
 
+  packages/astro/test/fixtures/content-ssr-integration:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
+      astro: link:../../..
+
+  packages/astro/test/fixtures/content-static-paths-integration:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
+      astro: link:../../..
+
   packages/astro/test/fixtures/css-assets:
     specifiers:
       '@astrojs/test-font-awesome-package': file:packages/font-awesome
