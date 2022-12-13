@@ -66,12 +66,12 @@ describe('Content Collections', () => {
 				json = devalue.parse(rawJson);
 			});
 
-			it('Returns without config collection entry', async () => {
+			it('Returns `without config` collection entry', async () => {
 				expect(json).to.haveOwnProperty('columbiaWithoutConfig');
 				expect(json.columbiaWithoutConfig.id).to.equal('columbia.md');
 			});
 
-			it('Returns with schema config collection entry', async () => {
+			it('Returns `with schema` collection entry', async () => {
 				expect(json).to.haveOwnProperty('oneWithSchemaConfig');
 				expect(json.oneWithSchemaConfig.id).to.equal('one.md');
 				expect(json.oneWithSchemaConfig.data.publishedAt instanceof Date).to.equal(true);
@@ -80,7 +80,7 @@ describe('Content Collections', () => {
 				);
 			});
 
-			it('Returns with slug config collection entry', async () => {
+			it('Returns `with custom slugs` collection entry', async () => {
 				expect(json).to.haveOwnProperty('twoWithSlugConfig');
 				expect(json.twoWithSlugConfig.slug).to.equal('interesting-two.md');
 			});
