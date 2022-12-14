@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
 import { isObject } from '../util.js';
+import { OutgoingHttpHeaders } from 'http';
 
 const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	root: '.',
@@ -125,6 +126,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+				headers: z.custom<OutgoingHttpHeaders>().optional(),
 			})
 			.optional()
 			.default({})
@@ -287,6 +289,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
 				})
 				.optional()

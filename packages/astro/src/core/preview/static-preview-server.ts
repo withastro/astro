@@ -3,7 +3,7 @@ import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
-import http from 'http';
+import http, { OutgoingHttpHeaders } from 'http';
 import { performance } from 'perf_hooks';
 import sirv from 'sirv';
 import { fileURLToPath } from 'url';
@@ -24,7 +24,17 @@ const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 /** The primary dev action */
 export default async function createStaticPreviewServer(
 	settings: AstroSettings,
-	{ logging, host, port }: { logging: LogOptions; host: string | undefined; port: number }
+	{
+		logging,
+		host,
+		port,
+		headers,
+	}: {
+		logging: LogOptions;
+		host: string | undefined;
+		port: number;
+		headers: OutgoingHttpHeaders | undefined;
+	}
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
@@ -35,6 +45,11 @@ export default async function createStaticPreviewServer(
 		dev: true,
 		etag: true,
 		maxAge: 0,
+		setHeaders: (res, pathname, stats) => {
+			for (const [name, value] of Object.entries(headers ?? {})) {
+				if (value) res.setHeader(name, value);
+			}
+		},
 	});
 	// Create the preview server, send static files out of the `dist/` directory.
 	const server = http.createServer((req, res) => {
