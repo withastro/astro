@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5600](https://github.com/withastro/astro/pull/5600) [`c4155daea`](https://github.com/withastro/astro/commit/c4155daeabe1b8191ad9ed1fa5893759f1fe5c4c) Thanks [@fflaten](https://github.com/fflaten)! - Fix missing type-attribute in xml-stylesheet
+
 ## 1.2.0
 
 ### Minor Changes
