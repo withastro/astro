@@ -39,10 +39,9 @@ type CreateContentGeneratorParams = {
 	fs: typeof fsMod;
 };
 
-const msg = {
-	collectionAdded: (collection: string) => `${cyan(collection)} collection added`,
-	entryAdded: (entry: string, collection: string) => `${cyan(entry)} added to ${bold(collection)}.`,
-};
+type EventOpts = { logLevel: 'info' | 'warn' };
+
+class UnsupportedFileTypeError extends Error {}
 
 export async function createContentTypesGenerator({
 	contentPaths,
@@ -53,7 +52,7 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
 	const contentTypes: ContentTypes = {};
 
-	let events: Promise<void>[] = [];
+	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
 	const contentTypesBase = await fsMod.promises.readFile(
@@ -62,46 +61,50 @@ export async function createContentTypesGenerator({
 	);
 
 	async function init() {
-		const pattern =
-			new URL('./**/', contentPaths.contentDir).pathname + `*{${contentFileExts.join(',')}}`;
-		const entries = await glob(pattern, {
+		await handleEvent({ name: 'add', entry: contentPaths.config.pathname }, { logLevel: 'warn' });
+		const entries = await glob(new URL('./**/', contentPaths.contentDir).pathname + `*.*`, {
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
 			},
 		});
-		for (const entry of entries) {
-			await handleEvent({ name: 'add', entry }, { shouldLog: false });
+		for (const entry of entries.filter(
+			// Config loading handled first. Avoid running twice.
+			(entry) => !entry.startsWith(contentPaths.config.pathname)
+		)) {
+			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
-		await runEventsDebounced();
-		const observable = contentConfigObserver.get();
-		if (observable.status === 'loaded') {
-			warnNonexistentCollections({ logging, contentConfig: observable.config, contentTypes });
-		}
+		runEventsDebounced();
 	}
 
-	async function handleEvent(event: ContentEvent, opts?: { shouldLog: boolean }) {
-		const shouldLog = opts?.shouldLog ?? true;
+	async function handleEvent(
+		event: ContentEvent,
+		opts?: EventOpts
+	): Promise<{ shouldGenerateTypes: boolean; error?: Error }> {
+		const logLevel = opts?.logLevel ?? 'info';
 
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = path.relative(contentPaths.contentDir.pathname, event.entry);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
 			const isCollectionEvent = collection.split(path.sep).length === 1;
-			if (!isCollectionEvent) return;
+			if (!isCollectionEvent) return { shouldGenerateTypes: false };
 			switch (event.name) {
 				case 'addDir':
 					addCollection(contentTypes, JSON.stringify(collection));
-					if (shouldLog) {
-						info(logging, 'content', msg.collectionAdded(collection));
+					if (logLevel === 'info') {
+						info(logging, 'content', `${cyan(collection)} collection added`);
 					}
 					break;
 				case 'unlinkDir':
 					removeCollection(contentTypes, JSON.stringify(collection));
 					break;
 			}
-			return;
+			return { shouldGenerateTypes: true };
 		}
 		const fileType = getEntryType(event.entry, contentPaths);
+		if (fileType === 'generated-types') {
+			return { shouldGenerateTypes: false };
+		}
 		if (fileType === 'config') {
 			contentConfigObserver.set({ status: 'loading' });
 			const config = await loadContentConfig({ fs, settings });
@@ -111,41 +114,36 @@ export async function createContentTypesGenerator({
 				contentConfigObserver.set({ status: 'loaded', config });
 			}
 
-			const observable = contentConfigObserver.get();
-			if (observable.status === 'loaded') {
-				warnNonexistentCollections({
-					logging,
-					contentConfig: observable.config,
-					contentTypes,
-				});
-			}
-			return;
-		}
-		if (fileType === 'unknown') {
-			warn(
-				logging,
-				'content',
-				`${cyan(
-					path.relative(contentPaths.contentDir.pathname, event.entry)
-				)} is not a supported file type. Skipping.`
-			);
-			return;
+			return { shouldGenerateTypes: true };
 		}
 		const entryInfo = getEntryInfo({
 			entryPath: event.entry,
 			contentDir: contentPaths.contentDir,
 		});
 		// Not a valid `src/content/` entry. Silently return.
-		if (entryInfo instanceof Error) return;
+		if (entryInfo instanceof Error) return { shouldGenerateTypes: false };
+		if (fileType === 'unknown') {
+			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
+				// Silently ignore `_` files.
+				return { shouldGenerateTypes: false };
+			} else {
+				return {
+					shouldGenerateTypes: false,
+					error: new UnsupportedFileTypeError(entryInfo.id),
+				};
+			}
+		}
 		if (entryInfo.collection === '.') {
-			warn(
-				logging,
-				'content',
-				`${cyan(
-					path.relative(contentPaths.contentDir.pathname, event.entry)
-				)} must be nested in a collection directory. Skipping.`
-			);
-			return;
+			if (['info', 'warn'].includes(logLevel)) {
+				warn(
+					logging,
+					'content',
+					`${cyan(
+						path.relative(contentPaths.contentDir.pathname, event.entry)
+					)} must be nested in a collection directory. Skipping.`
+				);
+			}
+			return { shouldGenerateTypes: false };
 		}
 
 		const { id, slug, collection } = entryInfo;
@@ -154,6 +152,7 @@ export async function createContentTypesGenerator({
 		const observable = contentConfigObserver.get();
 		const collectionConfig =
 			observable.status === 'loaded' ? observable.config.collections[collection] : undefined;
+
 		switch (event.name) {
 			case 'add':
 				if (!(collectionKey in contentTypes)) {
@@ -162,40 +161,63 @@ export async function createContentTypesGenerator({
 				if (!(entryKey in contentTypes[collectionKey])) {
 					addEntry(contentTypes, collectionKey, entryKey, slug, collectionConfig);
 				}
-				if (shouldLog) {
-					info(logging, 'content', msg.entryAdded(entryInfo.slug, entryInfo.collection));
-				}
-				break;
+				return { shouldGenerateTypes: true };
 			case 'unlink':
 				if (collectionKey in contentTypes && entryKey in contentTypes[collectionKey]) {
 					removeEntry(contentTypes, collectionKey, entryKey);
 				}
-				break;
+				return { shouldGenerateTypes: true };
 			case 'change':
 				// noop. Frontmatter types are inferred from collection schema import, so they won't change!
-				break;
+				return { shouldGenerateTypes: false };
 		}
 	}
 
-	function queueEvent(event: ContentEvent, eventOpts?: { shouldLog: boolean }) {
+	function queueEvent(event: ContentEvent, opts?: EventOpts) {
 		if (!event.entry.startsWith(contentPaths.contentDir.pathname)) return;
-		if (event.entry.endsWith(CONTENT_TYPES_FILE)) return;
 
-		events.push(handleEvent(event, eventOpts));
-		runEventsDebounced();
+		events.push(handleEvent(event, opts));
+		runEventsDebounced(opts);
 	}
 
-	function runEventsDebounced() {
+	function runEventsDebounced(opts?: EventOpts) {
+		const logLevel = opts?.logLevel ?? 'info';
 		debounceTimeout && clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(async () => {
-			await Promise.all(events);
-			await writeContentFiles({
-				fs,
-				contentTypes,
-				paths: contentPaths,
-				contentTypesBase,
-				hasContentConfig: contentConfigObserver.get().status === 'loaded',
-			});
+			const eventResponses = await Promise.all(events);
+			events = [];
+			let unsupportedFiles = [];
+			for (const response of eventResponses) {
+				if (response.error instanceof UnsupportedFileTypeError) {
+					unsupportedFiles.push(response.error.message);
+				}
+			}
+			if (unsupportedFiles.length > 0 && ['info', 'warn'].includes(logLevel)) {
+				warn(
+					logging,
+					'content',
+					`Unsupported file types found. Prefix with an underscore (\`_\`) to ignore:\n- ${unsupportedFiles.join(
+						'\n'
+					)}`
+				);
+			}
+			const observable = contentConfigObserver.get();
+			if (eventResponses.some((r) => r.shouldGenerateTypes)) {
+				await writeContentFiles({
+					fs,
+					contentTypes,
+					paths: contentPaths,
+					contentTypesBase,
+					hasContentConfig: observable.status === 'loaded',
+				});
+				if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
+					warnNonexistentCollections({
+						logging,
+						contentConfig: observable.config,
+						contentTypes,
+					});
+				}
+			}
 		}, 50 /* debounce 50 ms to batch chokidar events */);
 	}
 	return { init, queueEvent };
@@ -252,13 +274,15 @@ export function getEntryInfo({
 export function getEntryType(
 	entryPath: string,
 	paths: ContentPaths
-): 'content' | 'config' | 'unknown' {
-	const { dir, ext, name } = path.parse(entryPath);
-	const { pathname } = new URL(name, appendForwardSlash(pathToFileURL(dir).href));
+): 'content' | 'config' | 'unknown' | 'generated-types' {
+	const { dir: unresolvedDir, ext, name, base } = path.parse(entryPath);
+	const dir = appendForwardSlash(pathToFileURL(unresolvedDir).href);
 	if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
-	} else if (pathname === paths.config.pathname) {
+	} else if (new URL(name, dir).pathname === paths.config.pathname) {
 		return 'config';
+	} else if (new URL(base, dir).pathname === new URL(CONTENT_TYPES_FILE, paths.cacheDir).pathname) {
+		return 'generated-types';
 	} else {
 		return 'unknown';
 	}

@@ -52,14 +52,6 @@ export function astroContentServerPlugin({
 					return;
 				}
 
-				contentConfigObserver.set({ status: 'loading' });
-				const config = await loadContentConfig({ fs, settings });
-				if (config instanceof Error) {
-					contentConfigObserver.set({ status: 'error', error: config });
-				} else {
-					contentConfigObserver.set({ status: 'loaded', config });
-				}
-
 				if (mode === 'dev' || viteConfig.build?.ssr === true) {
 					contentGenerator = await createContentTypesGenerator({
 						fs,
