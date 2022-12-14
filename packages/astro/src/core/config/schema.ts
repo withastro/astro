@@ -47,6 +47,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {
 		astroFlavoredMarkdown: false,
 	},
+	experimentalErrorOverlay: false,
 };
 
 export const AstroConfigSchema = z.object({
@@ -196,6 +197,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
+	experimentalErrorOverlay: z.boolean().optional().default(false),
 });
 
 interface PostCSSConfigResult {

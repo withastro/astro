@@ -109,9 +109,9 @@ export const AstroErrorData = defineErrors({
 		title: 'Invalid type returned by Astro page.',
 		code: 3005,
 		message: (route: string | undefined, returnedValue: string) =>
-			`Route ${
+			`Route \`${
 				route ? route : ''
-			} returned a \`${returnedValue}\`. Only a Response can be returned from Astro files.`,
+			}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#response for more information.',
 	},
 	/**

@@ -1,7 +1,10 @@
 import { expect } from '@playwright/test';
-import { testFactory, getErrorOverlayMessage } from './test-utils.js';
+import { testFactory, getErrorOverlayContent } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/error-cyclic/' });
+const test = testFactory({
+	experimentalErrorOverlay: true,
+	root: './fixtures/error-cyclic/'
+});
 
 let devServer;
 
@@ -18,7 +21,7 @@ test.describe('Error: Cyclic Reference', () => {
 	test('overlay', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const message = await getErrorOverlayMessage(page);
+		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('Cyclic reference');
 	});
 });

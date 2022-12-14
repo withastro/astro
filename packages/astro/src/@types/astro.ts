@@ -82,6 +82,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	experimentalErrorOverlay?: boolean;
 }
 
 export interface BuildConfig {
@@ -893,6 +894,12 @@ export interface AstroUserConfig {
 		 */
 		astroFlavoredMarkdown?: boolean;
 	};
+
+	/**
+	 * @hidden
+	 * Turn on experimental support for the new error overlay component.
+	 */
+	experimentalErrorOverlay?: boolean;
 
 	// Legacy options to be removed
 

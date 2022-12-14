@@ -1,7 +1,10 @@
 import { expect } from '@playwright/test';
-import { getErrorOverlayMessage, testFactory } from './test-utils.js';
+import { getErrorOverlayContent, testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/errors/' });
+const test = testFactory({
+	experimentalErrorOverlay: true,
+	root: './fixtures/errors/'
+});
 
 let devServer;
 
@@ -18,7 +21,7 @@ test.describe('Error display', () => {
 	test('detect syntax errors in template', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/astro-syntax-error'));
 
-		const message = await getErrorOverlayMessage(page);
+		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('Unexpected "}"');
 
 		await Promise.all([
@@ -37,10 +40,8 @@ test.describe('Error display', () => {
 	test('shows useful error when frontmatter import is not found', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/import-not-found'));
 
-		const message = await getErrorOverlayMessage(page);
-		expect(message).toMatch(
-			'Could not import `../abc.astro`.\n\nThis is often caused by a typo in the import path. Please make sure the file exists.'
-		);
+		const message = (await getErrorOverlayContent(page)).message;
+		expect(message).toMatch('Could not import ../abc.astro');
 
 		await Promise.all([
 			// Wait for page reload
@@ -55,7 +56,7 @@ test.describe('Error display', () => {
 	test('framework errors recover when fixed', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/svelte-syntax-error'));
 
-		const message = await getErrorOverlayMessage(page);
+		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('</div> attempted to close an element that was not open');
 
 		await Promise.all([
