@@ -3,13 +3,13 @@ import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
+import { OutgoingHttpHeaders } from 'http';
 import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
 import { isObject } from '../util.js';
-import { OutgoingHttpHeaders } from 'http';
 
 const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	root: '.',

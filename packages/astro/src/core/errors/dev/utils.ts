@@ -1,15 +1,14 @@
+import { escape } from 'html-escaper';
+import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
-import { escape } from 'html-escaper';
-import type { BuildResult } from 'esbuild';
 import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
 import { AggregateError, ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
-import { bold, underline } from 'kleur/colors';
 
 type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 

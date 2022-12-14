@@ -3,7 +3,7 @@ import { getErrorOverlayContent, testFactory } from './test-utils.js';
 
 const test = testFactory({
 	experimentalErrorOverlay: true,
-	root: './fixtures/errors/'
+	root: './fixtures/errors/',
 });
 
 let devServer;

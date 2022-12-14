@@ -3,7 +3,7 @@ import { testFactory, getErrorOverlayContent } from './test-utils.js';
 
 const test = testFactory({
 	experimentalErrorOverlay: true,
-	root: './fixtures/error-react-spectrum/'
+	root: './fixtures/error-react-spectrum/',
 });
 
 let devServer;

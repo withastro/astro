@@ -100,7 +100,10 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
-		experimentalErrorOverlay: typeof flags.experimentalErrorOverlay === 'boolean' ? flags.experimentalErrorOverlay : undefined,
+		experimentalErrorOverlay:
+			typeof flags.experimentalErrorOverlay === 'boolean'
+				? flags.experimentalErrorOverlay
+				: undefined,
 	};
 }
 
