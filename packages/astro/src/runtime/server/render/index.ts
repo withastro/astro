@@ -1,4 +1,9 @@
-export type { AstroComponentFactory, AstroComponentInstance } from './astro/index';
+export type {
+	AstroComponentFactory,
+	AstroComponentInstance,
+	ComponentSlots as AstroComponentSlots,
+	ComponentSlotsWithValues as AstroComponentSlotsWithValues
+} from './astro/index';
 export {
 	createHeadAndContent,
 	renderAstroTemplateResult,

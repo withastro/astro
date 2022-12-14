@@ -28,6 +28,8 @@ export {
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
+	AstroComponentSlots,
+	AstroComponentSlotsWithValues,
 	RenderInstruction,
 } from './render/index.js';
 

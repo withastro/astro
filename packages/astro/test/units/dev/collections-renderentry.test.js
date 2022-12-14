@@ -66,7 +66,7 @@ describe('Collections API - renderEntry', () => {
 		);
 	});
 
-	it('can be called in a layout component', async () => {
+	it('can be used in a layout component', async () => {
 		const fs = createFsWithFallback(
 			{
 				'/src/content/config.ts': `
@@ -105,6 +105,78 @@ describe('Collections API - renderEntry', () => {
 					---
 					<Layout>
 						<h1 slot="title">Index page</h2>
+					</Layout>
+				`,
+			},
+			root
+		);
+
+		await runInContainer(
+			{
+				fs,
+				root,
+				userConfig: {
+					integrations: [mdx()],
+					vite: { server: { middlewareMode: true } },
+					experimental: { contentCollections: true },
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+				await done;
+				const html = await text();
+
+				const $ = cheerio.load(html);
+				// Rendered the content
+				expect($('ul li')).to.have.a.lengthOf(3);
+
+				// Rendered the styles
+				expect($('style')).to.have.a.lengthOf(1);
+			}
+		);
+	});
+
+	it('can be used in a slot', async () => {
+		const fs = createFsWithFallback(
+			{
+				'/src/content/config.ts': `
+					import { z, defineCollection } from 'astro:content';
+
+					const blog = defineCollection({
+						schema: {
+							title: z.string(),
+							description: z.string().max(60, 'For SEO purposes, keep descriptions short!'),
+						},
+					});
+
+					export const collections = { blog };
+				`,
+				'/src/components/Layout.astro': `
+					<html>
+						<head></head>
+						<body>
+							<slot name="title"></slot>
+							<article>
+								<slot name="main"></slot>
+							</article>
+						</body>
+					</html>
+				`,
+				'/src/pages/index.astro': `
+					---
+					import Layout from '../components/Layout.astro';
+					import { getCollection, renderEntry } from 'astro:content';
+					const blog = await getCollection('blog');
+					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
+					const { Content } = await renderEntry(launchWeekEntry);
+					---
+					<Layout>
+						<h1 slot="title">Index page</h2>
+						<Content slot="main" />
 					</Layout>
 				`,
 			},
