@@ -105,7 +105,10 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
 	if (typeof rssOptions.stylesheet === 'string') {
 		const isXSL = /\.xsl$/i.test(rssOptions.stylesheet);
-		root['?xml-stylesheet'] = { '@_href': rssOptions.stylesheet, ...(isXSL && { '@_type': 'text/xsl' }) };
+		root['?xml-stylesheet'] = {
+			'@_href': rssOptions.stylesheet,
+			...(isXSL && { '@_type': 'text/xsl' }),
+		};
 	}
 	root.rss = { '@_version': '2.0' };
 	if (items.find((result) => result.content)) {
