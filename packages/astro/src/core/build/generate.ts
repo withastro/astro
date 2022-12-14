@@ -29,7 +29,12 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachPrerenderedPageData, eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
+import {
+	eachPrerenderedPageData,
+	eachPageData,
+	getPageDataByComponent,
+	sortedCSS,
+} from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -72,13 +77,19 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
-	// HACK: force output to be treated as ESM
-	try {
-		fs.writeFileSync(new URL('./package.json', outFolder), JSON.stringify({ type: 'module' }, null, 2));
-	} catch (e) {}
 
-	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
-	const timer = performance.now();
+	if (opts.settings.config.experimental.prerender) {
+		// HACK: force output to be treated as ESM
+		try {
+			fs.writeFileSync(
+				new URL('./package.json', outFolder),
+				JSON.stringify({ type: 'module' }, null, 2)
+			);
+		} catch (e) {}
+
+		if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
+	}
+
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 
@@ -86,7 +97,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	if (opts.settings.config.output === 'server') {
+	if (opts.settings.config.experimental.prerender && opts.settings.config.output === 'server') {
 		for (const pageData of eachPrerenderedPageData(internals)) {
 			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}
@@ -381,7 +392,7 @@ async function generatePath(
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(endpointHandler, env, ctx);
-		
+
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
 			// If there's no body, do nothing

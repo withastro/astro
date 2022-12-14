@@ -47,6 +47,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {
 		astroFlavoredMarkdown: false,
 	},
+	experimental: {
+		prerender: false,
+	},
 	experimentalErrorOverlay: false,
 };
 
@@ -188,6 +191,15 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	experimental: z
+		.object({
+			prerender: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
+		})
+		.optional()
+		.default({}),
 	legacy: z
 		.object({
 			astroFlavoredMarkdown: z

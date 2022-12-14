@@ -93,19 +93,32 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	await clientBuild(opts, internals, clientInput);
 
 	timer.generate = performance.now();
-	switch (settings.config.output) {
-		case 'static': {
+	if (!settings.config.experimental.prerender) {
+		if (settings.config.output === 'static') {
 			await generatePages(opts, internals);
 			await cleanServerOutput(opts);
-			return;
-		}
-		case 'server': {
+		} else {
+			// Inject the manifest
 			await injectManifest(opts, internals);
-			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals);
+
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
-			return;
+		}
+	} else {
+		switch (settings.config.output) {
+			case 'static': {
+				await generatePages(opts, internals);
+				await cleanServerOutput(opts);
+				return;
+			}
+			case 'server': {
+				await injectManifest(opts, internals);
+				await generatePages(opts, internals);
+				await cleanStaticOutput(opts, internals);
+				info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
+				await ssrMoveAssets(opts);
+				return;
+			}
 		}
 	}
 }
@@ -135,7 +148,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
-					manualChunks(id, api) {
+					manualChunks: opts.settings.config.experimental.prerender ? (id, api) => {
 						// Split the Astro runtime into a separate chunk for readability
 						if (id.includes('astro/dist')) {
 							return 'astro';
@@ -150,7 +163,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 							// pages should go in their own chunks/pages/* directory
 							return `pages${pageInfo.route.route.replace(/\/$/, '/index')}`;
 						}
-					},
+					} : undefined,
 				},
 			},
 			ssr: true,
@@ -195,7 +208,12 @@ async function clientBuild(
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
 	const ssr = settings.config.output === 'server';
-	const out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
+	let out;
+	if (!opts.settings.config.experimental.prerender) {
+		out = ssr ? opts.buildConfig.client : settings.config.outDir;
+	} else {
+		out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
+	}
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {

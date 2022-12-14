@@ -2,10 +2,13 @@ import { Plugin as VitePlugin } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
 import ancestor from 'common-ancestor-path';
 import { isPage, isEndpoint } from '../core/util.js';
+import type { LogOptions } from '../core/logger/core.js';
+import { error } from '../core/logger/core.js';
+import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
 import { PageOptions } from '../vite-plugin-astro/types.js';
 
-const BOOLEAN_EXPORTS = new Set(['experimental_prerender']);
+const BOOLEAN_EXPORTS = new Set(['prerender']);
 
 // Quick scan to determine if code includes recognized export
 // False positives are not a problem, so be forgiving!
@@ -16,7 +19,7 @@ function includesExport(code: string) {
 	return false;
 }
 
-export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+export default function astroScannerPlugin({ settings, logging }: { settings: AstroSettings, logging: LogOptions }): VitePlugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
@@ -51,11 +54,16 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			let pageOptions: PageOptions = {};
 			for (const e of exports) {
 				if (BOOLEAN_EXPORTS.has(e.n)) {
-					const name = e.n.replace(/^experimental_/, '') as keyof PageOptions;
+					const name = e.n as keyof PageOptions;
 					pageOptions[name] = true;
 					let expr = code.slice(e.le).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
 					if (expr !== 'true') {
-						// TODO: warn
+						error(
+					logging,
+					'scanner',
+					`${colors.yellow(id)}
+File contains a \`prerender\` export, but its value cannot be statically analyzed! Expected \`true\` but got \`${expr}\`.`
+				);
 					}
 				}
 			}

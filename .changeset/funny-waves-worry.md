@@ -2,4 +2,4 @@
 '@astrojs/netlify': minor
 ---
 
-Add support for `experimental_prerender` pages
+Add support for `prerender` pages when using `output: 'server'`.

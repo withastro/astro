@@ -901,6 +901,36 @@ export interface AstroUserConfig {
 	 */
 	experimentalErrorOverlay?: boolean;
 
+		/**
+	 * @docs
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
+	 */
+	experimental?: {
+		/**
+		 * @docs
+		 * @name experimental.prerender
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.7.0
+		 * @description
+		 * Enable experimental support for Prerendered pages when generating a server.
+		 *
+		 * To enable this feature, set `experimental.prerender` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		prerender: true,
+		 * 	},
+		 * }
+		 */
+		prerender?: boolean;
+	};
+
 	// Legacy options to be removed
 
 	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
