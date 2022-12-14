@@ -29,7 +29,8 @@ export type GenerateContentTypes = {
 	queueEvent(event: ContentEvent): void;
 };
 
-type ContentTypes = Record<string, Record<string, string>>;
+type ContentTypesEntryMetadata = { slug: string };
+type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
 
 type CreateContentGeneratorParams = {
 	contentPaths: ContentPaths;
@@ -159,7 +160,7 @@ export async function createContentTypesGenerator({
 					addCollection(contentTypes, collectionKey);
 				}
 				if (!(entryKey in contentTypes[collectionKey])) {
-					addEntry(contentTypes, collectionKey, entryKey, slug, collectionConfig);
+					addEntry(contentTypes, collectionKey, entryKey, slug);
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
@@ -208,7 +209,7 @@ export async function createContentTypesGenerator({
 					contentTypes,
 					paths: contentPaths,
 					contentTypesBase,
-					hasContentConfig: observable.status === 'loaded',
+					contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				});
 				if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 					warnNonexistentCollections({
@@ -235,19 +236,9 @@ function addEntry(
 	contentTypes: ContentTypes,
 	collectionKey: string,
 	entryKey: string,
-	slug: string,
-	collectionConfig?: CollectionConfig
+	slug: string
 ) {
-	const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-	// If user has custom slug function, we can't predict slugs at type compilation.
-	// Would require parsing all data and evaluating ahead-of-time;
-	// We evaluate with lazy imports at dev server runtime
-	// to prevent excessive errors
-	const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(slug);
-
-	contentTypes[collectionKey][
-		entryKey
-	] = `{\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n}`;
+	contentTypes[collectionKey][entryKey] = { slug };
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
@@ -293,22 +284,29 @@ async function writeContentFiles({
 	paths,
 	contentTypes,
 	contentTypesBase,
-	hasContentConfig,
+	contentConfig,
 }: {
 	fs: typeof fsMod;
 	paths: ContentPaths;
 	contentTypes: ContentTypes;
 	contentTypesBase: string;
-	hasContentConfig: boolean;
+	contentConfig?: ContentConfig;
 }) {
 	let contentTypesStr = '';
 	const collectionKeys = Object.keys(contentTypes).sort();
 	for (const collectionKey of collectionKeys) {
+		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		contentTypesStr += `${collectionKey}: {\n`;
 		const entryKeys = Object.keys(contentTypes[collectionKey]).sort();
 		for (const entryKey of entryKeys) {
-			const entry = contentTypes[collectionKey][entryKey];
-			contentTypesStr += `${entryKey}: ${entry},\n`;
+			const entryMetadata = contentTypes[collectionKey][entryKey];
+			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+			// If user has custom slug function, we can't predict slugs at type compilation.
+			// Would require parsing all data and evaluating ahead-of-time;
+			// We evaluate with lazy imports at dev server runtime
+			// to prevent excessive errors
+			const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(entryMetadata.slug);
+			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;
 	}
@@ -322,7 +320,7 @@ async function writeContentFiles({
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
 	contentTypesBase = contentTypesBase.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
-		hasContentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
+		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
 	);
 
 	try {
