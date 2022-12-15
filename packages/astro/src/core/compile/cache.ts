@@ -1,5 +1,6 @@
 import type { AstroConfig } from '../../@types/astro';
-import { compile, CompileProps, CompileResult } from './compile.js';
+import type { ResolvedConfig } from 'vite';
+import { compile, CompileResult } from './compile.js';
 
 type CompilationCache = Map<string, CompileResult>;
 
@@ -24,8 +25,13 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(props: CompileProps): Promise<CompileResult> {
-	const { astroConfig, filename } = props;
+export async function cachedCompilation(
+	astroConfig: AstroConfig,
+	viteConfig: ResolvedConfig,
+	filename: string,
+	moduleId: string | undefined,
+	source: string
+): Promise<CompileResult> {
 	let cache: CompilationCache;
 	if (!configCache.has(astroConfig)) {
 		cache = new Map();
@@ -36,7 +42,7 @@ export async function cachedCompilation(props: CompileProps): Promise<CompileRes
 	if (cache.has(filename)) {
 		return cache.get(filename)!;
 	}
-	const compileResult = await compile(props);
+	const compileResult = await compile(astroConfig, viteConfig, filename, moduleId, source);
 	cache.set(filename, compileResult);
 	return compileResult;
 }

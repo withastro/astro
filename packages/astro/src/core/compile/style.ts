@@ -1,27 +1,33 @@
-import type { TransformOptions } from '@astrojs/compiler';
+import type { PreprocessorResult } from '@astrojs/compiler';
 import fs from 'fs';
 import { preprocessCSS, ResolvedConfig } from 'vite';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
 
-export function createStylePreprocessor({
-	filename,
-	viteConfig,
-	cssDeps,
-	cssTransformErrors,
-}: {
-	filename: string;
-	viteConfig: ResolvedConfig;
-	cssDeps: Set<string>;
-	cssTransformErrors: Error[];
-}): TransformOptions['preprocessStyle'] {
-	return async (content, attrs) => {
+export class StylePreprocessor {
+	public readonly filename: string;
+	public readonly viteConfig: ResolvedConfig;
+	public readonly cssDeps: Set<string>;
+	public readonly cssTransformErrors: Error[];
+	constructor(
+		filename: string,
+		viteConfig: ResolvedConfig,
+		cssDeps: Set<string>,
+		cssTransformErrors: Error[]
+	) {
+		this.filename = filename;
+		this.viteConfig = viteConfig;
+		this.cssDeps = cssDeps;
+		this.cssTransformErrors = cssTransformErrors;
+	}
+
+	process = async(content: string, attrs: Record<string, string>): Promise<PreprocessorResult | {error: string;}> => {
 		const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-		const id = `${filename}?astro&type=style&lang${lang}`;
+		const id = `${this.filename}?astro&type=style&lang${lang}`;
 		try {
-			const result = await preprocessCSS(content, id, viteConfig);
+			const result = await preprocessCSS(content, id, this.viteConfig);
 
 			result.deps?.forEach((dep) => {
-				cssDeps.add(dep);
+				this.cssDeps.add(dep);
 			});
 
 			let map: string | undefined;
@@ -36,9 +42,9 @@ export function createStylePreprocessor({
 			return { code: result.code, map };
 		} catch (err: any) {
 			try {
-				err = enhanceCSSError(err, filename);
+				err = enhanceCSSError(err, this.filename);
 			} catch {}
-			cssTransformErrors.push(err);
+			this.cssTransformErrors.push(err);
 			return { error: err + '' };
 		}
 	};

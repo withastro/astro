@@ -6,7 +6,7 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { cachedCompilation, CompileProps, getCachedCompileResult } from '../core/compile/index.js';
+import { cachedCompilation, getCachedCompileResult } from '../core/compile/index.js';
 import {
 	isRelativePath,
 	prependForwardSlash,
@@ -197,19 +197,14 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			}
 
 			const filename = normalizeFilename(parsedId.filename, config);
-			const compileProps: CompileProps = {
-				astroConfig: config,
-				viteConfig: resolvedConfig,
+			const transformResult = await cachedFullCompilation(
+				config,
+				resolvedConfig,
 				filename,
 				id,
 				source,
-			};
-
-			const transformResult = await cachedFullCompilation({
-				compileProps,
-				rawId: id,
 				logging,
-			});
+			);
 
 			for (const dep of transformResult.cssDeps) {
 				this.addWatchFile(dep);
@@ -237,14 +232,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 		},
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
-			const compileProps: CompileProps = {
-				astroConfig: config,
-				viteConfig: resolvedConfig,
-				filename: context.file,
-				id: context.modules[0]?.id ?? undefined,
-				source: await context.read(),
-			};
-			const compile = () => cachedCompilation(compileProps);
+			const file = context.file;
+			const id = context.modules[0]?.id ?? undefined;
+			const source =  await context.read();
+			const compile = () => cachedCompilation(config, resolvedConfig, file, id, source);
 			return handleHotUpdate(context, {
 				config,
 				logging,

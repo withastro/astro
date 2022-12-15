@@ -6,28 +6,20 @@ import { transform } from '@astrojs/compiler';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
-import { createStylePreprocessor } from './style.js';
-
-export interface CompileProps {
-	astroConfig: AstroConfig;
-	viteConfig: ResolvedConfig;
-	filename: string;
-	id: string | undefined;
-	source: string;
-}
+import { StylePreprocessor } from './style.js';
 
 export interface CompileResult extends TransformResult {
 	cssDeps: Set<string>;
 	source: string;
 }
 
-export async function compile({
-	astroConfig,
-	viteConfig,
-	filename,
-	id: moduleId,
-	source,
-}: CompileProps): Promise<CompileResult> {
+export async function compile(
+	astroConfig: AstroConfig,
+	viteConfig: ResolvedConfig,
+	filename: string,
+	moduleId: string | undefined,
+	source: string
+): Promise<CompileResult> {
 	const cssDeps = new Set<string>();
 	const cssTransformErrors: AstroError[] = [];
 	let transformResult: TransformResult;
@@ -46,12 +38,7 @@ export async function compile({
 			internalURL: 'astro/server/index.js',
 			// TODO: baseline flag
 			experimentalStaticExtraction: true,
-			preprocessStyle: createStylePreprocessor({
-				filename,
-				viteConfig,
-				cssDeps,
-				cssTransformErrors,
-			}),
+			preprocessStyle: new StylePreprocessor(filename, viteConfig, cssDeps, cssTransformErrors).process,
 			async resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},
@@ -71,11 +58,16 @@ export async function compile({
 
 	handleCompileResultErrors(transformResult, cssTransformErrors);
 
-	return {
-		...transformResult,
-		cssDeps,
-		source,
-	};
+	return Object.create(transformResult, {
+		cssDeps: {
+			enumerable: true,
+			value: cssDeps
+		},
+		source: {
+			enumerable: true,
+			value: source
+		}
+	}) as CompileResult;
 }
 
 function handleCompileResultErrors(result: TransformResult, cssTransformErrors: AstroError[]) {

@@ -1,15 +1,10 @@
+import type { ResolvedConfig } from 'vite';
 import { fileURLToPath } from 'url';
 import { ESBuildTransformResult, transformWithEsbuild } from 'vite';
 import { AstroConfig } from '../@types/astro';
-import { cachedCompilation, CompileProps, CompileResult } from '../core/compile/index.js';
+import { cachedCompilation, CompileResult } from '../core/compile/index.js';
 import { LogOptions } from '../core/logger/core.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-
-interface CachedFullCompilation {
-	compileProps: CompileProps;
-	rawId: string;
-	logging: LogOptions;
-}
 
 interface FullCompileResult extends Omit<CompileResult, 'map'> {
 	map: ESBuildTransformResult['map'];
@@ -25,19 +20,22 @@ interface EnhanceCompilerErrorOptions {
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 
-export async function cachedFullCompilation({
-	compileProps,
-	rawId,
-	logging,
-}: CachedFullCompilation): Promise<FullCompileResult> {
+export async function cachedFullCompilation(
+	astroConfig: AstroConfig,
+	viteConfig: ResolvedConfig,
+	filename: string,
+	id: string,
+	source: string,
+	logging: LogOptions
+): Promise<FullCompileResult> {
 	let transformResult: CompileResult;
 	let esbuildResult: ESBuildTransformResult;
 
 	try {
-		transformResult = await cachedCompilation(compileProps);
+		transformResult = await cachedCompilation(astroConfig, viteConfig, filename, id, source);
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
-		esbuildResult = await transformWithEsbuild(transformResult.code, rawId, {
+		esbuildResult = await transformWithEsbuild(transformResult.code, id, {
 			loader: 'ts',
 			target: 'esnext',
 			sourcemap: 'external',
@@ -45,15 +43,15 @@ export async function cachedFullCompilation({
 	} catch (err: any) {
 		await enhanceCompileError({
 			err,
-			id: rawId,
-			source: compileProps.source,
-			config: compileProps.astroConfig,
+			id,
+			source,
+			config: astroConfig,
 			logging: logging,
 		});
 		throw err;
 	}
 
-	const { fileId: file, fileUrl: url } = getFileInfo(rawId, compileProps.astroConfig);
+	const { fileId: file, fileUrl: url } = getFileInfo(id, astroConfig);
 
 	let SUFFIX = '';
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
@@ -61,24 +59,29 @@ export async function cachedFullCompilation({
 	)};export { $$file as file, $$url as url };\n`;
 
 	// Add HMR handling in dev mode.
-	if (!compileProps.viteConfig.isProduction) {
+	if (!viteConfig.isProduction) {
 		let i = 0;
 		while (i < transformResult.scripts.length) {
-			SUFFIX += `import "${rawId}?astro&type=script&index=${i}&lang.ts";`;
+			SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 			i++;
 		}
 	}
 
 	// Prefer live reload to HMR in `.astro` files
-	if (!compileProps.viteConfig.isProduction) {
+	if (!viteConfig.isProduction) {
 		SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
 	}
 
-	return {
-		...transformResult,
-		code: esbuildResult.code + SUFFIX,
-		map: esbuildResult.map,
-	};
+	return Object.create(transformResult, {
+		code: {
+			enumerable: true,
+			value: esbuildResult.code + SUFFIX,
+		},
+		map: {
+			enumerable: true,
+			value: esbuildResult.map
+		},
+	});
 }
 
 async function enhanceCompileError({
