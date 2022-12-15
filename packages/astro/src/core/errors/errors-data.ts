@@ -393,6 +393,18 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
 		hint: 'Please make sure the component is properly imported.',
 	},
+	/**
+	 * @docs
+	 * @description
+	 * A `prerender` export was detected, but the value was not statically analyzable. Values computed at runtime are not supported, so `export const prerender` only supports the exact values `true` or `false`.
+	 */
+	InvalidPrerenderExport: {
+		title: 'Invalid prerender export.',
+		code: 3019,
+		message: (expr: string) =>
+			`A \`prerender\` export has been detected, but its value cannot be statically analyzed. Expected \`true\` but got \`${expr}\`.`,
+		hint: 'Values computed at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
+	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',
