@@ -174,10 +174,11 @@ export async function createContentTypesGenerator({
 		}
 	}
 
-	function queueEvent(event: ContentEvent, opts?: EventOpts) {
-		if (!event.entry.startsWith(contentPaths.contentDir.pathname)) return;
+	function queueEvent(rawEvent: ContentEvent, opts?: EventOpts) {
+		const eventEntry = pathToFileURL(rawEvent.entry);
+		if (!eventEntry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
 
-		events.push(handleEvent(event, opts));
+		events.push(handleEvent(rawEvent, opts));
 
 		debounceTimeout && clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(
