@@ -13,5 +13,5 @@ Introduces the **experimental** Prerender API.
 
 **Usage**
 
-- First, enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
+- First, run `astro build --experimental-prerender` or enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
 - Then, include `export const prerender = true` in any file in the `pages/` directory that you wish to prerender.
