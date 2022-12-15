@@ -20,15 +20,13 @@ describe('SSR: prerender', () => {
 	});
 
 	describe('Prerendering', () => {
-		it('Prerenders static page', async () => {
+		// Prerendered assets are not served directly by `app`,
+		// they're served _in front of_ the app as static assets!
+		it('Does not render static page', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/static?q=42');
+			const request = new Request('http://example.com/static');
 			const response = await app.render(request);
-			expect(response.status).to.equal(200);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-			expect($('#greeting').text()).to.equal('Hello world!');
-			expect($('#searchparams').text()).to.equal('');
+			expect(response.status).to.equal(404);
 		});
 
 		it('includes prerendered pages in the asset manifest', async () => {
@@ -36,7 +34,7 @@ describe('SSR: prerender', () => {
 			/** @type {Set<string>} */
 			const assets = app.manifest.assets;
 			expect(assets.size).to.equal(1);
-			expect(Array.from(assets)[0].endsWith('.html')).to.be.true;
+			expect(Array.from(assets)[0].endsWith('static/index.html')).to.be.true;
 		});
 	});
 
