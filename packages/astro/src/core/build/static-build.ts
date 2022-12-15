@@ -331,18 +331,16 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 			})
 		);
 	}
-	try {
-		fs.rmSync(new URL('./package.json', out));
-	} catch (e) {}
 
-	// TODO: fix this!
-	// // Clean out directly if the outDir is outside of root
-	// if (out.toString() !== opts.settings.config.outDir.toString()) {
-	// 	// Copy assets before cleaning directory if outside root
-	// 	copyFiles(out, opts.settings.config.outDir);
-	// 	await fs.promises.rm(out, { recursive: true });
-	// 	return;
-	// }
+	if (!opts.settings.config.experimental.prerender) {
+		// Clean out directly if the outDir is outside of root
+		if (out.toString() !== opts.settings.config.outDir.toString()) {
+			// Copy assets before cleaning directory if outside root
+			copyFiles(out, opts.settings.config.outDir);
+			await fs.promises.rm(out, { recursive: true });
+			return;
+		}
+	}
 }
 
 async function cleanServerOutput(opts: StaticBuildOptions) {
