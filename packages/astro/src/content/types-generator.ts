@@ -253,11 +253,13 @@ export function getEntryInfo({
 
 	const id = normalizePath(path.relative(rawCollection, rawRelativePath));
 	const slug = id.replace(path.extname(id), '');
-	return {
+	const res = {
 		id,
 		slug,
 		collection: normalizePath(rawCollection),
 	};
+	console.log('@@entry@@', res);
+	return res;
 }
 
 export function getEntryType(
