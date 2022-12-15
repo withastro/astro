@@ -294,7 +294,10 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 
 	if (files.length) {
 		await eslexer.init;
-		// Remove all the SSR generated .mjs files
+
+		// Cleanup prerendered chunks.
+		// This has to happen AFTER the SSR build runs as a final step, because we need the code in order to generate the pages.
+		// These chunks should only contain prerendering logic, so they are safe to modify.
 		await Promise.all(
 			files.map(async (filename) => {
 				if (!allStaticFiles.has(filename)) {
@@ -303,8 +306,8 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				const url = new URL(filename, out);
 				const text = await fs.promises.readFile(url, { encoding: 'utf8' });
 				const [, exports] = eslexer.parse(text);
-				// Replace exports (prerendered pages) with a noop
-				let value = 'const noop = (() => {});';
+				// Replace exports (only prerendered pages) with a noop
+				let value = 'const noop = () => {};';
 				for (const e of exports) {
 					value += `\nexport const ${e.n} = noop;`;
 				}
