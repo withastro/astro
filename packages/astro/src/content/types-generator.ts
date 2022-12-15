@@ -210,7 +210,7 @@ export async function createContentTypesGenerator({
 			await writeContentFiles({
 				fs,
 				contentTypes,
-				paths: contentPaths,
+				contentPaths,
 				contentTypesBase,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 			});
@@ -285,13 +285,13 @@ export function getEntryType(
 
 async function writeContentFiles({
 	fs,
-	paths,
+	contentPaths,
 	contentTypes,
 	contentTypesBase,
 	contentConfig,
 }: {
 	fs: typeof fsMod;
-	paths: ContentPaths;
+	contentPaths: ContentPaths;
 	contentTypes: ContentTypes;
 	contentTypesBase: string;
 	contentConfig?: ContentConfig;
@@ -316,7 +316,7 @@ async function writeContentFiles({
 	}
 
 	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(paths.cacheDir.pathname, paths.config.pathname)
+		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
@@ -327,13 +327,7 @@ async function writeContentFiles({
 		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
 	);
 
-	try {
-		await fs.promises.stat(paths.cacheDir);
-	} catch {
-		await fs.promises.mkdir(paths.cacheDir);
-	}
-
-	await fs.promises.writeFile(new URL(CONTENT_TYPES_FILE, paths.cacheDir), contentTypesBase);
+	await fs.promises.writeFile(new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir), contentTypesBase);
 }
 
 function warnNonexistentCollections({
