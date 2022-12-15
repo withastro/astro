@@ -8,6 +8,7 @@ export function matchRoute(pathname: string, manifest: ManifestData): RouteData 
 /** Find matching static asset from pathname */
 export function matchAssets(route: RouteData, assets: Set<string>): string | undefined {
 	for (const asset of assets) {
+		if (!asset.endsWith('.html')) continue;
 		if (route.pattern.test(asset)) {
 			return asset;
 		}
