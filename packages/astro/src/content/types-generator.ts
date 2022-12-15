@@ -253,11 +253,11 @@ export function getEntryInfo({
 	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
 	if (!rawCollection) return new Error();
 
-	const id = normalizePath(path.relative(rawCollection, rawRelativePath));
-	const slug = id.replace(path.extname(id), '');
+	const rawId = path.relative(rawCollection, rawRelativePath);
+	const rawSlug = rawId.replace(path.extname(rawId), '');
 	const res = {
-		id,
-		slug,
+		id: normalizePath(rawId),
+		slug: normalizePath(rawSlug),
 		collection: normalizePath(rawCollection),
 	};
 	console.log('@@entry@@', res);
