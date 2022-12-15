@@ -11,7 +11,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ContentConfig, loadContentConfig, ContentPaths, ContentObservable } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
-type ContentEvent = { name: ChokidarEvent; entry: string };
+type RawContentEvent = { name: ChokidarEvent; entry: string };
+type ContentEvent = { name: ChokidarEvent; entry: URL };
 type EntryInfo = {
 	id: string;
 	slug: string;
@@ -56,7 +57,7 @@ export async function createContentTypesGenerator({
 	);
 
 	async function init() {
-		await handleEvent({ name: 'add', entry: contentPaths.config.pathname }, { logLevel: 'warn' });
+		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
 		const entries = await glob(new URL('./**/', contentPaths.contentDir).pathname + `*.*`, {
 			fs: {
 				readdir: fs.readdir.bind(fs),
@@ -67,21 +68,16 @@ export async function createContentTypesGenerator({
 			// Config loading handled first. Avoid running twice.
 			(e) => !e.startsWith(contentPaths.config.pathname)
 		)) {
-			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
+			events.push(handleEvent({ name: 'add', entry: pathToFileURL(entry) }, { logLevel: 'warn' }));
 		}
 		await runEvents();
 	}
 
 	async function handleEvent(
-		rawEvent: ContentEvent,
+		event: ContentEvent,
 		opts?: EventOpts
 	): Promise<{ shouldGenerateTypes: boolean; error?: Error }> {
 		const logLevel = opts?.logLevel ?? 'info';
-
-		const event = {
-			entry: pathToFileURL(rawEvent.entry),
-			name: rawEvent.name,
-		};
 
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
@@ -174,11 +170,14 @@ export async function createContentTypesGenerator({
 		}
 	}
 
-	function queueEvent(rawEvent: ContentEvent, opts?: EventOpts) {
-		const eventEntry = pathToFileURL(rawEvent.entry);
-		if (!eventEntry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
+		const event = {
+			entry: pathToFileURL(rawEvent.entry),
+			name: rawEvent.name,
+		};
+		if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
 
-		events.push(handleEvent(rawEvent, opts));
+		events.push(handleEvent(event, opts));
 
 		debounceTimeout && clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(
