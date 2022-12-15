@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite';
+import { normalizePath } from 'vite';
 import fsMod from 'node:fs';
 import * as path from 'node:path';
 import type { AstroSettings } from '../@types/astro.js';
@@ -14,8 +15,10 @@ export function astroContentVirtualModPlugin({
 	settings,
 }: AstroContentVirtualModPluginParams): Plugin {
 	const paths = getContentPaths({ srcDir: settings.config.srcDir });
-	const relContentDir = appendForwardSlash(
-		prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
+	const relContentDir = normalizePath(
+		appendForwardSlash(
+			prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
+		)
 	);
 	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
 	const astroContentModContents = fsMod
