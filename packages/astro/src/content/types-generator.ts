@@ -266,7 +266,6 @@ export function getEntryInfo({
 		slug: normalizePath(rawSlug),
 		collection: normalizePath(rawCollection),
 	};
-	console.log('@@entry@@', res);
 	return res;
 }
 
