@@ -69,7 +69,7 @@ export async function createContentTypesGenerator({
 		)) {
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
-		runEventsDebounced();
+		await runEvents();
 	}
 
 	async function handleEvent(
@@ -178,48 +178,50 @@ export async function createContentTypesGenerator({
 		if (!event.entry.startsWith(contentPaths.contentDir.pathname)) return;
 
 		events.push(handleEvent(event, opts));
-		runEventsDebounced(opts);
+
+		debounceTimeout && clearTimeout(debounceTimeout);
+		debounceTimeout = setTimeout(
+			async () => runEvents(opts),
+			50 /* debounce to batch chokidar events */
+		);
 	}
 
-	function runEventsDebounced(opts?: EventOpts) {
+	async function runEvents(opts?: EventOpts) {
 		const logLevel = opts?.logLevel ?? 'info';
-		debounceTimeout && clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(async () => {
-			const eventResponses = await Promise.all(events);
-			events = [];
-			let unsupportedFiles = [];
-			for (const response of eventResponses) {
-				if (response.error instanceof UnsupportedFileTypeError) {
-					unsupportedFiles.push(response.error.message);
-				}
+		const eventResponses = await Promise.all(events);
+		events = [];
+		let unsupportedFiles = [];
+		for (const response of eventResponses) {
+			if (response.error instanceof UnsupportedFileTypeError) {
+				unsupportedFiles.push(response.error.message);
 			}
-			if (unsupportedFiles.length > 0 && ['info', 'warn'].includes(logLevel)) {
-				warn(
+		}
+		if (unsupportedFiles.length > 0 && ['info', 'warn'].includes(logLevel)) {
+			warn(
+				logging,
+				'content',
+				`Unsupported file types found. Prefix with an underscore (\`_\`) to ignore:\n- ${unsupportedFiles.join(
+					'\n'
+				)}`
+			);
+		}
+		const observable = contentConfigObserver.get();
+		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
+			await writeContentFiles({
+				fs,
+				contentTypes,
+				paths: contentPaths,
+				contentTypesBase,
+				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
+			});
+			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
+				warnNonexistentCollections({
 					logging,
-					'content',
-					`Unsupported file types found. Prefix with an underscore (\`_\`) to ignore:\n- ${unsupportedFiles.join(
-						'\n'
-					)}`
-				);
-			}
-			const observable = contentConfigObserver.get();
-			if (eventResponses.some((r) => r.shouldGenerateTypes)) {
-				await writeContentFiles({
-					fs,
+					contentConfig: observable.config,
 					contentTypes,
-					paths: contentPaths,
-					contentTypesBase,
-					contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				});
-				if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
-					warnNonexistentCollections({
-						logging,
-						contentConfig: observable.config,
-						contentTypes,
-					});
-				}
 			}
-		}, 50 /* debounce 50 ms to batch chokidar events */);
+		}
 	}
 	return { init, queueEvent };
 }
