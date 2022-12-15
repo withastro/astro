@@ -21,7 +21,7 @@ type EntryInfo = {
 
 export type GenerateContentTypes = {
 	init(): Promise<void>;
-	queueEvent(event: ContentEvent): void;
+	queueEvent(event: RawContentEvent): void;
 };
 
 type ContentTypesEntryMetadata = { slug: string };
