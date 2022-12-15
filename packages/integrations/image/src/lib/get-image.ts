@@ -11,7 +11,7 @@ import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
-	alt: string;
+	alt?: string;
 }
 
 function resolveSize(transform: TransformOptions): TransformOptions {
