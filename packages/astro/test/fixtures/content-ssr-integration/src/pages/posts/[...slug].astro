@@ -1,5 +1,5 @@
 ---
-import { getCollection, renderEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 const { slug } = Astro.params;
 const posts = await getCollection('blog');
@@ -7,7 +7,7 @@ const post = posts.find((post) => post.slug === slug);
 if (!post) {
 	throw new Error(`Not found: ${slug}`);
 }
-const { Content } = await renderEntry(post);
+const { Content } = await post.render();
 ---
 
 <html lang="en">

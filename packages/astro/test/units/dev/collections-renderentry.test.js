@@ -7,7 +7,7 @@ import mdx from '../../../../integrations/mdx/dist/index.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-describe.skip('Collections API - renderEntry', () => {
+describe.skip('Content Collections - render()', () => {
 	it('can be called in a page component', async () => {
 		const fs = createFsWithFallback(
 			{
@@ -25,10 +25,10 @@ describe.skip('Collections API - renderEntry', () => {
 				`,
 				'/src/pages/index.astro': `
 					---
-					import { getCollection, renderEntry } from 'astro:content';
+					import { getCollection } from 'astro:content';
 					const blog = await getCollection('blog');
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
-					const { Content } = await renderEntry(launchWeekEntry);
+					const { Content } = await launchWeekEntry.render();
 					---
 					<h1>testing</h1>
 					<Content />
@@ -83,10 +83,10 @@ describe.skip('Collections API - renderEntry', () => {
 				`,
 				'/src/components/Layout.astro': `
 					---
-					import { getCollection, renderEntry } from 'astro:content';
+					import { getCollection } from 'astro:content';
 					const blog = await getCollection('blog');
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
-					const { Content } = await renderEntry(launchWeekEntry);
+					const { Content } = await launchWeekEntry.render();
 					---
 					<html>
 						<head></head>
@@ -169,10 +169,10 @@ describe.skip('Collections API - renderEntry', () => {
 				'/src/pages/index.astro': `
 					---
 					import Layout from '../components/Layout.astro';
-					import { getCollection, renderEntry } from 'astro:content';
+					import { getCollection } from 'astro:content';
 					const blog = await getCollection('blog');
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
-					const { Content } = await renderEntry(launchWeekEntry);
+					const { Content } = await launchWeekEntry.render();
 					---
 					<Layout>
 						<h1 slot="title">Index page</h2>
@@ -228,13 +228,13 @@ describe.skip('Collections API - renderEntry', () => {
 					export const collections = { blog };
 				`,
 				'/src/launch-week.ts': `
-					import { getCollection, renderEntry } from 'astro:content';
+					import { getCollection } from 'astro:content';
 
 					export let Content;
 
 					const blog = await getCollection('blog');
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
-					const mod = await renderEntry(launchWeekEntry);
+					const await mod = launchWeekEntry.render();
 
 					Content = mod.Content;
 				`,

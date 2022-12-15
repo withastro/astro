@@ -35,8 +35,10 @@ export function createCollectionToGlobResultMap({
 
 export function createGetCollection({
 	collectionToEntryMap,
+	collectionToRenderEntryMap,
 }: {
 	collectionToEntryMap: CollectionToEntryMap;
+	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
 	return async function getCollection(collection: string, filter?: () => boolean) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
@@ -49,6 +51,13 @@ export function createGetCollection({
 					body: entry.body,
 					collection: entry.collection,
 					data: entry.data,
+					async render() {
+						return render({
+							collection: entry.collection,
+							id: entry.id,
+							collectionToRenderEntryMap,
+						});
+					},
 				};
 			})
 		);
@@ -62,8 +71,10 @@ export function createGetCollection({
 
 export function createGetEntry({
 	collectionToEntryMap,
+	collectionToRenderEntryMap,
 }: {
 	collectionToEntryMap: CollectionToEntryMap;
+	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
 	return async function getEntry(collection: string, entryId: string) {
 		const lazyImport = collectionToEntryMap[collection]?.[entryId];
@@ -76,6 +87,13 @@ export function createGetEntry({
 			body: entry.body,
 			collection: entry.collection,
 			data: entry.data,
+			async render() {
+				return render({
+					collection: entry.collection,
+					id: entry.id,
+					collectionToRenderEntryMap,
+				});
+			},
 		};
 	};
 }
@@ -94,52 +112,53 @@ export function createCollectionToPaths({
 	};
 }
 
-export function createRenderEntry({
+async function render({
+	collection,
+	id,
 	collectionToRenderEntryMap,
 }: {
+	collection: string;
+	id: string;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function renderEntry(this: any, entry: { collection: string; id: string }) {
-		const lazyImport = collectionToRenderEntryMap[entry.collection]?.[entry.id];
-		if (!lazyImport)
-			throw new Error(`${String(entry.collection)} → ${String(entry.id)} does not exist.`);
+	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
+	if (!lazyImport) throw new Error(`${String(collection)} → ${String(id)} does not exist.`);
 
-		const mod = await lazyImport();
+	const mod = await lazyImport();
 
-		const Content = createComponent({
-			factory(result, props, slots) {
-				let styles = '',
-					links = '';
-				if (Array.isArray(mod?.collectedStyles)) {
-					styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
-				}
-				if (Array.isArray(mod?.collectedLinks)) {
-					links = mod.collectedLinks
-						.map((link: any) => {
-							return renderUniqueStylesheet(result, {
-								href: prependForwardSlash(link),
-							});
-						})
-						.join('');
-				}
+	const Content = createComponent({
+		factory(result, props, slots) {
+			let styles = '',
+				links = '';
+			if (Array.isArray(mod?.collectedStyles)) {
+				styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+			}
+			if (Array.isArray(mod?.collectedLinks)) {
+				links = mod.collectedLinks
+					.map((link: any) => {
+						return renderUniqueStylesheet(result, {
+							href: prependForwardSlash(link),
+						});
+					})
+					.join('');
+			}
 
-				return createHeadAndContent(
-					unescapeHTML(styles + links) as any,
-					renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
-				);
-			},
-			propagation: 'self',
-		});
-
-		if (!mod._internal && entry.id.endsWith('.mdx')) {
-			throw new Error(
-				`[Content] Failed to render MDX entry. Try installing @astrojs/mdx@next--content-schemas`
+			return createHeadAndContent(
+				unescapeHTML(styles + links) as any,
+				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
 			);
-		}
-		return {
-			Content,
-			headings: mod.getHeadings(),
-			injectedFrontmatter: mod._internal.injectedFrontmatter,
-		};
+		},
+		propagation: 'self',
+	});
+
+	if (!mod._internal && id.endsWith('.mdx')) {
+		throw new Error(
+			`[Content] Failed to render MDX entry. Try installing @astrojs/mdx@next--content-schemas`
+		);
+	}
+	return {
+		Content,
+		headings: mod.getHeadings(),
+		injectedFrontmatter: mod._internal.injectedFrontmatter,
 	};
 }

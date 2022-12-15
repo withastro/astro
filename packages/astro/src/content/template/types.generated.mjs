@@ -2,7 +2,6 @@
 import {
 	createGetCollection,
 	createGetEntry,
-	createRenderEntry,
 	createCollectionToPaths,
 	createCollectionToGlobResultMap,
 } from 'astro/content/internal';
@@ -33,13 +32,13 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 
 export const getCollection = createGetCollection({
 	collectionToEntryMap,
+	collectionToRenderEntryMap,
 });
 
 export const getEntry = createGetEntry({
 	collectionToEntryMap,
+	collectionToRenderEntryMap,
 });
-
-export const renderEntry = createRenderEntry({ collectionToRenderEntryMap });
 
 export const collectionToPaths = createCollectionToPaths({
 	getCollection,

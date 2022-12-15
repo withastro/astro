@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-describe.skip('Collections API - renderEntry', () => {
+describe.skip('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;

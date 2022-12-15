@@ -1,5 +1,5 @@
 ---
-import { getCollection, renderEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
@@ -10,7 +10,7 @@ export async function getStaticPaths() {
 }
 
 const { data: { title } } = Astro.props;
-const { Content } = await renderEntry(Astro.props);
+const { Content } = await Astro.props.render();
 ---
 
 <html lang="en">
