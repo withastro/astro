@@ -422,7 +422,7 @@ importers:
       deepmerge-ts: ^4.2.2
       diff: ^5.1.0
       eol: ^0.9.1
-      es-module-lexer: ^0.10.5
+      es-module-lexer: ^1.1.0
       execa: ^6.1.0
       fast-glob: ^3.2.11
       github-slugger: ^1.4.0
@@ -494,7 +494,7 @@ importers:
       debug: 4.3.4
       deepmerge-ts: 4.2.2
       diff: 5.1.0
-      es-module-lexer: 0.10.5
+      es-module-lexer: 1.1.0
       execa: 6.1.0
       fast-glob: 3.2.12
       github-slugger: 1.5.0
@@ -1115,6 +1115,9 @@ importers:
       '@astrojs/node': link:../../../../integrations/node
       astro: link:../../..
 
+  packages/astro/test/benchmark/simple/dist/server:
+    specifiers: {}
+
   packages/astro/test/fixtures/0-css:
     specifiers:
       '@astrojs/react': workspace:*
@@ -1654,6 +1657,9 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
+
+  packages/astro/test/fixtures/config-vite/dist:
+    specifiers: {}
 
   packages/astro/test/fixtures/css-assets:
     specifiers:
@@ -2306,6 +2312,12 @@ importers:
       astro: workspace:*
     dependencies:
       '@astrojs/partytown': link:../../../../integrations/partytown
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-prerender:
+    specifiers:
+      astro: workspace:*
+    dependencies:
       astro: link:../../..
 
   packages/astro/test/fixtures/ssr-preview:
@@ -11817,6 +11829,10 @@ packages:
 
   /es-module-lexer/0.10.5:
     resolution: {integrity: sha512-+7IwY/kiGAacQfY+YBhKMvEmyAJnw5grTUgjG85Pe7vcUI/6b7pZjZG8nQ7+48YhzEAEqrEgD2dCz/JIK+AYvw==}
+    dev: false
+
+  /es-module-lexer/1.1.0:
+    resolution: {integrity: sha512-fJg+1tiyEeS8figV+fPcPpm8WqJEflG3yPU0NOm5xMvrNkuiy7HzX/Ljng4Y0hAoiw4/3hQTCFYw+ub8+a2pRA==}
     dev: false
 
   /es-shim-unscopables/1.0.0:
