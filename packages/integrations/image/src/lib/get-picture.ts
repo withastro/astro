@@ -7,7 +7,7 @@ import { getImage } from './get-image.js';
 
 export interface GetPictureParams {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
-	alt: string;
+	alt?: string;
 	widths: number[];
 	formats: OutputFormat[];
 	aspectRatio?: TransformOptions['aspectRatio'];
