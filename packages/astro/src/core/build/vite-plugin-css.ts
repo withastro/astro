@@ -175,10 +175,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										this,
 										function until(importer) {
 											if (settings.config.experimental.contentCollections) {
-												// Avoid short-circuiting unless `contentCollections` is enabled.
-												return false;
+												// Short circuit when `contentCollections` is enabled.
+												return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
 											}
-											return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
+											return false;
 										}
 									)) {
 										if (
