@@ -53,7 +53,9 @@ export function astroContentServerPlugin({
 					return;
 				}
 
+				console.log('@@exists@@', contentDirExists);
 				if (contentDirExists && (mode === 'dev' || viteConfig.build?.ssr === true)) {
+					console.log('@@typesstart@@');
 					contentGenerator = await createContentTypesGenerator({
 						fs,
 						settings,
@@ -61,7 +63,9 @@ export function astroContentServerPlugin({
 						contentConfigObserver,
 						contentPaths,
 					});
+					console.log('@@typesgen@@');
 					await contentGenerator.init();
+					console.log('@@typesend@@');
 					info(logging, 'content', 'Types generated');
 				}
 			},
@@ -110,11 +114,16 @@ export function astroContentServerPlugin({
 			name: 'astro-content-flag-plugin',
 			async load(id) {
 				const fileUrl = new URL(id, 'file://');
+				if (id.includes('?')) {
+					console.log('@@maybe@@', fileUrl.href, isContentFlagImport(fileUrl));
+				}
 				if (isContentFlagImport(fileUrl)) {
+					console.log('@@contentflag@@', fileUrl.href);
 					const observable = contentConfigObserver.get();
 					let contentConfig: ContentConfig | undefined =
 						observable.status === 'loaded' ? observable.config : undefined;
 					if (observable.status === 'loading') {
+						console.log('@@waiting@@', fileUrl.href);
 						// Wait for config to load
 						contentConfig = await new Promise((resolve) => {
 							const unsubscribe = contentConfigObserver.subscribe((ctx) => {
@@ -128,6 +137,7 @@ export function astroContentServerPlugin({
 							});
 						});
 					}
+					console.log('@@readingfile@@', fileUrl.href);
 					const rawContents = await fs.promises.readFile(fileUrl, 'utf-8');
 					const {
 						content: body,
