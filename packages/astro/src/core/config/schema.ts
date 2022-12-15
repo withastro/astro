@@ -48,9 +48,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		astroFlavoredMarkdown: false,
 	},
 	experimental: {
+		errorOverlay: false,
 		prerender: false,
 	},
-	experimentalErrorOverlay: false,
 };
 
 export const AstroConfigSchema = z.object({
@@ -193,10 +193,8 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			prerender: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
+			errorOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.errorOverlay),
+			prerender: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
 		})
 		.optional()
 		.default({}),
@@ -209,7 +207,6 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	experimentalErrorOverlay: z.boolean().optional().default(false),
 });
 
 interface PostCSSConfigResult {

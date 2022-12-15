@@ -83,6 +83,7 @@ export interface CLIFlags {
 	config?: string;
 	drafts?: boolean;
 	experimentalErrorOverlay?: boolean;
+	experimentalPrerender?: boolean;
 }
 
 export interface BuildConfig {
@@ -895,12 +896,6 @@ export interface AstroUserConfig {
 		astroFlavoredMarkdown?: boolean;
 	};
 
-	/**
-	 * @hidden
-	 * Turn on experimental support for the new error overlay component.
-	 */
-	experimentalErrorOverlay?: boolean;
-
 		/**
 	 * @docs
 	 * @kind heading
@@ -910,6 +905,11 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
+		/**
+			* @hidden
+			* Turn on experimental support for the new error overlay component.
+			*/
+		errorOverlay?: boolean;
 		/**
 		 * @docs
 		 * @name experimental.prerender
