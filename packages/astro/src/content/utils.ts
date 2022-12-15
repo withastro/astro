@@ -210,11 +210,13 @@ export type ContentPaths = {
 };
 
 export function getContentPaths({ srcDir }: { srcDir: URL }): ContentPaths {
-	return {
+	const contentPaths = {
 		// Output generated types in content directory. May change in the future!
 		cacheDir: new URL('./content/', srcDir),
 		contentDir: new URL('./content/', srcDir),
 		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
 		config: new URL('./content/config', srcDir),
 	};
+	console.log('@@contentPaths@@', contentPaths);
+	return contentPaths;
 }
