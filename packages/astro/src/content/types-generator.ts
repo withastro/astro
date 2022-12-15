@@ -58,17 +58,21 @@ export async function createContentTypesGenerator({
 
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		const entries = await glob(new URL('./**/', contentPaths.contentDir).pathname + `*.*`, {
+		const globResult = await glob('./**/*.*', {
+			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
 			},
 		});
-		for (const entry of entries.filter(
-			// Config loading handled first. Avoid running twice.
-			(e) => !e.startsWith(contentPaths.config.pathname)
-		)) {
-			events.push(handleEvent({ name: 'add', entry: pathToFileURL(entry) }, { logLevel: 'warn' }));
+		const entries = globResult
+			.map((e) => new URL(e, contentPaths.contentDir))
+			.filter(
+				// Config loading handled first. Avoid running twice.
+				(e) => !e.href.startsWith(contentPaths.config.href)
+			);
+		for (const entry of entries) {
+			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
 		await runEvents();
 	}
