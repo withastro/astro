@@ -151,9 +151,6 @@ export async function createContentTypesGenerator({
 		const { id, slug, collection } = entryInfo;
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
-		const observable = contentConfigObserver.get();
-		const collectionConfig =
-			observable.status === 'loaded' ? observable.config.collections[collection] : undefined;
 
 		switch (event.name) {
 			case 'add':
