@@ -78,14 +78,14 @@ export async function createContentTypesGenerator({
 	): Promise<{ shouldGenerateTypes: boolean; error?: Error }> {
 		const logLevel = opts?.logLevel ?? 'info';
 
-		const event: ContentEvent = {
-			entry: normalizePath(rawEvent.entry),
+		const event = {
+			entry: pathToFileURL(rawEvent.entry),
 			name: rawEvent.name,
 		};
 
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = normalizePath(
-				path.relative(fileURLToPath(contentPaths.contentDir), event.entry)
+				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
 			);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
 			const isCollectionEvent = collection.split('/').length === 1;
@@ -103,7 +103,7 @@ export async function createContentTypesGenerator({
 			}
 			return { shouldGenerateTypes: true };
 		}
-		const fileType = getEntryType(event.entry, contentPaths);
+		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths);
 		if (fileType === 'generated-types') {
 			return { shouldGenerateTypes: false };
 		}
@@ -119,7 +119,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: true };
 		}
 		const entryInfo = getEntryInfo({
-			entryPath: event.entry,
+			entry: event.entry,
 			contentDir: contentPaths.contentDir,
 		});
 		// Not a valid `src/content/` entry. Silently return.
@@ -141,7 +141,9 @@ export async function createContentTypesGenerator({
 					logging,
 					'content',
 					`${cyan(
-						normalizePath(path.relative(fileURLToPath(contentPaths.contentDir), event.entry))
+						normalizePath(
+							path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+						)
 					)} must be nested in a collection directory. Skipping.`
 				);
 			}
@@ -244,10 +246,10 @@ function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey
 }
 
 export function getEntryInfo({
-	entryPath,
+	entry,
 	contentDir,
-}: Pick<ContentPaths, 'contentDir'> & { entryPath: string }): EntryInfo | Error {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL }): EntryInfo | Error {
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
 	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
 	if (!rawCollection) return new Error();
 

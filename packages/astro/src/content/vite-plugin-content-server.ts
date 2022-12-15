@@ -21,6 +21,7 @@ import {
 	getEntryInfo,
 	getEntryType,
 } from './types-generator.js';
+import { pathToFileURL } from 'node:url';
 
 interface AstroContentServerPluginParams {
 	fs: typeof fsMod;
@@ -108,8 +109,8 @@ export function astroContentServerPlugin({
 		{
 			name: 'astro-content-flag-plugin',
 			async load(id) {
-				const { pathname, searchParams } = new URL(id, 'file://');
-				if (isContentFlagImport({ pathname, searchParams })) {
+				const fileUrl = pathToFileURL(id);
+				if (isContentFlagImport(fileUrl)) {
 					if (contentConfigObserver.get().status === 'loading') {
 						await new Promise((resolve) => {
 							const unsubscribe = contentConfigObserver.subscribe((ctx) => {
@@ -121,19 +122,19 @@ export function astroContentServerPlugin({
 						});
 					}
 					const observable = contentConfigObserver.get();
-					const rawContents = await fs.promises.readFile(pathname, 'utf-8');
+					const rawContents = await fs.promises.readFile(fileUrl, 'utf-8');
 					const {
 						content: body,
 						data: unparsedData,
 						matter: rawData = '',
-					} = parseFrontmatter(rawContents, pathname);
+					} = parseFrontmatter(rawContents, fileUrl.pathname);
 					const entryInfo = getEntryInfo({
-						entryPath: pathname,
+						entry: fileUrl,
 						contentDir: contentPaths.contentDir,
 					});
 					if (entryInfo instanceof Error) return;
 
-					const _internal = { filePath: pathname, rawData };
+					const _internal = { filePath: fileUrl.pathname, rawData };
 					const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
 					const collectionConfig =
 						observable.status === 'loaded'
@@ -153,7 +154,7 @@ export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(body)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
-	filePath: ${JSON.stringify(pathname)},
+	filePath: ${JSON.stringify(fileUrl.pathname)},
 	rawData: ${JSON.stringify(rawData)},
 };
 `);
