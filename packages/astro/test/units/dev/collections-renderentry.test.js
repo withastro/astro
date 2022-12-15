@@ -7,7 +7,7 @@ import mdx from '../../../../integrations/mdx/dist/index.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-describe('Collections API - renderEntry', () => {
+describe.skip('Collections API - renderEntry', () => {
 	it('can be called in a page component', async () => {
 		const fs = createFsWithFallback(
 			{
