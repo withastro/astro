@@ -74,6 +74,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
+	const timer = performance.now();
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
