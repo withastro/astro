@@ -2,19 +2,13 @@ import { normalizePath } from 'vite';
 import glob from 'fast-glob';
 import fsMod from 'node:fs';
 import * as path from 'node:path';
-import { bold, cyan } from 'kleur/colors';
+import { cyan } from 'kleur/colors';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
-import { pathToFileURL } from 'node:url';
-import {
-	CollectionConfig,
-	ContentConfig,
-	loadContentConfig,
-	ContentPaths,
-	ContentObservable,
-} from './utils.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ContentConfig, loadContentConfig, ContentPaths, ContentObservable } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type ContentEvent = { name: ChokidarEvent; entry: string };
@@ -79,15 +73,22 @@ export async function createContentTypesGenerator({
 	}
 
 	async function handleEvent(
-		event: ContentEvent,
+		rawEvent: ContentEvent,
 		opts?: EventOpts
 	): Promise<{ shouldGenerateTypes: boolean; error?: Error }> {
 		const logLevel = opts?.logLevel ?? 'info';
 
+		const event: ContentEvent = {
+			entry: normalizePath(rawEvent.entry),
+			name: rawEvent.name,
+		};
+
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
-			const collection = path.relative(contentPaths.contentDir.pathname, event.entry);
+			const collection = normalizePath(
+				path.relative(fileURLToPath(contentPaths.contentDir), event.entry)
+			);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
-			const isCollectionEvent = collection.split(path.sep).length === 1;
+			const isCollectionEvent = collection.split('/').length === 1;
 			if (!isCollectionEvent) return { shouldGenerateTypes: false };
 			switch (event.name) {
 				case 'addDir':
@@ -140,7 +141,7 @@ export async function createContentTypesGenerator({
 					logging,
 					'content',
 					`${cyan(
-						path.relative(contentPaths.contentDir.pathname, event.entry)
+						normalizePath(path.relative(fileURLToPath(contentPaths.contentDir), event.entry))
 					)} must be nested in a collection directory. Skipping.`
 				);
 			}
@@ -249,16 +250,16 @@ export function getEntryInfo({
 	entryPath,
 	contentDir,
 }: Pick<ContentPaths, 'contentDir'> & { entryPath: string }): EntryInfo | Error {
-	const relativeEntryPath = normalizePath(path.relative(contentDir.pathname, entryPath));
-	const collection = path.dirname(relativeEntryPath).split(path.sep).shift();
-	if (!collection) return new Error();
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
+	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
+	if (!rawCollection) return new Error();
 
-	const id = path.relative(collection, relativeEntryPath);
+	const id = normalizePath(path.relative(rawCollection, rawRelativePath));
 	const slug = id.replace(path.extname(id), '');
 	return {
 		id,
 		slug,
-		collection,
+		collection: normalizePath(rawCollection),
 	};
 }
 
@@ -266,8 +267,8 @@ export function getEntryType(
 	entryPath: string,
 	paths: ContentPaths
 ): 'content' | 'config' | 'unknown' | 'generated-types' {
-	const { dir: unresolvedDir, ext, name, base } = path.parse(entryPath);
-	const dir = appendForwardSlash(pathToFileURL(unresolvedDir).href);
+	const { dir: rawDir, ext, name, base } = path.parse(entryPath);
+	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
 	if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
 	} else if (new URL(name, dir).pathname === paths.config.pathname) {
