@@ -71,7 +71,7 @@ export async function createContentTypesGenerator({
 		});
 		for (const entry of entries.filter(
 			// Config loading handled first. Avoid running twice.
-			(entry) => !entry.startsWith(contentPaths.config.pathname)
+			(e) => !e.startsWith(contentPaths.config.pathname)
 		)) {
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
