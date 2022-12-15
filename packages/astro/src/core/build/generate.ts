@@ -79,17 +79,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
-	if (opts.settings.config.experimental.prerender) {
-		// HACK: force output to be treated as ESM
-		try {
-			fs.writeFileSync(
-				new URL('./package.json', outFolder),
-				JSON.stringify({ type: 'module' }, null, 2)
-			);
-		} catch (e) {}
-
-		if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
-	}
+	if (opts.settings.config.experimental.prerender && opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
