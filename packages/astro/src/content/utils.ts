@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createServer, ErrorPayload as ViteErrorPayload, ViteDevServer } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
 import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
+import { fileURLToPath } from 'node:url';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -141,7 +142,7 @@ export async function loadContentConfig({
 }): Promise<ContentConfig | Error> {
 	const contentPaths = getContentPaths({ srcDir: settings.config.srcDir });
 	const tempConfigServer: ViteDevServer = await createServer({
-		root: settings.config.root.pathname,
+		root: fileURLToPath(settings.config.root),
 		server: { middlewareMode: true, hmr: false },
 		optimizeDeps: { entries: [] },
 		clearScreen: false,

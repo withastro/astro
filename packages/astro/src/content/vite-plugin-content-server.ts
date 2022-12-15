@@ -53,7 +53,7 @@ export function astroContentServerPlugin({
 					return;
 				}
 
-				if (mode === 'dev' || viteConfig.build?.ssr === true) {
+				if (contentDirExists && (mode === 'dev' || viteConfig.build?.ssr === true)) {
 					contentGenerator = await createContentTypesGenerator({
 						fs,
 						settings,
@@ -79,7 +79,7 @@ export function astroContentServerPlugin({
 					attachListeners();
 				} else {
 					viteServer.watcher.on('addDir', (dir) => {
-						if (dir === contentPaths.contentDir.pathname) {
+						if (pathToFileURL(dir).href === contentPaths.contentDir.href) {
 							info(logging, 'content', `Content dir found. Watching for changes`);
 							contentDirExists = true;
 							attachListeners();
