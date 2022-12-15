@@ -22,6 +22,7 @@ import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
+import { vitePluginPrerender } from './vite-plugin-prerender.js';
 import { rollupPluginAstroBuildCSS } from './vite-plugin-css.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
@@ -148,22 +149,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
-					manualChunks: opts.settings.config.experimental.prerender ? (id, api) => {
-						// Split the Astro runtime into a separate chunk for readability
-						if (id.includes('astro/dist')) {
-							return 'astro';
-						}
-						const pageInfo = internals.pagesByViteID.get(id);
-						if (pageInfo) {
-							// prerendered pages should be split into their own chunk
-							// Important: this can't be in the `pages/` directory!
-							if (api.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
-								return `prerender`;
-							}
-							// pages should go in their own chunks/pages/* directory
-							return `pages${pageInfo.route.route.replace(/\/$/, '/index')}`;
-						}
-					} : undefined,
 				},
 			},
 			ssr: true,
@@ -181,6 +166,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				internals,
 				target: 'server',
 			}),
+			vitePluginPrerender(opts, internals),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
