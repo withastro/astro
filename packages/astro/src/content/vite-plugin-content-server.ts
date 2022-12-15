@@ -9,10 +9,10 @@ import {
 	getEntryData,
 	getEntrySlug,
 	getContentPaths,
-	loadContentConfig,
 	contentObservable,
 	parseFrontmatter,
 	ContentPaths,
+	ContentConfig,
 } from './utils.js';
 import * as devalue from 'devalue';
 import {
@@ -111,17 +111,23 @@ export function astroContentServerPlugin({
 			async load(id) {
 				const fileUrl = pathToFileURL(id);
 				if (isContentFlagImport(fileUrl)) {
-					if (contentConfigObserver.get().status === 'loading') {
-						await new Promise((resolve) => {
+					const observable = contentConfigObserver.get();
+					let contentConfig: ContentConfig | undefined =
+						observable.status === 'loaded' ? observable.config : undefined;
+					if (observable.status === 'loading') {
+						// Wait for config to load
+						contentConfig = await new Promise((resolve) => {
 							const unsubscribe = contentConfigObserver.subscribe((ctx) => {
 								if (ctx.status === 'loaded') {
+									resolve(ctx.config);
 									unsubscribe();
+								} else if (ctx.status === 'error') {
 									resolve(undefined);
+									unsubscribe();
 								}
 							});
 						});
 					}
-					const observable = contentConfigObserver.get();
 					const rawContents = await fs.promises.readFile(fileUrl, 'utf-8');
 					const {
 						content: body,
@@ -136,10 +142,7 @@ export function astroContentServerPlugin({
 
 					const _internal = { filePath: fileUrl.pathname, rawData };
 					const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
-					const collectionConfig =
-						observable.status === 'loaded'
-							? observable.config.collections[entryInfo.collection]
-							: undefined;
+					const collectionConfig = contentConfig?.collections[entryInfo.collection];
 					const data = collectionConfig
 						? await getEntryData(partialEntry, collectionConfig)
 						: unparsedData;
