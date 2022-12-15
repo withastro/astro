@@ -109,7 +109,7 @@ export function astroContentServerPlugin({
 		{
 			name: 'astro-content-flag-plugin',
 			async load(id) {
-				const fileUrl = pathToFileURL(id);
+				const fileUrl = new URL(id, 'file://');
 				if (isContentFlagImport(fileUrl)) {
 					const observable = contentConfigObserver.get();
 					let contentConfig: ContentConfig | undefined =
