@@ -13,7 +13,8 @@ import { pagesVirtualModuleId } from '../app/index.js';
 import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { eachPageData, sortedCSS } from './internal.js';
+import { eachServerPageData, eachPrerenderedPageData, sortedCSS } from './internal.js';
+import { getOutFile, getOutFolder } from './common.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -42,6 +43,8 @@ const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	renderers: _main.renderers
 });
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
+
+export * from '${pagesVirtualModuleId}';
 
 ${
 	adapter.exports
@@ -136,7 +139,20 @@ function buildManifest(
 	const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
 	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
 
-	for (const pageData of eachPageData(internals)) {
+	for (const pageData of eachPrerenderedPageData(internals)) {
+		const outFolder = getOutFolder(opts.settings.config, pageData.route.pathname!, pageData.route.type);
+		const outFile = getOutFile(opts.settings.config, outFolder, pageData.route.pathname!, pageData.route.type);
+		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+		routes.push({
+			file,
+			links: [],
+			scripts: [],
+			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
+		});
+		staticFiles.push(file);
+	}
+
+	for (const pageData of eachServerPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			scripts.unshift(

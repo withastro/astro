@@ -561,7 +561,7 @@ function getOverlayCode() {
 }
 
 export function patchOverlay(code: string, config: AstroConfig) {
-	if (config.experimentalErrorOverlay) {
+	if (config.experimental.errorOverlay) {
 		return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
 	} else {
 		// Legacy overlay

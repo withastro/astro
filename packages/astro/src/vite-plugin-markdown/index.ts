@@ -158,6 +158,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 							clientOnlyComponents: [],
 							scripts: [],
 							propagation: 'none',
+							pageOptions: {},
 						} as PluginMetadata['astro'],
 						vite: {
 							lang: 'ts',

@@ -234,6 +234,7 @@ ${tsResult}`;
 					hydratedComponents: transformResult.hydratedComponents,
 					scripts: transformResult.scripts,
 					propagation: 'none',
+					pageOptions: {},
 				};
 
 				return {

@@ -83,6 +83,7 @@ export interface CLIFlags {
 	config?: string;
 	drafts?: boolean;
 	experimentalErrorOverlay?: boolean;
+	experimentalPrerender?: boolean;
 }
 
 export interface BuildConfig {
@@ -895,11 +896,41 @@ export interface AstroUserConfig {
 		astroFlavoredMarkdown?: boolean;
 	};
 
-	/**
-	 * @hidden
-	 * Turn on experimental support for the new error overlay component.
+		/**
+	 * @docs
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
 	 */
-	experimentalErrorOverlay?: boolean;
+	experimental?: {
+		/**
+			* @hidden
+			* Turn on experimental support for the new error overlay component.
+			*/
+		errorOverlay?: boolean;
+		/**
+		 * @docs
+		 * @name experimental.prerender
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.7.0
+		 * @description
+		 * Enable experimental support for prerendered pages when generating a server.
+		 *
+		 * To enable this feature, set `experimental.prerender` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		prerender: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		prerender?: boolean;
+	};
 
 	// Legacy options to be removed
 

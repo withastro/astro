@@ -1,4 +1,5 @@
 import npath from 'path';
+import { createHash } from 'crypto'
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { AstroConfig, RouteType } from '../../@types/astro';
 import { appendForwardSlash } from '../../core/path.js';
@@ -7,7 +8,11 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	return new URL('./', astroConfig.outDir);
+	if (astroConfig.output === 'static') {
+		return new URL('./', astroConfig.outDir);
+	} else {
+		return new URL('./', astroConfig.build.client);
+	}
 }
 
 export function getOutFolder(
@@ -41,7 +46,7 @@ export function getOutFile(
 	astroConfig: AstroConfig,
 	outFolder: URL,
 	pathname: string,
-	routeType: RouteType
+	routeType: RouteType,
 ): URL {
 	switch (routeType) {
 		case 'endpoint':

@@ -1,5 +1,6 @@
 import type { InlineConfig } from 'vite';
 import type {
+	AstroConfig,
 	AstroSettings,
 	BuildConfig,
 	ComponentInstance,
@@ -13,6 +14,7 @@ import type { RouteCache } from '../render/route-cache';
 
 export type ComponentPath = string;
 export type ViteID = string;
+export type PageOutput = AstroConfig['output']
 
 export interface PageBuildData {
 	component: ComponentPath;

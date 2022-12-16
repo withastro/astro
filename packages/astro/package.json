@@ -123,7 +123,7 @@
     "debug": "^4.3.4",
     "deepmerge-ts": "^4.2.2",
     "diff": "^5.1.0",
-    "es-module-lexer": "^0.10.5",
+    "es-module-lexer": "^1.1.0",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
     "github-slugger": "^1.4.0",

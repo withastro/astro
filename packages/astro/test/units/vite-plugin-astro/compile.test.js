@@ -70,8 +70,9 @@ const name = 'world
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
 		await init;
 		const [, exports] = parse(result.code);
-		expect(exports).to.include('default');
-		expect(exports).to.include('file');
-		expect(exports).to.include('url');
+		const names = exports.map(e => e.n);
+		expect(names).to.include('default');
+		expect(names).to.include('file');
+		expect(names).to.include('url');
 	});
 });

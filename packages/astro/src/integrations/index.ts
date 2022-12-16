@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { bold } from 'kleur/colors';
 import type { AddressInfo } from 'net';
 import { fileURLToPath } from 'node:url';
@@ -345,6 +346,7 @@ export async function runHookBuildDone({
 	logging: LogOptions;
 }) {
 	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
