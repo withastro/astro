@@ -237,7 +237,7 @@ describe('Content Collections - render()', () => {
 
 					const blog = await getCollection('blog');
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
-					const await mod = launchWeekEntry.render();
+					const mod = await launchWeekEntry.render();
 
 					Content = mod.Content;
 				`,
