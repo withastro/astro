@@ -1,28 +1,28 @@
-import type { Plugin } from 'vite';
-import fsMod from 'node:fs';
-import { cyan } from 'kleur/colors';
-import { info, LogOptions } from '../core/logger/core.js';
-import type { AstroSettings } from '../@types/astro.js';
-import { contentFileExts, CONTENT_FLAG } from './consts.js';
-import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
-import {
-	getEntryData,
-	getEntrySlug,
-	getContentPaths,
-	contentObservable,
-	parseFrontmatter,
-	ContentPaths,
-	ContentConfig,
-} from './utils.js';
 import * as devalue from 'devalue';
+import { cyan } from 'kleur/colors';
+import fsMod from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import type { Plugin } from 'vite';
+import type { AstroSettings } from '../@types/astro.js';
+import { info, LogOptions } from '../core/logger/core.js';
+import { prependForwardSlash } from '../core/path.js';
+import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
+import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import {
 	createContentTypesGenerator,
 	GenerateContentTypes,
 	getEntryInfo,
 	getEntryType,
 } from './types-generator.js';
-import { pathToFileURL } from 'node:url';
-import { prependForwardSlash } from '../core/path.js';
+import {
+	ContentConfig,
+	contentObservable,
+	ContentPaths,
+	getContentPaths,
+	getEntryData,
+	getEntrySlug,
+	parseFrontmatter,
+} from './utils.js';
 
 interface AstroContentServerPluginParams {
 	fs: typeof fsMod;

@@ -5,6 +5,7 @@ import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
+import { astroBundleDelayedAssetPlugin } from '../../content/index.js';
 import {
 	BuildInternals,
 	createBuildInternals,
@@ -14,7 +15,6 @@ import { emptyDir, removeDir } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { astroBundleDelayedAssetPlugin } from '../../content/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';

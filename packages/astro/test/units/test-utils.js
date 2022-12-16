@@ -40,10 +40,10 @@ class VirtualVolumeWithFallback extends VirtualVolume {
 	readFile(p, ...args) {
 		const cb = args[args.length - 1];
 		const argsMinusCallback = args.slice(0, args.length - 1);
-		return super.readFile(p, ...argsMinusCallback, function(err, data) {
-			if(err) {
-				realFS.readFile(p, ...argsMinusCallback, function(err2, data2) {
-					if(err2) {
+		return super.readFile(p, ...argsMinusCallback, function (err, data) {
+			if (err) {
+				realFS.readFile(p, ...argsMinusCallback, function (err2, data2) {
+					if (err2) {
 						cb(err);
 					} else {
 						cb(null, data2);

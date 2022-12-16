@@ -4,9 +4,9 @@ import {
 	createComponent,
 	createHeadAndContent,
 	renderComponent,
+	renderStyleElement,
 	renderTemplate,
 	renderUniqueStylesheet,
-	renderStyleElement,
 	unescapeHTML,
 } from '../runtime/server/index.js';
 

@@ -1,14 +1,14 @@
-import { normalizePath } from 'vite';
 import glob from 'fast-glob';
+import { cyan } from 'kleur/colors';
 import fsMod from 'node:fs';
 import * as path from 'node:path';
-import { cyan } from 'kleur/colors';
-import { info, LogOptions, warn } from '../core/logger/core.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import { info, LogOptions, warn } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { ContentConfig, loadContentConfig, ContentPaths, ContentObservable } from './utils.js';
+import { ContentConfig, ContentObservable, ContentPaths, loadContentConfig } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };

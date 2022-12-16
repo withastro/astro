@@ -17,11 +17,11 @@ export {
 	renderHTMLElement,
 	renderPage,
 	renderSlot,
+	renderStyleElement,
 	renderTemplate as render,
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
-	renderStyleElement,
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';

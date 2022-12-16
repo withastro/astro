@@ -1,7 +1,7 @@
-import type { Plugin } from 'vite';
-import { normalizePath } from 'vite';
 import fsMod from 'node:fs';
 import * as path from 'node:path';
+import type { Plugin } from 'vite';
+import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_FILE, VIRTUAL_MODULE_ID } from './consts.js';

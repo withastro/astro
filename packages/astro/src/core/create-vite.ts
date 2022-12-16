@@ -5,6 +5,11 @@ import nodeFs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import {
+	astroContentServerPlugin,
+	astroContentVirtualModPlugin,
+	astroDelayedAssetPlugin,
+} from '../content/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -22,11 +27,6 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
 import { resolveDependency } from './util.js';
-import {
-	astroContentServerPlugin,
-	astroContentVirtualModPlugin,
-	astroDelayedAssetPlugin,
-} from '../content/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;

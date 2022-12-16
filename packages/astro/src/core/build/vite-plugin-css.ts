@@ -1,13 +1,14 @@
-import type { GetModuleInfo } from 'rollup';
-import type { BuildInternals } from './internal';
-import type { PageBuildData, StaticBuildOptions } from './types';
 import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
+import type { GetModuleInfo } from 'rollup';
 import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import { isCSSRequest } from '../render/util.js';
+import type { BuildInternals } from './internal';
+import type { PageBuildData, StaticBuildOptions } from './types';
 
+import { DELAYED_ASSET_FLAG } from '../../content/consts.js';
 import * as assetName from './css-asset-name.js';
-import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
@@ -15,7 +16,6 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
-import { DELAYED_ASSET_FLAG } from '../../content/consts.js';
 
 interface PluginOptions {
 	internals: BuildInternals;

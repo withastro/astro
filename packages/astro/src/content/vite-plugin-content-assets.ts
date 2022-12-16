@@ -1,10 +1,10 @@
+import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
-import { getStylesForURL } from '../core/render/dev/css.js';
-import { pathToFileURL } from 'url';
+import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
+import { getStylesForURL } from '../core/render/dev/css.js';
 import {
 	contentFileExts,
 	DELAYED_ASSET_FLAG,

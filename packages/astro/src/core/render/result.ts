@@ -100,9 +100,7 @@ class Slots {
 			);
 		} else if (args.length > 0) {
 			const slotValue = this.#slots[name];
-			const component = typeof slotValue === 'function' ?
-				await slotValue() :
-				await slotValue;
+			const component = typeof slotValue === 'function' ? await slotValue() : await slotValue;
 
 			// Astro
 			const expression = getFunctionExpression(component);

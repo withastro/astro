@@ -1,8 +1,8 @@
 // astro-head-inject
 import {
+	createCollectionToGlobResultMap,
 	createGetCollection,
 	createGetEntry,
-	createCollectionToGlobResultMap,
 } from 'astro/content/internal';
 
 export { z } from 'astro/zod';

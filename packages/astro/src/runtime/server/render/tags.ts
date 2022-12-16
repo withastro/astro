@@ -6,8 +6,8 @@ const stylesheetRel = 'stylesheet';
 export function renderStyleElement(children: string) {
 	return renderElement('style', {
 		props: {},
-		children
-	})
+		children,
+	});
 }
 
 export function renderStylesheet({ href }: { href: string }) {
