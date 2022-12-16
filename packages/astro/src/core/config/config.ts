@@ -106,6 +106,10 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 				: undefined,
 		experimentalPrerender:
 			typeof flags.experimentalPrerender === 'boolean' ? flags.experimentalPrerender : undefined,
+		experimentalContentCollections:
+			typeof flags.experimentalContentCollections === 'boolean'
+				? flags.experimentalContentCollections
+				: undefined,
 	};
 }
 
@@ -136,6 +140,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	}
 	if (flags.experimentalErrorOverlay) astroConfig.experimental.errorOverlay = true;
 	if (flags.experimentalPrerender) astroConfig.experimental.prerender = true;
+	if (flags.experimentalContentCollections) astroConfig.experimental.contentCollections = true;
 	return astroConfig;
 }
 

@@ -47,6 +47,7 @@
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./content/internal": "./dist/content/internal.js",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
@@ -62,7 +63,11 @@
     "./vite-plugin-markdown-legacy/*": "./dist/vite-plugin-markdown-legacy/*",
     "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
     "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
-    "./dist/jsx/*": "./dist/jsx/*"
+    "./dist/jsx/*": "./dist/jsx/*",
+    "./zod": {
+      "types": "./zod.d.ts",
+      "default": "./zod.mjs"
+    }
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -77,6 +82,8 @@
     "astro.js",
     "config.d.ts",
     "config.mjs",
+    "zod.d.ts",
+    "zod.mjs",
     "env.d.ts",
     "client.d.ts",
     "client-base.d.ts",
@@ -84,7 +91,8 @@
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
-    "vendor"
+    "vendor",
+    "src/content/template"
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
@@ -122,6 +130,7 @@
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
     "deepmerge-ts": "^4.2.2",
+    "devalue": "^4.2.0",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.1.0",
     "execa": "^6.1.0",

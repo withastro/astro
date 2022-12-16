@@ -1,4 +1,9 @@
-export type { AstroComponentFactory, AstroComponentInstance } from './astro/index';
+export type {
+	AstroComponentFactory,
+	AstroComponentInstance,
+	ComponentSlots as AstroComponentSlots,
+	ComponentSlotsWithValues as AstroComponentSlotsWithValues,
+} from './astro/index';
 export {
 	createHeadAndContent,
 	renderAstroTemplateResult,
@@ -11,6 +16,6 @@ export { renderHTMLElement } from './dom.js';
 export { maybeRenderHead, renderHead } from './head.js';
 export { renderPage } from './page.js';
 export { renderSlot } from './slot.js';
-export { renderUniqueStylesheet } from './stylesheet.js';
+export { renderStyleElement, renderUniqueStylesheet } from './tags.js';
 export type { RenderInstruction } from './types';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';

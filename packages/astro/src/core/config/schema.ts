@@ -50,6 +50,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	experimental: {
 		errorOverlay: false,
 		prerender: false,
+		contentCollections: false,
 	},
 };
 
@@ -195,6 +196,10 @@ export const AstroConfigSchema = z.object({
 		.object({
 			errorOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.errorOverlay),
 			prerender: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
+			contentCollections: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollections),
 		})
 		.optional()
 		.default({}),

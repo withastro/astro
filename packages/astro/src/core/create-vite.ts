@@ -5,6 +5,11 @@ import nodeFs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import {
+	astroContentServerPlugin,
+	astroContentVirtualModPlugin,
+	astroDelayedAssetPlugin,
+} from '../content/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -116,6 +121,13 @@ export async function createVite(
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPropagationPlugin({ settings }),
 			settings.config.experimental.prerender && astroScannerPlugin({ settings, logging }),
+			...(settings.config.experimental.contentCollections
+				? [
+						astroContentVirtualModPlugin({ settings }),
+						astroContentServerPlugin({ fs, settings, logging, mode }),
+						astroDelayedAssetPlugin({ mode }),
+				  ]
+				: []),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

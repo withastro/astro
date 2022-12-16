@@ -99,7 +99,8 @@ class Slots {
 				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 			);
 		} else if (args.length > 0) {
-			const component = await this.#slots[name]();
+			const slotValue = this.#slots[name];
+			const component = typeof slotValue === 'function' ? await slotValue() : await slotValue;
 
 			// Astro
 			const expression = getFunctionExpression(component);

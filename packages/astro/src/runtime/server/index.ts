@@ -17,6 +17,7 @@ export {
 	renderHTMLElement,
 	renderPage,
 	renderSlot,
+	renderStyleElement,
 	renderTemplate as render,
 	renderTemplate,
 	renderToString,
@@ -27,6 +28,8 @@ export {
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
+	AstroComponentSlots,
+	AstroComponentSlotsWithValues,
 	RenderInstruction,
 } from './render/index.js';
 
