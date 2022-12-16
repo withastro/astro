@@ -84,6 +84,7 @@ export interface CLIFlags {
 	drafts?: boolean;
 	experimentalErrorOverlay?: boolean;
 	experimentalPrerender?: boolean;
+	experimentalContentCollections?: boolean;
 }
 
 export interface BuildConfig {
