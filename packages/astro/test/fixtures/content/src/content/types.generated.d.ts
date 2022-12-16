@@ -2,9 +2,6 @@ declare module 'astro:content' {
 	export { z } from 'astro/zod';
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		typeof entryMap[C][keyof typeof entryMap[C]] & Render;
-	export function collectionToPaths<C extends keyof typeof entryMap>(
-		collection: C
-	): Promise<import('astro').GetStaticPathsResult>;
 
 	type BaseCollectionConfig<S extends import('astro/zod').ZodRawShape> = {
 		schema?: S;
