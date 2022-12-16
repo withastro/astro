@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 0.13.0
+
+### Minor Changes
+
+- [#5291](https://github.com/withastro/astro/pull/5291) [`5ec0f6ed5`](https://github.com/withastro/astro/commit/5ec0f6ed55b0a14a9663a90a03428345baf126bd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce Content Collections experimental API
+  - Organize your Markdown and MDX content into easy-to-manage collections.
+  - Add type safety to your frontmatter with schemas.
+  - Generate landing pages, static routes, and SSR endpoints from your content using the collection query APIs.
+
 ## 0.12.2
 
 ### Patch Changes
