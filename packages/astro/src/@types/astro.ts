@@ -917,7 +917,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 1.7.0
 		 * @description
-		 * Enable experimental support for Prerendered pages when generating a server.
+		 * Enable experimental support for prerendered pages when generating a server.
 		 *
 		 * To enable this feature, set `experimental.prerender` to `true` in your Astro config:
 		 *
