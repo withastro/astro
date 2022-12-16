@@ -51,14 +51,18 @@ export function remarkInitializeAstroData() {
 	};
 }
 
-const EXPORT_NAME = 'frontmatter';
-
 export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any>) {
 	return function (tree: any, vfile: VFile) {
 		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
 		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
 		const exportNodes = [
-			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
+			jsToTreeNode(
+				`export const frontmatter = ${JSON.stringify(
+					frontmatter
+				)};\nexport const _internal = { injectedFrontmatter: ${JSON.stringify(
+					injectedFrontmatter
+				)} };`
+			),
 		];
 		if (frontmatter.layout) {
 			// NOTE(bholmesdev) 08-22-2022
@@ -69,7 +73,7 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 				jsToTreeNode(
 					/** @see 'vite-plugin-markdown' for layout props reference */
 					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
-				
+
 				export default async function ({ children }) {
 					const Layout = (await import(${JSON.stringify(frontmatter.layout)})).default;
 					const { layout, ...content } = frontmatter;

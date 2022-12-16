@@ -1,22 +1,26 @@
 import { SSRResult } from '../../../@types/astro';
-import { markHTMLString } from '../escape.js';
 import { renderElement } from './util.js';
 
 const stylesheetRel = 'stylesheet';
 
+export function renderStyleElement(children: string) {
+	return renderElement('style', {
+		props: {},
+		children
+	})
+}
+
 export function renderStylesheet({ href }: { href: string }) {
-	return markHTMLString(
-		renderElement(
-			'link',
-			{
-				props: {
-					rel: stylesheetRel,
-					href,
-				},
-				children: '',
+	return renderElement(
+		'link',
+		{
+			props: {
+				rel: stylesheetRel,
+				href,
 			},
-			false
-		)
+			children: '',
+		},
+		false
 	);
 }
 

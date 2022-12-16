@@ -1,12 +1,13 @@
 import type { GetModuleInfo } from 'rollup';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
-
+import * as crypto from 'node:crypto';
+import * as npath from 'node:path';
 import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 
 import * as assetName from './css-asset-name.js';
-import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
@@ -14,6 +15,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
+import { DELAYED_ASSET_FLAG } from '../../content/consts.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -26,6 +28,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 	const { settings } = buildOptions;
 
 	let resolvedConfig: ResolvedConfig;
+
+	function createNameHash(baseId: string, hashIds: string[]): string {
+		const baseName = baseId ? npath.parse(baseId).name : 'index';
+		const hash = crypto.createHash('sha256');
+		for (const id of hashIds) {
+			hash.update(id, 'utf-8');
+		}
+		const h = hash.digest('hex').slice(0, 8);
+		const proposedName = baseName + '.' + h;
+		return proposedName;
+	}
 
 	function* getParentClientOnlys(
 		id: string,
@@ -63,6 +76,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					// For CSS, create a hash of all of the pages that use it.
 					// This causes CSS to be built into shared chunks when used by multiple pages.
 					if (isCSSRequest(id)) {
+						if (settings.config.experimental.contentCollections) {
+							for (const [pageInfo] of walkParentInfos(id, {
+								getModuleInfo: args[0].getModuleInfo,
+							})) {
+								if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
+									// Split delayed assets to separate modules
+									// so they can be injected where needed
+									return createNameHash(id, [id]);
+								}
+							}
+						}
 						return createNameForParentPages(id, args[0]);
 					}
 				};
@@ -105,6 +129,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 				for (const [_, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'chunk') {
 						const c = chunk;
+
 						if ('viteMetadata' in chunk) {
 							const meta = chunk['viteMetadata'] as ViteMetadata;
 
@@ -145,8 +170,39 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const id of Object.keys(c.modules)) {
-									for (const [pageInfo, depth, order] of walkParentInfos(id, this)) {
-										if (moduleIsTopLevelPage(pageInfo)) {
+									for (const [pageInfo, depth, order] of walkParentInfos(
+										id,
+										this,
+										function until(importer) {
+											if (settings.config.experimental.contentCollections) {
+												// Short circuit when `contentCollections` is enabled.
+												return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
+											}
+											return false;
+										}
+									)) {
+										if (
+											settings.config.experimental.contentCollections &&
+											new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)
+										) {
+											for (const parent of walkParentInfos(id, this)) {
+												const parentInfo = parent[0];
+												if (moduleIsTopLevelPage(parentInfo)) {
+													const pageViteID = parentInfo.id;
+													const pageData = getPageDataByViteID(internals, pageViteID);
+													if (pageData) {
+														for (const css of meta.importedCss) {
+															const existingCss =
+																pageData.contentCollectionCss.get(pageInfo.id) ?? new Set();
+															pageData.contentCollectionCss.set(
+																pageInfo.id,
+																new Set([...existingCss, css])
+															);
+														}
+													}
+												}
+											}
+										} else if (moduleIsTopLevelPage(pageInfo)) {
 											const pageViteID = pageInfo.id;
 											const pageData = getPageDataByViteID(internals, pageViteID);
 											if (pageData) {

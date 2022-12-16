@@ -21,12 +21,15 @@ export {
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
+	renderStyleElement,
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
+	AstroComponentSlots,
+	AstroComponentSlotsWithValues,
 	RenderInstruction,
 } from './render/index.js';
 
