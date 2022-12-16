@@ -401,9 +401,13 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	InvalidPrerenderExport: {
 		title: 'Invalid prerender export.',
 		code: 3019,
-		message: (expr: string) =>
-			`A \`prerender\` export has been detected, but its value cannot be statically analyzed. Expected \`true\` but got \`${expr}\`.`,
-		hint: 'Values computed at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
+		message: (prefix: string, suffix: string) => {
+			let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
+			if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`
+			if (suffix !== 'true') msg += `\nExpected \`true\` value but got \`${suffix}\`.`
+			return msg;
+		},
+		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
 	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {

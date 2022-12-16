@@ -17,9 +17,14 @@ describe('astro scan', () => {
 		expect(result.prerender).to.equal(false);
 	});
 
-	it('recognizes let boolean literal', async () => {
-		const result = await scan(`export let prerender = true;`, '/src/components/index.astro');
-		expect(result.prerender).to.equal(true);
+	it('throws on let boolean literal', async () => {
+		try {
+			const result = await scan(`export let prerender = true;`, '/src/components/index.astro');
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`);
+		}
 	});
 
 	it('throws on unknown values I', async () => {

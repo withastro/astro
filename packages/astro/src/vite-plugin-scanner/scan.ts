@@ -27,17 +27,20 @@ export async function scan(code: string, id: string): Promise<PageOptions> {
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
 		if (BOOLEAN_EXPORTS.has(name)) {
+			// For a given export, check the value of the local declaration
+			// Basically extract the `const` from the statement `export const prerender = true`
+			const prefix = code.slice(0, endOfLocalName).split('export').pop()!.trim().replace('prerender', '').trim();
 			// For a given export, check the value of the first non-whitespace token. 
 			// Basically extract the `true` from the statement `export const prerender = true`
-			let expr = code.slice(endOfLocalName).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
-			if (!(expr === 'true' || expr === 'false')) {
+			const suffix = code.slice(endOfLocalName).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
+			if (prefix !== 'const' || !(suffix === 'true' || suffix === 'false')) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
-					message: AstroErrorData.InvalidPrerenderExport.message(expr),
+					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix),
 					location: { file: id }
 				});
 			} else {
-				pageOptions[name as keyof PageOptions] = expr === 'true';
+				pageOptions[name as keyof PageOptions] = suffix === 'true';
 			}
 		}
 	}
