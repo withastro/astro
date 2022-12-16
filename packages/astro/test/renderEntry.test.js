@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, isWindows } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-describe.skip('Content Collections - render()', () => {
+describe('Content Collections - render()', () => {
+	test.skip(isWindows, 'TODO: fix renderentry tests on windows');
+
 	describe('Build - SSG', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;

@@ -2,12 +2,14 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFsWithFallback, createRequestAndResponse } from '../test-utils.js';
+import { createFsWithFallback, createRequestAndResponse, isWindows } from '../test-utils.js';
 import mdx from '../../../../integrations/mdx/dist/index.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-describe.skip('Content Collections - render()', () => {
+describe('Content Collections - render()', () => {
+	test.skip(isWindows, 'TODO: fix renderentry tests on windows');
+
 	it('can be called in a page component', async () => {
 		const fs = createFsWithFallback(
 			{
