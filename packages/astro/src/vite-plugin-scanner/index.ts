@@ -1,21 +1,12 @@
 import { Plugin as VitePlugin } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
-import ancestor from 'common-ancestor-path';
 import { isPage, isEndpoint } from '../core/util.js';
 import type { LogOptions } from '../core/logger/core.js';
-import { error } from '../core/logger/core.js';
-import * as colors from 'kleur/colors';
+import { normalizeFilename } from '../vite-plugin-utils/index.js';
+
 import { scan } from './scan.js';
 
 export default function astroScannerPlugin({ settings, logging }: { settings: AstroSettings, logging: LogOptions }): VitePlugin {
-	function normalizeFilename(filename: string) {
-		if (filename.startsWith('/@fs')) {
-			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, settings.config.root.pathname)) {
-			filename = new URL('.' + filename, settings.config.root).pathname;
-		}
-		return filename;
-	}
 	return {
 		name: 'astro:scanner',
 		enforce: 'post',
@@ -23,7 +14,7 @@ export default function astroScannerPlugin({ settings, logging }: { settings: As
 		async transform(this, code, id, options) {
 			if (!options?.ssr) return;
 
-			const filename = normalizeFilename(id);
+			const filename = normalizeFilename(id, settings.config);
 			let fileURL: URL;
 			try {
 				fileURL = new URL(`file://${filename}`);
