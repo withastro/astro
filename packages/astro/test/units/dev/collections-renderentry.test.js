@@ -7,9 +7,9 @@ import mdx from '../../../../integrations/mdx/dist/index.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-describe('Content Collections - render()', () => {
-	test.skip(isWindows, 'TODO: fix renderentry tests on windows');
+const describe = isWindows ? global.describe.skip : global.describe;
 
+describe('Content Collections - render()', () => {
 	it('can be called in a page component', async () => {
 		const fs = createFsWithFallback(
 			{

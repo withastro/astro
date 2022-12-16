@@ -3,9 +3,9 @@ import * as cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-describe('Content Collections - render()', () => {
-	test.skip(isWindows, 'TODO: fix renderentry tests on windows');
+const describe = isWindows ? global.describe.skip : global.describe;
 
+describe('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
