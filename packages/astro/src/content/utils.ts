@@ -5,6 +5,7 @@ import { createServer, ErrorPayload as ViteErrorPayload, ViteDevServer } from 'v
 import { AstroSettings } from '../@types/astro.js';
 import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
 import { fileURLToPath } from 'node:url';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -64,20 +65,22 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
-			const formattedError = new Error(
-				[
-					`Could not parse frontmatter in ${String(entry.collection)} → ${String(entry.id)}`,
-					...parsed.error.errors.map((zodError) => zodError.message),
-				].join('\n')
-			);
-			(formattedError as any).loc = {
-				file: entry._internal.filePath,
-				line: getFrontmatterErrorLine(
-					entry._internal.rawData,
-					String(parsed.error.errors[0].path[0])
+			const formattedError = new AstroError({
+				...AstroErrorData.MarkdownContentSchemaValidationError,
+				message: AstroErrorData.MarkdownContentSchemaValidationError.message(
+					entry.collection,
+					entry.id,
+					parsed.error
 				),
-				column: 1,
-			};
+				location: {
+					file: entry._internal.filePath,
+					line: getFrontmatterErrorLine(
+						entry._internal.rawData,
+						String(parsed.error.errors[0].path[0])
+					),
+					column: 0,
+				},
+			});
 			throw formattedError;
 		}
 	}

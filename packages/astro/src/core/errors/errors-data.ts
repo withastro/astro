@@ -2,6 +2,8 @@
 // Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
+import type { ZodError } from 'zod';
+
 interface ErrorData {
 	code: number;
 	title: string;
@@ -490,6 +492,30 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	MarkdownFrontmatterParseError: {
 		title: 'Failed to parse Markdown frontmatter.',
 		code: 6001,
+	},
+	/**
+	 * @docs
+	 * @message
+	 * **Example error message:**<br/>
+	 * Could not parse frontmatter in **blog** → **post.md**<br/>
+	 * "title" is required.<br/>
+	 * "date" must be a valid date.
+	 * @description
+	 * A Markdown document's frontmatter in `src/content/` does not match your collection schema.
+	 * Make sure that all required fields are present, and that all fields are of the correct type.
+	 * You can check against the collection schema in your `src/content/config` file.
+	 * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections) for more information.
+	 */
+	MarkdownContentSchemaValidationError: {
+		title: 'Content collection frontmatter invalid.',
+		code: 6002,
+		message: (collection: string, entryId: string, error: ZodError) => {
+			return [
+				`${String(collection)} → ${String(entryId)} frontmatter does not match collection schema.`,
+				...error.errors.map((zodError) => zodError.message),
+			].join('\n');
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections for more information on content schemas.',
 	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {
