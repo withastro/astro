@@ -927,6 +927,7 @@ export interface AstroUserConfig {
 		 *		prerender: true,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		prerender?: boolean;
 	};
