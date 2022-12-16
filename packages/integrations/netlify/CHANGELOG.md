@@ -1,5 +1,22 @@
 # @astrojs/netlify
 
+## 1.3.0
+
+### Minor Changes
+
+- [#5297](https://github.com/withastro/astro/pull/5297) [`d2960984c`](https://github.com/withastro/astro/commit/d2960984c59af7b60a3ea472c6c58fb00534a8e6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Introduces the **experimental** Prerender API.
+
+  > **Note**
+  > This API is not yet stable and is subject to possible breaking changes!
+
+  - Deploy an Astro server without sacrificing the speed or cacheability of static HTML.
+  - The Prerender API allows you to statically prerender specific `pages/` at build time.
+
+  **Usage**
+
+  - First, run `astro build --experimental-prerender` or enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
+  - Then, include `export const prerender = true` in any file in the `pages/` directory that you wish to prerender.
+
 ## 1.2.2
 
 ### Patch Changes
