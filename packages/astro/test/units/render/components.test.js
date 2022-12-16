@@ -14,12 +14,14 @@ describe('core/render components', () => {
 			{
 				'/src/pages/index.astro': `
 				---
-				const Tag = 'p style=color:red;'
+				const TagA = 'p style=color:red;'
+				const TagB = 'p><script id="pwnd">console.log("pwnd")</script>'
 				---
 				<html>
 					<head><title>testing</title></head>
 					<body>
-						<Tag id="target" />
+						<TagA id="target" />
+						<TagB />
 					</body>
 				</html>
 			`,
@@ -55,6 +57,8 @@ describe('core/render components', () => {
 				expect(target).not.to.be.undefined;
 				expect(target.attr('id')).to.equal('target');
 				expect(target.attr('style')).to.be.undefined;
+
+				expect($('#pwnd').length).to.equal(0);
 			}
 		);
 	});

@@ -7,6 +7,7 @@ import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
+import { escapeHTML } from '../escape.js';
 import {
 	createAstroComponentInstance,
 	isAstroComponentFactory,
@@ -240,7 +241,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
 		// Sanitize tag name because some people might try to inject attributes 🙄
-		const Tag = Component.trim().split(/\s+/)[0].trim();
+		const Tag = sanitizeElementName(Component);
 		const childSlots = Object.values(children).join('');
 		const iterable = renderAstroTemplateResult(
 			await renderTemplate`<${Tag}${internalSpreadAttributes(props)}${markHTMLString(
@@ -322,6 +323,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	return renderAll();
+}
+
+function sanitizeElementName(tag: string) {
+	const unsafe = /[&<>'"\s]+/g;
+	if (!unsafe.test(tag)) return tag;
+	return tag.trim().split(unsafe)[0].trim();
 }
 
 async function renderFragmentComponent(result: SSRResult, slots: any = {}) {
