@@ -239,12 +239,14 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// This is a custom element without a renderer. Because of that, render it
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
+		// Sanitize tag name because some people might try to inject attributes 🙄
+		const Tag = sanitizeElementName(Component);
 		const childSlots = Object.values(children).join('');
 		const iterable = renderAstroTemplateResult(
-			await renderTemplate`<${Component}${internalSpreadAttributes(props)}${markHTMLString(
-				childSlots === '' && voidElementNames.test(Component)
+			await renderTemplate`<${Tag}${internalSpreadAttributes(props)}${markHTMLString(
+				childSlots === '' && voidElementNames.test(Tag)
 					? `/>`
-					: `>${childSlots}</${Component}>`
+					: `>${childSlots}</${Tag}>`
 			)}`
 		);
 		html = '';
@@ -320,6 +322,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	return renderAll();
+}
+
+function sanitizeElementName(tag: string) {
+	const unsafe = /[&<>'"\s]+/g;
+	if (!unsafe.test(tag)) return tag;
+	return tag.trim().split(unsafe)[0].trim();
 }
 
 async function renderFragmentComponent(result: SSRResult, slots: any = {}) {
