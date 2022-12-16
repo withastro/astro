@@ -7,7 +7,6 @@ import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { isPromise } from '../util.js';
-import { escapeHTML } from '../escape.js';
 import {
 	createAstroComponentInstance,
 	isAstroComponentFactory,
