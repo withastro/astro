@@ -22,9 +22,11 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
 import { resolveDependency } from './util.js';
-import { astroContentServerPlugin } from '../content/vite-plugin-content-server.js';
-import { astroContentVirtualModPlugin } from '../content/vite-plugin-content-virtual-mod.js';
-import { astroDelayedAssetPlugin } from '../content/vite-plugin-content-assets.js';
+import {
+	astroContentServerPlugin,
+	astroContentVirtualModPlugin,
+	astroDelayedAssetPlugin,
+} from '../content/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
