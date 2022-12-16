@@ -244,9 +244,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		const childSlots = Object.values(children).join('');
 		const iterable = renderAstroTemplateResult(
 			await renderTemplate`<${Tag}${internalSpreadAttributes(props)}${markHTMLString(
-				childSlots === '' && voidElementNames.test(Tag)
-					? `/>`
-					: `>${childSlots}</${Tag}>`
+				childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`
 			)}`
 		);
 		html = '';
