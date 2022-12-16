@@ -43,6 +43,8 @@ type RSSFeedItem = {
 	content?: string;
 	/** Append some other XML-valid data to this item */
 	customData?: string;
+	/** Whether draft or not */
+	draft?: boolean;
 };
 
 type GenerateRSSArgs = {
@@ -72,6 +74,7 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 				pubDate: frontmatter.pubDate,
 				description: frontmatter.description,
 				customData: frontmatter.customData,
+				draft: frontmatter.draft,
 			};
 		})
 	);
@@ -87,6 +90,7 @@ export default async function getRSS(rssOptions: RSSOptions) {
 
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
+		items = items.filter((item) => !item.draft);
 	}
 
 	return {
