@@ -52,7 +52,7 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 					for (const id of Object.keys(chunk.modules)) {
 						const pageData = internals.pagesByViteID.get(id);
 						if (pageData) {
-							internals.pageToBundleMap.set(pageData.moduleSpecifier, chunk.fileName)
+							internals.pageToBundleMap.set(pageData.moduleSpecifier, chunk.fileName);
 						}
 					}
 				}

@@ -17,10 +17,10 @@ import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
-import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import { resolveDependency } from './util.js';
 
 interface CreateViteOptions {

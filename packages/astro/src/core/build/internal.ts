@@ -1,9 +1,9 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
-import type { PageBuildData, PageOutput, ViteID } from './types';
+import type { PageBuildData, ViteID } from './types';
 
+import { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import { PageOptions } from '../../vite-plugin-astro/types';
 
 export interface BuildInternals {
 	/**
@@ -205,10 +205,10 @@ export function* eachPageData(internals: BuildInternals) {
 export function hasPrerenderedPages(internals: BuildInternals) {
 	for (const id of internals.pagesByViteID.keys()) {
 		if (internals.pageOptionsByPage.get(id)?.prerender) {
-			return true
+			return true;
 		}
 	}
-	return false
+	return false;
 }
 
 export function* eachPrerenderedPageData(internals: BuildInternals) {

@@ -896,7 +896,7 @@ export interface AstroUserConfig {
 		astroFlavoredMarkdown?: boolean;
 	};
 
-		/**
+	/**
 	 * @docs
 	 * @kind heading
 	 * @name Experimental Flags
@@ -906,9 +906,9 @@ export interface AstroUserConfig {
 	 */
 	experimental?: {
 		/**
-			* @hidden
-			* Turn on experimental support for the new error overlay component.
-			*/
+		 * @hidden
+		 * Turn on experimental support for the new error overlay component.
+		 */
 		errorOverlay?: boolean;
 		/**
 		 * @docs

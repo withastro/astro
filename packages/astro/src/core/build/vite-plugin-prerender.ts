@@ -2,7 +2,10 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types';
 
-export function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+export function vitePluginPrerender(
+	opts: StaticBuildOptions,
+	internals: BuildInternals
+): VitePlugin {
 	return {
 		name: 'astro:rollup-plugin-prerender',
 
@@ -39,5 +42,5 @@ export function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildIn
 				}
 			};
 		},
-	}
+	};
 }

@@ -13,8 +13,8 @@ import { pagesVirtualModuleId } from '../app/index.js';
 import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { eachServerPageData, eachPrerenderedPageData, sortedCSS } from './internal.js';
 import { getOutFile, getOutFolder } from './common.js';
+import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from './internal.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -140,8 +140,17 @@ function buildManifest(
 	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
 
 	for (const pageData of eachPrerenderedPageData(internals)) {
-		const outFolder = getOutFolder(opts.settings.config, pageData.route.pathname!, pageData.route.type);
-		const outFile = getOutFile(opts.settings.config, outFolder, pageData.route.pathname!, pageData.route.type);
+		const outFolder = getOutFolder(
+			opts.settings.config,
+			pageData.route.pathname!,
+			pageData.route.type
+		);
+		const outFile = getOutFile(
+			opts.settings.config,
+			outFolder,
+			pageData.route.pathname!,
+			pageData.route.type
+		);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
 			file,

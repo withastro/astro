@@ -1,5 +1,4 @@
 import npath from 'path';
-import { createHash } from 'crypto'
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { AstroConfig, RouteType } from '../../@types/astro';
 import { appendForwardSlash } from '../../core/path.js';
@@ -46,7 +45,7 @@ export function getOutFile(
 	astroConfig: AstroConfig,
 	outFolder: URL,
 	pathname: string,
-	routeType: RouteType,
+	routeType: RouteType
 ): URL {
 	switch (routeType) {
 		case 'endpoint':

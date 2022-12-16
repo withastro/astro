@@ -1,3 +1,4 @@
+import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
@@ -22,13 +23,12 @@ import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
-import { vitePluginPrerender } from './vite-plugin-prerender.js';
 import { rollupPluginAstroBuildCSS } from './vite-plugin-css.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
+import { vitePluginPrerender } from './vite-plugin-prerender.js';
 import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
-import * as eslexer from 'es-module-lexer';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;

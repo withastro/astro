@@ -1,8 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../app/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { BuildInternals, hasPrerenderedPages } from './internal.js';
-import { eachPageData } from './internal.js';
+import { BuildInternals, eachPageData, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {

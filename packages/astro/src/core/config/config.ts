@@ -105,9 +105,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 				? flags.experimentalErrorOverlay
 				: undefined,
 		experimentalPrerender:
-			typeof flags.experimentalPrerender === 'boolean'
-				? flags.experimentalPrerender
-				: undefined,
+			typeof flags.experimentalPrerender === 'boolean' ? flags.experimentalPrerender : undefined,
 	};
 }
 

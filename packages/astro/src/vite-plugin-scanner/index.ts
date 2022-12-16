@@ -1,12 +1,18 @@
 import { Plugin as VitePlugin } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
-import { isPage, isEndpoint } from '../core/util.js';
 import type { LogOptions } from '../core/logger/core.js';
+import { isEndpoint, isPage } from '../core/util.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
 
 import { scan } from './scan.js';
 
-export default function astroScannerPlugin({ settings, logging }: { settings: AstroSettings, logging: LogOptions }): VitePlugin {
+export default function astroScannerPlugin({
+	settings,
+	logging,
+}: {
+	settings: AstroSettings;
+	logging: LogOptions;
+}): VitePlugin {
 	return {
 		name: 'astro:scanner',
 		enforce: 'post',
@@ -26,7 +32,7 @@ export default function astroScannerPlugin({ settings, logging }: { settings: As
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const pageOptions = await scan(code, id)
+			const pageOptions = await scan(code, id);
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
 			return {
