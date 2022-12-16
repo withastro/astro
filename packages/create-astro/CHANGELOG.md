@@ -1,5 +1,13 @@
 # create-astro
 
+## 1.2.4
+
+### Patch Changes
+
+- [#5579](https://github.com/withastro/astro/pull/5579) [`2c2c65297`](https://github.com/withastro/astro/commit/2c2c65297a18c52691f09621ead55144efd601d4) Thanks [@yuhang-dong](https://github.com/yuhang-dong)! - Upgrade giget to support env proxy config
+
+- [#5616](https://github.com/withastro/astro/pull/5616) [`61302ab7a`](https://github.com/withastro/astro/commit/61302ab7a09cc4c298c903d725e35355eb069497) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Skip Houston on Windows until we can debug the prompt issue
+
 ## 1.2.3
 
 ### Patch Changes
