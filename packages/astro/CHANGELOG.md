@@ -1,5 +1,11 @@
 # astro
 
+## 1.7.1
+
+### Patch Changes
+
+- [#5617](https://github.com/withastro/astro/pull/5617) [`33dcaa05b`](https://github.com/withastro/astro/commit/33dcaa05bb821ff0c6d0c6021b912855386be340) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix error message when using Content Collections and an out-of-date `@astrojs/mdx` integration
+
 ## 1.7.0
 
 ### Minor Changes
