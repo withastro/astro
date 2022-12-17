@@ -395,6 +395,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message
+	 * **Example error messages:**<br/>
+	 * InvalidPrerenderExport: A \`prerender\` export has been detected, but its value cannot be statically analyzed.
 	 * @description
 	 * A `prerender` export was detected, but the value was not statically analyzable. Values computed at runtime are not supported, so `export const prerender` can only be set to `true` or `false`. Variables are not supported.
 	 */
