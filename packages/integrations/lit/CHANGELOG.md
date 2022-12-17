@@ -48,7 +48,7 @@
 
 ### Patch Changes
 
-- [#3511](https://github.com/withastro/astro/pull/3511) [`2fedb974`](https://github.com/withastro/astro/commit/2fedb974899b37a8d9ddabc476764a6d35d1e446) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Patch Lit's server shim to allow for `sass` compatability
+- [#3511](https://github.com/withastro/astro/pull/3511) [`2fedb974`](https://github.com/withastro/astro/commit/2fedb974899b37a8d9ddabc476764a6d35d1e446) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Patch Lit's server shim to allow for `sass` compatibility
 
 ## 0.1.4
 

@@ -48,7 +48,7 @@
 
 ### Minor Changes
 
-- [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Alway write chosen config to `tsconfig.json`.
+- [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Always write chosen config to `tsconfig.json`.
 
   - Before: Only when `strict` & `strictest` was selected
   - After: Also when `base` is selected (via "Relaxed" or "I prefer not to use TypeScript")
@@ -263,7 +263,7 @@
 
 ### Patch Changes
 
-- 0eeb2534: change rm to unlink for node 12 compatability
+- 0eeb2534: change rm to unlink for node 12 compatibility
 
 ## 0.6.2
 
@@ -314,7 +314,7 @@
 
 ### Minor Changes
 
-- 36e104b: Use new client: prefix for component exmaples
+- 36e104b: Use new client: prefix for component examples
 
 ## 0.4.0
 

@@ -375,7 +375,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
 	 * - [Adding an Adapter](https://docs.astro.build/en/guides/server-side-rendering/#adding-an-adapter)
 	 * @description
-	 * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targetted deployment platform.
+	 * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targeted deployment platform.
 	 */
 	NoAdapterInstalled: {
 		title: 'Cannot use Server-side Rendering without an adapter.',

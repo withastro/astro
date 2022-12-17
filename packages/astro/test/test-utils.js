@@ -58,7 +58,7 @@ export const defaultLogging = {
  *
  *   Dev
  *   .startDevServer() - Async. Starts a dev server at an available port. Be sure to call devServer.stop() before test exit.
- *   .fetch(url)       - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *   .fetch(url)       - Async. Returns a URL from the preview server (must have called .preview() before)
  *
  *   Preview
  *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
@@ -112,7 +112,7 @@ export async function loadFixture(inlineConfig) {
 	const resolveUrl = (url) =>
 		`http://${config.server.host}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
-	// A map of files that have been editted.
+	// A map of files that have been edited.
 	let fileEdits = new Map();
 
 	const resetAllFiles = () => {
