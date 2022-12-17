@@ -399,7 +399,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * **Example error messages:**<br/>
 	 * InvalidPrerenderExport: A `prerender` export has been detected, but its value cannot be statically analyzed.
 	 * @description
-	 * The `prerender` feature only supports a subset of valid JavaScript—be sure to use exactly `export const prerender = true` so that our compiler can detect this directive at build time. Variables, `let`, and `var` declarations are not supported.
+	 * The `prerender` feature only supports a subset of valid JavaScript — be sure to use exactly `export const prerender = true` so that our compiler can detect this directive at build time. Variables, `let`, and `var` declarations are not supported.
 	 */
 	InvalidPrerenderExport: {
 		title: 'Invalid prerender export.',
