@@ -138,9 +138,7 @@ async function render({
 	});
 
 	if (!mod._internal && id.endsWith('.mdx')) {
-		throw new Error(
-			`[Content] Failed to render MDX entry. Try installing @astrojs/mdx@next--content-schemas`
-		);
+		throw new Error(`[Content] Failed to render MDX entry. Try installing @astrojs/mdx@latest`);
 	}
 	return {
 		Content,
