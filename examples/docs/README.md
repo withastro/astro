@@ -148,7 +148,7 @@ export const SIDEBAR = {
 // ...
 ```
 
-If you plan to use Spanish as the the default language, you just need to modify the redirect path in `src/pages/index.astro`:
+If you plan to use Spanish as the default language, you just need to modify the redirect path in `src/pages/index.astro`:
 
 ```diff
 <script>

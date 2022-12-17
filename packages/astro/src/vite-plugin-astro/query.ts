@@ -12,7 +12,7 @@ export interface ParsedRequestResult {
 	query: AstroQuery;
 }
 
-// Parses an id to check if its an Astro request.
+// Parses an id to check if it's an Astro request.
 // CSS is imported like `import '/src/pages/index.astro?astro&type=style&index=0&lang.css';
 // This parses those ids and returns an object representing what it found.
 export function parseAstroRequest(id: string): ParsedRequestResult {
