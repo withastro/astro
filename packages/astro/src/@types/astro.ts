@@ -938,7 +938,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 1.7.0
 		 * @description
-		 * Enable experimental support for [Content Collections](/en/guides/content-collections). This makes the `src/content/` directory a reserved directory for Astro to manage, and introduces the `astro:content` module for querying this content.
+		 * Enable experimental support for [Content Collections](https://docs.astro.build/en/guides/content-collections/). This makes the `src/content/` directory a reserved directory for Astro to manage, and introduces the `astro:content` module for querying this content.
 		 *
 		 * To enable this feature, set `experimental.contentCollections` to `true` in your Astro config:
 		 *
