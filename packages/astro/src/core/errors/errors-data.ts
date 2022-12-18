@@ -507,7 +507,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * A Markdown document's frontmatter in `src/content/` does not match its collection schema.
 	 * Make sure that all required fields are present, and that all fields are of the correct type.
 	 * You can check against the collection schema in your `src/content/config.*` file.
-	 * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections) for more information.
+	 * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
 	 */
 	MarkdownContentSchemaValidationError: {
 		title: 'Content collection frontmatter invalid.',
@@ -518,7 +518,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 				...error.errors.map((zodError) => zodError.message),
 			].join('\n');
 		},
-		hint: 'See https://docs.astro.build/en/guides/content-collections for more information on content schemas.',
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
 	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {
