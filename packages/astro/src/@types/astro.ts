@@ -814,7 +814,7 @@ export interface AstroUserConfig {
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
 	 *
-	 * Read our [Integrations Guide](/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
@@ -881,9 +881,9 @@ export interface AstroUserConfig {
 		 * @version 1.0.0-rc.1
 		 * @description
 		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` (and alternative extensions for markdown files like ".markdown") Markdown files.
-		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](https://docs.astro.build/en/guides/integrations-guide/mdx/).
 		 *
-		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).
+		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](https://docs.astro.build/en/guides/configuring-astro/#the-astro-config-file).
 		 *
 		 * ```js
 		 * {
