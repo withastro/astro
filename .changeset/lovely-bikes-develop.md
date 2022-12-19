@@ -4,17 +4,13 @@
 
 Inject heading IDs after user rehype plugins run.
 
-This allows users to override Astro’s default ID generation algorithm with a standard tool like `rehype-slug` or any alternative.
+This allows users to override Astro’s default ID generation algorithm with a standard tool like `rehype-slug` or any alternative. It is also consistent with the order of execution in Markdown files in Astro.
 
 ⚠️ BREAKING CHANGE ⚠️
 
-If you are using a rehype plugin that depends on heading IDs injected by Astro, the IDs will no longer be available when your plugin runs.
+If you are using a rehype plugin that depends on heading IDs injected by Astro, the IDs will no longer be available when your plugin runs by default.
 
-Instead, add your own ID injection plugin like [`rehype-slug`](https://github.com/rehypejs/rehype-slug):
-
-1. Install the plugin: `npm i rehype slug`
-
-2. Add it to your rehype plugins in the `mdx()` integration options:
+To restore the previous behavior, set `collectHeadings: 'before'` in the MDX integration options:
 
     ```js
     // astro.config.mjs
@@ -22,12 +18,7 @@ Instead, add your own ID injection plugin like [`rehype-slug`](https://github.co
 
     export default {
       integrations: [
-        mdx({
-          rehypePlugins: [
-            'rehype-slug',
-            myPluginThatDependsOnHeadingIDs,
-          ],
-        }),
+        mdx({ collectHeadings: 'before' }),
       ],
     }
     ```
