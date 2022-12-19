@@ -14,6 +14,7 @@ import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
+import remarkContentRelImageError from './remark-content-rel-image-error.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -66,6 +67,8 @@ export async function renderMarkdown(
 	if (scopedClassName) {
 		parser.use([scopedStyles(scopedClassName)]);
 	}
+
+	parser.use([remarkContentRelImageError]);
 
 	if (syntaxHighlight === 'shiki') {
 		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
