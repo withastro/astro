@@ -352,6 +352,7 @@ async function generatePath(
 		markdown: {
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			isExperimentalContentCollections: settings.config.experimental.contentCollections,
 		},
 		mode: opts.mode,
 		renderers,

@@ -43,6 +43,7 @@ export async function renderMarkdown(
 		remarkRehype = {},
 		extendDefaultPlugins = false,
 		isAstroFlavoredMd = false,
+		isExperimentalContentCollections = false,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
@@ -67,8 +68,9 @@ export async function renderMarkdown(
 	if (scopedClassName) {
 		parser.use([scopedStyles(scopedClassName)]);
 	}
-
-	parser.use([remarkContentRelImageError]);
+	if (isExperimentalContentCollections) {
+		parser.use([remarkContentRelImageError]);
+	}
 
 	if (syntaxHighlight === 'shiki') {
 		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);

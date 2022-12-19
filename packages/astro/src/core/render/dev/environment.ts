@@ -24,6 +24,7 @@ export function createDevelopmentEnvironment(
 		markdown: {
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			isExperimentalContentCollections: settings.config.experimental.contentCollections,
 		},
 		mode,
 		// This will be overridden in the dev server

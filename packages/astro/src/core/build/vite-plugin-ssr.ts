@@ -208,6 +208,7 @@ function buildManifest(
 		markdown: {
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			isExperimentalContentCollections: settings.config.experimental.contentCollections,
 		},
 		pageMap: null as any,
 		renderers: [],

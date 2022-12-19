@@ -71,6 +71,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
+					isExperimentalContentCollections: settings.config.experimental.contentCollections,
 				} as any);
 
 				const html = renderResult.code;

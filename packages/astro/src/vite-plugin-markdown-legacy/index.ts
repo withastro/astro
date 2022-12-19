@@ -162,6 +162,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 					...renderOpts,
 					fileURL: fileUrl,
 					isAstroFlavoredMd: true,
+					isExperimentalContentCollections: settings.config.experimental.contentCollections,
 				} as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
