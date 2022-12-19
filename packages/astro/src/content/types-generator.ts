@@ -1,6 +1,6 @@
 import glob from 'fast-glob';
 import { cyan } from 'kleur/colors';
-import fsMod from 'node:fs';
+import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath } from 'vite';
@@ -56,7 +56,7 @@ export async function createContentTypesGenerator({
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const contentTypesBase = await fsMod.promises.readFile(
+	const contentTypesBase = await fs.promises.readFile(
 		new URL(CONTENT_TYPES_FILE, contentPaths.generatedInputDir),
 		'utf-8'
 	);

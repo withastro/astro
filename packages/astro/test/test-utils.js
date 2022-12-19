@@ -7,6 +7,7 @@ import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
+import { sync } from '../dist/cli/sync/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
@@ -139,6 +140,7 @@ export async function loadFixture(inlineConfig) {
 
 	return {
 		build: (opts = {}) => build(settings, { logging, telemetry, ...opts }),
+		sync: (opts) => sync(settings, { logging, fs, ...opts }),
 		startDevServer: async (opts = {}) => {
 			devServer = await dev(settings, { logging, telemetry, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
