@@ -60,7 +60,6 @@ export function astroContentServerPlugin({
 						settings,
 						logging,
 						contentConfigObserver,
-						contentPaths,
 					});
 					await contentGenerator.init();
 					info(logging, 'content', 'Types generated');

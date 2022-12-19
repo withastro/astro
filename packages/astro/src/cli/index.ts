@@ -31,6 +31,7 @@ type CLICommand =
 	| 'build'
 	| 'preview'
 	| 'reload'
+	| 'sync'
 	| 'check'
 	| 'telemetry';
 
@@ -48,6 +49,7 @@ function printAstroHelp() {
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
 				['preview', 'Preview your build locally.'],
+				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
 			],
 			'Global Flags': [
@@ -74,6 +76,7 @@ async function printVersion() {
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (cmd === 'add') return 'add';
+	if (cmd === 'sync') return 'sync';
 	if (cmd === 'telemetry') return 'telemetry';
 	if (flags.version) return 'version';
 	else if (flags.help) return 'help';
@@ -199,6 +202,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 		case 'check': {
 			const ret = await check(settings);
+			return process.exit(ret);
+		}
+
+		case 'sync': {
+			const { sync } = await import('./sync/index.js');
+
+			const ret = await sync(settings, { logging });
 			return process.exit(ret);
 		}
 

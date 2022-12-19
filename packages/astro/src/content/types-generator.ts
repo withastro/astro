@@ -8,7 +8,13 @@ import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
-import { ContentConfig, ContentObservable, ContentPaths, loadContentConfig } from './utils.js';
+import {
+	ContentConfig,
+	ContentObservable,
+	ContentPaths,
+	getContentPaths,
+	loadContentConfig,
+} from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -28,7 +34,6 @@ type ContentTypesEntryMetadata = { slug: string };
 type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
 
 type CreateContentGeneratorParams = {
-	contentPaths: ContentPaths;
 	contentConfigObserver: ContentObservable;
 	logging: LogOptions;
 	settings: AstroSettings;
@@ -40,13 +45,13 @@ type EventOpts = { logLevel: 'info' | 'warn' };
 class UnsupportedFileTypeError extends Error {}
 
 export async function createContentTypesGenerator({
-	contentPaths,
 	contentConfigObserver,
 	fs,
 	logging,
 	settings,
 }: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
 	const contentTypes: ContentTypes = {};
+	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
