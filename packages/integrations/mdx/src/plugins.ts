@@ -1,9 +1,11 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import type { Image } from 'mdast';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig, MarkdownAstroData } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
+import { visit } from 'unist-util-visit';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
 import rehypeRaw from 'rehype-raw';
@@ -15,7 +17,7 @@ import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { jsToTreeNode } from './utils.js';
+import { jsToTreeNode, isRelativePath } from './utils.js';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -113,6 +115,26 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 	};
 }
 
+function remarkContentRelImageError() {
+	return (tree: any, vfile: VFile) => {
+		if (!vfile.path.includes('content/')) return;
+
+		const relImagePaths = new Set<string>();
+		visit(tree, 'image', function raiseError(node: Image) {
+			if (isRelativePath(node.url)) {
+				relImagePaths.add(node.url);
+			}
+		});
+		if (relImagePaths.size === 0) return;
+
+		const errorMessage =
+			`Relative image paths are not support in the content/ directory. Please update to absolute paths:\n` +
+			[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
+
+		throw new Error(errorMessage);
+	};
+}
+
 const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
 const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
 
@@ -143,6 +165,9 @@ export async function getRemarkPlugins(
 	}
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
+	}
+	if (config.experimental.contentCollections) {
+		remarkPlugins.push(remarkContentRelImageError);
 	}
 
 	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
