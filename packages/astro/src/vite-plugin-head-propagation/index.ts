@@ -27,6 +27,8 @@ export default function configHeadPropagationVitePlugin({
 			if (parent.id) {
 				if (seen.has(parent.id)) {
 					continue;
+				} else {
+					seen.add(parent.id);
 				}
 				const info = getInfo(parent.id);
 				if (info?.meta.astro) {
