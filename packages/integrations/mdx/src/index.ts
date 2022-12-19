@@ -35,6 +35,14 @@ export type MdxOptions = {
 	 */
 	extendPlugins?: 'markdown' | 'astroDefaults' | false;
 	remarkRehype?: RemarkRehypeOptions;
+	/**
+	 * Specify when the internal rehype plugin injecting heading IDs should run.
+	 * Set to `'before'` if you are using rehype plugins that need to access injected IDs.
+	 * Defaults to `'after'` to allow you to override Astro’s default ID-generation algorithm.
+	 *
+	 * @default 'after'
+	 */
+	collectHeadings?: 'before' | 'after';
 };
 
 export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {

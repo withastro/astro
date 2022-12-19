@@ -173,12 +173,15 @@ export function getRehypePlugins(
 			break;
 	}
 
-	rehypePlugins = [
-		...rehypePlugins,
-		...(mdxOptions.rehypePlugins ?? []),
-		// getHeadings() is guaranteed by TS, so we can't allow user to override
-		rehypeCollectHeadings,
-	];
+	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
+
+	// getHeadings() is guaranteed by TS, so we can't allow user to override
+	if (mdxOptions.collectHeadings === 'before') {
+		rehypePlugins.unshift(rehypeCollectHeadings);
+	} else {
+		rehypePlugins.push(rehypeCollectHeadings);
+	}
+
 	return rehypePlugins;
 }
 
