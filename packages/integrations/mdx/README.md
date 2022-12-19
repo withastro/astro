@@ -85,6 +85,7 @@ You can extend how your MDX is rendered by adding remark, rehype and recma plugi
 - [`remarkPlugins`](#remarkplugins)
 - [`rehypePlugins`](#rehypeplugins)
 - [`recmaPlugins`](#recmaplugins)
+- [`collectHeadings`](#collectheadings)
 
 ### `extendPlugins`
 
@@ -195,6 +196,28 @@ export default {
 These are plugins that modify the output [estree](https://github.com/estree/estree) directly. This is useful for modifying or injecting JavaScript variables in your MDX files.
 
 We suggest [using AST Explorer](https://astexplorer.net/) to play with estree outputs, and trying [`estree-util-visit`](https://unifiedjs.com/explore/package/estree-util-visit/) for searching across JavaScript nodes.
+
+### `collectHeadings`
+
+**Default:** `'after'`  
+**Type:** `'before' | 'after'`
+
+Astro injects IDs to heading elements in MDX documents for you. By default, this happens after any other rehype plugins have run.
+
+If you need to access these Astro-generated IDs from one of your other rehype plugins, you can toggle this order to inject headings before your plugins run:
+
+```js
+// astro.config.mjs
+
+export default {
+  integrations: [
+    mdx({
+      collectHeadings: 'before',
+      rehypePlugins: [pluginThatNeedsAccessToHeadingIDs],
+    }),
+  ],
+}
+```
 
 ## Examples
 
