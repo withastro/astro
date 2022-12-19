@@ -78,7 +78,7 @@ describe('Environment Variables', () => {
 
 			// Look in all of the .js files to see if the public env is inlined.
 			// Testing this way prevents hardcoding expected js files.
-			// If we find it in any of them that's good enough to know its NOT working.
+			// If we find it in any of them that's good enough to know it's NOT working.
 			await Promise.all(
 				dirs.map(async (path) => {
 					if (path.endsWith('.js')) {

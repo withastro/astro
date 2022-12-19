@@ -104,13 +104,13 @@ This php is a counter. So we can identify the first instance and assign an `if` 
 <a class="<?php if($row == 1) {echo 'active';}?>">
 ```
 
-The final thing to do, is to keep the counter running, but adding this jsut before the `endwhile`.
+The final thing to do, is to keep the counter running, but adding this just before the `endwhile`.
 
 ```php
 <?php $row++; endwhile; // (have_rows('tab_panes') ):?>
 ```
 
-Once you've added these to the tab panes in a similar way, you'll be up and running with Boostrap Tabs.
+Once you've added these to the tab panes in a similar way, you'll be up and running with Bootstrap Tabs.
 
 Below is a Github Gist, with the complete code for reference. [Link to this (if you can't see the iFrame)](https://gist.github.com/endymion1818/478d86025f41c8060888 "Github GIST for Advanced Custom Fields bootstrap tabs").
 

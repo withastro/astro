@@ -33,7 +33,7 @@ describe('renderToStaticMarkup', () => {
 		}
 	});
 
-	it('should render emtpy component with default markup', async () => {
+	it('should render empty component with default markup', async () => {
 		const tagName = 'nothing-component';
 		customElements.define(tagName, class extends LitElement {});
 		const render = await renderToStaticMarkup(tagName);

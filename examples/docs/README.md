@@ -100,7 +100,7 @@ Note the top-level `en` key: This is needed for multi-language support. You can 
 
 ### Multiple Languages support
 
-The Astro docs template supports multiple langauges out of the box. The default theme only shows `en` documentation, but you can enable multi-language support features by adding a second language to your project.
+The Astro docs template supports multiple languages out of the box. The default theme only shows `en` documentation, but you can enable multi-language support features by adding a second language to your project.
 
 To add a new language to your project, you'll want to extend the current `src/pages/[lang]/...` layout:
 
@@ -148,7 +148,7 @@ export const SIDEBAR = {
 // ...
 ```
 
-If you plan to use Spanish as the the default language, you just need to modify the redirect path in `src/pages/index.astro`:
+If you plan to use Spanish as the default language, you just need to modify the redirect path in `src/pages/index.astro`:
 
 ```diff
 <script>

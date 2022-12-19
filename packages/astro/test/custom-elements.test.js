@@ -22,7 +22,7 @@ describe('Custom Elements', () => {
 		// test 1: Element rendered
 		expect($('my-element')).to.have.lengthOf(1);
 
-		// test 2: shadow rendererd
+		// test 2: shadow rendered
 		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
 	});
 
