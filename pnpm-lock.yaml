@@ -2889,6 +2889,7 @@ importers:
       '@types/chai': ^4.3.1
       '@types/estree': ^1.0.0
       '@types/github-slugger': ^1.3.0
+      '@types/mdast': ^3.0.10
       '@types/mocha': ^9.1.1
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.0
@@ -2902,6 +2903,7 @@ importers:
       gray-matter: ^4.0.3
       kleur: ^4.1.4
       linkedom: ^0.14.12
+      mdast: ^3.0.0
       mdast-util-mdx: ^2.0.0
       mdast-util-to-string: ^3.1.0
       mocha: ^9.2.2
@@ -2940,6 +2942,7 @@ importers:
       '@types/chai': 4.3.4
       '@types/estree': 1.0.0
       '@types/github-slugger': 1.3.0
+      '@types/mdast': 3.0.10
       '@types/mocha': 9.1.1
       '@types/yargs-parser': 21.0.0
       astro: link:../../astro
@@ -2947,6 +2950,7 @@ importers:
       chai: 4.3.7
       cheerio: 1.0.0-rc.12
       linkedom: 0.14.20
+      mdast: 3.0.0
       mdast-util-mdx: 2.0.0
       mdast-util-to-string: 3.1.0
       mocha: 9.2.2
@@ -14773,6 +14777,11 @@ packages:
       mdast-util-to-string: 3.1.0
       unist-util-is: 5.1.1
       unist-util-visit: 3.1.0
+    dev: true
+
+  /mdast/3.0.0:
+    resolution: {integrity: sha512-xySmf8g4fPKMeC07jXGz971EkLbWAJ83s4US2Tj9lEdnZ142UP5grN73H1Xd3HzrdbU5o9GYYP/y8F9ZSwLE9g==}
+    deprecated: '`mdast` was renamed to `remark`'
     dev: true
 
   /media-typer/0.3.0:
