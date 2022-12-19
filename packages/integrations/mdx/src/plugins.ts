@@ -115,6 +115,10 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 	};
 }
 
+/**
+ * `src/content/` does not support relative image paths.
+ * This plugin throws an error if any are found
+ */
 function remarkContentRelImageError() {
 	return (tree: any, vfile: VFile) => {
 		if (!vfile.path.includes('content/')) return;

@@ -2,7 +2,10 @@ import type { Image } from 'mdast';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 
-//
+/**
+ * `src/content/` does not support relative image paths.
+ * This plugin throws an error if any are found
+ */
 export default function remarkContentRelImageError() {
 	return (tree: any, vfile: VFile) => {
 		if (!vfile.path.includes('content/')) return;
