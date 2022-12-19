@@ -1,4 +1,4 @@
-export const inheritence = {
+export const inheritance = {
 	CSSStyleSheet: 'StyleSheet',
 	CustomEvent: 'Event',
 	DOMException: 'Error',
