@@ -140,6 +140,12 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					loader: getEsbuildLoader(id),
 					jsx: 'preserve',
 					sourcemap: 'inline',
+					tsconfigRaw: {
+						compilerOptions: {
+							// Ensure client:only imports are treeshaken
+							importsNotUsedAsValues: 'remove',
+						},
+					},
 				});
 				return transformJSX({
 					code: jsxCode,
