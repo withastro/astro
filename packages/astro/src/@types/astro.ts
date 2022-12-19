@@ -8,6 +8,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
@@ -319,6 +320,16 @@ type ServerConfig = {
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 */
 	port?: number;
+
+	/**
+	 * @name server.headers
+	 * @typeraw {OutgoingHttpHeaders}
+	 * @default `{}`
+	 * @version 1.70.0
+	 * @description
+	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
+	 */
+	headers?: OutgoingHttpHeaders;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -664,6 +675,16 @@ export interface AstroUserConfig {
 	 *   server: { port: 8080 }
 	 * }
 	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name server.headers
+	 * @typeraw {OutgoingHttpHeaders}
+	 * @default `{}`
+	 * @version 1.70.0
+	 * @description
+	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
