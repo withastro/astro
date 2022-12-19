@@ -112,3 +112,39 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 		);
 	});
 });
+
+describe('MDX heading IDs can be injected before user plugins', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/mdx-get-headings/', import.meta.url),
+			integrations: [
+				mdx({
+					collectHeadings: 'before',
+					rehypePlugins: [
+						() => (tree) => {
+							visit(tree, 'element', (node, index, parent) => {
+								if (!/^h\d$/.test(node.tagName)) return;
+								if (node.properties?.id) {
+									node.children.push({ type: 'text', value: ' ' + node.properties.id });
+								}
+							});
+						},
+					],
+				}),
+			],
+		});
+
+		await fixture.build();
+	});
+
+	it('adds user-specified IDs to HTML output', async () => {
+		const html = await fixture.readFile('/test/index.html');
+		const { document } = parseHTML(html);
+
+		const h1 = document.querySelector('h1');
+		expect(h1?.textContent).to.equal('Heading test heading-test');
+		expect(h1?.id).to.equal('heading-test');
+	});
+});
