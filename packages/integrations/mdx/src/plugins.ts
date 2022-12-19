@@ -149,8 +149,6 @@ export function getRehypePlugins(
 	config: AstroConfig
 ): MdxRollupPluginOptions['rehypePlugins'] {
 	let rehypePlugins: PluggableList = [
-		// getHeadings() is guaranteed by TS, so we can't allow user to override
-		rehypeCollectHeadings,
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
@@ -171,7 +169,12 @@ export function getRehypePlugins(
 			break;
 	}
 
-	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
+	rehypePlugins = [
+		...rehypePlugins,
+		...(mdxOptions.rehypePlugins ?? []),
+		// getHeadings() is guaranteed by TS, so we can't allow user to override
+		rehypeCollectHeadings,
+	];
 	return rehypePlugins;
 }
 
