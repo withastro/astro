@@ -12,13 +12,13 @@ If you are using a rehype plugin that depends on heading IDs injected by Astro, 
 
 To restore the previous behavior, set `collectHeadings: 'before'` in the MDX integration options:
 
-    ```js
-    // astro.config.mjs
-    import mdx from '@astrojs/mdx';
+```js
+// astro.config.mjs
+import mdx from '@astrojs/mdx';
 
-    export default {
-      integrations: [
-        mdx({ collectHeadings: 'before' }),
-      ],
-    }
-    ```
+export default {
+  integrations: [
+    mdx({ collectHeadings: 'before' }),
+  ],
+}
+```
