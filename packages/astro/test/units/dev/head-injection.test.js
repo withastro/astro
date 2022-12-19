@@ -27,15 +27,16 @@ describe('head injection', () => {
 						renderComponent,
 						renderTemplate,
 						renderUniqueStylesheet,
+						unescapeHTML
 					} from 'astro/runtime/server/index.js';
 
 					export function renderEntry() {
 						return createComponent({
 							factory(result, props, slots) {
 								return createHeadAndContent(
-									renderUniqueStylesheet(result, {
+									unescapeHTML(renderUniqueStylesheet(result, {
 										href: '/some/fake/styles.css'
-									}),
+									})),
 									renderTemplate\`$\{renderComponent(result, 'Other', Other, props, slots)}\`
 								);
 							},
@@ -99,15 +100,16 @@ describe('head injection', () => {
 						renderComponent,
 						renderTemplate,
 						renderUniqueStylesheet,
+						unescapeHTML,
 					} from 'astro/runtime/server/index.js';
 
 					export function renderEntry() {
 						return createComponent({
 							factory(result, props, slots) {
 								return createHeadAndContent(
-									renderUniqueStylesheet(result, {
+									unescapeHTML(renderUniqueStylesheet(result, {
 										href: '/some/fake/styles.css'
-									}),
+									})),
 									renderTemplate\`$\{renderComponent(result, 'Other', Other, props, slots)}\`
 								);
 							},
@@ -125,7 +127,7 @@ describe('head injection', () => {
 							<title>Normal head stuff</title>
 						</head>
 						<body>
-							<slot />
+							<slot name="title" />
 							<ExtraHead />
 						</body>
 					</html>
@@ -135,7 +137,7 @@ describe('head injection', () => {
 					import Layout from '../components/Layout.astro';
 					---
 					<Layout>
-						<h1>Test page</h1>
+						<h1 slot="title">Test page</h1>
 					</Layout>
 				`,
 			},

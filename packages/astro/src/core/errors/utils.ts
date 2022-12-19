@@ -4,7 +4,7 @@ import { AstroErrorCodes, AstroErrorData } from './errors-data.js';
 /**
  * Get the line and character based on the offset
  * @param offset The index of the position
- * @param text The text for which the position should be retrived
+ * @param text The text for which the position should be retrieved
  */
 export function positionAt(
 	offset: number,

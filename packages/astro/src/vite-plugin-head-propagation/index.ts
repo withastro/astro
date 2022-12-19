@@ -9,7 +9,7 @@ const injectExp = /^\/\/\s*astro-head-inject/;
  * If any component is marked as doing head injection, walk up the tree
  * and mark parent Astro components as having head injection in the tree.
  * This is used at runtime to determine if we should wait for head content
- * to be be populated before rendering the entire tree.
+ * to be populated before rendering the entire tree.
  */
 export default function configHeadPropagationVitePlugin({
 	settings,
@@ -27,6 +27,8 @@ export default function configHeadPropagationVitePlugin({
 			if (parent.id) {
 				if (seen.has(parent.id)) {
 					continue;
+				} else {
+					seen.add(parent.id);
 				}
 				const info = getInfo(parent.id);
 				if (info?.meta.astro) {

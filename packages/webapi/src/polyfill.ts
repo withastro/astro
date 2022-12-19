@@ -83,7 +83,7 @@ import {
 } from './ponyfill'
 
 import { exclusions } from './exclusions'
-import { inheritence } from './inheritence'
+import { inheritance } from './inheritance'
 
 export { pathToPosix } from './lib/utils'
 export {
@@ -288,10 +288,10 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 		if (excludeOptions.has(name)) continue
 
 		// skip WebAPIs that do not extend other WebAPIs
-		if (!Object.hasOwnProperty.call(inheritence, name)) continue
+		if (!Object.hasOwnProperty.call(inheritance, name)) continue
 
 		const Class = target[name]
-		const Super = target[inheritence[name as keyof typeof inheritence]]
+		const Super = target[inheritance[name as keyof typeof inheritance]]
 
 		// skip WebAPIs that are not available
 		if (!Class || !Super) continue
@@ -299,7 +299,7 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 		// skip WebAPIs that are already inherited correctly
 		if (Object.getPrototypeOf(Class.prototype) === Super.prototype) continue
 
-		// define WebAPIs inheritence
+		// define WebAPIs inheritance
 		Object.setPrototypeOf(Class.prototype, Super.prototype)
 	}
 

@@ -26,7 +26,7 @@ Looking for quick examples? [Open a starter project](https://astro.new/) right i
 
 ## Documentation
 
-Visit our [offical documentation](https://docs.astro.build/).
+Visit our [official documentation](https://docs.astro.build/).
 
 ## Support
 

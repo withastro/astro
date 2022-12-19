@@ -1,5 +1,6 @@
 import type { SSRResult } from '../../../../@types/astro';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
+import type { renderTemplate } from './render-template.js';
 
 import { HydrationDirectiveProps } from '../../hydration.js';
 import { isPromise } from '../../util.js';
@@ -8,6 +9,9 @@ import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 
 type ComponentProps = Record<string | number, any>;
+type ComponentSlotValue = () => ReturnType<typeof renderTemplate>;
+export type ComponentSlots = Record<string, ComponentSlotValue>;
+export type ComponentSlotsWithValues = Record<string, ReturnType<ComponentSlotValue>>;
 
 const astroComponentInstanceSym = Symbol.for('astro.componentInstance');
 
@@ -16,23 +20,26 @@ export class AstroComponentInstance {
 
 	private readonly result: SSRResult;
 	private readonly props: ComponentProps;
-	private readonly slots: any;
+	private readonly slotValues: ComponentSlotsWithValues;
 	private readonly factory: AstroComponentFactory;
 	private returnValue: ReturnType<AstroComponentFactory> | undefined;
 	constructor(
 		result: SSRResult,
 		props: ComponentProps,
-		slots: any,
+		slots: ComponentSlots,
 		factory: AstroComponentFactory
 	) {
 		this.result = result;
 		this.props = props;
-		this.slots = slots;
 		this.factory = factory;
+		this.slotValues = {};
+		for (const name in slots) {
+			this.slotValues[name] = slots[name]();
+		}
 	}
 
 	async init() {
-		this.returnValue = this.factory(this.result, this.props, this.slots);
+		this.returnValue = this.factory(this.result, this.props, this.slotValues);
 		return this.returnValue;
 	}
 

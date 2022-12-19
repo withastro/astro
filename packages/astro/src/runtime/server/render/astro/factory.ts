@@ -12,7 +12,7 @@ export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndC
 export interface AstroComponentFactory {
 	(result: any, props: any, slots: any): AstroFactoryReturnValue;
 	isAstroComponentFactory?: boolean;
-	moduleId: string | undefined;
+	moduleId?: string | undefined;
 	propagation?: PropagationHint;
 }
 

@@ -5,6 +5,7 @@ import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
+import { astroBundleDelayedAssetPlugin } from '../../content/index.js';
 import {
 	BuildInternals,
 	createBuildInternals,
@@ -168,6 +169,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			vitePluginPrerender(opts, internals),
 			...(viteConfig.plugins || []),
+			settings.config.experimental.contentCollections &&
+				astroBundleDelayedAssetPlugin({ internals }),
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
 		],
@@ -359,7 +362,9 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 		await Promise.all(
 			Array.from(directories).map(async (filename) => {
 				const url = new URL(filename, out);
-				const dir = await glob(fileURLToPath(url), { absolute: true });
+				const dir = await glob(fileURLToPath(url));
+				// Do not delete chunks/ directory!
+				if (filename === 'chunks') return;
 				if (!dir.length) {
 					await fs.promises.rm(url, { recursive: true, force: true });
 				}

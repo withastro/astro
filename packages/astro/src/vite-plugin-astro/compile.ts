@@ -41,6 +41,12 @@ export async function cachedFullCompilation({
 			loader: 'ts',
 			target: 'esnext',
 			sourcemap: 'external',
+			tsconfigRaw: {
+				compilerOptions: {
+					// Ensure client:only imports are treeshaken
+					importsNotUsedAsValues: 'remove',
+				},
+			},
 		});
 	} catch (err: any) {
 		await enhanceCompileError({
