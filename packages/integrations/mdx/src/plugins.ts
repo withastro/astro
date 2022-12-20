@@ -175,11 +175,13 @@ export async function getRemarkPlugins(
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
 	}
+
+	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
+
+	// Apply last in case user plugins resolve relative image paths
 	if (config.experimental.contentCollections) {
 		remarkPlugins.push(toRemarkContentRelImageError(config));
 	}
-
-	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
 	return remarkPlugins;
 }
 
