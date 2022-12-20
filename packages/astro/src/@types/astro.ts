@@ -325,7 +325,7 @@ type ServerConfig = {
 	 * @name server.headers
 	 * @typeraw {OutgoingHttpHeaders}
 	 * @default `{}`
-	 * @version 1.70.0
+	 * @version 1.7.0
 	 * @description
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
@@ -682,7 +682,7 @@ export interface AstroUserConfig {
 	 * @name server.headers
 	 * @typeraw {OutgoingHttpHeaders}
 	 * @default `{}`
-	 * @version 1.70.0
+	 * @version 1.7.0
 	 * @description
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
