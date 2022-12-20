@@ -194,7 +194,6 @@
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
     "@types/unist": "^2.0.6",
-    "ast-types": "^0.14.2",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.11",

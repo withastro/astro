@@ -423,7 +423,6 @@ importers:
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.1
-      ast-types: ^0.14.2
       astro-scripts: workspace:*
       boxen: ^6.2.1
       chai: ^4.3.6
@@ -571,7 +570,6 @@ importers:
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
       '@types/unist': 2.0.6
-      ast-types: 0.14.2
       astro-scripts: link:../../scripts
       chai: 4.3.7
       cheerio: 1.0.0-rc.12
@@ -10705,6 +10703,7 @@ packages:
     engines: {node: '>=4'}
     dependencies:
       tslib: 2.4.1
+    dev: false
 
   /astring/1.8.3:
     resolution: {integrity: sha512-sRpyiNrx2dEYIMmUXprS8nlpRg2Drs8m9ElX9vVEXaCB4XEAJhKfs7IcX0IwShjuOAjLR6wzIrgoptz1n19i1A==}
