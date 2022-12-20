@@ -1,4 +1,4 @@
-import { MarkdownVFile, MarkdownHeading } from '@astrojs/markdown-remark';
+import { MarkdownHeading, MarkdownVFile } from '@astrojs/markdown-remark';
 import { jsToTreeNode } from './utils.js';
 
 export function rehypeInjectHeadingsExport() {
