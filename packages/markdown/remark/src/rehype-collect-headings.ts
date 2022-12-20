@@ -71,5 +71,5 @@ export function rehypeHeadingSlugs(): ReturnType<RehypePlugin> {
 }
 
 function isMDXFile(file: MarkdownVFile) {
-	return file.history[0].endsWith('.mdx');
+	return Boolean(file.history[0]?.endsWith('.mdx'));
 }
