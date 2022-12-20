@@ -14,7 +14,7 @@ import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
-import remarkContentRelImageError from './remark-content-rel-image-error.js';
+import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -44,6 +44,7 @@ export async function renderMarkdown(
 		extendDefaultPlugins = false,
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
+		contentDir,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
@@ -68,14 +69,16 @@ export async function renderMarkdown(
 	if (scopedClassName) {
 		parser.use([scopedStyles(scopedClassName)]);
 	}
-	if (isExperimentalContentCollections) {
-		parser.use([remarkContentRelImageError]);
-	}
 
 	if (syntaxHighlight === 'shiki') {
 		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
 	} else if (syntaxHighlight === 'prism') {
 		parser.use([remarkPrism(scopedClassName)]);
+	}
+
+	// Apply later in case user plugins resolve relative image paths
+	if (isExperimentalContentCollections) {
+		parser.use([toRemarkContentRelImageError({ contentDir })]);
 	}
 
 	parser.use([

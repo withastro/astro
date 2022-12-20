@@ -12,6 +12,7 @@ import type {
 	RouteType,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
+import { getContentPaths } from '../../content/index.js';
 import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -353,6 +354,7 @@ async function generatePath(
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 			isExperimentalContentCollections: settings.config.experimental.contentCollections,
+			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		mode: opts.mode,
 		renderers,

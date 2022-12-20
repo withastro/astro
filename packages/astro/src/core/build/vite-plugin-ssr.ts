@@ -15,6 +15,7 @@ import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from './internal.js';
+import { getContentPaths } from '../../content/index.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -209,6 +210,7 @@ function buildManifest(
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 			isExperimentalContentCollections: settings.config.experimental.contentCollections,
+			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		pageMap: null as any,
 		renderers: [],

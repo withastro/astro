@@ -1,29 +1,34 @@
 import type { Image } from 'mdast';
 import { visit } from 'unist-util-visit';
+import { pathToFileURL } from 'url';
 import type { VFile } from 'vfile';
 
 /**
  * `src/content/` does not support relative image paths.
  * This plugin throws an error if any are found
  */
-export default function remarkContentRelImageError() {
-	return (tree: any, vfile: VFile) => {
-		if (!vfile.path.includes('content/')) return;
+export default function toRemarkContentRelImageError({ contentDir }: { contentDir: URL }) {
+	return function remarkContentRelImageError() {
+		return (tree: any, vfile: VFile) => {
+			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
+			if (!isContentFile) return;
 
-		const relImagePaths = new Set<string>();
-		visit(tree, 'image', function raiseError(node: Image) {
-			if (isRelativePath(node.url)) {
-				relImagePaths.add(node.url);
-			}
-		});
-		if (relImagePaths.size === 0) return;
+			const relImagePaths = new Set<string>();
+			visit(tree, 'image', function raiseError(node: Image) {
+				console.log(node.url);
+				if (isRelativePath(node.url)) {
+					relImagePaths.add(node.url);
+				}
+			});
+			if (relImagePaths.size === 0) return;
 
-		const errorMessage =
-			`Relative image paths are not support in the content/ directory. Please update to absolute paths:\n` +
-			[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
+			const errorMessage =
+				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files)\n` +
+				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
 
-		// Throw raw string to use `astro:markdown` default formatting
-		throw errorMessage;
+			// Throw raw string to use `astro:markdown` default formatting
+			throw errorMessage;
+		};
 	};
 }
 

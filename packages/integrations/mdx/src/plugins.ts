@@ -18,6 +18,7 @@ import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode, isRelativePath } from './utils.js';
+import { pathToFileURL } from 'node:url';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -119,23 +120,27 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
  * `src/content/` does not support relative image paths.
  * This plugin throws an error if any are found
  */
-function remarkContentRelImageError() {
-	return (tree: any, vfile: VFile) => {
-		if (!vfile.path.includes('content/')) return;
+function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
+	const contentDir = new URL('content/', srcDir);
+	return function remarkContentRelImageError() {
+		return (tree: any, vfile: VFile) => {
+			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
+			if (!isContentFile) return;
 
-		const relImagePaths = new Set<string>();
-		visit(tree, 'image', function raiseError(node: Image) {
-			if (isRelativePath(node.url)) {
-				relImagePaths.add(node.url);
-			}
-		});
-		if (relImagePaths.size === 0) return;
+			const relImagePaths = new Set<string>();
+			visit(tree, 'image', function raiseError(node: Image) {
+				if (isRelativePath(node.url)) {
+					relImagePaths.add(node.url);
+				}
+			});
+			if (relImagePaths.size === 0) return;
 
-		const errorMessage =
-			`Relative image paths are not support in the content/ directory. Please update to absolute paths:\n` +
-			[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
+			const errorMessage =
+				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files):\n` +
+				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
 
-		throw new Error(errorMessage);
+			throw new Error(errorMessage);
+		};
 	};
 }
 
@@ -171,7 +176,7 @@ export async function getRemarkPlugins(
 		remarkPlugins.push(remarkPrism);
 	}
 	if (config.experimental.contentCollections) {
-		remarkPlugins.push(remarkContentRelImageError);
+		remarkPlugins.push(toRemarkContentRelImageError(config));
 	}
 
 	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
