@@ -1,7 +1,6 @@
-import { parse as babelParser } from '@babel/parser';
-import type { ArrowFunctionExpressionKind, CallExpressionKind } from 'ast-types/gen/kinds';
-import type { NodePath } from 'ast-types/lib/node-path';
-import { parse, print, types, visit } from 'recast';
+import { parse } from 'acorn';
+import { walk } from 'estree-walker';
+import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { isMarkdownFile } from '../core/util.js';
@@ -28,57 +27,39 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 				return null;
 			}
 
+			let s: MagicString | undefined;
 			const ast = parse(code, {
-				// We need to use the babel parser because `import.meta.hot` is not
-				// supported by esprima (default parser). In the future, we should
-				// experiment with other parsers if Babel is too slow or heavy.
-				parser: { parse: babelParser },
+				ecmaVersion: 'latest',
+				sourceType: 'module',
 			});
-
-			visit(ast, {
-				visitCallExpression: function (path) {
-					// Filter out anything that isn't `Astro.glob()` or `Astro2.glob()`
+			walk(ast, {
+				enter(node: any) {
+					// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`
+					// Also handle for `Astro2.glob()`
 					if (
-						!types.namedTypes.MemberExpression.check(path.node.callee) ||
-						!types.namedTypes.Identifier.check(path.node.callee.property) ||
-						!(path.node.callee.property.name === 'glob') ||
-						!types.namedTypes.Identifier.check(path.node.callee.object) ||
-						!(path.node.callee.object.name === 'Astro' || path.node.callee.object.name === 'Astro2')
+						node.type === 'CallExpression' &&
+						node.callee.type === 'MemberExpression' &&
+						node.callee.property.name === 'glob' &&
+						(node.callee.object.name === 'Astro' || node.callee.object.name === 'Astro2') &&
+						node.arguments.length
 					) {
-						this.traverse(path);
-						return;
+						const rawArgs = node.arguments[0].raw;
+						s ??= new MagicString(code);
+						s.overwrite(
+							node.arguments[0].start,
+							node.arguments[node.arguments.length - 1].end,
+							`import.meta.glob(${rawArgs}), () => ${rawArgs}`
+						);
 					}
-
-					// Wrap the `Astro.glob()` argument with `import.meta.glob`.
-					const argsPath = path.get('arguments', 0) as NodePath;
-					const args = argsPath.value;
-					argsPath.replace(
-						{
-							type: 'CallExpression',
-							callee: {
-								type: 'MemberExpression',
-								object: {
-									type: 'MetaProperty',
-									meta: { type: 'Identifier', name: 'import' },
-									property: { type: 'Identifier', name: 'meta' },
-								},
-								property: { type: 'Identifier', name: 'glob' },
-								computed: false,
-							},
-							arguments: [args],
-						} as CallExpressionKind,
-						{
-							type: 'ArrowFunctionExpression',
-							body: args,
-							params: [],
-						} as ArrowFunctionExpressionKind
-					);
-					return false;
 				},
 			});
 
-			const result = print(ast);
-			return { code: result.code, map: result.map };
+			if (s) {
+				return {
+					code: s.toString(),
+					map: s.generateMap(),
+				};
+			}
 		},
 	};
 }

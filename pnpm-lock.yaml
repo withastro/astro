@@ -422,6 +422,7 @@ importers:
       '@types/send': ^0.17.1
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
+      acorn: ^8.8.1
       ast-types: ^0.14.2
       astro-scripts: workspace:*
       boxen: ^6.2.1
@@ -436,6 +437,7 @@ importers:
       diff: ^5.1.0
       eol: ^0.9.1
       es-module-lexer: ^1.1.0
+      estree-walker: ^3.0.1
       execa: ^6.1.0
       fast-glob: ^3.2.11
       github-slugger: ^1.4.0
@@ -500,6 +502,7 @@ importers:
       '@types/babel__core': 7.1.20
       '@types/html-escaper': 3.0.0
       '@types/yargs-parser': 21.0.0
+      acorn: 8.8.1
       boxen: 6.2.1
       ci-info: 3.6.1
       common-ancestor-path: 1.0.1
@@ -509,6 +512,7 @@ importers:
       devalue: 4.2.0
       diff: 5.1.0
       es-module-lexer: 1.1.0
+      estree-walker: 3.0.1
       execa: 6.1.0
       fast-glob: 3.2.12
       github-slugger: 1.5.0

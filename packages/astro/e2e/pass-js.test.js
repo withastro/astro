@@ -32,8 +32,7 @@ test.describe('Passing JS into client components', () => {
 		await expect(regExpValue).toHaveText('ok');
 	});
 
-	// TODO: support BigInt in `astro:postprocess`
-	test.skip('BigInts', async ({ page }) => {
+	test('BigInts', async ({ page }) => {
 		await page.goto('/');
 
 		const bigIntType = await page.locator('#bigint-type');
