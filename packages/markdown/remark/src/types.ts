@@ -68,6 +68,12 @@ export interface MarkdownMetadata {
 	html: string;
 }
 
+export interface MarkdownVFile extends VFile {
+	data: {
+		__astroHeadings?: MarkdownHeading[];
+	};
+}
+
 export interface MarkdownRenderingResult {
 	metadata: MarkdownMetadata;
 	vfile: VFile;
