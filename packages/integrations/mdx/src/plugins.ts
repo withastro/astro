@@ -1,3 +1,4 @@
+import { rehypeHeadingSlugs } from '@astrojs/markdown-remark';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -10,7 +11,7 @@ import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import type { Data, VFile } from 'vfile';
 import { MdxOptions } from './index.js';
-import rehypeCollectHeadings from './rehype-collect-headings.js';
+import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
@@ -153,8 +154,6 @@ export function getRehypePlugins(
 	config: AstroConfig
 ): MdxRollupPluginOptions['rehypePlugins'] {
 	let rehypePlugins: PluggableList = [
-		// getHeadings() is guaranteed by TS, so we can't allow user to override
-		rehypeCollectHeadings,
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
@@ -175,7 +174,14 @@ export function getRehypePlugins(
 			break;
 	}
 
-	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
+	rehypePlugins = [
+		...rehypePlugins,
+		...(mdxOptions.rehypePlugins ?? []),
+		// getHeadings() is guaranteed by TS, so this must be included.
+		// We run `rehypeHeadingSlugs` _last_ to respect any custom IDs set by user plugins.
+		rehypeHeadingSlugs,
+		rehypeInjectHeadingsExport,
+	];
 	return rehypePlugins;
 }
 
