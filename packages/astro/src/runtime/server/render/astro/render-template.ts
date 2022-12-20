@@ -77,5 +77,9 @@ export async function* renderAstroTemplateResult(
 }
 
 export function renderTemplate(htmlParts: TemplateStringsArray, ...expressions: any[]) {
+	// Optimization: unwrap templates that only include a single function expression
+	if (htmlParts.length === 2 &&  expressions.length === 1 && typeof expressions[0] === 'function' && htmlParts.every(part => part.trim() === '')) {
+		return expressions[0];
+	}
 	return new RenderTemplateResult(htmlParts, expressions);
 }

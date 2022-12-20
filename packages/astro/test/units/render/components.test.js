@@ -62,4 +62,64 @@ describe('core/render components', () => {
 			}
 		);
 	});
+
+	it('should unwrap function slots', async () => {
+		const fs = createFs(
+			{
+				'/src/components/Test.ts': `
+					import { createComponent } from 'astro/server/index.js';
+					export default createComponent((result, props, slots) => {
+						return typeof slots['default'];
+					})
+				`,
+				'/src/pages/index.astro': `
+					---
+					import Test from '../components/Test.ts';
+					---
+					<html>
+						<head><title>testing</title></head>
+						<body>
+							<span id="target">
+								<Test>
+									{() => 'foobar'}
+								</Test>
+							</span>
+						</body>
+					</html>
+			`,
+			},
+			root
+		);
+
+		await runInContainer(
+			{
+				fs,
+				root,
+				logging: {
+					...defaultLogging,
+					// Error is expected in this test
+					level: 'silent',
+				},
+				userConfig: {
+					integrations: [],
+				},
+			},
+			async (container) => {
+				const { req, res, done, text } = createRequestAndResponse({
+					method: 'GET',
+					url: '/',
+				});
+				container.handle(req, res);
+
+				await done;
+				const html = await text();
+				console.log(typeof html);
+				const $ = cheerio.load(html);
+				const target = $('#target');
+				
+				expect(target.length).to.equal(1);
+				expect(target.text().trim()).to.equal('function');
+			}
+		);
+	});
 });
