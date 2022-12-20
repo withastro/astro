@@ -234,6 +234,44 @@ describe('rss', () => {
 
 			chai.expect(body).xml.to.equal(validXmlWithoutWeb1FeedResult);
 		});
+
+		it('should respect drafts option', async () => {
+			const globResult = {
+				'./posts/php.md': () =>
+					new Promise((resolve) =>
+						resolve({
+							url: phpFeedItem.link,
+							frontmatter: {
+								title: phpFeedItem.title,
+								pubDate: phpFeedItem.pubDate,
+								description: phpFeedItem.description,
+							},
+						})
+					),
+				'./posts/nested/web1.md': () =>
+					new Promise((resolve) =>
+						resolve({
+							url: web1FeedItem.link,
+							frontmatter: {
+								title: web1FeedItem.title,
+								pubDate: web1FeedItem.pubDate,
+								description: web1FeedItem.description,
+								draft: true,
+							},
+						})
+					),
+			};
+
+			const { body } = await rss({
+				title,
+				description,
+				items: globResult,
+				site,
+				drafts: true,
+			});
+
+			chai.expect(body).xml.to.equal(validXmlResult);
+		});
 	});
 
 	describe('errors', () => {

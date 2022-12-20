@@ -28,6 +28,8 @@ type RSSOptions = {
 	stylesheet?: string | boolean;
 	/** Specify custom data in opening of file */
 	customData?: string;
+	/** Whether to include drafts or not */
+	drafts?: boolean;
 };
 
 type RSSFeedItem = {
@@ -90,7 +92,9 @@ export default async function getRSS(rssOptions: RSSOptions) {
 
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
-		items = items.filter((item) => !item.draft);
+		if (!rssOptions.drafts) {
+			items = items.filter((item) => !item.draft);
+		}
 	}
 
 	return {
