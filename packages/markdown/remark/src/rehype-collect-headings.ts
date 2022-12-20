@@ -4,10 +4,14 @@ import { visit } from 'unist-util-visit';
 
 import type { MarkdownHeading, MarkdownVFile, RehypePlugin } from './types.js';
 
+const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
+const codeTagNames = new Set(['code', 'pre']);
+
 export function rehypeHeadingSlugs(): ReturnType<RehypePlugin> {
 	return function (tree, file: MarkdownVFile) {
 		const headings: MarkdownHeading[] = [];
 		const slugger = new Slugger();
+		const isMDX = isMDXFile(file);
 		visit(tree, (node) => {
 			if (node.type !== 'element') return;
 			const { tagName } = node;
@@ -27,8 +31,8 @@ export function rehypeHeadingSlugs(): ReturnType<RehypePlugin> {
 						return;
 					}
 				}
-				if (child.type === 'text' || child.type === 'raw') {
-					if (new Set(['code', 'pre']).has(parent.tagName)) {
+				if (rawNodeTypes.has(child.type)) {
+					if (isMDX || codeTagNames.has(parent.tagName)) {
 						text += child.value;
 					} else {
 						text += child.value.replace(/\{/g, '${');
@@ -64,4 +68,8 @@ export function rehypeHeadingSlugs(): ReturnType<RehypePlugin> {
 
 		file.data.__astroHeadings = headings;
 	};
+}
+
+function isMDXFile(file: MarkdownVFile) {
+	return file.history[0].endsWith('.mdx');
 }
