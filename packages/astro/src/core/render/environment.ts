@@ -37,7 +37,11 @@ export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Env
 	const mode = options.mode ?? 'development';
 	return createEnvironment({
 		...options,
-		markdown: options.markdown ?? {},
+		markdown: {
+			...(options.markdown ?? {}),
+			// Stub out, not important for basic rendering
+			contentDir: new URL('file:///src/content/'),
+		},
 		mode,
 		renderers: options.renderers ?? [],
 		resolve: options.resolve ?? ((s: string) => Promise.resolve(s)),
