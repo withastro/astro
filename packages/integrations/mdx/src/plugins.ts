@@ -1,4 +1,4 @@
-import { rehypeHeadingSlugs } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -178,8 +178,8 @@ export function getRehypePlugins(
 		...rehypePlugins,
 		...(mdxOptions.rehypePlugins ?? []),
 		// getHeadings() is guaranteed by TS, so this must be included.
-		// We run `rehypeHeadingSlugs` _last_ to respect any custom IDs set by user plugins.
-		rehypeHeadingSlugs,
+		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
+		rehypeHeadingIds,
 		rehypeInjectHeadingsExport,
 	];
 	return rehypePlugins;

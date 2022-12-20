@@ -7,7 +7,7 @@ import type { MarkdownHeading, MarkdownVFile, RehypePlugin } from './types.js';
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
 const codeTagNames = new Set(['code', 'pre']);
 
-export function rehypeHeadingSlugs(): ReturnType<RehypePlugin> {
+export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 	return function (tree, file: MarkdownVFile) {
 		const headings: MarkdownHeading[] = [];
 		const slugger = new Slugger();

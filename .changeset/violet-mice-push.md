@@ -2,6 +2,6 @@
 '@astrojs/markdown-remark': minor
 ---
 
-Refactor and export `rehypeHeadingSlugs` plugin
+Refactor and export `rehypeHeadingIds` plugin
 
-The `rehypeHeadingSlugs` plugin injects IDs for all headings in a Markdown document and can now also handle MDX inputs if needed. You can import and use this plugin if you need heading IDs to be injected _before_ other rehype plugins run.
+The `rehypeHeadingIds` plugin injects IDs for all headings in a Markdown document and can now also handle MDX inputs if needed. You can import and use this plugin if you need heading IDs to be injected _before_ other rehype plugins run.

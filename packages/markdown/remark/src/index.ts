@@ -1,7 +1,7 @@
 import type { MarkdownRenderingOptions, MarkdownRenderingResult, MarkdownVFile } from './types';
 
 import { loadPlugins } from './load-plugins.js';
-import { rehypeHeadingSlugs } from './rehype-collect-headings.js';
+import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
@@ -22,7 +22,7 @@ import markdownToHtml from 'remark-rehype';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 
-export { rehypeHeadingSlugs } from './rehype-collect-headings.js';
+export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
@@ -99,8 +99,8 @@ export async function renderMarkdown(
 	parser
 		.use(
 			isAstroFlavoredMd
-				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeHeadingSlugs]
-				: [rehypeHeadingSlugs, rehypeRaw]
+				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeHeadingIds]
+				: [rehypeHeadingIds, rehypeRaw]
 		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 

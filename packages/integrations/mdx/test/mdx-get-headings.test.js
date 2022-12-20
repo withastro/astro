@@ -1,4 +1,4 @@
-import { rehypeHeadingSlugs } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { visit } from 'unist-util-visit';
 
@@ -123,7 +123,7 @@ describe('MDX heading IDs can be injected before user plugins', () => {
 			integrations: [
 				mdx({
 					rehypePlugins: [
-						rehypeHeadingSlugs,
+						rehypeHeadingIds,
 						() => (tree) => {
 							visit(tree, 'element', (node, index, parent) => {
 								if (!/^h\d$/.test(node.tagName)) return;
