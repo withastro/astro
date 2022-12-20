@@ -43,18 +43,21 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 						(node.callee.object.name === 'Astro' || node.callee.object.name === 'Astro2') &&
 						node.arguments.length
 					) {
-						let rawArgs: string = node.arguments[0].raw;
+						const firstArgStart = node.arguments[0].start;
+						const firstArgEnd = node.arguments[0].end;
+						const lastArgEnd = node.arguments[node.arguments.length - 1].end;
+						let firstArg = code.slice(firstArgStart, firstArgEnd);
 						// If argument is template literal, try convert to a normal string.
 						// This is needed for compat with previous recast strategy.
 						// TODO: Remove in Astro 2.0
-						if (rawArgs.startsWith('`') && rawArgs.endsWith('`') && !rawArgs.includes('${')) {
-							rawArgs = JSON.stringify(rawArgs.slice(1, -1));
+						if (firstArg.startsWith('`') && firstArg.endsWith('`') && !firstArg.includes('${')) {
+							firstArg = JSON.stringify(firstArg.slice(1, -1));
 						}
 						s ??= new MagicString(code);
 						s.overwrite(
-							node.arguments[0].start,
-							node.arguments[node.arguments.length - 1].end,
-							`import.meta.glob(${rawArgs}), () => ${rawArgs}`
+							firstArgStart,
+							lastArgEnd,
+							`import.meta.glob(${firstArg}), () => ${firstArg}`
 						);
 					}
 				},
