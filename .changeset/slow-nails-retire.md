@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-- Add `server.headers` typing
+Add `server.headers` typing
