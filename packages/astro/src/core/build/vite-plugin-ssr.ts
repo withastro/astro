@@ -7,6 +7,7 @@ import type { StaticBuildOptions } from './types';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
+import { getContentPaths } from '../../content/index.js';
 import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../app/index.js';
@@ -15,7 +16,6 @@ import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from './internal.js';
-import { getContentPaths } from '../../content/index.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;

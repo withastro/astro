@@ -1,24 +1,24 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
-import type { Image } from 'mdast';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig, MarkdownAstroData } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
-import { visit } from 'unist-util-visit';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
+import type { Image } from 'mdast';
+import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
+import { visit } from 'unist-util-visit';
 import type { Data, VFile } from 'vfile';
 import { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { jsToTreeNode, isRelativePath } from './utils.js';
-import { pathToFileURL } from 'node:url';
+import { isRelativePath, jsToTreeNode } from './utils.js';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,

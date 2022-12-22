@@ -6,6 +6,7 @@ import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
 import rehypeJsx from './rehype-jsx.js';
+import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 import remarkEscape from './remark-escape.js';
 import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
@@ -14,7 +15,6 @@ import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
-import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
