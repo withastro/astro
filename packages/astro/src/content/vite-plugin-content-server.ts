@@ -5,8 +5,7 @@ import { pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions } from '../core/logger/core.js';
-import { prependForwardSlash } from '../core/path.js';
-import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
+import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import {
 	createContentTypesGenerator,
@@ -109,8 +108,8 @@ export function astroContentServerPlugin({
 		{
 			name: 'astro-content-flag-plugin',
 			async load(id) {
-				const fileUrl = new URL(prependForwardSlash(id), 'file://');
-				if (isContentFlagImport(fileUrl)) {
+				const { fileId } = getFileInfo(id, settings.config);
+				if (isContentFlagImport(id)) {
 					const observable = contentConfigObserver.get();
 					let contentConfig: ContentConfig | undefined =
 						observable.status === 'loaded' ? observable.config : undefined;
@@ -128,19 +127,19 @@ export function astroContentServerPlugin({
 							});
 						});
 					}
-					const rawContents = await fs.promises.readFile(fileUrl, 'utf-8');
+					const rawContents = await fs.promises.readFile(fileId, 'utf-8');
 					const {
 						content: body,
 						data: unparsedData,
 						matter: rawData = '',
-					} = parseFrontmatter(rawContents, fileUrl.pathname);
+					} = parseFrontmatter(rawContents, fileId);
 					const entryInfo = getEntryInfo({
-						entry: fileUrl,
+						entry: pathToFileURL(fileId),
 						contentDir: contentPaths.contentDir,
 					});
 					if (entryInfo instanceof Error) return;
 
-					const _internal = { filePath: fileUrl.pathname, rawData };
+					const _internal = { filePath: fileId, rawData };
 					const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
 					const collectionConfig = contentConfig?.collections[entryInfo.collection];
 					const data = collectionConfig
@@ -157,7 +156,7 @@ export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(body)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
-	filePath: ${JSON.stringify(fileUrl.pathname)},
+	filePath: ${JSON.stringify(fileId)},
 	rawData: ${JSON.stringify(rawData)},
 };
 `);
@@ -172,7 +171,7 @@ export const _internal = {
 					) {
 						// Content modules depend on config, so we need to invalidate them.
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
-							if (isContentFlagImport(new URL(modUrl, 'file://'))) {
+							if (isContentFlagImport(modUrl)) {
 								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
 								if (mod) {
 									viteServer.moduleGraph.invalidateModule(mod);
@@ -183,7 +182,7 @@ export const _internal = {
 				});
 			},
 			async transform(code, id) {
-				if (isContentFlagImport(new URL(id, 'file://'))) {
+				if (isContentFlagImport(id)) {
 					// Escape before Rollup internal transform.
 					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
 					return { code: escapeViteEnvReferences(code) };
@@ -193,6 +192,7 @@ export const _internal = {
 	];
 }
 
-function isContentFlagImport({ searchParams, pathname }: Pick<URL, 'searchParams' | 'pathname'>) {
+function isContentFlagImport(viteId: string) {
+	const { pathname, searchParams } = new URL(viteId);
 	return searchParams.has(CONTENT_FLAG) && contentFileExts.some((ext) => pathname.endsWith(ext));
 }

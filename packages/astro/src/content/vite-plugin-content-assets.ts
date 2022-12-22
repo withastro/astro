@@ -12,7 +12,8 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 
-function isDelayedAsset(url: URL): boolean {
+function isDelayedAsset(viteId: string): boolean {
+	const url = new URL(viteId, 'file://');
 	return (
 		url.searchParams.has(DELAYED_ASSET_FLAG) &&
 		contentFileExts.some((ext) => url.pathname.endsWith(ext))
@@ -30,10 +31,10 @@ export function astroDelayedAssetPlugin({ mode }: { mode: string }): Plugin {
 			}
 		},
 		load(id) {
-			const url = new URL(id, 'file://');
-			if (isDelayedAsset(url)) {
+			if (isDelayedAsset(id)) {
+				const basePath = id.split('?')[0];
 				const code = `
-					export { Content, getHeadings, _internal } from ${JSON.stringify(url.pathname)};
+					export { Content, getHeadings, _internal } from ${JSON.stringify(basePath)};
 					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
 					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
 				`;
@@ -42,14 +43,13 @@ export function astroDelayedAssetPlugin({ mode }: { mode: string }): Plugin {
 		},
 		async transform(code, id, options) {
 			if (!options?.ssr) return;
-			const url = new URL(id, 'file://');
-			if (devModuleLoader && isDelayedAsset(url)) {
-				const { pathname } = url;
-				if (!devModuleLoader.getModuleById(pathname)?.ssrModule) {
-					await devModuleLoader.import(pathname);
+			if (devModuleLoader && isDelayedAsset(id)) {
+				const basePath = id.split('?')[0];
+				if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
+					await devModuleLoader.import(basePath);
 				}
 				const { stylesMap, urls } = await getStylesForURL(
-					pathToFileURL(pathname),
+					pathToFileURL(basePath),
 					devModuleLoader,
 					'development'
 				);
