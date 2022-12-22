@@ -15,7 +15,6 @@ export default function toRemarkContentRelImageError({ contentDir }: { contentDi
 
 			const relImagePaths = new Set<string>();
 			visit(tree, 'image', function raiseError(node: Image) {
-				console.log(node.url);
 				if (isRelativePath(node.url)) {
 					relImagePaths.add(node.url);
 				}
