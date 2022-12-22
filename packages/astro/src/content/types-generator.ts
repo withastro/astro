@@ -124,13 +124,12 @@ export async function createContentTypesGenerator({
 
 			return { shouldGenerateTypes: true };
 		}
-		const entryInfo = getEntryInfo({
-			entry: event.entry,
-			contentDir: contentPaths.contentDir,
-		});
-		// Not a valid `src/content/` entry. Silently return.
-		if (entryInfo instanceof Error) return { shouldGenerateTypes: false };
 		if (fileType === 'unknown') {
+			const entryInfo = getEntryInfo({
+				entry: event.entry,
+				contentDir: contentPaths.contentDir,
+				allowFilesOutsideCollection: true,
+			});
 			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
 				// Silently ignore `_` files.
 				return { shouldGenerateTypes: false };
@@ -141,7 +140,11 @@ export async function createContentTypesGenerator({
 				};
 			}
 		}
-		if (entryInfo.collection === '.') {
+		const entryInfo = getEntryInfo({
+			entry: event.entry,
+			contentDir: contentPaths.contentDir,
+		});
+		if (entryInfo instanceof NoCollectionError) {
 			if (['info', 'warn'].includes(logLevel)) {
 				warn(
 					logging,
@@ -257,16 +260,27 @@ function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey
 	delete contentTypes[collectionKey][entryKey];
 }
 
+export class NoCollectionError extends Error {}
+
+export function getEntryInfo(
+	params: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: true }
+): EntryInfo;
 export function getEntryInfo({
 	entry,
 	contentDir,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL }): EntryInfo | Error {
+	allowFilesOutsideCollection = false,
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: boolean }):
+	| EntryInfo
+	| NoCollectionError {
 	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
 	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
-	if (!rawCollection) return new Error();
+	const isOutsideCollection = rawCollection === '..' || rawCollection === '.';
+
+	if (!rawCollection || (!allowFilesOutsideCollection && isOutsideCollection))
+		return new NoCollectionError();
 
 	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawSlug = rawId.replace(path.extname(rawId), '').replace('index', '');
+	const rawSlug = rawId.replace(path.extname(rawId), '').replace('/index', '');
 	const rawSlugSegments = rawSlug.split(path.sep);
 	// Slugify each route segment to handle capitalization and spaces.
 	// Note: using `slug` instead of `new Slugger()` means no slug deduping.
