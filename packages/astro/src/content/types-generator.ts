@@ -1,4 +1,3 @@
-import { slug as githubSlug } from 'github-slugger';
 import glob from 'fast-glob';
 import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
@@ -13,18 +12,15 @@ import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
+	getEntryInfo,
 	getContentPaths,
 	loadContentConfig,
+	NoCollectionError,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
-type EntryInfo = {
-	id: string;
-	slug: string;
-	collection: string;
-};
 
 export type GenerateContentTypes = {
 	init(): Promise<void>;
@@ -258,45 +254,6 @@ function addEntry(
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
 	delete contentTypes[collectionKey][entryKey];
-}
-
-export class NoCollectionError extends Error {}
-
-export function getEntryInfo(
-	params: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: true }
-): EntryInfo;
-export function getEntryInfo({
-	entry,
-	contentDir,
-	allowFilesOutsideCollection = false,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: boolean }):
-	| EntryInfo
-	| NoCollectionError {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
-	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
-	const isOutsideCollection = rawCollection === '..' || rawCollection === '.';
-
-	if (!rawCollection || (!allowFilesOutsideCollection && isOutsideCollection))
-		return new NoCollectionError();
-
-	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawSlugSegments = rawId.split(path.sep);
-	const slug = rawSlugSegments
-		// Slugify each route segment to handle capitalization and spaces.
-		// Note: using `slug` instead of `new Slugger()` means no slug deduping.
-		.map((segment) => githubSlug(segment))
-		.join('/')
-		// Strip file extension
-		.replace(new RegExp(path.extname(rawId) + '$'), '')
-		// Strip trailing index
-		.replace(new RegExp('/index$'), '');
-
-	const res = {
-		id: normalizePath(rawId),
-		slug,
-		collection: normalizePath(rawCollection),
-	};
-	return res;
 }
 
 export function getEntryType(

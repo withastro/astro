@@ -1,4 +1,4 @@
-import { getEntryInfo } from '../../../dist/content/types-generator.js';
+import { getEntryInfo } from '../../../dist/content/utils.js';
 import { expect } from 'chai';
 
 describe('Content Collections - getEntryInfo', () => {

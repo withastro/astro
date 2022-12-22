@@ -10,7 +10,6 @@ import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import {
 	createContentTypesGenerator,
 	GenerateContentTypes,
-	getEntryInfo,
 	getEntryType,
 } from './types-generator.js';
 import {
@@ -19,6 +18,7 @@ import {
 	ContentPaths,
 	getContentPaths,
 	getEntryData,
+	getEntryInfo,
 	getEntrySlug,
 	parseFrontmatter,
 } from './utils.js';
