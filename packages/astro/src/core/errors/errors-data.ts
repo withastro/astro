@@ -552,6 +552,30 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (legacyConfigKey: string) => `Legacy configuration detected: \`${legacyConfigKey}\`.`,
 		hint: 'Please update your configuration to the new format.\nSee https://astro.build/config for more information.',
 	},
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name CLI Errors
+	 */
+	// CLI Errors - 8xxx
+	UnknownCLIError: {
+		title: 'Unknown CLI Error.',
+		code: 8000,
+	},
+	/**
+	 * @docs
+	 * @description
+	 * `astro sync` command failed to generate content collection types.
+	 * @see
+	 * - [Content collections documentation](https://docs.astro.build/en/guides/content-collections/)
+	 */
+	GenerateContentTypesError: {
+		title: 'Failed to generate content types.',
+		code: 8001,
+		message: '`astro sync` command failed to generate content collection types.',
+		hint: 'Check your `src/content/config.*` file for typos.',
+	},
+
 	// Generic catch-all
 	UnknownError: {
 		title: 'Unknown Error.',
