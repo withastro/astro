@@ -268,7 +268,8 @@ export function getEntryInfo({
 	const rawId = path.relative(rawCollection, rawRelativePath);
 	const rawSlug = rawId.replace(path.extname(rawId), '').replace('index', '');
 	const rawSlugSegments = rawSlug.split(path.sep);
-	// Slugify each route segment to handle spaces
+	// Slugify each route segment to handle capitalization and spaces.
+	// Note: creating `new Slugger()` prevents duplicate slug handling across routes.
 	const slug = rawSlugSegments.map((segment) => new Slugger().slug(segment)).join('/');
 
 	const res = {
