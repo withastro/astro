@@ -1,4 +1,4 @@
-import Slugger from 'github-slugger';
+import { slug as githubSlug } from 'github-slugger';
 import glob from 'fast-glob';
 import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
@@ -269,8 +269,8 @@ export function getEntryInfo({
 	const rawSlug = rawId.replace(path.extname(rawId), '').replace('index', '');
 	const rawSlugSegments = rawSlug.split(path.sep);
 	// Slugify each route segment to handle capitalization and spaces.
-	// Note: creating `new Slugger()` prevents duplicate slug handling across routes.
-	const slug = rawSlugSegments.map((segment) => new Slugger().slug(segment)).join('/');
+	// Note: using `slug` instead of `new Slugger()` means no slug deduping.
+	const slug = rawSlugSegments.map((segment) => githubSlug(segment)).join('/');
 
 	const res = {
 		id: normalizePath(rawId),
