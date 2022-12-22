@@ -133,11 +133,11 @@ export function getEntryInfo({
 	return res;
 }
 
-const flattenPath = (path: (string | number)[]) => path.join('.');
+const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
 
 const errorMap: z.ZodErrorMap = (error, ctx) => {
 	if (error.code === 'invalid_type') {
-		const badKeyPath = JSON.stringify(flattenPath(error.path));
+		const badKeyPath = JSON.stringify(flattenErrorPath(error.path));
 		if (error.received === 'undefined') {
 			return { message: `${badKeyPath} is required.` };
 		} else {
