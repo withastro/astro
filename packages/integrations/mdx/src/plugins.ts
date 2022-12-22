@@ -1,9 +1,11 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import type { Image } from 'mdast';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig, MarkdownAstroData } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
+import { visit } from 'unist-util-visit';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
 import rehypeRaw from 'rehype-raw';
@@ -15,7 +17,8 @@ import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { jsToTreeNode } from './utils.js';
+import { jsToTreeNode, isRelativePath } from './utils.js';
+import { pathToFileURL } from 'node:url';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -113,6 +116,34 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 	};
 }
 
+/**
+ * `src/content/` does not support relative image paths.
+ * This plugin throws an error if any are found
+ */
+function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
+	const contentDir = new URL('content/', srcDir);
+	return function remarkContentRelImageError() {
+		return (tree: any, vfile: VFile) => {
+			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
+			if (!isContentFile) return;
+
+			const relImagePaths = new Set<string>();
+			visit(tree, 'image', function raiseError(node: Image) {
+				if (isRelativePath(node.url)) {
+					relImagePaths.add(node.url);
+				}
+			});
+			if (relImagePaths.size === 0) return;
+
+			const errorMessage =
+				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files):\n` +
+				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
+
+			throw new Error(errorMessage);
+		};
+	};
+}
+
 const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
 const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
 
@@ -146,6 +177,11 @@ export async function getRemarkPlugins(
 	}
 
 	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
+
+	// Apply last in case user plugins resolve relative image paths
+	if (config.experimental.contentCollections) {
+		remarkPlugins.push(toRemarkContentRelImageError(config));
+	}
 	return remarkPlugins;
 }
 

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
+import { getContentPaths } from '../content/index.js';
 import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -71,6 +72,8 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
+					isExperimentalContentCollections: settings.config.experimental.contentCollections,
+					contentDir: getContentPaths(settings.config).contentDir,
 				} as any);
 
 				const html = renderResult.code;
