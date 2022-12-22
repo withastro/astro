@@ -193,6 +193,6 @@ export const _internal = {
 }
 
 function isContentFlagImport(viteId: string) {
-	const { pathname, searchParams } = new URL(viteId);
+	const { pathname, searchParams } = new URL(viteId, 'file://');
 	return searchParams.has(CONTENT_FLAG) && contentFileExts.some((ext) => pathname.endsWith(ext));
 }
