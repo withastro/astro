@@ -115,7 +115,8 @@ export function getEntryInfo({
 		return new NoCollectionError();
 
 	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawSlugSegments = rawId.replace(new RegExp(path.extname(rawId) + '$'), '').split(path.sep);
+	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
+	const rawSlugSegments = rawIdWithoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments
 		// Slugify each route segment to handle capitalization and spaces.
