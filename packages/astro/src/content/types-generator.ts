@@ -280,11 +280,16 @@ export function getEntryInfo({
 		return new NoCollectionError();
 
 	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawSlug = rawId.replace(path.extname(rawId), '').replace('/index', '');
-	const rawSlugSegments = rawSlug.split(path.sep);
-	// Slugify each route segment to handle capitalization and spaces.
-	// Note: using `slug` instead of `new Slugger()` means no slug deduping.
-	const slug = rawSlugSegments.map((segment) => githubSlug(segment)).join('/');
+	const rawSlugSegments = rawId.split(path.sep);
+	const slug = rawSlugSegments
+		// Slugify each route segment to handle capitalization and spaces.
+		// Note: using `slug` instead of `new Slugger()` means no slug deduping.
+		.map((segment) => githubSlug(segment))
+		.join('/')
+		// Strip file extension
+		.replace(new RegExp(path.extname(rawId) + '$'), '')
+		// Strip trailing index
+		.replace(new RegExp('/index$'), '');
 
 	const res = {
 		id: normalizePath(rawId),
