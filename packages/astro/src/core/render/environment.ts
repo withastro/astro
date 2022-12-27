@@ -21,7 +21,7 @@ export interface Environment {
 	site?: string;
 	ssr: boolean;
 	streaming: boolean;
-	telemetry: boolean;
+	telemetry?: boolean;
 }
 
 export type CreateEnvironmentArgs = Environment;
