@@ -56,5 +56,16 @@ describe('astro/src/core/cookies', () => {
 			expect(headers).to.have.a.lengthOf(1);
 			expect(headers[0]).to.match(/Path=\/subpath\//);
 		});
+
+		it('can provide a domain', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			cookies.delete('foo', {
+				domain: '.example.com',
+			});
+			let headers = Array.from(cookies.headers());
+			expect(headers).to.have.a.lengthOf(1);
+			expect(headers[0]).to.match(/Domain=\.example\.com/);
+		});
 	});
 });

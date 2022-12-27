@@ -82,7 +82,7 @@ export async function handleHotUpdate(
 	for (const file of files) {
 		if (isStyleOnlyChange && file === ctx.file) continue;
 		invalidateCompilation(config, file);
-		// If `ctx.file` is depended by an .astro file, e.g via `this.addWatchFile`,
+		// If `ctx.file` is depended by an .astro file, e.g. via `this.addWatchFile`,
 		// Vite doesn't trigger updating that .astro file by default. See:
 		// https://github.com/vitejs/vite/issues/3216
 		// For now, we trigger the change manually here.

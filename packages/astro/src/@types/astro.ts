@@ -8,6 +8,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
@@ -16,7 +17,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
-import type { AstroComponentFactory } from '../runtime/server';
+import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
@@ -82,6 +83,9 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	experimentalErrorOverlay?: boolean;
+	experimentalPrerender?: boolean;
+	experimentalContentCollections?: boolean;
 }
 
 export interface BuildConfig {
@@ -316,6 +320,16 @@ type ServerConfig = {
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 */
 	port?: number;
+
+	/**
+	 * @name server.headers
+	 * @typeraw {OutgoingHttpHeaders}
+	 * @default `{}`
+	 * @version 1.7.0
+	 * @description
+	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
+	 */
+	headers?: OutgoingHttpHeaders;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -431,6 +445,8 @@ export interface AstroUserConfig {
 	 * @type {string}
 	 * @description
 	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
+	 *
+	 * You can access this value in your app via `import.meta.env.BASE_URL`.
 	 *
 	 * ```js
 	 * {
@@ -661,6 +677,16 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 
+	/**
+	 * @docs
+	 * @name server.headers
+	 * @typeraw {OutgoingHttpHeaders}
+	 * @default `{}`
+	 * @version 1.7.0
+	 * @description
+	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
+	 */
+
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
@@ -809,7 +835,7 @@ export interface AstroUserConfig {
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
 	 *
-	 * Read our [Integrations Guide](/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
@@ -876,9 +902,9 @@ export interface AstroUserConfig {
 		 * @version 1.0.0-rc.1
 		 * @description
 		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` (and alternative extensions for markdown files like ".markdown") Markdown files.
-		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](https://docs.astro.build/en/guides/integrations-guide/mdx/).
 		 *
-		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).
+		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](https://docs.astro.build/en/guides/configuring-astro/#the-astro-config-file).
 		 *
 		 * ```js
 		 * {
@@ -890,6 +916,76 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		astroFlavoredMarkdown?: boolean;
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
+	 */
+	experimental?: {
+		/**
+		 * @docs
+		 * @name experimental.errorOverlay
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.7.0
+		 * @description
+		 * Turn on experimental support for the new error overlay component.
+		 *
+		 * To enable this feature, set `experimental.errorOverlay` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 * 		errorOverlay: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		errorOverlay?: boolean;
+		/**
+		 * @docs
+		 * @name experimental.prerender
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.7.0
+		 * @description
+		 * Enable experimental support for prerendered pages when generating a server.
+		 *
+		 * To enable this feature, set `experimental.prerender` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		prerender: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		prerender?: boolean;
+		/**
+		 * @docs
+		 * @name experimental.contentCollections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.7.0
+		 * @description
+		 * Enable experimental support for [Content Collections](https://docs.astro.build/en/guides/content-collections/). This makes the `src/content/` directory a reserved directory for Astro to manage, and introduces the `astro:content` module for querying this content.
+		 *
+		 * To enable this feature, set `experimental.contentCollections` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		contentCollections: true,
+		 * 	},
+		 * }
+		 */
+		contentCollections?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1190,7 +1286,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Redirect to another page (**SSR Only**).
 	 */
-	redirect(path: string, status?: 301 | 302 | 308): Response;
+	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
 }
 
 export interface APIContext<Props extends Record<string, any> = Record<string, any>>
@@ -1398,10 +1494,25 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 }
 
+/**
+ * A hint on whether the Astro runtime needs to wait on a component to render head
+ * content. The meanings:
+ *
+ * - __none__ (default) The component does not propagation head content.
+ * - __self__ The component appends head content.
+ * - __in-tree__ Another component within this component's dependency tree appends head content.
+ *
+ * These are used within the runtime to know whether or not a component should be waited on.
+ */
+export type PropagationHint = 'none' | 'self' | 'in-tree';
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
+	propagation: Map<string, PropagationHint>;
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
+	extraHead: Array<any>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

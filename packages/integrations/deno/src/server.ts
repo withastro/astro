@@ -2,7 +2,7 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 // @ts-ignore
-import { Server } from 'https://deno.land/std@0.132.0/http/server.ts';
+import { Server } from 'https://deno.land/std@0.167.0/http/server.ts';
 // @ts-ignore
 import { fetch } from 'https://deno.land/x/file_fetch/mod.ts';
 

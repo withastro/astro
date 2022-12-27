@@ -1,5 +1,65 @@
 # @astrojs/mdx
 
+## 0.14.0
+
+### Minor Changes
+
+- [#5654](https://github.com/withastro/astro/pull/5654) [`2c65b433b`](https://github.com/withastro/astro/commit/2c65b433bf840a1bb93b0a1947df5949e33512ff) Thanks [@delucis](https://github.com/delucis)! - Run heading ID injection after user plugins
+
+  ⚠️ BREAKING CHANGE ⚠️
+
+  If you are using a rehype plugin that depends on heading IDs injected by Astro, the IDs will no longer be available when your plugin runs by default.
+
+  To inject IDs before your plugins run, import and add the `rehypeHeadingIds` plugin to your `rehypePlugins` config:
+
+  ```diff
+  // astro.config.mjs
+  + import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+  import mdx from '@astrojs/mdx';
+
+  export default {
+    integrations: [mdx()],
+    markdown: {
+      rehypePlugins: [
+  +     rehypeHeadingIds,
+        otherPluginThatReliesOnHeadingIDs,
+      ],
+    },
+  }
+  ```
+
+### Patch Changes
+
+- [#5667](https://github.com/withastro/astro/pull/5667) [`a5ba4af79`](https://github.com/withastro/astro/commit/a5ba4af79930145f4edf66d45cd40ddad045cc86) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Chore: remove verbose "Now interiting Markdown plugins..." logs
+
+- [#5648](https://github.com/withastro/astro/pull/5648) [`853081d1c`](https://github.com/withastro/astro/commit/853081d1c857d8ad8a9634c37ed8fd123d32d241) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Prevent relative image paths in `src/content/`
+
+- Updated dependencies [[`853081d1c`](https://github.com/withastro/astro/commit/853081d1c857d8ad8a9634c37ed8fd123d32d241), [`2c65b433b`](https://github.com/withastro/astro/commit/2c65b433bf840a1bb93b0a1947df5949e33512ff)]:
+  - @astrojs/markdown-remark@1.2.0
+
+## 0.13.0
+
+### Minor Changes
+
+- [#5291](https://github.com/withastro/astro/pull/5291) [`5ec0f6ed5`](https://github.com/withastro/astro/commit/5ec0f6ed55b0a14a9663a90a03428345baf126bd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce Content Collections experimental API
+  - Organize your Markdown and MDX content into easy-to-manage collections.
+  - Add type safety to your frontmatter with schemas.
+  - Generate landing pages, static routes, and SSR endpoints from your content using the collection query APIs.
+
+## 0.12.2
+
+### Patch Changes
+
+- [#5586](https://github.com/withastro/astro/pull/5586) [`f4ff69a3c`](https://github.com/withastro/astro/commit/f4ff69a3cd874c8804c6d01c7cbbaed8a8e90be7) Thanks [@delucis](https://github.com/delucis)! - Fix link in MDX integration README
+
+- [#5570](https://github.com/withastro/astro/pull/5570) [`3f811eb68`](https://github.com/withastro/astro/commit/3f811eb682d55bd1f908f9b4bc3b795d2859d713) Thanks [@sarah11918](https://github.com/sarah11918)! - Revise README
+
+## 0.12.1
+
+### Patch Changes
+
+- [#5522](https://github.com/withastro/astro/pull/5522) [`efc4363e0`](https://github.com/withastro/astro/commit/efc4363e0baf7f92900e20af339811bb3df42b0e) Thanks [@delucis](https://github.com/delucis)! - Support use of `<Fragment>` in MDX files rendered with `<Content />` component
+
 ## 0.12.0
 
 ### Minor Changes

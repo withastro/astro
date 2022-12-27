@@ -1,9 +1,4 @@
-import type {
-	AstroComponentMetadata,
-	RouteData,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../@types/astro';
+import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
@@ -11,12 +6,15 @@ import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
+import { isPromise } from '../util.js';
 import {
+	createAstroComponentInstance,
 	isAstroComponentFactory,
-	renderAstroComponent,
+	isAstroComponentInstance,
+	renderAstroTemplateResult,
 	renderTemplate,
-	renderToIterable,
-} from './astro.js';
+	type AstroComponentInstance,
+} from './astro/index.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { renderSlot, renderSlots } from './slot.js';
@@ -45,65 +43,23 @@ function guessRenderers(componentUrl?: string): string[] {
 	}
 }
 
-type ComponentType = 'fragment' | 'html' | 'astro-factory' | 'unknown';
 export type ComponentIterable = AsyncIterable<string | HTMLBytes | RenderInstruction>;
 
-function getComponentType(Component: unknown): ComponentType {
-	if (Component === Fragment) {
-		return 'fragment';
-	}
-	if (Component && typeof Component === 'object' && (Component as any)['astro:html']) {
-		return 'html';
-	}
-	if (isAstroComponentFactory(Component)) {
-		return 'astro-factory';
-	}
-	return 'unknown';
+function isFragmentComponent(Component: unknown) {
+	return Component === Fragment;
 }
 
-export async function renderComponent(
+function isHTMLComponent(Component: unknown) {
+	return Component && typeof Component === 'object' && (Component as any)['astro:html'];
+}
+
+async function renderFrameworkComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
 	_props: Record<string | number, any>,
-	slots: any = {},
-	route?: RouteData | undefined
+	slots: any = {}
 ): Promise<ComponentIterable> {
-	Component = (await Component) ?? Component;
-
-	switch (getComponentType(Component)) {
-		case 'fragment': {
-			const children = await renderSlot(result, slots?.default);
-			if (children == null) {
-				return children;
-			}
-			return markHTMLString(children);
-		}
-
-		// .html components
-		case 'html': {
-			const { slotInstructions, children } = await renderSlots(result, slots);
-			const html = (Component as any).render({ slots: children });
-			const hydrationHtml = slotInstructions
-				? slotInstructions.map((instr) => stringifyChunk(result, instr)).join('')
-				: '';
-			return markHTMLString(hydrationHtml + html);
-		}
-
-		case 'astro-factory': {
-			async function* renderAstroComponentInline(): AsyncGenerator<
-				string | HTMLBytes | RenderInstruction,
-				void,
-				undefined
-			> {
-				let iterable = await renderToIterable(result, Component as any, displayName, _props, slots);
-				yield* iterable;
-			}
-
-			return renderAstroComponentInline();
-		}
-	}
-
 	if (!Component && !_props['client:only']) {
 		throw new Error(
 			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
@@ -283,12 +239,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// This is a custom element without a renderer. Because of that, render it
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
+		// Sanitize tag name because some people might try to inject attributes 🙄
+		const Tag = sanitizeElementName(Component);
 		const childSlots = Object.values(children).join('');
-		const iterable = renderAstroComponent(
-			await renderTemplate`<${Component}${internalSpreadAttributes(props)}${markHTMLString(
-				childSlots === '' && voidElementNames.test(Component)
-					? `/>`
-					: `>${childSlots}</${Component}>`
+		const iterable = renderAstroTemplateResult(
+			await renderTemplate`<${Tag}${internalSpreadAttributes(props)}${markHTMLString(
+				childSlots === '' && voidElementNames.test(Tag) ? `/>` : `>${childSlots}</${Tag}>`
 			)}`
 		);
 		html = '';
@@ -364,4 +320,75 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	return renderAll();
+}
+
+function sanitizeElementName(tag: string) {
+	const unsafe = /[&<>'"\s]+/g;
+	if (!unsafe.test(tag)) return tag;
+	return tag.trim().split(unsafe)[0].trim();
+}
+
+async function renderFragmentComponent(result: SSRResult, slots: any = {}) {
+	const children = await renderSlot(result, slots?.default);
+	if (children == null) {
+		return children;
+	}
+	return markHTMLString(children);
+}
+
+async function renderHTMLComponent(
+	result: SSRResult,
+	Component: unknown,
+	_props: Record<string | number, any>,
+	slots: any = {}
+) {
+	const { slotInstructions, children } = await renderSlots(result, slots);
+	const html = (Component as any).render({ slots: children });
+	const hydrationHtml = slotInstructions
+		? slotInstructions.map((instr) => stringifyChunk(result, instr)).join('')
+		: '';
+	return markHTMLString(hydrationHtml + html);
+}
+
+export function renderComponent(
+	result: SSRResult,
+	displayName: string,
+	Component: unknown,
+	props: Record<string | number, any>,
+	slots: any = {}
+): Promise<ComponentIterable> | ComponentIterable | AstroComponentInstance {
+	if (isPromise(Component)) {
+		return Promise.resolve(Component).then((Unwrapped) => {
+			return renderComponent(result, displayName, Unwrapped, props, slots) as any;
+		});
+	}
+
+	if (isFragmentComponent(Component)) {
+		return renderFragmentComponent(result, slots);
+	}
+
+	// .html components
+	if (isHTMLComponent(Component)) {
+		return renderHTMLComponent(result, Component, props, slots);
+	}
+
+	if (isAstroComponentFactory(Component)) {
+		return createAstroComponentInstance(result, displayName, Component, props, slots);
+	}
+
+	return renderFrameworkComponent(result, displayName, Component, props, slots);
+}
+
+export function renderComponentToIterable(
+	result: SSRResult,
+	displayName: string,
+	Component: unknown,
+	props: Record<string | number, any>,
+	slots: any = {}
+): Promise<ComponentIterable> | ComponentIterable {
+	const renderResult = renderComponent(result, displayName, Component, props, slots);
+	if (isAstroComponentInstance(renderResult)) {
+		return renderResult.render();
+	}
+	return renderResult;
 }

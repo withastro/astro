@@ -2,7 +2,7 @@ import { getHighlighter as getShikiHighlighter } from 'shiki';
 import { themes } from './shiki-themes.js';
 import { languages } from './shiki-languages.js';
 
-// Caches Promise<Highligher> for reuse when the same theme and langs are provided
+// Caches Promise<Highlighter> for reuse when the same theme and langs are provided
 const _resolvedHighlighters = new Map();
 
 /** @type {Promise<any>} */

@@ -3,6 +3,7 @@ import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
+import { OutgoingHttpHeaders } from 'http';
 import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
 import { fileURLToPath } from 'url';
@@ -45,6 +46,11 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	vite: {},
 	legacy: {
 		astroFlavoredMarkdown: false,
+	},
+	experimental: {
+		errorOverlay: false,
+		prerender: false,
+		contentCollections: false,
 	},
 };
 
@@ -125,6 +131,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+				headers: z.custom<OutgoingHttpHeaders>().optional(),
 			})
 			.optional()
 			.default({})
@@ -185,6 +192,17 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	experimental: z
+		.object({
+			errorOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.errorOverlay),
+			prerender: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
+			contentCollections: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollections),
+		})
+		.optional()
+		.default({}),
 	legacy: z
 		.object({
 			astroFlavoredMarkdown: z
@@ -287,6 +305,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
 				})
 				.optional()

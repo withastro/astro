@@ -75,7 +75,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	return aliases;
 };
 
-/** Returns a Vite plugin used to alias pathes from tsconfig.json and jsconfig.json. */
+/** Returns a Vite plugin used to alias paths from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
 	settings,
 }: {

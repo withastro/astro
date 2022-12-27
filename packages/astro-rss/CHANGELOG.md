@@ -1,5 +1,34 @@
 # @astrojs/rss
 
+## 2.0.0
+
+### Major Changes
+
+- [#5612](https://github.com/withastro/astro/pull/5612) [`68c20be66`](https://github.com/withastro/astro/commit/68c20be66b197e6c525cd292823a3a728f238547) Thanks [@equt](https://github.com/equt)! - Filter out draft in RSS generation
+
+## 1.2.1
+
+### Patch Changes
+
+- [#5600](https://github.com/withastro/astro/pull/5600) [`c4155daea`](https://github.com/withastro/astro/commit/c4155daeabe1b8191ad9ed1fa5893759f1fe5c4c) Thanks [@fflaten](https://github.com/fflaten)! - Fix missing type-attribute in xml-stylesheet
+
+## 1.2.0
+
+### Minor Changes
+
+- [`c76e1c810`](https://github.com/withastro/astro/commit/c76e1c810228fb53cd9c34edc73747b0ab64dc28) Thanks [@mattstein](https://github.com/mattstein)! - Fixes a bug that prevented an item’s `customData` from being included.
+
+## 1.1.0
+
+### Minor Changes
+
+- [#5366](https://github.com/withastro/astro/pull/5366) [`081e0a9d2`](https://github.com/withastro/astro/commit/081e0a9d2070b23d596b687ad52ed3a68bc3ac24) Thanks [@smithbm2316](https://github.com/smithbm2316)! - Added the ability for users to include the full content of their posts/items in each RSS feed entry
+  via the new `content` key on the `RSSFeedItem` model.
+
+### Patch Changes
+
+- [#5550](https://github.com/withastro/astro/pull/5550) [`fe0da0185`](https://github.com/withastro/astro/commit/fe0da0185a85762ac5ac5bf66ea91947af1c329d) Thanks [@andersk](https://github.com/andersk)! - Generate RSS feed with proper XML escaping
+
 ## 1.0.3
 
 ### Patch Changes

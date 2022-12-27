@@ -49,7 +49,7 @@ export function shorthash(text: string) {
 	let result = '';
 
 	let integer = bitwise(text);
-	const sign = integer < 0 ? 'Z' : ''; // It it's negative, start with Z, which isn't in the dictionary
+	const sign = integer < 0 ? 'Z' : ''; // If it's negative, start with Z, which isn't in the dictionary
 
 	integer = Math.abs(integer);
 

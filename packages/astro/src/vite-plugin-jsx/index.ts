@@ -1,11 +1,10 @@
 import type { TransformResult } from 'rollup';
-import type { Plugin, ResolvedConfig } from 'vite';
+import { EsbuildTransformOptions, Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
-import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
@@ -21,12 +20,10 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 	astro: "import 'astro/jsx-runtime'",
 };
 
-// A fast check regex for the import keyword. False positives are okay.
-const IMPORT_KEYWORD_REGEX = /import/;
-
-function getEsbuildLoader(fileExt: string): string {
+function getEsbuildLoader(filePath: string): EsbuildTransformOptions['loader'] {
+	const fileExt = path.extname(filePath);
 	if (fileExt === '.mdx') return 'jsx';
-	return fileExt.slice(1);
+	return fileExt.slice(1) as EsbuildTransformOptions['loader'];
 }
 
 function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRenderer> {
@@ -139,11 +136,16 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
 			if (id.endsWith('.mdx')) {
-				const { code: jsxCode } = await esbuild.transform(code, {
-					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+				const { code: jsxCode } = await transformWithEsbuild(code, id, {
+					loader: getEsbuildLoader(id),
 					jsx: 'preserve',
-					sourcefile: id,
 					sourcemap: 'inline',
+					tsconfigRaw: {
+						compilerOptions: {
+							// Ensure client:only imports are treeshaken
+							importsNotUsedAsValues: 'remove',
+						},
+					},
 				});
 				return transformJSX({
 					code: jsxCode,
@@ -156,10 +158,9 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			}
 			if (defaultJSXRendererEntry && jsxRenderersIntegrationOnly.size === 1) {
 				// downlevel any non-standard syntax, but preserve JSX
-				const { code: jsxCode } = await esbuild.transform(code, {
-					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+				const { code: jsxCode } = await transformWithEsbuild(code, id, {
+					loader: getEsbuildLoader(id),
 					jsx: 'preserve',
-					sourcefile: id,
 					sourcemap: 'inline',
 				});
 				return transformJSX({
@@ -214,10 +215,9 @@ https://docs.astro.build/en/core-concepts/framework-components/#installing-integ
 			}
 
 			// downlevel any non-standard syntax, but preserve JSX
-			const { code: jsxCode } = await esbuild.transform(code, {
-				loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+			const { code: jsxCode } = await transformWithEsbuild(code, id, {
+				loader: getEsbuildLoader(id),
 				jsx: 'preserve',
-				sourcefile: id,
 				sourcemap: 'inline',
 			});
 			return await transformJSX({

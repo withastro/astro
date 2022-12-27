@@ -12,7 +12,8 @@ import type {
 	RouteType,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { BuildInternals } from '../../core/build/internal.js';
+import { getContentPaths } from '../../content/index.js';
+import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
@@ -29,7 +30,12 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
+import {
+	eachPageData,
+	eachPrerenderedPageData,
+	getPageDataByComponent,
+	sortedCSS,
+} from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -70,17 +76,32 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
-
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+
+	if (
+		opts.settings.config.experimental.prerender &&
+		opts.settings.config.output === 'server' &&
+		!hasPrerenderedPages(internals)
+	)
+		return;
+
+	const verb = ssr ? 'prerendering' : 'generating';
+	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	for (const pageData of eachPageData(internals)) {
-		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+	if (opts.settings.config.experimental.prerender && opts.settings.config.output === 'server') {
+		for (const pageData of eachPrerenderedPageData(internals)) {
+			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		}
+	} else {
+		for (const pageData of eachPageData(internals)) {
+			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		}
 	}
 
 	await runHookBuildGenerated({
@@ -106,7 +127,7 @@ async function generatePage(
 	const linkIds: string[] = sortedCSS(pageData);
 	const scripts = pageInfo?.hoistedScript ?? null;
 
-	const pageModule = ssrEntry.pageMap.get(pageData.component);
+	const pageModule = ssrEntry.pageMap?.get(pageData.component);
 
 	if (!pageModule) {
 		throw new Error(
@@ -163,7 +184,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server',
+			ssr: false,
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -332,6 +353,8 @@ async function generatePath(
 		markdown: {
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			isExperimentalContentCollections: settings.config.experimental.contentCollections,
+			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		mode: opts.mode,
 		renderers,

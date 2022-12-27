@@ -54,6 +54,10 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 		scopedClassName: string | null;
 	};
 	isAstroFlavoredMd?: boolean;
+	/** Used to prevent relative image imports from `src/content/` */
+	isExperimentalContentCollections?: boolean;
+	/** Used to prevent relative image imports from `src/content/` */
+	contentDir: URL;
 }
 
 export interface MarkdownHeading {
@@ -66,6 +70,12 @@ export interface MarkdownMetadata {
 	headings: MarkdownHeading[];
 	source: string;
 	html: string;
+}
+
+export interface MarkdownVFile extends VFile {
+	data: {
+		__astroHeadings?: MarkdownHeading[];
+	};
 }
 
 export interface MarkdownRenderingResult {

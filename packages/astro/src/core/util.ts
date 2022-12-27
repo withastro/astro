@@ -140,6 +140,12 @@ export function isPage(file: URL, settings: AstroSettings): boolean {
 	return endsWithPageExt(file, settings);
 }
 
+export function isEndpoint(file: URL, settings: AstroSettings): boolean {
+	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isPublicRoute(file, settings.config)) return false;
+	return !endsWithPageExt(file, settings);
+}
+
 export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
 	return settings.config.output === 'server' && !settings.adapter;
 }

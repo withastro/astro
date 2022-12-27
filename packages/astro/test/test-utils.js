@@ -7,6 +7,7 @@ import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
+import { sync } from '../dist/cli/sync/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
@@ -58,7 +59,7 @@ export const defaultLogging = {
  *
  *   Dev
  *   .startDevServer() - Async. Starts a dev server at an available port. Be sure to call devServer.stop() before test exit.
- *   .fetch(url)       - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *   .fetch(url)       - Async. Returns a URL from the preview server (must have called .preview() before)
  *
  *   Preview
  *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
@@ -69,14 +70,6 @@ export const defaultLogging = {
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.root)
 		throw new Error("Must provide { root: './fixtures/...' }");
-
-	// Compatible with different Node versions (https://vitejs.dev/guide/migration.html#dev-server-changes)
-	// TODO: Remove this to test in Node >= 17 where the dns resolver is verbatim
-	if (!inlineConfig?.server) {
-		inlineConfig.server = {
-			host: '127.0.0.1',
-		};
-	}
 
 	// load config
 	let cwd = inlineConfig.root;
@@ -118,9 +111,9 @@ export async function loadFixture(inlineConfig) {
 	};
 
 	const resolveUrl = (url) =>
-		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+		`http://${config.server.host}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
-	// A map of files that have been editted.
+	// A map of files that have been edited.
 	let fileEdits = new Map();
 
 	const resetAllFiles = () => {
@@ -147,8 +140,10 @@ export async function loadFixture(inlineConfig) {
 
 	return {
 		build: (opts = {}) => build(settings, { logging, telemetry, ...opts }),
+		sync: (opts) => sync(settings, { logging, fs, ...opts }),
 		startDevServer: async (opts = {}) => {
 			devServer = await dev(settings, { logging, telemetry, ...opts });
+			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
 		},
@@ -157,6 +152,8 @@ export async function loadFixture(inlineConfig) {
 		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
+			config.server.host = parseAddressToHost(previewServer.host); // update host
+			config.server.port = previewServer.port; // update port
 			return previewServer;
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
@@ -199,6 +196,16 @@ export async function loadFixture(inlineConfig) {
 		},
 		resetAllFiles,
 	};
+}
+
+/**
+ * @param {string} [address]
+ */
+function parseAddressToHost(address) {
+	if (address?.startsWith('::')) {
+		return `[${address}]`;
+	}
+	return address;
 }
 
 /**

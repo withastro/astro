@@ -7,6 +7,7 @@ import fs from 'fs';
 import { downloadTemplate } from 'giget';
 import { bold, dim, green, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
+import { platform } from 'os';
 import path from 'path';
 import prompts from 'prompts';
 import detectPackageManager from 'which-pm-runs';
@@ -30,6 +31,8 @@ import { TEMPLATES } from './templates.js';
 // fixes the issue so that create-astro now works on all npm version.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
 const args = yargs(cleanArgv, { boolean: ['fancy'] });
+// Always skip Houston on Windows (for now)
+if (platform() === 'win32') args.skipHouston = true;
 prompts.override(args);
 
 // Enable full unicode support if the `--fancy` flag is passed

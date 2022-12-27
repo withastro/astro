@@ -5,12 +5,17 @@ import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
+import { getContentPaths } from '../content/index.js';
 import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
+import {
+	escapeViteEnvReferences,
+	getFileInfo,
+	safelyGetAstroData,
+} from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -67,6 +72,8 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
+					isExperimentalContentCollections: settings.config.experimental.contentCollections,
+					contentDir: getContentPaths(settings.config).contentDir,
 				} as any);
 
 				const html = renderResult.code;
@@ -88,11 +95,14 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from '${astroJsxRuntimeModulePath}';
+				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				const html = ${JSON.stringify(html)};
 
+				export const _internal = {
+					injectedFrontmatter: ${JSON.stringify(injectedFrontmatter)},
+				}
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
 				export const url = ${JSON.stringify(fileUrl)};
@@ -157,6 +167,8 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 							hydratedComponents: [],
 							clientOnlyComponents: [],
 							scripts: [],
+							propagation: 'none',
+							pageOptions: {},
 						} as PluginMetadata['astro'],
 						vite: {
 							lang: 'ts',
@@ -166,11 +178,4 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 			}
 		},
 	};
-}
-
-// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
-// which prevents Vite from replacing strings like `import.meta.env.SITE`
-// in our JS representation of loaded Markdown files
-function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

@@ -76,7 +76,7 @@ export interface RouteCacheEntry {
 }
 
 /**
- * Manange the route cache, responsible for caching data related to each route,
+ * Manage the route cache, responsible for caching data related to each route,
  * including the result of calling getStaticPath() so that it can be reused across
  * responses during dev and only ever called once during build.
  */

@@ -18,7 +18,8 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import { ResolvedServerUrls } from 'vite';
 import { ZodError } from 'zod';
-import { ErrorWithMetadata } from './errors/index.js';
+import { renderErrorMarkdown } from './errors/dev/utils.js';
+import { AstroError, CompilerError, ErrorWithMetadata } from './errors/index.js';
 import { removeTrailingForwardSlash } from './path.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
@@ -254,10 +255,18 @@ export function formatConfigErrorMessage(err: ZodError) {
 }
 
 export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
-	args.push(`${bgRed(black(` error `))}${red(bold(padMultilineString(err.message)))}`);
+	const isOurError = AstroError.is(err) || CompilerError.is(err);
+
+	args.push(
+		`${bgRed(black(` error `))}${red(
+			padMultilineString(isOurError ? renderErrorMarkdown(err.message, 'cli') : err.message)
+		)}`
+	);
 	if (err.hint) {
 		args.push(`  ${bold('Hint:')}`);
-		args.push(yellow(padMultilineString(err.hint, 4)));
+		args.push(
+			yellow(padMultilineString(isOurError ? renderErrorMarkdown(err.hint, 'cli') : err.hint, 4))
+		);
 	}
 	if (err.id || err.loc?.file) {
 		args.push(`  ${bold('File:')}`);
@@ -271,7 +280,7 @@ export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []):
 	}
 	if (err.frame) {
 		args.push(`  ${bold('Code:')}`);
-		args.push(red(padMultilineString(err.frame, 4)));
+		args.push(red(padMultilineString(err.frame.trim(), 4)));
 	}
 	if (args.length === 1 && err.stack) {
 		args.push(dim(err.stack));

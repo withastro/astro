@@ -22,7 +22,7 @@ export default (element) =>
 			children != null ? createElement(StaticHtml, { value: children }) : children
 		);
 		const rootKey = isAlreadyHydrated(element);
-		// HACK: delete internal react marker for nested components to suppress agressive warnings
+		// HACK: delete internal react marker for nested components to suppress aggressive warnings
 		if (rootKey) {
 			delete element[rootKey];
 		}

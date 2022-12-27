@@ -1,11 +1,12 @@
-import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
+import type { MarkdownRenderingOptions, MarkdownRenderingResult, MarkdownVFile } from './types';
 
 import { loadPlugins } from './load-plugins.js';
-import createCollectHeadings from './rehype-collect-headings.js';
+import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
 import rehypeJsx from './rehype-jsx.js';
+import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 import remarkEscape from './remark-escape.js';
 import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
@@ -22,6 +23,7 @@ import markdownToHtml from 'remark-rehype';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 
+export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
@@ -41,10 +43,11 @@ export async function renderMarkdown(
 		remarkRehype = {},
 		extendDefaultPlugins = false,
 		isAstroFlavoredMd = false,
+		isExperimentalContentCollections = false,
+		contentDir,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
-	const { headings, rehypeCollectHeadings } = createCollectHeadings();
 
 	let parser = unified()
 		.use(markdown)
@@ -73,6 +76,11 @@ export async function renderMarkdown(
 		parser.use([remarkPrism(scopedClassName)]);
 	}
 
+	// Apply later in case user plugins resolve relative image paths
+	if (isExperimentalContentCollections) {
+		parser.use([toRemarkContentRelImageError({ contentDir })]);
+	}
+
 	parser.use([
 		[
 			markdownToHtml as any,
@@ -99,12 +107,12 @@ export async function renderMarkdown(
 	parser
 		.use(
 			isAstroFlavoredMd
-				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeadings]
-				: [rehypeCollectHeadings, rehypeRaw]
+				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeHeadingIds]
+				: [rehypeHeadingIds, rehypeRaw]
 		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
-	let vfile: VFile;
+	let vfile: MarkdownVFile;
 	try {
 		vfile = await parser.process(input);
 	} catch (err) {
@@ -116,6 +124,7 @@ export async function renderMarkdown(
 		throw err;
 	}
 
+	const headings = vfile?.data.__astroHeadings || [];
 	return {
 		metadata: { headings, source: content, html: String(vfile.value) },
 		code: String(vfile.value),

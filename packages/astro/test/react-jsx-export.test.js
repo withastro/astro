@@ -47,7 +47,7 @@ describe('react-jsx-export', () => {
 		});
 	});
 
-	it('Can not output React Invalid Hook warning', async () => {
+	it('Cannot output React Invalid Hook warning', async () => {
 		expect(logs.every((log) => log.message.indexOf(reactInvalidHookWarning) === -1)).to.be.true;
 	});
 });

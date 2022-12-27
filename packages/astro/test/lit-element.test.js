@@ -46,7 +46,7 @@ describe('LitElement test', function () {
 		expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="bool">B</div>`);
 
 		// test 5: object reactive property set
-		// by default objects will be stringifed to [object Object]
+		// by default objects will be stringified to [object Object]
 		expect(stripExpressionMarkers($('my-element').html())).to.include(
 			`<div id="data">data: 1</div>`
 		);

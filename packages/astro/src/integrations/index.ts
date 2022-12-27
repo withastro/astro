@@ -1,5 +1,6 @@
 import { bold } from 'kleur/colors';
 import type { AddressInfo } from 'net';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import {
@@ -345,6 +346,7 @@ export async function runHookBuildDone({
 	logging: LogOptions;
 }) {
 	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {

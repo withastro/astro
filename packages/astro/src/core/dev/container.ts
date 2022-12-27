@@ -65,7 +65,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		logging,
 		isRestart,
 	});
-	const { host } = settings.config.server;
+	const { host, headers } = settings.config.server;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
@@ -76,13 +76,13 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
-			server: { host },
+			server: { host, headers },
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
 			define: {
 				'import.meta.env.BASE_URL': settings.config.base
-					? `'${settings.config.base}'`
+					? JSON.stringify(settings.config.base)
 					: 'undefined',
 			},
 		},

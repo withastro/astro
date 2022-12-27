@@ -43,6 +43,12 @@ export async function copyDependenciesToFunction({
 					`[@astrojs/vercel] The module "${module}" inside the file "${file}" couldn't be resolved. This may not be a problem, but it's worth checking.`
 				);
 			}
+		}
+		// parse errors are likely not js and can safely be ignored,
+		// such as this html file in "main" meant for nw instead of node:
+		// https://github.com/vercel/nft/issues/311
+		else if (error.message.startsWith('Failed to parse')) {
+			continue;
 		} else {
 			throw error;
 		}

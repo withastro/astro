@@ -2,6 +2,8 @@
 // Additionally, this code, much like `@types/astro.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
+import type { ZodError } from 'zod';
+
 interface ErrorData {
 	code: number;
 	title: string;
@@ -109,9 +111,9 @@ export const AstroErrorData = defineErrors({
 		title: 'Invalid type returned by Astro page.',
 		code: 3005,
 		message: (route: string | undefined, returnedValue: string) =>
-			`Route ${
+			`Route \`${
 				route ? route : ''
-			} returned a \`${returnedValue}\`. Only a Response can be returned from Astro files.`,
+			}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#response for more information.',
 	},
 	/**
@@ -190,7 +192,7 @@ but ${plural ? 'none were.' : 'it was not.'} able to server-side render \`${comp
 	 * - [`client:only`](https://docs.astro.build/en/reference/directives-reference/#clientonly)
 	 * @description
 	 *
-	 * `client:only` components are not ran on the server, as such Astro does not know (and cannot guess) which renderer to use and require a hint. Like such:
+	 * `client:only` components are not run on the server, as such Astro does not know (and cannot guess) which renderer to use and require a hint. Like such:
 	 *
 	 * ```astro
 	 *	<SomeReactComponent client:only="react" />
@@ -373,7 +375,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * - [Server-side Rendering](https://docs.astro.build/en/guides/server-side-rendering/)
 	 * - [Adding an Adapter](https://docs.astro.build/en/guides/server-side-rendering/#adding-an-adapter)
 	 * @description
-	 * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targetted deployment platform.
+	 * To use server-side rendering, an adapter needs to be installed so Astro knows how to generate the proper output for your targeted deployment platform.
 	 */
 	NoAdapterInstalled: {
 		title: 'Cannot use Server-side Rendering without an adapter.',
@@ -392,6 +394,25 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (componentName: string) =>
 			`Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
 		hint: 'Please make sure the component is properly imported.',
+	},
+	/**
+	 * @docs
+	 * @message
+	 * **Example error messages:**<br/>
+	 * InvalidPrerenderExport: A `prerender` export has been detected, but its value cannot be statically analyzed.
+	 * @description
+	 * The `prerender` feature only supports a subset of valid JavaScript — be sure to use exactly `export const prerender = true` so that our compiler can detect this directive at build time. Variables, `let`, and `var` declarations are not supported.
+	 */
+	InvalidPrerenderExport: {
+		title: 'Invalid prerender export.',
+		code: 3019,
+		message: (prefix: string, suffix: string) => {
+			let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
+			if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
+			if (suffix !== 'true') msg += `\nExpected \`true\` value but got \`${suffix}\`.`;
+			return msg;
+		},
+		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
 	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
@@ -475,6 +496,30 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Failed to parse Markdown frontmatter.',
 		code: 6001,
 	},
+	/**
+	 * @docs
+	 * @message
+	 * **Example error message:**<br/>
+	 * Could not parse frontmatter in **blog** → **post.md**<br/>
+	 * "title" is required.<br/>
+	 * "date" must be a valid date.
+	 * @description
+	 * A Markdown document's frontmatter in `src/content/` does not match its collection schema.
+	 * Make sure that all required fields are present, and that all fields are of the correct type.
+	 * You can check against the collection schema in your `src/content/config.*` file.
+	 * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+	 */
+	MarkdownContentSchemaValidationError: {
+		title: 'Content collection frontmatter invalid.',
+		code: 6002,
+		message: (collection: string, entryId: string, error: ZodError) => {
+			return [
+				`${String(collection)} → ${String(entryId)} frontmatter does not match collection schema.`,
+				...error.errors.map((zodError) => zodError.message),
+			].join('\n');
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {
 		title: 'Unknown configuration error.',
@@ -507,6 +552,30 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (legacyConfigKey: string) => `Legacy configuration detected: \`${legacyConfigKey}\`.`,
 		hint: 'Please update your configuration to the new format.\nSee https://astro.build/config for more information.',
 	},
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name CLI Errors
+	 */
+	// CLI Errors - 8xxx
+	UnknownCLIError: {
+		title: 'Unknown CLI Error.',
+		code: 8000,
+	},
+	/**
+	 * @docs
+	 * @description
+	 * `astro sync` command failed to generate content collection types.
+	 * @see
+	 * - [Content collections documentation](https://docs.astro.build/en/guides/content-collections/)
+	 */
+	GenerateContentTypesError: {
+		title: 'Failed to generate content types.',
+		code: 8001,
+		message: '`astro sync` command failed to generate content collection types.',
+		hint: 'Check your `src/content/config.*` file for typos.',
+	},
+
 	// Generic catch-all
 	UnknownError: {
 		title: 'Unknown Error.',

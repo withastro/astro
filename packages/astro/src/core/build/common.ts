@@ -7,7 +7,11 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	return new URL('./', astroConfig.outDir);
+	if (astroConfig.output === 'static') {
+		return new URL('./', astroConfig.outDir);
+	} else {
+		return new URL('./', astroConfig.build.client);
+	}
 }
 
 export function getOutFolder(

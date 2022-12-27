@@ -1,3 +1,4 @@
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -5,16 +6,19 @@ import type { AstroConfig, MarkdownAstroData } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
+import type { Image } from 'mdast';
+import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
+import { visit } from 'unist-util-visit';
 import type { Data, VFile } from 'vfile';
 import { MdxOptions } from './index.js';
-import rehypeCollectHeadings from './rehype-collect-headings.js';
+import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { jsToTreeNode } from './utils.js';
+import { isRelativePath, jsToTreeNode } from './utils.js';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -51,14 +55,18 @@ export function remarkInitializeAstroData() {
 	};
 }
 
-const EXPORT_NAME = 'frontmatter';
-
 export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any>) {
 	return function (tree: any, vfile: VFile) {
 		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
 		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
 		const exportNodes = [
-			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
+			jsToTreeNode(
+				`export const frontmatter = ${JSON.stringify(
+					frontmatter
+				)};\nexport const _internal = { injectedFrontmatter: ${JSON.stringify(
+					injectedFrontmatter
+				)} };`
+			),
 		];
 		if (frontmatter.layout) {
 			// NOTE(bholmesdev) 08-22-2022
@@ -69,7 +77,7 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 				jsToTreeNode(
 					/** @see 'vite-plugin-markdown' for layout props reference */
 					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
-				
+
 				export default async function ({ children }) {
 					const Layout = (await import(${JSON.stringify(frontmatter.layout)})).default;
 					const { layout, ...content } = frontmatter;
@@ -108,6 +116,34 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 	};
 }
 
+/**
+ * `src/content/` does not support relative image paths.
+ * This plugin throws an error if any are found
+ */
+function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
+	const contentDir = new URL('content/', srcDir);
+	return function remarkContentRelImageError() {
+		return (tree: any, vfile: VFile) => {
+			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
+			if (!isContentFile) return;
+
+			const relImagePaths = new Set<string>();
+			visit(tree, 'image', function raiseError(node: Image) {
+				if (isRelativePath(node.url)) {
+					relImagePaths.add(node.url);
+				}
+			});
+			if (relImagePaths.size === 0) return;
+
+			const errorMessage =
+				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files):\n` +
+				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
+
+			throw new Error(errorMessage);
+		};
+	};
+}
+
 const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
 const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
 
@@ -141,6 +177,11 @@ export async function getRemarkPlugins(
 	}
 
 	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
+
+	// Apply last in case user plugins resolve relative image paths
+	if (config.experimental.contentCollections) {
+		remarkPlugins.push(toRemarkContentRelImageError(config));
+	}
 	return remarkPlugins;
 }
 
@@ -149,8 +190,6 @@ export function getRehypePlugins(
 	config: AstroConfig
 ): MdxRollupPluginOptions['rehypePlugins'] {
 	let rehypePlugins: PluggableList = [
-		// getHeadings() is guaranteed by TS, so we can't allow user to override
-		rehypeCollectHeadings,
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
@@ -171,7 +210,14 @@ export function getRehypePlugins(
 			break;
 	}
 
-	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
+	rehypePlugins = [
+		...rehypePlugins,
+		...(mdxOptions.rehypePlugins ?? []),
+		// getHeadings() is guaranteed by TS, so this must be included.
+		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
+		rehypeHeadingIds,
+		rehypeInjectHeadingsExport,
+	];
 	return rehypePlugins;
 }
 
