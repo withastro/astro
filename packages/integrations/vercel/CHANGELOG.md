@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.4.0
+
+### Minor Changes
+
+- [#5638](https://github.com/withastro/astro/pull/5638) [`a467139e1`](https://github.com/withastro/astro/commit/a467139e169ad2eb7931e03004f1d658f7362e59) Thanks [@andreademasi](https://github.com/andreademasi)! - Ignore warnings when traced file fails to parse
+
 ## 2.3.6
 
 ### Patch Changes
