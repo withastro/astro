@@ -26,7 +26,7 @@ describe('Pages', () => {
 			const html = await fixture.readFile("/quotes'-work-too/index.html");
 			const $ = cheerio.load(html);
 
-			expect($('h1').text()).to.equal("Quotes work too");
+			expect($('h1').text()).to.equal('Quotes work too');
 		});
 	});
 
