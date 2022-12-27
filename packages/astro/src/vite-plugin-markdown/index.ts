@@ -95,7 +95,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from '${astroJsxRuntimeModulePath}';
+				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				const html = ${JSON.stringify(html)};

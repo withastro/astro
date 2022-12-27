@@ -133,7 +133,9 @@ export async function createVite(
 		root: fileURLToPath(settings.config.root),
 		envPrefix: 'PUBLIC_',
 		define: {
-			'import.meta.env.SITE': settings.config.site ? `'${settings.config.site}'` : 'undefined',
+			'import.meta.env.SITE': settings.config.site
+				? JSON.stringify(settings.config.site)
+				: 'undefined',
 		},
 		server: {
 			hmr:

@@ -82,7 +82,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 			},
 			define: {
 				'import.meta.env.BASE_URL': settings.config.base
-					? `'${settings.config.base}'`
+					? JSON.stringify(settings.config.base)
 					: 'undefined',
 			},
 		},

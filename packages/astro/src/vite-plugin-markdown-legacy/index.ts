@@ -174,8 +174,8 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 
 				const prelude = `---
 import Slugger from 'github-slugger';
-${layout ? `import Layout from '${layout}';` : ''}
-${components ? `import * from '${components}';` : ''}
+${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
+${components ? `import * from ${JSON.stringify(components)};` : ''}
 ${setup}
 
 const slugger = new Slugger();
@@ -193,7 +193,7 @@ Object.defineProperty($$content.astro, 'headers', {
 });
 ---`;
 
-				const imports = `${layout ? `import Layout from '${layout}';` : ''}
+				const imports = `${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 ${setup}`.trim();
 
 				// If the user imported "Layout", wrap the content in a Layout

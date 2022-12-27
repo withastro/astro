@@ -37,9 +37,9 @@ function getPrivateEnv(
 			}
 		}
 	}
-	privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
+	privateEnv.SITE = astroConfig.site ? JSON.stringify(astroConfig.site) : 'undefined';
 	privateEnv.SSR = JSON.stringify(true);
-	privateEnv.BASE_URL = astroConfig.base ? `'${astroConfig.base}'` : 'undefined';
+	privateEnv.BASE_URL = astroConfig.base ? JSON.stringify(astroConfig.base) : 'undefined';
 	return privateEnv;
 }
 
