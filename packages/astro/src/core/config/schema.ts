@@ -1,4 +1,5 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
@@ -31,18 +32,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
-	markdown: {
-		drafts: false,
-		syntaxHighlight: 'shiki',
-		shikiConfig: {
-			langs: [],
-			theme: 'github-dark',
-			wrap: false,
-		},
-		remarkPlugins: [],
-		rehypePlugins: [],
-		remarkRehype: {},
-	},
+	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {
 		astroFlavoredMarkdown: false,
@@ -184,7 +174,9 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			githubFlavoredMarkdown: z.boolean().default(true),
+			githubFlavoredMarkdown: z
+				.boolean()
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.githubFlavoredMarkdown),
 		})
 		.default({}),
 	vite: z

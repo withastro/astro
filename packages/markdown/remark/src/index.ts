@@ -1,4 +1,9 @@
-import type { MarkdownRenderingOptions, MarkdownRenderingResult, MarkdownVFile } from './types';
+import type {
+	AstroMarkdownOptions,
+	MarkdownRenderingOptions,
+	MarkdownRenderingResult,
+	MarkdownVFile,
+} from './types';
 
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -27,6 +32,20 @@ import { VFile } from 'vfile';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
 
+export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
+	drafts: false,
+	syntaxHighlight: 'shiki',
+	shikiConfig: {
+		langs: [],
+		theme: 'github-dark',
+		wrap: false,
+	},
+	remarkPlugins: [],
+	rehypePlugins: [],
+	remarkRehype: {},
+	githubFlavoredMarkdown: true,
+};
+
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
@@ -34,12 +53,12 @@ export async function renderMarkdown(
 ): Promise<MarkdownRenderingResult> {
 	let {
 		fileURL,
-		syntaxHighlight = 'shiki',
-		shikiConfig = {},
-		remarkPlugins = [],
-		rehypePlugins = [],
-		remarkRehype = {},
-		githubFlavoredMarkdown = true,
+		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
+		shikiConfig = markdownConfigDefaults.shikiConfig,
+		remarkPlugins = markdownConfigDefaults.remarkPlugins,
+		rehypePlugins = markdownConfigDefaults.rehypePlugins,
+		remarkRehype = markdownConfigDefaults.remarkRehype,
+		githubFlavoredMarkdown = markdownConfigDefaults.githubFlavoredMarkdown,
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
 		contentDir,
