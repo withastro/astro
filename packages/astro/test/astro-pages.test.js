@@ -21,6 +21,13 @@ describe('Pages', () => {
 
 			expect($('h1').text()).to.equal('Name with index');
 		});
+
+		it('can find pages with quotes in the name', async () => {
+			const html = await fixture.readFile("/posts/name-with-'-quotes/index.html");
+			const $ = cheerio.load(html);
+
+			expect($('h1').text()).to.equal('Name with quotes');
+		});
 	});
 
 	if (isWindows) return;
@@ -41,6 +48,13 @@ describe('Pages', () => {
 			const $ = cheerio.load(html);
 
 			expect($('#testing').length).to.be.greaterThan(0);
+		});
+
+		it('can load pages with quotes in the name', async () => {
+			const html = await fixture.fetch("/posts/name-with-'-quotes").then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			expect($('h1').text()).to.equal('Name with quotes');
 		});
 	});
 });
