@@ -124,6 +124,7 @@ export async function createContentTypesGenerator({
 			const entryInfo = getEntryInfo({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
+				// Allow underscore `_` files outside collection directories
 				allowFilesOutsideCollection: true,
 			});
 			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
