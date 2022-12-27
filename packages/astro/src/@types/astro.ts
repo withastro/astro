@@ -734,10 +734,6 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * :::caution
-		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the [`extendDefaultPlugins`](#markdownextenddefaultplugins) flag.
-		 * :::
-		 *
 		 * ```js
 		 * import remarkToc from 'remark-toc';
 		 * {
@@ -755,10 +751,6 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * :::caution
-		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the [`extendDefaultPlugins`](#markdownextenddefaultplugins) flag.
-		 * :::
-		 *
 		 * ```js
 		 * import rehypeMinifyHtml from 'rehype-minify';
 		 * {
@@ -771,23 +763,21 @@ export interface AstroUserConfig {
 		rehypePlugins?: RehypePlugins;
 		/**
 		 * @docs
-		 * @name markdown.extendDefaultPlugins
+		 * @name markdown.githubFlavoredMarkdown
 		 * @type {boolean}
-		 * @default `false`
+		 * @default `true`
 		 * @description
-		 * Astro applies the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. When adding your own remark or rehype plugins, you can preserve these defaults by setting the `extendDefaultPlugins` flag to `true`:
+		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To avoid this, set the `githubFlavoredMarkdown` flag to `false`:
 		 *
 		 * ```js
 		 * {
 		 *   markdown: {
-		 *     extendDefaultPlugins: true,
-		 * 		 remarkPlugins: [exampleRemarkPlugin],
-		 *     rehypePlugins: [exampleRehypePlugin],
+		 *     githubFlavoredMarkdown: false,
 		 *   }
 		 * }
 		 * ```
 		 */
-		extendDefaultPlugins?: boolean;
+		githubFlavoredMarkdown?: boolean;
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype

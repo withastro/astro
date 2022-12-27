@@ -20,14 +20,12 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
+import remarkGfm from 'remark-gfm';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
-
-export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
-export const DEFAULT_REHYPE_PLUGINS = [];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
@@ -41,7 +39,7 @@ export async function renderMarkdown(
 		remarkPlugins = [],
 		rehypePlugins = [],
 		remarkRehype = {},
-		extendDefaultPlugins = false,
+		githubFlavoredMarkdown = true,
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
 		contentDir,
@@ -55,9 +53,8 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
-	if (extendDefaultPlugins || (remarkPlugins.length === 0 && rehypePlugins.length === 0)) {
-		remarkPlugins = [...DEFAULT_REMARK_PLUGINS, ...remarkPlugins];
-		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS, ...rehypePlugins];
+	if (githubFlavoredMarkdown) {
+		parser.use(remarkGfm);
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
