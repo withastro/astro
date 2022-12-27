@@ -32,8 +32,7 @@ import { VFile } from 'vfile';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
 
-export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
-	drafts: false,
+export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {
 	syntaxHighlight: 'shiki',
 	shikiConfig: {
 		langs: [],

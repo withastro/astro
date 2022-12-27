@@ -32,7 +32,10 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
-	markdown: markdownConfigDefaults,
+	markdown: {
+		drafts: false,
+		...markdownConfigDefaults,
+	},
 	vite: {},
 	legacy: {
 		astroFlavoredMarkdown: false,
