@@ -1,11 +1,11 @@
+import { dim } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
-import { dim } from 'kleur/colors';
 import type { AstroSettings } from '../../@types/astro';
-import { info, LogOptions } from '../../core/logger/core.js';
 import { contentObservable, createContentTypesGenerator } from '../../content/index.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { info, LogOptions } from '../../core/logger/core.js';
 
 export async function sync(
 	settings: AstroSettings,
