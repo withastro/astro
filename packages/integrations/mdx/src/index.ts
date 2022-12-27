@@ -37,7 +37,7 @@ export default function mdx(unresolvedMdxOptions: MdxOptions = {}): AstroIntegra
 				unresolvedMdxOptions.syntaxHighlight ??= 'shiki';
 				unresolvedMdxOptions.githubFlavoredMarkdown ??= true;
 
-				const mdxOptions = unresolvedMdxOptions.extendMarkdownConfig
+				const mdxOptions: MdxOptions = unresolvedMdxOptions.extendMarkdownConfig
 					? {
 							...config.markdown,
 							...unresolvedMdxOptions,
@@ -48,7 +48,7 @@ export default function mdx(unresolvedMdxOptions: MdxOptions = {}): AstroIntegra
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions),
 					recmaPlugins: mdxOptions.recmaPlugins,
-					remarkRehypeOptions: mdxOptions.remarkRehype,
+					remarkRehypeOptions: mdxOptions.remarkRehype as RemarkRehypeOptions | undefined,
 					jsx: true,
 					jsxImportSource: 'astro',
 					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
