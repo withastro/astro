@@ -80,91 +80,70 @@ describe('MDX plugins', () => {
 		expect(selectTocLink(document)).to.be.null;
 	});
 
-	it('respects "extendDefaultPlugins" when extending markdown', async () => {
-		const fixture = await buildFixture({
-			markdown: {
-				remarkPlugins: [remarkExamplePlugin],
-				rehypePlugins: [rehypeExamplePlugin],
-				extendDefaultPlugins: true,
-			},
-			integrations: [mdx()],
+	for (const extendMarkdownConfig of [true, false]) {
+		describe(`extendMarkdownConfig = ${extendMarkdownConfig}`, () => {
+			let fixture;
+			before(async () => {
+				fixture = await buildFixture({
+					markdown: {
+						remarkPlugins: [remarkToc],
+						githubFlavoredMarkdown: false,
+					},
+					integrations: [
+						mdx({
+							extendMarkdownConfig,
+							remarkPlugins: [remarkExamplePlugin],
+							rehypePlugins: [rehypeExamplePlugin],
+						}),
+					],
+				});
+			});
+
+			it('Always applies MDX plugins', async () => {
+				const html = await fixture.readFile(FILE);
+				const { document } = parseHTML(html);
+
+				expect(selectRemarkExample(document, 'MDX remark plugins not applied.')).to.not.be.null;
+				expect(selectRehypeExample(document, 'MDX rehype plugins not applied.')).to.not.be.null;
+			});
+
+			it('Handles Markdown plugins', async () => {
+				const html = await fixture.readFile(FILE);
+				const { document } = parseHTML(html);
+
+				if (extendMarkdownConfig === true) {
+					expect(
+						selectTocLink(document),
+						'`remarkToc` plugin not applied. Should extend from Markdown config.'
+					).to.not.be.null;
+				} else {
+					expect(
+						selectTocLink(
+							document,
+							'`remarkToc` plugin applied unexpectedly. Should ignore Markdown config.'
+						)
+					).to.be.null;
+				}
+			});
+
+			it('Handles githubFlavoredMarkdown', async () => {
+				const html = await fixture.readFile(FILE);
+				const { document } = parseHTML(html);
+
+				if (extendMarkdownConfig === true) {
+					expect(
+						selectGfmLink(document),
+						'Does not respect `markdown.githubFlavoredMarkdown` option.'
+					).to.be.null;
+				} else {
+					expect(
+						selectGfmLink(document),
+						'Respects `markdown.githubFlavoredMarkdown` unexpectedly.'
+					).to.not.be.null;
+				}
+			});
 		});
-
-		const html = await fixture.readFile(FILE);
-		const { document } = parseHTML(html);
-
-		expect(selectRemarkExample(document)).to.not.be.null;
-		expect(selectRehypeExample(document)).to.not.be.null;
-		expect(selectGfmLink(document)).to.not.be.null;
-	});
-
-	it('extends markdown config with extendPlugins: "markdown"', async () => {
-		const fixture = await buildFixture({
-			markdown: {
-				remarkPlugins: [remarkExamplePlugin],
-				rehypePlugins: [rehypeExamplePlugin],
-			},
-			integrations: [
-				mdx({
-					extendPlugins: 'markdown',
-					remarkPlugins: [remarkToc],
-				}),
-			],
-		});
-
-		const html = await fixture.readFile(FILE);
-		const { document } = parseHTML(html);
-
-		expect(selectRemarkExample(document)).to.not.be.null;
-		expect(selectRehypeExample(document)).to.not.be.null;
-		expect(selectTocLink(document)).to.not.be.null;
-	});
-
-	it('extends default plugins with extendPlugins: "astroDefaults"', async () => {
-		const fixture = await buildFixture({
-			markdown: {
-				// should NOT be applied to MDX
-				remarkPlugins: [remarkToc],
-			},
-			integrations: [
-				mdx({
-					remarkPlugins: [remarkExamplePlugin],
-					rehypePlugins: [rehypeExamplePlugin],
-					extendPlugins: 'astroDefaults',
-				}),
-			],
-		});
-
-		const html = await fixture.readFile(FILE);
-		const { document } = parseHTML(html);
-
-		expect(selectGfmLink(document)).to.not.be.null;
-		// remark and rehype plugins still respected
-		expect(selectRemarkExample(document)).to.not.be.null;
-		expect(selectRehypeExample(document)).to.not.be.null;
-		// Does NOT inherit TOC from markdown config
-		expect(selectTocLink(document)).to.be.null;
-	});
-
-	it('does not extend default plugins with extendPlugins: false', async () => {
-		const fixture = await buildFixture({
-			markdown: {
-				remarkPlugins: [remarkExamplePlugin],
-			},
-			integrations: [
-				mdx({
-					remarkPlugins: [],
-					extendPlugins: false,
-				}),
-			],
-		});
-
-		const html = await fixture.readFile(FILE);
-		const { document } = parseHTML(html);
-
-		expect(selectGfmLink(document)).to.be.null;
-		expect(selectRemarkExample(document)).to.be.null;
-	});
+	}
 
 	it('supports custom recma plugins', async () => {
 		const fixture = await buildFixture({
