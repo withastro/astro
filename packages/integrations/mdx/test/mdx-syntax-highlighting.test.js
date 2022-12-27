@@ -68,29 +68,31 @@ describe('MDX syntax highlighting', () => {
 			expect(prismCodeBlock).to.not.be.null;
 		});
 
-		it('respects MDX `syntaxHighlight` with `extendMarkdownConfig` turned off', async () => {
-			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
-				markdown: {
-					syntaxHighlight: 'shiki',
-				},
-				integrations: [
-					mdx({
-						extendMarkdownConfig: false,
-						syntaxHighlight: 'prism',
-					}),
-				],
+		for (const extendMarkdownConfig of [true, false]) {
+			it(`respects syntaxHighlight when extendMarkdownConfig = ${extendMarkdownConfig}`, async () => {
+				const fixture = await loadFixture({
+					root: FIXTURE_ROOT,
+					markdown: {
+						syntaxHighlight: 'shiki',
+					},
+					integrations: [
+						mdx({
+							extendMarkdownConfig,
+							syntaxHighlight: 'prism',
+						}),
+					],
+				});
+				await fixture.build();
+
+				const html = await fixture.readFile('/index.html');
+				const { document } = parseHTML(html);
+
+				const shikiCodeBlock = document.querySelector('pre.astro-code');
+				expect(shikiCodeBlock, 'Markdown config syntaxHighlight used unexpectedly').to.be.null;
+				const prismCodeBlock = document.querySelector('pre.language-astro');
+				expect(prismCodeBlock).to.not.be.null;
 			});
-			await fixture.build();
-
-			const html = await fixture.readFile('/index.html');
-			const { document } = parseHTML(html);
-
-			const shikiCodeBlock = document.querySelector('pre.astro-code');
-			expect(shikiCodeBlock).to.be.null;
-			const prismCodeBlock = document.querySelector('pre.language-astro');
-			expect(prismCodeBlock).to.not.be.null;
-		});
+		}
 	});
 
 	it('supports custom highlighter - shiki-twoslash', async () => {
