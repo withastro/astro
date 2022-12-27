@@ -33,16 +33,17 @@ export default function mdx(unresolvedMdxOptions: MdxOptions = {}): AstroIntegra
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
-				unresolvedMdxOptions.extendMarkdownConfig ??= true;
-				unresolvedMdxOptions.syntaxHighlight ??= 'shiki';
-				unresolvedMdxOptions.githubFlavoredMarkdown ??= true;
 
+				unresolvedMdxOptions.extendMarkdownConfig ??= true;
 				const mdxOptions: MdxOptions = unresolvedMdxOptions.extendMarkdownConfig
 					? {
 							...config.markdown,
 							...unresolvedMdxOptions,
 					  }
 					: unresolvedMdxOptions;
+
+				mdxOptions.syntaxHighlight ??= 'shiki';
+				mdxOptions.githubFlavoredMarkdown ??= true;
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
