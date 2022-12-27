@@ -184,13 +184,6 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 	return rehypePlugins;
 }
 
-function markdownShouldExtendDefaultPlugins(config: AstroConfig): boolean {
-	return (
-		config.markdown.extendDefaultPlugins ||
-		(config.markdown.remarkPlugins.length === 0 && config.markdown.rehypePlugins.length === 0)
-	);
-}
-
 function ignoreStringPlugins(plugins: any[]) {
 	let validPlugins: PluggableList = [];
 	let hasInvalidPlugin = false;
