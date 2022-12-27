@@ -21,6 +21,13 @@ describe('Pages', () => {
 
 			expect($('h1').text()).to.equal('Name with index');
 		});
+
+		it('Can find page with quotes in file name', async () => {
+			const html = await fixture.readFile("/quotes'-work-too/index.html");
+			const $ = cheerio.load(html);
+
+			expect($('h1').text()).to.equal("Quotes work too");
+		});
 	});
 
 	if (isWindows) return;

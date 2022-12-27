@@ -27,8 +27,8 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let i = 0;
 				for (const pageData of eachPageData(internals)) {
 					const variable = `_page${i}`;
-					imports.push(`import * as ${variable} from '${pageData.moduleSpecifier}';`);
-					importMap += `['${pageData.component}', ${variable}],`;
+					imports.push(`import * as ${variable} from ${JSON.stringify(pageData.moduleSpecifier)};`);
+					importMap += `[${JSON.stringify(pageData.component)}, ${variable}],`;
 					i++;
 				}
 
