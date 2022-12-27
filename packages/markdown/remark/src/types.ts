@@ -30,8 +30,9 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
-	handlers: typeof Handlers;
-} & { handler: typeof Handler };
+	handlers?: typeof Handlers;
+	handler?: typeof Handler;
+};
 
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
