@@ -46,29 +46,51 @@ describe('Astro Markdown plugins', () => {
 		expect($('#hello-world').hasClass('title')).to.equal(true);
 	});
 
-	for (const extendDefaultPlugins of [true, false]) {
-		it(`Handles default plugins when extendDefaultPlugins = ${extendDefaultPlugins}`, async () => {
+	// Asserts Astro 1.0 behavior is removed. Test can be removed in Astro 3.0.
+	it('Still applies GFM when user plugins are provided', async () => {
+		const fixture = await buildFixture({
+			markdown: {
+				remarkPlugins: [remarkExamplePlugin],
+				rehypePlugins: [[addClasses, { 'h1,h2,h3': 'title' }]],
+			},
+		});
+		const html = await fixture.readFile('/with-gfm/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: GFM autolink applied correctly
+		expect($('a[href="https://example.com"]')).to.have.lengthOf(1);
+
+		// test 2: remark plugins still applied
+		expect(html).to.include('Remark plugin applied!');
+
+		// test 3: rehype plugins still applied
+		expect($('#github-flavored-markdown-test')).to.have.lengthOf(1);
+		expect($('#github-flavored-markdown-test').hasClass('title')).to.equal(true);
+	});
+
+	for (const githubFlavoredMarkdown of [true, false]) {
+		it(`Handles GFM when githubFlavoredMarkdown = ${githubFlavoredMarkdown}`, async () => {
 			const fixture = await buildFixture({
 				markdown: {
 					remarkPlugins: [remarkExamplePlugin],
 					rehypePlugins: [[addClasses, { 'h1,h2,h3': 'title' }]],
-					extendDefaultPlugins,
+					githubFlavoredMarkdown,
 				},
 			});
 			const html = await fixture.readFile('/with-gfm/index.html');
 			const $ = cheerio.load(html);
 
 			// test 1: GFM autolink applied correctly
-			if (extendDefaultPlugins === true) {
+			if (githubFlavoredMarkdown === true) {
 				expect($('a[href="https://example.com"]')).to.have.lengthOf(1);
 			} else {
 				expect($('a[href="https://example.com"]')).to.have.lengthOf(0);
 			}
 
-			// test 2: (sanity check) remark plugins still applied
+			// test 2: remark plugins still applied
 			expect(html).to.include('Remark plugin applied!');
 
-			// test 3: (sanity check) rehype plugins still applied
+			// test 3: rehype plugins still applied
 			expect($('#github-flavored-markdown-test')).to.have.lengthOf(1);
 			expect($('#github-flavored-markdown-test').hasClass('title')).to.equal(true);
 		});
