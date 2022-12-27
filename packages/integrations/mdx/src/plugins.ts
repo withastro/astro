@@ -154,7 +154,7 @@ export async function getRemarkPlugins(
 		remarkPlugins.push(remarkGfm);
 	}
 
-	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins ?? [])];
+	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
 
 	// Apply last in case user plugins resolve relative image paths
 	if (config.experimental.contentCollections) {
@@ -173,7 +173,7 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 
 	rehypePlugins = [
 		...rehypePlugins,
-		...ignoreStringPlugins(mdxOptions.rehypePlugins ?? []),
+		...ignoreStringPlugins(mdxOptions.rehypePlugins),
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
 		rehypeHeadingIds,
