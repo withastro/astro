@@ -26,7 +26,7 @@
     "events": "^3.3.0",
     "prettier": "^2.7.1",
     "prettier-plugin-astro": "^0.7.0",
-    "synckit": "^0.7.2",
+    "synckit": "^0.8.4",
     "vscode-css-languageservice": "^6.0.1",
     "vscode-html-languageservice": "^5.0.0",
     "vscode-languageserver": "^8.0.1",
