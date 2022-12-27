@@ -78,116 +78,98 @@ Visit the [MDX docs](https://mdxjs.com/docs/what-is-mdx/) to learn about using s
 
 Once the MDX integration is installed, no configuration is necessary to use `.mdx` files in your Astro project.
 
-You can extend how your MDX is rendered by adding remark, rehype and recma plugins.
+You can configure how your MDX is rendered with the following options:
 
-- [`extendPlugins`](#extendplugins)
-- [`remarkRehype`](#remarkrehype)
-- [`remarkPlugins`](#remarkplugins)
-- [`rehypePlugins`](#rehypeplugins)
+- [Markdown configuration options](#markdown-configuration-options)
+- [`extendMarkdownConfig`](#extendmarkdownconfig)
 - [`recmaPlugins`](#recmaplugins)
 
-### `extendPlugins`
+### Markdown configuration options
 
-You can customize how MDX files inherit your project’s existing Markdown configuration using the `extendPlugins` option.
+All [`markdown` configuration options](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) aside from `drafts` can also be applied to the MDX integration config. This includes remark and rehype plugins, syntax highlighting, and more. Any options applied will be deeply merged with your Markdown config by default ([see the `extendMarkdownConfig` option](#extendmarkdownconfig) for more).
 
-#### `markdown` (default)
+:::note
+The [Markdown `drafts` option](https://docs.astro.build/en/reference/configuration-reference/#markdowndrafts) will be respected by both Markdown and MDX files. This option cannot be overriden for MDX files specifically.
+:::
 
-Astro's MDX files will inherit all [`markdown` options](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) in your Astro configuration file, which includes the [GitHub-Flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default.
-
-Any additional plugins you apply in your MDX config will be applied *after* your configured Markdown plugins.
-
-#### `astroDefaults`
-
-Astro's MDX files will apply only [Astro's default plugins](/en/reference/configuration-reference/#markdownextenddefaultplugins), without inheriting the rest of your Markdown config. 
-
-This example will apply the default [GitHub-Flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins alongside [`remark-toc`](https://github.com/remarkjs/remark-toc) to your MDX files, while ignoring any `markdown.remarkPlugins` configuration:
-
-```js "extendPlugins: 'astroDefaults'"
+```ts
 // astro.config.mjs
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
 import remarkToc from 'remark-toc';
+import rehypeMinifyHtml from 'rehype-minify-html';
 
-export default {
+export default defineConfig({
+  integrations: [
+    mdx({
+      syntaxHighlight: 'shiki',
+      shikiConfig: { theme: 'dracula' },
+      remarkPlugins: [remarkToc],
+      rehypePlugins: [rehypeMinifyHtml],
+      remarkRehype: { footnoteLabel: 'Footnotes' },
+      githubFlavoredMarkdown: false,
+    })
+  ]
+})
+```
+
+:::caution
+MDX does not support passing remark and rehype plugins as a "string." You should install, import, and apply the plugin function instead.
+:::
+
+📚 See the [Markdown Options reference](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) for a complete list of options.
+
+### `extendMarkdownConfig`
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+MDX will extend [your project's existing Markdown configuration](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) by default. All options will be **deeply merged,** including your remark / rehype plugins and your Shiki configuration.
+
+For example, say you need to disable GitHub-Flavored Markdown and apply an extra remark plugin for MDX files. You can apply these options like so, with `extendMarkdownConfig` enabled by default:
+
+```ts
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
   markdown: {
-    remarkPlugins: [/** ignored */]
+    remarkPlugins: [remarkPlugin1],
+    githubFlavoredMarkdown: true,
   },
-  integrations: [mdx({
-    remarkPlugins: [remarkToc],
-    // Astro defaults applied
-    extendPlugins: 'astroDefaults',
-  })],
-}
+  integrations: [
+    mdx({
+      // Markdown `remarkPlugins` extended,
+      // `remarkPlugin1` *and* `remarkPlugin2` applied
+      remarkPlugins: [remarkPlugin2],
+      // `githubFlavoredMarkdown` overridden to `false` for MDX files
+      githubFlavoredMarkdown: false,
+    })
+  ]
+});
 ```
 
-#### `false`
+You may also need to disable `markdown` config extension in MDX. For this, set `extendMarkdownConfig` to `false`:
 
-Astro's MDX files will not inherit any [`markdown` options](https://docs.astro.build/en/reference/configuration-reference/#markdown-options), nor will any Astro Markdown defaults be applied:
-
-```js "extendPlugins: false"
+```ts
 // astro.config.mjs
-import remarkToc from 'remark-toc';
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
 
-export default {
-  integrations: [mdx({
-    remarkPlugins: [remarkToc],
-    // Astro defaults not applied
-    extendPlugins: false,
-  })],
-}
-```
-
-### `remarkRehype`
-
-Markdown content is transformed into HTML through remark-rehype which has [a number of options](https://github.com/remarkjs/remark-rehype#options).
-
-You can set remark-rehype options in your config file:
-
-```js
-// astro.config.mjs
-export default {
-  integrations: [mdx({
-    remarkRehype: {
-      footnoteLabel: 'Catatan kaki',
-      footnoteBackLabel: 'Kembali ke konten',
-    },
-  })],
-};
-```
-This inherits the configuration of [`markdown.remarkRehype`](https://docs.astro.build/en/reference/configuration-reference/#markdownremarkrehype). This behavior can be changed by configuring `extendPlugins`.
-
-### `remarkPlugins`
-
-Browse [awesome-remark](https://github.com/remarkjs/awesome-remark) for a full curated list of [remark plugins](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) to extend your Markdown's capabilities.
-
-This example applies the [`remark-toc`](https://github.com/remarkjs/remark-toc) plugin to `.mdx` files. To customize plugin inheritance from your Markdown config or Astro's defaults, [see the `extendPlugins` option](#extendplugins).
-
-```js
-// astro.config.mjs
-import remarkToc from 'remark-toc';
-
-export default {
-  integrations: [mdx({
-    remarkPlugins: [remarkToc],
-  })],
-}
-```
-
-### `rehypePlugins`
-
- Browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) to transform the HTML that your Markdown generates.
-
-We apply our own (non-removable) [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
-
-This example applies the [`rehype-accessible-emojis`](https://www.npmjs.com/package/rehype-accessible-emojis) plugin to `.mdx` files. To customize plugin inheritance from your Markdown config or Astro's defaults, [see the `extendPlugins` option](#extendplugins).
-
-```js
-// astro.config.mjs
-import rehypeAccessibleEmojis from 'rehype-accessible-emojis';
-
-export default {
-  integrations: [mdx({
-    rehypePlugins: [rehypeAccessibleEmojis],
-  })],
-}
+export default defineConfig({
+  markdown: {
+    remarkPlugins: [remarkPlugin1],
+  },
+  integrations: [
+    mdx({
+      // Markdown `remarkPlugins` now ignored
+      extendMarkdownConfig: false,
+      // Only `remarkPlugin2` applied
+      remarkPlugins: [remarkPlugin2],
+    })
+  ]
+});
 ```
 
 ### `recmaPlugins`
