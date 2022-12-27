@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 2.0.0
+
+### Major Changes
+
+- [#5612](https://github.com/withastro/astro/pull/5612) [`68c20be66`](https://github.com/withastro/astro/commit/68c20be66b197e6c525cd292823a3a728f238547) Thanks [@equt](https://github.com/equt)! - Filter out draft in RSS generation
+
 ## 1.2.1
 
 ### Patch Changes
