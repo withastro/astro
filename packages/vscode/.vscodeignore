@@ -6,6 +6,7 @@ test/
 scripts/
 .turbo
 .vscode-test
+syntaxes/astro.tmLanguage.src.yaml
 
 # ESM libs we don't use
 node_modules/prettier/esm

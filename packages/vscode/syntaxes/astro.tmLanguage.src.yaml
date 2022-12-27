@@ -1,0 +1,465 @@
+---
+# Adapted from Svelte's syntax file at
+# https://github.com/sveltejs/language-tools/blob/240e640903237a2d605242a163970ab8c704724f/packages/svelte-vscode/syntaxes/svelte.tmLanguage.src.yaml
+name: Astro
+scopeName: source.astro
+fileTypes: [astro]
+
+injections:
+  # ---- EMBEDDED LANGUAGES
+
+  # Format:
+  #  'L:meta.<script|style|template>.astro (meta.lang.<lang> | meta.lang.<langalternative> | ...) - (meta source)'
+  #     patterns: [{begin: '(?<=>)(?!</)', end: '(?=</)', name: meta.embedded.block.astro,
+  #     contentName: source.<lang>, patterns: [{ include: source.<lang> }]}]
+
+  # Style/Script Languages
+  # JSON | 'application/ld+json'
+  'L:(meta.script.astro) (meta.lang.json) - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.json,
+          patterns: [{ include: source.json }],
+        },
+      ]
+
+  # JavaScript | 'javascript' | 'source.js' | 'partytown'
+  'L:(meta.script.astro) (meta.lang.js | meta.lang.javascript | meta.lang.partytown | meta.lang.node) - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.js,
+          patterns: [{ include: source.js }],
+        },
+      ]
+
+  # TypeScript | 'ts'
+  'L:(meta.script.astro) (meta.lang.ts | meta.lang.typescript) - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.ts,
+          patterns: [{ include: source.ts }],
+        },
+      ]
+
+  # Script Languages
+  # Default (JavaScript)
+  'L:meta.script.astro - meta.lang - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.js,
+          patterns: [{ include: source.js }],
+        },
+      ]
+
+  # ----
+
+  # Style Languages
+  # Stylus | 'stylus' | 'source.stylus'
+  'L:meta.style.astro meta.lang.stylus - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.stylus,
+          patterns: [{ include: source.stylus }],
+        },
+      ]
+
+  # Sass | 'sass' | 'source.sass'
+  'L:meta.style.astro meta.lang.sass - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.sass,
+          patterns: [{ include: source.sass }],
+        },
+      ]
+
+  # CSS | 'css' | 'source.css'
+  'L:meta.style.astro meta.lang.css - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.css,
+          patterns: [{ include: source.css }],
+        },
+      ]
+
+  # SCSS | 'scss' | 'source.css.scss'
+  'L:meta.style.astro meta.lang.scss - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.css.scss,
+          patterns: [{ include: source.css.scss }],
+        },
+      ]
+
+  # Less | 'less' | 'source.css.less'
+  'L:meta.style.astro meta.lang.less - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.css.less,
+          patterns: [{ include: source.css.less }],
+        },
+      ]
+
+  # PostCSS | 'postcss' | 'source.css.postcss'
+  'L:meta.style.astro meta.lang.postcss - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.css.postcss,
+          patterns: [{ include: source.css.postcss }],
+        },
+      ]
+
+  # Default (CSS)
+  'L:meta.style.astro - meta.lang - (meta source)':
+    patterns:
+      [
+        {
+          begin: '(?<=>)(?!</)',
+          end: '(?=</)',
+          name: meta.embedded.block.astro,
+          contentName: source.css,
+          patterns: [{ include: source.css }],
+        },
+      ]
+
+# Start of grammar.
+patterns:
+  - include: '#scope'
+  - include: '#frontmatter'
+
+# Contains all of our patterns.
+repository:
+  # ------------
+  # FRONTMATTER
+
+  # We use the `comment` scope for the triple dashes to get a "faded" look
+  frontmatter:
+    begin: \A(-{3})\s*$
+    end: (^|\G)(-{3})|\.{3}\s*$
+    beginCaptures:
+      1: { name: comment }
+    endCaptures:
+      2: { name: comment }
+    contentName: source.ts
+    patterns:
+      - include: source.ts
+
+  # -------
+  # SCOPE
+
+  # Used whenever a new scope is introduced, such as at the root level or within a content tag.
+  scope:
+    patterns:
+      - include: '#comments'
+      - include: '#tags'
+      - include: '#interpolation'
+      # Content text.
+      # This matches only inbetween all the nodes - nothing inside of them.
+      - begin: (?<=>|})
+        end: (?=<|{)
+        name: text.astro
+
+  # ----------
+  #  COMMENTS
+
+  # Basic HTML comments.
+  comments:
+    begin: <!--
+    end: -->
+    captures:
+      0: { name: punctuation.definition.comment.astro }
+    name: comment.block.astro
+    patterns:
+      # Validations
+      - { match: '\G-?>|<!--(?!>)|<!-(?=-->)|--!>', name: invalid.illegal.characters-not-allowed-here.astro }
+
+  # ------
+  #  MISC
+
+  # Plain old interpolation between `{...}` blocks.
+  interpolation:
+    patterns:
+      - begin: \{
+        end: \}
+        beginCaptures: { 0: { name: punctuation.section.embedded.begin.astro } }
+        endCaptures: { 0: { name: punctuation.section.embedded.end.astro } }
+        contentName: meta.embedded.expression.astro source.tsx
+        patterns:
+          # Object literals - usually used within attributes.
+          - begin: \G\s*(?={)
+            end: (?<=})
+            patterns: [include: source.tsx#object-literal]
+          - include: source.tsx
+
+  # ------------
+  #  ATTRIBUTES
+
+  attributes:
+    patterns:
+      - include: '#attributes-events'
+      - include: '#attributes-keyvalue'
+      - include: '#attributes-interpolated'
+
+  # HTML Events
+  # Set the source.js languages inside events attributes (ex: onclick) to get JS syntax highlighting in them just like VS Code has for .html files
+  attributes-events:
+    begin: (on(s(croll|t(orage|alled)|u(spend|bmit)|e(curitypolicyviolation|ek(ing|ed)|lect))|hashchange|c(hange|o(ntextmenu|py)|u(t|echange)|l(ick|ose)|an(cel|play(through)?))|t(imeupdate|oggle)|in(put|valid)|o(nline|ffline)|d(urationchange|r(op|ag(start|over|e(n(ter|d)|xit)|leave)?)|blclick)|un(handledrejection|load)|p(opstate|lay(ing)?|a(ste|use|ge(show|hide))|rogress)|e(nded|rror|mptied)|volumechange|key(down|up|press)|focus|w(heel|aiting)|l(oad(start|e(nd|d(data|metadata)))?|anguagechange)|a(uxclick|fterprint|bort)|r(e(s(ize|et)|jectionhandled)|atechange)|m(ouse(o(ut|ver)|down|up|enter|leave|move)|essage(error)?)|b(efore(unload|print)|lur)))(?![\\w:-])
+    beginCaptures:
+      0:
+        patterns:
+          # Matches everything else.
+          - match: .*
+            name: entity.other.attribute-name.astro
+    end: (?=\s*+[^=\s])
+    name: 'meta.attribute.$1.astro'
+    patterns:
+      - begin: '='
+        beginCaptures: { 0: { name: punctuation.separator.key-value.astro } }
+        end: (?<=[^\s=])(?!\s*=)|(?=/?>)
+        patterns:
+          - begin: (?=[^\s=<>`/]|/(?!>))
+            end: (?!\G)
+            name: meta.embedded.line.js
+            patterns:
+              - match: (([^\s\"'=<>`/]|/(?!>))+)
+                name: string.unquoted.astro
+                captures:
+                  - 0: { name: source.js }
+                  - 1: { patterns: [{ include: source.js }] }
+              - begin: (['"])
+                end: \1
+                beginCaptures: { 0: { name: punctuation.definition.string.begin.astro } }
+                endCaptures: { 0: { name: punctuation.definition.string.end.astro } }
+                name: string.quoted.astro
+                patterns:
+                  - match: ([^\n\"/]|/(?![/*]))+
+                    captures: { 0: { patterns: [{ include: source.js }] } }
+                  # Special handling for comments so they stay scoped inside the quotes
+                  - begin: //
+                    beginCaptures: { 0: { name: punctuation.definition.comment.js } }
+                    end: (?=\")|\n
+                    name: comment.line.double-slash.js
+                  - begin: /\*
+                    beginCaptures: { 0: { name: punctuation.definition.comment.begin.js } }
+                    end: (?=\")|\*/
+                    endCaptures: { 0: { name: punctuation.definition.comment.end.js } }
+                    name: comment.block.js
+
+  # Interpolated shorthand attributes, like `{variable}` sitting by itself.
+  attributes-interpolated:
+    begin: (?<!:|=)\s*({)
+    end: (\})
+    contentName: meta.embedded.expression.astro source.tsx
+    patterns: [include: source.tsx]
+
+  # Matches attribute key-values. (and boolean attributes as well)
+  # e.g. `class="my-class"`, `required`
+  attributes-keyvalue:
+    begin: ([_@$[:alpha:]][:._\-$[:alnum:]]*)
+    beginCaptures:
+      0:
+        patterns:
+          # Matches everything else.
+          - match: .*
+            name: entity.other.attribute-name.astro
+    end: (?=\s*+[^=\s])
+    name: 'meta.attribute.$1.astro'
+    patterns:
+      - begin: '='
+        beginCaptures: { 0: { name: punctuation.separator.key-value.astro } }
+        end: (?<=[^\s=])(?!\s*=)|(?=/?>)
+        patterns: [include: '#attributes-value']
+
+  # The value part of attribute key-values. e.g. `"my-class"` in `class="my-class"`
+  attributes-value:
+    patterns:
+      # No quotes - just an interpolation expression.
+      - include: '#interpolation'
+      # Unquoted strings.
+      - match: ([^\s"'=<>`/]|/(?!>))+
+        name: string.unquoted.astro
+      # Quoted strings.
+      - begin: (['"])
+        end: \1
+        beginCaptures: { 0: { name: punctuation.definition.string.begin.astro } }
+        endCaptures: { 0: { name: punctuation.definition.string.end.astro } }
+        name: string.quoted.astro
+      # Template literals
+      - begin: (`)
+        end: \1
+        name: string.template.astro
+        patterns:
+          - include: 'source.tsx#template-substitution-element'
+
+  # ------
+  #  TAGS
+
+  # All tags together. Used whenever a new nested scope is introduced (and the root scope, of course).
+  tags:
+    patterns:
+      # The order is important here - void tags need to matched before block tags and end before start.
+      - include: '#tags-raw'
+      - include: '#tags-lang'
+      - include: '#tags-void'
+      - include: '#tags-general-end'
+      - include: '#tags-general-start'
+
+  # -- TAG COMPONENTS
+
+  # Scopes the `name` part in `<name>`.
+  tags-name:
+    patterns:
+      # Components.
+      - { match: '[A-Z][a-zA-Z0-9_]*', name: support.class.component.astro }
+      # Custom elements. (has a dash, but otherwise is a valid HTML element)
+      - { match: '[a-z][\w0-9:]*-[\w0-9:-]*', name: meta.tag.custom.astro entity.name.tag.astro }
+      # HTML elements.
+      - { match: '[a-z][\w0-9:-]*', name: entity.name.tag.astro }
+
+  # Attributes for tag start nodes. Meant to start immediately after the `<name` section.
+  tags-start-attributes:
+    begin: \G
+    end: (?=/?>)
+    name: meta.tag.start.astro
+    patterns: [include: '#attributes']
+
+  # Same as tags-start-attributes but slightly adjusted for special script/style/template tags.
+  tags-lang-start-attributes:
+    begin: \G
+    end: (?=/>)|>
+    endCaptures: { 0: { name: punctuation.definition.tag.end.astro } }
+    name: meta.tag.start.astro
+    patterns: [include: '#attributes']
+
+  # Matches the beginning (`<name`) section of a tag start node.
+  tags-start-node:
+    match: (<)([^/\s>/]*)
+    captures:
+      1: { name: punctuation.definition.tag.begin.astro }
+      2: { patterns: [include: '#tags-name'] }
+    name: meta.tag.start.astro
+
+  # Matches tag end nodes.
+  tags-end-node:
+    match: (</)(.*?)\s*(>)|(/>)
+    captures:
+      1: { name: meta.tag.end.astro punctuation.definition.tag.begin.astro }
+      2: { name: meta.tag.end.astro, patterns: [include: '#tags-name'] }
+      3: { name: meta.tag.end.astro punctuation.definition.tag.end.astro }
+      4: { name: meta.tag.start.astro punctuation.definition.tag.end.astro }
+
+  # -- TAG TYPES
+
+  # Tags marked as raw using `is:raw` - we need to handle those differently to make sure we properly set the language inside them
+  tags-raw:
+    begin: <([^/?!\s<>]+)(?=[^>]+is:raw).*?
+    beginCaptures:
+      0: { patterns: [include: '#tags-start-node'] }
+    end: </\1\s*>|/>
+    endCaptures: { 0: { patterns: [include: '#tags-end-node'] } }
+    name: meta.scope.tag.$1.astro meta.raw.astro
+    contentName: source.unknown
+    patterns:
+      - include: '#tags-lang-start-attributes'
+
+  # Language tags - they are handled differently for the purposes of language injection.
+  tags-lang:
+    begin: <(script|style)
+    end: </\1\s*>|/>
+    beginCaptures: { 0: { patterns: [include: '#tags-start-node'] } }
+    endCaptures: { 0: { patterns: [include: '#tags-end-node'] } }
+    name: meta.scope.tag.$1.astro meta.$1.astro
+    patterns:
+      # Injecting into `meta.lang.ld+json` doesn't seem possible, so we set it to `meta.lang.json`
+      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
+        end: (?=</|/>)
+        name: meta.lang.json.astro
+        patterns: [include: '#tags-lang-start-attributes']
+      # Treat 'module' as JavaScript
+      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(module)\2)
+        end: (?=</|/>)
+        name: meta.lang.javascript.astro
+        patterns: [include: '#tags-lang-start-attributes']
+      # Tags with a language specified.
+      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
+        end: (?=</|/>)
+        name: meta.lang.$3.astro
+        patterns: [include: '#tags-lang-start-attributes']
+      # Fallback to default language.
+      - include: '#tags-lang-start-attributes'
+
+  # Void element tags. They must be treated separately due to their lack of end nodes.
+  # A void element cannot be differentiated from other tags, unless you look at their name.
+  # This is because there is a specific list of void elements in HTML5. We use that to scope void elements.
+  # If we didn't, a void element would appear as an unclosed element to the grammar.
+  tags-void:
+    begin: (<)(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)(?=\s|/?>)
+    beginCaptures:
+      1: { name: punctuation.definition.tag.begin.astro }
+      2: { name: entity.name.tag.astro }
+    end: /?>
+    endCaptures: { 0: { name: punctuation.definition.tag.begin.astro } }
+    name: meta.tag.void.astro
+    patterns: [include: '#attributes']
+
+  # All other tags, including custom/special.astro tags.
+  # Split up into start and end because we don't need to preserve the name
+  # inside and because it makes whitespace matching logic more robust
+  tags-general-start:
+    begin: (<)([^/\s>/]*)
+    end: (/?>)
+    beginCaptures: { 0: { patterns: [include: '#tags-start-node'] } }
+    endCaptures:
+      1: { name: meta.tag.start.astro punctuation.definition.tag.end.astro }
+    name: meta.scope.tag.$2.astro
+    patterns:
+      - include: '#tags-start-attributes'
+
+  tags-general-end:
+    begin: (</)([^/\s>]*)
+    end: (>)
+    beginCaptures:
+      1: { name: meta.tag.end.astro punctuation.definition.tag.begin.astro }
+      2: { name: meta.tag.end.astro, patterns: [include: '#tags-name'] }
+    endCaptures:
+      1: { name: meta.tag.end.astro punctuation.definition.tag.end.astro }
+    name: meta.scope.tag.$2.astro

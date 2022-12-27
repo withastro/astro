@@ -1,11 +1,11 @@
 ><script>
-#^ source.astro punctuation.definition.tag.begin.html
-# ^^^^^^ source.astro entity.name.tag.html
-#       ^ source.astro punctuation.definition.tag.end.html
+#^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.end.astro
 >	console.log("Hello!")
-#^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.js
+#^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
 ></script>
-#^^ source.astro punctuation.definition.tag.begin.html
-#  ^^^^^^ source.astro entity.name.tag.html
-#        ^ source.astro punctuation.definition.tag.end.html
+#^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro entity.name.tag.astro
+#        ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.end.astro
 >
