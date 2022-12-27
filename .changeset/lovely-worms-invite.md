@@ -1,5 +1,8 @@
 ---
+'@astrojs/deno': major
+'@astrojs/netlify': major
+'@astrojs/image': minor
 'astro': major
 ---
 
-change assets of chunks path into assets folder
+Builds chunks into the `assets` folder. This simplifies configuring immutable caching with your adapter provider as all files are now in the same `assets` folder.
