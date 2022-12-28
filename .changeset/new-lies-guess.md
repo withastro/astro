@@ -1,8 +1,5 @@
 ---
 'astro': major
-'@astrojs/image': minor
-'@astrojs/mdx': minor
-'@astrojs/netlify': major
 '@astrojs/svelte': major
 '@astrojs/vue': major
 ---
