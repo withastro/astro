@@ -1,3 +1,4 @@
+import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -7,12 +8,7 @@ import fs from 'node:fs/promises';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
-import {
-	getRehypePlugins,
-	getRemarkPlugins,
-	recmaInjectImportMetaEnvPlugin,
-	rehypeApplyFrontmatterExport,
-} from './plugins.js';
+import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import { getFileInfo, parseFrontmatter } from './utils.js';
 
 const RAW_CONTENT_ERROR =
@@ -86,9 +82,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
 										...mdxPluginOpts,
-										rehypePlugins: [
-											...(mdxPluginOpts.rehypePlugins ?? []),
-											() => rehypeApplyFrontmatterExport(frontmatter),
+										remarkPlugins: [
+											// Ensure `data.astro` is available to all remark plugins
+											toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
+											...(mdxPluginOpts.remarkPlugins ?? []),
 										],
 										recmaPlugins: [
 											...(mdxPluginOpts.recmaPlugins ?? []),

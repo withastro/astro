@@ -3,7 +3,10 @@ import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig } from 'astro';
-import type { MarkdownAstroData } from '@astrojs/markdown-remark';
+import {
+	safelyGetAstroData,
+	InvalidAstroDataError,
+} from '@astrojs/markdown-remark/dist/internal.js';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
@@ -48,26 +51,18 @@ export function recmaInjectImportMetaEnvPlugin({
 	};
 }
 
-export function remarkInitializeAstroData() {
+export function rehypeApplyFrontmatterExport() {
 	return function (tree: any, vfile: VFile) {
-		if (!vfile.data.astro) {
-			vfile.data.astro = { frontmatter: {} };
-		}
-	};
-}
-
-export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any>) {
-	return function (tree: any, vfile: VFile) {
-		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
-		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
+		const astroData = safelyGetAstroData(vfile.data);
+		if (astroData instanceof InvalidAstroDataError)
+			throw new Error(
+				// Copied from Astro core `errors-data`
+				// TODO: find way to import error data from core
+				'[MDX] A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.'
+			);
+		const { frontmatter } = astroData;
 		const exportNodes = [
-			jsToTreeNode(
-				`export const frontmatter = ${JSON.stringify(
-					frontmatter
-				)};\nexport const _internal = { injectedFrontmatter: ${JSON.stringify(
-					injectedFrontmatter
-				)} };`
-			),
+			jsToTreeNode(`export const frontmatter = ${JSON.stringify(frontmatter)};`),
 		];
 		if (frontmatter.layout) {
 			// NOTE(bholmesdev) 08-22-2022
@@ -152,10 +147,7 @@ export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [
-		// Set "vfile.data.astro" for plugins to inject frontmatter
-		remarkInitializeAstroData,
-	];
+	let remarkPlugins: PluggableList = [];
 	switch (mdxOptions.extendPlugins) {
 		case false:
 			break;
@@ -218,6 +210,8 @@ export function getRehypePlugins(
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
 		rehypeHeadingIds,
 		rehypeInjectHeadingsExport,
+		// computed from `astro.data.frontmatter` in VFile data
+		rehypeApplyFrontmatterExport,
 	];
 	return rehypePlugins;
 }
@@ -249,41 +243,6 @@ function ignoreStringPlugins(plugins: any[]) {
 		);
 	}
 	return validPlugins;
-}
-
-/**
- * Copied from markdown utils
- * @see "vite-plugin-utils"
- */
-function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
-	if (typeof obj === 'object' && obj !== null && obj.hasOwnProperty('frontmatter')) {
-		const { frontmatter } = obj as any;
-		try {
-			// ensure frontmatter is JSON-serializable
-			JSON.stringify(frontmatter);
-		} catch {
-			return false;
-		}
-		return typeof frontmatter === 'object' && frontmatter !== null;
-	}
-	return false;
-}
-
-/**
- * Copied from markdown utils
- * @see "vite-plugin-utils"
- */
-function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
-	const { astro } = vfileData;
-
-	if (!astro) return { frontmatter: {} };
-	if (!isValidAstroData(astro)) {
-		throw Error(
-			`[MDX] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
-		);
-	}
-
-	return astro;
 }
 
 /**
