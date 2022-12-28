@@ -1,14 +1,33 @@
 /* Global variables */
 :root {
 	/* Colors */
-	--c-black: #05091e;
-	--c-blue: #46b4ff;
-	--c-gray: #90aab7;
-	--c-green: #9ef2cb;
-	--c-pink: #ffb8d9;
-	--c-orange: #ffb7a3;
-	--c-yellow: #ffdace;
-	--c-white: #fff;
+	--black: #090b11;
+	--gray-50: #141925;
+	--gray-100: #283044;
+	--gray-200: #3d4663;
+	--gray-300: #505d84;
+	--gray-400: #6474a2;
+	--gray-500: #8490b5;
+	--gray-600: #a3acc8;
+	--gray-700: #c3cadb;
+	--gray-800: #e3e6ee;
+	--gray-900: #f3f4f7;
+	--white: #ffffff;
+
+	--accent-light: #c561f6;
+	--accent-regular: #7611a6;
+	--accent-dark: #1c0056;
+
+	/* Shadows */
+	--shadow-sm: 0px 6px 3px rgba(9, 11, 17, 0.01), 0px 4px 2px rgba(9, 11, 17, 0.01),
+		0px 2px 2px rgba(9, 11, 17, 0.02), 0px 0px 1px rgba(9, 11, 17, 0.03),
+		0px 0px 0px rgba(9, 11, 17, 0.03);
+	--shadow-md: 0px 28px 11px rgba(9, 11, 17, 0.01), 0px 16px 10px rgba(9, 11, 17, 0.03),
+		0px 7px 7px rgba(9, 11, 17, 0.05), 0px 2px 4px rgba(9, 11, 17, 0.06),
+		0px 0px 0px rgba(9, 11, 17, 0.06);
+	--shadow-lg: 0px 62px 25px rgba(9, 11, 17, 0.01), 0px 35px 21px rgba(9, 11, 17, 0.05),
+		0px 16px 16px rgba(9, 11, 17, 0.1), 0px 4px 9px rgba(9, 11, 17, 0.12),
+		0px 0px 0px rgba(9, 11, 17, 0.12);
 
 	/* Fonts */
 	--f-u18: 11.390625em;
@@ -48,16 +67,38 @@
 	--f-d17: 0.10049617492923625em;
 	--f-d18: 0.0877914951989026em;
 
-	--t-fg: var(--c-black);
-	--t-bg: var(--c-white);
-	--t-subdue: var(--c-gray);
-	--t-active: var(--c-blue);
+	--font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--font-body: 'Public Sans', var(--font-system);
+	--font-headings: Rubik, var(--font-system);
+
+	--t-fg: var(--gray-200);
+	--t-bg: var(--white);
+}
+
+:root.theme-dark {
+	--black: #ffffff;
+	--gray-50: #f3f4f7;
+	--gray-100: #e3e6ee;
+	--gray-200: #c3cadb;
+	--gray-300: #a3acc8;
+	--gray-400: #8490b5;
+	--gray-500: #6474a2;
+	--gray-600: #505d84;
+	--gray-700: #3d4663;
+	--gray-800: #283044;
+	--gray-900: #141925;
+	--white: #090b11;
+
+	--accent-light: #1c0056;
+	--accent-regular: #7611a6;
+	--accent-dark: #c561f6;
 }
 
 body {
 	margin: 0;
 	color: var(--t-fg);
-	font-family: 'Inter', 'system-ui', sans-serif;
+	font-family: var(--font-body);
 }
 
 * {
@@ -70,14 +111,41 @@ img {
 }
 
 a {
-	color: var(--t-active);
+	color: var(--accent-regular);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	margin: 1.5rem 0;
+	font-family: var(--font-headings);
+	font-weight: 600;
+	color: var(--gray-100);
 }
 
 h1 {
-	font-size: var(--f-u8);
+	font-size: var(--f-u11);
 }
 
-.button {
+h2 {
+	font-size: var(--f-u9);
+}
+
+h3 {
+	font-size: var(--f-u7);
+}
+
+h4 {
+	font-size: var(--f-u6);
+}
+
+h5 {
+	font-size: var(--f-u4);
+}
+
+/* .button {
 	display: inline-block;
 	border: 3px solid currentColor;
 	padding: 0.5em 1em;
@@ -91,4 +159,4 @@ h1 {
 	margin-right: auto;
 	padding-left: 2rem;
 	padding-right: 2rem;
-}
+} */
