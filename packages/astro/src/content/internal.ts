@@ -143,6 +143,6 @@ async function render({
 	return {
 		Content,
 		headings: mod.getHeadings(),
-		injectedFrontmatter: mod._internal.injectedFrontmatter,
+		injectedFrontmatter: mod.frontmatter,
 	};
 }

@@ -6,7 +6,7 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { getContentPaths } from '../content/index.js';
-import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
@@ -14,6 +14,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import {
 	escapeViteEnvReferences,
 	getFileInfo,
+	InvalidAstroDataError,
 	safelyGetAstroData,
 } from '../vite-plugin-utils/index.js';
 
@@ -74,16 +75,17 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					isAstroFlavoredMd: false,
 					isExperimentalContentCollections: settings.config.experimental.contentCollections,
 					contentDir: getContentPaths(settings.config).contentDir,
-				} as any);
+					frontmatter: raw.data,
+				});
 
 				const html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				const { frontmatter: injectedFrontmatter } = safelyGetAstroData(renderResult.vfile.data);
-				const frontmatter = {
-					...injectedFrontmatter,
-					...raw.data,
-				} as any;
+				const astroData = safelyGetAstroData(renderResult.vfile.data);
+				if (astroData instanceof InvalidAstroDataError) {
+					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
+				}
 
+				const { frontmatter } = astroData;
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
@@ -100,9 +102,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				const html = ${JSON.stringify(html)};
 
-				export const _internal = {
-					injectedFrontmatter: ${JSON.stringify(injectedFrontmatter)},
-				}
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
 				export const url = ${JSON.stringify(fileUrl)};

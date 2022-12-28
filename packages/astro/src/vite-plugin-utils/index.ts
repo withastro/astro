@@ -50,14 +50,13 @@ function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
 	return false;
 }
 
-export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
+export class InvalidAstroDataError extends TypeError {}
+
+export function safelyGetAstroData(vfileData: Data): MarkdownAstroData | InvalidAstroDataError {
 	const { astro } = vfileData;
 
-	if (!astro) return { frontmatter: {} };
-	if (!isValidAstroData(astro)) {
-		throw Error(
-			`[Markdown] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
-		);
+	if (!astro || !isValidAstroData(astro)) {
+		return new InvalidAstroDataError();
 	}
 
 	return astro;

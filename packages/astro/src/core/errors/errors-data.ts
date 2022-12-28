@@ -520,6 +520,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Frontmatter injection](https://docs.astro.build/en/guides/markdown-content/#example-injecting-frontmatter)
+	 * @description
+	 * A remark or rehype plugin attempted to inject invalid frontmatter. This occurs when "astro.frontmatter" is set to `null`, `undefined`, or an invalid JSON object.
+	 */
+	InvalidFrontmatterInjectionError: {
+		title: 'Invalid frontmatter injection.',
+		code: 6003,
+		message:
+			'A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
+		hint: 'See the frontmatter injection docs https://docs.astro.build/en/guides/markdown-content/#example-injecting-frontmatter for more information.',
+	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {
 		title: 'Unknown configuration error.',

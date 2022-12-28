@@ -58,6 +58,8 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	isExperimentalContentCollections?: boolean;
 	/** Used to prevent relative image imports from `src/content/` */
 	contentDir: URL;
+	/** Used for frontmatter injection plugins */
+	frontmatter?: Record<string, any>;
 }
 
 export interface MarkdownHeading {

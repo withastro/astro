@@ -8,7 +8,7 @@ import rehypeIslands from './rehype-islands.js';
 import rehypeJsx from './rehype-jsx.js';
 import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 import remarkEscape from './remark-escape.js';
-import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
+import { toRemarkInitializeAstroData } from './remark-initialize-astro-data.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import remarkMdxish from './remark-mdxish.js';
 import remarkPrism from './remark-prism.js';
@@ -45,13 +45,14 @@ export async function renderMarkdown(
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
 		contentDir,
+		frontmatter: userFrontmatter = {},
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
 
 	let parser = unified()
 		.use(markdown)
-		.use(remarkInitializeAstroData)
+		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
 	if (extendDefaultPlugins || (remarkPlugins.length === 0 && rehypePlugins.length === 0)) {
