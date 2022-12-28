@@ -99,7 +99,7 @@ describe('MDX plugins', () => {
 				});
 			});
 
-			it('Always applies MDX plugins', async () => {
+			it('Handles MDX plugins', async () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
@@ -111,19 +111,12 @@ describe('MDX plugins', () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
-				if (extendMarkdownConfig === true) {
-					expect(
-						selectTocLink(document),
-						'`remarkToc` plugin not applied. Should extend from Markdown config.'
-					).to.not.be.null;
-				} else {
-					expect(
-						selectTocLink(
-							document,
-							'`remarkToc` plugin applied unexpectedly. Should ignore Markdown config.'
-						)
-					).to.be.null;
-				}
+				expect(
+					selectTocLink(
+						document,
+						'`remarkToc` plugin applied unexpectedly. Should override Markdown config.'
+					)
+				).to.be.null;
 			});
 
 			it('Handles githubFlavoredMarkdown', async () => {

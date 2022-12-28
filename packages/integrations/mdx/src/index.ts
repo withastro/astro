@@ -190,10 +190,9 @@ function applyDefaultOptions({
 		recmaPlugins: options.recmaPlugins ?? defaults.recmaPlugins,
 		remarkRehype: options.remarkRehype ?? defaults.remarkRehype,
 		githubFlavoredMarkdown: options.githubFlavoredMarkdown ?? defaults.githubFlavoredMarkdown,
-		// Deep merge plugin arrays and config object
-		remarkPlugins: [...defaults.remarkPlugins, ...(options.remarkPlugins ?? [])],
-		rehypePlugins: [...defaults.rehypePlugins, ...(options.rehypePlugins ?? [])],
-		shikiConfig: { ...defaults.shikiConfig, ...(options.shikiConfig ?? {}) },
+		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
+		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
+		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 	};
 }
 
