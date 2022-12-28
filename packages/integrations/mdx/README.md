@@ -80,13 +80,13 @@ Once the MDX integration is installed, no configuration is necessary to use `.md
 
 You can configure how your MDX is rendered with the following options:
 
-- [Markdown configuration options](#markdown-configuration-options)
+- [Options inherited from Markdown config](#options-inherited-from-markdown-config)
 - [`extendMarkdownConfig`](#extendmarkdownconfig)
 - [`recmaPlugins`](#recmaplugins)
 
-### Markdown configuration options
+### Options inherited from Markdown config
 
-All [`markdown` configuration options](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) aside from `drafts` can also be applied to the MDX integration config. This includes remark and rehype plugins, syntax highlighting, and more. Any options applied will be deeply merged with your Markdown config by default ([see the `extendMarkdownConfig` option](#extendmarkdownconfig) for more).
+All [`markdown` configuration options](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) aside from `drafts` can also be applied to the MDX integration config. This includes remark and rehype plugins, syntax highlighting, and more. Options will default to their equivalent in your Markdown config ([see the `extendMarkdownConfig` option](#extendmarkdownconfig) for more).
 
 :::note
 The [Markdown `drafts` option](https://docs.astro.build/en/reference/configuration-reference/#markdowndrafts) will be respected by both Markdown and MDX files. This option cannot be overriden for MDX files specifically.
@@ -124,9 +124,9 @@ MDX does not support passing remark and rehype plugins as a "string." You should
 - **Type:** `boolean`
 - **Default:** `true`
 
-MDX will extend [your project's existing Markdown configuration](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) by default. All options will be **deeply merged,** including your remark / rehype plugins and your Shiki configuration.
+MDX will extend [your project's existing Markdown configuration](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) by default. To override individual options, you can specify their equivalent in your MDX configuration.
 
-For example, say you need to disable GitHub-Flavored Markdown and apply an extra remark plugin for MDX files. You can apply these options like so, with `extendMarkdownConfig` enabled by default:
+For example, say you need to disable GitHub-Flavored Markdown and apply a different set of remark plugins for MDX files. You can apply these options like so, with `extendMarkdownConfig` enabled by default:
 
 ```ts
 // astro.config.mjs
@@ -135,15 +135,18 @@ import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   markdown: {
+    syntaxHighlight: 'prism',
     remarkPlugins: [remarkPlugin1],
     githubFlavoredMarkdown: true,
   },
   integrations: [
     mdx({
-      // Markdown `remarkPlugins` extended,
-      // `remarkPlugin1` *and* `remarkPlugin2` applied
+      // `syntaxHighlight` inherited from Markdown
+
+      // Markdown `remarkPlugins` ignored,
+      // only `remarkPlugin2` applied.
       remarkPlugins: [remarkPlugin2],
-      // `githubFlavoredMarkdown` overridden to `false` for MDX files
+      // `githubFlavoredMarkdown` overridden to `false`
       githubFlavoredMarkdown: false,
     })
   ]
@@ -163,10 +166,9 @@ export default defineConfig({
   },
   integrations: [
     mdx({
-      // Markdown `remarkPlugins` now ignored
+      // Markdown config now ignored
       extendMarkdownConfig: false,
-      // Only `remarkPlugin2` applied
-      remarkPlugins: [remarkPlugin2],
+      // No `remarkPlugins` applied
     })
   ]
 });

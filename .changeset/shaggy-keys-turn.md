@@ -15,4 +15,4 @@ Refine Markdown and MDX configuration options for ease-of-use.
 ## MDX
 
 - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
-- Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will be deeply merged with your Markdown config by default. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting and plugins.
+- Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
