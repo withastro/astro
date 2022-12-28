@@ -37,49 +37,50 @@ declare module 'astro:content' {
 		render(): Promise<{
 			Content: import('astro').MarkdownInstance<{}>['Content'];
 			headings: import('astro').MarkdownHeading[];
-			injectedFrontmatter: Record<string, any>;
+			remarkPluginFrontmatter: Record<string, any>;
 		}>;
 	};
 
 	const entryMap: {
-		blog: {
-			'first-post.md': {
-				id: 'first-post.md';
-				slug: 'first-post';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'markdown-style-guide.md': {
-				id: 'markdown-style-guide.md';
-				slug: 'markdown-style-guide';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'second-post.md': {
-				id: 'second-post.md';
-				slug: 'second-post';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'third-post.md': {
-				id: 'third-post.md';
-				slug: 'third-post';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'using-mdx.mdx': {
-				id: 'using-mdx.mdx';
-				slug: 'using-mdx';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-		};
+		"blog": {
+"first-post.md": {
+  id: "first-post.md",
+  slug: "first-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"markdown-style-guide.md": {
+  id: "markdown-style-guide.md",
+  slug: "markdown-style-guide",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"second-post.md": {
+  id: "second-post.md",
+  slug: "second-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"third-post.md": {
+  id: "third-post.md",
+  slug: "third-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"using-mdx.mdx": {
+  id: "using-mdx.mdx",
+  slug: "using-mdx",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+},
+
 	};
 
-	type ContentConfig = typeof import('./config');
+	type ContentConfig = typeof import("./config");
 }

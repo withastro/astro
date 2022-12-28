@@ -140,6 +140,6 @@ async function render({
 	return {
 		Content,
 		headings: mod.getHeadings(),
-		injectedFrontmatter: mod.frontmatter,
+		remarkPluginFrontmatter: mod.frontmatter,
 	};
 }
