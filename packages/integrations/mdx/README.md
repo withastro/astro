@@ -114,7 +114,7 @@ export default defineConfig({
 ```
 
 :::caution
-MDX does not support passing remark and rehype plugins as a "string." You should install, import, and apply the plugin function instead.
+MDX does not support passing remark and rehype plugins as a string. You should install, import, and apply the plugin function instead.
 :::
 
 📚 See the [Markdown Options reference](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) for a complete list of options.
