@@ -20,7 +20,8 @@ export function remarkTitle() {
 }
 
 export function remarkDescription() {
-	return function (tree, { data }) {
-		data.astro.frontmatter.description = `Processed by remarkDescription plugin: ${data.astro.frontmatter.description}`
+	return function (tree, vfile) {
+		const { frontmatter } = vfile.data.astro;
+		frontmatter.description = `Processed by remarkDescription plugin: ${frontmatter.description}`
 	};
 }
