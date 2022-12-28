@@ -11,6 +11,10 @@ import type { VFile } from 'vfile';
 
 export type { Node } from 'unist';
 
+export type MarkdownAstroData = {
+	frontmatter: Record<string, any>;
+};
+
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	mdast.Root

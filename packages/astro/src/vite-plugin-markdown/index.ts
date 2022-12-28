@@ -1,4 +1,8 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
+import {
+	safelyGetAstroData,
+	InvalidAstroDataError,
+} from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'node:url';
@@ -11,12 +15,7 @@ import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import {
-	escapeViteEnvReferences,
-	getFileInfo,
-	InvalidAstroDataError,
-	safelyGetAstroData,
-} from '../vite-plugin-utils/index.js';
+import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
