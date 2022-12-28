@@ -29,44 +29,16 @@
 		0px 16px 16px rgba(9, 11, 17, 0.1), 0px 4px 9px rgba(9, 11, 17, 0.12),
 		0px 0px 0px rgba(9, 11, 17, 0.12);
 
-	/* Fonts */
-	--f-u18: 11.390625em;
-	--f-u17: 9.950627481136905em;
-	--f-u16: 8.692673779389363em;
-	--f-u15: 7.59375em;
-	--f-u14: 6.63375165409127em;
-	--f-u13: 5.795115852926242em;
-	--f-u12: 5.0625em;
-	--f-u11: 4.422501102727513em;
-	--f-u10: 3.8634105686174953em;
-	--f-u9: 3.375em;
-	--f-u8: 2.9483340684850083em;
-	--f-u7: 2.575607045744997em;
-	--f-u6: 2.25em;
-	--f-u5: 1.9655560456566725em;
-	--f-u4: 1.7170713638299977em;
-	--f-u3: 1.5em;
-	--f-u2: 1.3103706971044482em;
-	--f-u1: 1.1447142425533319em;
-	--f-d1: 0.8735804647362989em;
-	--f-d2: 0.7631428283688879em;
-	--f-d3: 0.6666666666666666em;
-	--f-d4: 0.5823869764908659em;
-	--f-d5: 0.5087618855792586em;
-	--f-d6: 0.4444444444444444em;
-	--f-d7: 0.3882579843272439em;
-	--f-d8: 0.3391745903861724em;
-	--f-d9: 0.2962962962962963em;
-	--f-d10: 0.2588386562181626em;
-	--f-d11: 0.22611639359078162em;
-	--f-d12: 0.19753086419753085em;
-	--f-d13: 0.17255910414544176em;
-	--f-d14: 0.15074426239385438em;
-	--f-d15: 0.13168724279835392em;
-	--f-d16: 0.11503940276362785em;
-	--f-d17: 0.10049617492923625em;
-	--f-d18: 0.0877914951989026em;
+	/* Text Sizes */
+	--text-base: 1rem;
+	--text-lg: 1.25rem;
+	--text-xl: 1.625rem;
+	--text-2xl: 2.125rem;
+	--text-3xl: 2.625rem;
+	--text-4xl: 3.5rem;
+	--text-5xl: 4.5rem;
 
+	/* Fonts */
 	--font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
 		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	--font-body: 'Public Sans', var(--font-system);
@@ -101,8 +73,10 @@ body {
 	font-family: var(--font-body);
 }
 
-* {
-	box-sizing: content-box;
+*,
+*::after,
+*::before {
+	box-sizing: border-box;
 }
 
 img {
@@ -126,23 +100,23 @@ h5 {
 }
 
 h1 {
-	font-size: var(--f-u11);
+	font-size: var(--text-5xl);
 }
 
 h2 {
-	font-size: var(--f-u9);
+	font-size: var(--text-4xl);
 }
 
 h3 {
-	font-size: var(--f-u7);
+	font-size: var(--text-3xl);
 }
 
 h4 {
-	font-size: var(--f-u6);
+	font-size: var(--text-2xl);
 }
 
 h5 {
-	font-size: var(--f-u4);
+	font-size: var(--text-xl);
 }
 
 /* .button {
