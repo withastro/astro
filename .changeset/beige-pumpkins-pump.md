@@ -20,6 +20,13 @@ export function remarkInjectSocialImagePlugin() {
 }
 ```
 
+## Content Collections - new `remarkPluginFrontmatter` property
+
+We have changed _inject_ frontmatter to _modify_ frontmatter in our docs to improve discoverability. This is based on support forum feedback, where "injection" is rarely the term used.
+
+To reflect this, the `injectedFrontmatter` property has been renamed to `remarkPluginFrontmatter`. This should clarify this plugin is still separate from the `data` export Content Collections expose today.
+
+
 ## Migration instructions
 
 Plugin authors should now **check for user frontmatter when applying defaults.**
