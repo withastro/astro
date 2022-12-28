@@ -767,7 +767,7 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `true`
 		 * @description
-		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To avoid this, set the `githubFlavoredMarkdown` flag to `false`:
+		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `githubFlavoredMarkdown` flag to `false`:
 		 *
 		 * ```js
 		 * {
