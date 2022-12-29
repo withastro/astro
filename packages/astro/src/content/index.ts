@@ -1,5 +1,5 @@
 export { createContentTypesGenerator } from './types-generator.js';
-export { contentObservable, getContentPaths } from './utils.js';
+export { contentObservable, getContentPaths, getContentDir } from './utils.js';
 export {
 	astroBundleDelayedAssetPlugin,
 	astroDelayedAssetPlugin,

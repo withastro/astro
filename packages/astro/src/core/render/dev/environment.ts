@@ -1,5 +1,5 @@
 import type { AstroSettings, RuntimeMode } from '../../../@types/astro';
-import { getContentPaths } from '../../../content/index.js';
+import { getContentDir } from '../../../content/index.js';
 import type { LogOptions } from '../../logger/core.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import type { Environment } from '../index';
@@ -26,7 +26,7 @@ export function createDevelopmentEnvironment(
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 			isExperimentalContentCollections: settings.config.experimental.contentCollections,
-			contentDir: getContentPaths(settings.config).contentDir,
+			contentDir: getContentDir({ srcDir: settings.config.srcDir }),
 		},
 		mode,
 		// This will be overridden in the dev server

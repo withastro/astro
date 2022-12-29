@@ -1,6 +1,7 @@
 import matter from 'gray-matter';
 import type fsMod from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import glob from 'fast-glob';
 import { createServer, ErrorPayload as ViteErrorPayload, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroSettings } from '../@types/astro.js';
@@ -143,7 +144,14 @@ export async function loadContentConfig({
 	fs: typeof fsMod;
 	settings: AstroSettings;
 }): Promise<ContentConfig | Error> {
-	const contentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths({
+		srcDir: settings.config.srcDir,
+		rootDir: settings.config.root,
+		fs,
+	});
+	if (!contentPaths.config) {
+		return new NotFoundError();
+	}
 	const tempConfigServer: ViteDevServer = await createServer({
 		root: fileURLToPath(settings.config.root),
 		server: { middlewareMode: true, hmr: false },
@@ -156,16 +164,16 @@ export async function loadContentConfig({
 	let unparsedConfig;
 	try {
 		unparsedConfig = await tempConfigServer.ssrLoadModule(contentPaths.config.pathname);
-	} catch {
-		return new NotFoundError('Failed to resolve content config.');
-	} finally {
 		await tempConfigServer.close();
+	} catch {
+		await tempConfigServer.close();
+		return new NotFoundError();
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
 		return config.data;
 	} else {
-		return new ZodParseError('Content config file is invalid.');
+		return new ZodParseError(config.error.message);
 	}
 }
 
@@ -210,15 +218,33 @@ export type ContentPaths = {
 	contentDir: URL;
 	cacheDir: URL;
 	generatedInputDir: URL;
-	config: URL;
+	config?: URL;
 };
 
-export function getContentPaths({ srcDir }: { srcDir: URL }): ContentPaths {
+export function getContentDir({ srcDir }: { srcDir: URL }) {
+	return new URL('./content/', srcDir);
+}
+
+export function getContentPaths({
+	srcDir,
+	rootDir,
+	fs,
+}: {
+	srcDir: URL;
+	rootDir: URL;
+	fs: typeof fsMod;
+}): ContentPaths {
+	// Find first file extension to match
+	const configPath = glob.sync('content.config.{ts,js,mjs}', {
+		cwd: fileURLToPath(rootDir),
+		absolute: true,
+		fs,
+	})[0];
 	return {
-		// Output generated types in content directory. May change in the future!
-		cacheDir: new URL('./content/', srcDir),
-		contentDir: new URL('./content/', srcDir),
+		contentDir: getContentDir({ srcDir }),
+		// Output generated types in project root. May change in the future!
+		cacheDir: rootDir,
 		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
-		config: new URL('./content/config', srcDir),
+		config: configPath ? pathToFileURL(configPath) : undefined,
 	};
 }

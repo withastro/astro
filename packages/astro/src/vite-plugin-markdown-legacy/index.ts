@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import { Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { getContentPaths } from '../content/index.js';
+import { getContentDir } from '../content/index.js';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
 import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
@@ -164,7 +164,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 					fileURL: fileUrl,
 					isAstroFlavoredMd: true,
 					isExperimentalContentCollections: settings.config.experimental.contentCollections,
-					contentDir: getContentPaths(settings.config).contentDir,
+					contentDir: getContentDir({ srcDir: settings.config.srcDir }),
 				} as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;

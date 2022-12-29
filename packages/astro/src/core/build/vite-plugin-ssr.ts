@@ -7,7 +7,7 @@ import type { StaticBuildOptions } from './types';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import { getContentPaths } from '../../content/index.js';
+import { getContentDir } from '../../content/index.js';
 import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../app/index.js';
@@ -210,7 +210,7 @@ function buildManifest(
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 			isExperimentalContentCollections: settings.config.experimental.contentCollections,
-			contentDir: getContentPaths(settings.config).contentDir,
+			contentDir: getContentDir({ srcDir: settings.config.srcDir }),
 		},
 		pageMap: null as any,
 		renderers: [],

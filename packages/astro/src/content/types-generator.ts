@@ -51,7 +51,11 @@ export async function createContentTypesGenerator({
 	settings,
 }: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
 	const contentTypes: ContentTypes = {};
-	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths({
+		srcDir: settings.config.srcDir,
+		rootDir: settings.config.root,
+		fs,
+	});
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -62,20 +66,17 @@ export async function createContentTypesGenerator({
 	);
 
 	async function init() {
-		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		const globResult = await glob('./**', {
+		if (contentPaths.config) {
+			await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
+		}
+		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
 			},
 		});
-		const entries = globResult
-			.map((e) => new URL(e, contentPaths.contentDir))
-			.filter(
-				// Config loading handled first. Avoid running twice.
-				(e) => !e.href.startsWith(contentPaths.config.href)
-			);
+		const entries = globResult.map((e) => new URL(e, contentPaths.contentDir));
 		for (const entry of entries) {
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
@@ -184,15 +185,16 @@ export async function createContentTypesGenerator({
 			entry: pathToFileURL(rawEvent.entry),
 			name: rawEvent.name,
 		};
-		if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		const entryType = getEntryType(rawEvent.entry, contentPaths);
+		if (entryType === 'config' || event.entry.href.startsWith(contentPaths.contentDir.href)) {
+			events.push(handleEvent(event, opts));
 
-		events.push(handleEvent(event, opts));
-
-		debounceTimeout && clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(
-			async () => runEvents(opts),
-			50 /* debounce to batch chokidar events */
-		);
+			debounceTimeout && clearTimeout(debounceTimeout);
+			debounceTimeout = setTimeout(
+				async () => runEvents(opts),
+				50 /* debounce to batch chokidar events */
+			);
+		}
 	}
 
 	async function runEvents(opts?: EventOpts) {
@@ -276,15 +278,17 @@ export function getEntryInfo({
 
 export function getEntryType(
 	entryPath: string,
-	paths: ContentPaths
+	contentPaths: ContentPaths
 ): 'content' | 'config' | 'unknown' | 'generated-types' {
-	const { dir: rawDir, ext, name, base } = path.parse(entryPath);
+	const { dir: rawDir, ext, base } = path.parse(entryPath);
 	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
 	if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
-	} else if (new URL(name, dir).pathname === paths.config.pathname) {
+	} else if (contentPaths.config && entryPath === fileURLToPath(contentPaths.config)) {
 		return 'config';
-	} else if (new URL(base, dir).pathname === new URL(CONTENT_TYPES_FILE, paths.cacheDir).pathname) {
+	} else if (
+		new URL(base, dir).pathname === new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir).pathname
+	) {
 		return 'generated-types';
 	} else {
 		return 'unknown';
@@ -323,17 +327,26 @@ async function writeContentFiles({
 		contentTypesStr += `},\n`;
 	}
 
-	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
-	);
-	if (!isRelativePath(configPathRelativeToCacheDir))
-		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
+	let contentConfigType = 'never';
+
+	if (contentConfig && contentPaths.config) {
+		let configPathRelativeToCacheDir = normalizePath(
+			path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
+		);
+
+		if (!isRelativePath(configPathRelativeToCacheDir))
+			configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
+
+		// Remove `.ts` from import path
+		if (configPathRelativeToCacheDir.endsWith('.ts')) {
+			configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
+		}
+
+		contentConfigType = `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})`;
+	}
 
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
-	contentTypesBase = contentTypesBase.replace(
-		"'@@CONTENT_CONFIG_TYPE@@'",
-		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
-	);
+	contentTypesBase = contentTypesBase.replace("'@@CONTENT_CONFIG_TYPE@@'", contentConfigType);
 
 	await fs.promises.writeFile(new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir), contentTypesBase);
 }

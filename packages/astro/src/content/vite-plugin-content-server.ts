@@ -17,7 +17,6 @@ import {
 import {
 	ContentConfig,
 	contentObservable,
-	ContentPaths,
 	getContentPaths,
 	getEntryData,
 	getEntrySlug,
@@ -37,7 +36,11 @@ export function astroContentServerPlugin({
 	logging,
 	mode,
 }: AstroContentServerPluginParams): Plugin[] {
-	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths({
+		srcDir: settings.config.srcDir,
+		rootDir: settings.config.root,
+		fs,
+	});
 	let contentDirExists = false;
 	let contentGenerator: GenerateContentTypes;
 	const contentConfigObserver = contentObservable({ status: 'loading' });
