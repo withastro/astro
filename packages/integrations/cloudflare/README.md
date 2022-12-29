@@ -81,19 +81,9 @@ getRuntime(Astro.request);
 
 Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
 
-## Streams
-
-Some integrations such as [React](https://github.com/withastro/astro/tree/main/packages/integrations/react) rely on web streams. Currently Cloudflare Pages Functions require enabling a flag to support Streams.
-
-To do this:
-- go to the Cloudflare Pages project
-- click on Settings in the top bar, then Functions in the sidebar
-- scroll down to Compatibility Flags, click Configure Production Compatibility Flags, and add `streams_enable_constructors`
-- do this for both the Production Compatibility Flags and Preview Compatibility Flags
-
 ## Environment Variables
 
-As Cloudflare Pages Functions [provides environment variables per request](https://developers.cloudflare.com/pages/platform/functions/#adding-environment-variables-locally), you can only access private environment variables when a request has happened. Usually, this means moving environment variable access inside a function.
+See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
 
 ```js
 // pages/[id].json.js
