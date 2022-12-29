@@ -55,7 +55,6 @@ export async function createContentTypesGenerator({
 	const contentPaths = getContentPaths({
 		srcDir: settings.config.srcDir,
 		rootDir: settings.config.root,
-		fs,
 	});
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
@@ -67,11 +66,7 @@ export async function createContentTypesGenerator({
 	);
 
 	async function init() {
-		if (contentPaths.config) {
-			await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		} else {
-			contentConfigObserver.set({ status: 'error', error: new NotFoundError() });
-		}
+		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
@@ -332,7 +327,7 @@ async function writeContentFiles({
 
 	let contentConfigType = 'never';
 
-	if (contentConfig && contentPaths.config) {
+	if (contentConfig) {
 		let configPathRelativeToCacheDir = normalizePath(
 			path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
 		);

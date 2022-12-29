@@ -147,11 +147,7 @@ export async function loadContentConfig({
 	const contentPaths = getContentPaths({
 		srcDir: settings.config.srcDir,
 		rootDir: settings.config.root,
-		fs,
 	});
-	if (!contentPaths.config) {
-		return new NotFoundError();
-	}
 	const tempConfigServer: ViteDevServer = await createServer({
 		root: fileURLToPath(settings.config.root),
 		server: { middlewareMode: true, hmr: false },
@@ -218,33 +214,19 @@ export type ContentPaths = {
 	contentDir: URL;
 	cacheDir: URL;
 	generatedInputDir: URL;
-	config?: URL;
+	config: URL;
 };
 
 export function getContentDir({ srcDir }: { srcDir: URL }) {
 	return new URL('./content/', srcDir);
 }
 
-export function getContentPaths({
-	srcDir,
-	rootDir,
-	fs,
-}: {
-	srcDir: URL;
-	rootDir: URL;
-	fs: typeof fsMod;
-}): ContentPaths {
-	// Find first file extension to match
-	const configPath = glob.sync('content.config.{ts,js,mjs}', {
-		cwd: fileURLToPath(rootDir),
-		absolute: true,
-		fs,
-	})[0];
+export function getContentPaths({ srcDir, rootDir }: { srcDir: URL; rootDir: URL }): ContentPaths {
 	return {
 		contentDir: getContentDir({ srcDir }),
 		// Output generated types in project root. May change in the future!
 		cacheDir: rootDir,
 		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
-		config: configPath ? pathToFileURL(configPath) : undefined,
+		config: new URL('content.config.ts', rootDir),
 	};
 }

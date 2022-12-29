@@ -17,7 +17,6 @@ export function astroContentVirtualModPlugin({
 	const contentPaths = getContentPaths({
 		srcDir: settings.config.srcDir,
 		rootDir: settings.config.root,
-		fs: fsMod,
 	});
 	const relContentDir = normalizePath(
 		appendForwardSlash(

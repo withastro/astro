@@ -39,7 +39,6 @@ export function astroContentServerPlugin({
 	const contentPaths = getContentPaths({
 		srcDir: settings.config.srcDir,
 		rootDir: settings.config.root,
-		fs,
 	});
 	let contentDirExists = false;
 	let contentGenerator: GenerateContentTypes;
