@@ -445,9 +445,9 @@ export interface AstroUserConfig {
 	 * @type {string}
 	 * @description
 	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. You can access this value in your app via `import.meta.env.BASE_URL`.
-	 * 
+	 *
 	 * In the example below, `astro dev` will start your server at `/docs`.
-	 * 
+	 *
 	 * ```js
 	 * {
 	 *   base: '/docs'
