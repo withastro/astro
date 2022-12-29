@@ -144,6 +144,7 @@ export async function loadContentConfig({
 	settings: AstroSettings;
 }): Promise<ContentConfig | Error> {
 	const contentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const nodeEnv = process.env.NODE_ENV;
 	const tempConfigServer: ViteDevServer = await createServer({
 		root: fileURLToPath(settings.config.root),
 		server: { middlewareMode: true, hmr: false },
@@ -153,20 +154,16 @@ export async function loadContentConfig({
 		logLevel: 'silent',
 		plugins: [astroContentVirtualModPlugin({ settings })],
 	});
-
-	const nodeEnv = process.env.NODE_ENV;
 	let unparsedConfig;
 	try {
 		unparsedConfig = await tempConfigServer.ssrLoadModule(contentPaths.config.pathname);
 	} catch {
+		return new NotFoundError('Failed to resolve content config.');
 	} finally {
 		await tempConfigServer.close();
 		// Reset NODE_ENV to initial value
 		// Vite's `createServer()` sets NODE_ENV to 'development'!
 		process.env.NODE_ENV = nodeEnv;
-	}
-	if (!unparsedConfig) {
-		return new NotFoundError('Failed to resolve content config.');
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
