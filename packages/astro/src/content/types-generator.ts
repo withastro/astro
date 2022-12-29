@@ -5,7 +5,7 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { info, LogOptions, warn } from '../core/logger/core.js';
+import { error, info, warn, LogOptions } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 import {
@@ -14,7 +14,6 @@ import {
 	ContentPaths,
 	getContentPaths,
 	loadContentConfig,
-	NotFoundError,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -56,6 +55,14 @@ export async function createContentTypesGenerator({
 		srcDir: settings.config.srcDir,
 		rootDir: settings.config.root,
 	});
+
+	if (fs.existsSync(new URL('config.ts', contentPaths.contentDir))) {
+		error(
+			logging,
+			'content',
+			'`src/content/config.ts` is no longer supported. Please move your config to a `content.config.ts` file at the root of your project.'
+		);
+	}
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
