@@ -14,6 +14,7 @@ import {
 	ContentPaths,
 	getContentPaths,
 	loadContentConfig,
+	NotFoundError,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -68,6 +69,8 @@ export async function createContentTypesGenerator({
 	async function init() {
 		if (contentPaths.config) {
 			await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
+		} else {
+			contentConfigObserver.set({ status: 'error', error: new NotFoundError() });
 		}
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
