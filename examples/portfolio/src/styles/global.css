@@ -20,6 +20,27 @@
 	--accent-dark: #1c0056;
 	--accent-text-over: var(--gray-999);
 
+	/* Gradients */
+	--gradient-subtle: linear-gradient(
+		132deg,
+		var(--gray-900),
+		var(--gray-900) 81%,
+		var(--gray-999) 81%
+	);
+	--gradient-accent: linear-gradient(
+		150deg,
+		var(--accent-light),
+		var(--accent-regular),
+		var(--accent-dark)
+	);
+	--gradient-accent-orange: linear-gradient(
+		150deg,
+		#ca7879,
+		var(--accent-regular),
+		var(--accent-dark)
+	);
+	--gradient-stroke: linear-gradient(180deg, var(--gray-900), var(--gray-700));
+
 	/* Shadows */
 	--shadow-sm: 0px 6px 3px rgba(9, 11, 17, 0.01), 0px 4px 2px rgba(9, 11, 17, 0.01),
 		0px 2px 2px rgba(9, 11, 17, 0.02), 0px 0px 1px rgba(9, 11, 17, 0.03),
@@ -69,6 +90,20 @@
 	--accent-regular: #7611a6;
 	--accent-dark: #c561f6;
 	--accent-text-over: var(--gray-0);
+
+	--gradient-subtle: linear-gradient(132deg, var(--gray-900) 19%, var(--gray-999) 81%);
+	--gradient-accent: linear-gradient(150deg, #4c11c6, var(--accent-regular), var(--accent-dark));
+	--gradient-accent-orange: linear-gradient(
+		150deg,
+		#ca7879,
+		var(--accent-regular),
+		var(--accent-light)
+	);
+	--gradient-stroke: linear-gradient(180deg, transparent, var(--gray-800));
+
+	--bg-image-main: url('/assets/bg-main-dark.svg');
+	--bg-image-subtle: url('/assets/bg-subtle-1-dark.svg');
+	--bg-image-footer: url('/assets/bg-subtle-2-dark.svg');
 }
 
 body {
