@@ -53,7 +53,9 @@
 		0px 0px 0px rgba(9, 11, 17, 0.12);
 
 	/* Text Sizes */
+	--text-sm: 0.875rem;
 	--text-base: 1rem;
+	--text-md: 1.125rem;
 	--text-lg: 1.25rem;
 	--text-xl: 1.625rem;
 	--text-2xl: 2.125rem;
