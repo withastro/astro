@@ -444,14 +444,21 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
-	 *
-	 * You can access this value in your app via `import.meta.env.BASE_URL`.
-	 *
+	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. You can access this value in your app via `import.meta.env.BASE_URL`.
+	 * 
+	 * In the example below, `astro dev` will start your server at `/docs`.
+	 * 
 	 * ```js
 	 * {
 	 *   base: '/docs'
 	 * }
+	 * ```
+	 * 
+	 * When using this option, all of your static asset imports and URLs should add the base as a prefix.
+	 * 
+	 * ```astro
+	 * <a href="/docs/about/>About</a>
+	 * <img src="/docs/image.png">
 	 * ```
 	 */
 	base?: string;
