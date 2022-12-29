@@ -69,8 +69,6 @@
 	--font-body: 'Public Sans', var(--font-system);
 	--font-brand: Rubik, var(--font-system);
 
-	--t-fg: var(--gray-200);
-	--t-bg: var(--white);
 }
 
 :root.theme-dark {
@@ -110,7 +108,7 @@
 
 body {
 	margin: 0;
-	color: var(--t-fg);
+	color: var(--gray-200);
 	font-family: var(--font-body);
 }
 
