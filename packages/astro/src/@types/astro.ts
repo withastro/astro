@@ -801,7 +801,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     extendDefaultPlugins: true,
-		 * 		 remarkPlugins: [exampleRemarkPlugin],
+		 * 	   remarkPlugins: [exampleRemarkPlugin],
 		 *     rehypePlugins: [exampleRehypePlugin],
 		 *   }
 		 * }
