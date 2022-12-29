@@ -63,7 +63,7 @@ export async function createContentTypesGenerator({
 
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		const globResult = await glob('./**/*.*', {
+		const globResult = await glob('./**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
