@@ -12,7 +12,7 @@ describe('Content Collections', () => {
 			fixture = await loadFixture({ root: './fixtures/content-collections/' });
 		});
 
-		it('Writes types to `src/content/`', async () => {
+		it('Writes types to project root', async () => {
 			let writtenFiles = {};
 			const fsMock = {
 				...fs,
@@ -23,8 +23,7 @@ describe('Content Collections', () => {
 					},
 				},
 			};
-			const expectedTypesFile = new URL('./content/types.generated.d.ts', fixture.config.srcDir)
-				.href;
+			const expectedTypesFile = new URL('./types.generated.d.ts', fixture.config.root).href;
 			await fixture.sync({ fs: fsMock });
 			expect(Object.keys(writtenFiles)).to.have.lengthOf(1);
 			expect(writtenFiles).to.haveOwnProperty(expectedTypesFile);
