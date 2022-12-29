@@ -7,39 +7,171 @@ const menu = [
 ];
 ---
 
-<nav>
-	<a class="link" href="/">
-		<div class="monogram">JW</div>
-	</a>
-	{
-		menu.map(({ label, href }) => (
-			<a class="link" href={href}>
-				{label}
-			</a>
-		))
+<style>
+	nav {
+		font-family: var(--font-brand);
+		font-weight: 500;
+		padding: 1.5rem 0;
+		margin-bottom: 3.5rem;
 	}
+
+	.site-title {
+		color: var(--accent-dark);
+		text-decoration: none;
+	}
+
+	.nav-items {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		font-size: var(--text-md);
+		line-height: 1.2;
+		list-style: none;
+		padding: 2rem;
+		background-color: var(--gray-999);
+		border-bottom: 1px solid var(--gray-800);
+	}
+
+	.link {
+		display: inline-block;
+		color: var(--gray-300);
+		text-decoration: none;
+	}
+
+	.link.active {
+		color: var(--gray-0);
+	}
+
+	.socials {
+		display: flex;
+		gap: 2rem;
+		padding: 1.5rem 2rem;
+		background-color: var(--gray-999);
+		border-radius: 0 0 0.75rem 0.75rem;
+		box-shadow: var(--shadow-lg);
+	}
+
+	.social {
+		text-decoration: none;
+		color: var(--accent-dark);
+	}
+
+	.social-icon {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	@media (min-width: 50em) {
+		nav {
+			display: grid;
+			grid-template-columns: 1fr auto 1fr;
+			align-items: center;
+			padding: 2.5rem 5rem;
+		}
+
+		.site-title {
+			font-size: var(--text-lg);
+		}
+
+		.nav-items {
+			position: relative;
+			flex-direction: row;
+			font-size: var(--text-sm);
+			border-radius: 999rem;
+			border: 0;
+			padding: 0.5rem 0.5625rem;
+			background: radial-gradient(var(--gray-900), var(--gray-800));
+			box-shadow: var(--shadow-md);
+		}
+
+		.nav-items::before {
+			position: absolute;
+			inset: -1px;
+			content: '';
+			background: var(--gradient-stroke);
+			border-radius: 999rem;
+			z-index: -1;
+		}
+
+		.link {
+			padding: 0.5rem 1rem;
+		}
+
+		.link.active {
+			border-radius: 999rem;
+			color: var(--accent-text-over);
+			background-color: var(--accent-regular);
+		}
+
+		.socials {
+			justify-self: flex-end;
+			gap: 1rem;
+			padding: 0;
+			background-color: transparent;
+			box-shadow: none;
+		}
+	}
+</style>
+
+<nav>
+	<a href="/" class="site-title">Jeanine White</a>
+	<ul class="nav-items">
+		{
+			menu.map(({ label, href }) => (
+				<li>
+					<a class:list={['link', { active: Astro.url.pathname === href }]} href={href}>
+						{label}
+					</a>
+				</li>
+			))
+		}
+	</ul>
 	<div class="socials">
 		<a class="social" href="https://twitter.com/me">
-			<svg class="socialIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+			<span class="sr-only">Twitter</span>
+			<svg
+				class="social-icon"
+				aria-hidden="true"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 16 16"
+				width="16"
+				height="16"
+				fill="currentColor"
+			>
 				<path
 					d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"
 				></path>
 			</svg>
 		</a>
 		<a class="social" href="https://github.com/me">
-			<svg class="socialIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+			<span class="sr-only">GitHub</span>
+			<svg
+				class="social-icon"
+				aria-hidden="true"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 16 16"
+				width="16"
+				height="16"
+				fill="currentColor"
+			>
 				<path
 					d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
 				></path>
 			</svg>
 		</a>
 		<a class="social" href="https://dev.to/me">
+			<span class="sr-only">DEV.to</span>
 			<svg
-				class="socialIcon"
+				class="social-icon"
+				aria-hidden="true"
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 50 40"
 				style="enable-background:new 0 0 50 40"
 				xml:space="preserve"
+				width="16"
+				height="16"
+				fill="currentColor"
 			>
 				<path
 					d="M15.7 15.5c-.4-.3-.7-.4-1.1-.4h-1.7v10.1h1.7c.4 0 .8-.1 1.1-.4.4-.3.6-.7.6-1.3v-6.7c0-.6-.2-1-.6-1.3z"
@@ -51,63 +183,3 @@ const menu = [
 		</a>
 	</div>
 </nav>
-
-<style>
-	nav {
-		display: flex;
-		gap: 1rem;
-		align-items: center;
-		padding: 1rem;
-	}
-
-	.link {
-		color: var(--t-subdue);
-		display: block;
-		text-decoration: none;
-		font-size: var(--f-d1);
-		text-transform: uppercase;
-		padding-top: 0.75em;
-		padding-bottom: 0.75em;
-	}
-
-	.link:hover,
-	.link:focus {
-		color: var(--t-active);
-	}
-
-	.monogram {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2em;
-		height: 2em;
-		margin-right: 0.5rem;
-		color: var(--c-black);
-		font-weight: 900;
-		letter-spacing: -0.125rem;
-		border: 3px solid currentColor;
-		border-radius: 50%;
-	}
-
-	.socials {
-		display: flex;
-		gap: 0.75em;
-		margin-left: auto;
-	}
-
-	.social {
-		display: block;
-	}
-
-	.socialIcon {
-		display: block;
-		width: 1.25rem;
-		height: 1.25rem;
-		fill: var(--t-subdue);
-		transition: fill linear 150ms;
-	}
-
-	.socialIcon:hover {
-		fill: var(--t-active);
-	}
-</style>
