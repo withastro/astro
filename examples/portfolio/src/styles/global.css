@@ -110,12 +110,15 @@ body {
 	margin: 0;
 	color: var(--gray-200);
 	font-family: var(--font-body);
+	-webkit-font-smoothing: antialiased;
+	line-height: 1.5;
 }
 
 *,
 *::after,
 *::before {
 	box-sizing: border-box;
+	margin: 0;
 }
 
 img {
@@ -132,8 +135,10 @@ h2,
 h3,
 h4,
 h5 {
-	margin: 1.5rem 0;
-	font-family: var(--font-headings);
+	/* TODO: Reinstate this default margin for Markdown content. */
+	/* margin: 1.5rem 0; */
+	line-height: 1.1;
+	font-family: var(--font-brand);
 	font-weight: 600;
 	color: var(--gray-100);
 }
