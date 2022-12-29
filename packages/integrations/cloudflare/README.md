@@ -83,7 +83,7 @@ Depending on your adapter mode (advanced = worker, directory = pages), the runti
 
 ## Environment Variables
 
-As Cloudflare Pages Functions [provides environment variables per request](https://developers.cloudflare.com/workers/platform/environment-variables/), you can only access private environment variables when a request has happened. Usually, this means moving environment variable access inside a function.
+See Cloudflare's documentation for [working with environment variables](https://developers.cloudflare.com/pages/platform/functions/bindings/#environment-variables).
 
 ```js
 // pages/[id].json.js
