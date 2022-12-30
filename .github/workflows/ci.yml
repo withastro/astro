@@ -210,7 +210,7 @@ jobs:
       - name: Checkout docs
         uses: actions/checkout@v3
         with:
-          repository: withastro/docs
+          repository: bholmesdev/astro-docs
           path: smoke/docs
 
       - name: Install dependencies
