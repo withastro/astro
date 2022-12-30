@@ -7,13 +7,18 @@ function getRenderer(development: boolean): AstroRenderer {
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
-			const {
-				default: { default: jsx },
-				// @ts-expect-error types not found
-			} = await import('@babel/plugin-transform-react-jsx');
-			return {
-				plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
-			};
+			try {
+				const {
+					default: { default: jsx },
+					// @ts-expect-error types not found
+				} = await import('@babel/plugin-transform-react-jsx');
+				console.log('!!!resolved babel plugin');
+				return {
+					plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
+				};
+			} catch (e) {
+				throw new Error('failed to resolve babel plugin: ' + e);
+			}
 		},
 	};
 }
