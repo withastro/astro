@@ -126,7 +126,9 @@ export async function loadConfigWithVite({
 			value: mod.default ?? {},
 			filePath: file,
 		};
-	} catch {
+	} catch (e) {
+		console.log('$$$vite loader failed:', e);
+
 		// Try loading with Proload
 		// TODO deprecate - this is only for legacy compatibility
 		const res = await load('astro', {
