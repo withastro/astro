@@ -17,6 +17,10 @@ describe('Integration buildConfig hook', () => {
 				hooks: {
 					'astro:config:setup': ({ updateConfig }) => {
 						updateConfig({
+							build: {
+								server: new URL('./dist/.root/server/', _config.root),
+								client: new URL('./dist/.root/client/', _config.root),
+							},
 							vite: {
 								plugins: [
 									{
@@ -39,10 +43,6 @@ describe('Integration buildConfig hook', () => {
 								],
 							},
 						});
-					},
-					'astro:build:start': ({ buildConfig }) => {
-						buildConfig.server = new URL('./dist/.root/server/', _config.root);
-						buildConfig.client = new URL('./dist/.root/client/', _config.root);
 					},
 					'astro:config:done': ({ config, setAdapter }) => {
 						_config = config;
