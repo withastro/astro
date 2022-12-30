@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import { viteID } from '../dist/core/util.js';
 
@@ -8,18 +7,17 @@ describe('Integration buildConfig hook', () => {
 	let fixture;
 
 	before(async () => {
-		let _config;
 		fixture = await loadFixture({
 			root: './fixtures/ssr-request/',
 			output: 'server',
 			adapter: {
 				name: 'my-ssr-adapter',
 				hooks: {
-					'astro:config:setup': ({ updateConfig }) => {
+					'astro:config:setup': ({ config, updateConfig }) => {
 						updateConfig({
 							build: {
-								server: new URL('./dist/.root/server/', _config.root),
-								client: new URL('./dist/.root/client/', _config.root),
+								server: new URL('./dist/.root/server/', config.root),
+								client: new URL('./dist/.root/client/', config.root),
 							},
 							vite: {
 								plugins: [
@@ -44,8 +42,7 @@ describe('Integration buildConfig hook', () => {
 							},
 						});
 					},
-					'astro:config:done': ({ config, setAdapter }) => {
-						_config = config;
+					'astro:config:done': ({ setAdapter }) => {
 						setAdapter({
 							name: 'my-ssr-adapter',
 							serverEntrypoint: '@my-ssr',
