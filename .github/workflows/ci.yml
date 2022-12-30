@@ -190,8 +190,8 @@ jobs:
     # needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [14]
+        OS: [ubuntu-latest]
+        NODE_VERSION: [16]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
