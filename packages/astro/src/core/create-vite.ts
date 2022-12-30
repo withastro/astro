@@ -42,7 +42,7 @@ const ALWAYS_NOEXTERNAL = new Set([
 	'astro/components',
 	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
 	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
-	// '@nanostores/preact',
+	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
 ]);
