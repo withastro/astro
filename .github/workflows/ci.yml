@@ -210,7 +210,7 @@ jobs:
       - name: Checkout docs
         uses: actions/checkout@v3
         with:
-          repository: with-astro/docs
+          repository: withastro/docs
           ref: ci-smoke-test
           path: smoke/docs
 
