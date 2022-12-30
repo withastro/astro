@@ -45,11 +45,6 @@ export async function loadRenderers(
 ): Promise<SSRLoadedRenderer[]> {
 	const loader = (entry: string) => moduleLoader.import(entry);
 	const renderers = await Promise.all(settings.renderers.map((r) => loadRenderer(r, loader)));
-	console.log(
-		'$$$renderer names',
-		renderers.map((r) => r?.name)
-	);
-	console.log('$$$renderers', renderers);
 	return filterFoundRenderers(renderers);
 }
 
