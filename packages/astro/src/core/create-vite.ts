@@ -184,8 +184,6 @@ export async function createVite(
 		},
 	};
 
-	console.log('$$$deps', commonConfig.ssr);
-
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.
 	// 	 1. common vite config
