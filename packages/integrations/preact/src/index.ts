@@ -1,4 +1,6 @@
 import { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+// @ts-expect-error types not found
+import { default as jsx } from '@babel/plugin-transform-react-jsx';
 
 function getRenderer(development: boolean): AstroRenderer {
 	return {
@@ -7,18 +9,9 @@ function getRenderer(development: boolean): AstroRenderer {
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
-			try {
-				const {
-					default: jsx,
-					// @ts-expect-error types not found
-				} = await import('@babel/plugin-transform-react-jsx');
-				console.log('!!!resolved babel plugin');
-				return {
-					plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
-				};
-			} catch (e) {
-				throw new Error('failed to resolve babel plugin: ' + e);
-			}
+			return {
+				plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
+			};
 		},
 	};
 }
@@ -30,10 +23,6 @@ function getCompatRenderer(development: boolean): AstroRenderer {
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
-			const {
-				default: { default: jsx },
-				// @ts-expect-error types not found
-			} = await import('@babel/plugin-transform-react-jsx');
 			return {
 				plugins: [
 					jsx({}, { runtime: 'automatic', importSource: 'preact/compat' }),
