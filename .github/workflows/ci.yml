@@ -210,8 +210,8 @@ jobs:
       - name: Checkout docs
         uses: actions/checkout@v3
         with:
-          repository: bholmesdev/astro-docs
-          ref: ci-smoke-debugging
+          repository: with-astro/docs
+          ref: ci-smoke-test
           path: smoke/docs
 
       - name: Install dependencies
