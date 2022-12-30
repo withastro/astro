@@ -110,7 +110,6 @@ jobs:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
-    needs: build
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
@@ -188,7 +187,7 @@ jobs:
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
-    needs: build
+    # needs: build
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
