@@ -117,6 +117,7 @@ export async function loadConfigWithVite({
 		}
 	}
 
+	Error.stackTraceLimit = 100;
 	// Try Loading with Vite
 	let loader: ViteLoader | undefined;
 	try {
@@ -126,7 +127,9 @@ export async function loadConfigWithVite({
 			value: mod.default ?? {},
 			filePath: file,
 		};
-	} catch {
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.log('vite error', e);
 		// Try loading with Proload
 		// TODO deprecate - this is only for legacy compatibility
 		const res = await load('astro', {

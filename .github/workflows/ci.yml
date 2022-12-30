@@ -104,6 +104,7 @@ jobs:
         run: pnpm run build
 
   test:
+    if: false
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -147,6 +148,7 @@ jobs:
         run: pnpm run test
 
   e2e:
+    if: false
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -187,7 +189,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest]
         NODE_VERSION: [14]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
