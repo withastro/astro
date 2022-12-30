@@ -183,7 +183,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 						}
 					}
 
-					return Reflect.get(request, clientAddressSymbol);
+					return Reflect.get(request, clientAddressSymbol) as string;
 				},
 				get cookies() {
 					if (cookies) {
@@ -207,58 +207,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 							});
 					  }
 					: onlyAvailableInSSR('Astro.redirect'),
-				resolve(path: string) {
-					let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
-					if (isCSSRequest(path)) {
-						extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
----
-import "${path}";
----
-`;
-					} else if (isScriptRequest(path)) {
-						extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
-
-<script type="module" src={(await import("${path}?url")).default}></script>
-
-or consider make it a module like so:
-
-<script>
-	import MyModule from "${path}";
-</script>
-`;
-					}
-
-					warn(
-						args.logging,
-						`deprecation`,
-						`${bold(
-							'Astro.resolve()'
-						)} is deprecated. We see that you are trying to resolve ${path}.
-${extra}`
-					);
-					// Intentionally return an empty string so that it is not relied upon.
-					return '';
-				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
 			};
-
-			Object.defineProperty(Astro, 'canonicalURL', {
-				get: function () {
-					warn(
-						args.logging,
-						'deprecation',
-						`${bold('Astro.canonicalURL')} is deprecated! Use \`Astro.url\` instead.
-Example:
-
----
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
----
-`
-					);
-					return new URL(this.request.url.pathname, this.site);
-				},
-			});
 
 			Object.defineProperty(Astro, '__renderMarkdown', {
 				// Ensure this API is not exposed to users
