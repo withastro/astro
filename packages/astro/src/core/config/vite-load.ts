@@ -26,7 +26,7 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
 			// these dependencies trip up Vite's dev SSR transform. In the future, we should
 			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
-			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react'],
+			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react', '@astrojs/sitemap'],
 		},
 		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
 	});
