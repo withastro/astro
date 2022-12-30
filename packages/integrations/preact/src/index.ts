@@ -9,7 +9,7 @@ function getRenderer(development: boolean): AstroRenderer {
 		jsxTransformOptions: async () => {
 			try {
 				const {
-					default: { default: jsx },
+					default: jsx,
 					// @ts-expect-error types not found
 				} = await import('@babel/plugin-transform-react-jsx');
 				console.log('!!!resolved babel plugin');
