@@ -21,12 +21,7 @@
 	--accent-text-over: var(--gray-999);
 
 	/* Gradients */
-	--gradient-subtle: linear-gradient(
-		132deg,
-		var(--gray-900),
-		var(--gray-900) 81%,
-		var(--gray-999) 81%
-	);
+	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 150%);
 	--gradient-accent: linear-gradient(
 		150deg,
 		var(--accent-light),
@@ -95,7 +90,7 @@
 	--accent-dark: #c561f6;
 	--accent-text-over: var(--gray-0);
 
-	--gradient-subtle: linear-gradient(132deg, var(--gray-900) 19%, var(--gray-999) 81%);
+	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 150%);
 	--gradient-accent: linear-gradient(150deg, #4c11c6, var(--accent-regular), var(--accent-dark));
 	--gradient-accent-orange: linear-gradient(
 		150deg,
