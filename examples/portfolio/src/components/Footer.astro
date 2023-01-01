@@ -1,10 +1,14 @@
 ---
+import Icon from './Icon.astro';
 const currentYear = new Date().getFullYear();
 ---
 
 <footer>
 	<div class="group">
-		<p>Designed & Developed in Portland with <a href="https://astro.build/">Astro</a>&nbsp;🚀</p>
+		<p>
+			Designed & Developed in Portland with <a href="https://astro.build/">Astro</a>
+			<Icon icon="rocket-launch" size="1.2em" />
+		</p>
 		<span class="separator">•</span>
 		<p>&copy; {currentYear} Jeanine White</p>
 	</div>
