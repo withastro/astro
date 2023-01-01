@@ -65,9 +65,13 @@
 	--font-brand: Rubik, var(--font-system);
 
 	/* Backgrounds */
-	--bg-image-main: url('/assets/bg-main-light.svg');
+	--bg-image-main: url('/assets/backgrounds/bg-main-light-800w.jpg');
+	--bg-image-main-curves: url('/assets/backgrounds/bg-main-light.svg');
 	--bg-image-subtle: url('/assets/bg-subtle-1-light.svg');
 	--bg-image-footer: url('/assets/bg-subtle-2-light.svg');
+
+	--bg-svg-blend-mode: overlay;
+	--bg-gradient-size: 168%;
 }
 
 :root.theme-dark {
@@ -90,7 +94,7 @@
 	--accent-dark: #c561f6;
 	--accent-text-over: var(--gray-0);
 
-	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 150%);
+	--gradient-subtle: linear-gradient(150deg, var(--gray-900) 19%, var(--gray-999) 81%);
 	--gradient-accent: linear-gradient(150deg, #4c11c6, var(--accent-regular), var(--accent-dark));
 	--gradient-accent-orange: linear-gradient(
 		150deg,
@@ -98,33 +102,36 @@
 		var(--accent-regular),
 		var(--accent-light)
 	);
-	--gradient-stroke: linear-gradient(180deg, transparent, var(--gray-800));
+	--gradient-stroke: linear-gradient(180deg, var(--gray-600), var(--gray-800));
 
-	--bg-image-main: url('/assets/bg-main-dark.svg');
+	--bg-image-main: url('/assets/backgrounds/bg-main-dark-800w.jpg');
+	--bg-image-main-curves: url('/assets/backgrounds/bg-main-dark.svg');
 	--bg-image-subtle: url('/assets/bg-subtle-1-dark.svg');
 	--bg-image-footer: url('/assets/bg-subtle-2-dark.svg');
+
+	--bg-svg-blend-mode: darken;
+}
+
+@media (min-width: 50em) {
+	:root {
+		--bg-gradient-size: 100%;
+		--bg-image-main: url('/assets/backgrounds/bg-main-light-1440w.jpg');
+	}
+	:root.theme-dark {
+		--bg-image-main: url('/assets/backgrounds/bg-main-dark-1440w.jpg');
+	}
 }
 
 body {
-	--gradient-bg-size: 168%;
-
-	margin: 0;
-
-	background: url('/assets/noise.png') top center/125px repeat,
-		var(--bg-image-main) top center/var(--gradient-bg-size) no-repeat,
-		var(--bg-image-footer) bottom center/var(--gradient-bg-size) no-repeat, var(--gray-999);
-	background-blend-mode: overlay, normal, normal;
+	background: url('/assets/backgrounds/noise.svg') top center/1500px repeat,
+		var(--bg-image-main-curves) top center/var(--bg-gradient-size) no-repeat,
+		var(--bg-image-main) top center/var(--bg-gradient-size) no-repeat, var(--gray-999);
+	background-blend-mode: overlay, var(--bg-svg-blend-mode), normal, normal;
 
 	color: var(--gray-200);
 	font-family: var(--font-body);
 	-webkit-font-smoothing: antialiased;
 	line-height: 1.5;
-}
-
-@media (min-width: 50em) {
-	body {
-		--gradient-bg-size: 100%;
-	}
 }
 
 *,
