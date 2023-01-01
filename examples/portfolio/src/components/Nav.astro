@@ -18,7 +18,11 @@ const menu = [
 	}
 
 	.site-title {
-		color: var(--accent-dark);
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+		line-height: 1.1;
+		color: var(--gray-0);
 		text-decoration: none;
 	}
 
@@ -114,7 +118,10 @@ const menu = [
 </style>
 
 <nav>
-	<a href="/" class="site-title">Jeanine White</a>
+	<a href="/" class="site-title">
+		<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
+		Jeanine White
+	</a>
 	<ul class="nav-items">
 		{
 			menu.map(({ label, href }) => (
