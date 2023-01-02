@@ -9,23 +9,23 @@ const currentYear = new Date().getFullYear();
 			Designed & Developed in Portland with <a href="https://astro.build/">Astro</a>
 			<Icon icon="rocket-launch" size="1.2em" />
 		</p>
-		<span class="separator">•</span>
 		<p>&copy; {currentYear} Jeanine White</p>
 	</div>
 	<p class="socials">
-		<a href="https://twitter.com/me">Twitter</a>
-		<a href="https://github.com/me">GitHub</a>
-		<a href="https://dev.to/me">DEV</a>
+		<a href="https://twitter.com/me"> Twitter</a>
+		<a href="https://github.com/me"> GitHub</a>
+		<a href="https://codepen.io/me"> CodePen</a>
 	</p>
 </footer>
 <style>
 	footer {
 		display: flex;
 		flex-direction: column;
-		gap: 1.25rem;
-		padding: 1.5rem 2rem 3rem;
+		gap: 3rem;
+		padding: 3rem 2rem 3rem;
 		text-align: center;
 		color: var(--gray-400);
+		font-size: var(--text-sm);
 	}
 
 	footer a {
@@ -39,14 +39,11 @@ const currentYear = new Date().getFullYear();
 		gap: 0.5rem;
 	}
 
-	.separator {
-		display: none;
-	}
-
 	.socials {
 		display: flex;
 		justify-content: center;
 		gap: 1rem;
+		flex-wrap: wrap;
 	}
 
 	@media (min-width: 50em) {
@@ -59,10 +56,11 @@ const currentYear = new Date().getFullYear();
 		.group {
 			flex-direction: row;
 			gap: 1rem;
+			flex-wrap: wrap;
 		}
 
-		.separator {
-			display: unset;
+		.socials {
+			justify-content: flex-end;
 		}
 	}
 </style>
