@@ -199,7 +199,18 @@ const menu = [
 			{
 				menu.map(({ label, href }) => (
 					<li>
-						<a class:list={['link', { active: Astro.url.pathname === href }]} href={href}>
+						<a
+							aria-current={Astro.url.pathname === href}
+							class:list={[
+								'link',
+								{
+									active:
+										Astro.url.pathname === href ||
+										(href !== '/' && Astro.url.pathname.startsWith(href)),
+								},
+							]}
+							href={href}
+						>
 							{label}
 						</a>
 					</li>
