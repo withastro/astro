@@ -18,10 +18,11 @@ function createAstroGlobFn() {
 
 // This is used to create the top-level Astro global; the one that you can use
 // Inside of getStaticPaths.
+// TODO: remove `_filePathname` and `_projectRootStr` from the compiler
 export function createAstro(
-	_filePathname: string, // legacy unused param from compiler
+	_filePathname: string,
 	site: string | undefined,
-	_projectRootStr: string // legacy unused param from compiler
+	_projectRootStr: string
 ): AstroGlobalPartial {
 	return {
 		site: site ? new URL(site) : undefined,
