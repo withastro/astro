@@ -10,29 +10,39 @@ const { frontmatter, url } = Astro.props.project;
 ---
 
 <a class="card" href={url} style={`background:url(${frontmatter.img}) center / cover;`}>
-	{frontmatter.title}
+	<span class="title">{frontmatter.title}</span>
 </a>
 
 <style>
 	.card {
 		display: grid;
-		place-content: center;
+		place-content: flex-start;
 		height: 11rem;
 		background: var(--gradient-subtle);
 		border: 1px solid var(--gray-800);
 		border-radius: 0.75rem;
-		overflow: hidden;
 		box-shadow: var(--shadow-sm);
 		text-decoration: none;
 		font-family: var(--font-brand);
 		font-size: var(--text-lg);
-		font-weight: 600;
-		color: var(--gray-999);
+		font-weight: 500;
+	}
+	.title {
+		margin: 0.5rem;
+		padding: 0.5rem 1rem;
+		background: var(--gray-999);
+		color: var(--gray-200);
+		border-radius: 0.375rem;
 	}
 
 	@media (min-width: 50em) {
 		.card {
 			height: 22rem;
+			border-radius: 1.5rem;
+		}
+
+		.title {
+			border-radius: 0.9375rem;
 		}
 	}
 </style>
