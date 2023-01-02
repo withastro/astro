@@ -125,6 +125,11 @@
 	}
 }
 
+html,
+body {
+	height: 100%;
+}
+
 body {
 	background: url('/assets/backgrounds/noise.svg') top center/1500px repeat,
 		var(--bg-image-main-curves) top center/var(--bg-gradient-size) no-repeat,
