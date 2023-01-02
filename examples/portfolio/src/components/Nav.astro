@@ -11,10 +11,17 @@ const menu = [
 
 <style>
 	nav {
+		position: relative;
 		font-family: var(--font-brand);
 		font-weight: 500;
-		padding: 1.5rem 0;
 		margin-bottom: 3.5rem;
+	}
+
+	.menu-header {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 1.5rem;
 	}
 
 	.site-title {
@@ -24,6 +31,43 @@ const menu = [
 		line-height: 1.1;
 		color: var(--gray-0);
 		text-decoration: none;
+	}
+
+	.menu-button {
+		position: relative;
+		display: flex;
+		border: 0;
+		border-radius: 999rem;
+		padding: 0.5rem;
+		font-size: 1.5rem;
+		color: var(--gray-300);
+		background: radial-gradient(var(--gray-900), var(--gray-800) 150%);
+		box-shadow: var(--shadow-md);
+	}
+
+	.menu-button[aria-expanded='true'] {
+		color: var(--gray-0);
+		background: linear-gradient(180deg, var(--gray-600), transparent),
+			radial-gradient(var(--gray-900), var(--gray-800) 150%);
+	}
+
+	.menu-button[hidden] {
+		display: none;
+	}
+
+	.menu-button::before {
+		position: absolute;
+		inset: -1px;
+		content: '';
+		background: var(--gradient-stroke);
+		border-radius: 999rem;
+		z-index: -1;
+	}
+
+	#menu-content {
+		position: absolute;
+		left: 0;
+		right: 0;
 	}
 
 	.nav-items {
@@ -67,13 +111,22 @@ const menu = [
 	@media (min-width: 50em) {
 		nav {
 			display: grid;
-			grid-template-columns: 1fr auto 1fr;
+			grid-template-columns: 1fr auto;
 			align-items: center;
 			padding: 2.5rem 5rem;
+			gap: 1rem;
+		}
+
+		.menu-header {
+			padding: 0;
 		}
 
 		.site-title {
 			font-size: var(--text-lg);
+		}
+
+		#menu-content {
+			display: contents;
 		}
 
 		.nav-items {
@@ -83,7 +136,7 @@ const menu = [
 			border-radius: 999rem;
 			border: 0;
 			padding: 0.5rem 0.5625rem;
-			background: radial-gradient(var(--gray-900), var(--gray-800));
+			background: radial-gradient(var(--gray-900), var(--gray-800) 150%);
 			box-shadow: var(--shadow-md);
 		}
 
@@ -102,12 +155,21 @@ const menu = [
 		}
 
 		.link.active {
-			border-radius: 999rem;
 			color: var(--accent-text-over);
 			background-color: var(--accent-regular);
 		}
 
 		.socials {
+			display: none;
+		}
+	}
+
+	@media (min-width: 65em) {
+		nav {
+			grid-template-columns: 1fr auto 1fr;
+		}
+		.socials {
+			display: flex;
 			justify-self: flex-end;
 			gap: 1rem;
 			padding: 0;
@@ -118,45 +180,92 @@ const menu = [
 </style>
 
 <nav>
-	<a href="/" class="site-title">
-		<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
-		Jeanine White
-	</a>
-	<ul class="nav-items">
-		{
-			menu.map(({ label, href }) => (
-				<li>
-					<a class:list={['link', { active: Astro.url.pathname === href }]} href={href}>
-						{label}
-					</a>
-				</li>
-			))
-		}
-	</ul>
-	<div class="socials">
-		<a class="social" href="https://twitter.com/me">
-			<span class="sr-only">Twitter</span>
-			<Icon icon="twitter-logo" />
+	<div class="menu-header">
+		<a href="/" class="site-title">
+			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
+			Jeanine White
 		</a>
-		<a class="social" href="https://www.twitch.tv/me">
-			<span class="sr-only">Twitch</span>
-			<Icon icon="twitch-logo" />
-		</a>
-		<a class="social" href="https://github.com/me">
-			<span class="sr-only">GitHub</span>
-			<Icon icon="github-logo" />
-		</a>
-		<a class="social" href="https://codepen.io/me">
-			<span class="sr-only">CodePen</span>
-			<Icon icon="codepen-logo" />
-		</a>
-		<a class="social" href="https://dribbble.com/me">
-			<span class="sr-only">dribbble</span>
-			<Icon icon="dribbble-logo" />
-		</a>
-		<a class="social" href="https://www.youtube.com/@me/">
-			<span class="sr-only">YouTube</span>
-			<Icon icon="youtube-logo" />
-		</a>
+		<menu-button>
+			<template>
+				<button class="menu-button">
+					<span class="sr-only" aria-expanded="false">Menu</span>
+					<Icon icon="list" />
+				</button>
+			</template>
+		</menu-button>
+	</div>
+	<div id="menu-content">
+		<ul class="nav-items">
+			{
+				menu.map(({ label, href }) => (
+					<li>
+						<a class:list={['link', { active: Astro.url.pathname === href }]} href={href}>
+							{label}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+		<div class="socials">
+			<a class="social" href="https://twitter.com/me">
+				<span class="sr-only">Twitter</span>
+				<Icon icon="twitter-logo" />
+			</a>
+			<a class="social" href="https://www.twitch.tv/me">
+				<span class="sr-only">Twitch</span>
+				<Icon icon="twitch-logo" />
+			</a>
+			<a class="social" href="https://github.com/me">
+				<span class="sr-only">GitHub</span>
+				<Icon icon="github-logo" />
+			</a>
+			<a class="social" href="https://codepen.io/me">
+				<span class="sr-only">CodePen</span>
+				<Icon icon="codepen-logo" />
+			</a>
+			<a class="social" href="https://dribbble.com/me">
+				<span class="sr-only">dribbble</span>
+				<Icon icon="dribbble-logo" />
+			</a>
+			<a class="social" href="https://www.youtube.com/@me/">
+				<span class="sr-only">YouTube</span>
+				<Icon icon="youtube-logo" />
+			</a>
+		</div>
 	</div>
 </nav>
+
+<script>
+	class MenuButton extends HTMLElement {
+		constructor() {
+			super();
+
+			// Inject menu toggle button when JS runs.
+			this.appendChild(this.querySelector('template').content.cloneNode(true));
+			const btn = this.querySelector('button');
+
+			// Hide menu (shown by default to support no-JS browsers).
+			const menu = document.getElementById('menu-content');
+			menu.hidden = true;
+
+			/** Set whether the menu is currently expanded or collapsed. */
+			const setExpanded = (expand: boolean) => {
+				btn.setAttribute('aria-expanded', expand ? 'true' : 'false');
+				menu.hidden = !expand;
+			};
+
+			// Toggle menu visibility when the menu button is clicked.
+			btn.addEventListener('click', () => setExpanded(menu.hidden));
+
+			// Hide menu button for large screens.
+			const handleViewports = (e: MediaQueryList | MediaQueryListEvent) => {
+				setExpanded(e.matches);
+				btn.hidden = e.matches;
+			};
+			const mediaQueries = window.matchMedia('(min-width: 50em)');
+			handleViewports(mediaQueries);
+			mediaQueries.addEventListener('change', handleViewports);
+		}
+	}
+	customElements.define('menu-button', MenuButton);
+</script>
