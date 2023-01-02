@@ -1,77 +1,112 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer.astro';
-import Nav from '../components/Nav.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import ContactCTA from '../components/ContactCTA.astro';
+import Hero from '../components/Hero.astro';
 ---
 
-<html lang="en">
-	<head>
-		<MainHead title="About | Jeanine White" description="About Jeanine White Lorem Ipsum" />
-		<style>
-			.heroImg {
-				max-height: 24rem;
-				object-fit: cover;
-				overflow: hidden;
-			}
+<BaseLayout title="About | Jeanine White" description="About Jeanine White Lorem Ipsum">
+	<div class="stack gap-20">
+		<main class="wrapper about">
+			<Hero
+				title="About"
+				tagline="Thanks for stopping by. Read below to learn more about myself and my background."
+			>
+				<img width="1553" height="873" src="/assets/at-work.jpg" />
+			</Hero>
 
-			.heroImg img {
-				width: 100%;
-			}
+			<section>
+				<h2 class="section-title">Background</h2>
+				<div class="content">
+					<p>
+						Cream cheese say cheese stinking bishop. Brie fondue hard cheese bocconcini feta
+						camembert de normandie babybel airedale. Red leicester swiss manchego mascarpone pepper
+						jack airedale fromage frais ricotta. Cheese and biscuits cauliflower cheese boursin.
+					</p>
+					<p>
+						Pepper jack cheesy feet cheese slices. Halloumi port-salut queso caerphilly roquefort
+						cheese slices cheesy feet rubber cheese. Cheese slices smelly cheese pecorino macaroni
+						cheese feta blue castello roquefort edam. Babybel pepper jack airedale cheddar fromage
+						frais manchego.
+					</p>
+					<p>
+						Cauliflower cheese lancashire macaroni cheese. Cheeseburger babybel cheese on toast
+						airedale cauliflower cheese who moved my cheese roquefort paneer. Stinking bishop
+						cheddar taleggio port-salut port-salut stinking bishop cheesy grin babybel. Blue
+						castello feta everyone loves brie.
+					</p>
+				</div>
+			</section>
+			<section>
+				<h2 class="section-title">Education</h2>
+				<div class="content">
+					<p>
+						Goat squirty cheese cut the cheese. Cheese and wine cheddar fondue airedale cottage
+						cheese camembert de normandie feta babybel. Rubber cheese melted cheese pecorino
+						port-salut fondue gouda cheese on toast cheesy feet. Feta edam everyone loves cheese
+						strings camembert de normandie.
+					</p>
+				</div>
+			</section>
+			<section>
+				<h2 class="section-title">Skills</h2>
+				<div class="content">
+					<p>
+						Caerphilly monterey jack goat. Squirty cheese cheesy grin hard cheese cheese strings
+						cheese and biscuits croque monsieur smelly cheese danish fontina. Swiss cheese triangles
+						everyone loves mascarpone cheese on toast who moved my cheese lancashire cheeseburger.
+						Fromage frais fromage frais cheese and biscuits stinking bishop cauliflower cheese.
+					</p>
+				</div>
+			</section>
+		</main>
 
-			.bio {
-				font-size: var(--f-u1);
-				line-height: 2;
-				margin-top: 4em;
-			}
+		<ContactCTA />
+	</div>
+</BaseLayout>
 
-			.wrapper.bio {
-				max-width: 50em;
-			}
-		</style>
-	</head>
-	<body>
-		<Nav />
-		<div class="wrapper">
-			<h1>About Jeanine</h1>
-			<div class="heroImg">
-				<img
-					width="1400"
-					height="350"
-					src="https://images.unsplash.com/photo-1581977012607-4091712d36f9?auto=format&fit=crop&w=1400&h=350&q=75"
-				/>
-			</div>
-			<div class="bio wrapper">
-				<p>
-					Cream cheese say cheese stinking bishop. Brie fondue hard cheese bocconcini feta camembert
-					de normandie babybel airedale. Red leicester swiss manchego mascarpone pepper jack
-					airedale fromage frais ricotta. Cheese and biscuits cauliflower cheese boursin.
-				</p>
-				<p>
-					Pepper jack cheesy feet cheese slices. Halloumi port-salut queso caerphilly roquefort
-					cheese slices cheesy feet rubber cheese. Cheese slices smelly cheese pecorino macaroni
-					cheese feta blue castello roquefort edam. Babybel pepper jack airedale cheddar fromage
-					frais manchego.
-				</p>
-				<p>
-					Cauliflower cheese lancashire macaroni cheese. Cheeseburger babybel cheese on toast
-					airedale cauliflower cheese who moved my cheese roquefort paneer. Stinking bishop cheddar
-					taleggio port-salut port-salut stinking bishop cheesy grin babybel. Blue castello feta
-					everyone loves brie.
-				</p>
-				<p>
-					Goat squirty cheese cut the cheese. Cheese and wine cheddar fondue airedale cottage cheese
-					camembert de normandie feta babybel. Rubber cheese melted cheese pecorino port-salut
-					fondue gouda cheese on toast cheesy feet. Feta edam everyone loves cheese strings
-					camembert de normandie.
-				</p>
-				<p>
-					Caerphilly monterey jack goat. Squirty cheese cheesy grin hard cheese cheese strings
-					cheese and biscuits croque monsieur smelly cheese danish fontina. Swiss cheese triangles
-					everyone loves mascarpone cheese on toast who moved my cheese lancashire cheeseburger.
-					Fromage frais fromage frais cheese and biscuits stinking bishop cauliflower cheese.
-				</p>
-			</div>
-		</div>
-		<Footer />
-	</body>
-</html>
+<style>
+	.about {
+		display: flex;
+		flex-direction: column;
+		gap: 3.5rem;
+	}
+
+	img {
+		border-radius: 1.5rem;
+		box-shadow: var(--shadow-md);
+	}
+
+	section {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		color: var(--gray-200);
+	}
+
+	.section-title {
+		grid-column-start: 1;
+		font-size: var(--text-xl);
+		color: var(--gray-0);
+	}
+
+	.content {
+		grid-column: 2 / 4;
+	}
+
+	@media (min-width: 50em) {
+		.about {
+			display: grid;
+			grid-template-columns: 1fr 60% 1fr;
+		}
+
+		.about > :global(:first-child) {
+			grid-column-start: 2;
+		}
+
+		section {
+			display: contents;
+			font-size: var(--text-lg);
+		}
+	}
+</style>
