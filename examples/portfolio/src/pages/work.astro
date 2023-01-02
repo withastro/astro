@@ -1,43 +1,33 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer.astro';
-import Nav from '../components/Nav.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import ContactCTA from '../components/ContactCTA.astro';
 import PortfolioPreview from '../components/PortfolioPreview.astro';
 import type { Project } from '../types';
+import Hero from '../components/Hero.astro';
+import Grid from '../components/Grid.astro';
 
-const projects = (await Astro.glob<Project>('./work/**/*.md'))
-	.filter(({ frontmatter }) => !!frontmatter.publishDate)
-	.sort(
-		(a, b) =>
-			new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
-	);
+const projects = (await Astro.glob<Project>('./work/**/*.md')).sort(
+	(a, b) =>
+		new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
+);
 ---
 
-<html lang="en">
-	<head>
-		<MainHead
-			title="My Work | Jeanine White"
-			description="Learn about Jeanine White's most recent projects"
-		/>
-		<style>
-			.grid {
-				display: grid;
-				grid-gap: 3rem;
-			}
-			.title {
-				margin-top: 2rem;
-				margin-bottom: 2rem;
-			}
-		</style>
-	</head>
-	<body>
-		<Nav />
-		<div class="wrapper">
-			<h1 class="title">My Work</h1>
-			<div class="grid">
+<BaseLayout
+	title="My Work | Jeanine White"
+	description="Learn about Jeanine White's most recent projects"
+>
+	<div class="stack gap-20">
+		<main class="wrapper stack gap-8">
+			<Hero
+				title="My Work"
+				tagline="See my most recent projects below to get an idea of my past experience."
+				align="start"
+			/>
+			<Grid variant="offset">
 				{projects.map((project) => <PortfolioPreview project={project} />)}
-			</div>
-		</div>
-		<Footer />
-	</body>
-</html>
+			</Grid>
+		</main>
+		<ContactCTA />
+	</div>
+</BaseLayout>
