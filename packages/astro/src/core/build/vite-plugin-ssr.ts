@@ -167,7 +167,7 @@ function buildManifest(
 		if (pageData.hoistedScript) {
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
-					value: joinBase(pageData.hoistedScript.value),
+					value: pageData.hoistedScript.value,
 				})
 			);
 		}
