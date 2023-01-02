@@ -226,6 +226,12 @@ h5 {
 .gap-8 {
 	gap: 2rem;
 }
+.gap-10 {
+	gap: 2.5rem;
+}
+.gap-15 {
+	gap: 3.75rem;
+}
 .gap-20 {
 	gap: 5rem;
 }
@@ -245,6 +251,12 @@ h5 {
 	}
 	.lg\:gap-8 {
 		gap: 2rem;
+	}
+	.lg\:gap-10 {
+		gap: 2.5rem;
+	}
+	.lg\:gap-15 {
+		gap: 3.75rem;
 	}
 	.lg\:gap-20 {
 		gap: 5rem;
