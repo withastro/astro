@@ -47,22 +47,21 @@ const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 
 export * from '${pagesVirtualModuleId}';
 
-${
-	adapter.exports
-		? `const _exports = adapter.createExports(_manifest, _args);
 ${adapter.exports
-	.map((name) => {
-		if (name === 'default') {
-			return `const _default = _exports['default'];
+						? `const _exports = adapter.createExports(_manifest, _args);
+${adapter.exports
+							.map((name) => {
+								if (name === 'default') {
+									return `const _default = _exports['default'];
 export { _default as default };`;
-		} else {
-			return `export const ${name} = _exports['${name}'];`;
-		}
-	})
-	.join('\n')}
+								} else {
+									return `export const ${name} = _exports['${name}'];`;
+								}
+							})
+							.join('\n')}
 `
-		: ''
-}
+						: ''
+					}
 const _start = 'start';
 if(_start in adapter) {
 	adapter[_start](_manifest, _args);
@@ -165,9 +164,11 @@ function buildManifest(
 	for (const pageData of eachServerPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
+			const hoistedValue = pageData.hoistedScript.value
+			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
-					value: pageData.hoistedScript.value,
+					value,
 				})
 			);
 		}
