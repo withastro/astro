@@ -151,9 +151,6 @@ export async function createVite(
 				ignored: mode === 'build' ? ['**'] : undefined,
 			},
 		},
-		css: {
-			postcss: settings.config.style.postcss || {},
-		},
 		resolve: {
 			alias: [
 				{
