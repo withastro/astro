@@ -1,7 +1,11 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer.astro';
-import Nav from '../components/Nav.astro';
+import BaseLayout from './BaseLayout.astro';
+
+import ContactCTA from '../components/ContactCTA.astro';
+import Hero from '../components/Hero.astro';
+import Icon from '../components/Icon.astro';
+import Pill from '../components/Pill.astro';
+
 import type { Project } from '../types';
 
 interface Props {
@@ -11,97 +15,101 @@ interface Props {
 const { content } = Astro.props;
 ---
 
-<html lang="en">
-	<head>
-		<MainHead title={content.title} description={content.description} />
-		<style>
-			.hero {
-				padding: 8rem;
-				display: flex;
-				background-color: var(--t-fg);
-				background-repeat: no-repeat;
-				background-size: cover;
-				min-height: 25vw;
-				color: white;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-			}
-
-			.tag {
-				margin-left: 0.5em;
-				margin-right: 0.5em;
-				text-transform: uppercase;
-			}
-
-			.tag:nth-of-type(1n) {
-				color: var(--c-green);
-			}
-			.tag:nth-of-type(2n) {
-				color: var(--c-orange);
-			}
-			.tag:nth-of-type(3n) {
-				color: var(--c-blue);
-			}
-			.tag:nth-of-type(4n) {
-				color: var(--c-pink);
-			}
-
-			.title {
-				font-size: var(--f-u10);
-				font-weight: 900;
-				text-transform: uppercase;
-				letter-spacing: 0.0625em;
-			}
-
-			.leadIn {
-				padding-top: 4em;
-				color: var(--t-bg);
-				background-color: var(--t-fg);
-				text-align: center;
-			}
-
-			.tagline {
-				font-weight: 300;
-				font-size: var(--f-u3);
-				line-height: 1.5;
-			}
-
-			.content {
-				font-size: var(--f-u1);
-				line-height: 2.2;
-				max-width: 50em;
-				margin: auto;
-			}
-
-			.wrapper {
-				padding-bottom: 4em;
-				margin-bottom: 4em;
-			}
-
-			footer {
-				text-align: center;
-				margin-top: 3rem;
-			}
-		</style>
-	</head>
-	<body>
-		<Nav />
-		<header style={`background-image:url(${content.img})`} class="hero">
-			<h1 class="title">{content.title}</h1>
-		</header>
-		<div class="leadIn">
-			<div class="wrapper">
-				{content.tags.map((t) => <span class="tag">{t}</span>)}
-				<h3 class="tagline">{content.description}</h3>
-			</div>
+<BaseLayout title={content.title} description={content.description}>
+	<div class="stack gap-20">
+		<div class="stack gap-15">
+			<header>
+				<div class="wrapper stack gap-2">
+					<a class="back-link" href="/work/"><Icon icon="arrow-left" /> Work</a>
+					<Hero title={content.title} align="start">
+						<div class="details">
+							<div class="tags">
+								{content.tags.map((t) => <Pill>{t}</Pill>)}
+							</div>
+							<p class="description">{content.description}</p>
+						</div>
+					</Hero>
+				</div>
+			</header>
+			<main class="wrapper">
+				<div class="stack gap-10 content">
+					{content.img && <img src={content.img} />}
+					<div class="content"><slot /></div>
+				</div>
+			</main>
 		</div>
-		<div class="wrapper">
-			<div class="content"><slot /></div>
-		</div>
-		<footer>
-			<a href="/work/" class="button">View More</a>
-		</footer>
-		<Footer />
-	</body>
-</html>
+		<ContactCTA />
+	</div>
+</BaseLayout>
+
+<style>
+	header {
+		padding-bottom: 2.5rem;
+		border-bottom: 1px solid var(--gray-800);
+	}
+
+	.back-link {
+		display: none;
+		text-decoration: none;
+	}
+
+	.details {
+		display: flex;
+		flex-direction: column;
+		padding: 0.5rem;
+		gap: 1.5rem;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.tags {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.description {
+		font-size: var(--text-lg);
+		max-width: 54ch;
+	}
+
+	.content {
+		max-width: 65ch;
+		margin-inline: auto;
+	}
+
+	.content > :global(* + *) {
+		margin-top: 1rem;
+	}
+
+	.content :global(img) {
+		border-radius: 1.5rem;
+		box-shadow: var(--shadow-sm);
+		background: var(--gradient-subtle);
+		border: 1px solid var(--gray-800);
+	}
+
+	.content :global(blockquote) {
+		font-size: var(--text-lg);
+		font-family: var(--font-brand);
+		font-weight: 600;
+		line-height: 1.1;
+		padding-inline-start: 1.5rem;
+		border-inline-start: 0.25rem solid var(--accent-dark);
+		color: var(--gray-0);
+	}
+
+	@media (min-width: 50em) {
+		.back-link {
+			display: block;
+		}
+
+		.details {
+			flex-direction: row;
+			gap: 2.5rem;
+		}
+
+		.content :global(blockquote) {
+			font-size: var(--text-2xl);
+		}
+	}
+</style>
