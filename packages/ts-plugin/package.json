@@ -18,7 +18,7 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/compiler": "^0.29.16",
+    "@astrojs/compiler": "^0.31.3",
     "@jridgewell/trace-mapping": "^0.3.15",
     "synckit": "^0.8.4"
   },

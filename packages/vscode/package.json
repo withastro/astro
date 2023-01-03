@@ -48,7 +48,7 @@
     "workspaceContains:astro.config.*"
   ],
   "dependencies": {
-    "@astrojs/compiler": "^0.29.16",
+    "@astrojs/compiler": "^0.31.3",
     "synckit": "0.8.4",
     "@astrojs/ts-plugin": "0.4.1",
     "prettier": "^2.7.1",

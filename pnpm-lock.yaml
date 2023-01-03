@@ -28,7 +28,7 @@ importers:
 
   packages/language-server:
     specifiers:
-      '@astrojs/compiler': ^0.29.16
+      '@astrojs/compiler': ^0.31.3
       '@astrojs/svelte': ^1.0.0
       '@astrojs/vue': ^1.0.0
       '@jridgewell/trace-mapping': ^0.3.14
@@ -60,7 +60,7 @@ importers:
       vscode-uri: ^3.0.3
       vue: ^3.2.37
     dependencies:
-      '@astrojs/compiler': 0.29.16
+      '@astrojs/compiler': 0.31.3
       '@jridgewell/trace-mapping': 0.3.15
       '@vscode/emmet-helper': 2.8.4
       events: 3.3.0
@@ -95,7 +95,7 @@ importers:
 
   packages/ts-plugin:
     specifiers:
-      '@astrojs/compiler': ^0.29.16
+      '@astrojs/compiler': ^0.31.3
       '@jridgewell/trace-mapping': ^0.3.15
       '@types/chai': ^4.3.0
       '@types/mocha': ^9.1.1
@@ -109,7 +109,7 @@ importers:
       synckit: ^0.8.4
       typescript: ~4.8.2
     dependencies:
-      '@astrojs/compiler': 0.29.16
+      '@astrojs/compiler': 0.31.3
       '@jridgewell/trace-mapping': 0.3.15
       synckit: 0.8.4
     devDependencies:
@@ -126,7 +126,7 @@ importers:
 
   packages/vscode:
     specifiers:
-      '@astrojs/compiler': ^0.29.16
+      '@astrojs/compiler': ^0.31.3
       '@astrojs/language-server': 0.29.1
       '@astrojs/ts-plugin': 0.4.1
       '@types/mocha': ^9.1.0
@@ -146,7 +146,7 @@ importers:
       vscode-languageclient: ^8.0.1
       vscode-tmgrammar-test: ^0.1.1
     dependencies:
-      '@astrojs/compiler': 0.29.16
+      '@astrojs/compiler': 0.31.3
       '@astrojs/ts-plugin': link:../ts-plugin
       prettier: 2.7.1
       prettier-plugin-astro: 0.7.0
@@ -197,6 +197,10 @@ packages:
 
   /@astrojs/compiler/0.29.16:
     resolution: {integrity: sha512-1CCf+dktc8IQCdmsNNSIor3rcJE5OIirFnFtQWp1VUxqCacefqRRlsl9lH7JcKKpRvz1taL43yHYJP8dxNfVww==}
+
+  /@astrojs/compiler/0.31.3:
+    resolution: {integrity: sha512-WbA05QH5xkdaJ3XtzDuYOjtqsip2InW5rk156sSdaHs5qN2NroUHbzWZthHJwmNAAjQSGXVIj+O6jQj81zzX/Q==}
+    dev: false
 
   /@astrojs/language-server/0.28.3:
     resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}
