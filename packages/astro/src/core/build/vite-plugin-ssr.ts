@@ -44,9 +44,7 @@ const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	renderers: _main.renderers
 });
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
-
 export * from '${pagesVirtualModuleId}';
-
 ${
 	adapter.exports
 		? `const _exports = adapter.createExports(_manifest, _args);
@@ -165,9 +163,11 @@ function buildManifest(
 	for (const pageData of eachServerPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
+			const hoistedValue = pageData.hoistedScript.value
+			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
-					value: joinBase(pageData.hoistedScript.value),
+					value,
 				})
 			);
 		}
