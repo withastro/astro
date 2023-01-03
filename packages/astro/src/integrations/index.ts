@@ -206,55 +206,18 @@ export async function runHookServerDone({
 
 export async function runHookBuildStart({
 	config,
-	buildConfig,
 	logging,
 }: {
 	config: AstroConfig;
-	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	function warnDeprecated(
-		integration: AstroIntegration,
-		prop: 'server' | 'client' | 'serverEntry'
-	) {
-		let value: any = Reflect.get(buildConfig, prop);
-		Object.defineProperty(buildConfig, prop, {
-			enumerable: true,
-			get() {
-				return value;
-			},
-			set(newValue) {
-				value = newValue;
-				warn(
-					logging,
-					'astro:build:start',
-					`Your adapter ${bold(integration.name)} is using a deprecated API, buildConfig. ${bold(
-						prop
-					)} config should be set via config.build.${prop} instead.`
-				);
-			},
-		});
-		return () => {
-			Object.defineProperty(buildConfig, prop, {
-				enumerable: true,
-				value,
-			});
-		};
-	}
-
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {
-			const undoClientWarning = warnDeprecated(integration, 'client');
-			const undoServerWarning = warnDeprecated(integration, 'server');
-			const undoServerEntryWarning = warnDeprecated(integration, 'serverEntry');
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:start']({ buildConfig }),
+				hookResult: integration.hooks['astro:build:start'](),
 				logging,
 			});
-			undoClientWarning();
-			undoServerEntryWarning();
-			undoServerWarning();
 		}
 	}
 }
