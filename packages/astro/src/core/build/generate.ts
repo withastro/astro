@@ -181,7 +181,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: false,
+			ssr: opts.settings.config.output === 'server',
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
