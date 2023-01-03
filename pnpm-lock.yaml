@@ -2493,7 +2493,7 @@ importers:
 
   packages/astro/test/fixtures/third-party-astro:
     specifiers:
-      astro: workspace:*
+      astro: ^1.0.0
       astro-embed: ^0.1.1
     dependencies:
       astro: link:../../..
