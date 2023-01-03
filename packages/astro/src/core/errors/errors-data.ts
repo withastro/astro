@@ -4,7 +4,7 @@
 
 import type { ZodError } from 'zod';
 
-interface ErrorData {
+export interface ErrorData {
 	code: number;
 	title: string;
 	message?: string | ((...params: any) => string);

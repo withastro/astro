@@ -65,6 +65,9 @@ export function eventError({
 	cmd: string;
 	isFatal: boolean;
 }): { eventName: string; payload: ErrorEventPayload }[] {
+	const errorData =
+		AstroError.is(err) && err.errorCode ? getErrorDataByCode(err.errorCode)?.data : undefined;
+
 	const payload: ErrorEventPayload = {
 		code: err.code || err.errorCode || AstroErrorData.UnknownError.code,
 		name: err.name,
@@ -72,8 +75,8 @@ export function eventError({
 		cliCommand: cmd,
 		isFatal: isFatal,
 		anonymousMessageHint:
-			AstroError.is(err) && err.errorCode
-				? getSafeErrorMessage((getErrorDataByCode(err.errorCode)?.data as any).message)
+			errorData && errorData.message
+				? getSafeErrorMessage(errorData.message)
 				: anonymizeErrorMessage(err.message),
 	};
 	return [{ eventName: EVENT_ERROR, payload }];

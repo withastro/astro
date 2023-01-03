@@ -1,5 +1,5 @@
 import { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
-import { AstroErrorCodes, AstroErrorData } from './errors-data.js';
+import { AstroErrorCodes, AstroErrorData, ErrorData } from './errors-data.js';
 
 /**
  * Get the line and character based on the offset
@@ -87,7 +87,7 @@ export function getErrorDataByCode(code: AstroErrorCodes | DiagnosticCode) {
 	if (entry) {
 		return {
 			name: entry[0],
-			data: entry[1],
+			data: entry[1] as ErrorData,
 		};
 	}
 }
