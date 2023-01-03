@@ -12,11 +12,6 @@ import { normalizeLF } from '../utils.js';
 
 type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 
-export const incompatiblePackages = {
-	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`,
-};
-export const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackages).join('|')})`);
-
 /**
  * Takes any error-like object and returns a standardized Error + metadata object.
  * Useful for consistent reporting regardless of where the error surfaced from.
@@ -135,12 +130,6 @@ ${
 See https://docs.astro.build/en/guides/troubleshooting/#document-or-window-is-not-defined for more information.
 		`;
 		return hint;
-	} else {
-		const res = incompatPackageExp.exec(err.stack);
-		if (res) {
-			const key = res[0] as keyof typeof incompatiblePackages;
-			return incompatiblePackages[key];
-		}
 	}
 	return err.hint;
 }
