@@ -150,7 +150,7 @@ export async function getRemarkPlugins(
 	if (mdxOptions.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
 	}
-	if (mdxOptions.githubFlavoredMarkdown) {
+	if (mdxOptions.gfm) {
 		remarkPlugins.push(remarkGfm);
 	}
 

@@ -47,7 +47,7 @@ export interface AstroMarkdownOptions {
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
-	githubFlavoredMarkdown?: boolean;
+	gfm?: boolean;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {

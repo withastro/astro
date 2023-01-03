@@ -9,8 +9,8 @@ Refine Markdown and MDX configuration options for ease-of-use.
 #### Markdown
 
 - **Remove `remark-smartypants`** from Astro's default Markdown plugins.
-- **Replace the `extendDefaultPlugins` option** with a simplified `githubFlavoredMarkdown` boolean. This is enabled by default, and can be disabled to remove GFM.
-- Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `githubFlavoredMarkdown: false` in your config.
+- **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
+- Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
 
 #### MDX
 
@@ -37,9 +37,9 @@ export default defineConfig({
 });
 ```
 
-##### Migrate `extendDefaultPlugins` to `githubFlavoredMarkdown`
+##### Migrate `extendDefaultPlugins` to `gfm`
 
-You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. Since Smartypants has been removed, this has been renamed to `githubFlavoredMarkdown`.
+You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. Since Smartypants has been removed, this has been renamed to `gfm`.
 
 ```diff
 // astro.config.mjs
@@ -48,16 +48,16 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   markdown: {
 -   extendDefaultPlugins: false,
-+   githubFlavoredMarkdown: false,
++   gfm: false,
   }
 });
 ```
 
 
-Additionally, applying remark and rehype plugins **no longer disables** `githubFlavoredMarkdown`. You will need to opt-out manually by setting `githubFlavoredMarkdown` to `false`.
+Additionally, applying remark and rehype plugins **no longer disables** `gfm`. You will need to opt-out manually by setting `gfm` to `false`.
 
 ##### Migrate MDX's `extendPlugins` to `extendMarkdownConfig`
 
 You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
 - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
-- `githubFlavoredMarkdown` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
+- `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.

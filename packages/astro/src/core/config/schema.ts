@@ -177,9 +177,7 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			githubFlavoredMarkdown: z
-				.boolean()
-				.default(ASTRO_CONFIG_DEFAULTS.markdown.githubFlavoredMarkdown),
+			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 		})
 		.default({}),
 	vite: z

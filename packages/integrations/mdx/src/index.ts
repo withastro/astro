@@ -189,7 +189,7 @@ function applyDefaultOptions({
 		extendMarkdownConfig: options.extendMarkdownConfig ?? defaults.extendMarkdownConfig,
 		recmaPlugins: options.recmaPlugins ?? defaults.recmaPlugins,
 		remarkRehype: options.remarkRehype ?? defaults.remarkRehype,
-		githubFlavoredMarkdown: options.githubFlavoredMarkdown ?? defaults.githubFlavoredMarkdown,
+		gfm: options.gfm ?? defaults.gfm,
 		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,

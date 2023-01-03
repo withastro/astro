@@ -42,7 +42,7 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 	remarkPlugins: [],
 	rehypePlugins: [],
 	remarkRehype: {},
-	githubFlavoredMarkdown: true,
+	gfm: true,
 };
 
 /** Shared utility for rendering markdown */
@@ -57,7 +57,7 @@ export async function renderMarkdown(
 		remarkPlugins = markdownConfigDefaults.remarkPlugins,
 		rehypePlugins = markdownConfigDefaults.rehypePlugins,
 		remarkRehype = markdownConfigDefaults.remarkRehype,
-		githubFlavoredMarkdown = markdownConfigDefaults.githubFlavoredMarkdown,
+		gfm = markdownConfigDefaults.gfm,
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
 		contentDir,
@@ -71,7 +71,7 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
-	if (githubFlavoredMarkdown) {
+	if (gfm) {
 		parser.use(remarkGfm);
 	}
 

@@ -107,7 +107,7 @@ export default defineConfig({
       remarkPlugins: [remarkToc],
       rehypePlugins: [rehypeMinifyHtml],
       remarkRehype: { footnoteLabel: 'Footnotes' },
-      githubFlavoredMarkdown: false,
+      gfm: false,
     })
   ]
 })
@@ -137,7 +137,7 @@ export default defineConfig({
   markdown: {
     syntaxHighlight: 'prism',
     remarkPlugins: [remarkPlugin1],
-    githubFlavoredMarkdown: true,
+    gfm: true,
   },
   integrations: [
     mdx({
@@ -146,8 +146,8 @@ export default defineConfig({
       // Markdown `remarkPlugins` ignored,
       // only `remarkPlugin2` applied.
       remarkPlugins: [remarkPlugin2],
-      // `githubFlavoredMarkdown` overridden to `false`
-      githubFlavoredMarkdown: false,
+      // `gfm` overridden to `false`
+      gfm: false,
     })
   ]
 });

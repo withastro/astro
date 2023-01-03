@@ -87,7 +87,7 @@ describe('MDX plugins', () => {
 				fixture = await buildFixture({
 					markdown: {
 						remarkPlugins: [remarkToc],
-						githubFlavoredMarkdown: false,
+						gfm: false,
 					},
 					integrations: [
 						mdx({
@@ -119,20 +119,14 @@ describe('MDX plugins', () => {
 				).to.be.null;
 			});
 
-			it('Handles githubFlavoredMarkdown', async () => {
+			it('Handles gfm', async () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
 				if (extendMarkdownConfig === true) {
-					expect(
-						selectGfmLink(document),
-						'Does not respect `markdown.githubFlavoredMarkdown` option.'
-					).to.be.null;
+					expect(selectGfmLink(document), 'Does not respect `markdown.gfm` option.').to.be.null;
 				} else {
-					expect(
-						selectGfmLink(document),
-						'Respects `markdown.githubFlavoredMarkdown` unexpectedly.'
-					).to.not.be.null;
+					expect(selectGfmLink(document), 'Respects `markdown.gfm` unexpectedly.').to.not.be.null;
 				}
 			});
 		});

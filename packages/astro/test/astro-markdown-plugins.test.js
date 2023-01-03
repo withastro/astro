@@ -68,20 +68,20 @@ describe('Astro Markdown plugins', () => {
 		expect($('#github-flavored-markdown-test').hasClass('title')).to.equal(true);
 	});
 
-	for (const githubFlavoredMarkdown of [true, false]) {
-		it(`Handles GFM when githubFlavoredMarkdown = ${githubFlavoredMarkdown}`, async () => {
+	for (const gfm of [true, false]) {
+		it(`Handles GFM when gfm = ${gfm}`, async () => {
 			const fixture = await buildFixture({
 				markdown: {
 					remarkPlugins: [remarkExamplePlugin],
 					rehypePlugins: [[addClasses, { 'h1,h2,h3': 'title' }]],
-					githubFlavoredMarkdown,
+					gfm,
 				},
 			});
 			const html = await fixture.readFile('/with-gfm/index.html');
 			const $ = cheerio.load(html);
 
 			// test 1: GFM autolink applied correctly
-			if (githubFlavoredMarkdown === true) {
+			if (gfm === true) {
 				expect($('a[href="https://example.com"]')).to.have.lengthOf(1);
 			} else {
 				expect($('a[href="https://example.com"]')).to.have.lengthOf(0);

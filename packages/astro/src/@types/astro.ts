@@ -763,21 +763,21 @@ export interface AstroUserConfig {
 		rehypePlugins?: RehypePlugins;
 		/**
 		 * @docs
-		 * @name markdown.githubFlavoredMarkdown
+		 * @name markdown.gfm
 		 * @type {boolean}
 		 * @default `true`
 		 * @description
-		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `githubFlavoredMarkdown` flag to `false`:
+		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
 		 * ```js
 		 * {
 		 *   markdown: {
-		 *     githubFlavoredMarkdown: false,
+		 *     gfm: false,
 		 *   }
 		 * }
 		 * ```
 		 */
-		githubFlavoredMarkdown?: boolean;
+		gfm?: boolean;
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype
