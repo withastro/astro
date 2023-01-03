@@ -53,7 +53,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
-	let needsBuildConfig = false;
 
 	// During SSG builds, this is used to track all transformed images required.
 	const staticImages = new Map<string, Map<string, TransformOptions>>();
@@ -80,7 +79,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 		name: PKG_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectRoute }) => {
-				needsBuildConfig = !config.build?.server;
 				_config = config;
 				updateConfig({
 					vite: getViteConfiguration(command === 'dev'),
@@ -107,17 +105,12 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				_config = config;
 				_buildConfig = config.build;
 			},
-			'astro:build:start': ({ buildConfig }) => {
+			'astro:build:start': () => {
 				const adapterName = _config.adapter?.name;
 				if (adapterName && UNSUPPORTED_ADAPTERS.has(adapterName)) {
 					throw new Error(
 						`@astrojs/image is not supported with the ${adapterName} adapter. Please choose a Node.js compatible adapter.`
 					);
-				}
-
-				// Backwards compat
-				if (needsBuildConfig) {
-					_buildConfig = buildConfig;
 				}
 			},
 			'astro:build:setup': async () => {

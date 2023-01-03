@@ -1,4 +1,4 @@
-<style>
+<style lang="postcss">
 .svelte {
 	&.nested {
 		color: red;

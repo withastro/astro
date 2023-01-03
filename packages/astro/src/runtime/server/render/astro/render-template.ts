@@ -32,11 +32,6 @@ export class RenderTemplateResult {
 		});
 	}
 
-	// TODO this is legacy and should be removed in 2.0
-	get [Symbol.toStringTag]() {
-		return 'AstroComponent';
-	}
-
 	async *[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 

@@ -83,8 +83,6 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalErrorOverlay?: boolean;
-	experimentalPrerender?: boolean;
 	experimentalContentCollections?: boolean;
 }
 
@@ -111,18 +109,6 @@ export interface BuildConfig {
 export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
 	extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
-	/**
-	 * Canonical URL of the current page.
-	 * @deprecated Use `Astro.url` instead.
-	 *
-	 * Example:
-	 * ```astro
-	 * ---
-	 * const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-	 * ---
-	 * ```
-	 */
-	canonicalURL: URL;
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -256,12 +242,6 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 type MarkdowFileExtension = typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS[number];
 
 export interface AstroGlobalPartial {
-	/**
-	 * @deprecated since version 0.24. See the {@link https://astro.build/deprecated/resolve upgrade guide} for more details.
-	 */
-	resolve(path: string): string;
-	/** @deprecated since version 0.26. Use [Astro.glob()](https://docs.astro.build/en/reference/api-reference/#astroglob) instead. */
-	fetchContent(globStr: string): Promise<any[]>;
 	/**
 	 * Fetch local files into your static site setup
 	 *
@@ -929,46 +909,6 @@ export interface AstroUserConfig {
 	experimental?: {
 		/**
 		 * @docs
-		 * @name experimental.errorOverlay
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.7.0
-		 * @description
-		 * Turn on experimental support for the new error overlay component.
-		 *
-		 * To enable this feature, set `experimental.errorOverlay` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 * 		errorOverlay: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		errorOverlay?: boolean;
-		/**
-		 * @docs
-		 * @name experimental.prerender
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.7.0
-		 * @description
-		 * Enable experimental support for prerendered pages when generating a server.
-		 *
-		 * To enable this feature, set `experimental.prerender` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		prerender: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		prerender?: boolean;
-		/**
-		 * @docs
 		 * @name experimental.contentCollections
 		 * @type {boolean}
 		 * @default `false`
@@ -1432,7 +1372,7 @@ export interface AstroIntegration {
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
 		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
-		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
+		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
 			pages: Map<string, PageBuildData>;

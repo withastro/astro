@@ -1,7 +1,6 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
-import preprocess from 'svelte-preprocess';
+import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { UserConfig } from 'vite';
 
 function getRenderer(): AstroRenderer {
@@ -15,27 +14,13 @@ function getRenderer(): AstroRenderer {
 type ViteConfigurationArgs = {
 	isDev: boolean;
 	options?: Options | OptionsCallback;
-	postcssConfig: AstroConfig['style']['postcss'];
 };
 
-function getViteConfiguration({
-	options,
-	postcssConfig,
-	isDev,
-}: ViteConfigurationArgs): UserConfig {
+function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserConfig {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
-		preprocess: [
-			preprocess({
-				less: true,
-				postcss: postcssConfig,
-				sass: { renderSync: true },
-				scss: { renderSync: true },
-				stylus: true,
-				typescript: true,
-			}),
-		],
+		preprocess: [vitePreprocess()],
 	};
 
 	// Disable hot mode during the build
@@ -65,7 +50,7 @@ function getViteConfiguration({
 
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/svelte/client.js', 'svelte', 'svelte/internal'],
+			include: ['@astrojs/svelte/client.js'],
 			exclude: ['@astrojs/svelte/server.js'],
 		},
 		plugins: [svelte(resolvedOptions)],
@@ -78,13 +63,12 @@ export default function (options?: Options | OptionsCallback): AstroIntegration 
 		name: '@astrojs/svelte',
 		hooks: {
 			// Anything that gets returned here is merged into Astro Config
-			'astro:config:setup': ({ command, updateConfig, addRenderer, config }) => {
+			'astro:config:setup': ({ command, updateConfig, addRenderer }) => {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: getViteConfiguration({
 						options,
 						isDev: command === 'dev',
-						postcssConfig: config.style.postcss,
 					}),
 				});
 			},

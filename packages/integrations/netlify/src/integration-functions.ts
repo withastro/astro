@@ -22,12 +22,10 @@ function netlifyFunctions({
 }: NetlifyFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let entryFile: string;
-	let needsBuildConfig = false;
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
-				needsBuildConfig = !config.build.client;
 				const outDir = dist ?? new URL('./dist/', config.root);
 				updateConfig({
 					outDir,
@@ -47,13 +45,6 @@ function netlifyFunctions({
 					console.warn(
 						`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`
 					);
-				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				if (needsBuildConfig) {
-					buildConfig.client = _config.outDir;
-					buildConfig.server = new URL('./.netlify/functions-internal/', _config.root);
-					entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				}
 			},
 			'astro:build:done': async ({ routes, dir }) => {

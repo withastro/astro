@@ -1,28 +1,12 @@
 import * as fs from 'fs';
 import { getHighlighter } from 'shiki';
 import { fileURLToPath } from 'url';
-import { createLogger, type ErrorPayload, type Logger, type LogLevel } from 'vite';
+import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroErrorData } from '../errors-data.js';
-import { type ErrorWithMetadata } from '../errors.js';
+import type { ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
-import { incompatPackageExp, renderErrorMarkdown } from './utils.js';
-
-/**
- * Custom logger with better error reporting for incompatible packages
- */
-export function createCustomViteLogger(logLevel: LogLevel): Logger {
-	const viteLogger = createLogger(logLevel);
-	const logger: Logger = {
-		...viteLogger,
-		error(msg, options?) {
-			// Silence warnings from incompatible packages (we log better errors for these)
-			if (incompatPackageExp.test(msg)) return;
-			return viteLogger.error(msg, options);
-		},
-	};
-	return logger;
-}
+import { renderErrorMarkdown } from './utils.js';
 
 export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: ModuleLoader): Error {
 	// NOTE: We don't know where the error that's coming here comes from, so we need to be defensive regarding what we do
@@ -44,25 +28,23 @@ export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: Mod
 
 		// Vite has a fairly generic error message when it fails to load a module, let's try to enhance it a bit
 		// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
-		if (/failed to load module for ssr:/.test(safeError.message)) {
-			const importName = safeError.message.split('for ssr:').at(1)?.trim();
-			if (importName) {
-				safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
-				safeError.name = 'FailedToLoadModuleSSR';
-				safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
-				safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
-				safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
-				const line = lns.findIndex((ln) => ln.includes(importName));
+		let importName: string | undefined;
+		if ((importName = safeError.message.match(/Failed to load url (.*?) \(resolved id:/)?.[1])) {
+			safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
+			safeError.name = 'FailedToLoadModuleSSR';
+			safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
+			safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
+			safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
+			const line = lns.findIndex((ln) => ln.includes(importName!));
 
-				if (line !== -1) {
-					const column = lns[line]?.indexOf(importName);
+			if (line !== -1) {
+				const column = lns[line]?.indexOf(importName);
 
-					safeError.loc = {
-						file: path,
-						line: line + 1,
-						column,
-					};
-				}
+				safeError.loc = {
+					file: path,
+					line: line + 1,
+					column,
+				};
 			}
 		}
 
