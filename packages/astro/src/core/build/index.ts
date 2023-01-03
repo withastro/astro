@@ -107,9 +107,6 @@ class AstroBuilder {
 
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
-		// The names of each pages
-		const pageNames: string[] = [];
-
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
 		this.timer.buildStart = performance.now();
@@ -126,7 +123,6 @@ class AstroBuilder {
 			manifest: this.manifest,
 			mode: this.mode,
 			origin: this.origin,
-			pageNames,
 			routeCache: this.routeCache,
 			viteConfig,
 			buildConfig,
@@ -143,12 +139,13 @@ class AstroBuilder {
 		});
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
+		const routes = Object.values(allPages).map((pd) => pd.route);
+
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
 			buildConfig,
-			pages: pageNames,
-			routes: Object.values(allPages).map((pd) => pd.route),
+			routes,
 			logging: this.logging,
 		});
 
@@ -156,7 +153,7 @@ class AstroBuilder {
 			await this.printStats({
 				logging: this.logging,
 				timeStart: this.timer.init,
-				pageCount: pageNames.length,
+				pageCount: routes.filter((r) => r.type === 'page').length,
 				buildMode: this.settings.config.output,
 			});
 		}

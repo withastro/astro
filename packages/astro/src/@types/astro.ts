@@ -1440,11 +1440,7 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: vite.InlineConfig) => void;
 		}) => void | Promise<void>;
 		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
-		'astro:build:done'?: (options: {
-			pages: { pathname: string }[];
-			dir: URL;
-			routes: RouteData[];
-		}) => void | Promise<void>;
+		'astro:build:done'?: (options: { dir: URL; routes: RouteData[] }) => void | Promise<void>;
 	};
 }
 

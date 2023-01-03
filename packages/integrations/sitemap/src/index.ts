@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration, RouteData } from 'astro';
 import {
 	EnumChangefreq,
 	LinkItem as LinkItemBase,
@@ -10,6 +10,7 @@ import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { Logger } from './utils/logger.js';
+import { formatPathname } from './utils/format-pathname.js';
 import { validateOptions } from './validate-options.js';
 
 export type ChangeFreq = EnumChangefreq;
@@ -59,7 +60,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				config = cfg;
 			},
 
-			'astro:build:done': async ({ dir, pages }) => {
+			'astro:build:done': async ({ dir, routes }) => {
 				const logger = new Logger(PKG_NAME);
 
 				try {
@@ -78,10 +79,14 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = pages.map((p) => {
-						const path = finalSiteUrl.pathname + p.pathname;
-						return new URL(path, finalSiteUrl).href;
-					});
+					let pageUrls: string[] = [];
+					for (const routeData of routes) {
+						if (routeData.pathname) {
+							const path =
+								finalSiteUrl.pathname + formatPathname({ pathname: routeData.pathname, config });
+							pageUrls.push(new URL(path, finalSiteUrl).href);
+						}
+					}
 
 					try {
 						if (filter) {

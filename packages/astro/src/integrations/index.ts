@@ -335,13 +335,11 @@ export async function runHookBuildGenerated({
 export async function runHookBuildDone({
 	config,
 	buildConfig,
-	pages,
 	routes,
 	logging,
 }: {
 	config: AstroConfig;
 	buildConfig: BuildConfig;
-	pages: string[];
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
@@ -353,7 +351,6 @@ export async function runHookBuildDone({
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:done']({
-					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
 				}),

@@ -239,35 +239,6 @@ interface GeneratePathOptions {
 	renderers: SSRLoadedRenderer[];
 }
 
-function shouldAppendForwardSlash(
-	trailingSlash: AstroConfig['trailingSlash'],
-	buildFormat: AstroConfig['build']['format']
-): boolean {
-	switch (trailingSlash) {
-		case 'always':
-			return true;
-		case 'never':
-			return false;
-		case 'ignore': {
-			switch (buildFormat) {
-				case 'directory':
-					return true;
-				case 'file':
-					return false;
-			}
-		}
-	}
-}
-
-function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const trailingSlash = opts.settings.config.trailingSlash;
-	const buildFormat = opts.settings.config.build.format;
-	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
-		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
-		: pathname.replace(/^\//, '');
-	opts.pageNames.push(pageName);
-}
-
 function getUrlForPath(
 	pathname: string,
 	base: string,
@@ -303,11 +274,6 @@ async function generatePath(
 ) {
 	const { settings, logging, origin, routeCache } = opts;
 	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
-
-	// This adds the page name to the array so it can be shown as part of stats.
-	if (pageData.route.type === 'page') {
-		addPageName(pathname, opts);
-	}
 
 	debug('build', `Generating: ${pathname}`);
 

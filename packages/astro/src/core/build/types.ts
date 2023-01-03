@@ -35,7 +35,6 @@ export interface StaticBuildOptions {
 	manifest: ManifestData;
 	mode: RuntimeMode;
 	origin: string;
-	pageNames: string[];
 	routeCache: RouteCache;
 	viteConfig: InlineConfig;
 }
