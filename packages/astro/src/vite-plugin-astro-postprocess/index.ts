@@ -46,13 +46,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 						const firstArgStart = node.arguments[0].start;
 						const firstArgEnd = node.arguments[0].end;
 						const lastArgEnd = node.arguments[node.arguments.length - 1].end;
-						let firstArg = code.slice(firstArgStart, firstArgEnd);
-						// If argument is template literal, try convert to a normal string.
-						// This is needed for compat with previous recast strategy.
-						// TODO: Remove in Astro 2.0
-						if (firstArg.startsWith('`') && firstArg.endsWith('`') && !firstArg.includes('${')) {
-							firstArg = JSON.stringify(firstArg.slice(1, -1));
-						}
+						const firstArg = code.slice(firstArgStart, firstArgEnd);
 						s ??= new MagicString(code);
 						s.overwrite(
 							firstArgStart,
