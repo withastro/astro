@@ -1,11 +1,5 @@
 # @astrojs/language-server
 
-## 0.29.2
-
-### Patch Changes
-
-- e8cca25: Fix Prettier plugins not being loaded when formatting
-
 ## 0.29.1
 
 ### Patch Changes
