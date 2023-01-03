@@ -55,7 +55,7 @@
     "prettier-plugin-astro": "^0.7.0"
   },
   "devDependencies": {
-    "@astrojs/language-server": "0.29.1",
+    "@astrojs/language-server": "0.29.2",
     "@types/mocha": "^9.1.0",
     "@types/vscode": "^1.67.0",
     "@vscode/test-electron": "^2.1.3",
