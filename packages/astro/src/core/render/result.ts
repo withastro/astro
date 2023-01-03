@@ -166,6 +166,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			const astroSlots = new Slots(result, slots, args.logging);
 
 			const Astro: AstroGlobal = {
+				// @ts-expect-error
 				__proto__: astroGlobal,
 				// @ts-ignore
 				get clientAddress() {
