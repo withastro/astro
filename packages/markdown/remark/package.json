@@ -13,7 +13,8 @@
   "homepage": "https://astro.build",
   "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./dist/internal.js": "./dist/internal.js"
   },
   "scripts": {
     "prepublish": "pnpm build",

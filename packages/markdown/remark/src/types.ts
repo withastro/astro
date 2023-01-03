@@ -11,6 +11,10 @@ import type { VFile } from 'vfile';
 
 export type { Node } from 'unist';
 
+export type MarkdownAstroData = {
+	frontmatter: Record<string, any>;
+};
+
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	mdast.Root
@@ -58,6 +62,8 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	isExperimentalContentCollections?: boolean;
 	/** Used to prevent relative image imports from `src/content/` */
 	contentDir: URL;
+	/** Used for frontmatter injection plugins */
+	frontmatter?: Record<string, any>;
 }
 
 export interface MarkdownHeading {
