@@ -513,5 +513,21 @@ describe('Events', () => {
 			});
 			expect(event.payload.anonymousMessageHint).to.equal('TEST ERROR MESSAGE');
 		});
+
+		it('properly exclude stack traces from anonymousMessageHint', () => {
+			// Some libraries/frameworks returns stack traces in the error message, make sure we don't include that in the anonymousMessageHint
+			const [event] = events.eventError({
+				err: new Error(`[postcss] /home/projects/github-ssfd5p/src/components/Counter.css:3:15: Missed semicolon
+    at Input.error (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/input.js:148:16)
+    at Parser.checkMissedSemicolon (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:596:22)
+    at Parser.decl (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:279:12)
+    at Parser.other (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:128:18)
+    at Parser.parse (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:72:16)`),
+				cmd: 'COMMAND_NAME',
+				name: 'Error',
+				isFatal: true,
+			});
+			expect(event.payload.anonymousMessageHint).to.be.undefined;
+		});
 	});
 });
