@@ -1,5 +1,6 @@
 import type { MarkdownRenderingOptions, MarkdownRenderingResult, MarkdownVFile } from './types';
 
+import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import rehypeEscape from './rehype-escape.js';
@@ -8,7 +9,6 @@ import rehypeIslands from './rehype-islands.js';
 import rehypeJsx from './rehype-jsx.js';
 import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 import remarkEscape from './remark-escape.js';
-import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import remarkMdxish from './remark-mdxish.js';
 import remarkPrism from './remark-prism.js';

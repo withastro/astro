@@ -1,7 +1,7 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import {
-	safelyGetAstroData,
 	InvalidAstroDataError,
+	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';

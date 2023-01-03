@@ -1,12 +1,12 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import {
+	InvalidAstroDataError,
+	safelyGetAstroData,
+} from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig } from 'astro';
-import {
-	safelyGetAstroData,
-	InvalidAstroDataError,
-} from '@astrojs/markdown-remark/dist/internal.js';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
@@ -16,7 +16,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { visit } from 'unist-util-visit';
-import type { Data, VFile } from 'vfile';
+import type { VFile } from 'vfile';
 import { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
