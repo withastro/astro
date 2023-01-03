@@ -1,4 +1,5 @@
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
+import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -17,44 +18,41 @@ const RAW_CONTENT_ERROR =
 const COMPILED_CONTENT_ERROR =
 	'MDX does not support compiledContent()! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
 
-export type MdxOptions = {
-	remarkPlugins?: PluggableList;
-	rehypePlugins?: PluggableList;
-	recmaPlugins?: PluggableList;
-	/**
-	 * Choose which remark and rehype plugins to inherit, if any.
-	 *
-	 * - "markdown" (default) - inherit your project’s markdown plugin config ([see Markdown docs](https://docs.astro.build/en/guides/markdown-content/#configuring-markdown))
-	 * - "astroDefaults" - inherit Astro’s default plugins only ([see defaults](https://docs.astro.build/en/reference/configuration-reference/#markdownextenddefaultplugins))
-	 * - false - do not inherit any plugins
-	 */
-	extendPlugins?: 'markdown' | 'astroDefaults' | false;
-	remarkRehype?: RemarkRehypeOptions;
+export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
+	extendMarkdownConfig: boolean;
+	recmaPlugins: PluggableList;
+	// Markdown allows strings as remark and rehype plugins.
+	// This is not supported by the MDX compiler, so override types here.
+	remarkPlugins: PluggableList;
+	rehypePlugins: PluggableList;
+	remarkRehype: RemarkRehypeOptions;
 };
 
-export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
+export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
-				mdxOptions.extendPlugins ??= 'markdown';
 
-				const remarkRehypeOptions = {
-					...(mdxOptions.extendPlugins === 'markdown' ? config.markdown.remarkRehype : {}),
-					...mdxOptions.remarkRehype,
-				};
+				const extendMarkdownConfig =
+					partialMdxOptions.extendMarkdownConfig ?? defaultOptions.extendMarkdownConfig;
+
+				const mdxOptions = applyDefaultOptions({
+					options: partialMdxOptions,
+					defaults: extendMarkdownConfig ? config.markdown : defaultOptions,
+				});
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
-					rehypePlugins: getRehypePlugins(mdxOptions, config),
+					rehypePlugins: getRehypePlugins(mdxOptions),
 					recmaPlugins: mdxOptions.recmaPlugins,
+					remarkRehypeOptions: mdxOptions.remarkRehype,
 					jsx: true,
 					jsxImportSource: 'astro',
 					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
-					remarkRehypeOptions,
 				};
 
 				let importMetaEnv: Record<string, any> = {
@@ -163,6 +161,34 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 				});
 			},
 		},
+	};
+}
+
+const defaultOptions: MdxOptions = {
+	...markdownConfigDefaults,
+	extendMarkdownConfig: true,
+	recmaPlugins: [],
+	remarkPlugins: [],
+	rehypePlugins: [],
+	remarkRehype: {},
+};
+
+function applyDefaultOptions({
+	options,
+	defaults,
+}: {
+	options: Partial<MdxOptions>;
+	defaults: MdxOptions;
+}): MdxOptions {
+	return {
+		syntaxHighlight: options.syntaxHighlight ?? defaults.syntaxHighlight,
+		extendMarkdownConfig: options.extendMarkdownConfig ?? defaults.extendMarkdownConfig,
+		recmaPlugins: options.recmaPlugins ?? defaults.recmaPlugins,
+		remarkRehype: options.remarkRehype ?? defaults.remarkRehype,
+		gfm: options.gfm ?? defaults.gfm,
+		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
+		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
+		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 	};
 }
 

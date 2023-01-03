@@ -1,4 +1,9 @@
-import type { MarkdownRenderingOptions, MarkdownRenderingResult, MarkdownVFile } from './types';
+import type {
+	AstroMarkdownOptions,
+	MarkdownRenderingOptions,
+	MarkdownRenderingResult,
+	MarkdownVFile,
+} from './types';
 
 import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
@@ -20,14 +25,25 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
+import remarkGfm from 'remark-gfm';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
 
-export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
-export const DEFAULT_REHYPE_PLUGINS = [];
+export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {
+	syntaxHighlight: 'shiki',
+	shikiConfig: {
+		langs: [],
+		theme: 'github-dark',
+		wrap: false,
+	},
+	remarkPlugins: [],
+	rehypePlugins: [],
+	remarkRehype: {},
+	gfm: true,
+};
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
@@ -36,12 +52,12 @@ export async function renderMarkdown(
 ): Promise<MarkdownRenderingResult> {
 	let {
 		fileURL,
-		syntaxHighlight = 'shiki',
-		shikiConfig = {},
-		remarkPlugins = [],
-		rehypePlugins = [],
-		remarkRehype = {},
-		extendDefaultPlugins = false,
+		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
+		shikiConfig = markdownConfigDefaults.shikiConfig,
+		remarkPlugins = markdownConfigDefaults.remarkPlugins,
+		rehypePlugins = markdownConfigDefaults.rehypePlugins,
+		remarkRehype = markdownConfigDefaults.remarkRehype,
+		gfm = markdownConfigDefaults.gfm,
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
 		contentDir,
@@ -55,9 +71,8 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
-	if (extendDefaultPlugins || (remarkPlugins.length === 0 && rehypePlugins.length === 0)) {
-		remarkPlugins = [...DEFAULT_REMARK_PLUGINS, ...remarkPlugins];
-		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS, ...rehypePlugins];
+	if (gfm) {
+		parser.use(remarkGfm);
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));

@@ -14,7 +14,6 @@ import type { Image } from 'mdast';
 import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import remarkSmartypants from 'remark-smartypants';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { MdxOptions } from './index.js';
@@ -140,36 +139,22 @@ function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
 	};
 }
 
-const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
-const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
-
 export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
 	let remarkPlugins: PluggableList = [];
-	switch (mdxOptions.extendPlugins) {
-		case false:
-			break;
-		case 'astroDefaults':
-			remarkPlugins = [...remarkPlugins, ...DEFAULT_REMARK_PLUGINS];
-			break;
-		default:
-			remarkPlugins = [
-				...remarkPlugins,
-				...(markdownShouldExtendDefaultPlugins(config) ? DEFAULT_REMARK_PLUGINS : []),
-				...ignoreStringPlugins(config.markdown.remarkPlugins ?? []),
-			];
-			break;
+	if (mdxOptions.syntaxHighlight === 'shiki') {
+		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
 	}
-	if (config.markdown.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(config.markdown.shikiConfig)]);
-	}
-	if (config.markdown.syntaxHighlight === 'prism') {
+	if (mdxOptions.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
 	}
+	if (mdxOptions.gfm) {
+		remarkPlugins.push(remarkGfm);
+	}
 
-	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
+	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
 
 	// Apply last in case user plugins resolve relative image paths
 	if (config.experimental.contentCollections) {
@@ -178,34 +163,17 @@ export async function getRemarkPlugins(
 	return remarkPlugins;
 }
 
-export function getRehypePlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): MdxRollupPluginOptions['rehypePlugins'] {
+export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions['rehypePlugins'] {
 	let rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
 		[rehypeRaw, { passThrough: nodeTypes }] as any,
 	];
-	switch (mdxOptions.extendPlugins) {
-		case false:
-			break;
-		case 'astroDefaults':
-			rehypePlugins = [...rehypePlugins, ...DEFAULT_REHYPE_PLUGINS];
-			break;
-		default:
-			rehypePlugins = [
-				...rehypePlugins,
-				...(markdownShouldExtendDefaultPlugins(config) ? DEFAULT_REHYPE_PLUGINS : []),
-				...ignoreStringPlugins(config.markdown.rehypePlugins ?? []),
-			];
-			break;
-	}
 
 	rehypePlugins = [
 		...rehypePlugins,
-		...(mdxOptions.rehypePlugins ?? []),
+		...ignoreStringPlugins(mdxOptions.rehypePlugins),
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
 		rehypeHeadingIds,
@@ -214,13 +182,6 @@ export function getRehypePlugins(
 		rehypeApplyFrontmatterExport,
 	];
 	return rehypePlugins;
-}
-
-function markdownShouldExtendDefaultPlugins(config: AstroConfig): boolean {
-	return (
-		config.markdown.extendDefaultPlugins ||
-		(config.markdown.remarkPlugins.length === 0 && config.markdown.rehypePlugins.length === 0)
-	);
 }
 
 function ignoreStringPlugins(plugins: any[]) {
