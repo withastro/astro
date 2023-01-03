@@ -1,5 +1,5 @@
-import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
+import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
