@@ -1,9 +1,5 @@
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { AstroIntegration } from 'astro';
-import type { Plugin as VitePlugin } from 'vite';
-import { VFile } from 'vfile';
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
