@@ -81,7 +81,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
 	if (
-		opts.settings.config.experimental.prerender &&
 		opts.settings.config.output === 'server' &&
 		!hasPrerenderedPages(internals)
 	)
@@ -94,7 +93,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	if (opts.settings.config.experimental.prerender && opts.settings.config.output === 'server') {
+	if (opts.settings.config.output === 'server') {
 		for (const pageData of eachPrerenderedPageData(internals)) {
 			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}

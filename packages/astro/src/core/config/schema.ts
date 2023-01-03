@@ -48,8 +48,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		astroFlavoredMarkdown: false,
 	},
 	experimental: {
-		errorOverlay: false,
-		prerender: false,
 		contentCollections: false,
 	},
 };
@@ -194,8 +192,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			errorOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.errorOverlay),
-			prerender: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
 			contentCollections: z
 				.boolean()
 				.optional()
