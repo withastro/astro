@@ -100,10 +100,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
-		experimentalErrorOverlay:
-			typeof flags.experimentalErrorOverlay === 'boolean'
-				? flags.experimentalErrorOverlay
-				: undefined,
 		experimentalPrerender:
 			typeof flags.experimentalPrerender === 'boolean' ? flags.experimentalPrerender : undefined,
 		experimentalContentCollections:
@@ -138,7 +134,6 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 		// TODO: Come back here and refactor to remove this expected error.
 		astroConfig.server.host = flags.host;
 	}
-	if (flags.experimentalErrorOverlay) astroConfig.experimental.errorOverlay = true;
 	if (flags.experimentalPrerender) astroConfig.experimental.prerender = true;
 	if (flags.experimentalContentCollections) astroConfig.experimental.contentCollections = true;
 	return astroConfig;

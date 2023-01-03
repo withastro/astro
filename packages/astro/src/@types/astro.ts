@@ -83,7 +83,6 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalErrorOverlay?: boolean;
 	experimentalPrerender?: boolean;
 	experimentalContentCollections?: boolean;
 }
@@ -927,26 +926,6 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.errorOverlay
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.7.0
-		 * @description
-		 * Turn on experimental support for the new error overlay component.
-		 *
-		 * To enable this feature, set `experimental.errorOverlay` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 * 		errorOverlay: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		errorOverlay?: boolean;
 		/**
 		 * @docs
 		 * @name experimental.prerender
