@@ -1,5 +1,4 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
@@ -15,8 +14,6 @@ import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { LogOptions, warn } from '../logger/core.js';
-import { isScriptRequest } from './script.js';
-import { isCSSRequest } from './util.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

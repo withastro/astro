@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import {
 	AstroConfig,
-	AstroIntegration,
 	AstroRenderer,
 	AstroSettings,
 	BuildConfig,
@@ -15,7 +14,7 @@ import {
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
-import { info, LogOptions, warn } from '../core/logger/core.js';
+import { info, LogOptions } from '../core/logger/core.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
