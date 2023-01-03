@@ -60,5 +60,16 @@
     "@astrojs/webapi": "1.1.1",
     "astro-scripts": "0.0.9"
   },
-  "changesets": []
+  "changesets": [
+    "beige-pumpkins-pump",
+    "chilled-geese-worry",
+    "lovely-terms-drive",
+    "new-lies-guess",
+    "selfish-tigers-do",
+    "serious-cats-jog",
+    "shaggy-keys-turn",
+    "spotty-bees-switch",
+    "tricky-rabbits-count",
+    "two-geese-eat"
+  ]
 }
