@@ -163,8 +163,8 @@ function buildManifest(
 	for (const pageData of eachServerPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
-			const hoistedValue = pageData.hoistedScript.value
-			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue
+			const hoistedValue = pageData.hoistedScript.value;
+			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue;
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
 					value,
