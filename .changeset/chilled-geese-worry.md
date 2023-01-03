@@ -9,4 +9,4 @@ You'll notice that the error overlay during `astro dev` has a refresh visual des
 The `prerender` feature is now enabled by default when using `output: 'server'`. To prerender a particular page, add `export const prerender = true` to your frontmatter.
 
 > **Warning**
-> Integration authors that previously relied on the exact structure of Astro's v1.0 build output may notice some changes to our output file structure. Please should test your integrations to ensure compatability.
+> Integration authors that previously relied on the exact structure of Astro's v1.0 build output may notice some changes to our output file structure. Please test your integrations to ensure compatability.
