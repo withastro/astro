@@ -12,8 +12,8 @@ import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
-	getEntryInfo,
 	getContentPaths,
+	getEntryInfo,
 	loadContentConfig,
 	NoCollectionError,
 } from './utils.js';

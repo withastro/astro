@@ -1,5 +1,5 @@
-import matter from 'gray-matter';
 import { slug as githubSlug } from 'github-slugger';
+import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
