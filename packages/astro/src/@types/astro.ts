@@ -83,7 +83,6 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalPrerender?: boolean;
 	experimentalContentCollections?: boolean;
 }
 
@@ -926,26 +925,6 @@ export interface AstroUserConfig {
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.prerender
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.7.0
-		 * @description
-		 * Enable experimental support for prerendered pages when generating a server.
-		 *
-		 * To enable this feature, set `experimental.prerender` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		prerender: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		prerender?: boolean;
 		/**
 		 * @docs
 		 * @name experimental.contentCollections

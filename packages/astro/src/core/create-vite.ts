@@ -119,7 +119,7 @@ export async function createVite(
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPropagationPlugin({ settings }),
-			settings.config.experimental.prerender && astroScannerPlugin({ settings, logging }),
+			astroScannerPlugin({ settings, logging }),
 			...(settings.config.experimental.contentCollections
 				? [
 						astroContentVirtualModPlugin({ settings }),
