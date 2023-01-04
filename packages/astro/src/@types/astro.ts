@@ -990,6 +990,7 @@ export interface AstroSettings {
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
+	forceDisableTelemetry: boolean;
 }
 
 export type AsyncRendererComponentFn<U> = (

@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { AstroErrorData } from '../dist/core/errors/errors-data.js';
+import { AstroError } from '../dist/core/errors/errors.js';
 import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
@@ -427,6 +428,7 @@ describe('Events', () => {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					code: AstroErrorData.UnknownConfigError.code,
+					name: 'ZodError',
 					isFatal: true,
 					isConfig: true,
 					cliCommand: 'COMMAND_NAME',
@@ -451,9 +453,34 @@ describe('Events', () => {
 				payload: {
 					code: 1234,
 					plugin: 'TEST PLUGIN',
+					name: 'Error',
 					isFatal: true,
 					cliCommand: 'COMMAND_NAME',
 					anonymousMessageHint: 'TEST ERROR MESSAGE',
+				},
+			});
+		});
+
+		it('returns the expected event payload for AstroError', () => {
+			const [event] = events.eventError({
+				err: new AstroError({
+					...AstroErrorData.ClientAddressNotAvailable,
+					message: AstroErrorData.ClientAddressNotAvailable.message('mysuperadapter'),
+				}),
+				cmd: 'COMMAND_NAME',
+				isFatal: false,
+			});
+
+			expect(event).to.deep.equal({
+				eventName: 'ASTRO_CLI_ERROR',
+				payload: {
+					anonymousMessageHint:
+						'`Astro.clientAddress` is not available in the `ADAPTER_NAME` adapter. File an issue with the adapter to add support.',
+					cliCommand: 'COMMAND_NAME',
+					code: 3002,
+					isFatal: false,
+					name: 'ClientAddressNotAvailable',
+					plugin: undefined,
 				},
 			});
 		});
@@ -468,6 +495,7 @@ describe('Events', () => {
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
 					code: AstroErrorData.UnknownError.code,
+					name: 'Error',
 					plugin: undefined,
 					isFatal: false,
 					cliCommand: 'COMMAND_NAME',
@@ -480,9 +508,26 @@ describe('Events', () => {
 			const [event] = events.eventError({
 				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"'),
 				cmd: 'COMMAND_NAME',
+				name: 'Error',
 				isFatal: true,
 			});
 			expect(event.payload.anonymousMessageHint).to.equal('TEST ERROR MESSAGE');
+		});
+
+		it('properly exclude stack traces from anonymousMessageHint', () => {
+			// Some libraries/frameworks returns stack traces in the error message, make sure we don't include that in the anonymousMessageHint
+			const [event] = events.eventError({
+				err: new Error(`[postcss] /home/projects/github-ssfd5p/src/components/Counter.css:3:15: Missed semicolon
+    at Input.error (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/input.js:148:16)
+    at Parser.checkMissedSemicolon (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:596:22)
+    at Parser.decl (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:279:12)
+    at Parser.other (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:128:18)
+    at Parser.parse (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:72:16)`),
+				cmd: 'COMMAND_NAME',
+				name: 'Error',
+				isFatal: true,
+			});
+			expect(event.payload.anonymousMessageHint).to.be.undefined;
 		});
 	});
 });

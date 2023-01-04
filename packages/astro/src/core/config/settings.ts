@@ -18,6 +18,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: [],
+		forceDisableTelemetry: false,
 	};
 }
 

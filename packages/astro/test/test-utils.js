@@ -1,17 +1,17 @@
-import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
+import { execa } from 'execa';
+import fastGlob from 'fast-glob';
 import fs from 'fs';
+import os from 'os';
+import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
+import { sync } from '../dist/cli/sync/index.js';
+import build from '../dist/core/build/index.js';
 import { loadConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
-import build from '../dist/core/build/index.js';
-import preview from '../dist/core/preview/index.js';
-import { sync } from '../dist/cli/sync/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
-import os from 'os';
-import stripAnsi from 'strip-ansi';
-import fastGlob from 'fast-glob';
+import preview from '../dist/core/preview/index.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {
@@ -243,7 +243,7 @@ const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
-	const spawned = execa('node', [cliPath, ...args]);
+	const spawned = execa('node', [cliPath, ...args], { env: {'ASTRO_TELEMETRY_DISABLED': true}});
 
 	spawned.stdout.setEncoding('utf8');
 
