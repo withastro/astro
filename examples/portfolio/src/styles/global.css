@@ -75,9 +75,6 @@
 	/* Backgrounds */
 	--bg-image-main: url('/assets/backgrounds/bg-main-light-800w.jpg');
 	--bg-image-main-curves: url('/assets/backgrounds/bg-main-light.svg');
-	--bg-image-subtle: url('/assets/bg-subtle-1-light.svg');
-	--bg-image-footer: url('/assets/bg-subtle-2-light.svg');
-
 	--bg-svg-blend-mode: overlay;
 	--bg-gradient-size: 168%;
 
@@ -121,9 +118,6 @@
 
 	--bg-image-main: url('/assets/backgrounds/bg-main-dark-800w.jpg');
 	--bg-image-main-curves: url('/assets/backgrounds/bg-main-dark.svg');
-	--bg-image-subtle: url('/assets/bg-subtle-1-dark.svg');
-	--bg-image-footer: url('/assets/bg-subtle-2-dark.svg');
-
 	--bg-svg-blend-mode: darken;
 }
 
