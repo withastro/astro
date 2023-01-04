@@ -2272,6 +2272,12 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
+  packages/astro/test/fixtures/space in folder name/app:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
   packages/astro/test/fixtures/special-chars-in-component-imports:
     specifiers:
       '@astrojs/mdx': workspace:*

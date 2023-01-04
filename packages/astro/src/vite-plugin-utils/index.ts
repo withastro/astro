@@ -3,8 +3,10 @@ import type { AstroConfig } from '../@types/astro';
 import {
 	appendExtension,
 	appendForwardSlash,
+	prependForwardSlash,
 	removeLeadingForwardSlashWindows,
 } from '../core/path.js';
+import { fileURLToPath } from 'url';
 
 /**
  * Converts the first dot in `import.meta.env` to its Unicode escape sequence,
@@ -47,7 +49,8 @@ export function normalizeFilename(filename: string, config: AstroConfig) {
 	if (filename.startsWith('/@fs')) {
 		filename = filename.slice('/@fs'.length);
 	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		filename = new URL('.' + filename, config.root).pathname;
+		const url = new URL('.' + filename, config.root);
+		filename = prependForwardSlash(fileURLToPath(url));
 	}
 	return removeLeadingForwardSlashWindows(filename);
 }
