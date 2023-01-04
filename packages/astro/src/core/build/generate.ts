@@ -10,6 +10,7 @@ import type {
 	ComponentInstance,
 	EndpointHandler,
 	RouteType,
+	SSRError,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import { getContentPaths } from '../../content/index.js';
@@ -22,6 +23,7 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -397,7 +399,15 @@ async function generatePath(
 			encoding = result.encoding;
 		}
 	} else {
-		const response = await renderPage(mod, ctx, env);
+		let response: Response;
+		try {
+			response = await renderPage(mod, ctx, env);
+		} catch (err) {
+			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+				(err as SSRError).id = pageData.component;
+			}
+			throw err;
+		}
 		throwIfRedirectNotAllowed(response, opts.settings.config);
 		// If there's no body, do nothing
 		if (!response.body) return;
