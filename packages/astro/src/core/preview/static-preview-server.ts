@@ -7,6 +7,7 @@ import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import { error, info } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
+import { getResolvedHostForHttpServer } from './util.js';
 
 export interface PreviewServer {
 	host?: string;
@@ -18,13 +19,7 @@ export interface PreviewServer {
 
 export default async function createStaticPreviewServer(
 	settings: AstroSettings,
-	{
-		logging,
-		host,
-	}: {
-		logging: LogOptions;
-		host: string | undefined;
-	}
+	logging: LogOptions
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 
@@ -38,7 +33,7 @@ export default async function createStaticPreviewServer(
 				outDir: fileURLToPath(settings.config.outDir),
 			},
 			preview: {
-				host,
+				host: settings.config.server.host,
 				port: settings.config.server.port,
 				headers: settings.config.server.headers,
 			},
@@ -72,7 +67,7 @@ export default async function createStaticPreviewServer(
 	}
 
 	return {
-		host,
+		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		closed,
 		server: previewServer.httpServer,
