@@ -14,14 +14,11 @@ import {
 	underline,
 	yellow,
 } from 'kleur/colors';
-import type { AddressInfo } from 'net';
-import os from 'os';
 import { ResolvedServerUrls } from 'vite';
 import { ZodError } from 'zod';
 import { renderErrorMarkdown } from './errors/dev/utils.js';
 import { AstroError, CompilerError, ErrorWithMetadata } from './errors/index.js';
-import { removeTrailingForwardSlash } from './path.js';
-import { emoji, getLocalAddress, padMultilineString } from './util.js';
+import { emoji, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
 

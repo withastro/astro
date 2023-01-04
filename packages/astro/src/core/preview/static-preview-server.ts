@@ -1,13 +1,13 @@
-import type { AstroSettings } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
 import http from 'http';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
+import type { AstroSettings } from '../../@types/astro';
+import type { LogOptions } from '../logger/core';
 import { error, info } from '../logger/core.js';
 import * as msg from '../messages.js';
-import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
 import { getResolvedHostForHttpServer } from './util.js';
+import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
 
 export interface PreviewServer {
 	host?: string;
