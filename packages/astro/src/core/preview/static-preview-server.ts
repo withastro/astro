@@ -1,14 +1,12 @@
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
-
-import fs from 'fs';
 import http, { OutgoingHttpHeaders } from 'http';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
-import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
 import { error, info } from '../logger/core.js';
 import * as msg from '../messages.js';
+import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
 
 export interface PreviewServer {
 	host?: string;
@@ -18,9 +16,6 @@ export interface PreviewServer {
 	stop(): Promise<void>;
 }
 
-const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
-
-/** The primary dev action */
 export default async function createStaticPreviewServer(
 	settings: AstroSettings,
 	{
@@ -36,11 +31,6 @@ export default async function createStaticPreviewServer(
 	}
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
-	const baseURL = new URL(
-		settings.config.base,
-		new URL(settings.config.site || '/', 'http://localhost')
-	);
-	const trailingSlash = settings.config.trailingSlash;
 
 	let previewServer: VitePreviewServer;
 	try {
@@ -56,60 +46,7 @@ export default async function createStaticPreviewServer(
 				port,
 				headers,
 			},
-			plugins: [
-				{
-					name: 'astro:static-preview',
-					apply: 'serve',
-					configurePreviewServer(server) {
-						server.middlewares.use((req, res, next) => {
-							// respond 404 to requests outside the base request directory
-							if (!req.url!.startsWith(baseURL.pathname)) {
-								res.statusCode = 404;
-								res.end(subpathNotUsedTemplate(baseURL.pathname, req.url!));
-								return;
-							}
-
-							/** Relative request path. */
-							const pathname = req.url!.slice(settings.config.base.length - 1);
-
-							const isRoot = pathname === '/';
-							const hasTrailingSlash = isRoot || pathname.endsWith('/');
-
-							function sendError(message: string) {
-								res.statusCode = 404;
-								res.end(notFoundTemplate(pathname, message));
-							}
-
-							switch (true) {
-								case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
-									sendError('Not Found (trailingSlash is set to "never")');
-									return;
-								case !hasTrailingSlash &&
-									trailingSlash == 'always' &&
-									!isRoot &&
-									!HAS_FILE_EXTENSION_REGEXP.test(pathname):
-									sendError('Not Found (trailingSlash is set to "always")');
-									return;
-							}
-							next();
-						});
-
-						return () => {
-							server.middlewares.use((req, res) => {
-								const errorPagePath = fileURLToPath(settings.config.outDir + '/404.html');
-								if (fs.existsSync(errorPagePath)) {
-									res.statusCode = 404;
-									res.setHeader('Content-Type', 'text/html;charset=utf-8');
-									res.end(fs.readFileSync(errorPagePath));
-								} else {
-									res.statusCode = 404;
-									res.end(notFoundTemplate(req.originalUrl!, 'Not Found'));
-								}
-							});
-						};
-					},
-				},
-			],
+			plugins: [vitePluginAstroPreview(settings)],
 		});
 	} catch (err) {
 		if (err instanceof Error) {
@@ -118,6 +55,10 @@ export default async function createStaticPreviewServer(
 		throw err;
 	}
 
+	// Log server start URLs
+	const site = settings.config.site
+		? new URL(settings.config.base, settings.config.site)
+		: undefined;
 	info(
 		logging,
 		null,
@@ -125,7 +66,7 @@ export default async function createStaticPreviewServer(
 			startupTime: performance.now() - startServerTime,
 			resolvedUrls: previewServer.resolvedUrls,
 			host: settings.config.server.host,
-			site: baseURL,
+			site,
 		})
 	);
 
