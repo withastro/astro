@@ -21,13 +21,9 @@ export default async function createStaticPreviewServer(
 	{
 		logging,
 		host,
-		port,
-		headers,
 	}: {
 		logging: LogOptions;
 		host: string | undefined;
-		port: number;
-		headers: OutgoingHttpHeaders | undefined;
 	}
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
@@ -43,8 +39,8 @@ export default async function createStaticPreviewServer(
 			},
 			preview: {
 				host,
-				port,
-				headers,
+				port: settings.config.server.port,
+				headers: settings.config.server.headers,
 			},
 			plugins: [vitePluginAstroPreview(settings)],
 		});
@@ -80,7 +76,7 @@ export default async function createStaticPreviewServer(
 
 	return {
 		host,
-		port,
+		port: settings.config.server.port,
 		closed,
 		server: previewServer.httpServer,
 		stop: async () => {

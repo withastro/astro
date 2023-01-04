@@ -24,10 +24,9 @@ export default async function preview(
 	});
 	await runHookConfigDone({ settings: settings, logging: logging });
 	const host = getResolvedHostForHttpServer(settings.config.server.host);
-	const { port, headers } = settings.config.server;
 
 	if (settings.config.output === 'static') {
-		const server = await createStaticPreviewServer(settings, { logging, host, port, headers });
+		const server = await createStaticPreviewServer(settings, { logging, host });
 		return server;
 	}
 	if (!settings.adapter) {
@@ -56,7 +55,7 @@ export default async function preview(
 		client: settings.config.build.client,
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
 		host,
-		port,
+		port: settings.config.server.port,
 		base: settings.config.base,
 	});
 
