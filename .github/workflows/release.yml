@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - main
+      - 1-legacy
 
 defaults:
   run:
