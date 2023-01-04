@@ -19,9 +19,10 @@ import Hero from '../components/Hero.astro';
 				<h2 class="section-title">Background</h2>
 				<div class="content">
 					<p>
-						Cream cheese say cheese stinking bishop. Brie fondue hard cheese bocconcini feta
-						camembert de normandie babybel airedale. Red leicester swiss manchego mascarpone pepper
-						jack airedale fromage frais ricotta. Cheese and biscuits cauliflower cheese boursin.
+						Cream cheese say cheese stinking bishop. <a href="https://astro.build/">Astro</a> makes people
+						happy. Brie fondue hard cheese bocconcini feta camembert de normandie babybel airedale. Red
+						leicester swiss manchego mascarpone pepper jack airedale fromage frais ricotta. Cheese and
+						biscuits cauliflower cheese boursin.
 					</p>
 					<p>
 						Pepper jack cheesy feet cheese slices. Halloumi port-salut queso caerphilly roquefort
@@ -92,6 +93,17 @@ import Hero from '../components/Hero.astro';
 
 	.content {
 		grid-column: 2 / 4;
+	}
+
+	.content :global(a) {
+		text-decoration: 1px solid underline transparent;
+		text-underline-offset: 0.25em;
+		transition: text-decoration-color var(--theme-transition);
+	}
+
+	.content :global(a:hover),
+	.content :global(a:focus) {
+		text-decoration-color: currentColor;
 	}
 
 	@media (min-width: 50em) {

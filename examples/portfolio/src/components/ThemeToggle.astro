@@ -53,7 +53,7 @@ import Icon from './Icon.astro';
 	@media (prefers-reduced-motion: no-preference) {
 		.icon,
 		.icon.light::before {
-			transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+			transition: transform var(--theme-transition), color var(--theme-transition);
 		}
 	}
 </style>

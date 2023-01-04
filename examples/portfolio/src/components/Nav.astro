@@ -120,6 +120,12 @@ const menu = [
 		padding: var(--icon-padding);
 		text-decoration: none;
 		color: var(--accent-dark);
+		transition: color var(--theme-transition);
+	}
+
+	.social:hover,
+	.social:focus {
+		color: var(--accent-text-over);
 	}
 
 	.theme-toggle {
@@ -172,6 +178,13 @@ const menu = [
 		.link {
 			padding: 0.5rem 1rem;
 			border-radius: 999rem;
+			transition: color var(--theme-transition), background-color var(--theme-transition);
+		}
+
+		.link:hover,
+		.link:focus {
+			color: var(--gray-100);
+			background-color: var(--accent-subtle-overlay);
 		}
 
 		.link.active {

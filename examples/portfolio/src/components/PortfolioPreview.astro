@@ -28,7 +28,13 @@ const { frontmatter, url } = Astro.props.project;
 		font-family: var(--font-brand);
 		font-size: var(--text-lg);
 		font-weight: 500;
+		transition: box-shadow var(--theme-transition);
 	}
+
+	.card:hover {
+		box-shadow: var(--shadow-md);
+	}
+
 	.title {
 		grid-area: 1 / 1 / 2 / 2;
 		z-index: 1;

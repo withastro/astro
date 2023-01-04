@@ -50,7 +50,6 @@ const { content } = Astro.props;
 
 	.back-link {
 		display: none;
-		text-decoration: none;
 	}
 
 	.details {
@@ -98,9 +97,24 @@ const { content } = Astro.props;
 		color: var(--gray-0);
 	}
 
+	.back-link,
+	.content :global(a) {
+		text-decoration: 1px solid underline transparent;
+		text-underline-offset: 0.25em;
+		transition: text-decoration-color var(--theme-transition);
+	}
+
+	.back-link:hover,
+	.back-link:focus,
+	.content :global(a:hover),
+	.content :global(a:focus) {
+		text-decoration-color: currentColor;
+	}
+
 	@media (min-width: 50em) {
 		.back-link {
 			display: block;
+			align-self: flex-start;
 		}
 
 		.details {

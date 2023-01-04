@@ -31,7 +31,14 @@ const currentYear = new Date().getFullYear();
 
 	footer a {
 		color: var(--gray-400);
-		text-decoration: none;
+		text-decoration: 1px solid underline transparent;
+		text-underline-offset: 0.25em;
+		transition: text-decoration-color var(--theme-transition);
+	}
+
+	footer a:hover,
+	footer a:focus {
+		text-decoration-color: currentColor;
 	}
 
 	.group {
