@@ -3,10 +3,9 @@ import type { AstroConfig } from '../@types/astro';
 import {
 	appendExtension,
 	appendForwardSlash,
-	prependForwardSlash,
 	removeLeadingForwardSlashWindows,
 } from '../core/path.js';
-import { fileURLToPath } from 'url';
+import { viteID } from '../core/util.js';
 
 /**
  * Converts the first dot in `import.meta.env` to its Unicode escape sequence,
@@ -50,7 +49,7 @@ export function normalizeFilename(filename: string, config: AstroConfig) {
 		filename = filename.slice('/@fs'.length);
 	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
 		const url = new URL('.' + filename, config.root);
-		filename = prependForwardSlash(fileURLToPath(url));
+		filename = viteID(url);
 	}
 	return removeLeadingForwardSlashWindows(filename);
 }
