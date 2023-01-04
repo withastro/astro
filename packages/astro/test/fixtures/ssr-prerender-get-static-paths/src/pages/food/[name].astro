@@ -3,17 +3,22 @@ export async function getStaticPaths() {
 	return [
 		{
 			params: { name: 'tacos' },
+			props: { yum: 10 },
 		},
 		{
 			params: { name: 'potatoes' },
+			props: { yum: 7 },
 		},
 		{
-			params: { name: 'spaghetti' }
+			params: { name: 'spaghetti' },
+			props: { yum: 5 },
 		}
 	]
 }
 
 export const prerender = true;
+
+const { yum } = Astro.props;
 ---
 
 <html lang="en">
@@ -24,5 +29,6 @@ export const prerender = true;
 	</head>
 	<body>
 		<p id="url">{ Astro.url.pathname }</p>
+		<p id="props">{ yum }</p>
 	</body>
 </html>

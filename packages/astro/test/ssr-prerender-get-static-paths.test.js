@@ -177,3 +177,26 @@ describe('prerender getStaticPaths - Astro.url', () => {
 		expect($('#url').text()).to.equal('/food/tacos/');
 	});
 });
+
+
+describe('prerender getStaticPaths - props', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
+		fixture = await loadFixture({
+			root: './fixtures/ssr-prerender-get-static-paths/',
+			site: 'https://mysite.dev/',
+		});
+		await fixture.build();
+	});
+
+	it('Sets the current pathname', async () => {
+		const html = await fixture.readFile('/food/tacos/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#props').text()).to.equal('10');
+	});
+});
