@@ -523,7 +523,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
-	 * - [Frontmatter injection](https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically)
+	 * - [Modifying frontmatter programmatically](https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically)
 	 * @description
 	 * A remark or rehype plugin attempted to inject invalid frontmatter. This occurs when "astro.frontmatter" is set to `null`, `undefined`, or an invalid JSON object.
 	 */
