@@ -547,7 +547,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (id: string) => {
 			return `Unable to render ${JSON.stringify(
 				id
-			)}. Ensure that the \`@astrojs/mdx\` integration is applied.`;
+			)}. Ensure that the \`@astrojs/mdx\` integration is installed.`;
 		},
 		hint: 'See the MDX integration docs for installation and usage instructions: https://docs.astro.build/en/guides/integrations-guide/mdx/',
 	},
