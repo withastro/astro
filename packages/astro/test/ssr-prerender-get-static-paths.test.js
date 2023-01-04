@@ -178,7 +178,6 @@ describe('prerender getStaticPaths - Astro.url', () => {
 	});
 });
 
-
 describe('prerender getStaticPaths - props', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
