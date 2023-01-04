@@ -454,7 +454,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 * 
-	 * When using this option, all of your static asset imports and URLs should add the base as a prefix.
+	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 * 
 	 * ```astro
 	 * <a href="/docs/about/">About</a>
