@@ -403,7 +403,7 @@ async function generatePath(
 		try {
 			response = await renderPage(mod, ctx, env);
 		} catch (err) {
-			if (!AstroError.is(err) && !(err as SSRError).id) {
+			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;
 			}
 			throw err;
