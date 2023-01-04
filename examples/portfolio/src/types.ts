@@ -4,4 +4,5 @@ export interface Project {
 	publishDate: string;
 	tags: string[];
 	img: string;
+	img_alt?: string;
 }
