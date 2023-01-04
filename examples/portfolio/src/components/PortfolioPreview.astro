@@ -9,18 +9,20 @@ interface Props {
 const { frontmatter, url } = Astro.props.project;
 ---
 
-<a class="card" href={url} style={`background:url(${frontmatter.img}) center / cover;`}>
+<a class="card" href={url}>
 	<span class="title">{frontmatter.title}</span>
+	<img src={frontmatter.img} alt={frontmatter.img_alt || ''} loading="lazy" />
 </a>
 
 <style>
 	.card {
 		display: grid;
-		place-content: flex-start;
+		grid-template: auto 1fr / auto 1fr;
 		height: 11rem;
 		background: var(--gradient-subtle);
 		border: 1px solid var(--gray-800);
 		border-radius: 0.75rem;
+		overflow: hidden;
 		box-shadow: var(--shadow-sm);
 		text-decoration: none;
 		font-family: var(--font-brand);
@@ -28,11 +30,20 @@ const { frontmatter, url } = Astro.props.project;
 		font-weight: 500;
 	}
 	.title {
+		grid-area: 1 / 1 / 2 / 2;
+		z-index: 1;
 		margin: 0.5rem;
 		padding: 0.5rem 1rem;
 		background: var(--gray-999);
 		color: var(--gray-200);
 		border-radius: 0.375rem;
+	}
+
+	img {
+		grid-area: 1 / 1 / 3 / 3;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	@media (min-width: 50em) {
