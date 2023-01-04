@@ -59,13 +59,13 @@ export async function preload({
 		// Load the module from the Vite SSR Runtime.
 		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
 		return [renderers, mod];
-	} catch (err) {
+	} catch (error) {
 		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
-		if (MarkdownError.is(err) || CSSError.is(err) || AggregateError.is(err)) {
-			throw err;
+		if (MarkdownError.is(error) || CSSError.is(error) || AggregateError.is(error)) {
+			throw error;
 		}
 
-		throw enhanceViteSSRError(err as Error, filePath, env.loader);
+		throw enhanceViteSSRError({ error, filePath, loader: env.loader, renderers });
 	}
 }
 
