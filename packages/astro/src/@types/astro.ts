@@ -457,8 +457,8 @@ export interface AstroUserConfig {
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix.
 	 * 
 	 * ```astro
-	 * <a href="/docs/about/>About</a>
-	 * <img src="/docs/image.png">
+	 * <a href="/docs/about/">About</a>
+	 * <img src=`${import.meta.env.BASE_URL}/image.png`>
 	 * ```
 	 */
 	base?: string;
