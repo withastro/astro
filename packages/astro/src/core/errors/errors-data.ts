@@ -534,6 +534,23 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			'A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
 		hint: 'See the frontmatter injection docs https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically for more information.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [MDX installation and usage](https://docs.astro.build/en/guides/integrations-guide/mdx/)
+	 * @description
+	 * Unable to find the official `@astrojs/mdx` integration. This error is raised when using MDX files without an MDX integration installed.
+	 */
+	MdxIntegrationMissingError: {
+		title: 'MDX integration missing.',
+		code: 6004,
+		message: (id: string) => {
+			return `Unable to render ${JSON.stringify(
+				id
+			)}. Ensure that the \`@astrojs/mdx\` integration is applied.`;
+		},
+		hint: 'See the MDX integration docs for installation and usage instructions: https://docs.astro.build/en/guides/integrations-guide/mdx/',
+	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {
 		title: 'Unknown configuration error.',
