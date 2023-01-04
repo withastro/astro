@@ -95,32 +95,19 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	await clientBuild(opts, internals, clientInput);
 
 	timer.generate = performance.now();
-	if (!settings.config.experimental.prerender) {
-		if (settings.config.output === 'static') {
+	switch (settings.config.output) {
+		case 'static': {
 			await generatePages(opts, internals);
 			await cleanServerOutput(opts);
-		} else {
-			// Inject the manifest
+			return;
+		}
+		case 'server': {
 			await injectManifest(opts, internals);
-
+			await generatePages(opts, internals);
+			await cleanStaticOutput(opts, internals);
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
-		}
-	} else {
-		switch (settings.config.output) {
-			case 'static': {
-				await generatePages(opts, internals);
-				await cleanServerOutput(opts);
-				return;
-			}
-			case 'server': {
-				await injectManifest(opts, internals);
-				await generatePages(opts, internals);
-				await cleanStaticOutput(opts, internals);
-				info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
-				await ssrMoveAssets(opts);
-				return;
-			}
+			return;
 		}
 	}
 }
@@ -197,12 +184,7 @@ async function clientBuild(
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
 	const ssr = settings.config.output === 'server';
-	let out;
-	if (!opts.settings.config.experimental.prerender) {
-		out = ssr ? opts.buildConfig.client : settings.config.outDir;
-	} else {
-		out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
-	}
+	const out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
@@ -322,16 +304,6 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				}
 			})
 		);
-	}
-
-	if (!opts.settings.config.experimental.prerender) {
-		// Clean out directly if the outDir is outside of root
-		if (out.toString() !== opts.settings.config.outDir.toString()) {
-			// Copy assets before cleaning directory if outside root
-			copyFiles(out, opts.settings.config.outDir);
-			await fs.promises.rm(out, { recursive: true });
-			return;
-		}
 	}
 }
 

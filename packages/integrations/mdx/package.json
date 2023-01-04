@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.14.0",
+  "version": "0.15.0-beta.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,7 +30,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^1.2.0",
+    "@astrojs/markdown-remark": "^2.0.0-beta.0",
     "@astrojs/prism": "^1.0.2",
     "@mdx-js/mdx": "^2.1.2",
     "@mdx-js/rollup": "^2.1.1",
@@ -43,7 +43,6 @@
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
-    "remark-smartypants": "^2.0.0",
     "shiki": "^0.11.1",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2"
@@ -68,7 +67,7 @@
     "remark-rehype": "^10.1.0",
     "remark-shiki-twoslash": "^3.1.0",
     "remark-toc": "^8.0.1",
-    "vite": "^3.0.0"
+    "vite": "^4.0.3"
   },
   "engines": {
     "node": "^14.18.0 || >=16.12.0"

@@ -31,12 +31,10 @@ export function getAdapter(args?: Options): AstroAdapter {
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _buildConfig: BuildConfig;
 	let _vite: any;
-	let needsBuildConfig = false;
 	return {
 		name: '@astrojs/deno',
 		hooks: {
 			'astro:config:done': ({ setAdapter, config }) => {
-				needsBuildConfig = !config.build.client;
 				setAdapter(getAdapter(args));
 				_buildConfig = config.build;
 
@@ -45,12 +43,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					console.warn(
 						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
 					);
-				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				// Backwards compat
-				if (needsBuildConfig) {
-					_buildConfig = buildConfig;
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {

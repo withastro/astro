@@ -1,7 +1,6 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
-import preprocess from 'svelte-preprocess';
 import type { UserConfig } from 'vite';
 
 function getRenderer(): AstroRenderer {
@@ -21,16 +20,7 @@ function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserCo
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
-		preprocess: [
-			preprocess({
-				less: true,
-				postcss: true,
-				sass: { renderSync: true },
-				scss: { renderSync: true },
-				stylus: true,
-				typescript: true,
-			}),
-		],
+		preprocess: [vitePreprocess()],
 	};
 
 	// Disable hot mode during the build
@@ -60,7 +50,7 @@ function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserCo
 
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/svelte/client.js', 'svelte', 'svelte/internal'],
+			include: ['@astrojs/svelte/client.js'],
 			exclude: ['@astrojs/svelte/server.js'],
 		},
 		plugins: [svelte(resolvedOptions)],
