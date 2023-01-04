@@ -1004,6 +1004,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	prerender?: boolean;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 

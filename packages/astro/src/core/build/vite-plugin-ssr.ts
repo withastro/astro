@@ -139,6 +139,8 @@ function buildManifest(
 	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
 
 	for (const pageData of eachPrerenderedPageData(internals)) {
+		if (!pageData.route.pathname) continue;
+
 		const outFolder = getOutFolder(
 			opts.settings.config,
 			pageData.route.pathname!,
