@@ -8,6 +8,7 @@ const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 
 export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 	const { base, outDir, trailingSlash } = settings.config;
+
 	return {
 		name: 'astro:preview',
 		apply: 'serve',
@@ -23,24 +24,28 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 				/** Relative request path. */
 				const pathname = req.url!.slice(base.length - 1);
 				const isRoot = pathname === '/';
-				const hasTrailingSlash = isRoot || pathname.endsWith('/');
 
-				function sendError(message: string) {
-					res.statusCode = 404;
-					res.end(notFoundTemplate(pathname, message));
-				}
+				// Validate trailingSlash
+				if (!isRoot) {
+					const hasTrailingSlash = pathname.endsWith('/');
 
-				switch (true) {
-					case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
-						sendError('Not Found (trailingSlash is set to "never")');
+					if (hasTrailingSlash && trailingSlash == 'never') {
+						res.statusCode = 404;
+						res.end(notFoundTemplate(pathname, 'Not Found (trailingSlash is set to "never")'));
 						return;
-					case !hasTrailingSlash &&
+					}
+
+					if (
+						!hasTrailingSlash &&
 						trailingSlash == 'always' &&
-						!isRoot &&
-						!HAS_FILE_EXTENSION_REGEXP.test(pathname):
-						sendError('Not Found (trailingSlash is set to "always")');
+						!HAS_FILE_EXTENSION_REGEXP.test(pathname)
+					) {
+						res.statusCode = 404;
+						res.end(notFoundTemplate(pathname, 'Not Found (trailingSlash is set to "always")'));
 						return;
+					}
 				}
+
 				next();
 			});
 
@@ -52,8 +57,9 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 						res.setHeader('Content-Type', 'text/html;charset=utf-8');
 						res.end(fs.readFileSync(errorPagePath));
 					} else {
+						const pathname = req.url!.slice(base.length - 1);
 						res.statusCode = 404;
-						res.end(notFoundTemplate(req.originalUrl!, 'Not Found'));
+						res.end(notFoundTemplate(pathname, 'Not Found'));
 					}
 				});
 			};
