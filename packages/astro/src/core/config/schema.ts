@@ -1,4 +1,5 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
@@ -33,23 +34,13 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	integrations: [],
 	markdown: {
 		drafts: false,
-		syntaxHighlight: 'shiki',
-		shikiConfig: {
-			langs: [],
-			theme: 'github-dark',
-			wrap: false,
-		},
-		remarkPlugins: [],
-		rehypePlugins: [],
-		remarkRehype: {},
+		...markdownConfigDefaults,
 	},
 	vite: {},
 	legacy: {
 		astroFlavoredMarkdown: false,
 	},
 	experimental: {
-		errorOverlay: false,
-		prerender: false,
 		contentCollections: false,
 	},
 };
@@ -186,7 +177,7 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			extendDefaultPlugins: z.boolean().default(false),
+			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 		})
 		.default({}),
 	vite: z
@@ -194,8 +185,6 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			errorOverlay: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.errorOverlay),
-			prerender: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.prerender),
 			contentCollections: z
 				.boolean()
 				.optional()

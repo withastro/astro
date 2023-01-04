@@ -145,7 +145,6 @@ export class AstroTelemetry {
 			// to preview what data would be sent.
 			return Promise.resolve();
 		}
-
 		return post({
 			context,
 			meta,

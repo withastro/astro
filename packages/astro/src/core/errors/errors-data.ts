@@ -4,7 +4,7 @@
 
 import type { ZodError } from 'zod';
 
-interface ErrorData {
+export interface ErrorData {
 	code: number;
 	title: string;
 	message?: string | ((...params: any) => string);
@@ -353,7 +353,7 @@ but ${plural ? 'none were.' : 'it was not.'} able to server-side render \`${comp
 			'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 		hint: `See https://docs.astro.build/en/core-concepts/routing/#dynamic-routes for more information on dynamic routes.
 
-Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build.
+Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
 See https://docs.astro.build/en/guides/server-side-rendering/ for more information on non-static rendering.`,
 	},
 	/**
@@ -519,6 +519,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			].join('\n');
 		},
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Modifying frontmatter programmatically](https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically)
+	 * @description
+	 * A remark or rehype plugin attempted to inject invalid frontmatter. This occurs when "astro.frontmatter" is set to `null`, `undefined`, or an invalid JSON object.
+	 */
+	InvalidFrontmatterInjectionError: {
+		title: 'Invalid frontmatter injection.',
+		code: 6003,
+		message:
+			'A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
+		hint: 'See the frontmatter injection docs https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically for more information.',
 	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {

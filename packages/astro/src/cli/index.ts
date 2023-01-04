@@ -156,6 +156,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
+	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
+	if (!process.env.NODE_ENV) {
+		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
+	}
+
 	let { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
 		cwd: root,
 		flags,

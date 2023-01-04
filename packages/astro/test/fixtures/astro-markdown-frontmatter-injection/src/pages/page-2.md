@@ -1,3 +1,7 @@
+---
+description: 'Page 2 description'
+---
+
 # Page 2
 
 ## Table of contents
