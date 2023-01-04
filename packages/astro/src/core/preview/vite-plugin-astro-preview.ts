@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { Plugin } from 'vite';
 import { AstroSettings } from '../../@types/astro.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
+import { stripBase } from './util.js';
 
 const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 
@@ -21,8 +22,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 					return;
 				}
 
-				/** Relative request path. */
-				const pathname = req.url!.slice(base.length - 1);
+				const pathname = stripBase(req.url!, base);
 				const isRoot = pathname === '/';
 
 				// Validate trailingSlash
@@ -57,7 +57,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 						res.setHeader('Content-Type', 'text/html;charset=utf-8');
 						res.end(fs.readFileSync(errorPagePath));
 					} else {
-						const pathname = req.url!.slice(base.length - 1);
+						const pathname = stripBase(req.url!, base);
 						res.statusCode = 404;
 						res.end(notFoundTemplate(pathname, 'Not Found'));
 					}

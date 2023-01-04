@@ -1,6 +1,6 @@
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
-import http, { OutgoingHttpHeaders } from 'http';
+import http from 'http';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
@@ -52,9 +52,6 @@ export default async function createStaticPreviewServer(
 	}
 
 	// Log server start URLs
-	const site = settings.config.site
-		? new URL(settings.config.base, settings.config.site)
-		: undefined;
 	info(
 		logging,
 		null,
@@ -62,7 +59,7 @@ export default async function createStaticPreviewServer(
 			startupTime: performance.now() - startServerTime,
 			resolvedUrls: previewServer.resolvedUrls,
 			host: settings.config.server.host,
-			site,
+			base: settings.config.base,
 		})
 	);
 

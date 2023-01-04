@@ -9,3 +9,11 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 		return host;
 	}
 }
+
+export function stripBase(path: string, base: string): string {
+	if (path === base) {
+		return '/';
+	}
+	const baseWithSlash = base.endsWith('/') ? base : base + '/';
+	return path.replace(RegExp('^' + baseWithSlash), '/');
+}
