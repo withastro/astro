@@ -5,7 +5,7 @@ export default defineConfig({
 		build: {
 				rollupOptions: {
 						output: {
-								chunkFileNames: 'assets/testing-[name].js',
+								chunkFileNames: 'assets/testing-[name].mjs',
 								assetFileNames: 'assets/testing-[name].[ext]'
 						}
 				}

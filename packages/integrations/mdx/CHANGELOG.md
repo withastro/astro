@@ -1,5 +1,110 @@
 # @astrojs/mdx
 
+## 0.15.0-beta.0
+
+### Minor Changes
+
+- [#5687](https://github.com/withastro/astro/pull/5687) [`e2019be6f`](https://github.com/withastro/astro/commit/e2019be6ffa46fa33d92cfd346f9ecbe51bb7144) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Give remark and rehype plugins access to user frontmatter via frontmatter injection. This means `data.astro.frontmatter` is now the _complete_ Markdown or MDX document's frontmatter, rather than an empty object.
+
+  This allows plugin authors to modify existing frontmatter, or compute new properties based on other properties. For example, say you want to compute a full image URL based on an `imageSrc` slug in your document frontmatter:
+
+  ```ts
+  export function remarkInjectSocialImagePlugin() {
+    return function (tree, file) {
+      const { frontmatter } = file.data.astro;
+      frontmatter.socialImageSrc = new URL(frontmatter.imageSrc, 'https://my-blog.com/').pathname;
+    };
+  }
+  ```
+
+  #### Content Collections - new `remarkPluginFrontmatter` property
+
+  We have changed _inject_ frontmatter to _modify_ frontmatter in our docs to improve discoverability. This is based on support forum feedback, where "injection" is rarely the term used.
+
+  To reflect this, the `injectedFrontmatter` property has been renamed to `remarkPluginFrontmatter`. This should clarify this plugin is still separate from the `data` export Content Collections expose today.
+
+  #### Migration instructions
+
+  Plugin authors should now **check for user frontmatter when applying defaults.**
+
+  For example, say a remark plugin wants to apply a default `title` if none is present. Add a conditional to check if the property is present, and update if none exists:
+
+  ```diff
+  export function remarkInjectTitlePlugin() {
+    return function (tree, file) {
+      const { frontmatter } = file.data.astro;
+  +    if (!frontmatter.title) {
+        frontmatter.title = 'Default title';
+  +    }
+    }
+  }
+  ```
+
+  This differs from previous behavior, where a Markdown file's frontmatter would _always_ override frontmatter injected via remark or reype.
+
+- [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
+
+  #### Markdown
+
+  - **Remove `remark-smartypants`** from Astro's default Markdown plugins.
+  - **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
+  - Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
+
+  #### MDX
+
+  - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
+  - Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
+
+  #### Migration
+
+  To preserve your existing Markdown and MDX setup, you may need some configuration changes:
+
+  ##### Smartypants manual installation
+
+  [Smartypants](https://github.com/silvenon/remark-smartypants) has been removed from Astro's default setup. If you rely on this plugin, [install `remark-smartypants`](https://github.com/silvenon/remark-smartypants#installing) and apply to your `astro.config.*`:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  + import smartypants from 'remark-smartypants';
+
+  export default defineConfig({
+    markdown: {
+  +   remarkPlugins: [smartypants],
+    }
+  });
+  ```
+
+  ##### Migrate `extendDefaultPlugins` to `gfm`
+
+  You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. Since Smartypants has been removed, this has been renamed to `gfm`.
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    markdown: {
+  -   extendDefaultPlugins: false,
+  +   gfm: false,
+    }
+  });
+  ```
+
+  Additionally, applying remark and rehype plugins **no longer disables** `gfm`. You will need to opt-out manually by setting `gfm` to `false`.
+
+  ##### Migrate MDX's `extendPlugins` to `extendMarkdownConfig`
+
+  You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
+
+  - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
+  - `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
+
+### Patch Changes
+
+- Updated dependencies [[`e2019be6f`](https://github.com/withastro/astro/commit/e2019be6ffa46fa33d92cfd346f9ecbe51bb7144), [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d)]:
+  - @astrojs/markdown-remark@2.0.0-beta.0
+
 ## 0.14.0
 
 ### Minor Changes

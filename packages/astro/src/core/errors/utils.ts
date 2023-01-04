@@ -1,4 +1,5 @@
 import { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
+import type { SSRError } from '../../@types/astro.js';
 import { AstroErrorCodes, AstroErrorData, ErrorData } from './errors-data.js';
 
 /**
@@ -72,9 +73,17 @@ function getLineOffsets(text: string) {
 
 /** Coalesce any throw variable to an Error instance. */
 export function createSafeError(err: any): Error {
-	return err instanceof Error || (err && err.name && err.message)
-		? err
-		: new Error(JSON.stringify(err));
+	if (err instanceof Error || (err && err.name && err.message)) {
+		return err;
+	} else {
+		const error = new Error(JSON.stringify(err));
+
+		(
+			error as SSRError
+		).hint = `To get as much information as possible from your errors, make sure to throw Error objects instead of \`${typeof err}\`. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error for more information.`;
+
+		return error;
+	}
 }
 
 export function normalizeLF(code: string) {

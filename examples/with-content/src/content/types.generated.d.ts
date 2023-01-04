@@ -37,7 +37,7 @@ declare module 'astro:content' {
 		render(): Promise<{
 			Content: import('astro').MarkdownInstance<{}>['Content'];
 			headings: import('astro').MarkdownHeading[];
-			injectedFrontmatter: Record<string, any>;
+			remarkPluginFrontmatter: Record<string, any>;
 		}>;
 	};
 

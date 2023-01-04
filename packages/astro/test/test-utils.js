@@ -139,9 +139,13 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: (opts = {}) => build(settings, { logging, telemetry, ...opts }),
+		build: (opts = {}) => {
+			process.env.NODE_ENV = 'production';
+			return build(settings, { logging, telemetry, ...opts });
+		},
 		sync: (opts) => sync(settings, { logging, fs, ...opts }),
 		startDevServer: async (opts = {}) => {
+			process.env.NODE_ENV = 'development';
 			devServer = await dev(settings, { logging, telemetry, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
@@ -151,6 +155,7 @@ export async function loadFixture(inlineConfig) {
 		resolveUrl,
 		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
+			process.env.NODE_ENV = 'production';
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port

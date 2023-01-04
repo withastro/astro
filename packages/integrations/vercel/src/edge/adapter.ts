@@ -30,13 +30,11 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
-	let needsBuildConfig = false;
 
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
-				needsBuildConfig = !config.build.client;
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
@@ -59,13 +57,6 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
 	
 	`);
-				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				if (needsBuildConfig) {
-					buildConfig.client = new URL('./static/', _config.outDir);
-					buildTempFolder = buildConfig.server = new URL('./dist/', _config.root);
-					serverEntry = buildConfig.serverEntry = 'entry.mjs';
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {

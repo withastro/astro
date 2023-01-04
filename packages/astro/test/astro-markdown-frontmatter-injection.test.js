@@ -32,13 +32,10 @@ describe('Astro Markdown - frontmatter injection', () => {
 		}
 	});
 
-	it('overrides injected frontmatter with user frontmatter', async () => {
+	it('allow user frontmatter mutation', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
-		const readingTimes = frontmatterByPage.map(
-			(frontmatter = {}) => frontmatter.injectedReadingTime?.text
-		);
-		const titles = frontmatterByPage.map((frontmatter = {}) => frontmatter.title);
-		expect(titles).to.contain('Overridden title');
-		expect(readingTimes).to.contain('1000 min read');
+		const descriptions = frontmatterByPage.map((frontmatter = {}) => frontmatter.description);
+		expect(descriptions).to.contain('Processed by remarkDescription plugin: Page 1 description');
+		expect(descriptions).to.contain('Processed by remarkDescription plugin: Page 2 description');
 	});
 });
