@@ -13,17 +13,14 @@ import {
 	ContentObservable,
 	ContentPaths,
 	getContentPaths,
+	getEntryInfo,
 	loadContentConfig,
+	NoCollectionError,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
-type EntryInfo = {
-	id: string;
-	slug: string;
-	collection: string;
-};
 
 export type GenerateContentTypes = {
 	init(): Promise<void>;
@@ -123,13 +120,13 @@ export async function createContentTypesGenerator({
 
 			return { shouldGenerateTypes: true };
 		}
-		const entryInfo = getEntryInfo({
-			entry: event.entry,
-			contentDir: contentPaths.contentDir,
-		});
-		// Not a valid `src/content/` entry. Silently return.
-		if (entryInfo instanceof Error) return { shouldGenerateTypes: false };
 		if (fileType === 'unknown') {
+			const entryInfo = getEntryInfo({
+				entry: event.entry,
+				contentDir: contentPaths.contentDir,
+				// Allow underscore `_` files outside collection directories
+				allowFilesOutsideCollection: true,
+			});
 			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
 				// Silently ignore `_` files.
 				return { shouldGenerateTypes: false };
@@ -140,7 +137,11 @@ export async function createContentTypesGenerator({
 				};
 			}
 		}
-		if (entryInfo.collection === '.') {
+		const entryInfo = getEntryInfo({
+			entry: event.entry,
+			contentDir: contentPaths.contentDir,
+		});
+		if (entryInfo instanceof NoCollectionError) {
 			if (['info', 'warn'].includes(logLevel)) {
 				warn(
 					logging,
@@ -254,24 +255,6 @@ function addEntry(
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
 	delete contentTypes[collectionKey][entryKey];
-}
-
-export function getEntryInfo({
-	entry,
-	contentDir,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL }): EntryInfo | Error {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
-	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
-	if (!rawCollection) return new Error();
-
-	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawSlug = rawId.replace(path.extname(rawId), '');
-	const res = {
-		id: normalizePath(rawId),
-		slug: normalizePath(rawSlug),
-		collection: normalizePath(rawCollection),
-	};
-	return res;
 }
 
 export function getEntryType(
