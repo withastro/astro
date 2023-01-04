@@ -33,7 +33,7 @@ const { content } = Astro.props;
 			</header>
 			<main class="wrapper">
 				<div class="stack gap-10 content">
-					{content.img && <img src={content.img} />}
+					{content.img && <img src={content.img} alt={content.img_alt || ''} />}
 					<div class="content"><slot /></div>
 				</div>
 			</main>
