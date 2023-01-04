@@ -243,7 +243,7 @@ const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
-	const spawned = execa('node', [cliPath, ...args], { env: {'ASTRO_TELEMETRY_DISABLED': true}});
+	const spawned = execa('node', [cliPath, ...args], { env: { ASTRO_TELEMETRY_DISABLED: true } });
 
 	spawned.stdout.setEncoding('utf8');
 
