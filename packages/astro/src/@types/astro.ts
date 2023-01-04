@@ -444,7 +444,7 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment. 
+	 * The base path to deploy to. Astro will use this path as the root for your pages and assets both in development and in production build. 
 	 *
 	 * In the example below, `astro dev` will start your server at `/docs`.
 	 *
