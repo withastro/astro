@@ -72,12 +72,6 @@
 	--font-body: 'Public Sans', var(--font-system);
 	--font-brand: Rubik, var(--font-system);
 
-	/* Backgrounds */
-	--bg-image-main: url('/assets/backgrounds/bg-main-light-800w.jpg');
-	--bg-image-main-curves: url('/assets/backgrounds/bg-main-light.svg');
-	--bg-svg-blend-mode: overlay;
-	--bg-gradient-size: 168%;
-
 	/* Transitions */
 	--theme-transition: 0.2s ease-in-out;
 }
@@ -115,20 +109,6 @@
 		var(--accent-light)
 	);
 	--gradient-stroke: linear-gradient(180deg, var(--gray-600), var(--gray-800));
-
-	--bg-image-main: url('/assets/backgrounds/bg-main-dark-800w.jpg');
-	--bg-image-main-curves: url('/assets/backgrounds/bg-main-dark.svg');
-	--bg-svg-blend-mode: darken;
-}
-
-@media (min-width: 50em) {
-	:root {
-		--bg-gradient-size: 100%;
-		--bg-image-main: url('/assets/backgrounds/bg-main-light-1440w.jpg');
-	}
-	:root.theme-dark {
-		--bg-image-main: url('/assets/backgrounds/bg-main-dark-1440w.jpg');
-	}
 }
 
 html,
@@ -137,11 +117,7 @@ body {
 }
 
 body {
-	background: url('/assets/backgrounds/noise.svg') top center/1500px repeat,
-		var(--bg-image-main-curves) top center/var(--bg-gradient-size) no-repeat,
-		var(--bg-image-main) top center/var(--bg-gradient-size) no-repeat, var(--gray-999);
-	background-blend-mode: overlay, var(--bg-svg-blend-mode), normal, normal;
-
+	background-color: var(--gray-999);
 	color: var(--gray-200);
 	font-family: var(--font-body);
 	-webkit-font-smoothing: antialiased;
