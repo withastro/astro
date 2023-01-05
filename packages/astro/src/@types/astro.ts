@@ -791,7 +791,7 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `true`
 		 * @description
-		 * Astro uses the [Smartypants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
 		 *
 		 * ```js
 		 * {
