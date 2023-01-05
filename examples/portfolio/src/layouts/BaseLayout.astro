@@ -96,6 +96,14 @@ const { title, description } = Astro.props;
 					var(--bg-image-footer) bottom center/var(--bg-gradient-size) no-repeat, var(--gray-999);
 				background-blend-mode: overlay, var(--bg-svg-blend-mode), normal, normal, normal;
 			}
+			@media (forced-colors: active) {
+				/* Deactivate custom backgrounds for high contrast users. */
+				.backgrounds {
+					background: none;
+					background-blend-mode: none;
+					--bg-gradient-size: none;
+				}
+			}
 		</style>
 	</body>
 </html>
