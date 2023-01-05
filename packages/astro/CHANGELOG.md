@@ -1,5 +1,11 @@
 # astro
 
+## 1.9.1
+
+### Patch Changes
+
+- [`adad7e966`](https://github.com/withastro/astro/commit/adad7e96680640e1d0a5ec270cd2516f350c7652) Thanks [@matthewp](https://github.com/matthewp)! - Fix for hoisted scripts in project with spaces in the file path
+
 ## 1.9.0
 
 ### Minor Changes
