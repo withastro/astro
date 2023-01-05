@@ -14,11 +14,3 @@ test.describe('preact/compat components in Astro files', () => {
 		pageSourceFilePath: './src/pages/index.astro',
 	});
 });
-
-test.describe('preact/compat components in Markdown files', () => {
-	createTests({
-		...config,
-		pageUrl: '/markdown/',
-		pageSourceFilePath: './src/pages/markdown.md',
-	});
-});

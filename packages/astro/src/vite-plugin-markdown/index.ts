@@ -91,7 +91,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					warn(
 						logging,
 						'markdown',
-						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
+						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`
 					);
 				}
 

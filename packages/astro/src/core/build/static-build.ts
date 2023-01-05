@@ -212,8 +212,8 @@ async function clientBuild(
 				input: Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: '[name].[hash].js',
-					chunkFileNames: 'chunks/[name].[hash].js',
+					entryFileNames: 'assets/[name].[hash].js',
+					chunkFileNames: 'assets/chunks/[name].[hash].js',
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 				},
