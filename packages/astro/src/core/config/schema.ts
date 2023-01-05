@@ -30,7 +30,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		port: 3000,
 		streaming: true,
 	},
-	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
 	markdown: {
 		drafts: false,
@@ -127,18 +126,6 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
-	style: z
-		.object({
-			postcss: z
-				.object({
-					options: z.any(),
-					plugins: z.array(z.any()),
-				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.style.postcss),
-		})
-		.optional()
-		.default({}),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
@@ -300,21 +287,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 				.optional()
 				.default({})
 		),
-		style: z
-			.object({
-				postcss: z.preprocess(
-					(val) => resolvePostcssConfig(val, fileProtocolRoot),
-					z
-						.object({
-							options: z.any(),
-							plugins: z.array(z.any()),
-						})
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.style.postcss)
-				),
-			})
-			.optional()
-			.default({}),
 	}).transform((config) => {
 		// If the user changed outDir but not build.server, build.config, adjust so those
 		// are relative to the outDir, as is the expected default.
