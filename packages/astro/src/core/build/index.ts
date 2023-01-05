@@ -90,7 +90,7 @@ class AstroBuilder {
 			server: this.settings.config.build.server,
 			serverEntry: this.settings.config.build.serverEntry,
 		};
-		await runHookBuildStart({ config: this.settings.config, buildConfig, logging: this.logging });
+		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
 		this.validateConfig();
 
 		info(this.logging, 'build', `output target: ${colors.green(this.settings.config.output)}`);

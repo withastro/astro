@@ -68,6 +68,8 @@ export default defineConfig({
 
 When you install the integration, Tailwind's utility classes should be ready to go right away. Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn how to use Tailwind, and if you see a utility class you want to try, add it to any HTML element to your project!
 
+[Autoprefixer](https://github.com/postcss/autoprefixer) is also setup automatically for production builds so Tailwind classes will work in older browsers.
+
 https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b861-d6e1cc800b6c.mp4
 
 ## Configuration

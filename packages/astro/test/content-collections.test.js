@@ -59,7 +59,22 @@ describe('Content Collections', () => {
 					'columbia.md',
 					'endeavour.md',
 					'enterprise.md',
-					'promo/launch-week.mdx',
+					// Spaces allowed in IDs
+					'promo/launch week.mdx',
+				]);
+			});
+
+			it('Handles spaces in `without config` slugs', async () => {
+				expect(json).to.haveOwnProperty('withoutConfig');
+				expect(Array.isArray(json.withoutConfig)).to.equal(true);
+
+				const slugs = json.withoutConfig.map((item) => item.slug);
+				expect(slugs).to.deep.equal([
+					'columbia',
+					'endeavour',
+					'enterprise',
+					// "launch week.mdx" is converted to "launch-week.mdx"
+					'promo/launch-week',
 				]);
 			});
 

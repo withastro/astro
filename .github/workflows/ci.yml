@@ -218,3 +218,6 @@ jobs:
 
       - name: Test
         run: pnpm run test:smoke
+        env:
+          SKIP_OG: 1
+          NODE_OPTIONS: "--max-old-space-size=4096"

@@ -66,6 +66,20 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 	}
 }
 
+function getViteConfiguration(isBuild: boolean, tailwindConfig: TailwindConfig) {
+	const postcssPlugins = [tailwindPlugin(tailwindConfig)];
+	if (isBuild) {
+		postcssPlugins.push(autoprefixerPlugin());
+	}
+	return {
+		css: {
+			postcss: {
+				plugins: postcssPlugins,
+			},
+		},
+	};
+}
+
 type TailwindOptions =
 	| {
 			config?: {
@@ -92,7 +106,14 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({ config, injectScript, addWatchFile, isRestart }) => {
+			'astro:config:setup': async ({
+				command,
+				config,
+				updateConfig,
+				injectScript,
+				addWatchFile,
+				isRestart,
+			}) => {
 				// Inject the Tailwind postcss plugin
 				const userConfig = await getUserConfig(config.root, customConfigPath, isRestart);
 
@@ -108,10 +129,9 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					addWatchFile(userConfig.filePath);
 				}
 
-				const tailwindConfig: TailwindConfig =
+				const tailwindConfig =
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
-				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig));
-				config.style.postcss.plugins.push(autoprefixerPlugin);
+				updateConfig({ vite: getViteConfiguration(command === 'build', tailwindConfig) });
 
 				if (applyBaseStyles) {
 					// Inject the Tailwind base import

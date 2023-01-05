@@ -111,13 +111,11 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 	let _config: AstroConfig;
 	let entryFile: string;
 	let _buildConfig: BuildConfig;
-	let needsBuildConfig = false;
 	let _vite: any;
 	return {
 		name: '@astrojs/netlify/edge-functions',
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
-				needsBuildConfig = !config.build.client;
 				// Add a plugin that shims the global environment.
 				const injectPlugin: VitePlugin = {
 					name: '@astrojs/netlify/plugin-inject',
@@ -154,15 +152,6 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 					console.warn(
 						`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`
 					);
-				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				if (needsBuildConfig) {
-					buildConfig.client = _config.outDir;
-					buildConfig.server = new URL('./.netlify/edge-functions/', _config.root);
-					buildConfig.serverEntry = 'entry.js';
-					_buildConfig = buildConfig;
-					entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {

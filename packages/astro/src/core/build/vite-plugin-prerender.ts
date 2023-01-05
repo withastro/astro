@@ -10,9 +10,6 @@ export function vitePluginPrerender(
 		name: 'astro:rollup-plugin-prerender',
 
 		outputOptions(outputOptions) {
-			// No-op if `prerender` is not enabled
-			if (!opts.settings.config.experimental.prerender) return;
-
 			const manualChunks = outputOptions.manualChunks || Function.prototype;
 			outputOptions.manualChunks = function (id, api, ...args) {
 				// Defer to user-provided `manualChunks`, if it was provided.
