@@ -4,7 +4,7 @@
 
 import type { ZodError } from 'zod';
 
-interface ErrorData {
+export interface ErrorData {
 	code: number;
 	title: string;
 	message?: string | ((...params: any) => string);
@@ -353,7 +353,7 @@ but ${plural ? 'none were.' : 'it was not.'} able to server-side render \`${comp
 			'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 		hint: `See https://docs.astro.build/en/core-concepts/routing/#dynamic-routes for more information on dynamic routes.
 
-Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build.
+Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build. This error can also occur if using \`export const prerender = true;\`.
 See https://docs.astro.build/en/guides/server-side-rendering/ for more information on non-static rendering.`,
 	},
 	/**
@@ -523,7 +523,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
-	 * - [Frontmatter injection](https://docs.astro.build/en/guides/markdown-content/#example-injecting-frontmatter)
+	 * - [Modifying frontmatter programmatically](https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically)
 	 * @description
 	 * A remark or rehype plugin attempted to inject invalid frontmatter. This occurs when "astro.frontmatter" is set to `null`, `undefined`, or an invalid JSON object.
 	 */
@@ -532,7 +532,24 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 6003,
 		message:
 			'A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
-		hint: 'See the frontmatter injection docs https://docs.astro.build/en/guides/markdown-content/#example-injecting-frontmatter for more information.',
+		hint: 'See the frontmatter injection docs https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically for more information.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [MDX installation and usage](https://docs.astro.build/en/guides/integrations-guide/mdx/)
+	 * @description
+	 * Unable to find the official `@astrojs/mdx` integration. This error is raised when using MDX files without an MDX integration installed.
+	 */
+	MdxIntegrationMissingError: {
+		title: 'MDX integration missing.',
+		code: 6004,
+		message: (id: string) => {
+			return `Unable to render ${JSON.stringify(
+				id
+			)}. Ensure that the \`@astrojs/mdx\` integration is installed.`;
+		},
+		hint: 'See the MDX integration docs for installation and usage instructions: https://docs.astro.build/en/guides/integrations-guide/mdx/',
 	},
 	// Config Errors - 7xxx
 	UnknownConfigError: {

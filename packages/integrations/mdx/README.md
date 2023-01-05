@@ -66,7 +66,7 @@ export default defineConfig({
 
 ## Usage
 
-With the Astro MDX integration, you can [add MDX pages to your project](/en/guides/markdown-content/#markdown-and-mdx-pages) by adding `.mdx` files within your `src/pages/` directory. You can also [import `.mdx` files](https://docs.astro.build/en/guides/markdown-content/#importing-markdown) into `.astro` files. 
+With the Astro MDX integration, you can [add MDX pages to your project](https://docs.astro.build/en/guides/markdown-content/#markdown-and-mdx-pages) by adding `.mdx` files within your `src/pages/` directory. You can also [import `.mdx` files](https://docs.astro.build/en/guides/markdown-content/#importing-markdown) into `.astro` files. 
 
 Astro's MDX integration adds extra features to standard MDX, including Markdown-style frontmatter. This allows you to use most of Astro's built-in Markdown features like a [special frontmatter `layout` property](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout) and a [property for marking a page as a draft](https://docs.astro.build/en/guides/markdown-content/#draft-pages).
 
@@ -198,6 +198,6 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 See [CHANGELOG.md](https://github.com/withastro/astro/tree/main/packages/integrations/mdx/CHANGELOG.md) for a history of changes to this integration.
 
-[astro-integration]: /en/guides/integrations-guide/
+[astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 
-[astro-ui-frameworks]: /en/core-concepts/framework-components/#using-framework-components
+[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
