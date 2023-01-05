@@ -36,29 +36,40 @@ const { title, description } = Astro.props;
 				--_placeholder-bg: linear-gradient(transparent, transparent);
 				--bg-image-main: url('/assets/backgrounds/bg-main-light-800w.jpg');
 				--bg-image-main-curves: url('/assets/backgrounds/bg-main-light.svg');
+				--bg-image-subtle-1: var(--_placeholder-bg);
+				--bg-image-subtle-2: var(--_placeholder-bg);
 				--bg-image-footer: var(--_placeholder-bg);
 				--bg-svg-blend-mode: overlay;
-				--bg-gradient-size: 168%;
+				--bg-blend-mode: darken;
+				--bg-image-aspect-ratio: 2.25;
+				--bg-scale: 1.68;
+				--bg-aspect-ratio: calc(var(--bg-image-aspect-ratio) / var(--bg-scale));
+				--bg-gradient-size: calc(var(--bg-scale) * 100%);
 			}
 
 			:root.theme-dark {
 				--bg-image-main: url('/assets/backgrounds/bg-main-dark-800w.jpg');
 				--bg-image-main-curves: url('/assets/backgrounds/bg-main-dark.svg');
 				--bg-svg-blend-mode: darken;
+				--bg-blend-mode: lighten;
 			}
 
 			/* These backgrounds are displayed below the fold, so we lazy load them
 			   once the `.loaded` class has been set.  */
 			:root.loaded {
+				--bg-image-subtle-1: url('/assets/backgrounds/bg-subtle-1-light-800w.jpg');
+				--bg-image-subtle-2: url('/assets/backgrounds/bg-subtle-2-light-800w.jpg');
 				--bg-image-footer: url('/assets/backgrounds/bg-footer-light-800w.jpg');
 			}
 			:root.loaded.theme-dark {
+				--bg-image-subtle-1: url('/assets/backgrounds/bg-subtle-1-dark-800w.jpg');
+				--bg-image-subtle-2: url('/assets/backgrounds/bg-subtle-2-dark-800w.jpg');
 				--bg-image-footer: url('/assets/backgrounds/bg-footer-dark-800w.jpg');
 			}
 
 			@media (min-width: 50em) {
 				:root {
-					--bg-gradient-size: 100%;
+					--bg-scale: 1;
 					--bg-image-main: url('/assets/backgrounds/bg-main-light-1440w.jpg');
 				}
 				:root.theme-dark {
@@ -66,14 +77,19 @@ const { title, description } = Astro.props;
 				}
 
 				:root.loaded {
+					--bg-image-subtle-1: url('/assets/backgrounds/bg-subtle-1-light-1440w.jpg');
+					--bg-image-subtle-2: url('/assets/backgrounds/bg-subtle-2-light-1440w.jpg');
 					--bg-image-footer: url('/assets/backgrounds/bg-footer-light-1440w.jpg');
 				}
 				:root.loaded.theme-dark {
+					--bg-image-subtle-1: url('/assets/backgrounds/bg-subtle-1-dark-1440w.jpg');
+					--bg-image-subtle-2: url('/assets/backgrounds/bg-subtle-2-dark-1440w.jpg');
 					--bg-image-footer: url('/assets/backgrounds/bg-footer-dark-1440w.jpg');
 				}
 			}
 
 			.backgrounds {
+				isolation: isolate;
 				background: url('/assets/backgrounds/noise.svg') top center/1500px repeat,
 					var(--bg-image-main-curves) top center/var(--bg-gradient-size) no-repeat,
 					var(--bg-image-main) top center/var(--bg-gradient-size) no-repeat,

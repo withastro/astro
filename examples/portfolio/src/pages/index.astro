@@ -56,7 +56,7 @@ const projects = (await Astro.glob<Project>('./work/**/*.md'))
 		</div>
 
 		<main class="wrapper stack gap-20 lg:gap-48">
-			<section class="section with-cta">
+			<section class="section with-background with-cta">
 				<header class="section-header stack gap-2 lg:gap-4">
 					<h3>Selected Work</h3>
 					<p>Take a look below at some of my featured work for clients from the past few years.</p>
@@ -82,7 +82,7 @@ const projects = (await Astro.glob<Project>('./work/**/*.md'))
 				</div>
 			</section>
 
-			<section class="section">
+			<section class="section with-background bg-variant">
 				<header class="section-header stack gap-2 lg:gap-4">
 					<h3>Mentions</h3>
 					<p>
@@ -155,6 +155,32 @@ const projects = (await Astro.glob<Project>('./work/**/*.md'))
 	.section {
 		display: grid;
 		gap: 2rem;
+	}
+
+	.with-background {
+		position: relative;
+	}
+
+	.with-background::before {
+		--hero-bg: var(--bg-image-subtle-2);
+
+		content: '';
+		position: absolute;
+		pointer-events: none;
+		left: 50%;
+		width: 100vw;
+		aspect-ratio: calc(2.25 / var(--bg-scale));
+		top: 0;
+		transform: translateY(-75%) translateX(-50%);
+		background: url('/assets/backgrounds/noise.svg') top center/1500px repeat,
+			var(--hero-bg) center center / var(--bg-gradient-size) no-repeat, var(--gray-999);
+		background-blend-mode: overlay, normal, normal, normal;
+		mix-blend-mode: var(--bg-blend-mode);
+		z-index: -1;
+	}
+
+	.with-background.bg-variant::before {
+		--hero-bg: var(--bg-image-subtle-1);
 	}
 
 	.section-header {
