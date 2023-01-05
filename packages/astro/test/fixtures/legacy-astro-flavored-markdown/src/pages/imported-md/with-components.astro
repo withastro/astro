@@ -1,9 +1,0 @@
----
-import Layout from '../../layouts/content.astro'
-
-const posts = await Astro.glob('../../imported-md/*.md')
----
-
-<Layout>
-	{posts.map(({ Content }) => <Content />)}
-</Layout>

@@ -16,14 +16,6 @@ test.describe('Vue components in Astro files', () => {
 	});
 });
 
-test.describe('Vue components in Markdown files', () => {
-	createTests({
-		...config,
-		pageUrl: '/markdown/',
-		pageSourceFilePath: './src/pages/markdown.md',
-	});
-});
-
 test.describe('Vue components in MDX files', () => {
 	createTests({
 		...config,
