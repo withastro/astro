@@ -3,7 +3,20 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		typeof entryMap[C][keyof typeof entryMap[C]] & Render;
 
-	type BaseCollectionConfig<S extends import('astro/zod').ZodType> = {
+	type BaseSchemaWithoutEffects =
+		| import('astro/zod').AnyZodObject
+		| import('astro/zod').ZodUnion<import('astro/zod').AnyZodObject[]>
+		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
+		| import('astro/zod').ZodIntersection<
+				import('astro/zod').AnyZodObject,
+				import('astro/zod').AnyZodObject
+		  >;
+
+	type BaseSchema =
+		| BaseSchemaWithoutEffects
+		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
+
+	type BaseCollectionConfig<S extends BaseSchema> = {
 		schema?: S;
 		slug?: (entry: {
 			id: CollectionEntry<keyof typeof entryMap>['id'];
@@ -13,7 +26,7 @@ declare module 'astro:content' {
 			data: import('astro/zod').infer<S>;
 		}) => string | Promise<string>;
 	};
-	export function defineCollection<S extends import('astro/zod').ZodType>(
+	export function defineCollection<S extends BaseSchema>(
 		input: BaseCollectionConfig<S>
 	): BaseCollectionConfig<S>;
 
