@@ -588,6 +588,23 @@ export interface AstroUserConfig {
 		server?: string;
 		/**
 		 * @docs
+		 * @name build.assets
+		 * @type {string}
+		 * @default `'_astro'`
+		 * @description
+		 * Specifies the directory where Astro-generated assets should live.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assets: '_custom'
+		 *   }
+		 * }
+		 * ```
+		 */
+		assets?: string;
+		/**
+		 * @docs
 		 * @name build.serverEntry
 		 * @type {string}
 		 * @default `'entry.mjs'`
