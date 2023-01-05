@@ -53,7 +53,7 @@ describe('Environment Variables', () => {
 
 		it('includes public env in client-side JS', async () => {
 			let dirs = await fixture.readdir('/assets');
-			console.log(dirs)
+			console.log(dirs);
 			let found = false;
 
 			// Look in all of the .js files to see if the public env is inlined.
