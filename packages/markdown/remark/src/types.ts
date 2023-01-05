@@ -48,6 +48,7 @@ export interface AstroMarkdownOptions {
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
 	gfm?: boolean;
+	smartypants?: boolean;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {

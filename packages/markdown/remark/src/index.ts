@@ -24,6 +24,7 @@ import remarkUnwrap from './remark-unwrap.js';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
+import remarkSmartypants from 'remark-smartypants';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import { unified } from 'unified';
@@ -43,6 +44,7 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 	rehypePlugins: [],
 	remarkRehype: {},
 	gfm: true,
+	smartypants: true,
 };
 
 /** Shared utility for rendering markdown */
@@ -58,6 +60,7 @@ export async function renderMarkdown(
 		rehypePlugins = markdownConfigDefaults.rehypePlugins,
 		remarkRehype = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
+		smartypants = markdownConfigDefaults.smartypants,
 		isAstroFlavoredMd = false,
 		isExperimentalContentCollections = false,
 		contentDir,
@@ -73,6 +76,10 @@ export async function renderMarkdown(
 
 	if (gfm) {
 		parser.use(remarkGfm);
+	}
+
+	if (smartypants) {
+		parser.use(remarkSmartypants);
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));

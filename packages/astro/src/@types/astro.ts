@@ -787,6 +787,23 @@ export interface AstroUserConfig {
 		gfm?: boolean;
 		/**
 		 * @docs
+		 * @name markdown.smartypants
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Astro uses the [Smartypants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     smartypants: false,
+		 *   }
+		 * }
+		 * ```
+		 */
+		smartypants?: boolean;
+		/**
+		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
 		 * @description

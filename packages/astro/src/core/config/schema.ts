@@ -165,6 +165,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
+			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.default({}),
 	vite: z
