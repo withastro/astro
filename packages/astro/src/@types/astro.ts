@@ -870,30 +870,7 @@ export interface AstroUserConfig {
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: {
-		/**
-		 * @docs
-		 * @name legacy.astroFlavoredMarkdown
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.0.0-rc.1
-		 * @description
-		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` (and alternative extensions for markdown files like ".markdown") Markdown files.
-		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](https://docs.astro.build/en/guides/integrations-guide/mdx/).
-		 *
-		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](https://docs.astro.build/en/guides/configuring-astro/#the-astro-config-file).
-		 *
-		 * ```js
-		 * {
-		 *   legacy: {
-		 *     // Example: Add support for legacy Markdown features
-		 *     astroFlavoredMarkdown: true,
-		 *   },
-		 * }
-		 * ```
-		 */
-		astroFlavoredMarkdown?: boolean;
-	};
+	legacy?: object;
 
 	/**
 	 * @docs

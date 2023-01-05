@@ -349,7 +349,6 @@ async function generatePath(
 		logging,
 		markdown: {
 			...settings.config.markdown,
-			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 			isExperimentalContentCollections: settings.config.experimental.contentCollections,
 			contentDir: getContentPaths(settings.config).contentDir,
 		},

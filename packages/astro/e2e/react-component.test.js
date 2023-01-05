@@ -16,14 +16,6 @@ test.describe('React components in Astro files', () => {
 	});
 });
 
-test.describe('React components in Markdown files', () => {
-	createTests({
-		...config,
-		pageUrl: '/markdown/',
-		pageSourceFilePath: './src/pages/markdown.md',
-	});
-});
-
 test.describe('React components in MDX files', () => {
 	createTests({
 		...config,
