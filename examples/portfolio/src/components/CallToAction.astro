@@ -14,17 +14,22 @@ const { href } = Astro.props;
 		display: flex;
 		place-content: center;
 		text-align: center;
-		padding: 0.7rem 2.5rem;
-		gap: 1rem;
+		padding: 0.56em 2em;
+		gap: 0.8em;
 		color: var(--accent-text-over);
 		text-decoration: none;
-		font-size: var(--text-lg);
 		line-height: 1.1;
 		border-radius: 999rem;
 		overflow: hidden;
 		background: var(--gradient-accent-orange);
 		box-shadow: var(--shadow-md);
 		white-space: nowrap;
+	}
+
+	@media (min-width: 20em) {
+		a {
+			font-size: var(--text-lg);
+		}
 	}
 
 	/* Overlay for hover effects. */
