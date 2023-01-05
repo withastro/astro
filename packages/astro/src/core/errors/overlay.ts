@@ -561,25 +561,5 @@ function getOverlayCode() {
 }
 
 export function patchOverlay(code: string, config: AstroConfig) {
-	if (config.experimentalErrorOverlay) {
-		return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
-	} else {
-		// Legacy overlay
-		return (
-			code
-				// Transform links in the message to clickable links
-				.replace(
-					"this.text('.message-body', message.trim());",
-					`const urlPattern = /(\\b(https?|ftp):\\/\\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
-				function escapeHtml(unsafe){return unsafe.replace(/</g, "&lt;").replace(/>/g, "&gt;");}
-			 const escapedMessage = escapeHtml(message);
-			this.root.querySelector(".message-body").innerHTML = escapedMessage.trim().replace(urlPattern, '<a href="$1" target="_blank">$1</a>');`
-				)
-				.replace('</style>', '.message-body a {\n  color: #ededed;\n}\n</style>')
-				// Hide `.tip` in Vite's ErrorOverlay
-				.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
-				// Replace [vite] messages with [astro]
-				.replace(/\[vite\]/g, '[astro]')
-		);
-	}
+	return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
 }

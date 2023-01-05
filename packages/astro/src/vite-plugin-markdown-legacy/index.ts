@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import { Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroSettings } from '../@types/astro';
+import { getContentPaths } from '../content/index.js';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
 import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
@@ -162,6 +163,8 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 					...renderOpts,
 					fileURL: fileUrl,
 					isAstroFlavoredMd: true,
+					isExperimentalContentCollections: settings.config.experimental.contentCollections,
+					contentDir: getContentPaths(settings.config).contentDir,
 				} as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
@@ -171,8 +174,8 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 
 				const prelude = `---
 import Slugger from 'github-slugger';
-${layout ? `import Layout from '${layout}';` : ''}
-${components ? `import * from '${components}';` : ''}
+${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
+${components ? `import * from ${JSON.stringify(components)};` : ''}
 ${setup}
 
 const slugger = new Slugger();
@@ -190,7 +193,7 @@ Object.defineProperty($$content.astro, 'headers', {
 });
 ---`;
 
-				const imports = `${layout ? `import Layout from '${layout}';` : ''}
+				const imports = `${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 ${setup}`.trim();
 
 				// If the user imported "Layout", wrap the content in a Layout
@@ -234,6 +237,7 @@ ${tsResult}`;
 					hydratedComponents: transformResult.hydratedComponents,
 					scripts: transformResult.scripts,
 					propagation: 'none',
+					pageOptions: {},
 				};
 
 				return {

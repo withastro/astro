@@ -95,7 +95,7 @@ describe('CSS Bundling', function () {
 			expect(dir).to.have.a.lengthOf(4);
 		});
 
-		it('CSS does not include hashes hashes', async () => {
+		it('CSS does not include hashes', async () => {
 			const [firstFound] = await fixture.readdir('/assets');
 			expect(firstFound).to.not.match(/[a-z]+\.[0-9a-z]{8}\.css/);
 		});

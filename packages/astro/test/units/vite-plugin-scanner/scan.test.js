@@ -1,0 +1,97 @@
+import { expect } from 'chai';
+import { scan } from '../../../dist/vite-plugin-scanner/scan.js';
+
+describe('astro scan', () => {
+	it('should return empty object', async () => {
+		const result = await scan(`export {}`, '/src/components/index.astro');
+		expect(Object.keys(result).length).to.equal(0);
+	});
+
+	it('recognizes constant boolean literal (false)', async () => {
+		const result = await scan(`export const prerender = true;`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(true);
+	});
+
+	it('recognizes constant boolean literal (false)', async () => {
+		const result = await scan(`export const prerender = false;`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(false);
+	});
+
+	it('throws on let boolean literal', async () => {
+		try {
+			const result = await scan(`export let prerender = true;`, '/src/components/index.astro');
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(
+				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			);
+		}
+	});
+
+	it('throws on var boolean literal', async () => {
+		try {
+			const result = await scan(`export var prerender = true;`, '/src/components/index.astro');
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(
+				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			);
+		}
+	});
+
+	it('throws on unknown values I', async () => {
+		try {
+			const result = await scan(`export const prerender = !!value;`, '/src/components/index.astro');
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(
+				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			);
+		}
+	});
+
+	it('throws on unknown values II', async () => {
+		try {
+			const result = await scan(`export const prerender = value;`, '/src/components/index.astro');
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(
+				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			);
+		}
+	});
+
+	it('throws on unknown values III', async () => {
+		try {
+			const result = await scan(
+				`export let prerender = undefined; prerender = true;`,
+				'/src/components/index.astro'
+			);
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(
+				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			);
+		}
+	});
+
+	it('throws on unknown values IV', async () => {
+		try {
+			const result = await scan(
+				`let prerender = true; export { prerender }`,
+				'/src/components/index.astro'
+			);
+			expect(false).to.be.true;
+		} catch (e) {
+			expect(e.errorCode).to.equal(3019);
+			expect(e.message).to.contain(
+				`A \`prerender\` export has been detected, but its value cannot be statically analyzed.`
+			);
+		}
+	});
+});

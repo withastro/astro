@@ -5,6 +5,11 @@ import nodeFs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import {
+	astroContentServerPlugin,
+	astroContentVirtualModPlugin,
+	astroDelayedAssetPlugin,
+} from '../content/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -17,9 +22,9 @@ import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import { createCustomViteLogger } from './errors/dev/index.js';
 import { resolveDependency } from './util.js';
 
 interface CreateViteOptions {
@@ -114,12 +119,22 @@ export async function createVite(
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPropagationPlugin({ settings }),
+			astroScannerPlugin({ settings, logging }),
+			...(settings.config.experimental.contentCollections
+				? [
+						astroContentVirtualModPlugin({ settings }),
+						astroContentServerPlugin({ fs, settings, logging, mode }),
+						astroDelayedAssetPlugin({ mode }),
+				  ]
+				: []),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
 		envPrefix: 'PUBLIC_',
 		define: {
-			'import.meta.env.SITE': settings.config.site ? `'${settings.config.site}'` : 'undefined',
+			'import.meta.env.SITE': settings.config.site
+				? JSON.stringify(settings.config.site)
+				: 'undefined',
 		},
 		server: {
 			hmr:
@@ -134,9 +149,6 @@ export async function createVite(
 				// Prevent watching during the build to speed it up
 				ignored: mode === 'build' ? ['**'] : undefined,
 			},
-		},
-		css: {
-			postcss: settings.config.style.postcss || {},
 		},
 		resolve: {
 			alias: [
@@ -181,7 +193,7 @@ export async function createVite(
 		sortPlugins(result.plugins);
 	}
 
-	result.customLogger = createCustomViteLogger(result.logLevel ?? 'warn');
+	result.customLogger = vite.createLogger(result.logLevel ?? 'warn');
 
 	return result;
 }

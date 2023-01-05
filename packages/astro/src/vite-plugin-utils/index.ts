@@ -1,11 +1,20 @@
 import ancestor from 'common-ancestor-path';
-import { Data } from 'vfile';
-import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
+import type { AstroConfig } from '../@types/astro';
 import {
 	appendExtension,
 	appendForwardSlash,
 	removeLeadingForwardSlashWindows,
 } from '../core/path.js';
+import { viteID } from '../core/util.js';
+
+/**
+ * Converts the first dot in `import.meta.env` to its Unicode escape sequence,
+ * which prevents Vite from replacing strings like `import.meta.env.SITE`
+ * in our JS representation of modules like Markdown
+ */
+export function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
+}
 
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
@@ -27,33 +36,6 @@ export function getFileInfo(id: string, config: AstroConfig) {
 	return { fileId, fileUrl };
 }
 
-function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
-	if (typeof obj === 'object' && obj !== null && obj.hasOwnProperty('frontmatter')) {
-		const { frontmatter } = obj as any;
-		try {
-			// ensure frontmatter is JSON-serializable
-			JSON.stringify(frontmatter);
-		} catch {
-			return false;
-		}
-		return typeof frontmatter === 'object' && frontmatter !== null;
-	}
-	return false;
-}
-
-export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
-	const { astro } = vfileData;
-
-	if (!astro) return { frontmatter: {} };
-	if (!isValidAstroData(astro)) {
-		throw Error(
-			`[Markdown] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
-		);
-	}
-
-	return astro;
-}
-
 /**
  * Normalizes different file names like:
  *
@@ -66,7 +48,8 @@ export function normalizeFilename(filename: string, config: AstroConfig) {
 	if (filename.startsWith('/@fs')) {
 		filename = filename.slice('/@fs'.length);
 	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		filename = new URL('.' + filename, config.root).pathname;
+		const url = new URL('.' + filename, config.root);
+		filename = viteID(url);
 	}
 	return removeLeadingForwardSlashWindows(filename);
 }

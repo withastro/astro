@@ -8,6 +8,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
+import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
@@ -82,7 +83,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalErrorOverlay?: boolean;
+	experimentalContentCollections?: boolean;
 }
 
 export interface BuildConfig {
@@ -108,18 +109,6 @@ export interface BuildConfig {
 export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
 	extends AstroGlobalPartial,
 		AstroSharedContext<Props> {
-	/**
-	 * Canonical URL of the current page.
-	 * @deprecated Use `Astro.url` instead.
-	 *
-	 * Example:
-	 * ```astro
-	 * ---
-	 * const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-	 * ---
-	 * ```
-	 */
-	canonicalURL: URL;
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -254,12 +243,6 @@ type MarkdowFileExtension = typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS[number];
 
 export interface AstroGlobalPartial {
 	/**
-	 * @deprecated since version 0.24. See the {@link https://astro.build/deprecated/resolve upgrade guide} for more details.
-	 */
-	resolve(path: string): string;
-	/** @deprecated since version 0.26. Use [Astro.glob()](https://docs.astro.build/en/reference/api-reference/#astroglob) instead. */
-	fetchContent(globStr: string): Promise<any[]>;
-	/**
 	 * Fetch local files into your static site setup
 	 *
 	 * Example usage:
@@ -317,6 +300,16 @@ type ServerConfig = {
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 */
 	port?: number;
+
+	/**
+	 * @name server.headers
+	 * @typeraw {OutgoingHttpHeaders}
+	 * @default `{}`
+	 * @version 1.7.0
+	 * @description
+	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
+	 */
+	headers?: OutgoingHttpHeaders;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -431,14 +424,21 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
+	 * The base path to deploy to. Astro will use this path as the root for your pages and assets both in development and in production build.
 	 *
-	 * You can access this value in your app via `import.meta.env.BASE_URL`.
+	 * In the example below, `astro dev` will start your server at `/docs`.
 	 *
 	 * ```js
 	 * {
 	 *   base: '/docs'
 	 * }
+	 * ```
+	 *
+	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
+	 *
+	 * ```astro
+	 * <a href="/docs/about/">About</a>
+	 * <img src=`${import.meta.env.BASE_URL}/image.png`>
 	 * ```
 	 */
 	base?: string;
@@ -664,6 +664,16 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 
+	/**
+	 * @docs
+	 * @name server.headers
+	 * @typeraw {OutgoingHttpHeaders}
+	 * @default `{}`
+	 * @version 1.7.0
+	 * @description
+	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
+	 */
+
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
@@ -731,10 +741,6 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * :::caution
-		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the [`extendDefaultPlugins`](#markdownextenddefaultplugins) flag.
-		 * :::
-		 *
 		 * ```js
 		 * import remarkToc from 'remark-toc';
 		 * {
@@ -752,10 +758,6 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * :::caution
-		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the [`extendDefaultPlugins`](#markdownextenddefaultplugins) flag.
-		 * :::
-		 *
 		 * ```js
 		 * import rehypeMinifyHtml from 'rehype-minify';
 		 * {
@@ -768,23 +770,21 @@ export interface AstroUserConfig {
 		rehypePlugins?: RehypePlugins;
 		/**
 		 * @docs
-		 * @name markdown.extendDefaultPlugins
+		 * @name markdown.gfm
 		 * @type {boolean}
-		 * @default `false`
+		 * @default `true`
 		 * @description
-		 * Astro applies the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. When adding your own remark or rehype plugins, you can preserve these defaults by setting the `extendDefaultPlugins` flag to `true`:
+		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
 		 * ```js
 		 * {
 		 *   markdown: {
-		 *     extendDefaultPlugins: true,
-		 * 		 remarkPlugins: [exampleRemarkPlugin],
-		 *     rehypePlugins: [exampleRehypePlugin],
+		 *     gfm: false,
 		 *   }
 		 * }
 		 * ```
 		 */
-		extendDefaultPlugins?: boolean;
+		gfm?: boolean;
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype
@@ -812,7 +812,7 @@ export interface AstroUserConfig {
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
 	 *
-	 * Read our [Integrations Guide](/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
@@ -879,9 +879,9 @@ export interface AstroUserConfig {
 		 * @version 1.0.0-rc.1
 		 * @description
 		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` (and alternative extensions for markdown files like ".markdown") Markdown files.
-		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](https://docs.astro.build/en/guides/integrations-guide/mdx/).
 		 *
-		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).
+		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](https://docs.astro.build/en/guides/configuring-astro/#the-astro-config-file).
 		 *
 		 * ```js
 		 * {
@@ -896,10 +896,34 @@ export interface AstroUserConfig {
 	};
 
 	/**
-	 * @hidden
-	 * Turn on experimental support for the new error overlay component.
+	 * @docs
+	 * @kind heading
+	 * @name Experimental Flags
+	 * @description
+	 * Astro offers experimental flags to give users early access to new features.
+	 * These flags are not guaranteed to be stable.
 	 */
-	experimentalErrorOverlay?: boolean;
+	experimental?: {
+		/**
+		 * @docs
+		 * @name experimental.contentCollections
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.7.0
+		 * @description
+		 * Enable experimental support for [Content Collections](https://docs.astro.build/en/guides/content-collections/). This makes the `src/content/` directory a reserved directory for Astro to manage, and introduces the `astro:content` module for querying this content.
+		 *
+		 * To enable this feature, set `experimental.contentCollections` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		contentCollections: true,
+		 * 	},
+		 * }
+		 */
+		contentCollections?: boolean;
+	};
 
 	// Legacy options to be removed
 
@@ -973,6 +997,7 @@ export interface AstroSettings {
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
+	forceDisableTelemetry: boolean;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -986,6 +1011,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	prerender?: boolean;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
@@ -1345,7 +1371,7 @@ export interface AstroIntegration {
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
 		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
-		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
+		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
 			pages: Map<string, PageBuildData>;
@@ -1436,10 +1462,6 @@ export interface SSRResult {
 	response: ResponseInit;
 	_metadata: SSRMetadata;
 }
-
-export type MarkdownAstroData = {
-	frontmatter: MD['frontmatter'];
-};
 
 /* Preview server stuff */
 export interface PreviewServer {

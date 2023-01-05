@@ -801,7 +801,7 @@ async function updateTSConfig(
 
 	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
 	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
-	// can be compatible with some frameworks (ex: Solid), though ultimately run into issues on the current version of Volar
+	// can be compatible with some frameworks (ex: Solid)
 	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
 	const hasConflictingIntegrations =
 		integrations.filter((integration) => presets.has(integration)).length > 1 &&
@@ -817,26 +817,6 @@ async function updateTSConfig(
 				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
 					firstIntegrationWithTSSettings
 				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`
-			)
-		);
-	}
-
-	// TODO: Remove this when Volar 1.0 ships, as it fixes the issue.
-	// Info: https://github.com/johnsoncodehk/volar/discussions/592#discussioncomment-3660903
-	if (
-		integrations.includes('vue') &&
-		hasConflictingIntegrations &&
-		((outputConfig.compilerOptions?.jsx !== 'preserve' &&
-			outputConfig.compilerOptions?.jsxImportSource !== undefined) ||
-			integrations.includes('react')) // https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed
-	) {
-		info(
-			logging,
-			null,
-			red(
-				`  ${bold(
-					'Caution:'
-				)} Using Vue together with a JSX framework can lead to type checking issues inside Vue files.\n  More information: https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed\n`
 			)
 		);
 	}

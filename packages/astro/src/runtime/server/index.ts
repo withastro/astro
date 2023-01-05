@@ -17,6 +17,7 @@ export {
 	renderHTMLElement,
 	renderPage,
 	renderSlot,
+	renderStyleElement,
 	renderTemplate as render,
 	renderTemplate,
 	renderToString,
@@ -27,6 +28,8 @@ export {
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
+	AstroComponentSlots,
+	AstroComponentSlotsWithValues,
 	RenderInstruction,
 } from './render/index.js';
 
@@ -46,7 +49,7 @@ export function mergeSlots(...slotted: unknown[]) {
 	return slots;
 }
 
-/** @internal Assosciate JSX components with a specific renderer (see /src/vite-plugin-jsx/tag.ts) */
+/** @internal Associate JSX components with a specific renderer (see /src/vite-plugin-jsx/tag.ts) */
 export function __astro_tag_component__(Component: unknown, rendererName: string) {
 	if (!Component) return;
 	if (typeof Component !== 'function') return;

@@ -50,6 +50,8 @@ rss({
   site: import.meta.env.SITE,
   // list of `<item>`s in output xml
   items: import.meta.glob('./**/*.md'),
+  // include draft posts in the feed (default: false)
+  drafts: true,
   // (optional) absolute path to XSL stylesheet in your project
   stylesheet: '/rss-styles.xsl',
   // (optional) inject custom xml
@@ -101,6 +103,12 @@ type RSSFeedItem = {
 	customData?: string;
 };
 ```
+
+### drafts
+
+Type: `boolean (optional)`
+
+Set `drafts: true` to include [draft posts](https://docs.astro.build/en/guides/markdown-content/#draft-pages) in the feed output. By default, this option is `false` and draft posts are not included.
 
 ### stylesheet
 

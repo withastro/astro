@@ -67,6 +67,32 @@ describe('MDX syntax highlighting', () => {
 			const prismCodeBlock = document.querySelector('pre.language-astro');
 			expect(prismCodeBlock).to.not.be.null;
 		});
+
+		for (const extendMarkdownConfig of [true, false]) {
+			it(`respects syntaxHighlight when extendMarkdownConfig = ${extendMarkdownConfig}`, async () => {
+				const fixture = await loadFixture({
+					root: FIXTURE_ROOT,
+					markdown: {
+						syntaxHighlight: 'shiki',
+					},
+					integrations: [
+						mdx({
+							extendMarkdownConfig,
+							syntaxHighlight: 'prism',
+						}),
+					],
+				});
+				await fixture.build();
+
+				const html = await fixture.readFile('/index.html');
+				const { document } = parseHTML(html);
+
+				const shikiCodeBlock = document.querySelector('pre.astro-code');
+				expect(shikiCodeBlock, 'Markdown config syntaxHighlight used unexpectedly').to.be.null;
+				const prismCodeBlock = document.querySelector('pre.language-astro');
+				expect(prismCodeBlock).to.not.be.null;
+			});
+		}
 	});
 
 	it('supports custom highlighter - shiki-twoslash', async () => {

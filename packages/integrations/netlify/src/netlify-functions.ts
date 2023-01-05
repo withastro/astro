@@ -59,7 +59,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			method: httpMethod,
 			headers: new Headers(headers as any),
 		};
-		// Attach the event body the the request, with proper encoding.
+		// Attach the event body the request, with proper encoding.
 		if (httpMethod !== 'GET' && httpMethod !== 'HEAD') {
 			const encoding = isBase64Encoded ? 'base64' : 'utf-8';
 			init.body =

@@ -1,20 +1,27 @@
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import {
+	InvalidAstroDataError,
+	safelyGetAstroData,
+} from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroConfig, MarkdownAstroData } from 'astro';
+import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
+import type { Image } from 'mdast';
+import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import remarkSmartypants from 'remark-smartypants';
-import type { Data, VFile } from 'vfile';
+import { visit } from 'unist-util-visit';
+import type { VFile } from 'vfile';
 import { MdxOptions } from './index.js';
-import rehypeCollectHeadings from './rehype-collect-headings.js';
+import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { jsToTreeNode } from './utils.js';
+import { isRelativePath, jsToTreeNode } from './utils.js';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -43,22 +50,18 @@ export function recmaInjectImportMetaEnvPlugin({
 	};
 }
 
-export function remarkInitializeAstroData() {
+export function rehypeApplyFrontmatterExport() {
 	return function (tree: any, vfile: VFile) {
-		if (!vfile.data.astro) {
-			vfile.data.astro = { frontmatter: {} };
-		}
-	};
-}
-
-const EXPORT_NAME = 'frontmatter';
-
-export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any>) {
-	return function (tree: any, vfile: VFile) {
-		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
-		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
+		const astroData = safelyGetAstroData(vfile.data);
+		if (astroData instanceof InvalidAstroDataError)
+			throw new Error(
+				// Copied from Astro core `errors-data`
+				// TODO: find way to import error data from core
+				'[MDX] A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.'
+			);
+		const { frontmatter } = astroData;
 		const exportNodes = [
-			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
+			jsToTreeNode(`export const frontmatter = ${JSON.stringify(frontmatter)};`),
 		];
 		if (frontmatter.layout) {
 			// NOTE(bholmesdev) 08-22-2022
@@ -69,7 +72,7 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 				jsToTreeNode(
 					/** @see 'vite-plugin-markdown' for layout props reference */
 					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
-				
+
 				export default async function ({ children }) {
 					const Layout = (await import(${JSON.stringify(frontmatter.layout)})).default;
 					const { layout, ...content } = frontmatter;
@@ -108,78 +111,77 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 	};
 }
 
-const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
-const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
+/**
+ * `src/content/` does not support relative image paths.
+ * This plugin throws an error if any are found
+ */
+function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
+	const contentDir = new URL('content/', srcDir);
+	return function remarkContentRelImageError() {
+		return (tree: any, vfile: VFile) => {
+			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
+			if (!isContentFile) return;
+
+			const relImagePaths = new Set<string>();
+			visit(tree, 'image', function raiseError(node: Image) {
+				if (isRelativePath(node.url)) {
+					relImagePaths.add(node.url);
+				}
+			});
+			if (relImagePaths.size === 0) return;
+
+			const errorMessage =
+				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files):\n` +
+				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
+
+			throw new Error(errorMessage);
+		};
+	};
+}
 
 export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [
-		// Set "vfile.data.astro" for plugins to inject frontmatter
-		remarkInitializeAstroData,
-	];
-	switch (mdxOptions.extendPlugins) {
-		case false:
-			break;
-		case 'astroDefaults':
-			remarkPlugins = [...remarkPlugins, ...DEFAULT_REMARK_PLUGINS];
-			break;
-		default:
-			remarkPlugins = [
-				...remarkPlugins,
-				...(markdownShouldExtendDefaultPlugins(config) ? DEFAULT_REMARK_PLUGINS : []),
-				...ignoreStringPlugins(config.markdown.remarkPlugins ?? []),
-			];
-			break;
+	let remarkPlugins: PluggableList = [];
+	if (mdxOptions.syntaxHighlight === 'shiki') {
+		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
 	}
-	if (config.markdown.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(config.markdown.shikiConfig)]);
-	}
-	if (config.markdown.syntaxHighlight === 'prism') {
+	if (mdxOptions.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
 	}
+	if (mdxOptions.gfm) {
+		remarkPlugins.push(remarkGfm);
+	}
 
-	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
+	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
+
+	// Apply last in case user plugins resolve relative image paths
+	if (config.experimental.contentCollections) {
+		remarkPlugins.push(toRemarkContentRelImageError(config));
+	}
 	return remarkPlugins;
 }
 
-export function getRehypePlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): MdxRollupPluginOptions['rehypePlugins'] {
+export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions['rehypePlugins'] {
 	let rehypePlugins: PluggableList = [
-		// getHeadings() is guaranteed by TS, so we can't allow user to override
-		rehypeCollectHeadings,
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
 		// rehypeRaw allows custom syntax highlighters to work without added config
 		[rehypeRaw, { passThrough: nodeTypes }] as any,
 	];
-	switch (mdxOptions.extendPlugins) {
-		case false:
-			break;
-		case 'astroDefaults':
-			rehypePlugins = [...rehypePlugins, ...DEFAULT_REHYPE_PLUGINS];
-			break;
-		default:
-			rehypePlugins = [
-				...rehypePlugins,
-				...(markdownShouldExtendDefaultPlugins(config) ? DEFAULT_REHYPE_PLUGINS : []),
-				...ignoreStringPlugins(config.markdown.rehypePlugins ?? []),
-			];
-			break;
-	}
 
-	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
+	rehypePlugins = [
+		...rehypePlugins,
+		...ignoreStringPlugins(mdxOptions.rehypePlugins),
+		// getHeadings() is guaranteed by TS, so this must be included.
+		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
+		rehypeHeadingIds,
+		rehypeInjectHeadingsExport,
+		// computed from `astro.data.frontmatter` in VFile data
+		rehypeApplyFrontmatterExport,
+	];
 	return rehypePlugins;
-}
-
-function markdownShouldExtendDefaultPlugins(config: AstroConfig): boolean {
-	return (
-		config.markdown.extendDefaultPlugins ||
-		(config.markdown.remarkPlugins.length === 0 && config.markdown.rehypePlugins.length === 0)
-	);
 }
 
 function ignoreStringPlugins(plugins: any[]) {
@@ -202,41 +204,6 @@ function ignoreStringPlugins(plugins: any[]) {
 		);
 	}
 	return validPlugins;
-}
-
-/**
- * Copied from markdown utils
- * @see "vite-plugin-utils"
- */
-function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
-	if (typeof obj === 'object' && obj !== null && obj.hasOwnProperty('frontmatter')) {
-		const { frontmatter } = obj as any;
-		try {
-			// ensure frontmatter is JSON-serializable
-			JSON.stringify(frontmatter);
-		} catch {
-			return false;
-		}
-		return typeof frontmatter === 'object' && frontmatter !== null;
-	}
-	return false;
-}
-
-/**
- * Copied from markdown utils
- * @see "vite-plugin-utils"
- */
-function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
-	const { astro } = vfileData;
-
-	if (!astro) return { frontmatter: {} };
-	if (!isValidAstroData(astro)) {
-		throw Error(
-			`[MDX] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
-		);
-	}
-
-	return astro;
 }
 
 /**

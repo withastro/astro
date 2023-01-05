@@ -16,7 +16,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		throw new Error(`[@astrojs/node] Setting the 'mode' option is required.`);
 	}
 
-	let needsBuildConfig = false;
 	let _options: Options;
 	return {
 		name: '@astrojs/node',
@@ -31,7 +30,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				needsBuildConfig = !config.build?.server;
 				_options = {
 					...userOptions,
 					client: config.build.client?.toString(),
@@ -43,13 +41,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 
 				if (config.output === 'static') {
 					console.warn(`[@astrojs/node] \`output: "server"\` is required to use this adapter.`);
-				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				// Backwards compat
-				if (needsBuildConfig) {
-					_options.client = buildConfig.client.toString();
-					_options.server = buildConfig.server.toString();
 				}
 			},
 		},

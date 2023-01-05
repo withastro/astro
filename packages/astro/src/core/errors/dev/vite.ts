@@ -1,34 +1,29 @@
 import * as fs from 'fs';
 import { getHighlighter } from 'shiki';
 import { fileURLToPath } from 'url';
-import { createLogger, type ErrorPayload, type Logger, type LogLevel } from 'vite';
+import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroErrorData } from '../errors-data.js';
-import { type ErrorWithMetadata } from '../errors.js';
+import { AstroError, ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
-import { incompatPackageExp, renderErrorMarkdown } from './utils.js';
+import type { SSRLoadedRenderer } from './../../../@types/astro.js';
+import { renderErrorMarkdown } from './utils.js';
 
-/**
- * Custom logger with better error reporting for incompatible packages
- */
-export function createCustomViteLogger(logLevel: LogLevel): Logger {
-	const viteLogger = createLogger(logLevel);
-	const logger: Logger = {
-		...viteLogger,
-		error(msg, options?) {
-			// Silence warnings from incompatible packages (we log better errors for these)
-			if (incompatPackageExp.test(msg)) return;
-			return viteLogger.error(msg, options);
-		},
-	};
-	return logger;
-}
-
-export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: ModuleLoader): Error {
+export function enhanceViteSSRError({
+	error,
+	filePath,
+	loader,
+	renderers,
+}: {
+	error: unknown;
+	filePath?: URL;
+	loader?: ModuleLoader;
+	renderers?: SSRLoadedRenderer[];
+}): Error {
 	// NOTE: We don't know where the error that's coming here comes from, so we need to be defensive regarding what we do
 	// to it to make sure we keep as much information as possible. It's very possible that we receive an error that does not
 	// follow any kind of standard formats (ex: a number, a string etc)
-	const safeError = createSafeError(error) as ErrorWithMetadata;
+	let safeError = createSafeError(error) as ErrorWithMetadata;
 
 	// Vite will give you better stacktraces, using sourcemaps.
 	if (loader) {
@@ -44,26 +39,41 @@ export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: Mod
 
 		// Vite has a fairly generic error message when it fails to load a module, let's try to enhance it a bit
 		// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
-		if (/failed to load module for ssr:/.test(safeError.message)) {
-			const importName = safeError.message.split('for ssr:').at(1)?.trim();
-			if (importName) {
-				safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
-				safeError.name = 'FailedToLoadModuleSSR';
-				safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
-				safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
-				safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
-				const line = lns.findIndex((ln) => ln.includes(importName));
+		let importName: string | undefined;
+		if ((importName = safeError.message.match(/Failed to load url (.*?) \(resolved id:/)?.[1])) {
+			safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
+			safeError.name = 'FailedToLoadModuleSSR';
+			safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
+			safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
+			safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
+			const line = lns.findIndex((ln) => ln.includes(importName!));
 
-				if (line !== -1) {
-					const column = lns[line]?.indexOf(importName);
+			if (line !== -1) {
+				const column = lns[line]?.indexOf(importName);
 
-					safeError.loc = {
-						file: path,
-						line: line + 1,
-						column,
-					};
-				}
+				safeError.loc = {
+					file: path,
+					line: line + 1,
+					column,
+				};
 			}
+		}
+
+		const fileId = safeError.id ?? safeError.loc?.file;
+
+		// Vite throws a syntax error trying to parse MDX without a plugin.
+		// Suggest installing the MDX integration if none is found.
+		if (
+			!renderers?.find((r) => r.name === '@astrojs/mdx') &&
+			safeError.message.match(/Syntax error/) &&
+			fileId?.match(/\.mdx$/)
+		) {
+			safeError = new AstroError({
+				...AstroErrorData.MdxIntegrationMissingError,
+				message: AstroErrorData.MdxIntegrationMissingError.message(fileId),
+				location: safeError.loc,
+				stack: safeError.stack,
+			}) as ErrorWithMetadata;
 		}
 
 		// Since Astro.glob is a wrapper around Vite's import.meta.glob, errors don't show accurate information, let's fix that

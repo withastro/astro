@@ -135,7 +135,7 @@ export function resolveServerUrls({
 					// Node < v18
 					((typeof networkInterface.family === 'string' && networkInterface.family === 'IPv4') ||
 						// Node >= v18
-						(typeof networkInterface.family === 'number' && networkInterface.family === 4))
+						(typeof networkInterface.family === 'number' && (networkInterface as any).family === 4))
 			);
 		for (let { address: ipv4Address } of ipv4Networks) {
 			if (ipv4Address.includes('127.0.0.1')) {

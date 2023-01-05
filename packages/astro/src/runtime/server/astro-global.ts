@@ -1,13 +1,6 @@
 import type { AstroGlobalPartial } from '../../@types/astro';
 import { ASTRO_VERSION } from '../../core/constants.js';
 
-/** Create the Astro.fetchContent() runtime function. */
-function createDeprecatedFetchContentFn() {
-	return () => {
-		throw new Error('Deprecated: Astro.fetchContent() has been replaced with Astro.glob().');
-	};
-}
-
 /** Create the Astro.glob() runtime function. */
 function createAstroGlobFn() {
 	const globHandler = (importMetaGlobResult: Record<string, any>, globValue: () => any) => {
@@ -25,29 +18,15 @@ function createAstroGlobFn() {
 
 // This is used to create the top-level Astro global; the one that you can use
 // Inside of getStaticPaths.
+// TODO: remove `_filePathname` and `_projectRootStr` from the compiler
 export function createAstro(
-	filePathname: string,
-	_site: string | undefined,
-	projectRootStr: string
+	_filePathname: string,
+	site: string | undefined,
+	_projectRootStr: string
 ): AstroGlobalPartial {
-	const site = _site ? new URL(_site) : undefined;
-	const referenceURL = new URL(filePathname, `http://localhost`);
-	const projectRoot = new URL(projectRootStr);
 	return {
-		site,
+		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
-		fetchContent: createDeprecatedFetchContentFn(),
 		glob: createAstroGlobFn(),
-		// INVESTIGATE is there a use-case for multi args?
-		// TODO remove in 2.0
-		resolve(...segments: string[]) {
-			let resolved = segments.reduce((u, segment) => new URL(segment, u), referenceURL).pathname;
-			// When inside of project root, remove the leading path so you are
-			// left with only `/src/images/tower.png`
-			if (resolved.startsWith(projectRoot.pathname)) {
-				resolved = '/' + resolved.slice(projectRoot.pathname.length);
-			}
-			return resolved;
-		},
 	};
 }

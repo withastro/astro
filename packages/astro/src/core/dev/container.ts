@@ -47,6 +47,7 @@ export interface CreateContainerParams {
 	// The string passed to --config and the resolved path
 	configFlag?: string;
 	configFlagPath?: string;
+	disableTelemetry?: boolean;
 }
 
 export async function createContainer(params: CreateContainerParams = {}): Promise<Container> {
@@ -55,7 +56,12 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		logging = defaultLogging,
 		settings = await createDefaultDevSettings(params.userConfig, params.root),
 		fs = nodeFs,
+		disableTelemetry,
 	} = params;
+
+	if (disableTelemetry) {
+		settings.forceDisableTelemetry = true;
+	}
 
 	// Initialize
 	applyPolyfill();
@@ -82,7 +88,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 			},
 			define: {
 				'import.meta.env.BASE_URL': settings.config.base
-					? `'${settings.config.base}'`
+					? JSON.stringify(settings.config.base)
 					: 'undefined',
 			},
 		},
@@ -143,11 +149,14 @@ export function isStarted(container: Container): boolean {
 	return !!container.viteServer.httpServer?.listening;
 }
 
+/**
+ * Only used in tests
+ */
 export async function runInContainer(
 	params: CreateContainerParams,
 	callback: (container: Container) => Promise<void> | void
 ) {
-	const container = await createContainer(params);
+	const container = await createContainer({ ...params, disableTelemetry: true });
 	try {
 		await callback(container);
 	} finally {

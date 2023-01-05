@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.13.0-beta.0
+
+### Minor Changes
+
+- [#5707](https://github.com/withastro/astro/pull/5707) [`5eba34fcc`](https://github.com/withastro/astro/commit/5eba34fcc663def20bdf6e0daad02a6a5472776b) Thanks [@bluwy](https://github.com/bluwy)! - Remove `astro:build:start` backwards compatibility code
+
 ## 0.12.1
 
 ### Patch Changes

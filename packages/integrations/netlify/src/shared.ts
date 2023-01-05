@@ -14,18 +14,28 @@ export async function createRedirects(
 	let _redirects = '';
 	for (const route of routes) {
 		if (route.pathname) {
-			_redirects += `
+			if (route.distURL) {
+				_redirects += `
+  ${route.pathname}   /${route.distURL.toString().replace(dir.toString(), '')}    200`;
+			} else {
+				_redirects += `
   ${route.pathname}    /.netlify/${kind}/${entryFile}    200`;
 
-			if (route.route === '/404') {
-				_redirects += `
+				if (route.route === '/404') {
+					_redirects += `
   /*    /.netlify/${kind}/${entryFile}    404`;
+				}
 			}
 		} else {
 			const pattern =
 				'/' + route.segments.map(([part]) => (part.dynamic ? '*' : part.content)).join('/');
-			_redirects += `
+			if (route.distURL) {
+				_redirects += `
+  ${pattern}   /${route.distURL.toString().replace(dir.toString(), '')}    200`;
+			} else {
+				_redirects += `
   ${pattern}    /.netlify/${kind}/${entryFile}    200`;
+			}
 		}
 	}
 

@@ -66,7 +66,7 @@ describe('SSR images - dev', function () {
 			contentType: 'image/webp',
 		},
 		{
-			title: 'Remote wihtout file extension',
+			title: 'Remote without file extension',
 			id: '#ipsum',
 			url: '/_image',
 			query: {
@@ -181,7 +181,7 @@ describe('SSR images with subpath - dev', function () {
 			contentType: 'image/webp',
 		},
 		{
-			title: 'Remote wihtout file extension',
+			title: 'Remote without file extension',
 			id: '#ipsum',
 			url: '/_image',
 			query: {

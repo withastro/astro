@@ -1,4 +1,5 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
@@ -29,25 +30,18 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		port: 3000,
 		streaming: true,
 	},
-	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
 	markdown: {
 		drafts: false,
-		syntaxHighlight: 'shiki',
-		shikiConfig: {
-			langs: [],
-			theme: 'github-dark',
-			wrap: false,
-		},
-		remarkPlugins: [],
-		rehypePlugins: [],
-		remarkRehype: {},
+		...markdownConfigDefaults,
 	},
 	vite: {},
 	legacy: {
 		astroFlavoredMarkdown: false,
 	},
-	experimentalErrorOverlay: false,
+	experimental: {
+		contentCollections: false,
+	},
 };
 
 export const AstroConfigSchema = z.object({
@@ -128,18 +122,6 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
-	style: z
-		.object({
-			postcss: z
-				.object({
-					options: z.any(),
-					plugins: z.array(z.any()),
-				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.style.postcss),
-		})
-		.optional()
-		.default({}),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
@@ -178,12 +160,21 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			extendDefaultPlugins: z.boolean().default(false),
+			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 		})
 		.default({}),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	experimental: z
+		.object({
+			contentCollections: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollections),
+		})
+		.optional()
+		.default({}),
 	legacy: z
 		.object({
 			astroFlavoredMarkdown: z
@@ -193,7 +184,6 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	experimentalErrorOverlay: z.boolean().optional().default(false),
 });
 
 interface PostCSSConfigResult {
@@ -293,21 +283,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 				.optional()
 				.default({})
 		),
-		style: z
-			.object({
-				postcss: z.preprocess(
-					(val) => resolvePostcssConfig(val, fileProtocolRoot),
-					z
-						.object({
-							options: z.any(),
-							plugins: z.array(z.any()),
-						})
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.style.postcss)
-				),
-			})
-			.optional()
-			.default({}),
 	}).transform((config) => {
 		// If the user changed outDir but not build.server, build.config, adjust so those
 		// are relative to the outDir, as is the expected default.

@@ -100,9 +100,9 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
-		experimentalErrorOverlay:
-			typeof flags.experimentalErrorOverlay === 'boolean'
-				? flags.experimentalErrorOverlay
+		experimentalContentCollections:
+			typeof flags.experimentalContentCollections === 'boolean'
+				? flags.experimentalContentCollections
 				: undefined,
 	};
 }
@@ -118,6 +118,7 @@ export function resolveRoot(cwd?: string | URL): string {
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.markdown = astroConfig.markdown || {};
+	astroConfig.experimental = astroConfig.experimental || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
 	if (typeof flags.base === 'string') astroConfig.base = flags.base;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
@@ -131,7 +132,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 		// TODO: Come back here and refactor to remove this expected error.
 		astroConfig.server.host = flags.host;
 	}
-	astroConfig.experimentalErrorOverlay = flags.experimentalErrorOverlay ?? false;
+	if (flags.experimentalContentCollections) astroConfig.experimental.contentCollections = true;
 	return astroConfig;
 }
 

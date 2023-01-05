@@ -1,16 +1,17 @@
-import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
+import { execa } from 'execa';
+import fastGlob from 'fast-glob';
 import fs from 'fs';
+import os from 'os';
+import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
+import { sync } from '../dist/cli/sync/index.js';
+import build from '../dist/core/build/index.js';
 import { loadConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
-import build from '../dist/core/build/index.js';
-import preview from '../dist/core/preview/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
-import os from 'os';
-import stripAnsi from 'strip-ansi';
-import fastGlob from 'fast-glob';
+import preview from '../dist/core/preview/index.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {
@@ -58,7 +59,7 @@ export const defaultLogging = {
  *
  *   Dev
  *   .startDevServer() - Async. Starts a dev server at an available port. Be sure to call devServer.stop() before test exit.
- *   .fetch(url)       - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *   .fetch(url)       - Async. Returns a URL from the preview server (must have called .preview() before)
  *
  *   Preview
  *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
@@ -112,7 +113,7 @@ export async function loadFixture(inlineConfig) {
 	const resolveUrl = (url) =>
 		`http://${config.server.host}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
-	// A map of files that have been editted.
+	// A map of files that have been edited.
 	let fileEdits = new Map();
 
 	const resetAllFiles = () => {
@@ -138,8 +139,13 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: (opts = {}) => build(settings, { logging, telemetry, ...opts }),
+		build: (opts = {}) => {
+			process.env.NODE_ENV = 'production';
+			return build(settings, { logging, telemetry, ...opts });
+		},
+		sync: (opts) => sync(settings, { logging, fs, ...opts }),
 		startDevServer: async (opts = {}) => {
+			process.env.NODE_ENV = 'development';
 			devServer = await dev(settings, { logging, telemetry, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
@@ -149,6 +155,7 @@ export async function loadFixture(inlineConfig) {
 		resolveUrl,
 		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
+			process.env.NODE_ENV = 'production';
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
@@ -236,7 +243,7 @@ const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
-	const spawned = execa('node', [cliPath, ...args]);
+	const spawned = execa('node', [cliPath, ...args], { env: { ASTRO_TELEMETRY_DISABLED: true } });
 
 	spawned.stdout.setEncoding('utf8');
 

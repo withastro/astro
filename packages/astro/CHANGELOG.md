@@ -1,5 +1,266 @@
 # astro
 
+## 2.0.0-beta.0
+
+### Major Changes
+
+- [#5687](https://github.com/withastro/astro/pull/5687) [`e2019be6f`](https://github.com/withastro/astro/commit/e2019be6ffa46fa33d92cfd346f9ecbe51bb7144) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Give remark and rehype plugins access to user frontmatter via frontmatter injection. This means `data.astro.frontmatter` is now the _complete_ Markdown or MDX document's frontmatter, rather than an empty object.
+
+  This allows plugin authors to modify existing frontmatter, or compute new properties based on other properties. For example, say you want to compute a full image URL based on an `imageSrc` slug in your document frontmatter:
+
+  ```ts
+  export function remarkInjectSocialImagePlugin() {
+    return function (tree, file) {
+      const { frontmatter } = file.data.astro;
+      frontmatter.socialImageSrc = new URL(frontmatter.imageSrc, 'https://my-blog.com/').pathname;
+    };
+  }
+  ```
+
+  #### Content Collections - new `remarkPluginFrontmatter` property
+
+  We have changed _inject_ frontmatter to _modify_ frontmatter in our docs to improve discoverability. This is based on support forum feedback, where "injection" is rarely the term used.
+
+  To reflect this, the `injectedFrontmatter` property has been renamed to `remarkPluginFrontmatter`. This should clarify this plugin is still separate from the `data` export Content Collections expose today.
+
+  #### Migration instructions
+
+  Plugin authors should now **check for user frontmatter when applying defaults.**
+
+  For example, say a remark plugin wants to apply a default `title` if none is present. Add a conditional to check if the property is present, and update if none exists:
+
+  ```diff
+  export function remarkInjectTitlePlugin() {
+    return function (tree, file) {
+      const { frontmatter } = file.data.astro;
+  +    if (!frontmatter.title) {
+        frontmatter.title = 'Default title';
+  +    }
+    }
+  }
+  ```
+
+  This differs from previous behavior, where a Markdown file's frontmatter would _always_ override frontmatter injected via remark or reype.
+
+- [#5728](https://github.com/withastro/astro/pull/5728) [`8fb28648f`](https://github.com/withastro/astro/commit/8fb28648f66629741cb976bfe34ccd9d8f55661e) Thanks [@natemoo-re](https://github.com/natemoo-re)! - The previously experimental features `--experimental-error-overlay` and `--experimental-prerender`, both added in v1.7.0, are now the default.
+
+  You'll notice that the error overlay during `astro dev` has a refreshed visual design and provides more context for your errors.
+
+  The `prerender` feature is now enabled by default when using `output: 'server'`. To prerender a particular page, add `export const prerender = true` to your frontmatter.
+
+  > **Warning**
+  > Integration authors that previously relied on the exact structure of Astro's v1.0 build output may notice some changes to our output file structure. Please test your integrations to ensure compatability.
+  > Users that have configured a custom `vite.build.rollupOptions.output.chunkFileNames` should ensure that their Astro project is configured as an ESM Node project. Either include `"type": "module"` in your root `package.json` file or use the `.mjs` extension for `chunkFileNames`.
+
+- [#5716](https://github.com/withastro/astro/pull/5716) [`dd56c1941`](https://github.com/withastro/astro/commit/dd56c19411b126439b8bc42d681b6fa8c06e8c61) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX Fragment hack. This was used by `@astrojs/mdx` to access the `Fragment` component, but isn't require anymore since `@astrojs/mdx` v0.12.1.
+
+- [#5685](https://github.com/withastro/astro/pull/5685) [`f6cf92b48`](https://github.com/withastro/astro/commit/f6cf92b48317a19a3840ad781b77d6d3cae143bb) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4. Please see its [migration guide](https://vitejs.dev/guide/migration.html) for more information.
+
+- [#5724](https://github.com/withastro/astro/pull/5724) [`16c7d0bfd`](https://github.com/withastro/astro/commit/16c7d0bfd49d2b9bfae45385f506bcd642f9444a) Thanks [@bluwy](https://github.com/bluwy)! - Remove outdated Vue info log. Remove `toString` support for `RenderTemplateResult`.
+
+- [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
+
+  #### Markdown
+
+  - **Remove `remark-smartypants`** from Astro's default Markdown plugins.
+  - **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
+  - Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
+
+  #### MDX
+
+  - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
+  - Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
+
+  #### Migration
+
+  To preserve your existing Markdown and MDX setup, you may need some configuration changes:
+
+  ##### Smartypants manual installation
+
+  [Smartypants](https://github.com/silvenon/remark-smartypants) has been removed from Astro's default setup. If you rely on this plugin, [install `remark-smartypants`](https://github.com/silvenon/remark-smartypants#installing) and apply to your `astro.config.*`:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  + import smartypants from 'remark-smartypants';
+
+  export default defineConfig({
+    markdown: {
+  +   remarkPlugins: [smartypants],
+    }
+  });
+  ```
+
+  ##### Migrate `extendDefaultPlugins` to `gfm`
+
+  You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. Since Smartypants has been removed, this has been renamed to `gfm`.
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    markdown: {
+  -   extendDefaultPlugins: false,
+  +   gfm: false,
+    }
+  });
+  ```
+
+  Additionally, applying remark and rehype plugins **no longer disables** `gfm`. You will need to opt-out manually by setting `gfm` to `false`.
+
+  ##### Migrate MDX's `extendPlugins` to `extendMarkdownConfig`
+
+  You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
+
+  - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
+  - `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
+
+- [#5707](https://github.com/withastro/astro/pull/5707) [`5eba34fcc`](https://github.com/withastro/astro/commit/5eba34fcc663def20bdf6e0daad02a6a5472776b) Thanks [@bluwy](https://github.com/bluwy)! - Remove deprecated `Astro` global APIs, including `Astro.resolve`, `Astro.fetchContent`, and `Astro.canonicalURL`.
+
+  #### `Astro.resolve`
+
+  You can resolve asset paths using `import` instead. For example:
+
+  ```astro
+  ---
+  import 'style.css';
+  import imageUrl from './image.png';
+  ---
+
+  <img src={imageUrl} />
+  ```
+
+  See the [v0.25 migration guide](https://docs.astro.build/en/migrate/#deprecated-astroresolve) for more information.
+
+  #### `Astro.fetchContent`
+
+  Use `Astro.glob` instead to fetch markdown files, or migrate to the [Content Collections](https://docs.astro.build/en/guides/content-collections/) feature.
+
+  ```js
+  let allPosts = await Astro.glob('./posts/*.md');
+  ```
+
+  #### `Astro.canonicalURL`
+
+  Use `Astro.url` instead to construct the canonical URL.
+
+  ```js
+  const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+  ```
+
+- [#5707](https://github.com/withastro/astro/pull/5707) [`5eba34fcc`](https://github.com/withastro/astro/commit/5eba34fcc663def20bdf6e0daad02a6a5472776b) Thanks [@bluwy](https://github.com/bluwy)! - Remove `buildConfig` option parameter from integration `astro:build:start` hook in favour of the `build.config` option in the `astro:config:setup` hook.
+
+  ```js
+  export default function myIntegration() {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:config:setup': ({ updateConfig }) => {
+          updateConfig({
+            build: {
+              client: '...',
+              server: '...',
+              serverEntry: '...',
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`e2019be6f`](https://github.com/withastro/astro/commit/e2019be6ffa46fa33d92cfd346f9ecbe51bb7144), [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d)]:
+  - @astrojs/markdown-remark@2.0.0-beta.0
+
+## 1.9.0
+
+### Minor Changes
+
+- [#5666](https://github.com/withastro/astro/pull/5666) [`bf210f784`](https://github.com/withastro/astro/commit/bf210f7841711439f7db6c2b1f369e54a70b03d3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Correctly handle spaces and capitalization in `src/content/` file names. This introduces github-slugger for slug generation to ensure slugs are usable by `getStaticPaths`. Changes:
+  - Resolve spaces and capitalization: `collection/Entry With Spaces.md` becomes `collection/entry-with-spaces`.
+  - Truncate `/index` paths to base URL: `collection/index.md` becomes `collection`
+
+### Patch Changes
+
+- [#5720](https://github.com/withastro/astro/pull/5720) [`fe316be86`](https://github.com/withastro/astro/commit/fe316be86f4dfecff78effbecdc10f7348406d27) Thanks [@umarov](https://github.com/umarov)! - Do not add base path to a hoisted script body
+
+- [#5706](https://github.com/withastro/astro/pull/5706) [`c2844a79c`](https://github.com/withastro/astro/commit/c2844a79c8c94466481f5f3a37af259bb4cbf276) Thanks [@bluwy](https://github.com/bluwy)! - Add preact and sitemap integration to config load external list
+
+- [#5700](https://github.com/withastro/astro/pull/5700) [`3aa3e00a6`](https://github.com/withastro/astro/commit/3aa3e00a63b63ae443f824f11cffde2a194ea4bf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `import.meta.env.DEV` always being set to `true` when using Content Collections
+
+## 1.8.0
+
+### Minor Changes
+
+- [#5647](https://github.com/withastro/astro/pull/5647) [`d72da5290`](https://github.com/withastro/astro/commit/d72da529075ccbcfd342bf2308df0e5ce59b1e3f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add `astro sync` CLI command for type generation
+
+### Patch Changes
+
+- [#5668](https://github.com/withastro/astro/pull/5668) [`9674cf56c`](https://github.com/withastro/astro/commit/9674cf56c561af8f13def0266b0539507a80000d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove stray `console.log` from content collections error message
+
+- [#5652](https://github.com/withastro/astro/pull/5652) [`0b5098758`](https://github.com/withastro/astro/commit/0b50987584120e0c0e549f9ff838dc8879dbfa30) Thanks [@bluwy](https://github.com/bluwy)! - Use acorn to postprocess Astro globs
+
+- [#5648](https://github.com/withastro/astro/pull/5648) [`853081d1c`](https://github.com/withastro/astro/commit/853081d1c857d8ad8a9634c37ed8fd123d32d241) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Prevent relative image paths in `src/content/`
+
+- [#5678](https://github.com/withastro/astro/pull/5678) [`f8f576829`](https://github.com/withastro/astro/commit/f8f57682948a76cad81eef579235ee059578fe91) Thanks [@bluwy](https://github.com/bluwy)! - Fix code generation quotes handling
+
+- [#5635](https://github.com/withastro/astro/pull/5635) [`376f67011`](https://github.com/withastro/astro/commit/376f67011d220de3bf05d3f39779a708992fffd7) Thanks [@SegaraRai](https://github.com/SegaraRai)! - Add `server.headers` typing
+
+- Updated dependencies [[`853081d1c`](https://github.com/withastro/astro/commit/853081d1c857d8ad8a9634c37ed8fd123d32d241), [`2c65b433b`](https://github.com/withastro/astro/commit/2c65b433bf840a1bb93b0a1947df5949e33512ff)]:
+  - @astrojs/markdown-remark@1.2.0
+
+## 1.7.2
+
+### Patch Changes
+
+- [#5641](https://github.com/withastro/astro/pull/5641) [`62580ed07`](https://github.com/withastro/astro/commit/62580ed07871606c88051b6a2007b865c636107e) Thanks [@chenxsan](https://github.com/chenxsan)! - Fix "Maximum call stack size exceeded" error in vite-plugin-head-propagation
+
+- [#5644](https://github.com/withastro/astro/pull/5644) [`d5aff85db`](https://github.com/withastro/astro/commit/d5aff85db48ccc9234968071b378829369afba9b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix static build regression where chunks would not be generated
+
+- [#5639](https://github.com/withastro/astro/pull/5639) [`1ac1ed86e`](https://github.com/withastro/astro/commit/1ac1ed86e9e5ec5468e8bdc40875e05811863138) Thanks [@bluwy](https://github.com/bluwy)! - Fix `client:only` imports with `"importsNotUsedAsValues": "error"` tsconfig
+
+## 1.7.1
+
+### Patch Changes
+
+- [#5617](https://github.com/withastro/astro/pull/5617) [`33dcaa05b`](https://github.com/withastro/astro/commit/33dcaa05bb821ff0c6d0c6021b912855386be340) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix error message when using Content Collections and an out-of-date `@astrojs/mdx` integration
+
+## 1.7.0
+
+### Minor Changes
+
+- [#5297](https://github.com/withastro/astro/pull/5297) [`d2960984c`](https://github.com/withastro/astro/commit/d2960984c59af7b60a3ea472c6c58fb00534a8e6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Introduces the **experimental** Prerender API.
+
+  > **Note**
+  > This API is not yet stable and is subject to possible breaking changes!
+
+  - Deploy an Astro server without sacrificing the speed or cacheability of static HTML.
+  - The Prerender API allows you to statically prerender specific `pages/` at build time.
+
+  **Usage**
+
+  - First, run `astro build --experimental-prerender` or enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
+  - Then, include `export const prerender = true` in any file in the `pages/` directory that you wish to prerender.
+
+- [#5495](https://github.com/withastro/astro/pull/5495) [`31ec84797`](https://github.com/withastro/astro/commit/31ec8479721a1cd65538ec041458c5ffe8f50ee9) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new error overlay designed by @doodlemarks! This new overlay should be much more informative, clearer, astro-y, and prettier than the previous one.
+
+- [#5291](https://github.com/withastro/astro/pull/5291) [`5ec0f6ed5`](https://github.com/withastro/astro/commit/5ec0f6ed55b0a14a9663a90a03428345baf126bd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce Content Collections experimental API
+
+  - Organize your Markdown and MDX content into easy-to-manage collections.
+  - Add type safety to your frontmatter with schemas.
+  - Generate landing pages, static routes, and SSR endpoints from your content using the collection query APIs.
+
+- [#5564](https://github.com/withastro/astro/pull/5564) [`dced4a8a2`](https://github.com/withastro/astro/commit/dced4a8a2657887ec569860d9862d20f695dc23a) Thanks [@riywo](https://github.com/riywo)! - Add `server.headers` option
+
+- [#5341](https://github.com/withastro/astro/pull/5341) [`6b156dd3b`](https://github.com/withastro/astro/commit/6b156dd3b467884839a571c53114aadf26fa4b0b) Thanks [@alexpdraper](https://github.com/alexpdraper)! - Allow setting domain when deleting cookies
+
+### Patch Changes
+
+- [#5615](https://github.com/withastro/astro/pull/5615) [`d85ec7484`](https://github.com/withastro/astro/commit/d85ec7484ce14a4c7d3f480da8f38fcb9aff388f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Sanitize dynamically rendered tags to strip out any attributes
+
 ## 1.6.15
 
 ### Patch Changes
@@ -20,7 +281,7 @@
 
 - [#5511](https://github.com/withastro/astro/pull/5511) [`05915fec0`](https://github.com/withastro/astro/commit/05915fec01a51f27ab5051644f01e6112ecf06bc) Thanks [@matthewp](https://github.com/matthewp)! - Low-level head propagation
 
-  This adds low-level head propagation ability within the Astro runtime. This is not really useable within an Astro app at the moment, but provides the APIs necessary for `renderEntry` to do head propagation.
+  This adds low-level head propagation ability within the Astro runtime. This is not really usable within an Astro app at the moment, but provides the APIs necessary for `renderEntry` to do head propagation.
 
 - [#5553](https://github.com/withastro/astro/pull/5553) [`1aeabe417`](https://github.com/withastro/astro/commit/1aeabe417077505bc0cdb8d2e47366ddbc616072) Thanks [@matthewp](https://github.com/matthewp)! - Fix Astro.params not having values when using base in SSR
 

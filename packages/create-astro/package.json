@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "tsconfigs"
   ],
   "dependencies": {
-    "@astrojs/cli-kit": "^0.1.4",
+    "@astrojs/cli-kit": "^0.1.6",
     "chalk": "^5.0.1",
     "comment-json": "^4.2.3",
     "execa": "^6.1.0",
