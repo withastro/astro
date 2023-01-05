@@ -134,8 +134,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					chunkFileNames: `${settings.config.build.assets}/[name].[hash].mjs`,
-					assetFileNames: `${settings.config.build.assets}/assets/[name].[hash][extname]`,
+					chunkFileNames: `[name].[hash].mjs`,
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
 				},
@@ -341,7 +341,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		opts.settings.config.output === 'static' ? opts.buildConfig.client : opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
 	const assets = opts.settings.config.build.assets;
-	const serverAssets = new URL(`./${assets}/assets`, appendForwardSlash(serverRoot.toString()));
+	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
 	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
 	const files = await glob(`**/*`, {
 		cwd: fileURLToPath(serverAssets),
@@ -357,6 +357,6 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				return fs.promises.rename(currentUrl, clientUrl);
 			})
 		);
-		removeDir(serverAssets);
+		removeEmptyDirs(serverAssets);
 	}
 }
