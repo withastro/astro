@@ -25,7 +25,13 @@ const projects = (await Astro.glob<Project>('./work/**/*.md')).sort(
 				align="start"
 			/>
 			<Grid variant="offset">
-				{projects.map((project) => <PortfolioPreview project={project} />)}
+				{
+					projects.map((project) => (
+						<li>
+							<PortfolioPreview project={project} />
+						</li>
+					))
+				}
 			</Grid>
 		</main>
 		<ContactCTA />
