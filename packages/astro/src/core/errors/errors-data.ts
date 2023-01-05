@@ -544,11 +544,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	MdxIntegrationMissingError: {
 		title: 'MDX integration missing.',
 		code: 6004,
-		message: (id: string) => {
-			return `Unable to render ${JSON.stringify(
-				id
-			)}. Ensure that the \`@astrojs/mdx\` integration is installed.`;
-		},
+		message: (file: string) =>
+			`Unable to render ${file}. Ensure that the \`@astrojs/mdx\` integration is installed.`,
 		hint: 'See the MDX integration docs for installation and usage instructions: https://docs.astro.build/en/guides/integrations-guide/mdx/',
 	},
 	// Config Errors - 7xxx
