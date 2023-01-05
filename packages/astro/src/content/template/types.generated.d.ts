@@ -10,7 +10,7 @@ declare module 'astro:content' {
 			defaultSlug: string;
 			collection: string;
 			body: string;
-			data: import('astro/zod').infer<import('astro/zod').ZodObject<S>>;
+			data: import('astro/zod').infer<S>;
 		}) => string | Promise<string>;
 	};
 	export function defineCollection<S extends import('astro/zod').ZodRawShape>(
@@ -30,7 +30,7 @@ declare module 'astro:content' {
 	): Promise<(typeof entryMap[C][E] & Render)[]>;
 
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
-		import('astro/zod').ZodObject<Required<ContentConfig['collections'][C]>['schema']>
+		Required<ContentConfig['collections'][C]>['schema']
 	>;
 
 	type Render = {
