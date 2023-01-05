@@ -424,14 +424,21 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
+	 * The base path to deploy to. Astro will use this path as the root for your pages and assets both in development and in production build.
 	 *
-	 * You can access this value in your app via `import.meta.env.BASE_URL`.
+	 * In the example below, `astro dev` will start your server at `/docs`.
 	 *
 	 * ```js
 	 * {
 	 *   base: '/docs'
 	 * }
+	 * ```
+	 *
+	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
+	 *
+	 * ```astro
+	 * <a href="/docs/about/">About</a>
+	 * <img src=`${import.meta.env.BASE_URL}/image.png`>
 	 * ```
 	 */
 	base?: string;
@@ -990,6 +997,7 @@ export interface AstroSettings {
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
+	forceDisableTelemetry: boolean;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -1003,6 +1011,7 @@ export type AsyncRendererComponentFn<U> = (
 export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
+	prerender?: boolean;
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
