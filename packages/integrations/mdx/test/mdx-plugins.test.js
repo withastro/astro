@@ -36,6 +36,19 @@ describe('MDX plugins', () => {
 		expect(selectGfmLink(document)).to.not.be.null;
 	});
 
+	it('Applies SmartyPants by default', async () => {
+		const fixture = await buildFixture({
+			integrations: [mdx()],
+		});
+
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		const quote = selectSmartypantsQuote(document);
+		expect(quote).to.not.be.null;
+		expect(quote.textContent).to.contain('“Smartypants” is — awesome');
+	});
+
 	it('supports custom rehype plugins', async () => {
 		const fixture = await buildFixture({
 			integrations: [
@@ -88,6 +101,7 @@ describe('MDX plugins', () => {
 					markdown: {
 						remarkPlugins: [remarkToc],
 						gfm: false,
+						smartypants: false,
 					},
 					integrations: [
 						mdx({
@@ -127,6 +141,23 @@ describe('MDX plugins', () => {
 					expect(selectGfmLink(document), 'Does not respect `markdown.gfm` option.').to.be.null;
 				} else {
 					expect(selectGfmLink(document), 'Respects `markdown.gfm` unexpectedly.').to.not.be.null;
+				}
+			});
+
+			it('Handles smartypants', async () => {
+				const html = await fixture.readFile(FILE);
+				const { document } = parseHTML(html);
+
+				const quote = selectSmartypantsQuote(document);
+
+				if (extendMarkdownConfig === true) {
+					expect(quote.textContent, 'Does not respect `markdown.smartypants` option.').to.contain(
+						'"Smartypants" is -- awesome'
+					);
+				} else {
+					expect(quote.textContent, 'Respects `markdown.smartypants` unexpectedly.').to.contain(
+						'“Smartypants” is — awesome'
+					);
 				}
 			});
 		});
@@ -200,6 +231,10 @@ function selectTocLink(document) {
 
 function selectGfmLink(document) {
 	return document.querySelector('a[href="https://handle-me-gfm.com"]');
+}
+
+function selectSmartypantsQuote(document) {
+	return document.querySelector('blockquote');
 }
 
 function selectRemarkExample(document) {
