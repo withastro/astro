@@ -19,6 +19,8 @@ import Icon from './Icon.astro';
 		background-color: var(--gray-999);
 		box-shadow: inset 0 0 0 1px var(--accent-overlay);
 		cursor: pointer;
+		/* Outline visible only to high contrast users */
+		outline: 1px solid transparent;
 	}
 
 	.icon {
@@ -55,6 +57,12 @@ import Icon from './Icon.astro';
 		.icon,
 		.icon.light::before {
 			transition: transform var(--theme-transition), color var(--theme-transition);
+		}
+	}
+
+	@media (forced-colors: active) {
+		.icon.light::before {
+			background-color: SelectedItem;
 		}
 	}
 </style>
