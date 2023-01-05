@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer, ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
-import { z, ZodType } from 'zod';
+import { z } from 'zod';
 import { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
@@ -69,7 +69,10 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 	let data = entry.data;
 	if (collectionConfig.schema) {
 		// TODO: remove for 2.0 stable release
-		if (!(collectionConfig.schema instanceof ZodType)) {
+		if (
+			typeof collectionConfig.schema === 'object' &&
+			!('safeParseAsync' in collectionConfig.schema)
+		) {
 			throw new AstroError({
 				title: 'Invalid content collection config',
 				message: `New: Content collection schemas must be Zod objects. Update your collection config to use \`schema: z.object({...})\` instead of \`schema: {...}\`.`,
