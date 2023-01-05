@@ -177,10 +177,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	legacy: z
-		.object({})
-		.optional()
-		.default({}),
+	legacy: z.object({}).optional().default({}),
 });
 
 interface PostCSSConfigResult {
