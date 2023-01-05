@@ -64,7 +64,7 @@ import Icon from './Icon.astro';
 		constructor() {
 			super();
 
-			const button = this.querySelector('button');
+			const button = this.querySelector('button')!;
 
 			/** Set the theme to dark/light mode. */
 			const setTheme = (dark: boolean) => {

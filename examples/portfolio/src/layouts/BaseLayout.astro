@@ -8,8 +8,8 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
 interface Props {
-	title?: string;
-	description?: string;
+	title?: string | undefined;
+	description?: string | undefined;
 }
 
 const { title, description } = Astro.props;

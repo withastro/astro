@@ -294,11 +294,11 @@ const menu = [
 			super();
 
 			// Inject menu toggle button when JS runs.
-			this.appendChild(this.querySelector('template').content.cloneNode(true));
-			const btn = this.querySelector('button');
+			this.appendChild(this.querySelector('template')!.content.cloneNode(true));
+			const btn = this.querySelector('button')!;
 
 			// Hide menu (shown by default to support no-JS browsers).
-			const menu = document.getElementById('menu-content');
+			const menu = document.getElementById('menu-content')!;
 			menu.hidden = true;
 
 			/** Set whether the menu is currently expanded or collapsed. */
