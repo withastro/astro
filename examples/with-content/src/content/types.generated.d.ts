@@ -3,7 +3,7 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		typeof entryMap[C][keyof typeof entryMap[C]] & Render;
 
-	type BaseCollectionConfig<S extends import('astro/zod').ZodRawShape> = {
+	type BaseCollectionConfig<S extends import('astro/zod').ZodType> = {
 		schema?: S;
 		slug?: (entry: {
 			id: CollectionEntry<keyof typeof entryMap>['id'];
@@ -13,7 +13,7 @@ declare module 'astro:content' {
 			data: import('astro/zod').infer<S>;
 		}) => string | Promise<string>;
 	};
-	export function defineCollection<S extends import('astro/zod').ZodRawShape>(
+	export function defineCollection<S extends import('astro/zod').ZodType>(
 		input: BaseCollectionConfig<S>
 	): BaseCollectionConfig<S>;
 
