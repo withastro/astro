@@ -3,16 +3,16 @@ import CallToAction from './CallToAction.astro';
 import Icon from './Icon.astro';
 ---
 
-<section>
+<aside>
 	<h3>Interested in working together?</h3>
 	<CallToAction href="mailto:me@example.com">
 		Send Me a Message
 		<Icon icon="paper-plane-tilt" size="1.2em" />
 	</CallToAction>
-</section>
+</aside>
 
 <style>
-	section {
+	aside {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -31,7 +31,7 @@ import Icon from './Icon.astro';
 	}
 
 	@media (min-width: 50em) {
-		section {
+		aside {
 			padding: 7.5rem;
 			flex-direction: row;
 			flex-wrap: wrap;
