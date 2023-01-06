@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import resolve from 'resolve';
 import slash from 'slash';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
@@ -81,14 +80,6 @@ export function parseNpmName(
 		name,
 		subpath,
 	};
-}
-
-export function resolveDependency(dep: string, projectRoot: URL) {
-	const resolved = resolve.sync(dep, {
-		basedir: fileURLToPath(projectRoot),
-	});
-	// For Windows compat, we need a fully resolved `file://` URL string
-	return pathToFileURL(resolved).toString();
 }
 
 /**

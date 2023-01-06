@@ -413,8 +413,6 @@ importers:
       '@types/html-escaper': ^3.0.0
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.1.1
-      '@types/parse5': ^6.0.3
-      '@types/path-browserify': ^1.0.0
       '@types/prettier': ^2.6.3
       '@types/prompts': ^2.0.14
       '@types/resolve': ^1.20.2
@@ -427,7 +425,6 @@ importers:
       boxen: ^6.2.1
       chai: ^4.3.6
       cheerio: ^1.0.0-rc.11
-      ci-info: ^3.3.1
       common-ancestor-path: ^1.0.1
       cookie: ^0.5.0
       debug: ^4.3.4
@@ -441,9 +438,7 @@ importers:
       fast-glob: ^3.2.11
       github-slugger: ^2.0.0
       gray-matter: ^4.0.3
-      html-entities: ^2.3.3
       html-escaper: ^3.0.3
-      import-meta-resolve: ^2.1.0
       kleur: ^4.1.4
       magic-string: ^0.27.0
       memfs: ^3.4.7
@@ -452,19 +447,14 @@ importers:
       node-fetch: ^3.2.5
       node-mocks-http: ^1.11.0
       ora: ^6.1.0
-      path-browserify: ^1.0.1
       path-to-regexp: ^6.2.1
-      postcss: ^8.4.14
-      postcss-load-config: ^3.1.4
       preferred-pm: ^3.0.3
       prompts: ^2.4.2
-      recast: ^0.20.5
       rehype: ^12.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
       rehype-toc: ^3.0.2
       remark-code-titles: ^0.1.2
-      resolve: ^1.22.0
       rollup: ^3.9.0
       sass: ^1.52.2
       semver: ^7.3.7
@@ -499,11 +489,9 @@ importers:
       '@proload/core': 0.3.3
       '@proload/plugin-tsm': 0.2.1_@proload+core@0.3.3
       '@types/babel__core': 7.1.20
-      '@types/html-escaper': 3.0.0
       '@types/yargs-parser': 21.0.0
       acorn: 8.8.1
       boxen: 6.2.1
-      ci-info: 3.7.1
       common-ancestor-path: 1.0.1
       cookie: 0.5.0
       debug: 4.3.4
@@ -516,22 +504,15 @@ importers:
       fast-glob: 3.2.12
       github-slugger: 2.0.0
       gray-matter: 4.0.3
-      html-entities: 2.3.3
       html-escaper: 3.0.3
-      import-meta-resolve: 2.2.0
       kleur: 4.1.5
       magic-string: 0.27.0
       mime: 3.0.0
       ora: 6.1.2
-      path-browserify: 1.0.1
       path-to-regexp: 6.2.1
-      postcss: 8.4.20
-      postcss-load-config: 3.1.4_postcss@8.4.20
       preferred-pm: 3.0.3
       prompts: 2.4.2
-      recast: 0.20.5
       rehype: 12.0.1
-      resolve: 1.22.1
       semver: 7.3.8
       shiki: 0.11.1
       sirv: 2.0.2
@@ -540,7 +521,6 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      typescript: 4.9.4
       unist-util-visit: 4.1.1
       vfile: 5.3.6
       vite: 4.0.4_sass@1.57.1
@@ -559,10 +539,9 @@ importers:
       '@types/diff': 5.0.2
       '@types/estree': 0.0.51
       '@types/hast': 2.3.4
+      '@types/html-escaper': 3.0.0
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.1
-      '@types/parse5': 6.0.3
-      '@types/path-browserify': 1.0.0
       '@types/prettier': 2.7.2
       '@types/prompts': 2.4.2
       '@types/resolve': 1.20.2
@@ -584,6 +563,7 @@ importers:
       rollup: 3.9.1
       sass: 1.57.1
       srcset-parse: 1.1.0
+      typescript: 4.9.4
       unified: 10.1.2
 
   packages/astro-prism:
@@ -1398,12 +1378,6 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
-  packages/astro/test/fixtures/astro-markdown-css:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
   packages/astro/test/fixtures/astro-markdown-drafts:
     specifiers:
       astro: workspace:*
@@ -1947,30 +1921,6 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
-
-  packages/astro/test/fixtures/legacy-astro-flavored-markdown:
-    specifiers:
-      '@astrojs/preact': workspace:*
-      '@astrojs/svelte': workspace:*
-      astro: workspace:*
-      preact: ^10.11.0
-      svelte: ^3.48.0
-    dependencies:
-      '@astrojs/preact': link:../../../../integrations/preact
-      '@astrojs/svelte': link:../../../../integrations/svelte
-      astro: link:../../..
-      preact: 10.11.3
-      svelte: 3.55.0
-
-  packages/astro/test/fixtures/legacy-build:
-    specifiers:
-      '@astrojs/vue': workspace:*
-      astro: workspace:*
-      preact: ~10.6.6
-    dependencies:
-      '@astrojs/vue': link:../../../../integrations/vue
-      astro: link:../../..
-      preact: 10.6.6
 
   packages/astro/test/fixtures/lit-element:
     specifiers:
@@ -7027,7 +6977,6 @@ packages:
 
   /@types/html-escaper/3.0.0:
     resolution: {integrity: sha512-OcJcvP3Yk8mjYwf/IdXZtTE1tb/u0WF0qa29ER07ZHCYUBZXSN29Z1mBS+/96+kNMGTFUAbSz9X+pHmHpZrTCw==}
-    dev: false
 
   /@types/http-cache-semantics/4.0.1:
     resolution: {integrity: sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==}
@@ -7115,10 +7064,7 @@ packages:
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
-
-  /@types/path-browserify/1.0.0:
-    resolution: {integrity: sha512-XMCcyhSvxcch8b7rZAtFAaierBYdeHXVvg2iYnxOV0MCQHmPuRRmGZPFDRzPayxcGiiSL1Te9UIO+f3cuj0tfw==}
-    dev: true
+    dev: false
 
   /@types/prettier/2.7.2:
     resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
@@ -13247,10 +13193,6 @@ packages:
 
   /preact/10.11.3:
     resolution: {integrity: sha512-eY93IVpod/zG3uMF22Unl8h9KkrcKIRs2EGar8hwLZZDU1lkjph303V9HZBwufh2s736U6VXuhD109LYqPoffg==}
-
-  /preact/10.6.6:
-    resolution: {integrity: sha512-dgxpTFV2vs4vizwKohYKkk7g7rmp1wOOcfd4Tz3IB3Wi+ivZzsn/SpeKJhRENSE+n8sUfsAl4S3HiCVT923ABw==}
-    dev: false
 
   /prebuild-install/7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}
