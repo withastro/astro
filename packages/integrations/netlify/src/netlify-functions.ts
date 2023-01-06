@@ -124,7 +124,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 
 				if (cookies) {
 					fnResponse.multiValueHeaders = {
-						'set-cookie': splitCookiesString(cookies),
+						'set-cookie': Array.isArray(cookies) ? cookies : splitCookiesString(cookies),
 					};
 				}
 			}
