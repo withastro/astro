@@ -376,13 +376,16 @@ async function addContentTypeReference({
 		)
 	);
 
+	const typeEnvRelativeToRoot = normalizePath(
+		path.relative(fileURLToPath(settings.config.root), fileURLToPath(typesEnvPath))
+	);
+
 	const expectedTypeReference = `/// <reference path=${JSON.stringify(
 		contentTypesRelativeToSrcDir
 	)} />`;
 	if (!typesEnvContents.includes(expectedTypeReference)) {
 		typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
 		await fs.promises.writeFile(typesEnvPath, typesEnvContents, 'utf-8');
-
-		info(logging, 'content', 'Set up content types in project `env.d.ts`');
+		info(logging, 'content', `Added types reference to \`${typeEnvRelativeToRoot}\``);
 	}
 }
