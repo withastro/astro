@@ -136,7 +136,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	return astroConfig;
 }
 
-async function search(fsObj: typeof fs, root: string) {
+async function search(fsMod: typeof fs, root: string) {
 	const paths = [
 		'astro.config.mjs',
 		'astro.config.js',
@@ -147,7 +147,7 @@ async function search(fsObj: typeof fs, root: string) {
 	].map((p) => path.join(root, p));
 
 	for (const file of paths) {
-		if (fsObj.existsSync(file)) {
+		if (fsMod.existsSync(file)) {
 			return file;
 		}
 	}
