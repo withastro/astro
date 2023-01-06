@@ -12,7 +12,7 @@ polyfill(globalThis, {
 export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);
 	return {
-		handler: middleware(app, options),
+		handler: middleware(app, options.mode),
 	};
 }
 

@@ -4,7 +4,7 @@ import type { Readable } from 'stream';
 import { responseIterator } from './response-iterator';
 import type { Options } from './types';
 
-export default function (app: NodeApp, options: Options) {
+export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (
 		req: IncomingMessage,
 		res: ServerResponse,
@@ -12,7 +12,7 @@ export default function (app: NodeApp, options: Options) {
 	) {
 		try {
 			const route =
-				options.mode === 'standalone' ? app.match(req, { matchNotFound: true }) : app.match(req);
+				mode === 'standalone' ? app.match(req, { matchNotFound: true }) : app.match(req);
 			if (route) {
 				try {
 					const response = await app.render(req);
