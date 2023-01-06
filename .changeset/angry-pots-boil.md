@@ -1,7 +1,7 @@
 ---
-'astro': patch
-'@astrojs/mdx': patch
-'@astrojs/markdown-remark': patch
+'astro': minor
+'@astrojs/mdx': minor
+'@astrojs/markdown-remark': minor
 ---
 
 Introduce a `smartypants` flag to opt-out of Astro's default SmartyPants plugin.
