@@ -38,7 +38,7 @@ export function toPromise(res) {
 		const write = res.write;
 		res.write = function (data, encoding) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
-				data = Buffer.from(data);
+				data = Buffer.from(data.buffer);
 			}
 			return write.call(this, data, encoding);
 		};
