@@ -14,7 +14,7 @@ describe('vite.build.cssCodeSplit: false', () => {
 	it('loads styles correctly', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		const cssHref = $('link[rel=stylesheet][href^=/assets/]').attr('href');
-		expect(cssHref).to.match(/\/assets\/style\..*?\.css/);
+		const cssHref = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+		expect(cssHref).to.match(/\/_astro\/style\..*?\.css/);
 	});
 });
