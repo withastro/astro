@@ -469,7 +469,6 @@ importers:
       sass: ^1.52.2
       semver: ^7.3.7
       shiki: ^0.11.1
-      sirv: ^2.0.2
       slash: ^4.0.0
       srcset-parse: ^1.1.0
       string-width: ^5.1.2
@@ -534,7 +533,6 @@ importers:
       resolve: 1.22.1
       semver: 7.3.8
       shiki: 0.11.1
-      sirv: 2.0.2
       slash: 4.0.0
       string-width: 5.1.2
       strip-ansi: 7.0.1
@@ -1398,12 +1396,6 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
-  packages/astro/test/fixtures/astro-markdown-css:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
   packages/astro/test/fixtures/astro-markdown-drafts:
     specifiers:
       astro: workspace:*
@@ -1947,30 +1939,6 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
-
-  packages/astro/test/fixtures/legacy-astro-flavored-markdown:
-    specifiers:
-      '@astrojs/preact': workspace:*
-      '@astrojs/svelte': workspace:*
-      astro: workspace:*
-      preact: ^10.11.0
-      svelte: ^3.48.0
-    dependencies:
-      '@astrojs/preact': link:../../../../integrations/preact
-      '@astrojs/svelte': link:../../../../integrations/svelte
-      astro: link:../../..
-      preact: 10.11.3
-      svelte: 3.55.0
-
-  packages/astro/test/fixtures/legacy-build:
-    specifiers:
-      '@astrojs/vue': workspace:*
-      astro: workspace:*
-      preact: ~10.6.6
-    dependencies:
-      '@astrojs/vue': link:../../../../integrations/vue
-      astro: link:../../..
-      preact: 10.6.6
 
   packages/astro/test/fixtures/lit-element:
     specifiers:
@@ -13247,10 +13215,6 @@ packages:
 
   /preact/10.11.3:
     resolution: {integrity: sha512-eY93IVpod/zG3uMF22Unl8h9KkrcKIRs2EGar8hwLZZDU1lkjph303V9HZBwufh2s736U6VXuhD109LYqPoffg==}
-
-  /preact/10.6.6:
-    resolution: {integrity: sha512-dgxpTFV2vs4vizwKohYKkk7g7rmp1wOOcfd4Tz3IB3Wi+ivZzsn/SpeKJhRENSE+n8sUfsAl4S3HiCVT923ABw==}
-    dev: false
 
   /prebuild-install/7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}
