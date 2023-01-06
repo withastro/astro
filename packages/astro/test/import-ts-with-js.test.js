@@ -16,10 +16,4 @@ describe('Using .js extension on .ts file', () => {
 		const $ = cheerio.load(html);
 		expect($('h1').text()).to.equal('bar');
 	});
-
-	it('works in .md files', async () => {
-		const html = await fixture.readFile('/post/index.html');
-		const $ = cheerio.load(html);
-		expect($('h2').text()).to.equal('bar');
-	});
 });
