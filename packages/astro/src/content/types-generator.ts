@@ -48,7 +48,7 @@ export async function createContentTypesGenerator({
 	settings,
 }: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
 	const contentTypes: ContentTypes = {};
-	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths(settings.config);
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;

@@ -14,15 +14,17 @@ interface AstroContentVirtualModPluginParams {
 export function astroContentVirtualModPlugin({
 	settings,
 }: AstroContentVirtualModPluginParams): Plugin {
-	const paths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = normalizePath(
 		appendForwardSlash(
-			prependForwardSlash(path.relative(settings.config.root.pathname, paths.contentDir.pathname))
+			prependForwardSlash(
+				path.relative(settings.config.root.pathname, contentPaths.contentDir.pathname)
+			)
 		)
 	);
 	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
 	const astroContentModContents = fsMod
-		.readFileSync(new URL(CONTENT_FILE, paths.generatedInputDir), 'utf-8')
+		.readFileSync(new URL(CONTENT_FILE, contentPaths.generatedInputDir), 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
