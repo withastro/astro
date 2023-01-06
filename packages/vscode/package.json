@@ -129,6 +129,11 @@
         }
       ]
     },
+    "breakpoints": [
+      {
+        "language": "astro"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Astro configuration",
