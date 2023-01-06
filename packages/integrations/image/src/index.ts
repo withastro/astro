@@ -147,7 +147,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					// For the Squoosh service, copy all wasm files to dist/chunks.
 					// Because the default loader is dynamically imported (above),
 					// Vite will bundle squoosh to dist/chunks and expect to find the wasm files there
-					await copyWasmFiles(new URL(`./chunks/`, dir));
+					await copyWasmFiles(new URL('./chunks', dir));
 				}
 
 				if (loader && 'transform' in loader && staticImages.size > 0) {
@@ -167,7 +167,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:build:ssr': async () => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(new URL(`./chunks/`, _buildConfig.server));
+					await copyWasmFiles(new URL('./chunks/', _buildConfig.server));
 				}
 			},
 		},
