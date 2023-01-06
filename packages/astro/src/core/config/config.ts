@@ -136,6 +136,23 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	return astroConfig;
 }
 
+async function search(fsObj: typeof fs, root: string) {
+	const paths = [
+		'astro.config.mjs',
+		'astro.config.js',
+		'astro.config.ts',
+		'astro.config.mts',
+		'astro.config.cjs',
+		'astro.config.cts',
+	].map((p) => path.join(root, p));
+
+	for (const file of paths) {
+		if (fsObj.existsSync(file)) {
+			return file;
+		}
+	}
+}
+
 interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
@@ -147,41 +164,36 @@ interface LoadConfigOptions {
 	fsMod?: typeof fs;
 }
 
+interface ResolveConfigPathOptions {
+	cwd?: string;
+	flags?: Flags;
+	fs: typeof fs;
+}
+
 /**
  * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
- * Note: currently the same as loadConfig but only returns the `filePath`
- * instead of the resolved config
  */
 export async function resolveConfigPath(
-	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'> & { fs: typeof fs }
+	configOptions: ResolveConfigPathOptions
 ): Promise<string | undefined> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
-	let userConfigPath: string | undefined;
 
+	let userConfigPath: string | undefined;
 	if (flags?.config) {
 		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
 		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
-	}
-
-	// Resolve config file path using Proload
-	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	try {
-		const config = await loadConfigWithVite({
-			configPath: userConfigPath,
-			root,
-			fs: configOptions.fs,
-		});
-		return config.filePath;
-	} catch (e) {
-		if (flags.config) {
+		if (!configOptions.fs.existsSync(userConfigPath)) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
 				message: AstroErrorData.ConfigNotFound.message(flags.config),
 			});
 		}
-		throw e;
+	} else {
+		userConfigPath = await search(configOptions.fs, root);
 	}
+
+	return userConfigPath;
 }
 
 interface OpenConfigResult {
@@ -259,22 +271,6 @@ async function tryLoadConfig(
 	} finally {
 		await finallyCleanup();
 	}
-}
-
-/**
- * Attempt to load an `astro.config.mjs` file
- * @deprecated
- */
-export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
-	const root = resolveRoot(configOptions.cwd);
-	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
-
-	const config = await tryLoadConfig(configOptions, root);
-	if (config) {
-		userConfig = config.value;
-	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */

@@ -120,8 +120,6 @@
     "@babel/plugin-transform-react-jsx": "^7.17.12",
     "@babel/traverse": "^7.18.2",
     "@babel/types": "^7.18.4",
-    "@proload/core": "^0.3.3",
-    "@proload/plugin-tsm": "^0.2.1",
     "@types/babel__core": "^7.1.19",
     "@types/html-escaper": "^3.0.0",
     "@types/yargs-parser": "^21.0.0",

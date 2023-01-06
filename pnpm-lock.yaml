@@ -397,8 +397,6 @@ importers:
       '@babel/traverse': ^7.18.2
       '@babel/types': ^7.18.4
       '@playwright/test': ^1.22.2
-      '@proload/core': ^0.3.3
-      '@proload/plugin-tsm': ^0.2.1
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.1
@@ -496,8 +494,6 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.20.7_@babel+core@7.20.12
       '@babel/traverse': 7.20.12
       '@babel/types': 7.20.7
-      '@proload/core': 0.3.3
-      '@proload/plugin-tsm': 0.2.1_@proload+core@0.3.3
       '@types/babel__core': 7.1.20
       '@types/html-escaper': 3.0.0
       '@types/yargs-parser': 21.0.0
@@ -1398,12 +1394,6 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
-  packages/astro/test/fixtures/astro-markdown-css:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
   packages/astro/test/fixtures/astro-markdown-drafts:
     specifiers:
       astro: workspace:*
@@ -1947,30 +1937,6 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
-
-  packages/astro/test/fixtures/legacy-astro-flavored-markdown:
-    specifiers:
-      '@astrojs/preact': workspace:*
-      '@astrojs/svelte': workspace:*
-      astro: workspace:*
-      preact: ^10.11.0
-      svelte: ^3.48.0
-    dependencies:
-      '@astrojs/preact': link:../../../../integrations/preact
-      '@astrojs/svelte': link:../../../../integrations/svelte
-      astro: link:../../..
-      preact: 10.11.3
-      svelte: 3.55.0
-
-  packages/astro/test/fixtures/legacy-build:
-    specifiers:
-      '@astrojs/vue': workspace:*
-      astro: workspace:*
-      preact: ~10.6.6
-    dependencies:
-      '@astrojs/vue': link:../../../../integrations/vue
-      astro: link:../../..
-      preact: 10.6.6
 
   packages/astro/test/fixtures/lit-element:
     specifiers:
@@ -13247,10 +13213,6 @@ packages:
 
   /preact/10.11.3:
     resolution: {integrity: sha512-eY93IVpod/zG3uMF22Unl8h9KkrcKIRs2EGar8hwLZZDU1lkjph303V9HZBwufh2s736U6VXuhD109LYqPoffg==}
-
-  /preact/10.6.6:
-    resolution: {integrity: sha512-dgxpTFV2vs4vizwKohYKkk7g7rmp1wOOcfd4Tz3IB3Wi+ivZzsn/SpeKJhRENSE+n8sUfsAl4S3HiCVT923ABw==}
-    dev: false
 
   /prebuild-install/7.1.1:
     resolution: {integrity: sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==}
