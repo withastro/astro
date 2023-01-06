@@ -1,6 +1,7 @@
 import './server-shim.js';
 import '@lit-labs/ssr/lib/render-lit-html.js';
 import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
+import * as parse5 from 'parse5';
 
 function isCustomElementTag(name) {
 	return typeof name === 'string' && /-/.test(name);
@@ -58,12 +59,22 @@ function* render(Component, attrs, slots) {
 		yield '</template>';
 	}
 	if (slots) {
-		for (const [slot, value] of Object.entries(slots)) {
-			if (slot === 'default') {
-				yield `<astro-slot>${value || ''}</astro-slot>`;
-			} else {
-				yield `<astro-slot slot="${slot}">${value || ''}</astro-slot>`;
+		for (let [slot, value = ''] of Object.entries(slots)) {
+			if (slot !== 'default' && value) {
+				// Parse the value as a concatenated string
+				const fragment = parse5.parseFragment(`${value}`);
+
+				// Add the missing slot attribute to child Element nodes
+				for (const node of fragment.childNodes) {
+					if (node.tagName && !node.attrs.some(({ name }) => name === 'slot')) {
+						node.attrs.push({ name: 'slot', value: slot});
+					}
+				}
+
+				value = parse5.serialize(fragment);
 			}
+
+			yield value;
 		}
 	}
 	yield `</${tagName}>`;
