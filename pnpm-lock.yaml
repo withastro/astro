@@ -2917,6 +2917,7 @@ importers:
       remark-gfm: ^3.0.1
       remark-rehype: ^10.1.0
       remark-shiki-twoslash: ^3.1.0
+      remark-smartypants: ^2.0.0
       remark-toc: ^8.0.1
       shiki: ^0.11.1
       unist-util-visit: ^4.1.0
@@ -2936,6 +2937,7 @@ importers:
       rehype-raw: 6.1.1
       remark-frontmatter: 4.0.1
       remark-gfm: 3.0.1
+      remark-smartypants: 2.0.0
       shiki: 0.11.1
       unist-util-visit: 4.1.1
       vfile: 5.3.6
@@ -3520,6 +3522,7 @@ importers:
       remark-gfm: ^3.0.1
       remark-parse: ^10.0.1
       remark-rehype: ^10.1.0
+      remark-smartypants: ^2.0.0
       shiki: ^0.11.1
       unified: ^10.1.2
       unist-util-map: ^3.1.1
@@ -3544,6 +3547,7 @@ importers:
       remark-gfm: 3.0.1
       remark-parse: 10.0.1
       remark-rehype: 10.1.0
+      remark-smartypants: 2.0.0
       shiki: 0.11.1
       unified: 10.1.2
       unist-util-map: 3.1.2
