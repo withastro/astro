@@ -200,7 +200,6 @@
     "eol": "^0.9.1",
     "memfs": "^3.4.7",
     "mocha": "^9.2.2",
-    "node-fetch": "^3.2.5",
     "node-mocks-http": "^1.11.0",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",

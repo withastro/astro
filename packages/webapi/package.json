@@ -50,8 +50,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "dependencies": {
-    "global-agent": "^3.0.0",
-    "node-fetch": "^3.2.5"
+    "global-agent": "^3.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
