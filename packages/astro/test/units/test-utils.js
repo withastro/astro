@@ -1,9 +1,9 @@
-import httpMocks from 'node-mocks-http';
 import { EventEmitter } from 'events';
 import { Volume } from 'memfs';
+import httpMocks from 'node-mocks-http';
 import realFS from 'node:fs';
-import { fileURLToPath } from 'url';
 import npath from 'path';
+import { fileURLToPath } from 'url';
 import { unixify } from './correct-path.js';
 
 class VirtualVolume extends Volume {
@@ -125,7 +125,7 @@ export function toPromise(res) {
 		const write = res.write;
 		res.write = function (data, encoding) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
-				data = Buffer.from(data);
+				data = Buffer.from(data.buffer);
 			}
 			return write.call(this, data, encoding);
 		};
