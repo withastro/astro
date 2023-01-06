@@ -43,6 +43,7 @@
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",
+    "remark-smartypants": "^2.0.0",
     "shiki": "^0.11.1",
     "unified": "^10.1.2",
     "unist-util-map": "^3.1.1",
