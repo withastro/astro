@@ -14,19 +14,6 @@ describe('Astro Markdown', () => {
 		await fixture.build();
 	});
 
-	it('Leaves JSX expressions unprocessed', async () => {
-		const html = await fixture.readFile('/jsx-expressions/index.html');
-		const $ = cheerio.load(html);
-
-		expect($('h2').html()).to.equal('{frontmatter.title}');
-	});
-
-	it('Leaves JSX components un-transformed', async () => {
-		const html = await fixture.readFile('/components/index.html');
-
-		expect(html).to.include('<counter client:load="" count="{0}">');
-	});
-
 	it('Exposes raw markdown content', async () => {
 		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
 

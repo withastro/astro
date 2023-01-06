@@ -5,7 +5,7 @@
 ## Writing error messages for Astro
 
 ### Tips
-    
+
 **Error Format**
 
 Name (key of the object definition):
@@ -56,6 +56,17 @@ If you are unsure about which error code to choose, ask [Erika](https://github.c
 - **Error codes and names are permanent**, and should never be changed, nor deleted. Users should always be able to find an error by searching, and this ensures a matching result. When an error is no longer relevant, it should be deprecated, not removed.
 - Contextual information may be used to enhance the message or the hint. However, the code that caused the error or the position of the error should not be included in the message as they will already be shown as part of the error.
 - Do not prefix `title`, `message` and `hint` with descriptive words such as "Error:" or "Hint:" as it may lead to duplicated labels in the UI / CLI.
+- Dynamic error messages must use the following shape:
+
+```js
+message: (arguments) => `text ${substitute}`
+```
+
+Please avoid including too much logic inside the errors if you can. The last thing you want is for a bug to happen inside what's already an error!
+
+If the different arguments needs processing before being shown (ex: `toString`, `JSON.stringify`), the processing should happen where the error is thrown and not inside the message itself.
+
+Using light logic to add / remove different parts of the message is okay, however make sure to include a `@message` tag in the JSDoc comment for the auto-generated documentation. See below for more information.
 
 ### Documentation support through JSDoc
 
@@ -89,7 +100,7 @@ The `@message` property is intended to provide slightly more context when it is 
 
 Error are a reactive strategy. They are the last line of defense against a mistake.
 
-While adding a new error message, ask yourself, "Was there a way this situation could've been avoided in the first place?" (docs, editor tooling etc). 
+While adding a new error message, ask yourself, "Was there a way this situation could've been avoided in the first place?" (docs, editor tooling etc).
 
 **If you can prevent the error, you don't need an error message!**
 

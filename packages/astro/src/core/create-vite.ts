@@ -20,7 +20,6 @@ import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
-import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
@@ -110,9 +109,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && vitePluginAstroServer({ settings, logging, fs }),
 			envVitePlugin({ settings }),
-			settings.config.legacy.astroFlavoredMarkdown
-				? legacyMarkdownVitePlugin({ settings, logging })
-				: markdownVitePlugin({ settings, logging }),
+			markdownVitePlugin({ settings, logging }),
 			htmlVitePlugin(),
 			jsxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin({ settings }),

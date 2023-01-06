@@ -70,7 +70,7 @@ export function enhanceViteSSRError({
 		) {
 			safeError = new AstroError({
 				...AstroErrorData.MdxIntegrationMissingError,
-				message: AstroErrorData.MdxIntegrationMissingError.message(fileId),
+				message: AstroErrorData.MdxIntegrationMissingError.message(JSON.stringify(fileId)),
 				location: safeError.loc,
 				stack: safeError.stack,
 			}) as ErrorWithMetadata;
