@@ -61,14 +61,25 @@
     "astro-scripts": "0.0.9"
   },
   "changesets": [
+    "angry-pots-boil",
     "beige-pumpkins-pump",
+    "calm-peas-doubt",
     "chilled-geese-worry",
+    "grumpy-days-yell",
+    "lemon-eagles-worry",
     "lovely-terms-drive",
+    "lovely-worms-invite",
+    "modern-bulldogs-film",
     "new-lies-guess",
+    "pretty-planes-promise",
+    "quick-impalas-rush",
     "selfish-tigers-do",
     "serious-cats-jog",
     "shaggy-keys-turn",
+    "shaggy-melons-tap",
+    "smart-clouds-applaud",
     "spotty-bees-switch",
+    "thick-walls-smell",
     "tricky-rabbits-count",
     "two-geese-eat"
   ]
