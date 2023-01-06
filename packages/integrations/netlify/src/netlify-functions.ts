@@ -104,19 +104,29 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		// The fetch API does not have a way to get multiples of a single header, but instead concatenates
 		// them. There are non-standard ways to do it, and node-fetch gives us headers.raw()
 		// See https://github.com/whatwg/fetch/issues/973 for discussion
-		if (response.headers.has('set-cookie') && 'raw' in response.headers) {
-			// Node fetch allows you to get the raw headers, which includes multiples of the same type.
-			// This is needed because Set-Cookie *must* be called for each cookie, and can't be
-			// concatenated together.
-			type HeadersWithRaw = Headers & {
-				raw: () => Record<string, string[]>;
-			};
-
-			const rawPacked = (response.headers as HeadersWithRaw).raw();
-			if ('set-cookie' in rawPacked) {
-				fnResponse.multiValueHeaders = {
-					'set-cookie': rawPacked['set-cookie'],
+		if (response.headers.has('set-cookie')) {
+			if ('raw' in response.headers) {
+				// Node fetch allows you to get the raw headers, which includes multiples of the same type.
+				// This is needed because Set-Cookie *must* be called for each cookie, and can't be
+				// concatenated together.
+				type HeadersWithRaw = Headers & {
+					raw: () => Record<string, string[]>;
 				};
+
+				const rawPacked = (response.headers as HeadersWithRaw).raw();
+				if ('set-cookie' in rawPacked) {
+					fnResponse.multiValueHeaders = {
+						'set-cookie': rawPacked['set-cookie'],
+					};
+				}
+			} else {
+				const cookies = response.headers.get('set-cookie');
+
+				if (cookies) {
+					fnResponse.multiValueHeaders = {
+						'set-cookie': Array.isArray(cookies) ? cookies : splitCookiesString(cookies),
+					};
+				}
 			}
 		}
 
@@ -135,3 +145,86 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 
 	return { handler };
 };
+
+/*
+	From: https://github.com/nfriedly/set-cookie-parser/blob/5cae030d8ef0f80eec58459e3583d43a07b984cb/lib/set-cookie.js#L144
+  Set-Cookie header field-values are sometimes comma joined in one string. This splits them without choking on commas
+  that are within a single set-cookie field-value, such as in the Expires portion.
+  This is uncommon, but explicitly allowed - see https://tools.ietf.org/html/rfc2616#section-4.2
+  Node.js does this for every header *except* set-cookie - see https://github.com/nodejs/node/blob/d5e363b77ebaf1caf67cd7528224b651c86815c1/lib/_http_incoming.js#L128
+  React Native's fetch does this for *every* header, including set-cookie.
+  Based on: https://github.com/google/j2objc/commit/16820fdbc8f76ca0c33472810ce0cb03d20efe25
+  Credits to: https://github.com/tomball for original and https://github.com/chrusart for JavaScript implementation
+*/
+function splitCookiesString(cookiesString: string): string[] {
+	if (Array.isArray(cookiesString)) {
+		return cookiesString;
+	}
+	if (typeof cookiesString !== 'string') {
+		return [];
+	}
+
+	let cookiesStrings = [];
+	let pos = 0;
+	let start;
+	let ch;
+	let lastComma;
+	let nextStart;
+	let cookiesSeparatorFound;
+
+	function skipWhitespace() {
+		while (pos < cookiesString.length && /\s/.test(cookiesString.charAt(pos))) {
+			pos += 1;
+		}
+		return pos < cookiesString.length;
+	}
+
+	function notSpecialChar() {
+		ch = cookiesString.charAt(pos);
+
+		return ch !== '=' && ch !== ';' && ch !== ',';
+	}
+
+	while (pos < cookiesString.length) {
+		start = pos;
+		cookiesSeparatorFound = false;
+
+		while (skipWhitespace()) {
+			ch = cookiesString.charAt(pos);
+			if (ch === ',') {
+				// ',' is a cookie separator if we have later first '=', not ';' or ','
+				lastComma = pos;
+				pos += 1;
+
+				skipWhitespace();
+				nextStart = pos;
+
+				while (pos < cookiesString.length && notSpecialChar()) {
+					pos += 1;
+				}
+
+				// currently special character
+				if (pos < cookiesString.length && cookiesString.charAt(pos) === '=') {
+					// we found cookies separator
+					cookiesSeparatorFound = true;
+					// pos is inside the next cookie, so back up and return it.
+					pos = nextStart;
+					cookiesStrings.push(cookiesString.substring(start, lastComma));
+					start = pos;
+				} else {
+					// in param ',' or param separator ';',
+					// we continue from that comma
+					pos = lastComma + 1;
+				}
+			} else {
+				pos += 1;
+			}
+		}
+
+		if (!cookiesSeparatorFound || pos >= cookiesString.length) {
+			cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
+		}
+	}
+
+	return cookiesStrings;
+}
