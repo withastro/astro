@@ -523,6 +523,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
+      typescript: 4.9.4
       unist-util-visit: 4.1.1
       vfile: 5.3.6
       vite: 4.0.4_sass@1.57.1
@@ -565,7 +566,6 @@ importers:
       rollup: 3.9.1
       sass: 1.57.1
       srcset-parse: 1.1.0
-      typescript: 4.9.4
       unified: 10.1.2
 
   packages/astro-prism:

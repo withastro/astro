@@ -156,6 +156,7 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
+    "typescript": "*",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2",
     "vite": "^4.0.3",
