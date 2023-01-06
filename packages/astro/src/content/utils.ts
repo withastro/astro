@@ -280,7 +280,7 @@ export function getContentPaths({
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
-		typesTemplate: new URL('content.d.ts', templateDir),
+		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
 		config: new URL('./content/config', srcDir),
 	};

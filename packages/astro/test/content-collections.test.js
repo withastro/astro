@@ -25,7 +25,7 @@ describe('Content Collections', () => {
 			};
 			await fixture.sync({ fs: fsMock });
 
-			const expectedTypesFile = new URL('./.astro/content.d.ts', fixture.config.root).href;
+			const expectedTypesFile = new URL('.astro/types.d.ts', fixture.config.root).href;
 			expect(writtenFiles).to.haveOwnProperty(expectedTypesFile);
 			// smoke test `astro check` asserts whether content types pass.
 			expect(writtenFiles[expectedTypesFile]).to.include(
@@ -50,7 +50,7 @@ describe('Content Collections', () => {
 
 			expect(writtenFiles, 'Did not try to update env.d.ts file.').to.haveOwnProperty(typesEnvPath);
 			expect(writtenFiles[typesEnvPath]).to.include(
-				`/// <reference path="../.astro/content.d.ts" />`
+				`/// <reference path="../.astro/types.d.ts" />`
 			);
 		});
 	});
