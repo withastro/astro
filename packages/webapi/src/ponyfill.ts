@@ -7,6 +7,7 @@ import {
 import { Event, EventTarget } from 'event-target-shim'
 import { Blob, File } from 'fetch-blob/from.js'
 import { FormData } from 'formdata-polyfill/esm.min.js'
+import { fetch, Headers, Request, Response } from 'undici'
 import { URLPattern } from 'urlpattern-polyfill'
 import {
 	ByteLengthQueuingStrategy,
@@ -30,7 +31,6 @@ import { atob, btoa } from './lib/Base64'
 import { CharacterData, Comment, Text } from './lib/CharacterData'
 import { CustomEvent } from './lib/CustomEvent'
 import { DOMException } from './lib/DOMException'
-import { fetch, Headers, Request, Response } from './lib/fetch'
 import { cancelIdleCallback, requestIdleCallback } from './lib/IdleCallback'
 import structuredClone from './lib/structuredClone'
 import { clearTimeout, setTimeout } from './lib/Timeout'
