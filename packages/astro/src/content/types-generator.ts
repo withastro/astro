@@ -53,10 +53,9 @@ export async function createContentTypesGenerator({
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const contentTypesBase = await fs.promises.readFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.generatedInputDir),
-		'utf-8'
-	);
+	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
+
+	await setUpContentTypeReference({ fs, logging, settings, contentPaths });
 
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
@@ -306,6 +305,10 @@ async function writeContentFiles({
 		contentTypesStr += `},\n`;
 	}
 
+	if (!fs.existsSync(contentPaths.cacheDir)) {
+		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
+	}
+
 	let configPathRelativeToCacheDir = normalizePath(
 		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
 	);
@@ -340,5 +343,46 @@ function warnNonexistentCollections({
 				)} is not a collection. Check your content config for typos.`
 			);
 		}
+	}
+}
+
+async function setUpContentTypeReference({
+	settings,
+	fs,
+	logging,
+	contentPaths,
+}: {
+	settings: AstroSettings;
+	fs: typeof fsMod;
+	logging: LogOptions;
+	contentPaths: ContentPaths;
+}) {
+	const typesEnvPath = new URL('env.d.ts', settings.config.srcDir);
+	let typesEnvContents = '';
+	try {
+		typesEnvContents = await fs.promises.readFile(typesEnvPath, 'utf-8');
+	} catch {
+		/*
+		 * `src/env.d.ts` from Astro starter template is not present.
+		 * Fail silently, and allow user to wire up type manually.
+		 */
+		return;
+	}
+
+	const contentTypesRelativeToSrcDir = normalizePath(
+		path.relative(
+			fileURLToPath(settings.config.srcDir),
+			fileURLToPath(new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir))
+		)
+	);
+
+	const expectedTypeReference = `/// <reference path=${JSON.stringify(
+		contentTypesRelativeToSrcDir
+	)} />`;
+	if (!typesEnvContents.includes(expectedTypeReference)) {
+		typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
+		await fs.promises.writeFile(typesEnvPath, typesEnvContents, 'utf-8');
+
+		info(logging, 'content', 'Set up content types in project `env.d.ts`');
 	}
 }

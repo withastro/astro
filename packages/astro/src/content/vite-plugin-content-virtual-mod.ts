@@ -4,7 +4,7 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
-import { contentFileExts, CONTENT_FILE, VIRTUAL_MODULE_ID } from './consts.js';
+import { contentFileExts, VIRTUAL_MODULE_ID } from './consts.js';
 import { getContentPaths } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -23,8 +23,8 @@ export function astroContentVirtualModPlugin({
 		)
 	);
 	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
-	const astroContentModContents = fsMod
-		.readFileSync(new URL(CONTENT_FILE, contentPaths.generatedInputDir), 'utf-8')
+	const virtualModContents = fsMod
+		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
@@ -42,7 +42,7 @@ export function astroContentVirtualModPlugin({
 		load(id) {
 			if (id === astroContentVirtualModuleId) {
 				return {
-					code: astroContentModContents,
+					code: virtualModContents,
 				};
 			}
 		},
