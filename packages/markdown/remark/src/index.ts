@@ -24,9 +24,9 @@ import remarkUnwrap from './remark-unwrap.js';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
-import remarkSmartypants from 'remark-smartypants';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
+import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 
