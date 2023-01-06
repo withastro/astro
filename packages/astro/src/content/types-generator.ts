@@ -55,7 +55,7 @@ export async function createContentTypesGenerator({
 
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	await setUpContentTypeReference({ fs, logging, settings, contentPaths });
+	await addContentTypeReference({ fs, logging, settings, contentPaths });
 
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
@@ -346,7 +346,7 @@ function warnNonexistentCollections({
 	}
 }
 
-async function setUpContentTypeReference({
+async function addContentTypeReference({
 	settings,
 	fs,
 	logging,
