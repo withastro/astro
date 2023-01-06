@@ -115,7 +115,7 @@ export function resolveRoot(cwd?: string | URL): string {
 }
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
+function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	astroConfig.experimental = astroConfig.experimental || {};
@@ -280,7 +280,7 @@ export async function resolveConfig(
 	flags: CLIFlags = {},
 	cmd: string
 ): Promise<AstroConfig> {
-	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
+	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
 
 	return validatedConfig;
