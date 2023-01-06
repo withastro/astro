@@ -67,7 +67,7 @@ function* render(Component, attrs, slots) {
 				// Add the missing slot attribute to child Element nodes
 				for (const node of fragment.childNodes) {
 					if (node.tagName && !node.attrs.some(({ name }) => name === 'slot')) {
-						node.attrs.push({ name: 'slot', value: slot});
+						node.attrs.push({ name: 'slot', value: slot });
 					}
 				}
 
