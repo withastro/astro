@@ -87,18 +87,28 @@ describe('LitElement test', function () {
 
 		// Slotted my-element first level
 		expect($slottedMyElement.children('.default').length).to.equal(1);
-		expect($slottedMyElement.children('.default').eq(0).text()).to.equal('slotted my-element default');
+		expect($slottedMyElement.children('.default').eq(0).text()).to.equal(
+			'slotted my-element default'
+		);
 
 		expect($slottedMyElement.children('[slot="named"]').length).to.equal(3);
-		expect($slottedMyElement.children('[slot="named"]').eq(1).text()).to.equal('slotted my-element named 2');
-		expect($slottedMyElement.children('[slot="named"]').eq(2).attr('id')).to.equal('slotted-slotted');
+		expect($slottedMyElement.children('[slot="named"]').eq(1).text()).to.equal(
+			'slotted my-element named 2'
+		);
+		expect($slottedMyElement.children('[slot="named"]').eq(2).attr('id')).to.equal(
+			'slotted-slotted'
+		);
 
 		// Slotted my-element second level
 		expect($slottedSlottedMyElement.children('.default').length).to.equal(2);
-		expect($slottedSlottedMyElement.children('.default').eq(1).text()).to.equal('slotted slotted my-element default 2');
+		expect($slottedSlottedMyElement.children('.default').eq(1).text()).to.equal(
+			'slotted slotted my-element default 2'
+		);
 
 		expect($slottedSlottedMyElement.children('[slot="named"]').length).to.equal(2);
-		expect($slottedSlottedMyElement.children('[slot="named"]').eq(1).text()).to.equal('slotted slotted my-element named 2');
+		expect($slottedSlottedMyElement.children('[slot="named"]').eq(1).text()).to.equal(
+			'slotted slotted my-element named 2'
+		);
 	});
 
 	it('Is able to build when behind getStaticPaths', async () => {
