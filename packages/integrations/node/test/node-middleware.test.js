@@ -22,7 +22,7 @@ describe('test 404 cant load', () => {
 		after(async () => {
 			await devPreview.stop();
 		});
-		it('works', async () => {
+		it('when mode is standalone', async () => {
 			const res = await fixture.fetch('/error-page');
 
 			expect(res.status).to.equal(404);
