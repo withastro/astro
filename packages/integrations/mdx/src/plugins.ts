@@ -14,6 +14,7 @@ import type { Image } from 'mdast';
 import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import remarkSmartypants from 'remark-smartypants';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { MdxOptions } from './index.js';
@@ -152,6 +153,9 @@ export async function getRemarkPlugins(
 	}
 	if (mdxOptions.gfm) {
 		remarkPlugins.push(remarkGfm);
+	}
+	if (mdxOptions.smartypants) {
+		remarkPlugins.push(remarkSmartypants);
 	}
 
 	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
