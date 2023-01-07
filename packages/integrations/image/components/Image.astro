@@ -2,9 +2,9 @@
 // @ts-ignore
 import { getImage } from '../dist/index.js';
 import { warnForMissingAlt } from './index.js';
-import type { LocalImageProps, RemoteImageProps } from './index.js';
+import type { ImageComponentLocalImageProps, ImageComponentRemoteImageProps } from './index.js';
 
-export type Props = LocalImageProps | RemoteImageProps;
+export type Props = ImageComponentLocalImageProps | ImageComponentRemoteImageProps;
 
 const { loading = 'lazy', decoding = 'async', ...props } = Astro.props;
 

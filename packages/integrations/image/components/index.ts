@@ -5,7 +5,7 @@ export { default as Picture } from './Picture.astro';
 import type { TransformOptions, OutputFormat } from '../dist/loaders/index.js';
 import type { ImageMetadata } from '../dist/vite-plugin-astro-image.js';
 
-export interface LocalImageProps
+export interface ImageComponentLocalImageProps
 	extends Omit<TransformOptions, 'src'>,
 		Omit<ImgHTMLAttributes, 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -13,13 +13,41 @@ export interface LocalImageProps
 	alt: string;
 }
 
-export interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttributes {
+export interface ImageComponentRemoteImageProps
+	extends TransformOptions,
+		astroHTML.JSX.ImgHTMLAttributes {
 	src: string;
 	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
 	format?: OutputFormat;
 	width: number;
 	height: number;
+}
+
+export interface PictureComponentLocalImageProps
+	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+		Omit<TransformOptions, 'src'>,
+		Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
+	alt: string;
+	sizes: HTMLImageElement['sizes'];
+	widths: number[];
+	formats?: OutputFormat[];
+}
+
+export interface PictureComponentRemoteImageProps
+	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+		TransformOptions,
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
+	src: string;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
+	alt: string;
+	sizes: HTMLImageElement['sizes'];
+	widths: number[];
+	aspectRatio: TransformOptions['aspectRatio'];
+	formats?: OutputFormat[];
+	background: TransformOptions['background'];
 }
 
 // TODO: should these directives be removed from astroHTML.JSX?
