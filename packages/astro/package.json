@@ -49,6 +49,7 @@
     "./components/*": "./components/*",
     "./content/internal": "./dist/content/internal.js",
     "./debug": "./components/Debug.astro",
+    "./errors": "./dist/core/errors/index.js",
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
     "./runtime/*": "./dist/runtime/*",
