@@ -423,7 +423,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * To use node adapter, a mode needs to be initialized so Astro knows how to generate the proper output for your project.
 	 */
 	AdapterModeNotInitialized: {
-		title: 'Cannot use node adapter without a mode.',
+		title: '[@astrojs/node] Cannot use node adapter without a mode.',
 		code: 3020,
 		message: `Cannot use an adapter without a mode. Please initialize the appropriate adapter mode for your project.`,
 		hint: 'See https://docs.astro.build/en/guides/integrations-guide/node/#mode for more information.',
