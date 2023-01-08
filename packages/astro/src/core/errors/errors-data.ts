@@ -414,6 +414,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Node Adapter](https://docs.astro.build/en/guides/server-side-rendering/)
+	 * - [Node Adapter Mode](https://docs.astro.build/en/guides/integrations-guide/node/#mode)
+	 * @description
+	 * To use node adapter, a mode needs to be initialized so Astro knows how to generate the proper output for your project.
+	 */
+	AdapterModeNotInitialized: {
+		title: 'Cannot use node adapter without a mode.',
+		code: 3020,
+		message: `Cannot use an adapter without a mode. Please initialize the appropriate adapter mode for your project.`,
+		hint: 'See https://docs.astro.build/en/guides/integrations-guide/node/#mode for more information.',
+	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',
