@@ -173,5 +173,3 @@ Code from [event-target-shim](https://www.npmjs.com/package/event-target-shim) i
 Code from [fetch-blob](https://www.npmjs.com/package/fetch-blob) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
 
 Code from [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
-
-Code from [web-streams-polyfill](https://www.npmjs.com/package/web-streams-polyfill) is licensed under the MIT License (MIT), Copyright Mattias Buelens and Diwank Singh Tomer.
