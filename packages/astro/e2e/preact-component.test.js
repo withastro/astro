@@ -15,14 +15,6 @@ test.describe('Preact components in Astro files', () => {
 	});
 });
 
-test.describe('Preact components in Markdown files', () => {
-	createTests({
-		...config,
-		pageUrl: '/markdown/',
-		pageSourceFilePath: './src/pages/markdown.md',
-	});
-});
-
 test.describe('Preact components in MDX files', () => {
 	createTests({
 		...config,

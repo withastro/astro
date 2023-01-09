@@ -186,6 +186,7 @@ function applyDefaultOptions({
 		recmaPlugins: options.recmaPlugins ?? defaults.recmaPlugins,
 		remarkRehype: options.remarkRehype ?? defaults.remarkRehype,
 		gfm: options.gfm ?? defaults.gfm,
+		smartypants: options.smartypants ?? defaults.smartypants,
 		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,

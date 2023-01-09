@@ -16,14 +16,6 @@ test.describe('Svelte components in Astro files', () => {
 	});
 });
 
-test.describe('Svelte components in Markdown files', () => {
-	createTests({
-		...config,
-		pageUrl: '/markdown/',
-		pageSourceFilePath: './src/pages/markdown.md',
-	});
-});
-
 test.describe('Svelte components in MDX files', () => {
 	createTests({
 		...config,

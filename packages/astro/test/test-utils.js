@@ -7,7 +7,7 @@ import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
 import { sync } from '../dist/cli/sync/index.js';
 import build from '../dist/core/build/index.js';
-import { loadConfig } from '../dist/core/config/config.js';
+import { openConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
@@ -86,7 +86,11 @@ export async function loadFixture(inlineConfig) {
 	const logging = defaultLogging;
 
 	// Load the config.
-	let config = await loadConfig({ cwd: fileURLToPath(cwd), logging });
+	let { astroConfig: config } = await openConfig({
+		cwd: fileURLToPath(cwd),
+		logging,
+		cmd: 'dev',
+	});
 	config = merge(config, { ...inlineConfig, root: cwd });
 
 	// HACK: the inline config doesn't run through config validation where these normalizations usually occur

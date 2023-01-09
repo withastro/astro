@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 3.0.0-beta.0
+
+### Major Changes
+
+- [#5717](https://github.com/withastro/astro/pull/5717) [`a3a7fc929`](https://github.com/withastro/astro/commit/a3a7fc9298e6d88abb4b7bee1e58f05fa9558cf1) Thanks [@bluwy](https://github.com/bluwy)! - Remove `style.postcss` Astro config. Refactor tailwind integration to configure through `vite` instead. Also disables `autoprefixer` in dev.
+
 ## 2.1.3
 
 ### Patch Changes

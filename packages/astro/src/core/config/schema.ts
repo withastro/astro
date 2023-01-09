@@ -36,9 +36,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		...markdownConfigDefaults,
 	},
 	vite: {},
-	legacy: {
-		astroFlavoredMarkdown: false,
-	},
+	legacy: {},
 	experimental: {
 		contentCollections: false,
 	},
@@ -165,6 +163,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
+			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.default({}),
 	vite: z
@@ -179,15 +178,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	legacy: z
-		.object({
-			astroFlavoredMarkdown: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
-		})
-		.optional()
-		.default({}),
+	legacy: z.object({}).optional().default({}),
 });
 
 interface PostCSSConfigResult {

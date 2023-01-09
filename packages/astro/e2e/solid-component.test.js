@@ -15,14 +15,6 @@ test.describe('Solid components in Astro files', () => {
 	});
 });
 
-test.describe('Solid components in Markdown files', () => {
-	createTests({
-		...config,
-		pageUrl: '/markdown/',
-		pageSourceFilePath: './src/pages/markdown.md',
-	});
-});
-
 test.describe('Solid components in MDX files', () => {
 	createTests({
 		...config,

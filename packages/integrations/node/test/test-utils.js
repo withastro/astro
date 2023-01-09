@@ -1,6 +1,6 @@
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
-import httpMocks from 'node-mocks-http';
 import { EventEmitter } from 'events';
+import httpMocks from 'node-mocks-http';
+import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
@@ -33,6 +33,15 @@ export function createRequestAndResponse(reqOptions) {
 
 export function toPromise(res) {
 	return new Promise((resolve) => {
+		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
+		// so override the write method to fix it.
+		const write = res.write;
+		res.write = function (data, encoding) {
+			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
+				data = Buffer.from(data.buffer);
+			}
+			return write.call(this, data, encoding);
+		};
 		res.on('end', () => {
 			let chunks = res._getChunks();
 			resolve(chunks);

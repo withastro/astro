@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.13.0-beta.1
+
+### Minor Changes
+
+- [#5584](https://github.com/withastro/astro/pull/5584) [`9963c6e4d`](https://github.com/withastro/astro/commit/9963c6e4d50c392c3d1ac4492237020f15ccb1de) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Builds chunks into the `assets` folder. This simplifies configuring immutable caching with your adapter provider as all files are now in the same `assets` folder.
+
 ## 0.13.0-beta.0
 
 ### Minor Changes

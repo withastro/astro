@@ -71,7 +71,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
-					isAstroFlavoredMd: false,
 					isExperimentalContentCollections: settings.config.experimental.contentCollections,
 					contentDir: getContentPaths(settings.config).contentDir,
 					frontmatter: raw.data,
@@ -91,7 +90,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					warn(
 						logging,
 						'markdown',
-						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
+						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`
 					);
 				}
 
