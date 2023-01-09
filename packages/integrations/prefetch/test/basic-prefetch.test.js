@@ -22,9 +22,7 @@ test.describe('Basic prefetch', () => {
 
 				page.on('request', requestHandler);
 
-				await page.goto(astro.resolveUrl('/'));
-
-				await page.waitForLoadState('networkidle');
+				await page.goto(astro.resolveUrl('/'), { waitUntil: 'networkidle' });
 
 				expect(requests.includes(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
 				expect(
@@ -62,9 +60,7 @@ test.describe('Basic prefetch', () => {
 
 				page.on('request', requestHandler);
 
-				await page.goto(astro.resolveUrl('/'));
-
-				await page.waitForLoadState('networkidle');
+				await page.goto(astro.resolveUrl('/'), { waitUntil: 'networkidle' });
 
 				expect(requests.includes(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
 				expect(

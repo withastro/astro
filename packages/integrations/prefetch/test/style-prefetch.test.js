@@ -42,9 +42,7 @@ test.describe('Style prefetch', () => {
 
 				page.on('request', requestHandler);
 
-				await page.goto(astro.resolveUrl('/'));
-
-				await page.waitForLoadState('networkidle');
+				await page.goto(astro.resolveUrl('/'), { waitUntil: 'networkidle' });
 
 				await expect(requests.filter((req) => req.includes('/style1'))).toBeTruthy();
 				await expect(requests.filter((req) => req.includes('/style2'))).toBeTruthy();
