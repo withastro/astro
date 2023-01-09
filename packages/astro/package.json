@@ -170,7 +170,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.22.2",
+    "@playwright/test": "1.28.1",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.17.1",
     "@types/chai": "^4.3.1",
