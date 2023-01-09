@@ -37,6 +37,9 @@
     "@astrojs/webapi": "^1.1.1",
     "esbuild": "^0.15.18"
   },
+  "peerDependencies": {
+    "astro": "workspace:^2.0.0-beta.0"
+  },
   "devDependencies": {
     "@netlify/edge-handler-types": "^0.34.1",
     "@netlify/functions": "^1.0.0",
