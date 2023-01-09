@@ -82,7 +82,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest]
-        NODE_VERSION: [14]
+        NODE_VERSION: [16]
       fail-fast: true
     steps:
       - name: Checkout
@@ -111,11 +111,10 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        # TODO: Enable node@18!
-        NODE_VERSION: [14, 16]
+        NODE_VERSION: [16, 18]
         include:
           - os: macos-latest
-            NODE_VERSION: 14
+            NODE_VERSION: 16
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -154,7 +153,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [14]
+        NODE_VERSION: [16]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -188,7 +187,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [14]
+        NODE_VERSION: [16]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:

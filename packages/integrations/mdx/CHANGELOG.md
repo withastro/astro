@@ -1,5 +1,46 @@
 # @astrojs/mdx
 
+## 0.15.0-beta.1
+
+### Minor Changes
+
+- [#5769](https://github.com/withastro/astro/pull/5769) [`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce a `smartypants` flag to opt-out of Astro's default SmartyPants plugin.
+
+  ```js
+  {
+    markdown: {
+      smartypants: false,
+    }
+  }
+  ```
+
+  #### Migration
+
+  You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
+
+  - `markdown.gfm` to disable GitHub-Flavored Markdown
+  - `markdown.smartypants` to disable SmartyPants
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    markdown: {
+  -   extendDefaultPlugins: false,
+  +   smartypants: false,
+  +   gfm: false,
+    }
+  });
+  ```
+
+### Patch Changes
+
+- [#5741](https://github.com/withastro/astro/pull/5741) [`000d3e694`](https://github.com/withastro/astro/commit/000d3e6940839c2aebba1984e6fb3b133cec6749) Thanks [@delucis](https://github.com/delucis)! - Fix broken links in README
+
+- Updated dependencies [[`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b)]:
+  - @astrojs/markdown-remark@2.0.0-beta.1
+
 ## 0.15.0-beta.0
 
 ### Minor Changes
