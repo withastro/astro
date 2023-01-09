@@ -14,14 +14,11 @@ import {
 	underline,
 	yellow,
 } from 'kleur/colors';
-import type { AddressInfo } from 'net';
-import os from 'os';
 import { ResolvedServerUrls } from 'vite';
 import { ZodError } from 'zod';
 import { renderErrorMarkdown } from './errors/dev/utils.js';
 import { AstroError, CompilerError, ErrorWithMetadata } from './errors/index.js';
-import { removeTrailingForwardSlash } from './path.js';
-import { emoji, getLocalAddress, padMultilineString } from './util.js';
+import { emoji, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
 
@@ -58,31 +55,26 @@ export function serverStart({
 	startupTime,
 	resolvedUrls,
 	host,
-	site,
+	base,
 	isRestart = false,
 }: {
 	startupTime: number;
 	resolvedUrls: ResolvedServerUrls;
 	host: string | boolean;
-	site: URL | undefined;
+	base: string;
 	isRestart?: boolean;
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
-	const rootPath = site ? site.pathname : '/';
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
 	const emptyPrefix = ' '.repeat(11);
 
 	const localUrlMessages = resolvedUrls.local.map((url, i) => {
-		return `${i === 0 ? localPrefix : emptyPrefix}${bold(
-			cyan(removeTrailingForwardSlash(url) + rootPath)
-		)}`;
+		return `${i === 0 ? localPrefix : emptyPrefix}${bold(cyan(new URL(url).origin + base))}`;
 	});
 	const networkUrlMessages = resolvedUrls.network.map((url, i) => {
-		return `${i === 0 ? networkPrefix : emptyPrefix}${bold(
-			cyan(removeTrailingForwardSlash(url) + rootPath)
-		)}`;
+		return `${i === 0 ? networkPrefix : emptyPrefix}${bold(cyan(new URL(url).origin + base))}`;
 	});
 
 	if (networkUrlMessages.length === 0) {
@@ -107,50 +99,6 @@ export function serverStart({
 		.filter((msg) => typeof msg === 'string')
 		.map((msg) => `  ${msg}`)
 		.join('\n');
-}
-
-export function resolveServerUrls({
-	address,
-	host,
-	https,
-}: {
-	address: AddressInfo;
-	host: string | boolean;
-	https: boolean;
-}): ResolvedServerUrls {
-	const { address: networkAddress, port } = address;
-	const localAddress = getLocalAddress(networkAddress, host);
-	const networkLogging = getNetworkLogging(host);
-	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}`;
-
-	let local = toDisplayUrl(localAddress);
-	let network: string | null = null;
-
-	if (networkLogging === 'visible') {
-		const ipv4Networks = Object.values(os.networkInterfaces())
-			.flatMap((networkInterface) => networkInterface ?? [])
-			.filter(
-				(networkInterface) =>
-					networkInterface?.address &&
-					// Node < v18
-					((typeof networkInterface.family === 'string' && networkInterface.family === 'IPv4') ||
-						// Node >= v18
-						(typeof networkInterface.family === 'number' && (networkInterface as any).family === 4))
-			);
-		for (let { address: ipv4Address } of ipv4Networks) {
-			if (ipv4Address.includes('127.0.0.1')) {
-				const displayAddress = ipv4Address.replace('127.0.0.1', localAddress);
-				local = toDisplayUrl(displayAddress);
-			} else {
-				network = toDisplayUrl(ipv4Address);
-			}
-		}
-	}
-
-	return {
-		local: [local],
-		network: network ? [network] : [],
-	};
 }
 
 export function telemetryNotice() {
@@ -226,11 +174,6 @@ export function cancelled(message: string, tip?: string) {
 		.filter((v) => v !== undefined)
 		.map((msg) => `  ${msg}`)
 		.join('\n');
-}
-
-/** Display port in use */
-export function portInUse({ port }: { port: number }): string {
-	return `Port ${port} in use. Trying a new one…`;
 }
 
 const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);

@@ -155,8 +155,8 @@
     "rehype": "^12.0.1",
     "resolve": "^1.22.0",
     "semver": "^7.3.7",
+    "server-destroy": "^1.0.1",
     "shiki": "^0.11.1",
-    "sirv": "^2.0.2",
     "slash": "^4.0.0",
     "string-width": "^5.1.2",
     "strip-ansi": "^7.0.1",
@@ -171,7 +171,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.22.2",
+    "@playwright/test": "^1.29.2",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.17.1",
     "@types/chai": "^4.3.1",
@@ -191,6 +191,7 @@
     "@types/resolve": "^1.20.2",
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
+    "@types/server-destroy": "^1.0.1",
     "@types/unist": "^2.0.6",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",

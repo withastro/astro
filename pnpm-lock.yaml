@@ -396,7 +396,7 @@ importers:
       '@babel/plugin-transform-react-jsx': ^7.17.12
       '@babel/traverse': ^7.18.2
       '@babel/types': ^7.18.4
-      '@playwright/test': ^1.22.2
+      '@playwright/test': ^1.29.2
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.1
@@ -418,6 +418,7 @@ importers:
       '@types/resolve': ^1.20.2
       '@types/rimraf': ^3.0.2
       '@types/send': ^0.17.1
+      '@types/server-destroy': ^1.0.1
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.1
@@ -466,8 +467,8 @@ importers:
       rollup: ^3.9.0
       sass: ^1.52.2
       semver: ^7.3.7
+      server-destroy: ^1.0.1
       shiki: ^0.11.1
-      sirv: ^2.0.2
       slash: ^4.0.0
       srcset-parse: ^1.1.0
       string-width: ^5.1.2
@@ -529,8 +530,8 @@ importers:
       rehype: 12.0.1
       resolve: 1.22.1
       semver: 7.3.8
+      server-destroy: 1.0.1
       shiki: 0.11.1
-      sirv: 2.0.2
       slash: 4.0.0
       string-width: 5.1.2
       strip-ansi: 7.0.1
@@ -564,6 +565,7 @@ importers:
       '@types/resolve': 1.20.2
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
+      '@types/server-destroy': 1.0.1
       '@types/unist': 2.0.6
       astro-scripts: link:../../scripts
       chai: 4.3.7
@@ -3139,13 +3141,13 @@ importers:
 
   packages/integrations/prefetch:
     specifiers:
-      '@playwright/test': ^1.26.0
+      '@playwright/test': ^1.29.2
       '@types/chai': ^4.3.1
       '@types/chai-as-promised': ^7.1.5
       '@types/mocha': ^9.1.1
       astro: workspace:*
       astro-scripts: workspace:*
-      playwright: ^1.22.2
+      playwright: ^1.29.2
       throttles: ^1.0.1
     dependencies:
       throttles: 1.0.1
@@ -7055,6 +7057,7 @@ packages:
 
   /@types/node/14.18.36:
     resolution: {integrity: sha512-FXKWbsJ6a1hIrRxv+FoukuHnGTgEzKYGi7kilfMae96AL9UNkPFNWJEEYWzdRI9ooIkbr4AKldyuSTLql06vLQ==}
+    dev: true
 
   /@types/node/16.18.11:
     resolution: {integrity: sha512-3oJbGBUWuS6ahSnEq1eN2XrCyf4YsWI8OyCvo7c64zQJNplk3mO84t53o8lfTk+2ji59g5ycfc6qQ3fdHliHuA==}
@@ -7126,7 +7129,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 14.18.36
+      '@types/node': 18.11.18
 
   /@types/resolve/1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -7141,7 +7144,7 @@ packages:
   /@types/sax/1.2.4:
     resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 18.11.18
     dev: false
 
   /@types/scheduler/0.16.2:
@@ -7159,6 +7162,12 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
+      '@types/node': 18.11.18
+    dev: true
+
+  /@types/server-destroy/1.0.1:
+    resolution: {integrity: sha512-77QGr7waZbE0Y0uF+G+uH3H3SmhyA78Jf2r5r7QSrpg0U3kSXduWpGjzP9PvPLR/KCy+kHjjpnugRHsYTnHopg==}
+    dependencies:
       '@types/node': 18.11.18
     dev: true
 
@@ -11129,7 +11138,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 14.18.36
+      '@types/node': 18.11.18
       merge-stream: 2.0.0
       supports-color: 7.2.0
 
@@ -13993,6 +14002,10 @@ packages:
     dependencies:
       randombytes: 2.1.0
     dev: true
+
+  /server-destroy/1.0.1:
+    resolution: {integrity: sha512-rb+9B5YBIEzYcD6x2VKidaa+cqYBJQKnU4oe4E3ANwRRN56yk/ua1YCJT1n21NTS8w6CcOclAKNP3PhdCXKYtQ==}
+    dev: false
 
   /set-blocking/2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
