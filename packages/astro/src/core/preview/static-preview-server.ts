@@ -8,6 +8,7 @@ import { error, info } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
+import enableDestroy from 'server-destroy';
 
 export interface PreviewServer {
 	host?: string;
@@ -46,6 +47,8 @@ export default async function createStaticPreviewServer(
 		throw err;
 	}
 
+	enableDestroy(previewServer.httpServer);
+
 	// Log server start URLs
 	info(
 		logging,
@@ -73,7 +76,7 @@ export default async function createStaticPreviewServer(
 		server: previewServer.httpServer,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
-				previewServer.httpServer.close((err) => (err ? reject(err) : resolve(undefined)));
+				previewServer.httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));
 			});
 		},
 	};
