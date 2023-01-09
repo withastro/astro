@@ -1,6 +1,7 @@
 /// <reference types="astro/astro-jsx" />
 export { default as Image } from './Image.astro';
 export { default as Picture } from './Picture.astro';
+import type { HTMLAttributes as AllHTMLAttributes } from '../../../astro/types';
 
 import type { TransformOptions, OutputFormat } from '../dist/loaders/index.js';
 import type { ImageMetadata } from '../dist/vite-plugin-astro-image.js';
@@ -13,9 +14,7 @@ export interface ImageComponentLocalImageProps
 	alt: string;
 }
 
-export interface ImageComponentRemoteImageProps
-	extends TransformOptions,
-		astroHTML.JSX.ImgHTMLAttributes {
+export interface ImageComponentRemoteImageProps extends TransformOptions, ImgHTMLAttributes {
 	src: string;
 	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
@@ -27,7 +26,7 @@ export interface ImageComponentRemoteImageProps
 export interface PictureComponentLocalImageProps
 	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
 		Omit<TransformOptions, 'src'>,
-		Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
@@ -50,15 +49,9 @@ export interface PictureComponentRemoteImageProps
 	background: TransformOptions['background'];
 }
 
-// TODO: should these directives be removed from astroHTML.JSX?
-export type ImgHTMLAttributes = Omit<
-	astroHTML.JSX.ImgHTMLAttributes,
-	'client:list' | 'set:text' | 'set:html' | 'is:raw'
->;
-export type HTMLAttributes = Omit<
-	astroHTML.JSX.HTMLAttributes,
-	'client:list' | 'set:text' | 'set:html' | 'is:raw'
->;
+export type ImgHTMLAttributes = AllHTMLAttributes<'img'>;
+
+export type HTMLAttributes = Omit<astroHTML.JSX.HTMLAttributes, 'set:text' | 'set:html' | 'is:raw'>;
 
 let altWarningShown = false;
 
