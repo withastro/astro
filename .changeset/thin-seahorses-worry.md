@@ -13,4 +13,4 @@
 
 Make astro a peerDependency of integrations
 
-This marks `astro` as a peerDependency of serveral packages that are already getting `major` version bumps. This is so we can more properly track the dependency between them and what version of Astro they are being used with.
+This marks `astro` as a peerDependency of several packages that are already getting `major` version bumps. This is so we can more properly track the dependency between them and what version of Astro they are being used with.
