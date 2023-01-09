@@ -10,6 +10,7 @@ import ora from 'ora';
 import { platform } from 'os';
 import path from 'path';
 import prompts from 'prompts';
+import validate from 'validate-npm-package-name';
 import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
@@ -89,6 +90,19 @@ function isValidProjectDirectory(dirPath: string) {
 	return conflicts.length === 0;
 }
 
+async function validatePackageName(pkgName: string) {
+	const isValidPackageName = await validate(pkgName);
+	const isValid = isValidPackageName.validForNewPackages
+	const notices: string[] = []
+	if (!isValid) {
+		notices.push(...[
+			...isValidPackageName.warnings || [],
+			...isValidPackageName.errors || []
+		]);
+	}
+	return { isValid, notices }
+}
+
 const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
@@ -97,6 +111,11 @@ export async function main() {
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 
 	logger.debug('Verbose logging turned on');
+
+	if (args.dryRun) {
+		ora().info('Running in dry mode');
+	}
+
 	if (!args.skipHouston) {
 		await say(
 			[
@@ -154,6 +173,8 @@ export async function main() {
 		process.exit(1);
 	}
 
+	let projectDir = path.relative(process.cwd(), cwd);
+
 	const options = await prompts(
 		[
 			{
@@ -208,10 +229,50 @@ export async function main() {
 				}
 			})
 		);
-	}
 
-	templateSpinner.text = green('Template copied!');
-	templateSpinner.succeed();
+		templateSpinner.text = green('Template copied!');
+		templateSpinner.succeed();
+
+		const printIgnoreUpdatingPkgNameMsg = () => info('Opps', 'You have to update the NPM package name manually.');
+		// Validate and update the NPM package name
+		let pkgName: string = projectDir;
+		if (args.package) {
+			pkgName = args.package;
+		}
+
+		const validatePackageNameResult = await validatePackageName(pkgName);
+		if (!validatePackageNameResult.isValid) {
+			const pkgNameResponse = await prompts(
+				{
+					type: 'text',
+					name: 'package',
+					message: 'What is the new NPM package name?',
+					initial: generateProjectName(),
+					async validate(value) {
+						const { isValid, notices } = await validatePackageName(value);
+						if (!isValid) {
+							const errorMsg = `"${bold(value)}" is an invalid NPM package name`;
+							const errors = notices.join(', ');
+							return `${errorMsg}: ${errors}`;
+						}
+						return true;
+					},
+				},
+				{ onCancel: printIgnoreUpdatingPkgNameMsg }
+			);
+			pkgName = pkgNameResponse.package as string;
+		}
+
+		if (typeof pkgName === 'string' && !!pkgName) {
+			// Change project name in package.json
+			try {
+				await execaCommand(`${pkgManager} pkg set name=${pkgName}`, { cwd });
+				await info('Sounds good!', `The NPM package name was updated to ${bold(pkgName)}.`);
+			} catch(error) {
+				printIgnoreUpdatingPkgNameMsg();
+			}
+		}
+	}
 
 	const installResponse = await prompts(
 		{
@@ -346,7 +407,6 @@ export async function main() {
 		ora().succeed('TypeScript settings applied!');
 	}
 
-	let projectDir = path.relative(process.cwd(), cwd);
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 	await nextSteps({ projectDir, devCmd });
 
