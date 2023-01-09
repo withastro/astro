@@ -16,7 +16,7 @@
     "format:ci": "pnpm run format:imports && pnpm run format:code",
     "format:code": "prettier -w . --cache --plugin-search-dir=.",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
-    "test": "turbo run test --output-logs=new-only --concurrency=1 --filter=\"@astrojs/prefetch\"",
+    "test": "turbo run test --output-logs=new-only --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:smoke": "turbo run build --filter=\"@example/*\" --filter=\"docs\" --output-logs=new-only --concurrency=1",
     "test:check-examples": "node ./scripts/smoke/check.js",

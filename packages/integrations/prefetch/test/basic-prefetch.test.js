@@ -18,11 +18,12 @@ test.describe('Basic prefetch', () => {
 		test.describe('prefetches rel="prefetch" links', () => {
 			test('skips /admin', async ({ page, astro }) => {
 				const requests = [];
-				const requestHandler = (request) => requests.push(request.url());
 
-				page.on('request', requestHandler);
+				page.on('request', (request) => requests.push(request.url()));
 
-				await page.goto(astro.resolveUrl('/'), { waitUntil: 'networkidle' });
+				await page.goto(astro.resolveUrl('/'));
+
+				await page.waitForLoadState('networkidle');
 
 				expect(requests.includes(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
 				expect(
@@ -34,8 +35,6 @@ test.describe('Basic prefetch', () => {
 					requests.filter((r) => r === astro.resolveUrl('/')).length === 1,
 					'/ was skipped by prefetch and only queried once'
 				).toBeTruthy();
-
-				page.off('request', requestHandler);
 			});
 		});
 	});
@@ -56,11 +55,12 @@ test.describe('Basic prefetch', () => {
 		test.describe('prefetches rel="prefetch" links', () => {
 			test('skips /admin', async ({ page, astro }) => {
 				const requests = [];
-				const requestHandler = (request) => requests.push(request.url());
 
-				page.on('request', requestHandler);
+				page.on('request', (request) => requests.push(request.url()));
 
-				await page.goto(astro.resolveUrl('/'), { waitUntil: 'networkidle' });
+				await page.goto(astro.resolveUrl('/'));
+
+				await page.waitForLoadState('networkidle');
 
 				expect(requests.includes(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
 				expect(
@@ -72,8 +72,6 @@ test.describe('Basic prefetch', () => {
 					requests.filter((r) => r === astro.resolveUrl('/')).length === 1,
 					'/ was skipped by prefetch and only queried once'
 				).toBeTruthy();
-
-				page.off('request', requestHandler);
 			});
 		});
 	});
