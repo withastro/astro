@@ -2838,9 +2838,11 @@ importers:
       cheerio: ^1.0.0-rc.11
       lit: ^2.2.5
       mocha: ^9.2.2
+      parse5: ^7.1.2
       sass: ^1.52.2
     dependencies:
       '@lit-labs/ssr': 2.3.0
+      parse5: 7.1.2
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
