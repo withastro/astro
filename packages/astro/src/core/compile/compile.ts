@@ -39,13 +39,10 @@ export async function compile({
 		transformResult = await transform(source, {
 			moduleId,
 			pathname: filename,
-			projectRoot: astroConfig.root.toString(),
-			site: astroConfig.site?.toString(),
 			sourcefile: filename,
 			sourcemap: 'both',
 			internalURL: 'astro/server/index.js',
-			// TODO: baseline flag
-			experimentalStaticExtraction: true,
+			injectGlobals: JSON.stringify(astroConfig.site),
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
