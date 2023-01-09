@@ -157,7 +157,10 @@ export async function loadFixture(inlineConfig) {
 		},
 		config,
 		resolveUrl,
-		fetch: (url, init) => fetch(resolveUrl(url), init),
+		fetch: (url, init) => {
+			console.log('fetch2', fetch)
+			return fetch(resolveUrl(url), init)
+		},
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
