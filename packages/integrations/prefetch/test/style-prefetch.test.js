@@ -38,8 +38,9 @@ test.describe('Style prefetch', () => {
 		test.describe('prefetches rel="prefetch" links', () => {
 			test('style fetching', async ({ page, astro }) => {
 				const requests = [];
+				const requestHandler = (request) => requests.push(request.url());
 
-				page.on('request', (request) => requests.push(request.url()));
+				page.on('request', requestHandler);
 
 				await page.goto(astro.resolveUrl('/'));
 
@@ -49,6 +50,8 @@ test.describe('Style prefetch', () => {
 				await expect(requests.filter((req) => req.includes('/style2'))).toBeTruthy();
 				const cssRequestCount = requests.filter((req) => req.includes('/main.css')).length;
 				await expect(cssRequestCount).toBe(1);
+
+				page.off('request', requestHandler);
 			});
 		});
 	}

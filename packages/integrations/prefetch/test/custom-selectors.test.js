@@ -26,8 +26,9 @@ test.describe('Custom prefetch selectors', () => {
 		test.describe('prefetches links by custom selector', () => {
 			test('only prefetches /contact', async ({ page, astro }) => {
 				const requests = [];
+				const requestHandler = (request) => requests.push(request.url());
 
-				page.on('request', (request) => requests.push(request.url()));
+				page.on('request', requestHandler);
 
 				await page.goto(astro.resolveUrl('/'));
 
@@ -43,6 +44,8 @@ test.describe('Custom prefetch selectors', () => {
 					requests.filter((r) => r === astro.resolveUrl('/')).length === 1,
 					'/ was skipped by prefetch and only queried once'
 				).toBeTruthy();
+
+				page.off('request', requestHandler);
 			});
 		});
 	});
@@ -63,8 +66,9 @@ test.describe('Custom prefetch selectors', () => {
 		test.describe('prefetches links by custom selector', () => {
 			test('only prefetches /contact', async ({ page, astro }) => {
 				const requests = [];
+				const requestHandler = (request) => requests.push(request.url());
 
-				page.on('request', (request) => requests.push(request.url()));
+				page.on('request', requestHandler);
 
 				await page.goto(astro.resolveUrl('/'));
 
@@ -80,6 +84,8 @@ test.describe('Custom prefetch selectors', () => {
 					requests.filter((r) => r === astro.resolveUrl('/')).length === 1,
 					'/ was skipped by prefetch and only queried once'
 				).toBeTruthy();
+
+				page.off('request', requestHandler);
 			});
 		});
 	});
