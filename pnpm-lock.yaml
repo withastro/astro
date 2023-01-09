@@ -1582,6 +1582,16 @@ importers:
       astro: link:../../..
       preact: 10.11.3
 
+  packages/astro/test/fixtures/build-assets:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      preact: ^10.11.0
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+      preact: 10.11.3
+
   packages/astro/test/fixtures/client-address:
     specifiers:
       astro: workspace:*

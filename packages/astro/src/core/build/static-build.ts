@@ -10,9 +10,10 @@ import {
 	BuildInternals,
 	createBuildInternals,
 	eachPrerenderedPageData,
+	isHoistedScript,
 } from '../../core/build/internal.js';
-import { emptyDir, removeDir } from '../../core/fs/index.js';
-import { prependForwardSlash } from '../../core/path.js';
+import { emptyDir, removeDir, removeEmptyDirs } from '../../core/fs/index.js';
+import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -133,8 +134,10 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					chunkFileNames: 'chunks/[name].[hash].mjs',
-					assetFileNames: 'assets/[name].[hash][extname]',
+					// Server chunks can't go in the assets (_astro) folder
+					// We need to keep these separate
+					chunkFileNames: `chunks/[name].[hash].mjs`,
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
 				},
@@ -212,9 +215,9 @@ async function clientBuild(
 				input: Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: 'assets/[name].[hash].js',
-					chunkFileNames: 'assets/chunks/[name].[hash].js',
-					assetFileNames: 'assets/[name].[hash][extname]',
+					entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+					chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 				},
 				preserveEntrySignatures: 'exports-only',
@@ -285,25 +288,8 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				await fs.promises.writeFile(url, value, { encoding: 'utf8' });
 			})
 		);
-		// Map directories heads from the .mjs files
-		const directories: Set<string> = new Set();
-		files.forEach((i) => {
-			const splitFilePath = i.split(path.sep);
-			// If the path is more than just a .mjs filename itself
-			if (splitFilePath.length > 1) {
-				directories.add(splitFilePath[0]);
-			}
-		});
-		// Attempt to remove only those folders which are empty
-		await Promise.all(
-			Array.from(directories).map(async (filename) => {
-				const url = new URL(filename, out);
-				const folder = await fs.promises.readdir(url);
-				if (!folder.length) {
-					await fs.promises.rm(url, { recursive: true, force: true });
-				}
-			})
-		);
+
+		removeEmptyDirs(out);
 	}
 }
 
@@ -321,28 +307,10 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 				await fs.promises.rm(url);
 			})
 		);
-		// Map directories heads from the .mjs files
-		const directories: Set<string> = new Set();
-		files.forEach((i) => {
-			const splitFilePath = i.split(path.sep);
-			// If the path is more than just a .mjs filename itself
-			if (splitFilePath.length > 1) {
-				directories.add(splitFilePath[0]);
-			}
-		});
-		// Attempt to remove only those folders which are empty
-		await Promise.all(
-			Array.from(directories).map(async (filename) => {
-				const url = new URL(filename, out);
-				const dir = await glob(fileURLToPath(url));
-				// Do not delete chunks/ directory!
-				if (filename === 'chunks') return;
-				if (!dir.length) {
-					await fs.promises.rm(url, { recursive: true, force: true });
-				}
-			})
-		);
+
+		removeEmptyDirs(out);
 	}
+
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
 		// Copy assets before cleaning directory if outside root
@@ -374,10 +342,11 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 	const serverRoot =
 		opts.settings.config.output === 'static' ? opts.buildConfig.client : opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
-	const serverAssets = new URL('./assets/', serverRoot);
-	const clientAssets = new URL('./assets/', clientRoot);
-	const files = await glob('assets/**/*', {
-		cwd: fileURLToPath(serverRoot),
+	const assets = opts.settings.config.build.assets;
+	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
+	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
+	const files = await glob(`**/*`, {
+		cwd: fileURLToPath(serverAssets),
 	});
 
 	if (files.length > 0) {
@@ -385,11 +354,11 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		await fs.promises.mkdir(clientAssets, { recursive: true });
 		await Promise.all(
 			files.map(async (filename) => {
-				const currentUrl = new URL(filename, serverRoot);
-				const clientUrl = new URL(filename, clientRoot);
+				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
+				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
 				return fs.promises.rename(currentUrl, clientUrl);
 			})
 		);
-		removeDir(serverAssets);
+		removeEmptyDirs(serverAssets);
 	}
 }
