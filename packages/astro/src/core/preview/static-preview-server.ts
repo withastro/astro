@@ -1,5 +1,6 @@
 import http from 'http';
 import { performance } from 'perf_hooks';
+import enableDestroy from 'server-destroy';
 import { fileURLToPath } from 'url';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro';
@@ -8,7 +9,6 @@ import { error, info } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
-import enableDestroy from 'server-destroy';
 
 export interface PreviewServer {
 	host?: string;
