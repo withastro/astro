@@ -1,17 +1,17 @@
-import { rollup } from 'rollup'
+import { default as alias } from '@rollup/plugin-alias'
+import { default as inject } from '@rollup/plugin-inject'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import path from 'node:path'
-import { createRequire } from 'node:module'
+import { default as typescript } from '@rollup/plugin-typescript'
+import { default as MagicString } from 'magic-string'
 import {
 	readFile as nodeReadFile,
 	rename,
 	rm,
 	writeFile,
 } from 'node:fs/promises'
-import { default as MagicString } from 'magic-string'
-import { default as alias } from '@rollup/plugin-alias'
-import { default as inject } from '@rollup/plugin-inject'
-import { default as typescript } from '@rollup/plugin-typescript'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import { rollup } from 'rollup'
 
 const readFileCache = Object.create(null)
 const require = createRequire(import.meta.url)
@@ -76,13 +76,13 @@ const plugins = [
 		MediaQueryList: ['./MediaQueryList', 'MediaQueryList'],
 		Node: ['./Node', 'Node'],
 		ReadableStream: [
-			'web-streams-polyfill/dist/ponyfill.es6.mjs',
+			'node:stream/web',
 			'ReadableStream',
 		],
 		ShadowRoot: ['./Node', 'ShadowRoot'],
 		Window: ['./Window', 'Window'],
 		'globalThis.ReadableStream': [
-			'web-streams-polyfill/dist/ponyfill.es6.mjs',
+			'node:stream/web',
 			'ReadableStream',
 		],
 	}),
@@ -178,7 +178,7 @@ async function build() {
 			inputOptions: {
 				input: 'src/polyfill.ts',
 				plugins: plugins,
-				external: ['node-fetch', 'global-agent'],
+				external: ['undici', 'global-agent'],
 				onwarn(warning, warn) {
 					if (warning.code !== 'UNRESOLVED_IMPORT') warn(warning)
 				},

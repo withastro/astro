@@ -19,7 +19,7 @@ polyfill(globalThis, {
 });
 
 /**
- * @typedef {import('node-fetch').Response} Response
+ * @typedef {import('undici').Response} Response
  * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
  * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
@@ -302,4 +302,18 @@ export const isWindows = os.platform() === 'win32';
 
 export function fixLineEndings(str) {
 	return str.replace(/\r\n/g, '\n');
+}
+
+export async function* streamAsyncIterator(stream) {
+	const reader = stream.getReader();
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) return;
+			yield value;
+		}
+	} finally {
+		reader.releaseLock();
+	}
 }

@@ -1,5 +1,12 @@
 import { installWindowOnGlobal } from '@lit-labs/ssr/lib/dom-shim.js';
-installWindowOnGlobal();
+
+if(typeof fetch === 'function') {
+	const _fetch = fetch;
+	installWindowOnGlobal();
+	globalThis.fetch = window.fetch = _fetch;
+} else {
+	installWindowOnGlobal();
+}
 
 window.global = window;
 document.getElementsByTagName = () => [];
