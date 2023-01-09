@@ -24,6 +24,9 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "mocha --exit --timeout 20000"
   },
+  "peerDependencies": {
+    "astro": "workspace:^2.0.0"
+  },
   "dependencies": {
     "@astrojs/prism": "^1.0.0",
     "acorn": "^8.7.1",
