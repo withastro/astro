@@ -4,8 +4,8 @@
  *  - https://github.com/apollographql/apollo-client/blob/main/src/utilities/common/responseIterator.ts
  */
 
-import type { Response as NodeResponse } from 'undici';
 import { Readable as NodeReadableStream } from 'stream';
+import type { Response as NodeResponse } from 'undici';
 
 interface NodeStreamIterator<T> {
 	next(): Promise<IteratorResult<T, boolean | undefined>>;

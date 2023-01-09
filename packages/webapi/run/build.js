@@ -75,16 +75,10 @@ const plugins = [
 		HTMLUnknownElement: ['./Element', 'HTMLUnknownElement'],
 		MediaQueryList: ['./MediaQueryList', 'MediaQueryList'],
 		Node: ['./Node', 'Node'],
-		ReadableStream: [
-			'node:stream/web',
-			'ReadableStream',
-		],
+		ReadableStream: ['node:stream/web', 'ReadableStream'],
 		ShadowRoot: ['./Node', 'ShadowRoot'],
 		Window: ['./Window', 'Window'],
-		'globalThis.ReadableStream': [
-			'node:stream/web',
-			'ReadableStream',
-		],
+		'globalThis.ReadableStream': ['node:stream/web', 'ReadableStream'],
 	}),
 	{
 		async load(id) {

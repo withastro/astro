@@ -7,8 +7,6 @@ import {
 import { Event, EventTarget } from 'event-target-shim'
 import { Blob, File } from 'fetch-blob/from.js'
 import { FormData } from 'formdata-polyfill/esm.min.js'
-import * as undici from 'undici'
-import { URLPattern } from 'urlpattern-polyfill'
 import {
 	ByteLengthQueuingStrategy,
 	CountQueuingStrategy,
@@ -23,6 +21,8 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'node:stream/web'
+import * as undici from 'undici'
+import { URLPattern } from 'urlpattern-polyfill'
 import {
 	cancelAnimationFrame,
 	requestAnimationFrame,
