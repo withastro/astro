@@ -1,22 +1,9 @@
+import { streamAsyncIterator } from './util.js';
+
 const isNodeJS =
 	typeof process === 'object' && Object.prototype.toString.call(process) === '[object process]';
 
 let StreamingCompatibleResponse: typeof Response | undefined;
-
-// Undici on Node 16 does not support simply iterating over a ReadableStream
-async function* streamAsyncIterator(stream: ReadableStream) {
-	const reader = stream.getReader();
-
-	try {
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) return;
-			yield value;
-		}
-	} finally {
-		reader.releaseLock();
-	}
-}
 
 function createResponseClass() {
 	StreamingCompatibleResponse = class extends Response {

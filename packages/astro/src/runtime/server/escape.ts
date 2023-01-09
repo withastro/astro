@@ -1,4 +1,5 @@
 import { escape } from 'html-escaper';
+import { streamAsyncIterator } from './util.js';
 
 // Leverage the battle-tested `html-escaper` npm package.
 export const escapeHTML = escape;
@@ -58,9 +59,15 @@ export function isHTMLBytes(value: any): value is HTMLBytes {
 	return Object.prototype.toString.call(value) === '[object HTMLBytes]';
 }
 
-async function* unescapeChunksAsync(iterable: AsyncIterable<Uint8Array>): any {
-	for await (const chunk of iterable) {
-		yield unescapeHTML(chunk as BlessedType);
+async function* unescapeChunksAsync(iterable: ReadableStream | string): any {
+	if (iterable instanceof ReadableStream) {
+		for await (const chunk of streamAsyncIterator(iterable)) {
+			yield unescapeHTML(chunk as BlessedType);
+		}
+	} else {
+		for await (const chunk of iterable) {
+			yield unescapeHTML(chunk as BlessedType);
+		}
 	}
 }
 
@@ -82,7 +89,7 @@ export function unescapeHTML(
 		}
 		// If a response, stream out the chunks
 		else if (str instanceof Response && str.body) {
-			const body = str.body as unknown as AsyncIterable<Uint8Array>;
+			const body = str.body;
 			return unescapeChunksAsync(body);
 		}
 		// If a promise, await the result and mark that.
@@ -92,7 +99,7 @@ export function unescapeHTML(
 			});
 		} else if (Symbol.iterator in str) {
 			return unescapeChunks(str);
-		} else if (Symbol.asyncIterator in str) {
+		} else if (Symbol.asyncIterator in str || str instanceof ReadableStream) {
 			return unescapeChunksAsync(str);
 		}
 	}
