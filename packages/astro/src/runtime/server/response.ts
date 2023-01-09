@@ -3,6 +3,21 @@ const isNodeJS =
 
 let StreamingCompatibleResponse: typeof Response | undefined;
 
+// Undici on Node 16 does not support simply iterating over a ReadableStream
+async function* streamAsyncIterator(stream: ReadableStream) {
+	const reader = stream.getReader();
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) return;
+			yield value;
+		}
+	} finally {
+		reader.releaseLock();
+	}
+}
+
 function createResponseClass() {
 	StreamingCompatibleResponse = class extends Response {
 		#isStream: boolean;
@@ -21,9 +36,9 @@ function createResponseClass() {
 		async text(): Promise<string> {
 			if (this.#isStream && isNodeJS) {
 				let decoder = new TextDecoder();
-				let body = this.#body as AsyncIterable<Uint8Array>;
+				let body = this.#body;
 				let out = '';
-				for await (let chunk of body) {
+				for await (let chunk of streamAsyncIterator(body)) {
 					out += decoder.decode(chunk);
 				}
 				return out;
@@ -33,10 +48,10 @@ function createResponseClass() {
 
 		async arrayBuffer(): Promise<ArrayBuffer> {
 			if (this.#isStream && isNodeJS) {
-				let body = this.#body as AsyncIterable<Uint8Array>;
+				let body = this.#body;
 				let chunks: Uint8Array[] = [];
 				let len = 0;
-				for await (let chunk of body) {
+				for await (let chunk of streamAsyncIterator(body)) {
 					chunks.push(chunk);
 					len += chunk.length;
 				}

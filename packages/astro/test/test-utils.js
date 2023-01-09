@@ -19,7 +19,7 @@ polyfill(globalThis, {
 });
 
 /**
- * @typedef {import('node-fetch').Response} Response
+ * @typedef {import('undici').Response} Response
  * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
  * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
