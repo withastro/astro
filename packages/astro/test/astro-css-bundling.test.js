@@ -5,9 +5,9 @@ import { loadFixture } from './test-utils.js';
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quanity matter here (bundling).
 const EXPECTED_CSS = {
-	'/index.html': ['/assets/'], // don’t match hashes, which change based on content
-	'/one/index.html': ['/assets/'],
-	'/two/index.html': ['/assets/'],
+	'/index.html': ['/_astro/'], // don’t match hashes, which change based on content
+	'/one/index.html': ['/_astro/'],
+	'/two/index.html': ['/_astro/'],
 };
 const UNEXPECTED_CSS = [
 	'/src/components/nav.css',
@@ -61,12 +61,12 @@ describe('CSS Bundling', function () {
 		});
 
 		it('there are 4 css files', async () => {
-			const dir = await fixture.readdir('/assets');
+			const dir = await fixture.readdir('/_astro');
 			expect(dir).to.have.a.lengthOf(4);
 		});
 
 		it('CSS includes hashes', async () => {
-			const [firstFound] = await fixture.readdir('/assets');
+			const [firstFound] = await fixture.readdir('/_astro');
 			expect(firstFound).to.match(/[a-z]+\.[0-9a-z]{8}\.css/);
 		});
 	});

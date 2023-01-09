@@ -24,11 +24,12 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "mocha --exit --timeout 20000"
   },
+  "peerDependencies": {
+    "astro": "workspace:^2.0.0"
+  },
   "dependencies": {
     "@astrojs/prism": "^1.0.0",
-    "acorn": "^8.7.1",
     "github-slugger": "^1.4.0",
-    "hast-util-to-html": "^8.0.3",
     "import-meta-resolve": "^2.1.0",
     "rehype-raw": "^6.1.1",
     "rehype-stringify": "^9.0.3",

@@ -20,19 +20,19 @@ describe('SSR images - build', async function () {
 			title: 'Local images',
 			id: '#social-jpg',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/_astro\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Filename with spaces',
 			id: '#spaces',
 			url: '/_image',
-			query: { f: 'webp', w: '768', h: '414', href: /^\/assets\/introducing astro.\w{8}.jpg/ },
+			query: { f: 'webp', w: '768', h: '414', href: /^\/_astro\/introducing astro.\w{8}.jpg/ },
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/_astro\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Remote images',
@@ -131,7 +131,7 @@ describe('SSR images with subpath - build', function () {
 			title: 'Local images',
 			id: '#social-jpg',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/_astro\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Filename with spaces',
@@ -141,14 +141,14 @@ describe('SSR images with subpath - build', function () {
 				f: 'webp',
 				w: '768',
 				h: '414',
-				href: /^\/docs\/assets\/introducing astro.\w{8}.jpg/,
+				href: /^\/docs\/_astro\/introducing astro.\w{8}.jpg/,
 			},
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/_astro\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Remote images',
