@@ -305,6 +305,10 @@ export function fixLineEndings(str) {
 }
 
 export async function* streamAsyncIterator(stream) {
+	if(typeof stream.getReader !== 'function') {
+		console.log(stream);
+		throw new Error(`stream.getReader() is not a function.`);
+	}
 	const reader = stream.getReader();
 
 	try {
