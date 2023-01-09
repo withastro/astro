@@ -59,8 +59,12 @@ export function isHTMLBytes(value: any): value is HTMLBytes {
 	return Object.prototype.toString.call(value) === '[object HTMLBytes]';
 }
 
+function hasGetReader(obj: unknown): obj is ReadableStream {
+	return typeof (obj as any).getReader === 'function';
+}
+
 async function* unescapeChunksAsync(iterable: ReadableStream | string): any {
-	if (iterable instanceof ReadableStream) {
+	if (hasGetReader(iterable)) {
 		for await (const chunk of streamAsyncIterator(iterable)) {
 			yield unescapeHTML(chunk as BlessedType);
 		}
@@ -99,7 +103,7 @@ export function unescapeHTML(
 			});
 		} else if (Symbol.iterator in str) {
 			return unescapeChunks(str);
-		} else if (Symbol.asyncIterator in str || str instanceof ReadableStream) {
+		} else if (Symbol.asyncIterator in str || hasGetReader(str)) {
 			return unescapeChunksAsync(str);
 		}
 	}
