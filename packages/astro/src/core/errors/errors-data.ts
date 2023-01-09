@@ -613,5 +613,5 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 
 type ValueOf<T> = T[keyof T];
 export type AstroErrorCodes = ValueOf<{
-	[T in keyof typeof AstroErrorData]: typeof AstroErrorData[T]['code'];
+	[T in keyof typeof AstroErrorData]: (typeof AstroErrorData)[T]['code'];
 }>;

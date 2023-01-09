@@ -25,7 +25,7 @@ describe('Lit integration in SSR', () => {
 	}
 
 	it('Is able to load', async () => {
-		delete globalThis.window;
+		delete globalThis.window; // On Windows this results in `ReferenceError: window is not defined`
 		const html = await fetchHTML('/');
 		const $ = cheerioLoad(html);
 		expect($('#win').text()).to.equal('function');

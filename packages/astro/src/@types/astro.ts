@@ -239,7 +239,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 }
 
 /** Union type of supported markdown file extensions */
-type MarkdowFileExtension = typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS[number];
+type MarkdowFileExtension = (typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS)[number];
 
 export interface AstroGlobalPartial {
 	/**
@@ -773,6 +773,7 @@ export interface AstroUserConfig {
 		 * @name markdown.gfm
 		 * @type {boolean}
 		 * @default `true`
+		 * @version 2.0.0
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
@@ -790,6 +791,7 @@ export interface AstroUserConfig {
 		 * @name markdown.smartypants
 		 * @type {boolean}
 		 * @default `true`
+		 * @version 2.0.0
 		 * @description
 		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
 		 *

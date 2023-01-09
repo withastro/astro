@@ -70,15 +70,45 @@ describe('LitElement test', function () {
 		const html = await fixture.readFile('/slots/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('my-element').length).to.equal(1);
+		const $rootMyElement = $('#root');
+		const $slottedMyElement = $('#slotted');
+		const $slottedSlottedMyElement = $('#slotted-slotted');
 
-		const [defaultSlot, namedSlot] = $('template').siblings().toArray();
+		expect($('my-element').length).to.equal(3);
 
-		// has default slot content in lightdom
-		expect($(defaultSlot).text()).to.equal('default');
+		// Root my-element
+		expect($rootMyElement.children('.default').length).to.equal(2);
+		expect($rootMyElement.children('.default').eq(1).text()).to.equal('my-element default 2');
 
-		// has named slot content in lightdom
-		expect($(namedSlot).text()).to.equal('named');
+		expect($rootMyElement.children('[slot="named"]').length).to.equal(4);
+		expect($rootMyElement.children('[slot="named"]').eq(1).text()).to.equal('my-element named 2');
+		expect($rootMyElement.children('[slot="named"]').eq(2).attr('id')).to.equal('list');
+		expect($rootMyElement.children('[slot="named"]').eq(3).attr('id')).to.equal('slotted');
+
+		// Slotted my-element first level
+		expect($slottedMyElement.children('.default').length).to.equal(1);
+		expect($slottedMyElement.children('.default').eq(0).text()).to.equal(
+			'slotted my-element default'
+		);
+
+		expect($slottedMyElement.children('[slot="named"]').length).to.equal(3);
+		expect($slottedMyElement.children('[slot="named"]').eq(1).text()).to.equal(
+			'slotted my-element named 2'
+		);
+		expect($slottedMyElement.children('[slot="named"]').eq(2).attr('id')).to.equal(
+			'slotted-slotted'
+		);
+
+		// Slotted my-element second level
+		expect($slottedSlottedMyElement.children('.default').length).to.equal(2);
+		expect($slottedSlottedMyElement.children('.default').eq(1).text()).to.equal(
+			'slotted slotted my-element default 2'
+		);
+
+		expect($slottedSlottedMyElement.children('[slot="named"]').length).to.equal(2);
+		expect($slottedSlottedMyElement.children('[slot="named"]').eq(1).text()).to.equal(
+			'slotted slotted my-element named 2'
+		);
 	});
 
 	it('Is able to build when behind getStaticPaths', async () => {
