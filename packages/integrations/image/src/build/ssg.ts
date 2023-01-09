@@ -172,7 +172,10 @@ export async function ssgBuild({
 			let outputFileURL: URL;
 
 			if (isRemoteImage(src)) {
-				outputFileURL = new URL(path.join(`./${config.build.assets}`, path.basename(filename)), outDir);
+				outputFileURL = new URL(
+					path.join(`./${config.build.assets}`, path.basename(filename)),
+					outDir
+				);
 				outputFile = fileURLToPath(outputFileURL);
 			} else {
 				outputFileURL = new URL(path.join(`./${config.build.assets}`, filename), outDir);

@@ -2,7 +2,6 @@ import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { astroBundleDelayedAssetPlugin } from '../../content/index.js';
@@ -10,9 +9,8 @@ import {
 	BuildInternals,
 	createBuildInternals,
 	eachPrerenderedPageData,
-	isHoistedScript,
 } from '../../core/build/internal.js';
-import { emptyDir, removeDir, removeEmptyDirs } from '../../core/fs/index.js';
+import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';

@@ -15,12 +15,12 @@ export function removeEmptyDirs(root: URL): void {
 	const dir = fileURLToPath(root);
 	if (!fs.statSync(dir).isDirectory()) return;
 	let files = fs.readdirSync(dir);
-	
+
 	if (files.length > 0) {
-		files.map(file => {
+		files.map((file) => {
 			const url = new URL(`./${file}`, appendForwardSlash(root.toString()));
 			removeEmptyDirs(url);
-		})
+		});
 		files = fs.readdirSync(dir);
 	}
 
