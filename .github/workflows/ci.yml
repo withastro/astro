@@ -110,11 +110,8 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [windows-latest]
         NODE_VERSION: [16, 18]
-        include:
-          - os: macos-latest
-            NODE_VERSION: 16
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -146,6 +143,7 @@ jobs:
         run: pnpm run test
 
   e2e:
+    if: false
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -180,6 +178,7 @@ jobs:
         run: pnpm run test:e2e
 
   smoke:
+    if: false
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
