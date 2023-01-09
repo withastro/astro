@@ -157,10 +157,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		config,
 		resolveUrl,
-		fetch: (url, init) => {
-			console.log('fetch2', fetch)
-			return fetch(resolveUrl(url), init)
-		},
+		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
@@ -308,10 +305,6 @@ export function fixLineEndings(str) {
 }
 
 export async function* streamAsyncIterator(stream) {
-	if(typeof stream.getReader !== 'function') {
-		console.log(stream);
-		throw new Error(`stream.getReader() is not a function.`);
-	}
 	const reader = stream.getReader();
 
 	try {
