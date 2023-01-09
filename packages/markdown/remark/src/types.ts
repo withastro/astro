@@ -58,7 +58,6 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	$?: {
 		scopedClassName: string | null;
 	};
-	isAstroFlavoredMd?: boolean;
 	/** Used to prevent relative image imports from `src/content/` */
 	isExperimentalContentCollections?: boolean;
 	/** Used to prevent relative image imports from `src/content/` */
