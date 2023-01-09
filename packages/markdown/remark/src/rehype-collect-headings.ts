@@ -1,5 +1,4 @@
 import Slugger from 'github-slugger';
-import { toHtml } from 'hast-util-to-html';
 import { visit } from 'unist-util-visit';
 
 import type { MarkdownHeading, MarkdownVFile, RehypePlugin } from './types.js';
