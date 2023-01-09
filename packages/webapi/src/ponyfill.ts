@@ -22,7 +22,7 @@ import {
 	WritableStream,
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
-} from 'web-streams-polyfill/dist/ponyfill.es6.mjs'
+} from 'node:stream/web'
 import {
 	cancelAnimationFrame,
 	requestAnimationFrame,

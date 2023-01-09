@@ -76,13 +76,13 @@ const plugins = [
 		MediaQueryList: ['./MediaQueryList', 'MediaQueryList'],
 		Node: ['./Node', 'Node'],
 		ReadableStream: [
-			'web-streams-polyfill/dist/ponyfill.es6.mjs',
+			'node:stream/web',
 			'ReadableStream',
 		],
 		ShadowRoot: ['./Node', 'ShadowRoot'],
 		Window: ['./Window', 'Window'],
 		'globalThis.ReadableStream': [
-			'web-streams-polyfill/dist/ponyfill.es6.mjs',
+			'node:stream/web',
 			'ReadableStream',
 		],
 	}),
