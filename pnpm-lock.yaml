@@ -3473,7 +3473,6 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       github-slugger: ^1.4.0
-      hast-util-to-html: ^8.0.3
       import-meta-resolve: ^2.1.0
       mocha: ^9.2.2
       rehype-raw: ^6.1.1
@@ -3490,7 +3489,6 @@ importers:
       '@astrojs/prism': link:../../astro-prism
       acorn: 8.8.1
       github-slugger: 1.5.0
-      hast-util-to-html: 8.0.3
       import-meta-resolve: 2.2.1
       rehype-raw: 6.1.1
       rehype-stringify: 9.0.3
