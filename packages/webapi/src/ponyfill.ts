@@ -7,7 +7,7 @@ import {
 import { Event, EventTarget } from 'event-target-shim'
 import { Blob, File } from 'fetch-blob/from.js'
 import { FormData } from 'formdata-polyfill/esm.min.js'
-import { fetch, Headers, Request, Response } from 'undici'
+import * as undici from 'undici'
 import { URLPattern } from 'urlpattern-polyfill'
 import {
 	ByteLengthQueuingStrategy,
@@ -82,6 +82,11 @@ import { initObject } from './lib/Object'
 import { initPromise } from './lib/Promise'
 import { initRelativeIndexingMethod } from './lib/RelativeIndexingMethod'
 import { initString } from './lib/String'
+
+const fetch = undici.fetch
+const Headers = undici.Headers
+const Response = undici.Response
+const Request = undici.Request
 
 export {
 	AbortController,
