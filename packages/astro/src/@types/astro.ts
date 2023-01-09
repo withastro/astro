@@ -592,7 +592,7 @@ export interface AstroUserConfig {
 		 * @type {string}
 		 * @default `'_astro'`
 		 * @description
-		 * Specifies the directory where Astro-generated assets should live.
+		 * Specifies the directory in the build output where Astro-generated assets (bundled JS and CSS for example) should live.
 		 *
 		 * ```js
 		 * {
