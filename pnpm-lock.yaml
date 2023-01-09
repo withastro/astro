@@ -396,7 +396,7 @@ importers:
       '@babel/plugin-transform-react-jsx': ^7.17.12
       '@babel/traverse': ^7.18.2
       '@babel/types': ^7.18.4
-      '@playwright/test': 1.28.1
+      '@playwright/test': ^1.29.2
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.1
@@ -542,7 +542,7 @@ importers:
       yargs-parser: 21.1.1
       zod: 3.20.2
     devDependencies:
-      '@playwright/test': 1.28.1
+      '@playwright/test': 1.29.2
       '@types/babel__generator': 7.6.4
       '@types/babel__traverse': 7.18.3
       '@types/chai': 4.3.4
@@ -3127,24 +3127,24 @@ importers:
 
   packages/integrations/prefetch:
     specifiers:
-      '@playwright/test': 1.28.1
+      '@playwright/test': ^1.29.2
       '@types/chai': ^4.3.1
       '@types/chai-as-promised': ^7.1.5
       '@types/mocha': ^9.1.1
       astro: workspace:*
       astro-scripts: workspace:*
-      playwright: 1.28.1
+      playwright: ^1.29.2
       throttles: ^1.0.1
     dependencies:
       throttles: 1.0.1
     devDependencies:
-      '@playwright/test': 1.28.1
+      '@playwright/test': 1.29.2
       '@types/chai': 4.3.4
       '@types/chai-as-promised': 7.1.5
       '@types/mocha': 9.1.1
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      playwright: 1.28.1
+      playwright: 1.29.2
 
   packages/integrations/prefetch/test/fixtures/basic-prefetch:
     specifiers:
@@ -6565,13 +6565,13 @@ packages:
       tiny-glob: 0.2.9
       tslib: 2.4.1
 
-  /@playwright/test/1.28.1:
-    resolution: {integrity: sha512-xN6spdqrNlwSn9KabIhqfZR7IWjPpFK1835tFNgjrlysaSezuX8PYUwaz38V/yI8TJLG9PkAMEXoHRXYXlpTPQ==}
+  /@playwright/test/1.29.2:
+    resolution: {integrity: sha512-+3/GPwOgcoF0xLz/opTnahel1/y42PdcgZ4hs+BZGIUjtmEFSXGg+nFoaH3NSmuc7a6GSFwXDJ5L7VXpqzigNg==}
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
       '@types/node': 18.11.18
-      playwright-core: 1.28.1
+      playwright-core: 1.29.2
     dev: true
 
   /@polka/url/1.0.0-next.21:
@@ -12782,19 +12782,19 @@ packages:
       find-up: 3.0.0
     dev: false
 
-  /playwright-core/1.28.1:
-    resolution: {integrity: sha512-3PixLnGPno0E8rSBJjtwqTwJe3Yw72QwBBBxNoukIj3lEeBNXwbNiKrNuB1oyQgTBw5QHUhNO3SteEtHaMK6ag==}
+  /playwright-core/1.29.2:
+    resolution: {integrity: sha512-94QXm4PMgFoHAhlCuoWyaBYKb92yOcGVHdQLoxQ7Wjlc7Flg4aC/jbFW7xMR52OfXMVkWicue4WXE7QEegbIRA==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
 
-  /playwright/1.28.1:
-    resolution: {integrity: sha512-92Sz6XBlfHlb9tK5UCDzIFAuIkHHpemA9zwUaqvo+w7sFMSmVMGmvKcbptof/eJObq63PGnMhM75x7qxhTR78Q==}
+  /playwright/1.29.2:
+    resolution: {integrity: sha512-hKBYJUtdmYzcjdhYDkP9WGtORwwZBBKAW8+Lz7sr0ZMxtJr04ASXVzH5eBWtDkdb0c3LLFsehfPBTRfvlfKJOA==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.28.1
+      playwright-core: 1.29.2
     dev: true
 
   /postcss-attribute-case-insensitive/5.0.2_postcss@8.4.21:
