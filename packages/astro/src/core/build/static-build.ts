@@ -134,6 +134,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
+					// Server chunks can't go in the assets (_astro) folder
+					// We need to keep these separate
 					chunkFileNames: `chunks/[name].[hash].mjs`,
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
