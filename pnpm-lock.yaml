@@ -411,8 +411,6 @@ importers:
       '@types/html-escaper': ^3.0.0
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.1.1
-      '@types/parse5': ^6.0.3
-      '@types/path-browserify': ^1.0.0
       '@types/prettier': ^2.6.3
       '@types/prompts': ^2.0.14
       '@types/resolve': ^1.20.2
@@ -440,9 +438,7 @@ importers:
       fast-glob: ^3.2.11
       github-slugger: ^2.0.0
       gray-matter: ^4.0.3
-      html-entities: ^2.3.3
       html-escaper: ^3.0.3
-      import-meta-resolve: ^2.1.0
       kleur: ^4.1.4
       magic-string: ^0.27.0
       memfs: ^3.4.7
@@ -450,19 +446,14 @@ importers:
       mocha: ^9.2.2
       node-mocks-http: ^1.11.0
       ora: ^6.1.0
-      path-browserify: ^1.0.1
       path-to-regexp: ^6.2.1
-      postcss: ^8.4.14
-      postcss-load-config: ^3.1.4
       preferred-pm: ^3.0.3
       prompts: ^2.4.2
-      recast: ^0.20.5
       rehype: ^12.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
       rehype-toc: ^3.0.2
       remark-code-titles: ^0.1.2
-      resolve: ^1.22.0
       rollup: ^3.9.0
       sass: ^1.52.2
       semver: ^7.3.7
@@ -496,7 +487,6 @@ importers:
       '@babel/traverse': 7.20.12
       '@babel/types': 7.20.7
       '@types/babel__core': 7.1.20
-      '@types/html-escaper': 3.0.0
       '@types/yargs-parser': 21.0.0
       acorn: 8.8.1
       boxen: 6.2.1
@@ -513,22 +503,15 @@ importers:
       fast-glob: 3.2.12
       github-slugger: 2.0.0
       gray-matter: 4.0.3
-      html-entities: 2.3.3
       html-escaper: 3.0.3
-      import-meta-resolve: 2.2.1
       kleur: 4.1.5
       magic-string: 0.27.0
       mime: 3.0.0
       ora: 6.1.2
-      path-browserify: 1.0.1
       path-to-regexp: 6.2.1
-      postcss: 8.4.21
-      postcss-load-config: 3.1.4_postcss@8.4.21
       preferred-pm: 3.0.3
       prompts: 2.4.2
-      recast: 0.20.5
       rehype: 12.0.1
-      resolve: 1.22.1
       semver: 7.3.8
       server-destroy: 1.0.1
       shiki: 0.11.1
@@ -556,10 +539,9 @@ importers:
       '@types/diff': 5.0.2
       '@types/estree': 0.0.51
       '@types/hast': 2.3.4
+      '@types/html-escaper': 3.0.0
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.1
-      '@types/parse5': 6.0.3
-      '@types/path-browserify': 1.0.0
       '@types/prettier': 2.7.2
       '@types/prompts': 2.4.2
       '@types/resolve': 1.20.2
@@ -6985,7 +6967,6 @@ packages:
 
   /@types/html-escaper/3.0.0:
     resolution: {integrity: sha512-OcJcvP3Yk8mjYwf/IdXZtTE1tb/u0WF0qa29ER07ZHCYUBZXSN29Z1mBS+/96+kNMGTFUAbSz9X+pHmHpZrTCw==}
-    dev: false
 
   /@types/http-cache-semantics/4.0.1:
     resolution: {integrity: sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==}
@@ -7067,10 +7048,7 @@ packages:
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
-
-  /@types/path-browserify/1.0.0:
-    resolution: {integrity: sha512-XMCcyhSvxcch8b7rZAtFAaierBYdeHXVvg2iYnxOV0MCQHmPuRRmGZPFDRzPayxcGiiSL1Te9UIO+f3cuj0tfw==}
-    dev: true
+    dev: false
 
   /@types/prettier/2.7.2:
     resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
