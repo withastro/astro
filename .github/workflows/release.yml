@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0 # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
 
       - name: Setup Node
         uses: actions/setup-node@v3

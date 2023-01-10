@@ -18,7 +18,7 @@ jobs:
           # Needs access to push to main
           token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
       - name: Setup Node
         uses: actions/setup-node@v3
         with:

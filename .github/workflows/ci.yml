@@ -19,9 +19,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: [14, 16]
+        node_version: [16, 18]
         include:
           - os: windows-latest
+            node_version: 16
+          - os: macos-latest
             node_version: 16
       fail-fast: false
 
@@ -31,7 +33,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
 
       - name: Set node version to ${{ matrix.node_version }}
         uses: actions/setup-node@v3
