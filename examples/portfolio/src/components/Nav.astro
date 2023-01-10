@@ -1,11 +1,22 @@
 ---
-import Icon from './Icon.astro';
+import Icon, { Props as IconProps } from './Icon.astro';
 import ThemeToggle from './ThemeToggle.astro';
 
-const menu = [
+/** Main menu items */
+const textLinks: { label: string; href: string }[] = [
 	{ label: 'Home', href: '/' },
 	{ label: 'Work', href: '/work/' },
 	{ label: 'About', href: '/about/' },
+];
+
+/** Icon links to social media — edit these with links to your profiles! */
+const iconLinks: { label: string; href: string; icon: IconProps['icon'] }[] = [
+	{ label: 'Twitter', href: 'https://twitter.com/me', icon: 'twitter-logo' },
+	{ label: 'Twitch', href: 'https://twitch.tv/me', icon: 'twitch-logo' },
+	{ label: 'GitHub', href: 'https://github.com/me', icon: 'github-logo' },
+	{ label: 'CodePen', href: 'https://codepen.io/me', icon: 'codepen-logo' },
+	{ label: 'dribbble', href: 'https://dribbble.com/me', icon: 'dribbble-logo' },
+	{ label: 'YouTube', href: 'https://www.youtube.com/@me/', icon: 'youtube-logo' },
 ];
 ---
 
@@ -27,7 +38,7 @@ const menu = [
 	<div id="menu-content">
 		<ul class="nav-items">
 			{
-				menu.map(({ label, href }) => (
+				textLinks.map(({ label, href }) => (
 					<li>
 						<a
 							aria-current={Astro.url.pathname === href}
@@ -49,30 +60,14 @@ const menu = [
 		</ul>
 		<div class="menu-footer">
 			<div class="socials">
-				<a class="social" href="https://twitter.com/me">
-					<span class="sr-only">Twitter</span>
-					<Icon icon="twitter-logo" />
-				</a>
-				<a class="social" href="https://www.twitch.tv/me">
-					<span class="sr-only">Twitch</span>
-					<Icon icon="twitch-logo" />
-				</a>
-				<a class="social" href="https://github.com/me">
-					<span class="sr-only">GitHub</span>
-					<Icon icon="github-logo" />
-				</a>
-				<a class="social" href="https://codepen.io/me">
-					<span class="sr-only">CodePen</span>
-					<Icon icon="codepen-logo" />
-				</a>
-				<a class="social" href="https://dribbble.com/me">
-					<span class="sr-only">dribbble</span>
-					<Icon icon="dribbble-logo" />
-				</a>
-				<a class="social" href="https://www.youtube.com/@me/">
-					<span class="sr-only">YouTube</span>
-					<Icon icon="youtube-logo" />
-				</a>
+				{
+					iconLinks.map(({ href, icon, label }) => (
+						<a href={href} class="social">
+							<span class="sr-only">{label}</span>
+							<Icon icon={icon} />
+						</a>
+					))
+				}
 			</div>
 
 			<div class="theme-toggle">
