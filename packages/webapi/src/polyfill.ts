@@ -38,11 +38,7 @@ import {
 	initCustomElementRegistry,
 	initDocument,
 	initMediaQueryList,
-	initObject,
-	initPromise,
-	initRelativeIndexingMethod,
 	initStorage,
-	initString,
 	initWindow,
 	IntersectionObserver,
 	MediaQueryList,
@@ -299,12 +295,8 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 		}
 	}
 
-	initObject(target, excludeOptions)
 	initMediaQueryList(target, excludeOptions)
-	initPromise(target, excludeOptions)
-	initRelativeIndexingMethod(target, excludeOptions)
 	initStorage(target, excludeOptions)
-	initString(target, excludeOptions)
 	initWindow(target, excludeOptions)
 
 	return target
@@ -315,11 +307,7 @@ polyfill.internals = (target: any, name: string) => {
 		CustomElementRegistry: initCustomElementRegistry,
 		Document: initDocument,
 		MediaQueryList: initMediaQueryList,
-		Object: initObject,
-		Promise: initPromise,
-		RelativeIndexingMethod: initRelativeIndexingMethod,
 		Storage: initStorage,
-		String: initString,
 		Window: initWindow,
 	}
 

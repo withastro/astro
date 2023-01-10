@@ -71,11 +71,6 @@ import { initWindow, Window } from './lib/Window'
 
 import { alert } from './lib/Alert'
 
-import { initObject } from './lib/Object'
-import { initPromise } from './lib/Promise'
-import { initRelativeIndexingMethod } from './lib/RelativeIndexingMethod'
-import { initString } from './lib/String'
-
 const fetch = undici.fetch
 const Headers = undici.Headers
 const Response = undici.Response
@@ -153,10 +148,6 @@ export {
 	initCustomElementRegistry,
 	initDocument,
 	initMediaQueryList,
-	initObject,
-	initPromise,
-	initRelativeIndexingMethod,
 	initStorage,
-	initString,
 	initWindow,
 }

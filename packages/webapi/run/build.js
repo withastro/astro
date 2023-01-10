@@ -166,7 +166,7 @@ async function build() {
 			inputOptions: {
 				input: 'src/polyfill.ts',
 				plugins: plugins,
-				external: ['undici', 'global-agent'],
+				external: ['undici'],
 				onwarn(warning, warn) {
 					if (warning.code !== 'UNRESOLVED_IMPORT') warn(warning)
 				},

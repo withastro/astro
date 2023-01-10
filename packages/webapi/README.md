@@ -75,7 +75,7 @@ These APIs are combined from popular open source projects and configured to shar
 - [WritableStreamDefaultController](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultController)
 - [WritableStreamDefaultWriter](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter)
 - [Window](https://developer.mozilla.org/en-US/docs/Web/API/Window)
-- [cancelAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/cancelAnimationFrame)
+- [cancelAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame)
 - [cancelIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/cancelIdleCallback)
 - [clearTimeout](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout)
 - [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
@@ -84,11 +84,6 @@ These APIs are combined from popular open source projects and configured to shar
 - [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/requestIdleCallback)
 - [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
 - [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)
-- [Object.hasOwn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwn)
-- [Promise.any](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any)
-- [Array.prototype.at](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at)
-- [String.prototype.at](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at)
-- [TypedArray.prototype.at](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/at)
 - [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern)
 
 ## Usage
