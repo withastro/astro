@@ -24,6 +24,7 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
+import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -102,6 +103,7 @@ export async function createVite(
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPropagationPlugin({ settings }),
 			astroScannerPlugin({ settings, logging }),
+			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			...(settings.config.experimental.contentCollections
 				? [
 						astroContentVirtualModPlugin({ settings }),

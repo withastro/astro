@@ -7,12 +7,14 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
+import { getEnvTsPath } from '../vite-plugin-inject-env-ts/index.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
 	getContentPaths,
+	getDotAstroTypeReference,
 	getEntryInfo,
 	loadContentConfig,
 	NoCollectionError,
@@ -55,7 +57,7 @@ export async function createContentTypesGenerator({
 
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	await addContentTypeReference({ fs, logging, settings, contentPaths });
+	await addContentTypeReference({ fs, logging, settings });
 
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
@@ -350,17 +352,15 @@ async function addContentTypeReference({
 	settings,
 	fs,
 	logging,
-	contentPaths,
 }: {
 	settings: AstroSettings;
 	fs: typeof fsMod;
 	logging: LogOptions;
-	contentPaths: ContentPaths;
 }) {
-	const typesEnvPath = new URL('env.d.ts', settings.config.srcDir);
+	const envTsPath = getEnvTsPath(settings.config);
 	let typesEnvContents = '';
 	try {
-		typesEnvContents = await fs.promises.readFile(typesEnvPath, 'utf-8');
+		typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
 	} catch {
 		/*
 		 * `src/env.d.ts` from Astro starter template is not present.
@@ -369,23 +369,15 @@ async function addContentTypeReference({
 		return;
 	}
 
-	const contentTypesRelativeToSrcDir = normalizePath(
-		path.relative(
-			fileURLToPath(settings.config.srcDir),
-			fileURLToPath(new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir))
-		)
-	);
+	const expectedTypeReference = getDotAstroTypeReference(settings.config);
 
 	const typeEnvRelativeToRoot = normalizePath(
-		path.relative(fileURLToPath(settings.config.root), fileURLToPath(typesEnvPath))
+		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
 	);
 
-	const expectedTypeReference = `/// <reference path=${JSON.stringify(
-		contentTypesRelativeToSrcDir
-	)} />`;
 	if (!typesEnvContents.includes(expectedTypeReference)) {
 		typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
-		await fs.promises.writeFile(typesEnvPath, typesEnvContents, 'utf-8');
+		await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
 		info(logging, 'content', `Added types reference to \`${typeEnvRelativeToRoot}\``);
 	}
 }

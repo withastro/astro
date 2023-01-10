@@ -7,6 +7,7 @@ import { createServer, ErrorPayload as ViteErrorPayload, normalizePath, ViteDevS
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
 
 export const collectionConfigParser = z.object({
@@ -25,6 +26,15 @@ export const collectionConfigParser = z.object({
 		.returns(z.union([z.string(), z.promise(z.string())]))
 		.optional(),
 });
+
+export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
+	const { cacheDir } = getContentPaths({ root, srcDir });
+	const contentTypesRelativeToSrcDir = normalizePath(
+		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
+	);
+
+	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
+}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
