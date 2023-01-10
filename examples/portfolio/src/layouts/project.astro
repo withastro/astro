@@ -80,6 +80,14 @@ const { content } = Astro.props;
 		margin-top: 1rem;
 	}
 
+	.content :global(h1),
+	.content :global(h2),
+	.content :global(h3),
+	.content :global(h4),
+	.content :global(h5) {
+		margin: 1.5rem 0;
+	}
+
 	.content :global(img) {
 		border-radius: 1.5rem;
 		box-shadow: var(--shadow-sm);

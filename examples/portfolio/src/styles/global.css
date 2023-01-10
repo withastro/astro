@@ -150,8 +150,6 @@ h2,
 h3,
 h4,
 h5 {
-	/* TODO: Reinstate this default margin for Markdown content. */
-	/* margin: 1.5rem 0; */
 	line-height: 1.1;
 	font-family: var(--font-brand);
 	font-weight: 600;
