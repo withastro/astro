@@ -21,7 +21,15 @@ export async function sync(
 			fs,
 			settings,
 		});
-		await contentTypesGenerator.init();
+		const typesResult = await contentTypesGenerator.init();
+		if (typesResult.typesGenerated === false) {
+			switch (typesResult.reason) {
+				case 'no-content-dir':
+				default:
+					info(logging, 'content', 'No content directory found. Skipping type generation.');
+					return 0;
+			}
+		}
 	} catch (e) {
 		throw new AstroError(AstroErrorData.GenerateContentTypesError);
 	}

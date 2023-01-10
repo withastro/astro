@@ -7,11 +7,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions } from '../core/logger/core.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
-import {
-	createContentTypesGenerator,
-	GenerateContentTypes,
-	getEntryType,
-} from './types-generator.js';
+import { createContentTypesGenerator, getEntryType } from './types-generator.js';
 import {
 	ContentConfig,
 	contentObservable,
@@ -37,7 +33,7 @@ export function astroContentServerPlugin({
 }: AstroContentServerPluginParams): Plugin[] {
 	const contentPaths = getContentPaths(settings.config);
 	let contentDirExists = false;
-	let contentGenerator: GenerateContentTypes;
+	let contentGenerator: Awaited<ReturnType<typeof createContentTypesGenerator>>;
 	const contentConfigObserver = contentObservable({ status: 'loading' });
 
 	return [

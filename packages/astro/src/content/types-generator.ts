@@ -22,11 +22,6 @@ type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
 
-export type GenerateContentTypes = {
-	init(): Promise<void>;
-	queueEvent(event: RawContentEvent): void;
-};
-
 type ContentTypesEntryMetadata = { slug: string };
 type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
 
@@ -46,7 +41,7 @@ export async function createContentTypesGenerator({
 	fs,
 	logging,
 	settings,
-}: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
+}: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config);
 
@@ -55,7 +50,13 @@ export async function createContentTypesGenerator({
 
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	async function init() {
+	async function init(): Promise<
+		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
+	> {
+		if (!fs.existsSync(contentPaths.contentDir)) {
+			return { typesGenerated: false, reason: 'no-content-dir' };
+		}
+
 		events.push(handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' }));
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
@@ -74,6 +75,7 @@ export async function createContentTypesGenerator({
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
 		await runEvents();
+		return { typesGenerated: true };
 	}
 
 	async function handleEvent(
