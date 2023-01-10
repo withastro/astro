@@ -2,16 +2,17 @@ import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Readable } from 'stream';
 import { responseIterator } from './response-iterator';
+import type { Options } from './types';
 
-export default function (app: NodeApp) {
+export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (
 		req: IncomingMessage,
 		res: ServerResponse,
 		next?: (err?: unknown) => void
 	) {
 		try {
-			const route = app.match(req);
-
+			const route =
+				mode === 'standalone' ? app.match(req, { matchNotFound: true }) : app.match(req);
 			if (route) {
 				try {
 					const response = await app.render(req);
