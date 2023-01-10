@@ -206,7 +206,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'check': {
-			const ret = await check(settings);
+			const ret = await check(settings, { logging });
 			return process.exit(ret);
 		}
 
