@@ -3099,7 +3099,7 @@ importers:
 
   packages/integrations/partytown:
     specifiers:
-      '@builder.io/partytown': ^0.7.1
+      '@builder.io/partytown': ^0.7.4
       astro: workspace:*
       astro-scripts: workspace:*
       mrmime: ^1.0.0
