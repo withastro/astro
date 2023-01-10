@@ -28,6 +28,7 @@ import { getMarkdownDocumentation } from '../previewer';
 import type { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import {
 	convertRange,
+	convertToLocationRange,
 	ensureFrontmatterInsert,
 	getCommitCharactersForScriptElement,
 	getScriptTagSnapshot,
@@ -158,13 +159,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			// PERF: Getting TS completions is fairly slow and I am currently not sure how to speed it up
 			// As such, we'll try to avoid getting them when unneeded, such as when we're doing HTML stuff
 
-			// When at the root of the document TypeScript offer all kinds of completions, because it doesn't know yet that
-			// it's JSX and not JS. As such, people who are using Emmet to write their template suffer from a very degraded experience
-			// from what they're used to in HTML files (which is instant completions). So let's disable ourselves when we're at the root
-			if (!isCompletionInsideFrontmatter && !node.parent && !isCompletionInsideExpression) {
-				return null;
-			}
-
 			// If the user just typed `<` with nothing else, let's disable ourselves until we're more sure if the user wants TS completions
 			if (!isCompletionInsideFrontmatter && node.parent && node.tag === undefined && !isCompletionInsideExpression) {
 				return null;
@@ -191,14 +185,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			return null;
 		}
 
-		const wordRange = completions.optionalReplacementSpan
-			? Range.create(
-					document.positionAt(completions.optionalReplacementSpan.start),
-					document.positionAt(completions.optionalReplacementSpan.start + completions.optionalReplacementSpan.length)
-			  )
-			: undefined;
-		const wordRangeStartPosition = wordRange?.start;
-
 		const existingImports = this.getExistingImports(document);
 		const completionItems = completions.entries
 			.filter((completion) => this.isValidCompletion(completion, this.ts))
@@ -213,8 +199,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 					existingImports
 				)
 			)
-			.filter(isNotNullOrUndefined)
-			.map((comp) => this.fixTextEditRange(wordRangeStartPosition, comp));
+			.filter(isNotNullOrUndefined);
 
 		const completionList = CompletionList.create(completionItems, true);
 		this.lastCompletion = { key: document.getFilePath() || '', position, completionList };
@@ -369,7 +354,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			item.insertText = comp.insertText ? removeAstroComponentSuffix(comp.insertText) : undefined;
 			item.insertTextFormat = comp.isSnippet ? InsertTextFormat.Snippet : InsertTextFormat.PlainText;
 			item.textEdit = comp.replacementSpan
-				? TextEdit.replace(convertRange(snapshot, comp.replacementSpan), item.insertText ?? item.label)
+				? TextEdit.replace(convertToLocationRange(snapshot, comp.replacementSpan), item.insertText ?? item.label)
 				: undefined;
 		}
 
@@ -403,49 +388,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			documentation,
 			detail,
 		};
-	}
-
-	/**
-	 * If the textEdit is out of the word range of the triggered position
-	 * vscode would refuse to show the completions
-	 * split those edits into additionalTextEdit to fix it
-	 */
-	private fixTextEditRange(wordRangePosition: Position | undefined, completionItem: CompletionItem) {
-		const { textEdit } = completionItem;
-		if (!textEdit || !TextEdit.is(textEdit) || !wordRangePosition) {
-			return completionItem;
-		}
-
-		const {
-			newText,
-			range: { start },
-		} = textEdit;
-
-		const wordRangeStartCharacter = wordRangePosition.character;
-		if (wordRangePosition.line !== wordRangePosition.line || start.character > wordRangePosition.character) {
-			return completionItem;
-		}
-
-		textEdit.newText = newText.substring(wordRangeStartCharacter - start.character);
-		textEdit.range.start = {
-			line: start.line,
-			character: wordRangeStartCharacter,
-		};
-
-		completionItem.additionalTextEdits = [
-			TextEdit.replace(
-				{
-					start,
-					end: {
-						line: start.line,
-						character: wordRangeStartCharacter,
-					},
-				},
-				newText.substring(0, wordRangeStartCharacter - start.character)
-			),
-		];
-
-		return completionItem;
 	}
 
 	private canReuseLastCompletion(
