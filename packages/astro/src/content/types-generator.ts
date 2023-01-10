@@ -260,13 +260,13 @@ export function getEntryType(
 	entryPath: string,
 	paths: ContentPaths
 ): 'content' | 'config' | 'unknown' | 'generated-types' {
-	const { dir: rawDir, ext, name, base } = path.parse(entryPath);
+	const { dir: rawDir, ext, base } = path.parse(entryPath);
 	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
 	if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
-	} else if (new URL(name, dir).pathname === paths.config.pathname) {
+	} else if (new URL(base, dir).href === paths.config.href) {
 		return 'config';
-	} else if (new URL(base, dir).pathname === new URL(CONTENT_TYPES_FILE, paths.cacheDir).pathname) {
+	} else if (new URL(base, dir).href === new URL(CONTENT_TYPES_FILE, paths.cacheDir).href) {
 		return 'generated-types';
 	} else {
 		return 'unknown';
@@ -314,6 +314,11 @@ async function writeContentFiles({
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
+
+	// Remove `.ts` from import path
+	if (configPathRelativeToCacheDir.endsWith('.ts')) {
+		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
+	}
 
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
 	contentTypesBase = contentTypesBase.replace(

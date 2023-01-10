@@ -292,6 +292,6 @@ export function getContentPaths({
 		contentDir: new URL('./content/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
-		config: new URL('./content/config', srcDir),
+		config: new URL('./content/config.ts', srcDir),
 	};
 }
