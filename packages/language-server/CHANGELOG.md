@@ -1,11 +1,5 @@
 # @astrojs/language-server
 
-## 0.29.4
-
-### Patch Changes
-
-- ec98e0e: Fix completions of strings not showing in certain cases
-
 ## 0.29.3
 
 ### Patch Changes
