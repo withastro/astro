@@ -17,7 +17,6 @@ describe('API routes', () => {
 
 	it('Can get the request body', async () => {
 		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
-		console.log('....')
 		let { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/recipes',

@@ -2,4 +2,4 @@
 '@astrojs/node': patch
 ---
 
-can jump 404 when that page does not exist
+Support custom 404 page in standalone mode
