@@ -131,7 +131,7 @@ describe('CSS Plugin', () => {
 				contents: {
 					kind: 'markdown',
 					value:
-						"Sets the color of an element's text\n\nSyntax: &lt;color&gt;\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/color)",
+						"Sets the color of an element's text\n\n(Edge 12, Firefox 1, Safari 1, Chrome 1, IE 3, Opera 3)\n\nSyntax: &lt;color&gt;\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/color)",
 				},
 				range: Range.create(0, 11, 0, 21),
 			});
@@ -144,7 +144,7 @@ describe('CSS Plugin', () => {
 				contents: {
 					kind: 'markdown',
 					value:
-						"Sets the color of an element's text\n\nSyntax: &lt;color&gt;\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/color)",
+						"Sets the color of an element's text\n\n(Edge 12, Firefox 1, Safari 1, Chrome 1, IE 3, Opera 3)\n\nSyntax: &lt;color&gt;\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/CSS/color)",
 				},
 				range: Range.create(0, 12, 0, 22),
 			});
@@ -234,6 +234,29 @@ describe('CSS Plugin', () => {
 			const foldingRanges = plugin.getFoldingRanges(document);
 
 			expect(foldingRanges).to.be.empty;
+		});
+	});
+
+	describe('provides renaming edits', () => {
+		it('can prepare rename', () => {
+			const { plugin, document } = setup('<style>h1 {color: red;}</style>');
+
+			const prepareRename = plugin.prepareRename(document, Position.create(0, 8));
+
+			expect(prepareRename).to.deep.equal(Range.create(0, 7, 0, 9));
+		});
+
+		it('can provide rename edits', () => {
+			const { plugin, document } = setup('<style>h1 {color: red;}</style>');
+
+			const renameEdits = plugin.rename(document, Position.create(0, 8), 'h2');
+
+			expect(renameEdits?.changes?.[document.uri]).to.deep.equal([
+				{
+					newText: 'h2',
+					range: Range.create(0, 7, 0, 9),
+				},
+			]);
 		});
 	});
 

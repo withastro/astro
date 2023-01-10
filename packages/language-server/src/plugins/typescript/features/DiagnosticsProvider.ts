@@ -42,10 +42,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
 		// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
-		if (
-			(tsDoc as AstroSnapshot).compilerDiagnostics.filter((diag) => diag.severity === DiagnosticSeverity.Error).length >
-			0
-		) {
+		if ((tsDoc as AstroSnapshot).isInErrorState) {
 			return [];
 		}
 

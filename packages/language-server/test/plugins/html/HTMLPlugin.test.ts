@@ -156,6 +156,33 @@ describe('HTML Plugin', () => {
 		});
 	});
 
+	describe('provides renaming edits', () => {
+		it('can prepare the range', () => {
+			const { plugin, document } = setup(`<div></div>`);
+
+			const renameEdits = plugin.prepareRename(document, Position.create(0, 2));
+
+			expect(renameEdits).to.deep.equal(Range.create(0, 1, 0, 4));
+		});
+
+		it('can provide the edits', () => {
+			const { plugin, document } = setup(`<div></div>`);
+
+			const renameEdits = plugin.rename(document, Position.create(0, 2), 'span');
+
+			expect(renameEdits?.changes?.[document.uri]).to.deep.equal([
+				{
+					newText: 'span',
+					range: Range.create(0, 1, 0, 4),
+				},
+				{
+					newText: 'span',
+					range: Range.create(0, 7, 0, 10),
+				},
+			]);
+		});
+	});
+
 	describe('provides document symbols', () => {
 		it('for html', async () => {
 			const { plugin, document } = setup('<div><p>Astro</p></div>');

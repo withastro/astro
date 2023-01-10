@@ -1,4 +1,4 @@
-import type { TSXResult } from '@astrojs/compiler/shared/types';
+import type { TSXResult } from '@astrojs/compiler/types';
 import {
 	CancellationToken,
 	CodeAction,
@@ -36,17 +36,12 @@ import { HoverProviderImpl } from './features/HoverProvider';
 import { ImplementationsProviderImpl } from './features/ImplementationsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
 import { FindReferencesProviderImpl } from './features/ReferencesProvider';
+import { RenameProviderImpl } from './features/RenameProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { TypeDefinitionsProviderImpl } from './features/TypeDefinitionsProvider';
 import type { LanguageServiceManager } from './LanguageServiceManager';
-import {
-	convertToLocationRange,
-	ensureRealFilePath,
-	getScriptKindFromFileName,
-	isAstroFilePath,
-	isFrameworkFilePath,
-} from './utils';
+import { getScriptKindFromFileName, isAstroFilePath, isFrameworkFilePath } from './utils';
 
 export class TypeScriptPlugin implements Plugin {
 	__name = 'typescript';
@@ -68,6 +63,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly inlayHintsProvider: InlayHintsProviderImpl;
 	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
 	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
+	private readonly renameProvider: RenameProviderImpl;
 
 	private readonly ts: typeof import('typescript/lib/tsserverlibrary');
 
@@ -90,6 +86,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.semanticTokensProvider = new SemanticTokensProviderImpl(this.languageServiceManager);
 		this.inlayHintsProvider = new InlayHintsProviderImpl(this.languageServiceManager, this.configManager);
 		this.foldingRangesProvider = new FoldingRangesProviderImpl(this.languageServiceManager);
+		this.renameProvider = new RenameProviderImpl(this.languageServiceManager, this.configManager);
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
@@ -100,33 +97,12 @@ export class TypeScriptPlugin implements Plugin {
 		return this.hoverProvider.doHover(document, position);
 	}
 
+	async prepareRename(document: AstroDocument, position: Position): Promise<Range | null> {
+		return this.renameProvider.prepareRename(document, position);
+	}
+
 	async rename(document: AstroDocument, position: Position, newName: string): Promise<WorkspaceEdit | null> {
-		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-
-		const offset = tsDoc.offsetAt(tsDoc.getGeneratedPosition(position));
-
-		let renames = lang.findRenameLocations(tsDoc.filePath, offset, false, false, true);
-		if (!renames) {
-			return null;
-		}
-
-		let edit = {
-			changes: {},
-		} as WorkspaceEdit;
-
-		renames.forEach((rename) => {
-			const filePath = ensureRealFilePath(rename.fileName);
-			if (!(filePath in edit.changes!)) {
-				edit.changes![filePath] = [];
-			}
-
-			edit.changes![filePath].push({
-				newText: newName,
-				range: convertToLocationRange(tsDoc, rename.textSpan),
-			});
-		});
-
-		return edit;
+		return this.renameProvider.rename(document, position, newName);
 	}
 
 	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[] | null> {

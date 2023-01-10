@@ -11,6 +11,7 @@ import {
 	Position,
 	Range,
 	SymbolInformation,
+	WorkspaceEdit,
 } from 'vscode-languageserver';
 import type { ConfigManager } from '../../core/config/ConfigManager';
 import type { LSConfig, LSCSSConfig } from '../../core/config/interfaces';
@@ -24,6 +25,7 @@ import {
 	mapHoverToParent,
 	mapObjWithRangeToOriginal,
 	mapRangeToGenerated,
+	mapRangeToOriginal,
 	mapSymbolInformationToOriginal,
 	TagInformation,
 } from '../../core/documents';
@@ -252,6 +254,56 @@ export class CSSPlugin implements Plugin {
 		});
 
 		return allColorPres;
+	}
+
+	prepareRename(document: AstroDocument, position: Position): Range | null {
+		const styleTag = this.getStyleTagForPosition(document, position);
+
+		if (!styleTag) {
+			return null;
+		}
+
+		const cssDocument = this.getCSSDocumentForStyleTag(styleTag, document);
+		const cssLang = extractLanguage(cssDocument);
+		const langService = getLanguageService(cssLang);
+		const range = langService.prepareRename(
+			cssDocument,
+			cssDocument.getGeneratedPosition(position),
+			cssDocument.stylesheet
+		);
+
+		if (!range) {
+			return null;
+		}
+
+		return mapRangeToOriginal(cssDocument, range);
+	}
+
+	rename(document: AstroDocument, position: Position, newName: string): WorkspaceEdit | null {
+		const styleTag = this.getStyleTagForPosition(document, position);
+
+		if (!styleTag) {
+			return null;
+		}
+
+		const cssDocument = this.getCSSDocumentForStyleTag(styleTag, document);
+		const cssLang = extractLanguage(cssDocument);
+		const langService = getLanguageService(cssLang);
+
+		const renames = langService.doRename(
+			cssDocument,
+			cssDocument.getGeneratedPosition(position),
+			newName,
+			cssDocument.stylesheet
+		);
+
+		if (renames?.changes?.[document.uri]) {
+			renames.changes[document.uri] = renames?.changes?.[document.uri].map((edit) =>
+				mapObjWithRangeToOriginal(cssDocument, edit)
+			);
+		}
+
+		return renames;
 	}
 
 	getFoldingRanges(document: AstroDocument): FoldingRange[] | null {

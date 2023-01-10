@@ -1,5 +1,5 @@
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
-import { getLanguageService } from 'vscode-html-languageservice';
+import { getLanguageService, Node } from 'vscode-html-languageservice';
 import {
 	CompletionItem,
 	CompletionItemKind,
@@ -8,8 +8,10 @@ import {
 	Hover,
 	LinkedEditingRanges,
 	Position,
+	Range,
 	SymbolInformation,
 	TextEdit,
+	WorkspaceEdit,
 } from 'vscode-languageserver';
 import type { ConfigManager } from '../../core/config/ConfigManager';
 import type { LSConfig, LSHTMLConfig } from '../../core/config/interfaces';
@@ -175,6 +177,37 @@ export class HTMLPlugin implements Plugin {
 		return this.lang.doTagComplete(document, position, html);
 	}
 
+	prepareRename(document: AstroDocument, position: Position): Range | null {
+		const html = document.html;
+		const offset = document.offsetAt(position);
+
+		const node = html.findNodeAt(offset);
+		if (!node || isPossibleComponent(node) || !node.tag || !this.isRenameAtTag(node, offset)) {
+			return null;
+		}
+
+		const tagNameStart = node.start + '<'.length;
+		return Range.create(document.positionAt(tagNameStart), document.positionAt(tagNameStart + node.tag.length));
+	}
+
+	rename(document: AstroDocument, position: Position, newName: string): WorkspaceEdit | null {
+		const html = document.html;
+		const offset = document.offsetAt(position);
+
+		if (!html || isInsideFrontmatter(document.getText(), offset)) {
+			return null;
+		}
+
+		const node = html.findNodeAt(offset);
+
+		// The TypeScript plugin handles renaming for components
+		if (!node || isPossibleComponent(node) || !this.isRenameAtTag(node, offset)) {
+			return null;
+		}
+
+		return this.lang.doRename(document, position, newName, html);
+	}
+
 	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
 		if (!(await this.featureEnabled(document, 'documentSymbols'))) {
 			return [];
@@ -221,6 +254,20 @@ export class HTMLPlugin implements Plugin {
 				})
 			);
 		}
+	}
+
+	/**
+	 * Returns true if rename happens at the tag name, not anywhere inbetween.
+	 */
+	private isRenameAtTag(node: Node, offset: number): boolean {
+		if (!node.tag) {
+			return false;
+		}
+
+		const startTagNameEnd = node.start + `<${node.tag}`.length;
+		const isAtStartTag = offset > node.start && offset <= startTagNameEnd;
+		const isAtEndTag = node.endTagStart !== undefined && offset >= node.endTagStart && offset < node.end;
+		return isAtStartTag || isAtEndTag;
 	}
 
 	private async featureEnabled(document: AstroDocument, feature: keyof LSHTMLConfig) {

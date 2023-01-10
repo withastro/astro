@@ -51,7 +51,7 @@ importers:
       synckit: ^0.8.4
       ts-node: ^10.7.0
       typescript: ~4.8.2
-      vscode-css-languageservice: ^6.0.1
+      vscode-css-languageservice: ^6.2.1
       vscode-html-languageservice: ^5.0.0
       vscode-languageserver: ^8.0.1
       vscode-languageserver-protocol: ^3.17.1
@@ -67,7 +67,7 @@ importers:
       prettier: 2.7.1
       prettier-plugin-astro: 0.7.0
       synckit: 0.8.4
-      vscode-css-languageservice: 6.1.0
+      vscode-css-languageservice: 6.2.1
       vscode-html-languageservice: 5.0.1
       vscode-languageserver: 8.0.2
       vscode-languageserver-protocol: 3.17.2
@@ -211,7 +211,7 @@ packages:
       prettier: 2.7.1
       prettier-plugin-astro: 0.7.0
       source-map: 0.7.4
-      vscode-css-languageservice: 6.1.0
+      vscode-css-languageservice: 6.2.1
       vscode-html-languageservice: 5.0.1
       vscode-languageserver: 8.0.2
       vscode-languageserver-protocol: 3.17.2
@@ -1391,6 +1391,9 @@ packages:
       vscode-languageserver-types: 3.17.2
       vscode-nls: 5.2.0
       vscode-uri: 2.1.2
+
+  /@vscode/l10n/0.0.10:
+    resolution: {integrity: sha512-E1OCmDcDWa0Ya7vtSjp/XfHFGqYJfh+YPC1RkATU71fTac+j1JjCcB3qwSzmlKAighx2WxhLlfhS0RwAN++PFQ==}
 
   /@vscode/test-electron/2.1.5:
     resolution: {integrity: sha512-O/ioqFpV+RvKbRykX2ItYPnbcZ4Hk5V0rY4uhQjQTLhGL9WZUvS7exzuYQCCI+ilSqJpctvxq2llTfGXf9UnnA==}
@@ -6721,13 +6724,13 @@ packages:
       vite: 3.2.3_@types+node@16.11.58
     dev: true
 
-  /vscode-css-languageservice/6.1.0:
-    resolution: {integrity: sha512-GFXmy6EVceVc/OPKENnoW31EiIksekz9yruczIAkA0eX5BSkNh/ojgeCzwW1ERRFpDymVZj0aLYKSrYZmvU6VA==}
+  /vscode-css-languageservice/6.2.1:
+    resolution: {integrity: sha512-FMaMjB2LQdkHjTCP2CWh2S94xuGsxSc8xr0H9nAACVd/iUDyZLoKFjwoB+mA3v0rpCH2U5vVCVwxyULy61CgqA==}
     dependencies:
+      '@vscode/l10n': 0.0.10
       vscode-languageserver-textdocument: 1.0.7
       vscode-languageserver-types: 3.17.2
-      vscode-nls: 5.2.0
-      vscode-uri: 3.0.3
+      vscode-uri: 3.0.7
 
   /vscode-html-languageservice/5.0.1:
     resolution: {integrity: sha512-OYsyn5HGAhxs0OIG+M0jc34WnftLtD67Wg7+TfrYwvf0waOkkr13zUqtdrVm2JPNQ6fJx+qnuM+vTbq7o1dCdQ==}
@@ -6800,6 +6803,9 @@ packages:
 
   /vscode-uri/3.0.3:
     resolution: {integrity: sha512-EcswR2S8bpR7fD0YPeS7r2xXExrScVMxg4MedACaWHEtx9ftCF/qHG1xGkolzTPcEmjTavCQgbVzHUIdTMzFGA==}
+
+  /vscode-uri/3.0.7:
+    resolution: {integrity: sha512-eOpPHogvorZRobNqJGhapa0JdwaxpjVvyBp0QIUMRMSf8ZAlqOdEquKuRmw9Qwu0qXtJIWqFtMkmvJjUZmMjVA==}
 
   /vue/3.2.39:
     resolution: {integrity: sha512-tRkguhRTw9NmIPXhzk21YFBqXHT2t+6C6wPOgQ50fcFVWnPdetmRqbmySRHznrYjX2E47u0cGlKGcxKZJ38R/g==}

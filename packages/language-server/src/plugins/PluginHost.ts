@@ -258,6 +258,12 @@ export class PluginHost {
 		return this.execute<Location[] | null>('findReferences', [document, position, context], ExecuteMode.FirstNonNull);
 	}
 
+	async prepareRename(textDocument: TextDocumentIdentifier, position: Position): Promise<Range | null> {
+		const document = this.getDocument(textDocument.uri);
+
+		return await this.execute<any>('prepareRename', [document, position], ExecuteMode.FirstNonNull);
+	}
+
 	async rename(
 		textDocument: TextDocumentIdentifier,
 		position: Position,

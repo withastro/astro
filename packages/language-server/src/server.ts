@@ -118,7 +118,7 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 				typeDefinitionProvider: true,
 				referencesProvider: true,
 				implementationProvider: true,
-				renameProvider: true,
+				renameProvider: params.capabilities.textDocument?.rename?.prepareSupport ? { prepareProvider: true } : true,
 				documentFormattingProvider: true,
 				codeActionProvider: {
 					codeActionKinds: [
@@ -289,6 +289,8 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 	connection.onSignatureHelp((evt, cancellationToken) =>
 		pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken)
 	);
+
+	connection.onPrepareRename((evt) => pluginHost.prepareRename(evt.textDocument, evt.position));
 	connection.onRenameRequest((evt) => pluginHost.rename(evt.textDocument, evt.position, evt.newName));
 
 	connection.onDidSaveTextDocument(updateAllDiagnostics);

@@ -1,4 +1,4 @@
-import type { TSXResult } from '@astrojs/compiler/shared/types';
+import type { TSXResult } from '@astrojs/compiler/types';
 import { createSyncFn } from 'synckit';
 
 const convertToTSXSync = createSyncFn(require.resolve('./TSXWorker'));

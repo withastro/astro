@@ -1,4 +1,4 @@
-import { DiagnosticMessage } from '@astrojs/compiler/shared/types';
+import { DiagnosticMessage } from '@astrojs/compiler/types';
 import type ts from 'typescript';
 import { Diagnostic, Range } from 'vscode-languageserver-types';
 import { AstroDocument } from '../../../core/documents';
