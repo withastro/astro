@@ -34,16 +34,15 @@
     "send": "^0.18.0"
   },
   "peerDependencies": {
-    "astro": "^2.0.0-beta.0"
+    "astro": "workspace:^2.0.0-beta.0"
   },
   "devDependencies": {
-    "@types/node-fetch": "^2.6.2",
     "@types/send": "^0.17.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "mocha": "^9.2.2",
     "node-mocks-http": "^1.11.0",
-    "cheerio": "^1.0.0-rc.11"
+    "undici": "^5.14.0"
   }
 }

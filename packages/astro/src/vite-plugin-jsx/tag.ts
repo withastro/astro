@@ -1,7 +1,5 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
-import { resolve as importMetaResolve } from 'import-meta-resolve';
-import { fileURLToPath } from 'url';
 
 /**
  * This plugin handles every file that runs through our JSX plugin.
@@ -18,9 +16,6 @@ export default async function tagExportsWithRenderer({
 	rendererName: string;
 	root: URL;
 }): Promise<PluginObj> {
-	const astroServerPath = fileURLToPath(
-		await importMetaResolve('astro/server/index.js', root.toString())
-	);
 	return {
 		visitor: {
 			Program: {
@@ -36,7 +31,7 @@ export default async function tagExportsWithRenderer({
 									t.identifier('__astro_tag_component__')
 								),
 							],
-							t.stringLiteral(astroServerPath)
+							t.stringLiteral('astro/server/index.js')
 						)
 					);
 				},

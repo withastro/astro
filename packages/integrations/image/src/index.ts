@@ -21,6 +21,7 @@ const UNSUPPORTED_ADAPTERS = new Set([
 interface BuildConfig {
 	client: URL;
 	server: URL;
+	assets: string;
 }
 
 interface ImageIntegration {
@@ -130,7 +131,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					// Doing this here makes sure that base is ignored when building
 					// staticImages to /dist, but the rendered HTML will include the
 					// base prefix for `src`.
-					return prependForwardSlash(joinPaths(_config.base, 'assets', filename));
+					return prependForwardSlash(joinPaths(_config.base, _buildConfig.assets, filename));
 				}
 
 				// Helpers for building static images should only be available for SSG
@@ -146,7 +147,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					// For the Squoosh service, copy all wasm files to dist/chunks.
 					// Because the default loader is dynamically imported (above),
 					// Vite will bundle squoosh to dist/chunks and expect to find the wasm files there
-					await copyWasmFiles(new URL('./assets/chunks', dir));
+					await copyWasmFiles(new URL('./chunks', dir));
 				}
 
 				if (loader && 'transform' in loader && staticImages.size > 0) {
@@ -166,7 +167,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:build:ssr': async () => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(new URL('./assets/chunks/', _buildConfig.server));
+					await copyWasmFiles(new URL('./chunks/', _buildConfig.server));
 				}
 			},
 		},

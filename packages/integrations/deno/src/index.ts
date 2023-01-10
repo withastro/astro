@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 interface BuildConfig {
 	server: URL;
 	serverEntry: string;
+	assets: string;
 }
 
 interface Options {
@@ -86,7 +87,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
 				try {
 					const chunkFileNames =
-						_vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'assets/chunks/chunk.[hash].mjs';
+						_vite?.build?.rollupOptions?.output?.chunkFileNames ?? `chunks/chunk.[hash].mjs`;
 					const chunkPath = npath.dirname(chunkFileNames);
 					const chunksDirUrl = new URL(chunkPath + '/', _buildConfig.server);
 					await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });

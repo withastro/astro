@@ -1,0 +1,5 @@
+---
+'astro': patch
+---
+
+Cleanup dependencies

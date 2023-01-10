@@ -29,7 +29,7 @@ describe('CSS', function () {
 			// get bundled CSS (will be hashed, hence DOM query)
 			html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
-			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
+			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
 			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
 				.replace(/\s/g, '')
 				.replace('/n', '');
@@ -364,7 +364,7 @@ describe('CSS', function () {
 		});
 
 		it('remove unused styles from client:load components', async () => {
-			const bundledAssets = await fixture.readdir('./assets');
+			const bundledAssets = await fixture.readdir('./_astro');
 			// SvelteDynamic styles is already included in the main page css asset
 			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
 			expect(unusedCssAsset, 'Found unused style ' + unusedCssAsset).to.be.undefined;

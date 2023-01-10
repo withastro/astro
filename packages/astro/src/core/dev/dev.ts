@@ -49,9 +49,6 @@ export default async function dev(
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
 
-	const site = settings.config.site
-		? new URL(settings.config.base, settings.config.site)
-		: undefined;
 	info(
 		options.logging,
 		null,
@@ -59,7 +56,7 @@ export default async function dev(
 			startupTime: performance.now() - devStart,
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: settings.config.server.host,
-			site,
+			base: settings.config.base,
 			isRestart: options.isRestart,
 		})
 	);

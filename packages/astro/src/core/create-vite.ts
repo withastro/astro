@@ -24,7 +24,6 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import { resolveDependency } from './util.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -33,7 +32,7 @@ interface CreateViteOptions {
 	fs?: typeof nodeFs;
 }
 
-const ALWAYS_NOEXTERNAL = new Set([
+const ALWAYS_NOEXTERNAL = [
 	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
 	'astro',
 	// Vite fails on nested `.astro` imports without bundling
@@ -43,21 +42,7 @@ const ALWAYS_NOEXTERNAL = new Set([
 	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
-]);
-
-function getSsrNoExternalDeps(projectRoot: URL): string[] {
-	let noExternalDeps = [];
-	for (const dep of ALWAYS_NOEXTERNAL) {
-		try {
-			resolveDependency(dep, projectRoot);
-			noExternalDeps.push(dep);
-		} catch {
-			// ignore dependency if *not* installed / present in your project
-			// prevents hard error from Vite!
-		}
-	}
-	return noExternalDeps;
-}
+];
 
 /** Return a common starting point for all Vite actions */
 export async function createVite(
@@ -166,10 +151,7 @@ export async function createVite(
 			dedupe: ['astro'],
 		},
 		ssr: {
-			noExternal: [
-				...getSsrNoExternalDeps(settings.config.root),
-				...astroPkgsConfig.ssr.noExternal,
-			],
+			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
 			// shiki is imported by Code.astro, which is no-externalized (processed by Vite).
 			// However, shiki's deps are in CJS and trips up Vite's dev SSR transform, externalize
 			// shiki to load it with node instead.

@@ -10,6 +10,7 @@ interface BuildConfig {
 	server: URL;
 	client: URL;
 	serverEntry: string;
+	assets: string;
 }
 
 const SHIM = `globalThis.process = {
@@ -100,7 +101,7 @@ async function bundleServerEntry({ serverEntry, server }: BuildConfig, vite: any
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
 	try {
 		const chunkFileNames =
-			vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'assets/chunks/chunk.[hash].mjs';
+			vite?.build?.rollupOptions?.output?.chunkFileNames ?? `chunks/chunk.[hash].mjs`;
 		const chunkPath = npath.dirname(chunkFileNames);
 		const chunksDirUrl = new URL(chunkPath + '/', server);
 		await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });

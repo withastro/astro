@@ -31,3 +31,17 @@ export function serializeListValue(value: any) {
 export function isPromise<T = any>(value: any): value is Promise<T> {
 	return !!value && typeof value === 'object' && typeof value.then === 'function';
 }
+
+export async function* streamAsyncIterator(stream: ReadableStream) {
+	const reader = stream.getReader();
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) return;
+			yield value;
+		}
+	} finally {
+		reader.releaseLock();
+	}
+}
