@@ -5,7 +5,6 @@ export const inheritance = {
 	Document: 'Node',
 	DocumentFragment: 'Node',
 	Element: 'Node',
-	File: 'Blob',
 	HTMLDocument: 'Document',
 	HTMLElement: 'Element',
 	HTMLBodyElement: 'HTMLElement',
