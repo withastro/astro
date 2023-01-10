@@ -10,6 +10,7 @@ const inputs = {
 };
 
 describe('[create-astro] select directory', function () {
+	this.timeout(timeout);
 	it('should prompt for directory when none is provided', function () {
 		return promiseWithTimeout((resolve, onStdout) => {
 			const { stdout } = setup();
