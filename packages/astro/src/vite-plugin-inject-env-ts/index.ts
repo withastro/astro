@@ -72,10 +72,6 @@ export async function setUpEnvTs({
 			referenceDefs.push(dotAstroTypeReference);
 		}
 
-		const envTsPathRelativetoRoot = normalizePath(
-			path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
-		);
-
 		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'));
 		info(logging, 'astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
 	}
