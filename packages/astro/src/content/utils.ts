@@ -5,8 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer, ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
-import { AstroSettings } from '../@types/astro.js';
+import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
 
 export const collectionConfigParser = z.object({
@@ -25,6 +26,15 @@ export const collectionConfigParser = z.object({
 		.returns(z.union([z.string(), z.promise(z.string())]))
 		.optional(),
 });
+
+export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
+	const { cacheDir } = getContentPaths({ root, srcDir });
+	const contentTypesRelativeToSrcDir = normalizePath(
+		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
+	);
+
+	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
+}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
@@ -201,7 +211,7 @@ export async function loadContentConfig({
 	fs: typeof fsMod;
 	settings: AstroSettings;
 }): Promise<ContentConfig | Error> {
-	const contentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths(settings.config);
 	const tempConfigServer: ViteDevServer = await createServer({
 		root: fileURLToPath(settings.config.root),
 		server: { middlewareMode: true, hmr: false },
@@ -267,16 +277,21 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 export type ContentPaths = {
 	contentDir: URL;
 	cacheDir: URL;
-	generatedInputDir: URL;
+	typesTemplate: URL;
+	virtualModTemplate: URL;
 	config: URL;
 };
 
-export function getContentPaths({ srcDir }: { srcDir: URL }): ContentPaths {
+export function getContentPaths({
+	srcDir,
+	root,
+}: Pick<AstroConfig, 'root' | 'srcDir'>): ContentPaths {
+	const templateDir = new URL('../../src/content/template/', import.meta.url);
 	return {
-		// Output generated types in content directory. May change in the future!
-		cacheDir: new URL('./content/', srcDir),
+		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
-		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
+		typesTemplate: new URL('types.d.ts', templateDir),
+		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
 		config: new URL('./content/config', srcDir),
 	};
 }
