@@ -1,17 +1,16 @@
 ---
-import type { MarkdownInstance } from 'astro';
-import type { Project } from '../types';
+import { CollectionEntry } from 'astro:content';
 
 interface Props {
-	project: MarkdownInstance<Project>;
+	project: CollectionEntry<'work'>;
 }
 
-const { frontmatter, url } = Astro.props.project;
+const { data, slug } = Astro.props.project;
 ---
 
-<a class="card" href={url}>
-	<span class="title">{frontmatter.title}</span>
-	<img src={frontmatter.img} alt={frontmatter.img_alt || ''} loading="lazy" decoding="async" />
+<a class="card" href={`/work/${slug}`}>
+	<span class="title">{data.title}</span>
+	<img src={data.img} alt={data.img_alt || ''} loading="lazy" decoding="async" />
 </a>
 
 <style>
