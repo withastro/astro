@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions } from '../core/logger/core.js';
+import { appendForwardSlash } from '../core/path.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import { createContentTypesGenerator, getEntryType } from './types-generator.js';
@@ -32,37 +33,33 @@ export function astroContentServerPlugin({
 	mode,
 }: AstroContentServerPluginParams): Plugin[] {
 	const contentPaths = getContentPaths(settings.config);
-	let contentDirExists = false;
-	let contentGenerator: Awaited<ReturnType<typeof createContentTypesGenerator>>;
 	const contentConfigObserver = contentObservable({ status: 'loading' });
+
+	async function initContentGenerator() {
+		const contentGenerator = await createContentTypesGenerator({
+			fs,
+			settings,
+			logging,
+			contentConfigObserver,
+		});
+		await contentGenerator.init();
+		return contentGenerator;
+	}
 
 	return [
 		{
 			name: 'astro-content-server-plugin',
 			async config(viteConfig) {
-				try {
-					await fs.promises.stat(contentPaths.contentDir);
-					contentDirExists = true;
-				} catch {
-					/* silently move on */
-					return;
-				}
-
-				if (contentDirExists && (mode === 'dev' || viteConfig.build?.ssr === true)) {
-					contentGenerator = await createContentTypesGenerator({
-						fs,
-						settings,
-						logging,
-						contentConfigObserver,
-					});
-					await contentGenerator.init();
-					info(logging, 'content', 'Types generated');
+				// Production build type gen
+				if (fs.existsSync(contentPaths.contentDir) && viteConfig.build?.ssr === true) {
+					await initContentGenerator();
 				}
 			},
 			async configureServer(viteServer) {
 				if (mode !== 'dev') return;
 
-				if (contentDirExists) {
+				// Dev server type gen
+				if (fs.existsSync(contentPaths.contentDir)) {
 					info(
 						logging,
 						'content',
@@ -70,18 +67,22 @@ export function astroContentServerPlugin({
 							contentPaths.contentDir.href.replace(settings.config.root.href, '')
 						)} for changes`
 					);
-					attachListeners();
+					await attachListeners();
 				} else {
-					viteServer.watcher.on('addDir', (dir) => {
-						if (pathToFileURL(dir).href === contentPaths.contentDir.href) {
+					viteServer.watcher.on('addDir', contentDirListener);
+					async function contentDirListener(dir: string) {
+						if (appendForwardSlash(pathToFileURL(dir).href) === contentPaths.contentDir.href) {
 							info(logging, 'content', `Content dir found. Watching for changes`);
-							contentDirExists = true;
-							attachListeners();
+							await attachListeners();
+							viteServer.watcher.removeListener('addDir', contentDirListener);
 						}
-					});
+					}
 				}
 
-				function attachListeners() {
+				async function attachListeners() {
+					const contentGenerator = await initContentGenerator();
+					info(logging, 'content', 'Types generated');
+
 					viteServer.watcher.on('add', (entry) => {
 						contentGenerator.queueEvent({ name: 'add', entry });
 					});
