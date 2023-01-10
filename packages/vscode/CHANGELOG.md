@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 0.29.4
+
+### Patch Changes
+
+- ad08f8e: Fix completions of strings not showing in certain cases
+- 94a9b61: Add proper support for renaming symbols inside Astro (.astro) files
+- ad08f8e: Add support for breakpoints
+- Updated dependencies [94a9b61]
+  - @astrojs/ts-plugin@0.4.2
+
 ## 0.29.3
 
 ### Patch Changes

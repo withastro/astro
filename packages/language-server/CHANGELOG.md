@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.29.4
+
+### Patch Changes
+
+- ad08f8e: Fix completions of strings not showing in certain cases
+- 94a9b61: Add proper support for renaming symbols inside Astro (.astro) files
+
 ## 0.29.3
 
 ### Patch Changes

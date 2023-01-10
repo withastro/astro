@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.4.2
+
+### Patch Changes
+
+- 94a9b61: Add proper support for renaming symbols inside Astro (.astro) files
+
 ## 0.4.1
 
 ### Patch Changes
