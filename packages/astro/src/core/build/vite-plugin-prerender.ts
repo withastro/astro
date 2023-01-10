@@ -34,8 +34,8 @@ export function vitePluginPrerender(
 					if (api.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
 						return `prerender`;
 					}
-					// pages should go in their own chunks/pages/* directory
-					return `pages${pageInfo.route.route.replace(/\/$/, '/index')}`;
+					// dynamic pages should all go in their own chunk in the pages/* directory
+					return `pages/all`;
 				}
 			};
 		},
