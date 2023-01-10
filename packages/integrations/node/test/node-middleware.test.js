@@ -1,5 +1,5 @@
 import nodejs from '../dist/index.js';
-import { loadFixture , createRequestAndResponse} from './test-utils.js';
+import { loadFixture, createRequestAndResponse } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
@@ -33,5 +33,5 @@ describe('test 404 cant load', () => {
 			const h1 = $('h1');
 			expect(h1.text()).to.equal('404!!!!!!!!!!');
 		});
-	})
-})
+	});
+});
