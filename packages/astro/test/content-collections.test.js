@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as devalue from 'devalue';
 import * as cheerio from 'cheerio';
 import { expect } from 'chai';
@@ -6,36 +5,6 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
 describe('Content Collections', () => {
-	describe('Type generation', () => {
-		let fixture;
-		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-collections/' });
-		});
-
-		it('Writes types to `src/content/`', async () => {
-			let writtenFiles = {};
-			const fsMock = {
-				...fs,
-				promises: {
-					...fs.promises,
-					async writeFile(path, contents) {
-						writtenFiles[path] = contents;
-					},
-				},
-			};
-			const expectedTypesFile = new URL('./content/types.generated.d.ts', fixture.config.srcDir)
-				.href;
-			await fixture.sync({ fs: fsMock });
-			expect(Object.keys(writtenFiles)).to.have.lengthOf(1);
-			expect(writtenFiles).to.haveOwnProperty(expectedTypesFile);
-			// smoke test `astro check` asserts whether content types pass.
-			expect(writtenFiles[expectedTypesFile]).to.include(
-				`declare module 'astro:content' {`,
-				'Types file does not include `astro:content` module declaration'
-			);
-		});
-	});
-
 	describe('Query', () => {
 		let fixture;
 		before(async () => {

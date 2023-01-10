@@ -7,12 +7,14 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
+import { getEnvTsPath } from '../vite-plugin-inject-env-ts/index.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
 	getContentPaths,
+	getDotAstroTypeReference,
 	getEntryInfo,
 	loadContentConfig,
 	NoCollectionError,
@@ -48,15 +50,12 @@ export async function createContentTypesGenerator({
 	settings,
 }: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
 	const contentTypes: ContentTypes = {};
-	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths(settings.config);
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const contentTypesBase = await fs.promises.readFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.generatedInputDir),
-		'utf-8'
-	);
+	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
@@ -304,6 +303,10 @@ async function writeContentFiles({
 			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;
+	}
+
+	if (!fs.existsSync(contentPaths.cacheDir)) {
+		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
 	}
 
 	let configPathRelativeToCacheDir = normalizePath(

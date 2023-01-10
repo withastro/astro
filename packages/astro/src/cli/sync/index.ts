@@ -6,6 +6,7 @@ import { contentObservable, createContentTypesGenerator } from '../../content/in
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { info, LogOptions } from '../../core/logger/core.js';
+import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 
 export async function sync(
 	settings: AstroSettings,
@@ -26,6 +27,7 @@ export async function sync(
 	}
 
 	info(logging, 'content', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	await setUpEnvTs({ settings, logging, fs });
 
 	return 0;
 }
