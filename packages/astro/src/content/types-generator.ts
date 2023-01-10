@@ -57,8 +57,6 @@ export async function createContentTypesGenerator({
 
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	await addContentTypeReference({ fs, logging, settings });
-
 	async function init() {
 		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
 		const globResult = await glob('./**/*.*', {
@@ -345,39 +343,5 @@ function warnNonexistentCollections({
 				)} is not a collection. Check your content config for typos.`
 			);
 		}
-	}
-}
-
-async function addContentTypeReference({
-	settings,
-	fs,
-	logging,
-}: {
-	settings: AstroSettings;
-	fs: typeof fsMod;
-	logging: LogOptions;
-}) {
-	const envTsPath = getEnvTsPath(settings.config);
-	let typesEnvContents = '';
-	try {
-		typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
-	} catch {
-		/*
-		 * `src/env.d.ts` from Astro starter template is not present.
-		 * Fail silently, and allow user to wire up type manually.
-		 */
-		return;
-	}
-
-	const expectedTypeReference = getDotAstroTypeReference(settings.config);
-
-	const typeEnvRelativeToRoot = normalizePath(
-		path.relative(fileURLToPath(settings.config.root), fileURLToPath(envTsPath))
-	);
-
-	if (!typesEnvContents.includes(expectedTypeReference)) {
-		typesEnvContents = `${expectedTypeReference}\n${typesEnvContents}`;
-		await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-		info(logging, 'content', `Added types reference to \`${typeEnvRelativeToRoot}\``);
 	}
 }
