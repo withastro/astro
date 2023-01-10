@@ -11,7 +11,7 @@ declare module 'astro:content' {
 		| import('astro/zod').ZodIntersection<
 				import('astro/zod').AnyZodObject,
 				import('astro/zod').AnyZodObject
-		>;
+			>;
 
 	type BaseSchema =
 		| BaseSchemaWithoutEffects
