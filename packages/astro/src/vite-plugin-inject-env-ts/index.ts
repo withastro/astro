@@ -72,7 +72,8 @@ export async function setUpEnvTs({
 			referenceDefs.push(dotAstroTypeReference);
 		}
 
-		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'));
+		await fs.promises.mkdir(settings.config.srcDir, { recursive: true });
+		await fs.promises.writeFile(envTsPath, referenceDefs.join('\n'), 'utf-8');
 		info(logging, 'astro', `Added ${bold(envTsPathRelativetoRoot)} types`);
 	}
 }
