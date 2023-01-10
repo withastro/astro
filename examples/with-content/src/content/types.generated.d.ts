@@ -3,17 +3,30 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]] & Render;
 
-	type BaseCollectionConfig<S extends import('astro/zod').ZodRawShape> = {
+	type BaseSchemaWithoutEffects =
+		| import('astro/zod').AnyZodObject
+		| import('astro/zod').ZodUnion<import('astro/zod').AnyZodObject[]>
+		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
+		| import('astro/zod').ZodIntersection<
+				import('astro/zod').AnyZodObject,
+				import('astro/zod').AnyZodObject
+		  >;
+
+	type BaseSchema =
+		| BaseSchemaWithoutEffects
+		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
+
+	type BaseCollectionConfig<S extends BaseSchema> = {
 		schema?: S;
 		slug?: (entry: {
 			id: CollectionEntry<keyof typeof entryMap>['id'];
 			defaultSlug: string;
 			collection: string;
 			body: string;
-			data: import('astro/zod').infer<import('astro/zod').ZodObject<S>>;
+			data: import('astro/zod').infer<S>;
 		}) => string | Promise<string>;
 	};
-	export function defineCollection<S extends import('astro/zod').ZodRawShape>(
+	export function defineCollection<S extends BaseSchema>(
 		input: BaseCollectionConfig<S>
 	): BaseCollectionConfig<S>;
 
@@ -30,7 +43,7 @@ declare module 'astro:content' {
 	): Promise<((typeof entryMap)[C][E] & Render)[]>;
 
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
-		import('astro/zod').ZodObject<Required<ContentConfig['collections'][C]>['schema']>
+		Required<ContentConfig['collections'][C]>['schema']
 	>;
 
 	type Render = {
@@ -42,44 +55,45 @@ declare module 'astro:content' {
 	};
 
 	const entryMap: {
-		blog: {
-			'first-post.md': {
-				id: 'first-post.md';
-				slug: 'first-post';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'markdown-style-guide.md': {
-				id: 'markdown-style-guide.md';
-				slug: 'markdown-style-guide';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'second-post.md': {
-				id: 'second-post.md';
-				slug: 'second-post';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'third-post.md': {
-				id: 'third-post.md';
-				slug: 'third-post';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-			'using-mdx.mdx': {
-				id: 'using-mdx.mdx';
-				slug: 'using-mdx';
-				body: string;
-				collection: 'blog';
-				data: InferEntrySchema<'blog'>;
-			};
-		};
+		"blog": {
+"first-post.md": {
+  id: "first-post.md",
+  slug: "first-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"markdown-style-guide.md": {
+  id: "markdown-style-guide.md",
+  slug: "markdown-style-guide",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"second-post.md": {
+  id: "second-post.md",
+  slug: "second-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"third-post.md": {
+  id: "third-post.md",
+  slug: "third-post",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+"using-mdx.mdx": {
+  id: "using-mdx.mdx",
+  slug: "using-mdx",
+  body: string,
+  collection: "blog",
+  data: InferEntrySchema<"blog">
+},
+},
+
 	};
 
-	type ContentConfig = typeof import('./config');
+	type ContentConfig = typeof import("./config");
 }

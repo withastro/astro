@@ -103,6 +103,25 @@ describe('Content Collections', () => {
 				const slugs = json.withSlugConfig.map((item) => item.slug);
 				expect(slugs).to.deep.equal(['fancy-one.md', 'excellent-three.md', 'interesting-two.md']);
 			});
+
+			it('Returns `with union schema` collection', async () => {
+				expect(json).to.haveOwnProperty('withUnionSchema');
+				expect(Array.isArray(json.withUnionSchema)).to.equal(true);
+
+				const post = json.withUnionSchema.find((item) => item.id === 'post.md');
+				expect(post).to.not.be.undefined;
+				expect(post.data).to.deep.equal({
+					type: 'post',
+					title: 'My Post',
+					description: 'This is my post',
+				});
+				const newsletter = json.withUnionSchema.find((item) => item.id === 'newsletter.md');
+				expect(newsletter).to.not.be.undefined;
+				expect(newsletter.data).to.deep.equal({
+					type: 'newsletter',
+					subject: 'My Newsletter',
+				});
+			});
 		});
 
 		describe('Entry', () => {
@@ -129,6 +148,16 @@ describe('Content Collections', () => {
 			it('Returns `with custom slugs` collection entry', async () => {
 				expect(json).to.haveOwnProperty('twoWithSlugConfig');
 				expect(json.twoWithSlugConfig.slug).to.equal('interesting-two.md');
+			});
+
+			it('Returns `with union schema` collection entry', async () => {
+				expect(json).to.haveOwnProperty('postWithUnionSchema');
+				expect(json.postWithUnionSchema.id).to.equal('post.md');
+				expect(json.postWithUnionSchema.data).to.deep.equal({
+					type: 'post',
+					title: 'My Post',
+					description: 'This is my post',
+				});
 			});
 		});
 	});
