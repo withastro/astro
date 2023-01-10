@@ -7,14 +7,12 @@ import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
-import { getEnvTsPath } from '../vite-plugin-inject-env-ts/index.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
 	getContentPaths,
-	getDotAstroTypeReference,
 	getEntryInfo,
 	loadContentConfig,
 	NoCollectionError,
