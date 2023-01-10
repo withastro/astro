@@ -9,6 +9,114 @@ const menu = [
 ];
 ---
 
+<nav>
+	<div class="menu-header">
+		<a href="/" class="site-title">
+			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
+			Jeanine White
+		</a>
+		<menu-button>
+			<template>
+				<button class="menu-button" aria-expanded="false">
+					<span class="sr-only">Menu</span>
+					<Icon icon="list" />
+				</button>
+			</template>
+		</menu-button>
+	</div>
+	<div id="menu-content">
+		<ul class="nav-items">
+			{
+				menu.map(({ label, href }) => (
+					<li>
+						<a
+							aria-current={Astro.url.pathname === href}
+							class:list={[
+								'link',
+								{
+									active:
+										Astro.url.pathname === href ||
+										(href !== '/' && Astro.url.pathname.startsWith(href)),
+								},
+							]}
+							href={href}
+						>
+							{label}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+		<div class="menu-footer">
+			<div class="socials">
+				<a class="social" href="https://twitter.com/me">
+					<span class="sr-only">Twitter</span>
+					<Icon icon="twitter-logo" />
+				</a>
+				<a class="social" href="https://www.twitch.tv/me">
+					<span class="sr-only">Twitch</span>
+					<Icon icon="twitch-logo" />
+				</a>
+				<a class="social" href="https://github.com/me">
+					<span class="sr-only">GitHub</span>
+					<Icon icon="github-logo" />
+				</a>
+				<a class="social" href="https://codepen.io/me">
+					<span class="sr-only">CodePen</span>
+					<Icon icon="codepen-logo" />
+				</a>
+				<a class="social" href="https://dribbble.com/me">
+					<span class="sr-only">dribbble</span>
+					<Icon icon="dribbble-logo" />
+				</a>
+				<a class="social" href="https://www.youtube.com/@me/">
+					<span class="sr-only">YouTube</span>
+					<Icon icon="youtube-logo" />
+				</a>
+			</div>
+
+			<div class="theme-toggle">
+				<ThemeToggle />
+			</div>
+		</div>
+	</div>
+</nav>
+
+<script>
+	class MenuButton extends HTMLElement {
+		constructor() {
+			super();
+
+			// Inject menu toggle button when JS runs.
+			this.appendChild(this.querySelector('template')!.content.cloneNode(true));
+			const btn = this.querySelector('button')!;
+
+			// Hide menu (shown by default to support no-JS browsers).
+			const menu = document.getElementById('menu-content')!;
+			menu.hidden = true;
+
+			/** Set whether the menu is currently expanded or collapsed. */
+			const setExpanded = (expand: boolean) => {
+				btn.setAttribute('aria-expanded', expand ? 'true' : 'false');
+				menu.hidden = !expand;
+			};
+
+			// Toggle menu visibility when the menu button is clicked.
+			btn.addEventListener('click', () => setExpanded(menu.hidden));
+
+			// Hide menu button for large screens.
+			const handleViewports = (e: MediaQueryList | MediaQueryListEvent) => {
+				setExpanded(e.matches);
+				btn.hidden = e.matches;
+			};
+			const mediaQueries = window.matchMedia('(min-width: 50em)');
+			handleViewports(mediaQueries);
+			mediaQueries.addEventListener('change', handleViewports);
+		}
+	}
+	customElements.define('menu-button', MenuButton);
+</script>
+
 <style>
 	nav {
 		z-index: 9999;
@@ -219,111 +327,3 @@ const menu = [
 		}
 	}
 </style>
-
-<nav>
-	<div class="menu-header">
-		<a href="/" class="site-title">
-			<Icon icon="terminal-window" color="var(--accent-regular)" size="1.6em" gradient />
-			Jeanine White
-		</a>
-		<menu-button>
-			<template>
-				<button class="menu-button" aria-expanded="false">
-					<span class="sr-only">Menu</span>
-					<Icon icon="list" />
-				</button>
-			</template>
-		</menu-button>
-	</div>
-	<div id="menu-content">
-		<ul class="nav-items">
-			{
-				menu.map(({ label, href }) => (
-					<li>
-						<a
-							aria-current={Astro.url.pathname === href}
-							class:list={[
-								'link',
-								{
-									active:
-										Astro.url.pathname === href ||
-										(href !== '/' && Astro.url.pathname.startsWith(href)),
-								},
-							]}
-							href={href}
-						>
-							{label}
-						</a>
-					</li>
-				))
-			}
-		</ul>
-		<div class="menu-footer">
-			<div class="socials">
-				<a class="social" href="https://twitter.com/me">
-					<span class="sr-only">Twitter</span>
-					<Icon icon="twitter-logo" />
-				</a>
-				<a class="social" href="https://www.twitch.tv/me">
-					<span class="sr-only">Twitch</span>
-					<Icon icon="twitch-logo" />
-				</a>
-				<a class="social" href="https://github.com/me">
-					<span class="sr-only">GitHub</span>
-					<Icon icon="github-logo" />
-				</a>
-				<a class="social" href="https://codepen.io/me">
-					<span class="sr-only">CodePen</span>
-					<Icon icon="codepen-logo" />
-				</a>
-				<a class="social" href="https://dribbble.com/me">
-					<span class="sr-only">dribbble</span>
-					<Icon icon="dribbble-logo" />
-				</a>
-				<a class="social" href="https://www.youtube.com/@me/">
-					<span class="sr-only">YouTube</span>
-					<Icon icon="youtube-logo" />
-				</a>
-			</div>
-
-			<div class="theme-toggle">
-				<ThemeToggle />
-			</div>
-		</div>
-	</div>
-</nav>
-
-<script>
-	class MenuButton extends HTMLElement {
-		constructor() {
-			super();
-
-			// Inject menu toggle button when JS runs.
-			this.appendChild(this.querySelector('template')!.content.cloneNode(true));
-			const btn = this.querySelector('button')!;
-
-			// Hide menu (shown by default to support no-JS browsers).
-			const menu = document.getElementById('menu-content')!;
-			menu.hidden = true;
-
-			/** Set whether the menu is currently expanded or collapsed. */
-			const setExpanded = (expand: boolean) => {
-				btn.setAttribute('aria-expanded', expand ? 'true' : 'false');
-				menu.hidden = !expand;
-			};
-
-			// Toggle menu visibility when the menu button is clicked.
-			btn.addEventListener('click', () => setExpanded(menu.hidden));
-
-			// Hide menu button for large screens.
-			const handleViewports = (e: MediaQueryList | MediaQueryListEvent) => {
-				setExpanded(e.matches);
-				btn.hidden = e.matches;
-			};
-			const mediaQueries = window.matchMedia('(min-width: 50em)');
-			handleViewports(mediaQueries);
-			mediaQueries.addEventListener('change', handleViewports);
-		}
-	}
-	customElements.define('menu-button', MenuButton);
-</script>
