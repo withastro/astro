@@ -1,11 +1,5 @@
-import ancestor from 'common-ancestor-path';
 import type { AstroConfig } from '../@types/astro';
-import {
-	appendExtension,
-	appendForwardSlash,
-	removeLeadingForwardSlashWindows,
-} from '../core/path.js';
-import { viteID } from '../core/util.js';
+import { appendExtension, appendForwardSlash } from '../core/path.js';
 
 /**
  * Converts the first dot in `import.meta.env` to its Unicode escape sequence,
@@ -34,22 +28,4 @@ export function getFileInfo(id: string, config: AstroConfig) {
 		fileUrl = appendExtension(fileUrl, 'html');
 	}
 	return { fileId, fileUrl };
-}
-
-/**
- * Normalizes different file names like:
- *
- * - /@fs/home/user/project/src/pages/index.astro
- * - /src/pages/index.astro
- *
- * as absolute file paths with forward slashes.
- */
-export function normalizeFilename(filename: string, config: AstroConfig) {
-	if (filename.startsWith('/@fs')) {
-		filename = filename.slice('/@fs'.length);
-	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		const url = new URL('.' + filename, config.root);
-		filename = viteID(url);
-	}
-	return removeLeadingForwardSlashWindows(filename);
 }
