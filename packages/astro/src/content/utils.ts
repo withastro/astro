@@ -201,16 +201,13 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 	}
 }
 
-export class NotFoundError extends TypeError {}
-export class ZodParseError extends TypeError {}
-
 export async function loadContentConfig({
 	fs,
 	settings,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-}): Promise<ContentConfig | Error> {
+}): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(settings.config);
 	const tempConfigServer: ViteDevServer = await createServer({
 		root: fileURLToPath(settings.config.root),
@@ -222,10 +219,13 @@ export async function loadContentConfig({
 		plugins: [astroContentVirtualModPlugin({ settings })],
 	});
 	let unparsedConfig;
+	if (!fs.existsSync(contentPaths.config)) {
+		return undefined;
+	}
 	try {
 		unparsedConfig = await tempConfigServer.ssrLoadModule(contentPaths.config.pathname);
-	} catch {
-		return new NotFoundError('Failed to resolve content config.');
+	} catch (e) {
+		throw e;
 	} finally {
 		await tempConfigServer.close();
 	}
@@ -233,14 +233,14 @@ export async function loadContentConfig({
 	if (config.success) {
 		return config.data;
 	} else {
-		return new ZodParseError('Content config file is invalid.');
+		return undefined;
 	}
 }
 
 type ContentCtx =
 	| { status: 'loading' }
-	| { status: 'loaded'; config: ContentConfig }
-	| { status: 'error'; error: NotFoundError | ZodParseError };
+	| { status: 'error' }
+	| { status: 'loaded'; config: ContentConfig };
 
 type Observable<C> = {
 	get: () => C;

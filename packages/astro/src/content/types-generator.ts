@@ -56,8 +56,8 @@ export async function createContentTypesGenerator({
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
 	async function init() {
-		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		const globResult = await glob('./**/*.*', {
+		events.push(handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' }));
+		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
@@ -109,10 +109,10 @@ export async function createContentTypesGenerator({
 		if (fileType === 'config') {
 			contentConfigObserver.set({ status: 'loading' });
 			const config = await loadContentConfig({ fs, settings });
-			if (config instanceof Error) {
-				contentConfigObserver.set({ status: 'error', error: config });
-			} else {
+			if (config) {
 				contentConfigObserver.set({ status: 'loaded', config });
+			} else {
+				contentConfigObserver.set({ status: 'error' });
 			}
 
 			return { shouldGenerateTypes: true };
