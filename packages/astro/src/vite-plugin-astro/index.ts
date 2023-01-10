@@ -19,7 +19,7 @@ interface AstroPluginOptions {
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin {
+export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let resolvedConfig: vite.ResolvedConfig;
 
@@ -27,7 +27,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
 
-	return {
+	const prePlugin: vite.Plugin = {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(_resolvedConfig) {
@@ -180,6 +180,19 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			});
 		},
 	};
+
+	const postPlugin: vite.Plugin = {
+		name: 'astro:build:normal',
+		resolveId(id) {
+			// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
+			const parsedId = parseAstroRequest(id);
+			if (parsedId.query.astro) {
+				return id;
+			}
+		},
+	};
+
+	return [prePlugin, postPlugin];
 }
 
 function appendSourceMap(content: string, map?: string) {
