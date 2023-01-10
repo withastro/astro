@@ -19,7 +19,7 @@ test.describe('Basic prefetch', () => {
 			test('skips /admin', async ({ page, astro }) => {
 				const requests = [];
 
-				page.on('request', async (request) => requests.push(request.url()));
+				page.on('request', (request) => requests.push(request.url()));
 
 				await page.goto(astro.resolveUrl('/'));
 
@@ -56,7 +56,7 @@ test.describe('Basic prefetch', () => {
 			test('skips /admin', async ({ page, astro }) => {
 				const requests = [];
 
-				page.on('request', async (request) => requests.push(request.url()));
+				page.on('request', (request) => requests.push(request.url()));
 
 				await page.goto(astro.resolveUrl('/'));
 

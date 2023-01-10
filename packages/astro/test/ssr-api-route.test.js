@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import { File, FormData } from 'undici';
 import testAdapter from './test-adapter.js';
-import { FormData, File } from 'node-fetch';
+import { loadFixture } from './test-utils.js';
 
 describe('API routes in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */

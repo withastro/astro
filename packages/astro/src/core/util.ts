@@ -155,14 +155,6 @@ export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
 
-export function getLocalAddress(serverAddress: string, host: string | boolean): string {
-	if (typeof host === 'boolean' || host === 'localhost') {
-		return 'localhost';
-	} else {
-		return serverAddress;
-	}
-}
-
 /**
  * Simulate Vite's resolve and import analysis so we can import the id as an URL
  * through a script tag or a dynamic import as-is.

@@ -1,3 +1,5 @@
+import { streamAsyncIterator } from './util.js';
+
 const isNodeJS =
 	typeof process === 'object' && Object.prototype.toString.call(process) === '[object process]';
 
@@ -21,9 +23,9 @@ function createResponseClass() {
 		async text(): Promise<string> {
 			if (this.#isStream && isNodeJS) {
 				let decoder = new TextDecoder();
-				let body = this.#body as AsyncIterable<Uint8Array>;
+				let body = this.#body;
 				let out = '';
-				for await (let chunk of body) {
+				for await (let chunk of streamAsyncIterator(body)) {
 					out += decoder.decode(chunk);
 				}
 				return out;
@@ -33,10 +35,10 @@ function createResponseClass() {
 
 		async arrayBuffer(): Promise<ArrayBuffer> {
 			if (this.#isStream && isNodeJS) {
-				let body = this.#body as AsyncIterable<Uint8Array>;
+				let body = this.#body;
 				let chunks: Uint8Array[] = [];
 				let len = 0;
-				for await (let chunk of body) {
+				for await (let chunk of streamAsyncIterator(body)) {
 					chunks.push(chunk);
 					len += chunk.length;
 				}

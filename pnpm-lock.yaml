@@ -396,7 +396,7 @@ importers:
       '@babel/plugin-transform-react-jsx': ^7.17.12
       '@babel/traverse': ^7.18.2
       '@babel/types': ^7.18.4
-      '@playwright/test': ^1.22.2
+      '@playwright/test': ^1.29.2
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.1
@@ -416,6 +416,7 @@ importers:
       '@types/resolve': ^1.20.2
       '@types/rimraf': ^3.0.2
       '@types/send': ^0.17.1
+      '@types/server-destroy': ^1.0.1
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.1
@@ -443,7 +444,6 @@ importers:
       memfs: ^3.4.7
       mime: ^3.0.0
       mocha: ^9.2.2
-      node-fetch: ^3.2.5
       node-mocks-http: ^1.11.0
       ora: ^6.1.0
       path-to-regexp: ^6.2.1
@@ -457,8 +457,8 @@ importers:
       rollup: ^3.9.0
       sass: ^1.52.2
       semver: ^7.3.7
+      server-destroy: ^1.0.1
       shiki: ^0.11.1
-      sirv: ^2.0.2
       slash: ^4.0.0
       srcset-parse: ^1.1.0
       string-width: ^5.1.2
@@ -466,6 +466,7 @@ importers:
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
       typescript: '*'
+      undici: ^5.14.0
       unified: ^10.1.2
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
@@ -512,8 +513,8 @@ importers:
       prompts: 2.4.2
       rehype: 12.0.1
       semver: 7.3.8
+      server-destroy: 1.0.1
       shiki: 0.11.1
-      sirv: 2.0.2
       slash: 4.0.0
       string-width: 5.1.2
       strip-ansi: 7.0.1
@@ -546,6 +547,7 @@ importers:
       '@types/resolve': 1.20.2
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
+      '@types/server-destroy': 1.0.1
       '@types/unist': 2.0.6
       astro-scripts: link:../../scripts
       chai: 4.3.7
@@ -553,7 +555,6 @@ importers:
       eol: 0.9.1
       memfs: 3.4.13
       mocha: 9.2.2
-      node-fetch: 3.3.0
       node-mocks-http: 1.12.1
       rehype-autolink-headings: 6.1.1
       rehype-slug: 5.1.0
@@ -562,6 +563,7 @@ importers:
       rollup: 3.9.1
       sass: 1.57.1
       srcset-parse: 1.1.0
+      undici: 5.14.0
       unified: 10.1.2
 
   packages/astro-prism:
@@ -3057,7 +3059,6 @@ importers:
   packages/integrations/node:
     specifiers:
       '@astrojs/webapi': ^1.1.1
-      '@types/node-fetch': ^2.6.2
       '@types/send': ^0.17.1
       astro: workspace:*
       astro-scripts: workspace:*
@@ -3065,17 +3066,18 @@ importers:
       mocha: ^9.2.2
       node-mocks-http: ^1.11.0
       send: ^0.18.0
+      undici: ^5.14.0
     dependencies:
       '@astrojs/webapi': link:../../webapi
       send: 0.18.0
     devDependencies:
-      '@types/node-fetch': 2.6.2
       '@types/send': 0.17.1
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       mocha: 9.2.2
       node-mocks-http: 1.12.1
+      undici: 5.14.0
 
   packages/integrations/node/test/fixtures/api-route:
     specifiers:
@@ -3121,13 +3123,13 @@ importers:
 
   packages/integrations/prefetch:
     specifiers:
-      '@playwright/test': ^1.26.0
+      '@playwright/test': ^1.29.2
       '@types/chai': ^4.3.1
       '@types/chai-as-promised': ^7.1.5
       '@types/mocha': ^9.1.1
       astro: workspace:*
       astro-scripts: workspace:*
-      playwright: ^1.22.2
+      playwright: ^1.29.2
       throttles: ^1.0.1
     dependencies:
       throttles: 1.0.1
@@ -3516,7 +3518,7 @@ importers:
       is-docker: ^3.0.0
       is-wsl: ^2.2.0
       mocha: ^9.2.2
-      node-fetch: ^3.2.5
+      undici: ^5.14.0
       which-pm-runs: ^1.1.0
     dependencies:
       ci-info: 3.7.1
@@ -3525,7 +3527,7 @@ importers:
       dset: 3.1.2
       is-docker: 3.0.0
       is-wsl: 2.2.0
-      node-fetch: 3.3.0
+      undici: 5.14.0
       which-pm-runs: 1.1.0
     devDependencies:
       '@types/debug': 4.1.7
@@ -3555,16 +3557,15 @@ importers:
       global-agent: ^3.0.0
       magic-string: ^0.25.9
       mocha: ^9.2.2
-      node-fetch: ^3.2.5
       rollup: ^2.79.1
       rollup-plugin-terser: ^7.0.2
       tslib: ^2.4.0
       typescript: ~4.7.3
+      undici: ^5.14.0
       urlpattern-polyfill: ^1.0.0-rc5
-      web-streams-polyfill: ^3.2.1
     dependencies:
       global-agent: 3.0.0
-      node-fetch: 3.3.0
+      undici: 5.14.0
     devDependencies:
       '@rollup/plugin-alias': 3.1.9_rollup@2.79.1
       '@rollup/plugin-inject': 4.0.4_rollup@2.79.1
@@ -3587,7 +3588,6 @@ importers:
       tslib: 2.4.1
       typescript: 4.7.4
       urlpattern-polyfill: 1.0.0-rc5
-      web-streams-polyfill: 3.2.1
 
   scripts:
     specifiers:
@@ -7023,19 +7023,13 @@ packages:
       '@types/unist': 2.0.6
     dev: false
 
-  /@types/node-fetch/2.6.2:
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
-    dependencies:
-      '@types/node': 18.11.18
-      form-data: 3.0.1
-    dev: true
-
   /@types/node/12.20.55:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
   /@types/node/14.18.36:
     resolution: {integrity: sha512-FXKWbsJ6a1hIrRxv+FoukuHnGTgEzKYGi7kilfMae96AL9UNkPFNWJEEYWzdRI9ooIkbr4AKldyuSTLql06vLQ==}
+    dev: true
 
   /@types/node/16.18.11:
     resolution: {integrity: sha512-3oJbGBUWuS6ahSnEq1eN2XrCyf4YsWI8OyCvo7c64zQJNplk3mO84t53o8lfTk+2ji59g5ycfc6qQ3fdHliHuA==}
@@ -7104,7 +7098,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 14.18.36
+      '@types/node': 18.11.18
 
   /@types/resolve/1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -7119,7 +7113,7 @@ packages:
   /@types/sax/1.2.4:
     resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 18.11.18
     dev: false
 
   /@types/scheduler/0.16.2:
@@ -7137,6 +7131,12 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
+      '@types/node': 18.11.18
+    dev: true
+
+  /@types/server-destroy/1.0.1:
+    resolution: {integrity: sha512-77QGr7waZbE0Y0uF+G+uH3H3SmhyA78Jf2r5r7QSrpg0U3kSXduWpGjzP9PvPLR/KCy+kHjjpnugRHsYTnHopg==}
+    dependencies:
       '@types/node': 18.11.18
     dev: true
 
@@ -7976,10 +7976,6 @@ packages:
     resolution: {integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==}
     dev: false
 
-  /asynckit/0.4.0:
-    resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
-    dev: true
-
   /at-least-node/1.0.0:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
@@ -8241,7 +8237,6 @@ packages:
     engines: {node: '>=10.16.0'}
     dependencies:
       streamsearch: 1.1.0
-    dev: true
 
   /bytes/3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -8528,13 +8523,6 @@ packages:
     resolution: {integrity: sha512-3tlv/dIP7FWvj3BsbHrGLJ6l/oKh1O3TcgBqMn+yyCagOxc23fyzDS6HypQbgxWbkpDnf52p1LuR4eWDQ/K9WQ==}
     dev: false
 
-  /combined-stream/1.0.8:
-    resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
-    engines: {node: '>= 0.8'}
-    dependencies:
-      delayed-stream: 1.0.0
-    dev: true
-
   /comma-separated-tokens/2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
     dev: false
@@ -8744,6 +8732,7 @@ packages:
   /data-uri-to-buffer/4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
+    dev: false
 
   /dataloader/1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
@@ -8894,11 +8883,6 @@ packages:
       p-map: 5.5.0
       rimraf: 3.0.2
       slash: 4.0.0
-    dev: true
-
-  /delayed-stream/1.0.0:
-    resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
-    engines: {node: '>=0.4.0'}
     dev: true
 
   /delegates/1.0.0:
@@ -10063,15 +10047,6 @@ packages:
     dependencies:
       is-callable: 1.2.7
 
-  /form-data/3.0.1:
-    resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
-    engines: {node: '>= 6'}
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      mime-types: 2.1.35
-    dev: true
-
   /format/0.2.2:
     resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
     engines: {node: '>=0.4.x'}
@@ -11107,7 +11082,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 14.18.36
+      '@types/node': 18.11.18
       merge-stream: 2.0.0
       supports-color: 7.2.0
 
@@ -12316,6 +12291,7 @@ packages:
       data-uri-to-buffer: 4.0.0
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
+    dev: false
 
   /node-forge/1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -13972,6 +13948,10 @@ packages:
       randombytes: 2.1.0
     dev: true
 
+  /server-destroy/1.0.1:
+    resolution: {integrity: sha512-rb+9B5YBIEzYcD6x2VKidaa+cqYBJQKnU4oe4E3ANwRRN56yk/ua1YCJT1n21NTS8w6CcOclAKNP3PhdCXKYtQ==}
+    dev: false
+
   /set-blocking/2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
@@ -14262,7 +14242,6 @@ packages:
   /streamsearch/1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
-    dev: true
 
   /string-width/4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -14942,6 +14921,12 @@ packages:
       defu: 5.0.1
       jiti: 1.16.1
     dev: false
+
+  /undici/5.14.0:
+    resolution: {integrity: sha512-yJlHYw6yXPPsuOH0x2Ib1Km61vu4hLiRRQoafs+WUgX1vO64vgnxiCEN9dpIrhZyHFsai3F0AEj4P9zy19enEQ==}
+    engines: {node: '>=12.18'}
+    dependencies:
+      busboy: 1.6.0
 
   /undici/5.9.1:
     resolution: {integrity: sha512-6fB3a+SNnWEm4CJbgo0/CWR8RGcOCQP68SF4X0mxtYTq2VNN8T88NYrWVBAeSX+zb7bny2dx2iYhP3XHi00omg==}
