@@ -9,10 +9,10 @@ polyfill(globalThis, {
 	exclude: 'window document',
 });
 
-export function createExports(manifest: SSRManifest) {
+export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest);
 	return {
-		handler: middleware(app),
+		handler: middleware(app, options.mode),
 	};
 }
 
