@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import type { AstroConfig } from '../@types/astro';
 import { appendExtension, appendForwardSlash } from '../core/path.js';
 
@@ -28,4 +29,14 @@ export function getFileInfo(id: string, config: AstroConfig) {
 		fileUrl = appendExtension(fileUrl, 'html');
 	}
 	return { fileId, fileUrl };
+}
+
+export function normalizeFilename(filename: string, root: URL) {
+	if (filename.startsWith('/')) {
+		const rootPath = fileURLToPath(root);
+		if (!filename.startsWith(rootPath)) {
+			return fileURLToPath(new URL('.' + filename, root));
+		}
+	}
+	return filename;
 }
