@@ -1,6 +1,6 @@
 # WebAPI
 
-**WebAPI** lets you use Web APIs in Node v12, v14, and v16.
+**WebAPI** lets you use Web APIs not present in Node v16 and later.
 
 ```sh
 npm install @astrojs/webapi
@@ -23,9 +23,6 @@ These APIs are combined from popular open source projects and configured to shar
 
 ## Features
 
-- [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)
-- [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
-- [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob)
 - [ByteLengthQueuingStrategy](https://developer.mozilla.org/en-US/docs/Web/API/ByteLengthQueuingStrategy)
 - [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
 - [CSSStyleSheet](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet)
@@ -78,9 +75,7 @@ These APIs are combined from popular open source projects and configured to shar
 - [WritableStreamDefaultController](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultController)
 - [WritableStreamDefaultWriter](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter)
 - [Window](https://developer.mozilla.org/en-US/docs/Web/API/Window)
-- [atob](https://developer.mozilla.org/en-US/docs/Web/API/atob)
-- [btoa](https://developer.mozilla.org/en-US/docs/Web/API/btoa)
-- [cancelAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/cancelAnimationFrame)
+- [cancelAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelAnimationFrame)
 - [cancelIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/cancelIdleCallback)
 - [clearTimeout](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout)
 - [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
@@ -89,12 +84,6 @@ These APIs are combined from popular open source projects and configured to shar
 - [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/requestIdleCallback)
 - [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
 - [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)
-- [Object.hasOwn](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwn)
-- [Promise.any](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any)
-- [Array.prototype.at](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at)
-- [String.prototype.at](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at)
-- [String.prototype.replaceAll](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll)
-- [TypedArray.prototype.at](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/at)
 - [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern)
 
 ## Usage
@@ -102,7 +91,7 @@ These APIs are combined from popular open source projects and configured to shar
 You can use WebAPIs as individual exports.
 
 ```js
-import { AbortController, Blob, Event, EventTarget, File, fetch, Response } from '@astrojs/webapi'
+import { Event, EventTarget, File, fetch, Response } from '@astrojs/webapi'
 ```
 
 You can apply WebAPIs to an object, like `globalThis`.
@@ -149,11 +138,10 @@ polyfill(globalThis, {
 
 | Shorthand      | Excludes |
 |:-------------- |:-------- |
-| `Blob+`        | `Blob`, `File` |
 | `Document+`    | `Document`, `HTMLDocument` |
 | `Element+`     | `Element`, and exclusions from `HTMLElement+` |
-| `Event+`       | `Event`, `CustomEvent`, `EventTarget`, `AbortSignal`, `MediaQueryList`, `Window`, and exclusions from `Node+` |
-| `EventTarget+` | `Event`, `CustomEvent`, `EventTarget`, `AbortSignal`, `MediaQueryList`, `Window`, and exclusions from `Node+` |
+| `Event+`       | `Event`, `CustomEvent`, `EventTarget`, `MediaQueryList`, `Window`, and exclusions from `Node+` |
+| `EventTarget+` | `Event`, `CustomEvent`, `EventTarget`, `MediaQueryList`, `Window`, and exclusions from `Node+` |
 | `HTMLElement+` | `CustomElementsRegistry`, `HTMLElement`, `HTMLBodyElement`, `HTMLCanvasElement`, `HTMLDivElement`, `HTMLHeadElement`, `HTMLHtmlElement`, `HTMLImageElement`, `HTMLStyleElement`, `HTMLTemplateElement`, `HTMLUnknownElement`, `Image` |
 | `Node+`        | `Node`, `DocumentFragment`, `ShadowRoot`, `Document`, `HTMLDocument`, and exclusions from `Element+` |
 | `StyleSheet+`  | `StyleSheet`, `CSSStyleSheet` |
@@ -166,10 +154,6 @@ polyfill(globalThis, {
 
 Thank you to Jon Neal for his work on the original [webapi](https://github.com/astro-community/webapi) project that this package is forked from. Licensed under the CC0-1.0 License.
 
-Code from [abort-controller](https://www.npmjs.com/package/abort-controller) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
-
 Code from [event-target-shim](https://www.npmjs.com/package/event-target-shim) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
-
-Code from [fetch-blob](https://www.npmjs.com/package/fetch-blob) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
 
 Code from [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
