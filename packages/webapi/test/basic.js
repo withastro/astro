@@ -6,9 +6,6 @@ describe('Basic', () => {
 
 	it('Globals exist', () => {
 		const webAPIs = [
-			'AbortController',
-			'AbortSignal',
-			'Blob',
 			'ByteLengthQueuingStrategy',
 			'CSSStyleSheet',
 			'CountQueuingStrategy',
@@ -168,18 +165,5 @@ describe('Basic', () => {
 		]).then((result) => {
 			expect(result).to.equal(42)
 		})
-	})
-
-	it('String#replaceAll', () => {
-		expect(String.prototype.replaceAll).to.be.a('function')
-		expect(String.prototype.replaceAll.length).to.equal(2)
-
-		const t1 =
-			'Of all the sorcerers in Harry Potter, Halo is my favorite sorcerer.'
-		const t2 = t1.replaceAll('sorcerer', 'philosopher')
-		const t3 =
-			'Of all the philosophers in Harry Potter, Halo is my favorite philosopher.'
-
-		expect(t2).to.equal(t3)
 	})
 })

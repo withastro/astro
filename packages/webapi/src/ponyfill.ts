@@ -1,11 +1,5 @@
 // @ts-check
-
-import {
-	AbortController,
-	AbortSignal,
-} from 'abort-controller/dist/abort-controller.mjs'
 import { Event, EventTarget } from 'event-target-shim'
-import { Blob, File } from 'fetch-blob/from.js'
 import { FormData } from 'formdata-polyfill/esm.min.js'
 import {
 	ByteLengthQueuingStrategy,
@@ -27,7 +21,6 @@ import {
 	cancelAnimationFrame,
 	requestAnimationFrame,
 } from './lib/AnimationFrame'
-import { atob, btoa } from './lib/Base64'
 import { CharacterData, Comment, Text } from './lib/CharacterData'
 import { CustomEvent } from './lib/CustomEvent'
 import { DOMException } from './lib/DOMException'
@@ -87,11 +80,9 @@ const fetch = undici.fetch
 const Headers = undici.Headers
 const Response = undici.Response
 const Request = undici.Request
+const File = undici.File
 
 export {
-	AbortController,
-	AbortSignal,
-	Blob,
 	ByteLengthQueuingStrategy,
 	CanvasRenderingContext2D,
 	CharacterData,
@@ -151,8 +142,6 @@ export {
 	WritableStreamDefaultWriter,
 	Window,
 	alert,
-	atob,
-	btoa,
 	cancelAnimationFrame,
 	cancelIdleCallback,
 	clearTimeout,

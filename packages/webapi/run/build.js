@@ -58,12 +58,6 @@ const plugins = [
 	inject({
 		// import { Promise as P } from 'es6-promise'
 		// P: [ 'es6-promise', 'Promise' ],
-
-		AbortController: [
-			'abort-controller/dist/abort-controller.mjs',
-			'AbortController',
-		],
-		Blob: ['fetch-blob/from.js', 'Blob'],
 		DOMException: [pathToDOMException, 'DOMException'],
 		Document: ['./Document', 'Document'],
 		Element: ['./Element', 'Element'],

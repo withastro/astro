@@ -1,10 +1,5 @@
 import {
-	AbortController,
-	AbortSignal,
 	alert,
-	atob,
-	Blob,
-	btoa,
 	ByteLengthQueuingStrategy,
 	cancelAnimationFrame,
 	cancelIdleCallback,
@@ -87,12 +82,7 @@ import { inheritance } from './inheritance'
 
 export { pathToPosix } from './lib/utils'
 export {
-	AbortController,
-	AbortSignal,
 	alert,
-	atob,
-	Blob,
-	btoa,
 	ByteLengthQueuingStrategy,
 	cancelAnimationFrame,
 	cancelIdleCallback,
@@ -162,9 +152,6 @@ export {
 
 export const polyfill = (target: any, options?: PolyfillOptions) => {
 	const webAPIs = {
-		AbortController,
-		AbortSignal,
-		Blob,
 		ByteLengthQueuingStrategy,
 		CanvasRenderingContext2D,
 		CharacterData,
@@ -225,8 +212,6 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 		Window,
 
 		alert,
-		atob,
-		btoa,
 		cancelAnimationFrame,
 		cancelIdleCallback,
 		clearTimeout,
