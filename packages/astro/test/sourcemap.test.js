@@ -10,7 +10,7 @@ describe('Sourcemap', async () => {
 	});
 
 	it('Builds sourcemap', async () => {
-		const dir = await fixture.readdir('./assets');
+		const dir = await fixture.readdir('./_astro');
 		const counterMap = dir.find((file) => file.match(/^Counter\.\w+\.js\.map$/));
 		expect(counterMap).to.be.ok;
 	});

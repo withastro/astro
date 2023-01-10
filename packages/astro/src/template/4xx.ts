@@ -1,4 +1,4 @@
-import { encode } from 'html-entities';
+import { escape } from 'html-escaper';
 import { baseCSS } from './css.js';
 
 interface ErrorTemplateOptions {
@@ -58,7 +58,7 @@ export default function template({
 			${
 				body ||
 				`
-				<pre>Path: ${encode(pathname)}</pre>
+				<pre>Path: ${escape(pathname)}</pre>
 			`
 			}
 			</main>

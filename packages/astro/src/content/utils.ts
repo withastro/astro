@@ -68,8 +68,20 @@ export async function getEntrySlug(entry: Entry, collectionConfig: CollectionCon
 export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
 	let data = entry.data;
 	if (collectionConfig.schema) {
+		// TODO: remove for 2.0 stable release
+		if (
+			typeof collectionConfig.schema === 'object' &&
+			!('safeParseAsync' in collectionConfig.schema)
+		) {
+			throw new AstroError({
+				title: 'Invalid content collection config',
+				message: `New: Content collection schemas must be Zod objects. Update your collection config to use \`schema: z.object({...})\` instead of \`schema: {...}\`.`,
+				hint: 'See https://docs.astro.build/en/reference/api-reference/#definecollection for an example.',
+				code: 99999,
+			});
+		}
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await z.object(collectionConfig.schema).safeParseAsync(entry.data, { errorMap });
+		const parsed = await collectionConfig.schema.safeParseAsync(entry.data, { errorMap });
 		if (parsed.success) {
 			data = parsed.data;
 		} else {

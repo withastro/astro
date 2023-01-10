@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import resolve from 'resolve';
 import slash from 'slash';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
@@ -83,14 +82,6 @@ export function parseNpmName(
 	};
 }
 
-export function resolveDependency(dep: string, projectRoot: URL) {
-	const resolved = resolve.sync(dep, {
-		basedir: fileURLToPath(projectRoot),
-	});
-	// For Windows compat, we need a fully resolved `file://` URL string
-	return pathToFileURL(resolved).toString();
-}
-
 /**
  * Convert file URL to ID for viteServer.moduleGraph.idToModuleMap.get(:viteID)
  * Format:
@@ -162,14 +153,6 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 
 export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
-}
-
-export function getLocalAddress(serverAddress: string, host: string | boolean): string {
-	if (typeof host === 'boolean' || host === 'localhost') {
-		return 'localhost';
-	} else {
-		return serverAddress;
-	}
 }
 
 /**
