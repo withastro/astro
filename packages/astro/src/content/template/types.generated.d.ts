@@ -2,15 +2,16 @@ declare module 'astro:content' {
 	export { z } from 'astro/zod';
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]] & Render;
+	export type EntryKey<C extends keyof typeof entryMap> = keyof typeof entryMap[C];
 
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
 		| import('astro/zod').ZodUnion<import('astro/zod').AnyZodObject[]>
 		| import('astro/zod').ZodDiscriminatedUnion<string, import('astro/zod').AnyZodObject[]>
 		| import('astro/zod').ZodIntersection<
-				import('astro/zod').AnyZodObject,
-				import('astro/zod').AnyZodObject
-		  >;
+			import('astro/zod').AnyZodObject,
+			import('astro/zod').AnyZodObject
+		>;
 
 	type BaseSchema =
 		| BaseSchemaWithoutEffects
