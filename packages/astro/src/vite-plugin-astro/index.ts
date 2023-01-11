@@ -7,10 +7,10 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 import { normalizePath } from 'vite';
 import { cachedCompilation, CompileProps, getCachedCompileResult } from '../core/compile/index.js';
 import { isRelativePath } from '../core/path.js';
+import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { cachedFullCompilation } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
