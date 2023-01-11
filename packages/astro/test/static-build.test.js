@@ -191,6 +191,8 @@ describe('Static build SSR', () => {
 			root: './fixtures/static-build-ssr/',
 		});
 		await fixture.build();
-		const asset = await fixture.readFile('/client/nested/asset2.txt');
+
+		await fixture.readFile('/client/nested/asset2.txt');
+		await fixture.readFile('/client/.well-known/apple-app-site-association');
 	});
 });

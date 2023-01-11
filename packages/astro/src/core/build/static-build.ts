@@ -191,7 +191,7 @@ async function clientBuild(
 	if (!input.size) {
 		// If SSR, copy public over
 		if (ssr) {
-			await copyFiles(settings.config.publicDir, out);
+			await copyFiles(settings.config.publicDir, out, true);
 		}
 
 		return null;
@@ -318,9 +318,10 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 	}
 }
 
-async function copyFiles(fromFolder: URL, toFolder: URL) {
+async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
 	const files = await glob('**/*', {
 		cwd: fileURLToPath(fromFolder),
+		dot: includeDotfiles,
 	});
 
 	await Promise.all(
