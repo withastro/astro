@@ -59,8 +59,6 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 		scopedClassName: string | null;
 	};
 	/** Used to prevent relative image imports from `src/content/` */
-	isExperimentalContentCollections?: boolean;
-	/** Used to prevent relative image imports from `src/content/` */
 	contentDir: URL;
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;

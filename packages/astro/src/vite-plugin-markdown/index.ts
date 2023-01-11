@@ -71,7 +71,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
-					isExperimentalContentCollections: settings.config.experimental.contentCollections,
 					contentDir: getContentPaths(settings.config).contentDir,
 					frontmatter: raw.data,
 				});

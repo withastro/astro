@@ -83,7 +83,6 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalContentCollections?: boolean;
 }
 
 export interface BuildConfig {
@@ -911,34 +910,13 @@ export interface AstroUserConfig {
 	legacy?: object;
 
 	/**
-	 * @docs
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
 	 * Astro offers experimental flags to give users early access to new features.
 	 * These flags are not guaranteed to be stable.
 	 */
-	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.contentCollections
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.7.0
-		 * @description
-		 * Enable experimental support for [Content Collections](https://docs.astro.build/en/guides/content-collections/). This makes the `src/content/` directory a reserved directory for Astro to manage, and introduces the `astro:content` module for querying this content.
-		 *
-		 * To enable this feature, set `experimental.contentCollections` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		contentCollections: true,
-		 * 	},
-		 * }
-		 */
-		contentCollections?: boolean;
-	};
+	experimental?: object;
 
 	// Legacy options to be removed
 

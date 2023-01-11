@@ -47,7 +47,6 @@ describe('Content Collections - render()', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
-					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {
@@ -121,7 +120,6 @@ describe('Content Collections - render()', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
-					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {
@@ -193,7 +191,6 @@ describe('Content Collections - render()', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
-					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {
@@ -259,7 +256,6 @@ describe('Content Collections - render()', () => {
 				userConfig: {
 					integrations: [mdx()],
 					vite: { server: { middlewareMode: true } },
-					experimental: { contentCollections: true },
 				},
 			},
 			async (container) => {

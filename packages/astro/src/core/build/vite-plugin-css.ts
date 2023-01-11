@@ -76,15 +76,13 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					// For CSS, create a hash of all of the pages that use it.
 					// This causes CSS to be built into shared chunks when used by multiple pages.
 					if (isCSSRequest(id)) {
-						if (settings.config.experimental.contentCollections) {
-							for (const [pageInfo] of walkParentInfos(id, {
-								getModuleInfo: args[0].getModuleInfo,
-							})) {
-								if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
-									// Split delayed assets to separate modules
-									// so they can be injected where needed
-									return createNameHash(id, [id]);
-								}
+						for (const [pageInfo] of walkParentInfos(id, {
+							getModuleInfo: args[0].getModuleInfo,
+						})) {
+							if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
+								// Split delayed assets to separate modules
+								// so they can be injected where needed
+								return createNameHash(id, [id]);
 							}
 						}
 						return createNameForParentPages(id, args[0]);
@@ -174,17 +172,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										id,
 										this,
 										function until(importer) {
-											if (settings.config.experimental.contentCollections) {
-												// Short circuit when `contentCollections` is enabled.
-												return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
-											}
-											return false;
+											return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
 										}
 									)) {
-										if (
-											settings.config.experimental.contentCollections &&
-											new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)
-										) {
+										if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
 											for (const parent of walkParentInfos(id, this)) {
 												const parentInfo = parent[0];
 												if (moduleIsTopLevelPage(parentInfo)) {
