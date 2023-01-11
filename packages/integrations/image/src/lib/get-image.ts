@@ -8,6 +8,7 @@ import type {
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { ImageMetadata } from '../vite-plugin-astro-image.js';
+import { removeTrailingForwardSlash } from '../utils/paths'
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -149,7 +150,9 @@ export async function getImage(
 		src = `${imgSrc}?${searchParams.toString()}`;
 	} else {
 		searchParams.set('href', imgSrc);
-		src = `/_image?${searchParams.toString()}`;
+		// Takes account astro base path configuration
+		// @ts-ignore
+		src = `${import.meta.env?.BASE_URL ? '/' + removeTrailingForwardSlash(import.meta.env.BASE_URL) : ''}/_image?${searchParams.toString()}`;
 	}
 
 	// cache all images rendered to HTML

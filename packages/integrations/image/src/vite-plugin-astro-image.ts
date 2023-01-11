@@ -19,7 +19,8 @@ export interface ImageMetadata {
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
-		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
+	// Removed Regex ! "startsWith" to catch all ocurrences of "/_image" path, independly from having base path configured
+		/^(?\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);		
 
 	const virtualModuleId = 'virtual:image-loader';
 
