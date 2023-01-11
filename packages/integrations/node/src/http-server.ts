@@ -17,10 +17,11 @@ export function createServer(
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
-			const pathname = '/' + removeBase(req.url);
+			let pathname = removeBase(req.url);
+			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
 			const stream = send(req, encodeURI(pathname), {
 				root: fileURLToPath(client),
-				dotfiles: 'deny',
+				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});
 
 			let forwardError = false;
