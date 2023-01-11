@@ -183,7 +183,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 		},
 	};
 
-	const postPlugin: vite.Plugin = {
+	const normalPlugin: vite.Plugin = {
 		name: 'astro:build:normal',
 		resolveId(id) {
 			// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
@@ -194,7 +194,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 		},
 	};
 
-	return [prePlugin, postPlugin];
+	return [prePlugin, normalPlugin];
 }
 
 function appendSourceMap(content: string, map?: string) {
