@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
 import type { AstroSettings } from '../../@types/astro';
+import type { LogOptions } from '../../core/logger/core.js';
 
 import glob from 'fast-glob';
 import * as fs from 'fs';
@@ -17,8 +18,13 @@ interface Result {
 	hints: number;
 }
 
-export async function check(settings: AstroSettings) {
+export async function check(settings: AstroSettings, { logging }: { logging: LogOptions }) {
 	console.log(bold('astro check'));
+
+	const { sync } = await import('../sync/index.js');
+	const syncRet = await sync(settings, { logging, fs });
+	// early exit on sync failure
+	if (syncRet === 1) return syncRet;
 
 	const root = settings.config.root;
 
