@@ -22,11 +22,6 @@ type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
 
-export type GenerateContentTypes = {
-	init(): Promise<void>;
-	queueEvent(event: RawContentEvent): void;
-};
-
 type ContentTypesEntryMetadata = { slug: string };
 type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
 
@@ -46,7 +41,7 @@ export async function createContentTypesGenerator({
 	fs,
 	logging,
 	settings,
-}: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
+}: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config);
 
@@ -55,9 +50,15 @@ export async function createContentTypesGenerator({
 
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	async function init() {
-		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		const globResult = await glob('./**/*.*', {
+	async function init(): Promise<
+		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
+	> {
+		if (!fs.existsSync(contentPaths.contentDir)) {
+			return { typesGenerated: false, reason: 'no-content-dir' };
+		}
+
+		events.push(handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' }));
+		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
@@ -74,6 +75,7 @@ export async function createContentTypesGenerator({
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
 		await runEvents();
+		return { typesGenerated: true };
 	}
 
 	async function handleEvent(
@@ -109,10 +111,10 @@ export async function createContentTypesGenerator({
 		if (fileType === 'config') {
 			contentConfigObserver.set({ status: 'loading' });
 			const config = await loadContentConfig({ fs, settings });
-			if (config instanceof Error) {
-				contentConfigObserver.set({ status: 'error', error: config });
-			} else {
+			if (config) {
 				contentConfigObserver.set({ status: 'loaded', config });
+			} else {
+				contentConfigObserver.set({ status: 'error' });
 			}
 
 			return { shouldGenerateTypes: true };
@@ -258,13 +260,13 @@ export function getEntryType(
 	entryPath: string,
 	paths: ContentPaths
 ): 'content' | 'config' | 'unknown' | 'generated-types' {
-	const { dir: rawDir, ext, name, base } = path.parse(entryPath);
+	const { dir: rawDir, ext, base } = path.parse(entryPath);
 	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
 	if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
-	} else if (new URL(name, dir).pathname === paths.config.pathname) {
+	} else if (new URL(base, dir).href === paths.config.href) {
 		return 'config';
-	} else if (new URL(base, dir).pathname === new URL(CONTENT_TYPES_FILE, paths.cacheDir).pathname) {
+	} else if (new URL(base, dir).href === new URL(CONTENT_TYPES_FILE, paths.cacheDir).href) {
 		return 'generated-types';
 	} else {
 		return 'unknown';
@@ -312,6 +314,11 @@ async function writeContentFiles({
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
+
+	// Remove `.ts` from import path
+	if (configPathRelativeToCacheDir.endsWith('.ts')) {
+		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
+	}
 
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
 	contentTypesBase = contentTypesBase.replace(
