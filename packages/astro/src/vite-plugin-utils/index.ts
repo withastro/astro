@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import ancestor from 'common-ancestor-path';
 import type { AstroConfig } from '../@types/astro';
 import {
@@ -44,11 +45,11 @@ export function getFileInfo(id: string, config: AstroConfig) {
  *
  * as absolute file paths with forward slashes.
  */
-export function normalizeFilename(filename: string, config: AstroConfig) {
+export function normalizeFilename(filename: string, root: URL) {
 	if (filename.startsWith('/@fs')) {
 		filename = filename.slice('/@fs'.length);
-	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		const url = new URL('.' + filename, config.root);
+	} else if (filename.startsWith('/') && !ancestor(filename, fileURLToPath(root))) {
+		const url = new URL('.' + filename, root);
 		filename = viteID(url);
 	}
 	return removeLeadingForwardSlashWindows(filename);

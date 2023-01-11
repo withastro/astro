@@ -7,7 +7,6 @@ import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface CachedFullCompilation {
 	compileProps: CompileProps;
-	rawId: string;
 	logging: LogOptions;
 }
 
@@ -27,7 +26,6 @@ const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 
 export async function cachedFullCompilation({
 	compileProps,
-	rawId,
 	logging,
 }: CachedFullCompilation): Promise<FullCompileResult> {
 	let transformResult: CompileResult;
@@ -37,7 +35,7 @@ export async function cachedFullCompilation({
 		transformResult = await cachedCompilation(compileProps);
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
-		esbuildResult = await transformWithEsbuild(transformResult.code, rawId, {
+		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
 			loader: 'ts',
 			target: 'esnext',
 			sourcemap: 'external',
@@ -51,7 +49,7 @@ export async function cachedFullCompilation({
 	} catch (err: any) {
 		await enhanceCompileError({
 			err,
-			id: rawId,
+			id: compileProps.filename,
 			source: compileProps.source,
 			config: compileProps.astroConfig,
 			logging: logging,
@@ -59,7 +57,10 @@ export async function cachedFullCompilation({
 		throw err;
 	}
 
-	const { fileId: file, fileUrl: url } = getFileInfo(rawId, compileProps.astroConfig);
+	const { fileId: file, fileUrl: url } = getFileInfo(
+		compileProps.filename,
+		compileProps.astroConfig
+	);
 
 	let SUFFIX = '';
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
@@ -70,7 +71,7 @@ export async function cachedFullCompilation({
 	if (!compileProps.viteConfig.isProduction) {
 		let i = 0;
 		while (i < transformResult.scripts.length) {
-			SUFFIX += `import "${rawId}?astro&type=script&index=${i}&lang.ts";`;
+			SUFFIX += `import "${compileProps.filename}?astro&type=script&index=${i}&lang.ts";`;
 			i++;
 		}
 	}
