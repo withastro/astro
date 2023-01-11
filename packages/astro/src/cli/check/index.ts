@@ -22,7 +22,9 @@ export async function check(settings: AstroSettings, { logging }: { logging: Log
 	console.log(bold('astro check'));
 
 	const { sync } = await import('../sync/index.js');
-	await sync(settings, { logging, fs });
+	const syncRet = await sync(settings, { logging, fs });
+	// early exit on sync failure
+	if (syncRet === 1) return syncRet;
 
 	const root = settings.config.root;
 
