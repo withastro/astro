@@ -1,5 +1,9 @@
-import type ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary';
 import { isAstroFilePath } from '../utils.js';
+
+export enum DiagnosticCodes {
+	CANNOT_FIND_MODULE = 2307, // Cannot find module '{0}' or its corresponding type declarations.
+}
 
 export function decorateDiagnostics(ls: ts.LanguageService): void {
 	decorateSyntacticDiagnostics(ls);
@@ -27,7 +31,27 @@ function decorateSemanticDiagnostics(ls: ts.LanguageService): void {
 		if (isAstroFilePath(fileName)) {
 			return [];
 		}
-		return getSemanticDiagnostics(fileName);
+
+		let diagnostics = getSemanticDiagnostics(fileName);
+		diagnostics = diagnostics.map((diag) => {
+			const message = ts.flattenDiagnosticMessageText(diag.messageText, ts.sys.newLine);
+			if (
+				diag.code === DiagnosticCodes.CANNOT_FIND_MODULE &&
+				message.includes('astro:content') &&
+				// TypeScript will keep the diagnostics here in cache, so if we just blindly always add to it, our added message will be there twice
+				// Not sure if there's a generic way to ensure that we only add it once, so for now we'll just check for the message we want to add
+				!message.includes('content collections')
+			) {
+				diag.messageText =
+					message +
+					`${ts.sys.newLine}${ts.sys.newLine}` +
+					"If you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the TS Server might be necessary in order for the change to take effect";
+			}
+
+			return diag;
+		});
+
+		return diagnostics;
 	};
 }
 

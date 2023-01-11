@@ -131,6 +131,20 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		]);
 	});
 
+	it('gives additional context for import errors on astro:content', async () => {
+		const { provider, document } = setup('contentcollections.astro');
+
+		const diagnostics = await provider.getDiagnostics(document);
+
+		const hasCollectionMessage = diagnostics.some((diag) =>
+			diag.message.includes(
+				"If you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect"
+			)
+		);
+
+		expect(hasCollectionMessage).to.be.true;
+	});
+
 	it('properly support optional props on Svelte components', async () => {
 		const { provider, document } = setup('svelteOptional.astro');
 

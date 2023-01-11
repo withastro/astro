@@ -17,6 +17,7 @@ interface BoundaryParseResults {
 export enum DiagnosticCodes {
 	SPREAD_EXPECTED = 1005, // '{0}' expected.
 	IS_NOT_A_MODULE = 2306, // '{0}' is not a module.
+	CANNOT_FIND_MODULE = 2307, // Cannot find module '{0}' or its corresponding type declarations.
 	DUPLICATED_JSX_ATTRIBUTES = 17001, // JSX elements cannot have multiple attributes with the same name.
 	CANT_RETURN_OUTSIDE_FUNC = 1108, // A 'return' statement can only be used within a function body.
 	ISOLATED_MODULE_COMPILE_ERR = 1208, // '{0}' cannot be compiled under '--isolatedModules' because it is considered a global script file.
@@ -249,6 +250,13 @@ function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
 			diagnostic.message +=
 				'\n\nIs the `@astrojs/vue` package installed? You can add it to your project by running the following command: `astro add vue`. If already installed, restarting the language server might be necessary in order for the change to take effect';
 		}
+
+		return diagnostic;
+	}
+
+	if (diagnostic.code === DiagnosticCodes.CANNOT_FIND_MODULE && diagnostic.message.includes('astro:content')) {
+		diagnostic.message +=
+			"\n\nIf you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the language server might be necessary in order for the change to take effect";
 
 		return diagnostic;
 	}
