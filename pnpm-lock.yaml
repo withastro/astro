@@ -401,6 +401,7 @@ importers:
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.1
       '@types/chai': ^4.3.1
+      '@types/common-ancestor-path': ^1.0.0
       '@types/connect': ^3.4.35
       '@types/cookie': ^0.5.1
       '@types/debug': ^4.1.7
@@ -424,6 +425,7 @@ importers:
       chai: ^4.3.6
       cheerio: ^1.0.0-rc.11
       ci-info: ^3.3.1
+      common-ancestor-path: ^1.0.1
       cookie: ^0.5.0
       debug: ^4.3.4
       deepmerge-ts: ^4.2.2
@@ -489,6 +491,7 @@ importers:
       acorn: 8.8.1
       boxen: 6.2.1
       ci-info: 3.7.1
+      common-ancestor-path: 1.0.1
       cookie: 0.5.0
       debug: 4.3.4
       deepmerge-ts: 4.2.2
@@ -529,6 +532,7 @@ importers:
       '@types/babel__generator': 7.6.4
       '@types/babel__traverse': 7.18.3
       '@types/chai': 4.3.4
+      '@types/common-ancestor-path': 1.0.0
       '@types/connect': 3.4.35
       '@types/cookie': 0.5.1
       '@types/debug': 4.1.7
@@ -6877,6 +6881,10 @@ packages:
 
   /@types/chai/4.3.4:
     resolution: {integrity: sha512-KnRanxnpfpjUTqTCXslZSEdLfXExwgNxYPdiO2WGUj8+HDjFi8R3k5RVKPeSCzLjCcshCAtVO2QBbVuAV4kTnw==}
+
+  /@types/common-ancestor-path/1.0.0:
+    resolution: {integrity: sha512-RuLE14U0ewtlGo81hOjQtzXl3RsVlTkbHqfpsbl9V1hIhAxF30L5ru1Q6C1x7L7d7zs434HbMBeFrdd7fWVQ2Q==}
+    dev: true
 
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
