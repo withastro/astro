@@ -7,29 +7,28 @@ export { rssSchema };
 
 export type RSSOptions = {
 	/** (required) Title of the RSS Feed */
-	title: RSSOptionsSchema['title'];
+	title: z.infer<typeof rssOptionsValidator>['title'];
 	/** (required) Description of the RSS Feed */
-	description: RSSOptionsSchema['description'];
+	description: z.infer<typeof rssOptionsValidator>['description'];
 	/**
 	 * Specify the base URL to use for RSS feed links.
 	 * We recommend "import.meta.env.SITE" to pull in the "site"
 	 * from your project's astro.config.
 	 */
-	site: RSSOptionsSchema['site'];
+	site: z.infer<typeof rssOptionsValidator>['site'];
 	/** List of RSS feed items to render. */
 	items: RSSFeedItem[];
 	/** Specify arbitrary metadata on opening <xml> tag */
-	xmlns?: RSSOptionsSchema['xmlns'];
+	xmlns?: z.infer<typeof rssOptionsValidator>['xmlns'];
 	/**
 	 * Specifies a local custom XSL stylesheet. Ex. '/public/custom-feed.xsl'
 	 */
-	stylesheet?: RSSOptionsSchema['stylesheet'];
+	stylesheet?: z.infer<typeof rssOptionsValidator>['stylesheet'];
 	/** Specify custom data in opening of file */
-	customData?: RSSOptionsSchema['customData'];
+	customData?: z.infer<typeof rssOptionsValidator>['customData'];
 	/** Whether to include drafts or not */
-	drafts?: RSSOptionsSchema['drafts'];
+	drafts?: z.infer<typeof rssOptionsValidator>['drafts'];
 };
-type RSSOptionsSchema = z.infer<typeof rssOptionsValidator>;
 
 type RSSFeedItem = {
 	/** Link to item */
