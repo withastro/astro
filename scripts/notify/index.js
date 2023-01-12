@@ -57,8 +57,8 @@ const extraVerbs = [
 	'live now',
 	'hot and fresh',
 	'for you',
-	'comin\' atcha',
-]
+	"comin' atcha",
+];
 
 function item(items) {
 	return items[Math.floor(Math.random() * items.length)];
@@ -120,7 +120,9 @@ async function run() {
 
 	if (packages.length === 1) {
 		const { name, version, url } = packages[0];
-		message += `${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)\n`
+		message += `${emoji} \`${name}@${version}\` ${singularlize(
+			verb
+		)}\nRead the [release notes →](<${url}>)\n`;
 	} else {
 		message += `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
 		for (const { name, version, url } of packages) {
@@ -131,13 +133,13 @@ async function run() {
 	if (message.length < 2000) {
 		console.log(message);
 	} else {
-		const { name, version, url } = packages.find(pkg => pkg.name === 'astro') ?? packages[0];
+		const { name, version, url } = packages.find((pkg) => pkg.name === 'astro') ?? packages[0];
 		message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
-		message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
+		message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
 
-		message += `\nAlso ${item(extraVerbs)}:`
+		message += `\nAlso ${item(extraVerbs)}:`;
 
-		const remainingPackages = packages.filter(p => p.name !== name);
+		const remainingPackages = packages.filter((p) => p.name !== name);
 		for (const { name, version, url } of remainingPackages) {
 			message += `\n• \`${name}@${version}\``;
 		}
@@ -146,7 +148,7 @@ async function run() {
 			console.log(message);
 		} else {
 			message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
-			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
+			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
 
 			message += `\n\nAlso ${item(extraVerbs)}: ${remainingPackages.length} other packages!`;
 			console.log(message);
