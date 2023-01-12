@@ -45,6 +45,19 @@ const verbs = [
 	'– from our family to yours.',
 	'– go forth and build!',
 ];
+const extraVerbs = [
+	'new',
+	'here',
+	'released',
+	'freshly made',
+	'going out;',
+	'hitting the registry',
+	'available',
+	'live now',
+	'hot and fresh',
+	'for you',
+	'comin\' atcha',
+]
 
 function item(items) {
 	return items[Math.floor(Math.random() * items.length)];
@@ -102,15 +115,44 @@ async function run() {
 	const descriptor = item(descriptors);
 	const verb = item(verbs);
 
+	let message = '';
+
 	if (packages.length === 1) {
 		const { name, version, url } = packages[0];
-		console.log(
-			`${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)`
-		);
+		message += `${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)\n`
 	} else {
-		console.log(`${emoji} Some ${descriptor} ${pluralize(verb)}\n`);
+		message += `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
 		for (const { name, version, url } of packages) {
-			console.log(`• \`${name}@${version}\` Read the [release notes →](<${url}>)`);
+			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
+		}
+	}
+
+	if (message.length < 2000) {
+		console.log(message);
+	} else {
+		const { name, version, url } = packages.find(pkg => pkg.name === 'astro') ?? packages[0];
+		message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
+		message += `${emoji} \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
+
+		message += `\n\nAlso ${item(extraVerbs)}:\n`
+
+		const remainingPackages = packages.filter(p => p.name !== name);
+		let i = 0;
+		for (const { name, version, url } of remainingPackages) {
+			if (i !== 0) message += ', '
+			if (i === remainingPackages.length - 1) message += 'and '
+			message += `\`${name}@${version}\``;
+			i++;
+		}
+
+		if (message.length < 2000) {
+			console.log(message);
+		} else {
+			message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
+			message += `${emoji} \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
+
+			message += `\n\nAlso ${item(extraVerbs)}: ${remainingPackages.length} other packages!`;
+			console.log(message);
 		}
 	}
 }
