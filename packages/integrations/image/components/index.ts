@@ -5,7 +5,7 @@ import type { HTMLAttributes } from 'astro/types';
 
 import type { TransformOptions, OutputFormat } from '../dist/loaders/index.js';
 import type { ImageMetadata } from '../dist/vite-plugin-astro-image.js';
-import { AstroBuiltinAttributes } from 'astro';
+import type { AstroBuiltinAttributes } from 'astro';
 
 export interface ImageComponentLocalImageProps
 	extends Omit<TransformOptions, 'src'>,
