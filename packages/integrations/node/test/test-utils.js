@@ -28,7 +28,13 @@ export function createRequestAndResponse(reqOptions) {
 
 	let done = toPromise(res);
 
-	return { req, res, done };
+	// Get the response as text
+	const text = async () => {
+		let chunks = await done;
+		return buffersToString(chunks);
+	};
+
+	return { req, res, done, text };
 }
 
 export function toPromise(res) {
@@ -47,4 +53,13 @@ export function toPromise(res) {
 			resolve(chunks);
 		});
 	});
+}
+
+export function buffersToString(buffers) {
+	let decoder = new TextDecoder();
+	let str = '';
+	for (const buffer of buffers) {
+		str += decoder.decode(buffer);
+	}
+	return str;
 }
