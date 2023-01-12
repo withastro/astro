@@ -20,7 +20,7 @@ describe('Encoded Pathname', () => {
 		let { req, res, text } = createRequestAndResponse({
 			url: '/什么',
 		});
-		
+
 		handler(req, res);
 		req.send();
 
