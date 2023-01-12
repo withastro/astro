@@ -1,5 +1,8 @@
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
-import { createCanonicalURL, isValidURL } from './util.js';
+import { rssSchema, rssOptionsSchema } from './schema.js';
+import { createCanonicalURL, errorMap, isValidURL } from './util.js';
+
+export { rssSchema };
 
 type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
 
