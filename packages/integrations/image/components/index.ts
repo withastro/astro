@@ -1,10 +1,11 @@
 /// <reference types="astro/astro-jsx" />
 export { default as Image } from './Image.astro';
 export { default as Picture } from './Picture.astro';
-import type { HTMLAttributes as AllHTMLAttributes } from 'astro/types';
+import type { HTMLAttributes } from 'astro/types';
 
 import type { TransformOptions, OutputFormat } from '../dist/loaders/index.js';
 import type { ImageMetadata } from '../dist/vite-plugin-astro-image.js';
+import { AstroBuiltinAttributes } from 'astro';
 
 export interface ImageComponentLocalImageProps
 	extends Omit<TransformOptions, 'src'>,
@@ -24,7 +25,7 @@ export interface ImageComponentRemoteImageProps extends TransformOptions, ImgHTM
 }
 
 export interface PictureComponentLocalImageProps
-	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+	extends GlobalHTMLAttributes,
 		Omit<TransformOptions, 'src'>,
 		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -36,7 +37,7 @@ export interface PictureComponentLocalImageProps
 }
 
 export interface PictureComponentRemoteImageProps
-	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+	extends GlobalHTMLAttributes,
 		TransformOptions,
 		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: string;
@@ -49,9 +50,12 @@ export interface PictureComponentRemoteImageProps
 	background: TransformOptions['background'];
 }
 
-export type ImgHTMLAttributes = AllHTMLAttributes<'img'>;
+export type ImgHTMLAttributes = HTMLAttributes<'img'>;
 
-export type HTMLAttributes = Omit<astroHTML.JSX.HTMLAttributes, 'set:text' | 'set:html' | 'is:raw'>;
+export type GlobalHTMLAttributes = Omit<
+	astroHTML.JSX.HTMLAttributes,
+	keyof Omit<AstroBuiltinAttributes, 'class:list'>
+>;
 
 let altWarningShown = false;
 
