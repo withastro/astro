@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix missing flags for restarting
+Persist CLI flags when restarting the dev server
