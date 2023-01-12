@@ -42,7 +42,7 @@ export const ALGOLIA = {
 };
 
 export type Sidebar = Record<
-	typeof KNOWN_LANGUAGE_CODES[number],
+	(typeof KNOWN_LANGUAGE_CODES)[number],
 	Record<string, { text: string; link: string }[]>
 >;
 export const SIDEBAR: Sidebar = {

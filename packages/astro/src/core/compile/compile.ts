@@ -12,7 +12,6 @@ export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
 	filename: string;
-	id: string | undefined;
 	source: string;
 }
 
@@ -25,7 +24,6 @@ export async function compile({
 	astroConfig,
 	viteConfig,
 	filename,
-	id: moduleId,
 	source,
 }: CompileProps): Promise<CompileResult> {
 	const cssDeps = new Set<string>();
@@ -37,7 +35,7 @@ export async function compile({
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
 		transformResult = await transform(source, {
-			moduleId,
+			moduleId: filename,
 			pathname: filename,
 			sourcefile: filename,
 			sourcemap: 'both',

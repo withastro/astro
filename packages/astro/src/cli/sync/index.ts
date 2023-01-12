@@ -6,6 +6,7 @@ import { contentObservable, createContentTypesGenerator } from '../../content/in
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { info, LogOptions } from '../../core/logger/core.js';
+import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 
 export async function sync(
 	settings: AstroSettings,
@@ -20,12 +21,21 @@ export async function sync(
 			fs,
 			settings,
 		});
-		await contentTypesGenerator.init();
+		const typesResult = await contentTypesGenerator.init();
+		if (typesResult.typesGenerated === false) {
+			switch (typesResult.reason) {
+				case 'no-content-dir':
+				default:
+					info(logging, 'content', 'No content directory found. Skipping type generation.');
+					return 0;
+			}
+		}
 	} catch (e) {
 		throw new AstroError(AstroErrorData.GenerateContentTypesError);
 	}
 
 	info(logging, 'content', `Types generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	await setUpEnvTs({ settings, logging, fs });
 
 	return 0;
 }

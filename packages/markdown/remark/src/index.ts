@@ -8,18 +8,10 @@ import type {
 import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
-import rehypeEscape from './rehype-escape.js';
-import rehypeExpressions from './rehype-expressions.js';
-import rehypeIslands from './rehype-islands.js';
-import rehypeJsx from './rehype-jsx.js';
 import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
-import remarkEscape from './remark-escape.js';
-import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
-import remarkMdxish from './remark-mdxish.js';
 import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
-import remarkUnwrap from './remark-unwrap.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -61,8 +53,6 @@ export async function renderMarkdown(
 		remarkRehype = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
-		isAstroFlavoredMd = false,
-		isExperimentalContentCollections = false,
 		contentDir,
 		frontmatter: userFrontmatter = {},
 	} = opts;
@@ -72,7 +62,7 @@ export async function renderMarkdown(
 	let parser = unified()
 		.use(markdown)
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
-		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
+		.use([]);
 
 	if (gfm) {
 		parser.use(remarkGfm);
@@ -100,24 +90,14 @@ export async function renderMarkdown(
 	}
 
 	// Apply later in case user plugins resolve relative image paths
-	if (isExperimentalContentCollections) {
-		parser.use([toRemarkContentRelImageError({ contentDir })]);
-	}
+	parser.use([toRemarkContentRelImageError({ contentDir })]);
 
 	parser.use([
 		[
 			markdownToHtml as any,
 			{
 				allowDangerousHtml: true,
-				passThrough: isAstroFlavoredMd
-					? [
-							'raw',
-							'mdxFlowExpression',
-							'mdxJsxFlowElement',
-							'mdxJsxTextElement',
-							'mdxTextExpression',
-					  ]
-					: [],
+				passThrough: [],
 				...remarkRehype,
 			},
 		],
@@ -127,13 +107,7 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	parser
-		.use(
-			isAstroFlavoredMd
-				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeHeadingIds]
-				: [rehypeHeadingIds, rehypeRaw]
-		)
-		.use(rehypeStringify, { allowDangerousHtml: true });
+	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 
 	let vfile: MarkdownVFile;
 	try {

@@ -10,6 +10,8 @@ import type { VFile } from 'vfile';
 export default function toRemarkContentRelImageError({ contentDir }: { contentDir: URL }) {
 	return function remarkContentRelImageError() {
 		return (tree: any, vfile: VFile) => {
+			if (typeof vfile?.path !== 'string') return;
+
 			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
 			if (!isContentFile) return;
 

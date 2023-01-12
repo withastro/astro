@@ -52,7 +52,7 @@ describe('Environment Variables', () => {
 		});
 
 		it('includes public env in client-side JS', async () => {
-			let dirs = await fixture.readdir('/assets');
+			let dirs = await fixture.readdir('/_astro');
 			console.log(dirs);
 			let found = false;
 
@@ -62,7 +62,7 @@ describe('Environment Variables', () => {
 			await Promise.all(
 				dirs.map(async (path) => {
 					if (path.endsWith('.js')) {
-						let js = await fixture.readFile(`/assets/${path}`);
+						let js = await fixture.readFile(`/_astro/${path}`);
 						if (js.includes('BLUE_BAYOU')) {
 							found = true;
 						}

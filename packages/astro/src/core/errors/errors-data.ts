@@ -570,7 +570,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @docs
 	 * @see
 	 * - [Configuration reference](https://docs.astro.build/en/reference/configuration-reference/)
-	 * - [Migration guide](https://docs.astro.build/en/migrate/)
 	 * @description
 	 * Astro detected a legacy configuration option in your configuration file.
 	 */
@@ -613,5 +612,5 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 
 type ValueOf<T> = T[keyof T];
 export type AstroErrorCodes = ValueOf<{
-	[T in keyof typeof AstroErrorData]: typeof AstroErrorData[T]['code'];
+	[T in keyof typeof AstroErrorData]: (typeof AstroErrorData)[T]['code'];
 }>;

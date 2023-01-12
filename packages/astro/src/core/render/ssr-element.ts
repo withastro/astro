@@ -1,14 +1,15 @@
+import slashify from 'slash';
 import type { SSRElement } from '../../@types/astro';
-
-import npath from 'path-browserify';
-import { appendForwardSlash } from '../../core/path.js';
+import { appendForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
 
 function getRootPath(base?: string): string {
 	return appendForwardSlash(new URL(base || '/', 'http://localhost/').pathname);
 }
 
 function joinToRoot(href: string, base?: string): string {
-	return npath.posix.join(getRootPath(base), href);
+	const rootPath = getRootPath(base);
+	const normalizedHref = slashify(href);
+	return appendForwardSlash(rootPath) + removeLeadingForwardSlash(normalizedHref);
 }
 
 export function createLinkStylesheetElement(href: string, base?: string): SSRElement {
