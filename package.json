@@ -66,6 +66,9 @@
         "react",
         "react-dom",
         "@types/react"
+      ],
+      "allowAny": [
+        "astro"
       ]
     },
     "patchedDependencies": {
