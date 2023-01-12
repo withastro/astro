@@ -2,7 +2,8 @@ import { globby as glob } from 'globby';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
-const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
+const { GITHUB_REF = 'main' } = process.env;
+const baseUrl = new URL(`https://github.com/withastro/astro/blob/${GITHUB_REF}/`);
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
 const descriptors = [
@@ -50,7 +51,7 @@ const extraVerbs = [
 	'here',
 	'released',
 	'freshly made',
-	'going out;',
+	'going out',
 	'hitting the registry',
 	'available',
 	'live now',
@@ -132,24 +133,20 @@ async function run() {
 	} else {
 		const { name, version, url } = packages.find(pkg => pkg.name === 'astro') ?? packages[0];
 		message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
-		message += `${emoji} \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
+		message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
 
-		message += `\n\nAlso ${item(extraVerbs)}:\n`
+		message += `\nAlso ${item(extraVerbs)}:`
 
 		const remainingPackages = packages.filter(p => p.name !== name);
-		let i = 0;
 		for (const { name, version, url } of remainingPackages) {
-			if (i !== 0) message += ', '
-			if (i === remainingPackages.length - 1) message += 'and '
-			message += `\`${name}@${version}\``;
-			i++;
+			message += `\n• \`${name}@${version}\``;
 		}
 
 		if (message.length < 2000) {
 			console.log(message);
 		} else {
 			message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
-			message += `${emoji} \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
+			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`
 
 			message += `\n\nAlso ${item(extraVerbs)}: ${remainingPackages.length} other packages!`;
 			console.log(message);
