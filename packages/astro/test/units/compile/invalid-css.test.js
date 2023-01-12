@@ -2,6 +2,7 @@ import { resolveConfig } from 'vite';
 import { expect } from 'chai';
 import { cachedCompilation } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/errors/index.js';
+import { pathToFileURL } from 'url';
 
 describe('astro/src/core/compile', () => {
 	describe('Invalid CSS', () => {
@@ -9,9 +10,9 @@ describe('astro/src/core/compile', () => {
 			let error;
 			try {
 				let r = await cachedCompilation({
-					astroConfig: /** @type {any} */ ({
-						root: '/',
-					}),
+					astroConfig: {
+						root: pathToFileURL('/'),
+					},
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
 					filename: '/src/pages/index.astro',
 					source: `

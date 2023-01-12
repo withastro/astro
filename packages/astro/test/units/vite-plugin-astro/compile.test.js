@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { resolveConfig } from 'vite';
 import { cachedFullCompilation } from '../../../dist/vite-plugin-astro/compile.js';
 import { init, parse } from 'es-module-lexer';
+import { pathToFileURL } from 'url';
 
 const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 
@@ -12,7 +13,7 @@ const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 async function compile(source, id) {
 	return await cachedFullCompilation({
 		compileProps: {
-			astroConfig: { root: '/', base: '/' },
+			astroConfig: { root: pathToFileURL('/'), base: '/' },
 			viteConfig,
 			filename: id,
 			source,
