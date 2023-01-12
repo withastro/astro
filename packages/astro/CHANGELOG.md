@@ -12,8 +12,6 @@
 
   In 2.0 this feature will not be available in Astro at all. We recommend migration to MDX for those were still using this feature in 1.x.
 
-- [#5584](https://github.com/withastro/astro/pull/5584) [`9963c6e4d`](https://github.com/withastro/astro/commit/9963c6e4d50c392c3d1ac4492237020f15ccb1de) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Builds chunks into the `assets` folder. This simplifies configuring immutable caching with your adapter provider as all files are now in the same `assets` folder.
-
 - [#5717](https://github.com/withastro/astro/pull/5717) [`a3a7fc929`](https://github.com/withastro/astro/commit/a3a7fc9298e6d88abb4b7bee1e58f05fa9558cf1) Thanks [@bluwy](https://github.com/bluwy)! - Remove `style.postcss` Astro config. Refactor tailwind integration to configure through `vite` instead. Also disables `autoprefixer` in dev.
 
 ### Minor Changes
