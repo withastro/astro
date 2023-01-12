@@ -1,3 +1,4 @@
+import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import { rssSchema, rssOptionsSchema } from './schema.js';
 import { createCanonicalURL, errorMap, isValidURL } from './util.js';
@@ -8,49 +9,51 @@ type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
 
 type RSSOptions = {
 	/** (required) Title of the RSS Feed */
-	title: string;
+	title: RSSOptionsSchema['title'];
 	/** (required) Description of the RSS Feed */
-	description: string;
+	description: RSSOptionsSchema['description'];
 	/**
 	 * Specify the base URL to use for RSS feed links.
 	 * We recommend "import.meta.env.SITE" to pull in the "site"
 	 * from your project's astro.config.
 	 */
-	site: string;
+	site: RSSOptionsSchema['site'];
 	/**
 	 * List of RSS feed items to render. Accepts either:
 	 * a) list of RSSFeedItems
 	 * b) import.meta.glob result. You can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within src/pages/ when using this method!
 	 */
-	items: RSSFeedItem[] | GlobResult;
+	items: RSSFeedItem[];
 	/** Specify arbitrary metadata on opening <xml> tag */
-	xmlns?: Record<string, string>;
+	xmlns?: RSSOptionsSchema['xmlns'];
 	/**
 	 * Specifies a local custom XSL stylesheet. Ex. '/public/custom-feed.xsl'
 	 */
-	stylesheet?: string | boolean;
+	stylesheet?: RSSOptionsSchema['stylesheet'];
 	/** Specify custom data in opening of file */
-	customData?: string;
+	customData?: RSSOptionsSchema['customData'];
 	/** Whether to include drafts or not */
-	drafts?: boolean;
+	drafts?: RSSOptionsSchema['drafts'];
 };
+type RSSOptionsSchema = z.infer<typeof rssOptionsSchema>;
 
 type RSSFeedItem = {
 	/** Link to item */
 	link: string;
-	/** Title of item */
-	title: string;
-	/** Publication date of item */
-	pubDate: Date;
-	/** Item description */
-	description?: string;
-	/** Full content of the item, should be valid HTML */
+	/** Full content of the item. Should be valid HTML */
 	content?: string;
+	/** Title of item */
+	title: RSSSchema['title'];
+	/** Publication date of item */
+	pubDate: RSSSchema['pubDate'];
+	/** Item description */
+	description?: RSSSchema['description'];
 	/** Append some other XML-valid data to this item */
-	customData?: string;
+	customData?: RSSSchema['customData'];
 	/** Whether draft or not */
-	draft?: boolean;
+	draft?: RSSSchema['draft'];
 };
+type RSSSchema = z.infer<typeof rssSchema>;
 
 type GenerateRSSArgs = {
 	rssOptions: RSSOptions;
