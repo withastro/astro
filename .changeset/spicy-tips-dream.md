@@ -5,6 +5,6 @@
 'astro': major
 ---
 
-**Breaking Change**: client assets are built to an `_astro` directory rather than the previous `assets` directory. This setting can now be controlled by the new `build` configuration option named `assets`.
+**Breaking Change**: client assets are built to an `_astro` directory in the build output directory. Previously these were built to various locations, including `assets/`, `chunks/` and the root of build output.
 
-This should simplify configuring immutable caching with your adapter provider as all files are now in the same `_astro` directory.
+You can control this location with the new `build` configuration option named `assets`.
