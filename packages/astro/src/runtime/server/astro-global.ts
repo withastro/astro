@@ -17,7 +17,7 @@ function createAstroGlobFn() {
 }
 
 // This is used to create the top-level Astro global; the one that you can use
-// inside of getStaticPaths. See the `injectGlobals` option for parameter type.
+// inside of getStaticPaths. See the `astroGlobalArgs` option for parameter type.
 export function createAstro(site: string | undefined): AstroGlobalPartial {
 	return {
 		site: site ? new URL(site) : undefined,
