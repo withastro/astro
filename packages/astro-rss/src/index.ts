@@ -38,7 +38,7 @@ type RSSFeedItem = {
 	/** Title of item */
 	title: z.infer<typeof rssSchema>['title'];
 	/** Publication date of item */
-	pubDate: string;
+	pubDate: z.infer<typeof rssSchema>['pubDate'];
 	/** Item description */
 	description?: z.infer<typeof rssSchema>['description'];
 	/** Append some other XML-valid data to this item */
