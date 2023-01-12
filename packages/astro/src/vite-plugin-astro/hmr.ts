@@ -1,7 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import { cachedCompilation, invalidateCompilation, isCached } from '../core/compile/index.js';
+import {
+	cachedCompilation,
+	CompileResult,
+	invalidateCompilation,
+	isCached,
+} from '../core/compile/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
@@ -30,8 +35,7 @@ export async function handleHotUpdate(
 		// But we also need a fresh, uncached result to compare it to
 		invalidateCompilation(config, ctx.file);
 		const newResult = await compile();
-		// If the hashes are identical, we assume only styles have changed
-		if (oldResult.scope === newResult.scope) {
+		if (isStyleOnlyChanged(oldResult, newResult)) {
 			isStyleOnlyChange = true;
 			// All styles are the same, we can skip an HMR update
 			const styles = new Set(newResult.css);
@@ -133,4 +137,28 @@ export async function handleHotUpdate(
 	}
 
 	return mods;
+}
+
+const astroStyleImportRE = /import\s*"[^"]+astro&type=style[^"]+"/g;
+
+function isStyleOnlyChanged(oldResult: CompileResult, newResult: CompileResult) {
+	// When a style tag is added/removed, it adds/removes the import.
+	// Normalized it here to verify if non-style code has changed.
+	const oldCode = oldResult.code.replace(astroStyleImportRE, '');
+	const newCode = newResult.code.replace(astroStyleImportRE, '');
+	if (oldCode !== newCode) return false;
+	// If non-style code is the same, check if styles are different
+	return !isArrayEqual(oldResult.css, newResult.css);
+}
+
+function isArrayEqual(a: any[], b: any[]) {
+	if (a.length !== b.length) {
+		return false;
+	}
+	for (let i = 0; i < a.length; i++) {
+		if (a[i] !== b[i]) {
+			return false;
+		}
+	}
+	return true;
 }
