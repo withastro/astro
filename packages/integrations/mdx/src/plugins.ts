@@ -161,9 +161,8 @@ export async function getRemarkPlugins(
 	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
 
 	// Apply last in case user plugins resolve relative image paths
-	if (config.experimental.contentCollections) {
-		remarkPlugins.push(toRemarkContentRelImageError(config));
-	}
+	remarkPlugins.push(toRemarkContentRelImageError(config));
+
 	return remarkPlugins;
 }
 

@@ -210,7 +210,6 @@ function buildManifest(
 		base: settings.config.base,
 		markdown: {
 			...settings.config.markdown,
-			isExperimentalContentCollections: settings.config.experimental.contentCollections,
 			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		pageMap: null as any,

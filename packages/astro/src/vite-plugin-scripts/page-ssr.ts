@@ -1,8 +1,7 @@
 import MagicString from 'magic-string';
-import { Plugin as VitePlugin } from 'vite';
+import { normalizePath, Plugin as VitePlugin } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
 import { isPage } from '../core/util.js';
-import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
 
 export default function astroScriptsPostPlugin({
@@ -19,7 +18,7 @@ export default function astroScriptsPostPlugin({
 			const hasInjectedScript = settings.scripts.some((s) => s.stage === 'page-ssr');
 			if (!hasInjectedScript) return;
 
-			const filename = normalizeFilename(id, settings.config);
+			const filename = normalizePath(id);
 			let fileURL: URL;
 			try {
 				fileURL = new URL(`file://${filename}`);

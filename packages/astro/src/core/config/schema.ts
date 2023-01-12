@@ -34,9 +34,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
-	experimental: {
-		contentCollections: false,
-	},
 };
 
 export const AstroConfigSchema = z.object({
@@ -167,15 +164,7 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	experimental: z
-		.object({
-			contentCollections: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollections),
-		})
-		.optional()
-		.default({}),
+	experimental: z.object({}).optional().default({}),
 	legacy: z.object({}).optional().default({}),
 });
 

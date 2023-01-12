@@ -100,10 +100,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
-		experimentalContentCollections:
-			typeof flags.experimentalContentCollections === 'boolean'
-				? flags.experimentalContentCollections
-				: undefined,
 	};
 }
 
@@ -132,7 +128,6 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 		// TODO: Come back here and refactor to remove this expected error.
 		astroConfig.server.host = flags.host;
 	}
-	if (flags.experimentalContentCollections) astroConfig.experimental.contentCollections = true;
 	return astroConfig;
 }
 
