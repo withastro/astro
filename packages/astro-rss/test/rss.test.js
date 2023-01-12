@@ -1,4 +1,4 @@
-import rss from '../dist/index.js';
+import rss, { globToRssItems } from '../dist/index.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
 import chaiXml from 'chai-xml';
@@ -115,244 +115,119 @@ describe('rss', () => {
 		chai.expect(body).xml.to.equal(validXmlWithXSLStylesheet);
 	});
 
-	describe('glob result', () => {
-		it('should generate on valid result', async () => {
-			const globResult = {
-				'./posts/php.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: phpFeedItem.link,
-							frontmatter: {
-								title: phpFeedItem.title,
-								pubDate: phpFeedItem.pubDate,
-								description: phpFeedItem.description,
-							},
-						})
-					),
-				'./posts/nested/web1.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: web1FeedItem.link,
-							frontmatter: {
-								title: web1FeedItem.title,
-								pubDate: web1FeedItem.pubDate,
-								description: web1FeedItem.description,
-							},
-						})
-					),
-			};
-
-			const { body } = await rss({
-				title,
-				description,
-				items: globResult,
-				site,
-			});
-
-			chai.expect(body).xml.to.equal(validXmlResult);
+	it('should filter out entries marked as `draft`', async () => {
+		const { body } = await rss({
+			title,
+			description,
+			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
+			site,
 		});
 
-		it('should fail on missing "title" key', () => {
-			const globResult = {
-				'./posts/php.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: phpFeedItem.link,
-							frontmatter: {
-								pubDate: phpFeedItem.pubDate,
-								description: phpFeedItem.description,
-							},
-						})
-					),
-			};
-			return chai.expect(
-				rss({
-					title,
-					description,
-					items: globResult,
-					site,
-				})
-			).to.be.rejected;
-		});
-
-		it('should fail on missing "pubDate" key', () => {
-			const globResult = {
-				'./posts/php.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: phpFeedItem.link,
-							frontmatter: {
-								title: phpFeedItem.title,
-								description: phpFeedItem.description,
-							},
-						})
-					),
-			};
-			return chai.expect(
-				rss({
-					title,
-					description,
-					items: globResult,
-					site,
-				})
-			).to.be.rejected;
-		});
-
-		it('should filter out draft', async () => {
-			const globResult = {
-				'./posts/php.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: phpFeedItem.link,
-							frontmatter: {
-								title: phpFeedItem.title,
-								pubDate: phpFeedItem.pubDate,
-								description: phpFeedItem.description,
-							},
-						})
-					),
-				'./posts/nested/web1.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: web1FeedItem.link,
-							frontmatter: {
-								title: web1FeedItem.title,
-								pubDate: web1FeedItem.pubDate,
-								description: web1FeedItem.description,
-								draft: true,
-							},
-						})
-					),
-			};
-
-			const { body } = await rss({
-				title,
-				description,
-				items: globResult,
-				site,
-			});
-
-			chai.expect(body).xml.to.equal(validXmlWithoutWeb1FeedResult);
-		});
-
-		it('should respect drafts option', async () => {
-			const globResult = {
-				'./posts/php.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: phpFeedItem.link,
-							frontmatter: {
-								title: phpFeedItem.title,
-								pubDate: phpFeedItem.pubDate,
-								description: phpFeedItem.description,
-							},
-						})
-					),
-				'./posts/nested/web1.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: web1FeedItem.link,
-							frontmatter: {
-								title: web1FeedItem.title,
-								pubDate: web1FeedItem.pubDate,
-								description: web1FeedItem.description,
-								draft: true,
-							},
-						})
-					),
-			};
-
-			const { body } = await rss({
-				title,
-				description,
-				items: globResult,
-				site,
-				drafts: true,
-			});
-
-			chai.expect(body).xml.to.equal(validXmlResult);
-		});
+		chai.expect(body).xml.to.equal(validXmlWithoutWeb1FeedResult);
 	});
 
-	describe('errors', () => {
-		it('should provide a error message when a "site" option is missing', async () => {
-			try {
-				await rss({
-					title,
-					description,
-					items: [phpFeedItem, web1FeedItem],
-				});
-
-				chai.expect(false).to.equal(true, 'Should have errored');
-			} catch (err) {
-				chai
-					.expect(err.message)
-					.to.contain('[RSS] the "site" option is required, but no value was given.');
-			}
+	it('should respect drafts option', async () => {
+		const { body } = await rss({
+			title,
+			description,
+			drafts: true,
+			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
+			site,
+			drafts: true,
 		});
 
-		it('should provide a good error message when a link is not provided', async () => {
-			try {
-				await rss({
-					title: 'Your Website Title',
-					description: 'Your Website Description',
-					site: 'https://astro-demo',
-					items: [
-						{
-							pubDate: new Date(),
-							title: 'Some title',
-							slug: 'foo',
+		chai.expect(body).xml.to.equal(validXmlResult);
+	});
+});
+
+describe('globToRssItems', () => {
+	it('should generate on valid result', async () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: phpFeedItem.title,
+							pubDate: phpFeedItem.pubDate,
+							description: phpFeedItem.description,
 						},
-					],
-				});
-				chai.expect(false).to.equal(true, 'Should have errored');
-			} catch (err) {
-				chai.expect(err.message).to.contain('Required field [link] is missing');
-			}
-		});
+					})
+				),
+			'./posts/nested/web1.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: web1FeedItem.link,
+						frontmatter: {
+							title: web1FeedItem.title,
+							pubDate: web1FeedItem.pubDate,
+							description: web1FeedItem.description,
+						},
+					})
+				),
+		};
 
-		it('should provide a good error message when passing glob result form outside pages/', async () => {
-			const globResult = {
-				'./posts/php.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							// "undefined" when outside pages/
-							url: undefined,
-							frontmatter: {
-								title: phpFeedItem.title,
-								pubDate: phpFeedItem.pubDate,
-								description: phpFeedItem.description,
-							},
-						})
-					),
-				'./posts/nested/web1.md': () =>
-					new Promise((resolve) =>
-						resolve({
-							url: undefined,
-							frontmatter: {
-								title: web1FeedItem.title,
-								pubDate: web1FeedItem.pubDate,
-								description: web1FeedItem.description,
-							},
-						})
-					),
-			};
+		const items = await globToRssItems(globResult);
 
-			try {
-				await rss({
-					title: 'Your Website Title',
-					description: 'Your Website Description',
-					site: 'https://astro-demo',
-					items: globResult,
-				});
-				chai.expect(false).to.equal(true, 'Should have errored');
-			} catch (err) {
-				chai
-					.expect(err.message)
-					.to.contain(
-						'you can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within /pages'
-					);
-			}
-		});
+		chai.expect(items.sort((a, b) => a.pubDate - b.pubDate)).to.deep.equal([
+			{
+				title: phpFeedItem.title,
+				link: phpFeedItem.link,
+				pubDate: new Date(phpFeedItem.pubDate),
+				description: phpFeedItem.description,
+			},
+			{
+				title: web1FeedItem.title,
+				link: web1FeedItem.link,
+				pubDate: new Date(web1FeedItem.pubDate),
+				description: web1FeedItem.description,
+			},
+		]);
+	});
+
+	it('should fail on missing "title" key', () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							pubDate: phpFeedItem.pubDate,
+							description: phpFeedItem.description,
+						},
+					})
+				),
+		};
+		return chai.expect(
+			rss({
+				title,
+				description,
+				items: globResult,
+				site,
+			})
+		).to.be.rejected;
+	});
+
+	it('should fail on missing "pubDate" key', () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: phpFeedItem.title,
+							description: phpFeedItem.description,
+						},
+					})
+				),
+		};
+		return chai.expect(
+			rss({
+				title,
+				description,
+				items: globResult,
+				site,
+			})
+		).to.be.rejected;
 	});
 });
