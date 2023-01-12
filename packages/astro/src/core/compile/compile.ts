@@ -113,8 +113,8 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 function normalizeFilename(filename: string, root: URL) {
 	const normalizedFilename = normalizePath(filename);
 	const normalizedRoot = normalizePath(fileURLToPath(root));
-	if (normalizedFilename.startsWith(normalizedRoot + '/')) {
-		return normalizedFilename.slice(normalizedRoot.length);
+	if (normalizedFilename.startsWith(normalizedRoot)) {
+		return normalizedFilename.slice(normalizedRoot.length - 1);
 	} else {
 		return normalizedFilename;
 	}
