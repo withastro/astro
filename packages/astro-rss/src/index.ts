@@ -1,13 +1,11 @@
 import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
-import { rssSchema, rssOptionsSchema } from './schema.js';
+import { rssSchema } from './schema.js';
 import { createCanonicalURL, errorMap, isValidURL } from './util.js';
 
 export { rssSchema };
 
-type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
-
-type RSSOptions = {
+export type RSSOptions = {
 	/** (required) Title of the RSS Feed */
 	title: RSSOptionsSchema['title'];
 	/** (required) Description of the RSS Feed */
@@ -18,11 +16,7 @@ type RSSOptions = {
 	 * from your project's astro.config.
 	 */
 	site: RSSOptionsSchema['site'];
-	/**
-	 * List of RSS feed items to render. Accepts either:
-	 * a) list of RSSFeedItems
-	 * b) import.meta.glob result. You can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within src/pages/ when using this method!
-	 */
+	/** List of RSS feed items to render. */
 	items: RSSFeedItem[];
 	/** Specify arbitrary metadata on opening <xml> tag */
 	xmlns?: RSSOptionsSchema['xmlns'];
@@ -35,7 +29,7 @@ type RSSOptions = {
 	/** Whether to include drafts or not */
 	drafts?: RSSOptionsSchema['drafts'];
 };
-type RSSOptionsSchema = z.infer<typeof rssOptionsSchema>;
+type RSSOptionsSchema = z.infer<typeof rssOptionsValidator>;
 
 type RSSFeedItem = {
 	/** Link to item */
@@ -43,24 +37,49 @@ type RSSFeedItem = {
 	/** Full content of the item. Should be valid HTML */
 	content?: string;
 	/** Title of item */
-	title: RSSSchema['title'];
+	title: z.infer<typeof rssSchema>['title'];
 	/** Publication date of item */
-	pubDate: RSSSchema['pubDate'];
+	pubDate: string;
 	/** Item description */
-	description?: RSSSchema['description'];
+	description?: z.infer<typeof rssSchema>['description'];
 	/** Append some other XML-valid data to this item */
-	customData?: RSSSchema['customData'];
+	customData?: z.infer<typeof rssSchema>['customData'];
 	/** Whether draft or not */
-	draft?: RSSSchema['draft'];
-};
-type RSSSchema = z.infer<typeof rssSchema>;
-
-type GenerateRSSArgs = {
-	rssOptions: RSSOptions;
-	items: RSSFeedItem[];
+	draft?: z.infer<typeof rssSchema>['draft'];
 };
 
-export function globToRssItems(items: GlobResult): Promise<RSSFeedItem[]> {
+type ValidatedRSSFeedItem = z.infer<typeof rssFeedItemValidator>;
+type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
+
+const rssFeedItemValidator = rssSchema.extend({ link: z.string(), content: z.string().optional() });
+const rssOptionsValidator = z.object({
+	title: z.string(),
+	description: z.string(),
+	site: z.string(),
+	items: z.array(rssFeedItemValidator),
+	xmlns: z.record(z.string()).optional(),
+	drafts: z.boolean().default(false),
+	stylesheet: z.union([z.string(), z.boolean()]).optional(),
+	customData: z.string().optional(),
+});
+
+function validateRssOptions(rssOptions: RSSOptions) {
+	const parsedResult = rssOptionsValidator.safeParse(rssOptions, { errorMap });
+	if (parsedResult.success) {
+		return parsedResult.data;
+	}
+	const formattedError = new Error(
+		[
+			`[RSS] Invalid or missing options:`,
+			...parsedResult.error.errors.map((zodError) => zodError.message),
+		].join('\n')
+	);
+	throw formattedError;
+}
+
+type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
+
+export function globToRssItems(items: GlobResult): Promise<ValidatedRSSFeedItem[]> {
 	return Promise.all(
 		Object.entries(items).map(async ([filePath, getInfo]) => {
 			const { url, frontmatter } = await getInfo();
@@ -69,17 +88,17 @@ export function globToRssItems(items: GlobResult): Promise<RSSFeedItem[]> {
 					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
-			const parsedResult = rssSchema.safeParse(frontmatter, { errorMap });
+			const parsedResult = rssFeedItemValidator.safeParse(
+				{ ...frontmatter, link: url },
+				{ errorMap }
+			);
 
 			if (parsedResult.success) {
-				return {
-					link: url,
-					...parsedResult.data,
-				};
+				return parsedResult.data;
 			}
 			const formattedError = new Error(
 				[
-					`[RSS] ${filePath} has invalid or missing frontmatter. Fix the following properties:`,
+					`[RSS] ${filePath} has invalid or missing frontmatter.\nFix the following properties:`,
 					...parsedResult.error.errors.map((zodError) => zodError.message),
 				].join('\n')
 			);
@@ -90,28 +109,20 @@ export function globToRssItems(items: GlobResult): Promise<RSSFeedItem[]> {
 }
 
 export default async function getRSS(rssOptions: RSSOptions) {
-	const { site } = rssOptions;
-	let { items } = rssOptions;
-
-	if (!site) {
-		throw new Error('[RSS] the "site" option is required, but no value was given.');
-	}
-
-	if (!rssOptions.drafts) {
-		items = items.filter((item) => !item.draft);
-	}
+	const validatedRssOptions = validateRssOptions(rssOptions);
 
 	return {
-		body: await generateRSS({
-			rssOptions,
-			items,
-		}),
+		body: await generateRSS(validatedRssOptions),
 	};
 }
 
 /** Generate RSS 2.0 feed */
-export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promise<string> {
+async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 	const { site } = rssOptions;
+	const items = rssOptions.drafts
+		? rssOptions.items
+		: rssOptions.items.filter((item) => !item.draft);
+
 	const xmlOptions = { ignoreAttributes: false };
 	const parser = new XMLParser(xmlOptions);
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
@@ -153,7 +164,6 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 		);
 	// items
 	root.rss.channel.item = items.map((result) => {
-		validate(result);
 		// If the item's link is already a valid URL, don't mess with it.
 		const itemLink = isValidURL(result.link)
 			? result.link
@@ -167,12 +177,6 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 			item.description = result.description;
 		}
 		if (result.pubDate) {
-			// note: this should be a Date, but if user provided a string or number, we can work with that, too.
-			if (typeof result.pubDate === 'number' || typeof result.pubDate === 'string') {
-				result.pubDate = new Date(result.pubDate);
-			} else if (result.pubDate instanceof Date === false) {
-				throw new Error('[${filename}] rss.item().pubDate must be a Date');
-			}
 			item.pubDate = result.pubDate.toUTCString();
 		}
 		// include the full content of the post if the user supplies it
@@ -186,17 +190,4 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 	});
 
 	return new XMLBuilder(xmlOptions).build(root);
-}
-
-const requiredFields = Object.freeze(['link', 'title']);
-
-// Perform validation to make sure all required fields are passed.
-function validate(item: RSSFeedItem) {
-	for (const field of requiredFields) {
-		if (!(field in item)) {
-			throw new Error(
-				`[RSS] Required field [${field}] is missing. RSS cannot be generated without it.`
-			);
-		}
-	}
 }
