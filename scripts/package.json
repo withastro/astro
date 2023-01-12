@@ -1,6 +1,6 @@
 {
   "name": "astro-scripts",
-  "version": "0.0.9",
+  "version": "0.0.10-beta.0",
   "private": true,
   "type": "module",
   "main": "./index.js",

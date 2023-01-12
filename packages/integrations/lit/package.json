@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/lit",
-  "version": "1.0.1",
+  "version": "1.0.2-beta.0",
   "description": "Use Lit components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",

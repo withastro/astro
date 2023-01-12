@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.15.0-beta.1",
+  "version": "1.0.0-beta.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,8 +30,8 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^2.0.0-beta.1",
-    "@astrojs/prism": "^1.0.2",
+    "@astrojs/markdown-remark": "^2.0.0-beta.2",
+    "@astrojs/prism": "^2.0.0-beta.0",
     "@mdx-js/mdx": "^2.1.2",
     "@mdx-js/rollup": "^2.1.1",
     "acorn": "^8.8.0",
