@@ -2,10 +2,6 @@
 
 ## 2.0.0-beta.1
 
-### Major Changes
-
-- [#5584](https://github.com/withastro/astro/pull/5584) [`9963c6e4d`](https://github.com/withastro/astro/commit/9963c6e4d50c392c3d1ac4492237020f15ccb1de) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Builds chunks into the `assets` folder. This simplifies configuring immutable caching with your adapter provider as all files are now in the same `assets` folder.
-
 ### Patch Changes
 
 - [#5768](https://github.com/withastro/astro/pull/5768) [`2f6745019`](https://github.com/withastro/astro/commit/2f6745019ac25785032ac3659c2433b6e224f383) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix set-cookies not working in certain cases when using Node 18+
