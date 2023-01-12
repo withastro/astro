@@ -1,7 +1,7 @@
 /// <reference types="astro/astro-jsx" />
 export { default as Image } from './Image.astro';
 export { default as Picture } from './Picture.astro';
-import type { HTMLAttributes as AllHTMLAttributes } from '../../../astro/types';
+import type { HTMLAttributes as AllHTMLAttributes } from 'astro/types';
 
 import type { TransformOptions, OutputFormat } from '../dist/loaders/index.js';
 import type { ImageMetadata } from '../dist/vite-plugin-astro-image.js';
