@@ -37,16 +37,6 @@ export async function handleHotUpdate(
 		const newResult = await compile();
 		if (isStyleOnlyChanged(oldResult, newResult)) {
 			isStyleOnlyChange = true;
-			// All styles are the same, we can skip an HMR update
-			const styles = new Set(newResult.css);
-			for (const style of oldResult.css) {
-				if (styles.has(style)) {
-					styles.delete(style);
-				}
-			}
-			if (styles.size === 0) {
-				return [];
-			}
 		}
 	} else {
 		invalidateCompilation(config, ctx.file);
@@ -139,16 +129,22 @@ export async function handleHotUpdate(
 	return mods;
 }
 
-const astroStyleImportRE = /import\s*"[^"]+astro&type=style[^"]+"/g;
-
 function isStyleOnlyChanged(oldResult: CompileResult, newResult: CompileResult) {
-	// When a style tag is added/removed, it adds/removes the import.
-	// Normalized it here to verify if non-style code has changed.
-	const oldCode = oldResult.code.replace(astroStyleImportRE, '');
-	const newCode = newResult.code.replace(astroStyleImportRE, '');
-	if (oldCode !== newCode) return false;
-	// If non-style code is the same, check if styles are different
-	return !isArrayEqual(oldResult.css, newResult.css);
+	return (
+		normalizeCode(oldResult.code) === normalizeCode(newResult.code) &&
+		!isArrayEqual(oldResult.css, newResult.css)
+	);
+}
+
+const astroStyleImportRE = /import\s*"[^"]+astro&type=style[^"]+";/g;
+const sourceMappingUrlRE = /\/\/# sourceMappingURL=[^ ]+$/gm;
+
+/**
+ * Remove style-related code and sourcemap from the final astro output so they
+ * can be compared between non-style code
+ */
+function normalizeCode(code: string) {
+	return code.replace(astroStyleImportRE, '').replace(sourceMappingUrlRE, '').trim();
 }
 
 function isArrayEqual(a: any[], b: any[]) {
