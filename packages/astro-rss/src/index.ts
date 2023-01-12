@@ -60,30 +60,31 @@ type GenerateRSSArgs = {
 	items: RSSFeedItem[];
 };
 
-function isGlobResult(items: RSSOptions['items']): items is GlobResult {
-	return typeof items === 'object' && !items.length;
-}
-
-function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
+export function globToRssItems(items: GlobResult): Promise<RSSFeedItem[]> {
 	return Promise.all(
-		Object.values(items).map(async (getInfo) => {
+		Object.entries(items).map(async ([filePath, getInfo]) => {
 			const { url, frontmatter } = await getInfo();
 			if (url === undefined || url === null) {
 				throw new Error(
-					`[RSS] When passing an import.meta.glob result directly, you can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within /pages! Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
+					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
-			if (!Boolean(frontmatter.title) || !Boolean(frontmatter.pubDate)) {
-				throw new Error(`[RSS] "${url}" is missing a "title" and/or "pubDate" in its frontmatter.`);
+			const parsedResult = rssSchema.safeParse(frontmatter, { errorMap });
+
+			if (parsedResult.success) {
+				return {
+					link: url,
+					...parsedResult.data,
+				};
 			}
-			return {
-				link: url,
-				title: frontmatter.title,
-				pubDate: frontmatter.pubDate,
-				description: frontmatter.description,
-				customData: frontmatter.customData,
-				draft: frontmatter.draft,
-			};
+			const formattedError = new Error(
+				[
+					`[RSS] ${filePath} has invalid or missing frontmatter. Fix the following properties:`,
+					...parsedResult.error.errors.map((zodError) => zodError.message),
+				].join('\n')
+			);
+			(formattedError as any).file = filePath;
+			throw formattedError;
 		})
 	);
 }
@@ -96,11 +97,8 @@ export default async function getRSS(rssOptions: RSSOptions) {
 		throw new Error('[RSS] the "site" option is required, but no value was given.');
 	}
 
-	if (isGlobResult(items)) {
-		items = await mapGlobResult(items);
-		if (!rssOptions.drafts) {
-			items = items.filter((item) => !item.draft);
-		}
+	if (!rssOptions.drafts) {
+		items = items.filter((item) => !item.draft);
 	}
 
 	return {
@@ -197,7 +195,7 @@ function validate(item: RSSFeedItem) {
 	for (const field of requiredFields) {
 		if (!(field in item)) {
 			throw new Error(
-				`@astrojs/rss: Required field [${field}] is missing. RSS cannot be generated without it.`
+				`[RSS] Required field [${field}] is missing. RSS cannot be generated without it.`
 			);
 		}
 	}
