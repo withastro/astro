@@ -179,6 +179,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				config,
 				logging,
 				compile,
+				source: compileProps.source,
 			});
 		},
 	};

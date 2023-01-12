@@ -22,17 +22,20 @@ export interface HandleHotUpdateOptions {
 	config: AstroConfig;
 	logging: LogOptions;
 	compile: () => ReturnType<typeof cachedCompilation>;
+	source: string;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ config, logging, compile }: HandleHotUpdateOptions
+	{ config, logging, compile, source }: HandleHotUpdateOptions
 ) {
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro') && isCached(config, ctx.file)) {
 		// Get the compiled result from the cache
 		const oldResult = await compile();
-		// But we also need a fresh, uncached result to compare it to
+		// Skip HMR if source isn't changed
+		if (oldResult.source === source) return [];
+		// Invalidate to get fresh, uncached result to compare it to
 		invalidateCompilation(config, ctx.file);
 		const newResult = await compile();
 		if (isStyleOnlyChanged(oldResult, newResult)) {
