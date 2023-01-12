@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 1.0.3-beta.0
+
+### Patch Changes
+
+- [#5820](https://github.com/withastro/astro/pull/5820) [`813073add`](https://github.com/withastro/astro/commit/813073addd669538d67032a48ef6b649216dafc5) Thanks [@davlet61](https://github.com/davlet61)! - Bumps `@builder.io/partytown` version in partytown integration to fix deprecation warning in pagespeed insights
+
 ## 1.0.2
 
 ### Patch Changes
