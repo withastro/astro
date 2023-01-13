@@ -22,6 +22,7 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { vitePluginAliasResolve } from './vite-plugin-alias-resolve.js';
 import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
 import { rollupPluginAstroBuildCSS } from './vite-plugin-css.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
@@ -221,6 +222,7 @@ async function clientBuild(
 			},
 		},
 		plugins: [
+			vitePluginAliasResolve(internals),
 			vitePluginInternals(input, internals),
 			vitePluginHoistedScripts(settings, internals),
 			rollupPluginAstroBuildCSS({
