@@ -19,23 +19,36 @@ pnpm i @astrojs/rss
 
 The `@astrojs/rss` package provides helpers for generating RSS feeds within [Astro endpoints][astro-endpoints]. This unlocks both static builds _and_ on-demand generation when using an [SSR adapter](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project).
 
-For instance, say you need to generate an RSS feed for all posts under `src/pages/blog/`. Start by [adding a `site` to your project's `astro.config` for link generation](https://docs.astro.build/en/reference/configuration-reference/#site). Then, create an `rss.xml.js` file under your project's `src/pages/` directory, and use [Vite's `import.meta.glob` helper](https://vitejs.dev/guide/features.html#glob-import) like so:
+For instance, say you need to generate an RSS feed for all posts under `src/content/blog/` using content collections.
+
+Start by [adding a `site` to your project's `astro.config` for link generation](https://docs.astro.build/en/reference/configuration-reference/#site). Then, create an `rss.xml.js` file under your project's `src/pages/` directory, and [use `getCollection()`](https://docs.astro.build/en/guides/content-collections/#getcollection) to generate a feed from all documents in the `blog` collection:
 
 ```js
 // src/pages/rss.xml.js
 import rss from '@astrojs/rss';
+import { getCollection } from 'astro:content';
 
-export const get = (context) => rss({
+export async function get(context) {
+  const posts = await getCollection('blog');
+  return rss({
     title: 'Buzz’s Blog',
     description: 'A humble Astronaut’s guide to the stars',
-    // pull in your project "site" from the API context
+    // Pull in your project "site" from the endpoint context
     // https://docs.astro.build/en/reference/api-reference/#contextsite
     site: context.site,
-    items: import.meta.glob('./blog/**/*.md'),
-  });
+    items: posts.map(post => ({
+      // Assumes all RSS feed item properties are in post frontmatter
+      ...post.data,
+      // Generate a `url` from each post `slug`
+      // This assumes all blog posts are rendered as `/blog/[slug]` routes
+      // https://docs.astro.build/en/guides/content-collections/#generating-pages-from-content-collections
+      url: `/blog/${post.slug}/`,
+    }))
+  })
+}
 ```
 
-Read **[Astro's RSS docs][astro-rss]** for full usage examples.
+Read **[Astro's RSS docs][astro-rss]** for more on using content collections, and instructions for globbing entries in `/src/pages/`.
 
 ## `rss()` configuration options
 
@@ -50,7 +63,7 @@ export const get = (context) => rss({
   // provide a base URL for RSS <item> links
   site: context.site,
   // list of `<item>`s in output xml
-  items: import.meta.glob('./**/*.md'),
+  items: [...],
   // include draft posts in the feed (default: false)
   drafts: true,
   // (optional) absolute path to XSL stylesheet in your project
@@ -91,9 +104,9 @@ export const get = (context) => rss({
 
 ### items
 
-Type: `RSSFeedItem[] | GlobResult (required)`
+Type: `RSSFeedItem[] (required)`
 
-Either a list of formatted RSS feed items or the result of [Vite's `import.meta.glob` helper](https://vitejs.dev/guide/features.html#glob-import). See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
+Aa list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
 
 When providing a formatted RSS item list, see the `RSSFeedItem` type reference below:
 
