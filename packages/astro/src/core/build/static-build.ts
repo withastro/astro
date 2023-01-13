@@ -97,6 +97,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	switch (settings.config.output) {
 		case 'static': {
 			await generatePages(opts, internals);
+			// Copy the updated (if) publicDir to outDir after generating pages
+			await copyFiles(opts.settings.config.publicDir, opts.settings.config.outDir, true);
 			await cleanServerOutput(opts);
 			return;
 		}
