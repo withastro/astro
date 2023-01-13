@@ -14,7 +14,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	publicDir: './public',
 	outDir: './dist',
 	base: '/',
-	envPrefix: 'PUBLIC_',
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
