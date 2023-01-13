@@ -42,7 +42,7 @@ export async function get(context) {
       // Generate a `url` from each post `slug`
       // This assumes all blog posts are rendered as `/blog/[slug]` routes
       // https://docs.astro.build/en/guides/content-collections/#generating-pages-from-content-collections
-      url: `/blog/${post.slug}/`,
+      link: `/blog/${post.slug}/`,
     }))
   })
 }
