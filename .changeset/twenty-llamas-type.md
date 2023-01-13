@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-fix envPrefix in Astro.config
+Respect `vite.envPrefix` if provided
