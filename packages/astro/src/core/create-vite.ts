@@ -110,7 +110,7 @@ export async function createVite(
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
-		envPrefix: settings.config.envPrefix ?? 'PUBLIC_',
+		envPrefix: settings.config.vite?.envPrefix ?? 'PUBLIC_',
 		define: {
 			'import.meta.env.SITE': settings.config.site
 				? JSON.stringify(settings.config.site)
