@@ -175,6 +175,32 @@ Will inject the following XML:
 <rss xmlns:h="http://www.w3.org/TR/html4/"...
 ```
 
+## `rssSchema`
+
+The `@astrojs/rss` package exposes an `rssSchema` for use with [content collections](https://docs.astro.build/en/guides/content-collections/). This ensures your frontmatter contains all properties expected by [an `RSSFeedItem`](#items).
+
+Apply this to an existing collection schema like so:
+
+```ts "schema: rssSchema,"
+import { defineCollection } from 'astro:content';
+import { rssSchema } from '@astrojs/rss';
+
+const blog = defineCollection({
+  schema: rssSchema,
+});
+```
+
+If you have an existing schema, you can merge extra properties using `extends()`:
+
+```ts ".extends({ extraProperty: z.string() }),"
+import { defineCollection } from 'astro:content';
+import { rssSchema } from '@astrojs/rss';
+
+const blog = defineCollection({
+  schema: rssSchema.extends({ extraProperty: z.string() }),
+});
+```
+
 ---
 
 For more on building with Astro, [visit the Astro docs][astro-rss].
