@@ -2,13 +2,14 @@ import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import { rssSchema } from './schema.js';
 import { createCanonicalURL, errorMap, isValidURL } from './util.js';
+import { yellow } from 'kleur/colors';
 
 export { rssSchema };
 
 export type RSSOptions = {
-	/** (required) Title of the RSS Feed */
+	/** Title of the RSS Feed */
 	title: z.infer<typeof rssOptionsValidator>['title'];
-	/** (required) Description of the RSS Feed */
+	/** Description of the RSS Feed */
 	description: z.infer<typeof rssOptionsValidator>['description'];
 	/**
 	 * Specify the base URL to use for RSS feed links.
@@ -17,7 +18,7 @@ export type RSSOptions = {
 	 */
 	site: z.infer<typeof rssOptionsValidator>['site'];
 	/** List of RSS feed items to render. */
-	items: RSSFeedItem[];
+	items: RSSFeedItem[] | GlobResult;
 	/** Specify arbitrary metadata on opening <xml> tag */
 	xmlns?: z.infer<typeof rssOptionsValidator>['xmlns'];
 	/**
@@ -49,21 +50,44 @@ type RSSFeedItem = {
 
 type ValidatedRSSFeedItem = z.infer<typeof rssFeedItemValidator>;
 type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
+type GlobResult = z.infer<typeof globResultValidator>;
 
 const rssFeedItemValidator = rssSchema.extend({ link: z.string(), content: z.string().optional() });
+const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
 const rssOptionsValidator = z.object({
 	title: z.string(),
 	description: z.string(),
 	site: z.string(),
-	items: z.array(rssFeedItemValidator),
+	items: z
+		.array(rssFeedItemValidator)
+		.or(globResultValidator)
+		.transform((items) => {
+			if (!Array.isArray(items)) {
+				console.warn(
+					yellow(
+						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/guides/rss/'
+					)
+				);
+				return pagesGlobToRssItems(items);
+			}
+			return items;
+		}),
 	xmlns: z.record(z.string()).optional(),
 	drafts: z.boolean().default(false),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 });
 
-function validateRssOptions(rssOptions: RSSOptions) {
-	const parsedResult = rssOptionsValidator.safeParse(rssOptions, { errorMap });
+export default async function getRSS(rssOptions: RSSOptions) {
+	const validatedRssOptions = await validateRssOptions(rssOptions);
+
+	return {
+		body: await generateRSS(validatedRssOptions),
+	};
+}
+
+async function validateRssOptions(rssOptions: RSSOptions) {
+	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions, { errorMap });
 	if (parsedResult.success) {
 		return parsedResult.data;
 	}
@@ -75,8 +99,6 @@ function validateRssOptions(rssOptions: RSSOptions) {
 	);
 	throw formattedError;
 }
-
-type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
 
 export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeedItem[]> {
 	return Promise.all(
@@ -105,14 +127,6 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 			throw formattedError;
 		})
 	);
-}
-
-export default async function getRSS(rssOptions: RSSOptions) {
-	const validatedRssOptions = validateRssOptions(rssOptions);
-
-	return {
-		body: await generateRSS(validatedRssOptions),
-	};
 }
 
 /** Generate RSS 2.0 feed */

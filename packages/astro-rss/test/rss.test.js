@@ -115,4 +115,40 @@ describe('rss', () => {
 
 		chai.expect(body).xml.to.equal(validXmlResult);
 	});
+
+	it('Deprecated import.meta.glob mapping still works', async () => {
+		const globResult = {
+			'./posts/php.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: phpFeedItem.link,
+						frontmatter: {
+							title: phpFeedItem.title,
+							pubDate: phpFeedItem.pubDate,
+							description: phpFeedItem.description,
+						},
+					})
+				),
+			'./posts/nested/web1.md': () =>
+				new Promise((resolve) =>
+					resolve({
+						url: web1FeedItem.link,
+						frontmatter: {
+							title: web1FeedItem.title,
+							pubDate: web1FeedItem.pubDate,
+							description: web1FeedItem.description,
+						},
+					})
+				),
+		};
+
+		const { body } = await rss({
+			title,
+			description,
+			items: globResult,
+			site,
+		});
+
+		chai.expect(body).xml.to.equal(validXmlResult);
+	});
 });
