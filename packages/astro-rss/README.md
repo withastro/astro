@@ -108,7 +108,7 @@ export const get = (context) => rss({
 
 Type: `RSSFeedItem[] (required)`
 
-Aa list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
+A list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
 
 When providing a formatted RSS item list, see the `RSSFeedItem` type reference below:
 
@@ -181,7 +181,7 @@ Will inject the following XML:
 
 The `@astrojs/rss` package exposes an `rssSchema` for use with [content collections](https://docs.astro.build/en/guides/content-collections/). This ensures your frontmatter contains all properties expected by [an `RSSFeedItem`](#items).
 
-Apply this to an existing collection schema like so:
+Apply this to your collection schema like so:
 
 ```ts "schema: rssSchema,"
 import { defineCollection } from 'astro:content';
