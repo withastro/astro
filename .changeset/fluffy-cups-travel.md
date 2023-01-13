@@ -4,7 +4,7 @@
 
 Update RSS configuration with content collections in mind.
 
-1. Expose an `rssSchema` for use with content collections. This ensures are RSS feed properties are present in your frontmatter:
+1. Expose an `rssSchema` for use with content collections. This ensures all RSS feed properties are present in your frontmatter:
 
 ```ts
 import { defineCollection } from 'astro:content';
