@@ -12,8 +12,8 @@ export type RSSOptions = {
 	description: z.infer<typeof rssOptionsValidator>['description'];
 	/**
 	 * Specify the base URL to use for RSS feed links.
-	 * We recommend "import.meta.env.SITE" to pull in the "site"
-	 * from your project's astro.config.
+	 * We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#contextsite),
+	 * which includes the `site` configured in your project's `astro.config.*`
 	 */
 	site: z.infer<typeof rssOptionsValidator>['site'];
 	/** List of RSS feed items to render. */

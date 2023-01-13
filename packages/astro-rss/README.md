@@ -25,11 +25,12 @@ For instance, say you need to generate an RSS feed for all posts under `src/page
 // src/pages/rss.xml.js
 import rss from '@astrojs/rss';
 
-export const get = () => rss({
+export const get = (context) => rss({
     title: 'Buzz’s Blog',
     description: 'A humble Astronaut’s guide to the stars',
-    // pull in the "site" from your project's astro.config
-    site: import.meta.env.SITE,
+    // pull in your project "site" from the API context
+    // https://docs.astro.build/en/reference/api-reference/#contextsite
+    site: context.site,
     items: import.meta.glob('./blog/**/*.md'),
   });
 ```
@@ -41,13 +42,13 @@ Read **[Astro's RSS docs][astro-rss]** for full usage examples.
 The `rss` default export offers a number of configuration options. Here's a quick reference:
 
 ```js
-rss({
+export const get = (context) => rss({
   // `<title>` field in output xml
   title: 'Buzz’s Blog',
   // `<description>` field in output xml
   description: 'A humble Astronaut’s guide to the stars',
   // provide a base URL for RSS <item> links
-  site: import.meta.env.SITE,
+  site: context.site,
   // list of `<item>`s in output xml
   items: import.meta.glob('./**/*.md'),
   // include draft posts in the feed (default: false)
@@ -77,7 +78,16 @@ The `<description>` attribute of your RSS feed's output xml.
 
 Type: `string (required)`
 
-The base URL to use when generating RSS item links. We recommend using `import.meta.env.SITE` to pull in the "site" from your project's astro.config. Still, feel free to use a custom base URL if necessary.
+The base URL to use when generating RSS item links. We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#contextsite), which includes the `site` configured in your project's `astro.config.*`:
+
+```ts
+import rss from '@astrojs/rss';
+
+export const get = (context) => rss({
+    site: context.site,
+    ...
+  });
+```
 
 ### items
 
