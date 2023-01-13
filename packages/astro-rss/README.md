@@ -44,7 +44,7 @@ export async function get(context) {
       // https://docs.astro.build/en/guides/content-collections/#generating-pages-from-content-collections
       link: `/blog/${post.slug}/`,
     }))
-  })
+  });
 }
 ```
 
@@ -55,24 +55,26 @@ Read **[Astro's RSS docs][astro-rss]** for more on using content collections, an
 The `rss` default export offers a number of configuration options. Here's a quick reference:
 
 ```js
-export const get = (context) => rss({
-  // `<title>` field in output xml
-  title: 'Buzz’s Blog',
-  // `<description>` field in output xml
-  description: 'A humble Astronaut’s guide to the stars',
-  // provide a base URL for RSS <item> links
-  site: context.site,
-  // list of `<item>`s in output xml
-  items: [...],
-  // include draft posts in the feed (default: false)
-  drafts: true,
-  // (optional) absolute path to XSL stylesheet in your project
-  stylesheet: '/rss-styles.xsl',
-  // (optional) inject custom xml
-  customData: '<language>en-us</language>',
-  // (optional) add arbitrary metadata to opening <rss> tag
-  xmlns: { h: 'http://www.w3.org/TR/html4/' },
-});
+export function get(context) {
+  return rss({
+    // `<title>` field in output xml
+    title: 'Buzz’s Blog',
+    // `<description>` field in output xml
+    description: 'A humble Astronaut’s guide to the stars',
+    // provide a base URL for RSS <item> links
+    site: context.site,
+    // list of `<item>`s in output xml
+    items: [...],
+    // include draft posts in the feed (default: false)
+    drafts: true,
+    // (optional) absolute path to XSL stylesheet in your project
+    stylesheet: '/rss-styles.xsl',
+    // (optional) inject custom xml
+    customData: '<language>en-us</language>',
+    // (optional) add arbitrary metadata to opening <rss> tag
+    xmlns: { h: 'http://www.w3.org/TR/html4/' },
+  });
+}
 ```
 
 ### title
