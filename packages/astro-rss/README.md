@@ -190,6 +190,8 @@ import { rssSchema } from '@astrojs/rss';
 const blog = defineCollection({
   schema: rssSchema,
 });
+
+export const collections = { blog };
 ```
 
 If you have an existing schema, you can merge extra properties using `extends()`:
