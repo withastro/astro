@@ -211,7 +211,7 @@ You may generate an RSS feed from documents in `src/pages/`. Since `Astro.glob` 
 This assumes a) you are globbing for items inside `src/pages/`, and b) all necessary feed properties are present in each document's frontmatter.
 :::
 
-```ts ".extends({ extraProperty: z.string() }),"
+```ts "pagesGlobToRssItems"
 // src/pages/rss.xml.js
 import rss, { pagesGlobToRssItems } from '@astrojs/rss';
 
