@@ -185,12 +185,12 @@ describe('globToRssItems', () => {
 		]);
 	});
 
-	it('should fail on missing "title" key', () => {
+	it('should fail on missing "url"', () => {
 		const globResult = {
 			'./posts/php.md': () =>
 				new Promise((resolve) =>
 					resolve({
-						url: phpFeedItem.link,
+						url: undefined,
 						frontmatter: {
 							pubDate: phpFeedItem.pubDate,
 							description: phpFeedItem.description,
@@ -208,14 +208,15 @@ describe('globToRssItems', () => {
 		).to.be.rejected;
 	});
 
-	it('should fail on missing "pubDate" key', () => {
+	it('should fail on missing "title" key', () => {
 		const globResult = {
 			'./posts/php.md': () =>
 				new Promise((resolve) =>
 					resolve({
 						url: phpFeedItem.link,
 						frontmatter: {
-							title: phpFeedItem.title,
+							title: undefined,
+							pubDate: phpFeedItem.pubDate,
 							description: phpFeedItem.description,
 						},
 					})
