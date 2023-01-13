@@ -78,7 +78,7 @@ function validateRssOptions(rssOptions: RSSOptions) {
 
 type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
 
-export function globToRssItems(items: GlobResult): Promise<ValidatedRSSFeedItem[]> {
+export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeedItem[]> {
 	return Promise.all(
 		Object.entries(items).map(async ([filePath, getInfo]) => {
 			const { url, frontmatter } = await getInfo();
