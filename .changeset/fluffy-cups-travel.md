@@ -2,7 +2,7 @@
 '@astrojs/rss': major
 ---
 
-Update RSS configuration with our content collections in mind.
+Update RSS configuration with content collections in mind.
 
 1. Expose an `rssSchema` for use with content collections. This ensures are RSS feed properties are present in your frontmatter:
 
