@@ -230,7 +230,7 @@ async function clientBuild(
 			}),
 			...(viteConfig.plugins || []),
 		],
-		envPrefix: settings.config.envPrefix ?? 'PUBLIC_',
+		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
 
