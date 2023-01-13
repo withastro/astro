@@ -588,9 +588,11 @@ importers:
       chai-as-promised: ^7.1.1
       chai-xml: ^0.4.0
       fast-xml-parser: ^4.0.8
+      kleur: ^4.1.5
       mocha: ^9.2.2
     dependencies:
       fast-xml-parser: 4.0.13
+      kleur: 4.1.5
     devDependencies:
       '@types/chai': 4.3.4
       '@types/chai-as-promised': 7.1.5

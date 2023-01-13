@@ -35,6 +35,7 @@
     "mocha": "^9.2.2"
   },
   "dependencies": {
-    "fast-xml-parser": "^4.0.8"
+    "fast-xml-parser": "^4.0.8",
+    "kleur": "^4.1.5"
   }
 }
