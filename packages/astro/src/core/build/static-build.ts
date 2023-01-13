@@ -161,7 +161,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
 		],
-		envPrefix: 'PUBLIC_',
+		envPrefix: settings.config.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
 
@@ -230,7 +230,7 @@ async function clientBuild(
 			}),
 			...(viteConfig.plugins || []),
 		],
-		envPrefix: 'PUBLIC_',
+		envPrefix: settings.config.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
 

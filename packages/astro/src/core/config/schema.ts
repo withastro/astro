@@ -14,6 +14,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	publicDir: './public',
 	outDir: './dist',
 	base: '/',
+	envPrefix: 'PUBLIC_',
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
@@ -62,6 +63,7 @@ export const AstroConfigSchema = z.object({
 		.url()
 		.optional()
 		.transform((val) => (val ? appendForwardSlash(val) : val)),
+	envPrefix: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.envPrefix),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
