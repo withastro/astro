@@ -183,7 +183,9 @@ function globToRssItems(
 			}
 			const formattedError = new Error(
 				[
-					`[RSS] ${filePath} has invalid or missing frontmatter.\nFix the following properties:`,
+					`[RSS] ${JSON.stringify(
+						filePath
+					)} has invalid or missing frontmatter.\nFix the following properties:`,
 					...parsedResult.error.errors.map((zodError) => zodError.message),
 				].join('\n')
 			);
