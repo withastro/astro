@@ -142,35 +142,39 @@ export async function createContainerWithAutomaticRestart({
 		},
 	};
 
-	function handleServerRestart(logMsg: string) {
+	async function handleServerRestart(logMsg: string) {
 		// eslint-disable-next-line @typescript-eslint/no-shadow
 		const container = restart.container;
-		return async function (changedFile: string) {
-			if (shouldRestartContainer(container, changedFile)) {
-				const { container: newContainer, error } = await restartContainer({
-					beforeRestart,
-					container,
-					flags,
-					logMsg,
-					async handleConfigError(err) {
-						// Send an error message to the client if one is connected.
-						await handleConfigError(err);
-						container.viteServer.ws.send({
-							type: 'error',
-							err: {
-								message: err.message,
-								stack: err.stack || '',
-							},
-						});
+		const { container: newContainer, error } = await restartContainer({
+			beforeRestart,
+			container,
+			flags,
+			logMsg,
+			async handleConfigError(err) {
+				// Send an error message to the client if one is connected.
+				await handleConfigError(err);
+				container.viteServer.ws.send({
+					type: 'error',
+					err: {
+						message: err.message,
+						stack: err.stack || '',
 					},
 				});
-				restart.container = newContainer;
-				// Add new watches because this is a new container with a new Vite server
-				addWatches();
-				resolveRestart(error);
-				restartComplete = new Promise<Error | null>((resolve) => {
-					resolveRestart = resolve;
-				});
+			},
+		});
+		restart.container = newContainer;
+		// Add new watches because this is a new container with a new Vite server
+		addWatches();
+		resolveRestart(error);
+		restartComplete = new Promise<Error | null>((resolve) => {
+			resolveRestart = resolve;
+		});
+	}
+
+	function handleChangeRestart(logMsg: string) {
+		return async function (changedFile: string) {
+			if (shouldRestartContainer(restart.container, changedFile)) {
+				handleServerRestart(logMsg);
 			}
 		};
 	}
@@ -178,9 +182,13 @@ export async function createContainerWithAutomaticRestart({
 	// Set up watches
 	function addWatches() {
 		const watcher = restart.container.viteServer.watcher;
-		watcher.on('change', handleServerRestart('Configuration updated. Restarting...'));
-		watcher.on('unlink', handleServerRestart('Configuration removed. Restarting...'));
-		watcher.on('add', handleServerRestart('Configuration added. Restarting...'));
+		watcher.on('change', handleChangeRestart('Configuration updated. Restarting...'));
+		watcher.on('unlink', handleChangeRestart('Configuration removed. Restarting...'));
+		watcher.on('add', handleChangeRestart('Configuration added. Restarting...'));
+
+		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
+		// Ignore the `forceOptimize` parameter for now.
+		restart.container.viteServer.restart = () => handleServerRestart('Restarting...');
 	}
 	addWatches();
 	return restart;
