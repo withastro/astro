@@ -1,4 +1,3 @@
-import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
@@ -12,19 +11,6 @@ import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
-	slug: z
-		.function()
-		.args(
-			z.object({
-				id: z.string(),
-				collection: z.string(),
-				defaultSlug: z.string(),
-				body: z.string(),
-				data: z.record(z.any()),
-			})
-		)
-		.returns(z.union([z.string(), z.promise(z.string())]))
-		.optional(),
 });
 
 export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
@@ -46,7 +32,6 @@ export type ContentConfig = z.infer<typeof contentConfigParser>;
 type Entry = {
 	id: string;
 	collection: string;
-	slug: string;
 	data: any;
 	body: string;
 	_internal: { rawData: string; filePath: string };
@@ -54,7 +39,6 @@ type Entry = {
 
 export type EntryInfo = {
 	id: string;
-	slug: string;
 	collection: string;
 };
 
@@ -62,18 +46,6 @@ export const msg = {
 	collectionConfigMissing: (collection: string) =>
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
-
-export async function getEntrySlug(entry: Entry, collectionConfig: CollectionConfig) {
-	return (
-		collectionConfig.slug?.({
-			id: entry.id,
-			data: entry.data,
-			defaultSlug: entry.slug,
-			collection: entry.collection,
-			body: entry.body,
-		}) ?? entry.slug
-	);
-}
 
 export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
 	let data = entry.data;
@@ -137,22 +109,13 @@ export function getEntryInfo({
 		return new NoCollectionError();
 
 	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
-	const rawSlugSegments = rawIdWithoutFileExt.split(path.sep);
+	const rawIdWithoutFileExt = rawId.substring(0, rawId.lastIndexOf('.'));
+	console.log(rawIdWithoutFileExt);
 
-	const slug = rawSlugSegments
-		// Slugify each route segment to handle capitalization and spaces.
-		// Note: using `slug` instead of `new Slugger()` means no slug deduping.
-		.map((segment) => githubSlug(segment))
-		.join('/')
-		.replace(/\/index$/, '');
-
-	const res = {
-		id: normalizePath(rawId),
-		slug,
+	return {
+		id: rawIdWithoutFileExt,
 		collection: normalizePath(rawCollection),
 	};
-	return res;
 }
 
 const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');

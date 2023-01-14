@@ -22,7 +22,7 @@ type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
 
-type ContentTypesEntryMetadata = { slug: string };
+type ContentTypesEntryMetadata = { id: string };
 type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
 
 type CreateContentGeneratorParams = {
@@ -155,7 +155,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, slug, collection } = entryInfo;
+		const { id, collection } = entryInfo;
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
 
@@ -165,7 +165,7 @@ export async function createContentTypesGenerator({
 					addCollection(contentTypes, collectionKey);
 				}
 				if (!(entryKey in contentTypes[collectionKey])) {
-					addEntry(contentTypes, collectionKey, entryKey, slug);
+					addEntry(contentTypes, collectionKey, entryKey, id);
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
@@ -247,9 +247,9 @@ function addEntry(
 	contentTypes: ContentTypes,
 	collectionKey: string,
 	entryKey: string,
-	slug: string
+	id: string,
 ) {
-	contentTypes[collectionKey][entryKey] = { slug };
+	contentTypes[collectionKey][entryKey] = { id };
 }
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
@@ -293,14 +293,8 @@ async function writeContentFiles({
 		contentTypesStr += `${collectionKey}: {\n`;
 		const entryKeys = Object.keys(contentTypes[collectionKey]).sort();
 		for (const entryKey of entryKeys) {
-			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			// If user has custom slug function, we can't predict slugs at type compilation.
-			// Would require parsing all data and evaluating ahead-of-time;
-			// We evaluate with lazy imports at dev server runtime
-			// to prevent excessive errors
-			const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(entryMetadata.slug);
-			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
+			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;
 	}

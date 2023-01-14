@@ -23,10 +23,10 @@ export function createCollectionToGlobResultMap({
 	const collectionToGlobResultMap: CollectionToEntryMap = {};
 	for (const key in globResult) {
 		const keyRelativeToContentDir = key.replace(new RegExp(`^${contentDir}`), '');
-		const segments = keyRelativeToContentDir.split('/');
-		if (segments.length <= 1) continue;
-		const collection = segments[0];
-		const entryId = segments.slice(1).join('/');
+		const [collection, ...segments] = keyRelativeToContentDir.split('/');
+		if (segments.length === 0) continue;
+		const rawId = segments.join('/');
+		const entryId = rawId.substring(0, rawId.lastIndexOf('.'));
 		collectionToGlobResultMap[collection] ??= {};
 		collectionToGlobResultMap[collection][entryId] = globResult[key];
 	}
@@ -47,7 +47,6 @@ export function createGetCollection({
 				const entry = await lazyImport();
 				return {
 					id: entry.id,
-					slug: entry.slug,
 					body: entry.body,
 					collection: entry.collection,
 					data: entry.data,
@@ -83,7 +82,6 @@ export function createGetEntry({
 		const entry = await lazyImport();
 		return {
 			id: entry.id,
-			slug: entry.slug,
 			body: entry.body,
 			collection: entry.collection,
 			data: entry.data,
@@ -107,6 +105,7 @@ async function render({
 	id: string;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
+	console.log(collectionToRenderEntryMap, id);
 	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
 	if (!lazyImport) throw new Error(`${String(collection)} → ${String(id)} does not exist.`);
 

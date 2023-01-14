@@ -15,7 +15,6 @@ import {
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
-	getEntrySlug,
 	parseFrontmatter,
 } from './utils.js';
 
@@ -141,14 +140,10 @@ export function astroContentServerPlugin({
 					const data = collectionConfig
 						? await getEntryData(partialEntry, collectionConfig)
 						: unparsedData;
-					const slug = collectionConfig
-						? await getEntrySlug({ ...partialEntry, data }, collectionConfig)
-						: entryInfo.slug;
-
+						
 					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};
 export const collection = ${JSON.stringify(entryInfo.collection)};
-export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(body)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
