@@ -8,6 +8,8 @@
     "noImplicitOverride": true,
     // Force functions to specify that they can return `undefined` if a possible code path does not return a value.
     "noImplicitReturns": true,
+    // Ensures consistency between accessing a field via the “dot” (obj.key) syntax, and “indexed” (obj["key"]) and the way which the property is declared in the type.
+    "noPropertyAccessFromIndexSignature": true,
     // Report an error when a variable is declared but never used.
     "noUnusedLocals": true,
     // Report an error when a parameter is declared but never used.
