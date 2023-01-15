@@ -93,7 +93,6 @@ export default async function getRSS(rssOptions: RSSOptions) {
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
 	}
-
 	if (!rssOptions.drafts) {
 		items = items.filter((item) => !item.draft);
 	}
