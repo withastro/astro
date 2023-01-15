@@ -17,6 +17,7 @@ export const AstroErrorData = defineErrors({
 	UnknownCompilerError: {
 		title: 'Unknown compiler error.',
 		code: 1000,
+		hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues.',
 	},
 	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
 	/**
@@ -47,7 +48,7 @@ export const AstroErrorData = defineErrors({
 	 * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
 	 * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#astroclientaddress)
 	 * @description
-	 * The adapter you.'re using unfortunately does not support `Astro.clientAddress`.
+	 * The adapter you're using unfortunately does not support `Astro.clientAddress`.
 	 */
 	ClientAddressNotAvailable: {
 		title: '`Astro.clientAddress` is not available in current adapter.',
