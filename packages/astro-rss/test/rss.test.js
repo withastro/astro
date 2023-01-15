@@ -17,6 +17,7 @@ const phpFeedItem = {
 	description:
 		'PHP is a general-purpose scripting language geared toward web development. It was originally created by Danish-Canadian programmer Rasmus Lerdorf in 1994.',
 };
+
 const phpFeedItemWithContent = {
 	...phpFeedItem,
 	content: `<h1>${phpFeedItem.title}</h1><p>${phpFeedItem.description}</p>`,
@@ -113,6 +114,47 @@ describe('rss', () => {
 		});
 
 		chai.expect(body).xml.to.equal(validXmlWithXSLStylesheet);
+	});
+
+	describe('RSSFeedItem', () => {
+		it('should filter out draft', async () => {
+			const rssFeedItems = [
+				phpFeedItem,
+				{
+					...web1FeedItem,
+					draft: true,
+				},
+			];
+
+			const { body } = await rss({
+				title,
+				description,
+				items: rssFeedItems,
+				site,
+			});
+
+			chai.expect(body).xml.to.equal(validXmlWithoutWeb1FeedResult);
+		});
+
+		it('should respect drafts option', async () => {
+			const rssFeedItems = [
+				phpFeedItem,
+				{
+					...web1FeedItem,
+					draft: true,
+				},
+			];
+
+			const { body } = await rss({
+				title,
+				description,
+				items: rssFeedItems,
+				site,
+				drafts: true,
+			});
+
+			chai.expect(body).xml.to.equal(validXmlResult);
+		});
 	});
 
 	describe('glob result', () => {
