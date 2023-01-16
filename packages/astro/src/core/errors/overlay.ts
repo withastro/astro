@@ -402,7 +402,6 @@ const getStyle = (prioritaryTheme: string, maybeDarkThemeMedia: string) => {
 
 const getOverlayTemplate = (theme: Theme) => {
 	const themeOptions = ['light', 'dark', 'system'];
-	console.log({ theme });
 	let prioritaryThemeCss = '',
 		maybeDarkThemeMedia = '';
 	switch (theme) {
@@ -420,7 +419,6 @@ const getOverlayTemplate = (theme: Theme) => {
 			throw new Error(`Invalid theme: ${theme}`);
 			break;
 	}
-	console.log({ prioritaryThemeCss, maybeDarkThemeMedia });
 
 	return /* html */ `
     <style>
