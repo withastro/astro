@@ -1,81 +1,15 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { AstroErrorPayload } from './dev/vite';
 
-const style = /* css */ `
-* {
-  box-sizing: border-box;
-}
+const wrapDarkColorSchemeMedia = (css: string) => `@media (prefers-color-scheme: dark) {${css}};`;
 
-:host {
-  /** Needed so Playwright can find the element */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 99999;
+type Theme = AstroConfig['errorOverlayTheme'];
 
-  /* Fonts */
-  --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", Arial, sans-serif;
-  --font-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
-    "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
-    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+// mock global variable to simulate the browser, won't executed server-side
+let globalThemeVariable: Theme = 'system';
 
-  /* Borders */
-  --roundiness: 4px;
-
-  /* Colors */
-  --background: #ffffff;
-  --error-text: #ba1212;
-  --error-text-hover: #a10000;
-  --title-text: #090b11;
-  --box-background: #f3f4f7;
-  --box-background-hover: #dadbde;
-  --hint-text: #505d84;
-  --hint-text-hover: #37446b;
-  --border: #c3cadb;
-  --accent: #5f11a6;
-  --accent-hover: #792bc0;
-  --stack-text: #3d4663;
-  --misc-text: #6474a2;
-
-  --houston-overlay: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0) 3.95%,
-    rgba(255, 255, 255, 0.0086472) 9.68%,
-    rgba(255, 255, 255, 0.03551) 15.4%,
-    rgba(255, 255, 255, 0.0816599) 21.13%,
-    rgba(255, 255, 255, 0.147411) 26.86%,
-    rgba(255, 255, 255, 0.231775) 32.58%,
-    rgba(255, 255, 255, 0.331884) 38.31%,
-    rgba(255, 255, 255, 0.442691) 44.03%,
-    rgba(255, 255, 255, 0.557309) 49.76%,
-    rgba(255, 255, 255, 0.668116) 55.48%,
-    rgba(255, 255, 255, 0.768225) 61.21%,
-    rgba(255, 255, 255, 0.852589) 66.93%,
-    rgba(255, 255, 255, 0.91834) 72.66%,
-    rgba(255, 255, 255, 0.96449) 78.38%,
-    rgba(255, 255, 255, 0.991353) 84.11%,
-    #ffffff 89.84%
-  );
-
-  /* Syntax Highlighting */
-  --shiki-color-text: #000000;
-  --shiki-token-constant: #4ca48f;
-  --shiki-token-string: #9f722a;
-  --shiki-token-comment: #8490b5;
-  --shiki-token-keyword: var(--accent);
-  --shiki-token-parameter: #aa0000;
-  --shiki-token-function: #4ca48f;
-  --shiki-token-string-expression: #9f722a;
-  --shiki-token-punctuation: #ffffff;
-  --shiki-token-link: #ee0000;
-}
-
-@media (prefers-color-scheme: dark) {
-  :host {
+const DARK_THEME_CSS = `/* dark theme css */
+ :host {
     --background: #090b11;
     --error-text: #f49090;
     --error-text-hover: #ffaaaa;
@@ -122,314 +56,410 @@ const style = /* css */ `
     --shiki-token-punctuation: #ffffff;
     --shiki-token-link: #ee0000;
   }
-}
+`;
 
-#backdrop {
-  font-family: var(--font-monospace);
-  position: fixed;
-  z-index: 99999;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--background);
-  overflow-y: auto;
-}
+const LIGHT_THEME_CSS = ` /* light theme css */
+  /* Colors */
+  --background: #ffffff;
+  --error-text: #ba1212;
+  --error-text-hover: #a10000;
+  --title-text: #090b11;
+  --box-background: #f3f4f7;
+  --box-background-hover: #dadbde;
+  --hint-text: #505d84;
+  --hint-text-hover: #37446b;
+  --border: #c3cadb;
+  --accent: #5f11a6;
+  --accent-hover: #792bc0;
+  --stack-text: #3d4663;
+  --misc-text: #6474a2;
 
-#layout {
-  max-width: min(100%, 1280px);
-  width: 1280px;
-  margin: 0 auto;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
+  --houston-overlay: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 3.95%,
+    rgba(255, 255, 255, 0.0086472) 9.68%,
+    rgba(255, 255, 255, 0.03551) 15.4%,
+    rgba(255, 255, 255, 0.0816599) 21.13%,
+    rgba(255, 255, 255, 0.147411) 26.86%,
+    rgba(255, 255, 255, 0.231775) 32.58%,
+    rgba(255, 255, 255, 0.331884) 38.31%,
+    rgba(255, 255, 255, 0.442691) 44.03%,
+    rgba(255, 255, 255, 0.557309) 49.76%,
+    rgba(255, 255, 255, 0.668116) 55.48%,
+    rgba(255, 255, 255, 0.768225) 61.21%,
+    rgba(255, 255, 255, 0.852589) 66.93%,
+    rgba(255, 255, 255, 0.91834) 72.66%,
+    rgba(255, 255, 255, 0.96449) 78.38%,
+    rgba(255, 255, 255, 0.991353) 84.11%,
+    #ffffff 89.84%
+  );
 
-@media (max-width: 768px) {
-  #header {
-    padding: 12px;
-    margin-top: 12px;
+  /* Syntax Highlighting */
+  --shiki-color-text: #000000;
+  --shiki-token-constant: #4ca48f;
+  --shiki-token-string: #9f722a;
+  --shiki-token-comment: #8490b5;
+  --shiki-token-keyword: var(--accent);
+  --shiki-token-parameter: #aa0000;
+  --shiki-token-function: #4ca48f;
+  --shiki-token-string-expression: #9f722a;
+  --shiki-token-punctuation: #ffffff;
+  --shiki-token-link: #ee0000;`;
+
+const getStyle = (maybeLightThemeCss: string, maybeDarkThemeCss: string) => {
+	return /* css */ `
+  * {
+    box-sizing: border-box;
+  }
+
+  :host {
+    /** Needed so Playwright can find the element */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+
+    /* Fonts */
+    --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+      "Helvetica Neue", Arial, sans-serif;
+    --font-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
+      "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
+      "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+    /* Borders */
+    --roundiness: 4px;
+
+    ${maybeLightThemeCss}
+  }
+    ${maybeDarkThemeCss}
+
+  #backdrop {
+    font-family: var(--font-monospace);
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--background);
+    overflow-y: auto;
   }
 
   #layout {
+    max-width: min(100%, 1280px);
+    width: 1280px;
+    margin: 0 auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    #header {
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    #layout {
+      padding: 0;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    #houston,
+    #houston-overlay {
+      display: none;
+    }
+  }
+
+  #header {
+    position: relative;
+    margin-top: 48px;
+  }
+
+  #header-left {
+    min-height: 63px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+  }
+
+  #name {
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 22px;
+    color: var(--error-text);
+    margin: 0;
     padding: 0;
   }
-}
 
-@media (max-width: 1024px) {
-  #houston,
+  #title {
+    font-size: 34px;
+    line-height: 41px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    color: var(--title-text);
+    font-family: var(--font-normal);
+  }
+
+  #houston {
+    position: absolute;
+    bottom: -50px;
+    right: 32px;
+    z-index: -50;
+    color: var(--error-text);
+  }
+
   #houston-overlay {
+    width: 175px;
+    height: 250px;
+    position: absolute;
+    bottom: -100px;
+    right: 32px;
+    z-index: -25;
+    background: var(--houston-overlay);
+  }
+
+  #message-hints,
+  #stack,
+  #code {
+    border-radius: var(--roundiness);
+    background-color: var(--box-background);
+  }
+
+  #message,
+  #hint {
+    display: flex;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  #message-content,
+  #hint-content {
+    white-space: pre-wrap;
+    line-height: 24px;
+    flex-grow: 1;
+  }
+
+  #message {
+    color: var(--error-text);
+  }
+
+  #message-content a {
+    color: var(--error-text);
+  }
+
+  #message-content a:hover {
+    color: var(--error-text-hover);
+  }
+
+  #hint {
+    color: var(--hint-text);
+    border-top: 1px solid var(--border);
     display: none;
   }
-}
 
-#header {
-  position: relative;
-  margin-top: 48px;
-}
+  #hint a {
+    color: var(--hint-text);
+  }
 
-#header-left {
-  min-height: 63px;
-  display: flex;
-  flex-direction: column;
-  justify-content: end;
-}
+  #hint a:hover {
+    color: var(--hint-text-hover);
+  }
 
-#name {
-  font-size: 18px;
-  font-weight: normal;
-  line-height: 22px;
-  color: var(--error-text);
-  margin: 0;
-  padding: 0;
-}
+  #message-hints code {
+    font-family: var(--font-monospace);
+    background-color: var(--border);
+    padding: 4px;
+    border-radius: var(--roundiness);
+  }
 
-#title {
-  font-size: 34px;
-  line-height: 41px;
-  font-weight: 600;
-  margin: 0;
-  padding: 0;
-  color: var(--title-text);
-  font-family: var(--font-normal);
-}
+  .link {
+    min-width: fit-content;
+    padding-right: 8px;
+    padding-top: 8px;
+  }
 
-#houston {
-  position: absolute;
-  bottom: -50px;
-  right: 32px;
-  z-index: -50;
-  color: var(--error-text);
-}
+  .link button {
+    background: none;
+    border: none;
+    font-size: inherit;
+    font-family: inherit;
+  }
 
-#houston-overlay {
-  width: 175px;
-  height: 250px;
-  position: absolute;
-  bottom: -100px;
-  right: 32px;
-  z-index: -25;
-  background: var(--houston-overlay);
-}
+  .link a, .link button {
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    gap: 8px;
+  }
 
-#message-hints,
-#stack,
-#code {
-  border-radius: var(--roundiness);
-  background-color: var(--box-background);
-}
+  .link a:hover, .link button:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
-#message,
-#hint {
-  display: flex;
-  padding: 16px;
-  gap: 16px;
-}
+  .link svg {
+    vertical-align: text-top;
+  }
 
-#message-content,
-#hint-content {
-  white-space: pre-wrap;
-  line-height: 24px;
-  flex-grow: 1;
-}
+  #code {
+    display: none;
+  }
 
-#message {
-  color: var(--error-text);
-}
+  #code header {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+  }
 
-#message-content a {
-  color: var(--error-text);
-}
+  #code h2 {
+    font-family: var(--font-monospace);
+    color: var(--title-text);
+    font-size: 18px;
+    margin: 0;
+  }
 
-#message-content a:hover {
-  color: var(--error-text-hover);
-}
+  #code .link {
+    padding: 0;
+  }
 
-#hint {
-  color: var(--hint-text);
-  border-top: 1px solid var(--border);
-  display: none;
-}
+  .shiki {
+    margin: 0;
+    border-top: 1px solid var(--border);
+    max-height: 17rem;
+    overflow: auto;
+  }
 
-#hint a {
-  color: var(--hint-text);
-}
+  .shiki code {
+    font-family: var(--font-monospace);
+    counter-reset: step;
+    counter-increment: step 0;
+    font-size: 14px;
+    line-height: 21px;
+    tab-size: 1;
+  }
 
-#hint a:hover {
-  color: var(--hint-text-hover);
-}
+  .shiki code .line:not(.error-caret)::before {
+    content: counter(step);
+    counter-increment: step;
+    width: 1rem;
+    margin-right: 16px;
+    display: inline-block;
+    text-align: right;
+    padding: 0 8px;
+    color: var(--misc-text);
+    border-right: solid 1px var(--border);
+  }
 
-#message-hints code {
-  font-family: var(--font-monospace);
-  background-color: var(--border);
-  padding: 4px;
-  border-radius: var(--roundiness);
-}
+  .shiki code .line:first-child::before {
+    padding-top: 8px;
+  }
 
-.link {
-  min-width: fit-content;
-  padding-right: 8px;
-  padding-top: 8px;
-}
+  .shiki code .line:last-child::before {
+    padding-bottom: 8px;
+  }
 
-.link button {
-	background: none;
-	border: none;
-	font-size: inherit;
-	font-family: inherit;
-}
+  .error-line {
+    background-color: #f4909026;
+    display: inline-block;
+    width: 100%;
+  }
 
-.link a, .link button {
-  color: var(--accent);
-  text-decoration: none;
-  display: flex;
-  gap: 8px;
-}
+  .error-caret {
+    margin-left: calc(33px + 1rem);
+    color: var(--error-text);
+  }
 
-.link a:hover, .link button:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-  cursor: pointer;
-}
+  #stack h2 {
+    color: var(--title-text);
+    font-family: var(--font-normal);
+    font-size: 22px;
+    margin: 0;
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+  }
 
-.link svg {
-  vertical-align: text-top;
-}
+  #stack-content {
+    font-size: 14px;
+    white-space: pre;
+    line-height: 21px;
+    overflow: auto;
+    padding: 24px;
+    color: var(--stack-text);
+  }
+  `;
+};
 
-#code {
-  display: none;
-}
+const getOverlayTemplate = (theme: Theme) => {
+	let maybeLightThemeCss = '',
+		maybeDarkThemeCss = '';
+	switch (theme) {
+		case 'light':
+			maybeLightThemeCss = LIGHT_THEME_CSS;
+			break;
+		case 'dark':
+			maybeDarkThemeCss = DARK_THEME_CSS;
+			break;
+		case 'system':
+			maybeLightThemeCss = LIGHT_THEME_CSS;
+			maybeDarkThemeCss = wrapDarkColorSchemeMedia(DARK_THEME_CSS);
+			break;
+	}
 
-#code header {
-  padding: 24px;
-  display: flex;
-  justify-content: space-between;
-}
+	return /* html */ `
+    <style>
+    ${getStyle(maybeLightThemeCss, maybeDarkThemeCss).trim()}
+    </style>
+    <div id="backdrop">
+      <div id="layout">
+        <header id="header">
+          <section id="header-left">
+            <h2 id="name"></h2>
+            <h1 id="title">An error occurred.</h1>
+          </section>
+          <div id="houston-overlay"></div>
+          <div id="houston">
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
+          </div>
+        </header>
 
-#code h2 {
-  font-family: var(--font-monospace);
-  color: var(--title-text);
-  font-size: 18px;
-  margin: 0;
-}
+        <section id="message-hints">
+          <section id="message">
+            <span id="message-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7v6m0 4.01.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/></svg>
+            </span>
+            <div id="message-content"></div>
+          </section>
+          <section id="hint">
+            <span id="hint-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 2-1 1M3 2l1 1m17 13-1-1M3 16l1-1m5 3h6m-5 3h4M12 3C8 3 5.952 4.95 6 8c.023 1.487.5 2.5 1.5 3.5S9 13 9 15h6c0-2 .5-2.5 1.5-3.5h0c1-1 1.477-2.013 1.5-3.5.048-3.05-2-5-6-5Z"/></svg>
+            </span>
+            <div id="hint-content"></div>
+          </section>
+        </section>
 
-#code .link {
-  padding: 0;
-}
+        <section id="code">
+          <header>
+            <h2></h2>
+          </header>
+          <div id="code-content"></div>
+        </section>
 
-.shiki {
-  margin: 0;
-  border-top: 1px solid var(--border);
-  max-height: 17rem;
-  overflow: auto;
-}
-
-.shiki code {
-  font-family: var(--font-monospace);
-  counter-reset: step;
-  counter-increment: step 0;
-  font-size: 14px;
-  line-height: 21px;
-  tab-size: 1;
-}
-
-.shiki code .line:not(.error-caret)::before {
-  content: counter(step);
-  counter-increment: step;
-  width: 1rem;
-  margin-right: 16px;
-  display: inline-block;
-  text-align: right;
-  padding: 0 8px;
-  color: var(--misc-text);
-  border-right: solid 1px var(--border);
-}
-
-.shiki code .line:first-child::before {
-  padding-top: 8px;
-}
-
-.shiki code .line:last-child::before {
-  padding-bottom: 8px;
-}
-
-.error-line {
-  background-color: #f4909026;
-  display: inline-block;
-  width: 100%;
-}
-
-.error-caret {
-  margin-left: calc(33px + 1rem);
-  color: var(--error-text);
-}
-
-#stack h2 {
-  color: var(--title-text);
-  font-family: var(--font-normal);
-  font-size: 22px;
-  margin: 0;
-  padding: 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-#stack-content {
-  font-size: 14px;
-  white-space: pre;
-  line-height: 21px;
-  overflow: auto;
-  padding: 24px;
-  color: var(--stack-text);
-}
-`;
-
-const overlayTemplate = /* html */ `
-<style>
-${style.trim()}
-</style>
-<div id="backdrop">
-  <div id="layout">
-    <header id="header">
-      <section id="header-left">
-        <h2 id="name"></h2>
-        <h1 id="title">An error occurred.</h1>
-      </section>
-      <div id="houston-overlay"></div>
-      <div id="houston">
-<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
+        <section id="stack">
+          <h2>Stack Trace</h2>
+          <div id="stack-content"></div>
+        </section>
       </div>
-    </header>
-
-    <section id="message-hints">
-      <section id="message">
-        <span id="message-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7v6m0 4.01.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/></svg>
-        </span>
-        <div id="message-content"></div>
-      </section>
-      <section id="hint">
-        <span id="hint-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 2-1 1M3 2l1 1m17 13-1-1M3 16l1-1m5 3h6m-5 3h4M12 3C8 3 5.952 4.95 6 8c.023 1.487.5 2.5 1.5 3.5S9 13 9 15h6c0-2 .5-2.5 1.5-3.5h0c1-1 1.477-2.013 1.5-3.5.048-3.05-2-5-6-5Z"/></svg>
-        </span>
-        <div id="hint-content"></div>
-      </section>
-    </section>
-
-		<section id="code">
-			<header>
-				<h2></h2>
-			</header>
-			<div id="code-content"></div>
-		</section>
-
-    <section id="stack">
-      <h2>Stack Trace</h2>
-      <div id="stack-content"></div>
-    </section>
-  </div>
-</div>
-`;
+    </div>
+    `;
+};
 
 const openNewWindowIcon =
 	/* html */
@@ -443,7 +473,8 @@ class ErrorOverlay extends HTMLElement {
 	constructor(err: AstroErrorPayload['err']) {
 		super();
 		this.root = this.attachShadow({ mode: 'open' });
-		this.root.innerHTML = overlayTemplate;
+
+		this.root.innerHTML = getOverlayTemplate(globalThemeVariable);
 
 		this.text('#name', err.name);
 		this.text('#title', err.title);
@@ -552,14 +583,21 @@ class ErrorOverlay extends HTMLElement {
 	}
 }
 
-function getOverlayCode() {
+function getOverlayCode(theme: Theme) {
 	return `
-		const overlayTemplate = \`${overlayTemplate}\`;
+    let globalThemeVariable = '${theme}';
+    const DARK_THEME_CSS = \`${DARK_THEME_CSS}\`;
+    const LIGHT_THEME_CSS = \`${LIGHT_THEME_CSS}\`;
+    const getStyle = ${getStyle.toString()};
+		const getOverlayTemplate = ${getOverlayTemplate.toString()};
+    const wrapDarkColorSchemeMedia = ${wrapDarkColorSchemeMedia.toString()};
 		const openNewWindowIcon = \`${openNewWindowIcon}\`;
 		${ErrorOverlay.toString()}
 	`;
 }
-
 export function patchOverlay(code: string, config: AstroConfig) {
-	return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
+	return code.replace(
+		'class ErrorOverlay',
+		getOverlayCode(config.errorOverlayTheme) + '\nclass ViteErrorOverlay'
+	);
 }
