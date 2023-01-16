@@ -1,7 +1,12 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { AstroErrorPayload } from './dev/vite';
 
-const wrapDarkColorSchemeMedia = (css: string) => `@media (prefers-color-scheme: dark) {${css}};`;
+const wrapDarkColorSchemeMedia = (css: string) => `@media (prefers-color-scheme: dark) {
+  ${css}
+}`;
+const wrapHostSelector = (css: string) => `:host {
+  ${css}
+}`;
 
 type Theme = AstroConfig['errorOverlayTheme'];
 
@@ -9,7 +14,6 @@ type Theme = AstroConfig['errorOverlayTheme'];
 let globalThemeVariable: Theme = 'system';
 
 const DARK_THEME_CSS = `/* dark theme css */
- :host {
     --background: #090b11;
     --error-text: #f49090;
     --error-text-hover: #ffaaaa;
@@ -55,7 +59,6 @@ const DARK_THEME_CSS = `/* dark theme css */
     --shiki-token-string-expression: #f4cf90;
     --shiki-token-punctuation: #ffffff;
     --shiki-token-link: #ee0000;
-  }
 `;
 
 const LIGHT_THEME_CSS = ` /* light theme css */
@@ -106,7 +109,7 @@ const LIGHT_THEME_CSS = ` /* light theme css */
   --shiki-token-punctuation: #ffffff;
   --shiki-token-link: #ee0000;`;
 
-const getStyle = (maybeLightThemeCss: string, maybeDarkThemeCss: string) => {
+const getStyle = (prioritaryTheme: string, maybeDarkThemeMedia: string) => {
 	return /* css */ `
   * {
     box-sizing: border-box;
@@ -132,9 +135,9 @@ const getStyle = (maybeLightThemeCss: string, maybeDarkThemeCss: string) => {
     /* Borders */
     --roundiness: 4px;
 
-    ${maybeLightThemeCss}
+    ${prioritaryTheme}
   }
-    ${maybeDarkThemeCss}
+   ${maybeDarkThemeMedia}
 
   #backdrop {
     font-family: var(--font-monospace);
@@ -398,24 +401,30 @@ const getStyle = (maybeLightThemeCss: string, maybeDarkThemeCss: string) => {
 };
 
 const getOverlayTemplate = (theme: Theme) => {
-	let maybeLightThemeCss = '',
-		maybeDarkThemeCss = '';
+	const themeOptions = ['light', 'dark', 'system'];
+	console.log({ theme });
+	let prioritaryThemeCss = '',
+		maybeDarkThemeMedia = '';
 	switch (theme) {
 		case 'light':
-			maybeLightThemeCss = LIGHT_THEME_CSS;
+			prioritaryThemeCss = LIGHT_THEME_CSS;
 			break;
 		case 'dark':
-			maybeDarkThemeCss = DARK_THEME_CSS;
+			prioritaryThemeCss = DARK_THEME_CSS;
 			break;
 		case 'system':
-			maybeLightThemeCss = LIGHT_THEME_CSS;
-			maybeDarkThemeCss = wrapDarkColorSchemeMedia(DARK_THEME_CSS);
+			prioritaryThemeCss = LIGHT_THEME_CSS;
+			maybeDarkThemeMedia = wrapDarkColorSchemeMedia(wrapHostSelector(DARK_THEME_CSS));
+			break;
+		default:
+			throw new Error(`Invalid theme: ${theme}`);
 			break;
 	}
+	console.log({ prioritaryThemeCss, maybeDarkThemeMedia });
 
 	return /* html */ `
     <style>
-    ${getStyle(maybeLightThemeCss, maybeDarkThemeCss).trim()}
+    ${getStyle(prioritaryThemeCss, maybeDarkThemeMedia).trim()}
     </style>
     <div id="backdrop">
       <div id="layout">
@@ -590,6 +599,7 @@ function getOverlayCode(theme: Theme) {
     const LIGHT_THEME_CSS = \`${LIGHT_THEME_CSS}\`;
     const getStyle = ${getStyle.toString()};
 		const getOverlayTemplate = ${getOverlayTemplate.toString()};
+    const wrapHostSelector = ${wrapHostSelector.toString()};
     const wrapDarkColorSchemeMedia = ${wrapDarkColorSchemeMedia.toString()};
 		const openNewWindowIcon = \`${openNewWindowIcon}\`;
 		${ErrorOverlay.toString()}
