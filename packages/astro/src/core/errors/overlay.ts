@@ -594,15 +594,15 @@ class ErrorOverlay extends HTMLElement {
 
 function getOverlayCode(theme: Theme) {
 	return `
-    let globalThemeVariable = '${theme}';
-    const DARK_THEME_CSS = \`${DARK_THEME_CSS}\`;
-    const LIGHT_THEME_CSS = \`${LIGHT_THEME_CSS}\`;
-    const getStyle = ${getStyle.toString()};
-		const getOverlayTemplate = ${getOverlayTemplate.toString()};
-    const wrapHostSelector = ${wrapHostSelector.toString()};
-    const wrapDarkColorSchemeMedia = ${wrapDarkColorSchemeMedia.toString()};
-		const openNewWindowIcon = \`${openNewWindowIcon}\`;
-		${ErrorOverlay.toString()}
+  let globalThemeVariable = '${theme}';
+  const DARK_THEME_CSS = \`${DARK_THEME_CSS}\`;
+  const LIGHT_THEME_CSS = \`${LIGHT_THEME_CSS}\`;
+  const getStyle = ${getStyle.toString()};
+  const getOverlayTemplate = ${getOverlayTemplate.toString()};
+  const wrapHostSelector = ${wrapHostSelector.toString()};
+  const wrapDarkColorSchemeMedia = ${wrapDarkColorSchemeMedia.toString()};
+  const openNewWindowIcon = \`${openNewWindowIcon}\`;
+  ${ErrorOverlay.toString()}
 	`;
 }
 export function patchOverlay(code: string, config: AstroConfig) {
