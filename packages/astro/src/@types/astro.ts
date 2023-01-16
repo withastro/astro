@@ -901,6 +901,16 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Error Overlay Theme
+	 * @description
+	 * The error overlay is the UI that appears when Astro encounters an error during development. You can customize the theme of the error overlay by setting this option to `dark`, `light`, or `system`.
+	 * @default `system`
+	 */
+	errorOverlayTheme?: 'dark' | 'light' | 'system';
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
