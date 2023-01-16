@@ -34,6 +34,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
+	overlay: {
+		theme: 'system',
+	},
 };
 
 export const AstroConfigSchema = z.object({
@@ -166,6 +169,15 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z.object({}).optional().default({}),
 	legacy: z.object({}).optional().default({}),
+	overlay: z
+		.object({
+			theme: z
+				.union([z.literal('dark'), z.literal('light'), z.literal('system')])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.overlay.theme),
+		})
+		.optional()
+		.default({}),
 });
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
