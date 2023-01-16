@@ -2694,7 +2694,6 @@ importers:
       sharp: ^0.31.0
       slash: ^4.0.0
       vite: ^4.0.3
-      web-streams-polyfill: ^3.2.1
     dependencies:
       '@altano/tiny-async-pool': 1.0.2
       http-cache-semantics: 4.1.0
@@ -2703,7 +2702,6 @@ importers:
       magic-string: 0.25.9
       mime: 3.0.0
       slash: 4.0.0
-      web-streams-polyfill: 3.2.1
     devDependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/mime': 2.0.3
