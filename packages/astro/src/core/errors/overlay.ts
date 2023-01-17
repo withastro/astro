@@ -397,7 +397,7 @@ const style = /* css */ `
 
 const overlayTemplate = /* html */ `
 <style>
-${style}
+${style.trim()}
 </style>
 <div id="backdrop">
   <div id="layout">
@@ -454,7 +454,6 @@ class ErrorOverlay extends HTMLElement {
 	constructor(err: AstroErrorPayload['err']) {
 		super();
 		this.root = this.attachShadow({ mode: 'open' });
-
 		this.root.innerHTML = overlayTemplate;
 
 		this.text('#name', err.name);
@@ -583,11 +582,11 @@ function getOverlayCode(theme: Theme) {
 	}
 
 	return `
-  const prioritaryThemeCss = \`${prioritaryThemeCss}\`;
-  const maybeDarkThemeMediaCss = \`${maybeDarkThemeMediaCss}\`;
-  const overlayTemplate = \`${overlayTemplate}\`;
-  const openNewWindowIcon = \`${openNewWindowIcon}\`;
-  ${ErrorOverlay.toString()}
+    const prioritaryThemeCss = \`${prioritaryThemeCss}\`;
+    const maybeDarkThemeMediaCss = \`${maybeDarkThemeMediaCss}\`;
+    const overlayTemplate = \`${overlayTemplate}\`;
+    const openNewWindowIcon = \`${openNewWindowIcon}\`;
+    ${ErrorOverlay.toString()}
 	`;
 }
 export function patchOverlay(code: string, config: AstroConfig) {
