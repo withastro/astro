@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 The `noPropertyAccessFromIndexSignature` typescript configuration option was added to the `strictest` profile.
