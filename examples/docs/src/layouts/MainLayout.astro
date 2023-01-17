@@ -1,4 +1,6 @@
 ---
+import type { MarkdownHeading } from 'astro';
+import type { CollectionEntry } from 'astro:content';
 import HeadCommon from '../components/HeadCommon.astro';
 import HeadSEO from '../components/HeadSEO.astro';
 import Header from '../components/Header/Header.astro';
@@ -7,8 +9,6 @@ import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
 import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
 import Footer from '../components/Footer/Footer.astro';
 import { GITHUB_EDIT_URL, SITE } from '../consts';
-import type { MarkdownHeading } from 'astro';
-import type { CollectionEntry } from 'astro:content';
 
 type Props = CollectionEntry<'docs'>['data'] & {
 	headings: MarkdownHeading[];
