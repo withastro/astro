@@ -17,7 +17,7 @@ export const AstroErrorData = defineErrors({
 	UnknownCompilerError: {
 		title: 'Unknown compiler error.',
 		code: 1000,
-		hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues.',
+		hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues/compiler.',
 	},
 	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
 	/**
