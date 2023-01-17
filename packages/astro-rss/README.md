@@ -217,9 +217,9 @@ This assumes a) you are globbing for items inside `src/pages/`, and b) all neces
 // src/pages/rss.xml.js
 import rss, { pagesGlobToRssItems } from '@astrojs/rss';
 
-export function get(context) {
+export async function get(context) {
   return rss({
-    items: pagesGlobToRssItems(
+    items: await pagesGlobToRssItems(
       import.meta.glob('./blog/*.{md,mdx}'),
     ),
   });
