@@ -59,7 +59,12 @@ const style = /* css */ `
     rgba(255, 255, 255, 0.96449) 78.38%,
     rgba(255, 255, 255, 0.991353) 84.11%,
     #ffffff 89.84%
-  );
+    );
+
+    /* Theme toggle */
+    --theme-toggle-color: #6B7280;
+    --theme-toggle-background-hover-and-focus: var(--box-background);
+
 
   /* Syntax Highlighting */
   --shiki-color-text: #000000;
@@ -74,8 +79,7 @@ const style = /* css */ `
   --shiki-token-link: #ee0000;
 }
 
-@media (prefers-color-scheme: dark) {
-  :host {
+ :host(.astro-dark) {
     --background: #090b11;
     --error-text: #f49090;
     --error-text-hover: #ffaaaa;
@@ -110,6 +114,9 @@ const style = /* css */ `
       #090b11 89.84%
     );
 
+    /* Theme toggle */
+    --theme-toggle-color: #9CA3AF;
+
     /* Syntax Highlighting */
     --shiki-color-text: #ffffff;
     --shiki-token-constant: #90f4e3;
@@ -122,7 +129,28 @@ const style = /* css */ `
     --shiki-token-punctuation: #ffffff;
     --shiki-token-link: #ee0000;
   }
+
+#theme-toggle{
+  display: inline-flex; 
+  padding: 0.625rem; 
+  color: var(--theme-toggle-color);
+  background-color: var(--theme-toggle-background);
+  font-size: 0.875rem;
+  line-height: 1.25rem; 
+  align-items: center; 
+  border-radius: 0.5rem; 
+  border: none;
 }
+
+#theme-toggle:focus{
+  box-shadow: 0 0 0 4px var(--theme-toggle-background-hover-and-focus); 
+  outline: 0; 
+}
+
+#theme-toggle:hover{
+  background-color: var(--theme-toggle-background-hover-and-focus);
+}
+
 
 #backdrop {
   font-family: var(--font-monospace);
@@ -172,6 +200,7 @@ const style = /* css */ `
 #header-left {
   min-height: 63px;
   display: flex;
+  align-items: flex-start;
   flex-direction: column;
   justify-content: end;
 }
@@ -392,6 +421,13 @@ ${style.trim()}
   <div id="layout">
     <header id="header">
       <section id="header-left">
+        <button type="button" aria-label="labelToggle between Dark and Light mode" id="theme-toggle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+          </svg>
+        </button>
         <h2 id="name"></h2>
         <h1 id="title">An error occurred.</h1>
       </section>
@@ -444,6 +480,27 @@ class ErrorOverlay extends HTMLElement {
 		super();
 		this.root = this.attachShadow({ mode: 'open' });
 		this.root.innerHTML = overlayTemplate;
+
+		// theme toggle logic
+		const themeToggleButton = this.root.querySelector<HTMLButtonElement>('#theme-toggle');
+		if (
+			localStorage.astroErrorOverlayTheme === 'dark' ||
+			(!('astroErrorOverlayTheme' in localStorage) &&
+				window.matchMedia('(prefers-color-scheme: dark)').matches)
+		) {
+			this?.classList.add('astro-dark');
+		} else {
+			this?.classList.remove('astro-dark');
+		}
+		themeToggleButton?.addEventListener('click', () => {
+			if (localStorage.astroErrorOverlayTheme === 'dark') {
+				this?.classList.remove('astro-dark');
+				localStorage.astroErrorOverlayTheme = 'light';
+			} else {
+				this?.classList.add('astro-dark');
+				localStorage.astroErrorOverlayTheme = 'dark';
+			}
+		});
 
 		this.text('#name', err.name);
 		this.text('#title', err.title);
