@@ -57,7 +57,10 @@ const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
 const rssOptionsValidator = z.object({
 	title: z.string(),
 	description: z.string(),
-	site: z.string(),
+	site: z.preprocess(
+		url => url instanceof URL ? url.href : url,
+		z.string().url(),
+	),
 	items: z
 		.array(rssFeedItemValidator)
 		.or(globResultValidator)
