@@ -10,9 +10,6 @@ const wrapHostSelector = (css: string) => `:host {
 
 type Theme = AstroConfig['errorOverlayTheme'];
 
-// mock global variable to simulate the browser, won't executed server-side
-let globalThemeVariable: Theme = 'system';
-
 const DARK_THEME_CSS = `/* dark theme css */
     --background: #090b11;
     --error-text: #f49090;
@@ -109,364 +106,341 @@ const LIGHT_THEME_CSS = ` /* light theme css */
   --shiki-token-punctuation: #ffffff;
   --shiki-token-link: #ee0000;`;
 
-const getStyle = (prioritaryTheme: string, maybeDarkThemeMedia: string) => {
-	return /* css */ `
-  * {
-    box-sizing: border-box;
-  }
+const style = /* css */ `
+* {
+  box-sizing: border-box;
+}
 
-  :host {
-    /** Needed so Playwright can find the element */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 99999;
+:host {
+  /** Needed so Playwright can find the element */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
 
-    /* Fonts */
-    --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-      "Helvetica Neue", Arial, sans-serif;
-    --font-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
-      "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
-      "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+  /* Fonts */
+  --font-normal: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-monospace: ui-monospace, Menlo, Monaco, "Cascadia Mono",
+    "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
+    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
-    /* Borders */
-    --roundiness: 4px;
+  /* Borders */
+  --roundiness: 4px;
 
-    ${prioritaryTheme}
-  }
-   ${maybeDarkThemeMedia}
+  \${prioritaryThemeCss}
+}
+  \${maybeDarkThemeMediaCss}
 
-  #backdrop {
-    font-family: var(--font-monospace);
-    position: fixed;
-    z-index: 99999;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--background);
-    overflow-y: auto;
+#backdrop {
+  font-family: var(--font-monospace);
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+  overflow-y: auto;
+}
+
+#layout {
+  max-width: min(100%, 1280px);
+  width: 1280px;
+  margin: 0 auto;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  #header {
+    padding: 12px;
+    margin-top: 12px;
   }
 
   #layout {
-    max-width: min(100%, 1280px);
-    width: 1280px;
-    margin: 0 auto;
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  @media (max-width: 768px) {
-    #header {
-      padding: 12px;
-      margin-top: 12px;
-    }
-
-    #layout {
-      padding: 0;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    #houston,
-    #houston-overlay {
-      display: none;
-    }
-  }
-
-  #header {
-    position: relative;
-    margin-top: 48px;
-  }
-
-  #header-left {
-    min-height: 63px;
-    display: flex;
-    flex-direction: column;
-    justify-content: end;
-  }
-
-  #name {
-    font-size: 18px;
-    font-weight: normal;
-    line-height: 22px;
-    color: var(--error-text);
-    margin: 0;
     padding: 0;
   }
+}
 
-  #title {
-    font-size: 34px;
-    line-height: 41px;
-    font-weight: 600;
-    margin: 0;
-    padding: 0;
-    color: var(--title-text);
-    font-family: var(--font-normal);
-  }
-
-  #houston {
-    position: absolute;
-    bottom: -50px;
-    right: 32px;
-    z-index: -50;
-    color: var(--error-text);
-  }
-
+@media (max-width: 1024px) {
+  #houston,
   #houston-overlay {
-    width: 175px;
-    height: 250px;
-    position: absolute;
-    bottom: -100px;
-    right: 32px;
-    z-index: -25;
-    background: var(--houston-overlay);
-  }
-
-  #message-hints,
-  #stack,
-  #code {
-    border-radius: var(--roundiness);
-    background-color: var(--box-background);
-  }
-
-  #message,
-  #hint {
-    display: flex;
-    padding: 16px;
-    gap: 16px;
-  }
-
-  #message-content,
-  #hint-content {
-    white-space: pre-wrap;
-    line-height: 24px;
-    flex-grow: 1;
-  }
-
-  #message {
-    color: var(--error-text);
-  }
-
-  #message-content a {
-    color: var(--error-text);
-  }
-
-  #message-content a:hover {
-    color: var(--error-text-hover);
-  }
-
-  #hint {
-    color: var(--hint-text);
-    border-top: 1px solid var(--border);
     display: none;
   }
+}
 
-  #hint a {
-    color: var(--hint-text);
-  }
+#header {
+  position: relative;
+  margin-top: 48px;
+}
 
-  #hint a:hover {
-    color: var(--hint-text-hover);
-  }
+#header-left {
+  min-height: 63px;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
 
-  #message-hints code {
-    font-family: var(--font-monospace);
-    background-color: var(--border);
-    padding: 4px;
-    border-radius: var(--roundiness);
-  }
+#name {
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 22px;
+  color: var(--error-text);
+  margin: 0;
+  padding: 0;
+}
 
-  .link {
-    min-width: fit-content;
-    padding-right: 8px;
-    padding-top: 8px;
-  }
+#title {
+  font-size: 34px;
+  line-height: 41px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+  color: var(--title-text);
+  font-family: var(--font-normal);
+}
 
-  .link button {
-    background: none;
-    border: none;
-    font-size: inherit;
-    font-family: inherit;
-  }
+#houston {
+  position: absolute;
+  bottom: -50px;
+  right: 32px;
+  z-index: -50;
+  color: var(--error-text);
+}
 
-  .link a, .link button {
-    color: var(--accent);
-    text-decoration: none;
-    display: flex;
-    gap: 8px;
-  }
+#houston-overlay {
+  width: 175px;
+  height: 250px;
+  position: absolute;
+  bottom: -100px;
+  right: 32px;
+  z-index: -25;
+  background: var(--houston-overlay);
+}
 
-  .link a:hover, .link button:hover {
-    color: var(--accent-hover);
-    text-decoration: underline;
-    cursor: pointer;
-  }
+#message-hints,
+#stack,
+#code {
+  border-radius: var(--roundiness);
+  background-color: var(--box-background);
+}
 
-  .link svg {
-    vertical-align: text-top;
-  }
+#message,
+#hint {
+  display: flex;
+  padding: 16px;
+  gap: 16px;
+}
 
-  #code {
-    display: none;
-  }
+#message-content,
+#hint-content {
+  white-space: pre-wrap;
+  line-height: 24px;
+  flex-grow: 1;
+}
 
-  #code header {
-    padding: 24px;
-    display: flex;
-    justify-content: space-between;
-  }
+#message {
+  color: var(--error-text);
+}
 
-  #code h2 {
-    font-family: var(--font-monospace);
-    color: var(--title-text);
-    font-size: 18px;
-    margin: 0;
-  }
+#message-content a {
+  color: var(--error-text);
+}
 
-  #code .link {
-    padding: 0;
-  }
+#message-content a:hover {
+  color: var(--error-text-hover);
+}
 
-  .shiki {
-    margin: 0;
-    border-top: 1px solid var(--border);
-    max-height: 17rem;
-    overflow: auto;
-  }
+#hint {
+  color: var(--hint-text);
+  border-top: 1px solid var(--border);
+  display: none;
+}
 
-  .shiki code {
-    font-family: var(--font-monospace);
-    counter-reset: step;
-    counter-increment: step 0;
-    font-size: 14px;
-    line-height: 21px;
-    tab-size: 1;
-  }
+#hint a {
+  color: var(--hint-text);
+}
 
-  .shiki code .line:not(.error-caret)::before {
-    content: counter(step);
-    counter-increment: step;
-    width: 1rem;
-    margin-right: 16px;
-    display: inline-block;
-    text-align: right;
-    padding: 0 8px;
-    color: var(--misc-text);
-    border-right: solid 1px var(--border);
-  }
+#hint a:hover {
+  color: var(--hint-text-hover);
+}
 
-  .shiki code .line:first-child::before {
-    padding-top: 8px;
-  }
+#message-hints code {
+  font-family: var(--font-monospace);
+  background-color: var(--border);
+  padding: 4px;
+  border-radius: var(--roundiness);
+}
 
-  .shiki code .line:last-child::before {
-    padding-bottom: 8px;
-  }
+.link {
+  min-width: fit-content;
+  padding-right: 8px;
+  padding-top: 8px;
+}
 
-  .error-line {
-    background-color: #f4909026;
-    display: inline-block;
-    width: 100%;
-  }
+.link button {
+  background: none;
+  border: none;
+  font-size: inherit;
+  font-family: inherit;
+}
 
-  .error-caret {
-    margin-left: calc(33px + 1rem);
-    color: var(--error-text);
-  }
+.link a, .link button {
+  color: var(--accent);
+  text-decoration: none;
+  display: flex;
+  gap: 8px;
+}
 
-  #stack h2 {
-    color: var(--title-text);
-    font-family: var(--font-normal);
-    font-size: 22px;
-    margin: 0;
-    padding: 24px;
-    border-bottom: 1px solid var(--border);
-  }
+.link a:hover, .link button:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-  #stack-content {
-    font-size: 14px;
-    white-space: pre;
-    line-height: 21px;
-    overflow: auto;
-    padding: 24px;
-    color: var(--stack-text);
-  }
-  `;
-};
+.link svg {
+  vertical-align: text-top;
+}
 
-const getOverlayTemplate = (theme: Theme) => {
-	const themeOptions = ['light', 'dark', 'system'];
-	let prioritaryThemeCss = '',
-		maybeDarkThemeMedia = '';
-	switch (theme) {
-		case 'light':
-			prioritaryThemeCss = LIGHT_THEME_CSS;
-			break;
-		case 'dark':
-			prioritaryThemeCss = DARK_THEME_CSS;
-			break;
-		case 'system':
-			prioritaryThemeCss = LIGHT_THEME_CSS;
-			maybeDarkThemeMedia = wrapDarkColorSchemeMedia(wrapHostSelector(DARK_THEME_CSS));
-			break;
-		default:
-			throw new Error(`Invalid theme: ${theme}`);
-			break;
-	}
+#code {
+  display: none;
+}
 
-	return /* html */ `
-    <style>
-    ${getStyle(prioritaryThemeCss, maybeDarkThemeMedia).trim()}
-    </style>
-    <div id="backdrop">
-      <div id="layout">
-        <header id="header">
-          <section id="header-left">
-            <h2 id="name"></h2>
-            <h1 id="title">An error occurred.</h1>
-          </section>
-          <div id="houston-overlay"></div>
-          <div id="houston">
-    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
-          </div>
-        </header>
+#code header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+}
 
-        <section id="message-hints">
-          <section id="message">
-            <span id="message-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7v6m0 4.01.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/></svg>
-            </span>
-            <div id="message-content"></div>
-          </section>
-          <section id="hint">
-            <span id="hint-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 2-1 1M3 2l1 1m17 13-1-1M3 16l1-1m5 3h6m-5 3h4M12 3C8 3 5.952 4.95 6 8c.023 1.487.5 2.5 1.5 3.5S9 13 9 15h6c0-2 .5-2.5 1.5-3.5h0c1-1 1.477-2.013 1.5-3.5.048-3.05-2-5-6-5Z"/></svg>
-            </span>
-            <div id="hint-content"></div>
-          </section>
-        </section>
+#code h2 {
+  font-family: var(--font-monospace);
+  color: var(--title-text);
+  font-size: 18px;
+  margin: 0;
+}
 
-        <section id="code">
-          <header>
-            <h2></h2>
-          </header>
-          <div id="code-content"></div>
-        </section>
+#code .link {
+  padding: 0;
+}
 
-        <section id="stack">
-          <h2>Stack Trace</h2>
-          <div id="stack-content"></div>
-        </section>
+.shiki {
+  margin: 0;
+  border-top: 1px solid var(--border);
+  max-height: 17rem;
+  overflow: auto;
+}
+
+.shiki code {
+  font-family: var(--font-monospace);
+  counter-reset: step;
+  counter-increment: step 0;
+  font-size: 14px;
+  line-height: 21px;
+  tab-size: 1;
+}
+
+.shiki code .line:not(.error-caret)::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 1rem;
+  margin-right: 16px;
+  display: inline-block;
+  text-align: right;
+  padding: 0 8px;
+  color: var(--misc-text);
+  border-right: solid 1px var(--border);
+}
+
+.shiki code .line:first-child::before {
+  padding-top: 8px;
+}
+
+.shiki code .line:last-child::before {
+  padding-bottom: 8px;
+}
+
+.error-line {
+  background-color: #f4909026;
+  display: inline-block;
+  width: 100%;
+}
+
+.error-caret {
+  margin-left: calc(33px + 1rem);
+  color: var(--error-text);
+}
+
+#stack h2 {
+  color: var(--title-text);
+  font-family: var(--font-normal);
+  font-size: 22px;
+  margin: 0;
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+#stack-content {
+  font-size: 14px;
+  white-space: pre;
+  line-height: 21px;
+  overflow: auto;
+  padding: 24px;
+  color: var(--stack-text);
+}
+`;
+
+const overlayTemplate = /* html */ `
+<style>
+${style}
+</style>
+<div id="backdrop">
+  <div id="layout">
+    <header id="header">
+      <section id="header-left">
+        <h2 id="name"></h2>
+        <h1 id="title">An error occurred.</h1>
+      </section>
+      <div id="houston-overlay"></div>
+      <div id="houston">
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
       </div>
-    </div>
-    `;
-};
+    </header>
+
+    <section id="message-hints">
+      <section id="message">
+        <span id="message-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7v6m0 4.01.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/></svg>
+        </span>
+        <div id="message-content"></div>
+      </section>
+      <section id="hint">
+        <span id="hint-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 2-1 1M3 2l1 1m17 13-1-1M3 16l1-1m5 3h6m-5 3h4M12 3C8 3 5.952 4.95 6 8c.023 1.487.5 2.5 1.5 3.5S9 13 9 15h6c0-2 .5-2.5 1.5-3.5h0c1-1 1.477-2.013 1.5-3.5.048-3.05-2-5-6-5Z"/></svg>
+        </span>
+        <div id="hint-content"></div>
+      </section>
+    </section>
+
+    <section id="code">
+      <header>
+        <h2></h2>
+      </header>
+      <div id="code-content"></div>
+    </section>
+
+    <section id="stack">
+      <h2>Stack Trace</h2>
+      <div id="stack-content"></div>
+    </section>
+  </div>
+</div>
+`;
 
 const openNewWindowIcon =
 	/* html */
@@ -481,7 +455,7 @@ class ErrorOverlay extends HTMLElement {
 		super();
 		this.root = this.attachShadow({ mode: 'open' });
 
-		this.root.innerHTML = getOverlayTemplate(globalThemeVariable);
+		this.root.innerHTML = overlayTemplate;
 
 		this.text('#name', err.name);
 		this.text('#title', err.title);
@@ -591,14 +565,27 @@ class ErrorOverlay extends HTMLElement {
 }
 
 function getOverlayCode(theme: Theme) {
+	let prioritaryThemeCss = '',
+		maybeDarkThemeMediaCss = '';
+	switch (theme) {
+		case 'light':
+			prioritaryThemeCss = LIGHT_THEME_CSS;
+			break;
+		case 'dark':
+			prioritaryThemeCss = DARK_THEME_CSS;
+			break;
+		case 'system':
+			prioritaryThemeCss = LIGHT_THEME_CSS;
+			maybeDarkThemeMediaCss = wrapDarkColorSchemeMedia(wrapHostSelector(DARK_THEME_CSS));
+			break;
+		default:
+			throw new Error(`Invalid theme: ${theme}`);
+	}
+
 	return `
-  let globalThemeVariable = '${theme}';
-  const DARK_THEME_CSS = \`${DARK_THEME_CSS}\`;
-  const LIGHT_THEME_CSS = \`${LIGHT_THEME_CSS}\`;
-  const getStyle = ${getStyle.toString()};
-  const getOverlayTemplate = ${getOverlayTemplate.toString()};
-  const wrapHostSelector = ${wrapHostSelector.toString()};
-  const wrapDarkColorSchemeMedia = ${wrapDarkColorSchemeMedia.toString()};
+  const prioritaryThemeCss = \`${prioritaryThemeCss}\`;
+  const maybeDarkThemeMediaCss = \`${maybeDarkThemeMediaCss}\`;
+  const overlayTemplate = \`${overlayTemplate}\`;
   const openNewWindowIcon = \`${openNewWindowIcon}\`;
   ${ErrorOverlay.toString()}
 	`;
