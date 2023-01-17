@@ -8,7 +8,7 @@ Update RSS config for readability and consistency with Astro 2.0.
 
 We have deprecated `items: import.meta.glob(...)` handling in favor of a separate `pagesGlobToRssItems()` helper. This simplifies our `items` configuration option to accept a single type, without losing existing functionality.
 
-If you rely on our `import.meta.glob()` handling, we suggest the `pagesGlobToRssItems()` wrapper to your RSS config:
+If you rely on our `import.meta.glob()` handling, we suggest adding the `pagesGlobToRssItems()` wrapper to your RSS config:
 
 ```diff
 // src/pages/rss.xml.js
