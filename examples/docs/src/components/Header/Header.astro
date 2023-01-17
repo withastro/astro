@@ -1,6 +1,6 @@
 ---
 import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from '../../languages';
-import * as CONSTS from '../../consts';
+import { SITE } from '../../consts';
 import AstroLogo from './AstroLogo.astro';
 import SkipToContent from './SkipToContent.astro';
 import SidebarToggle from './SidebarToggle';
@@ -24,7 +24,7 @@ const lang = getLanguageFromURL(currentPage);
 		<div class="logo flex">
 			<a href="/">
 				<AstroLogo size={40} />
-				<h1>{CONSTS.SITE.title ?? 'Documentation'}</h1>
+				<h1>{SITE.title ?? 'Documentation'}</h1>
 			</a>
 		</div>
 		<div style="flex-grow: 1;"></div>

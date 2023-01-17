@@ -5,8 +5,8 @@ import Header from '../components/Header/Header.astro';
 import PageContent from '../components/PageContent/PageContent.astro';
 import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
 import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
-import * as CONSTS from '../consts';
 import Footer from '../components/Footer/Footer.astro';
+import { GITHUB_EDIT_URL, SITE } from '../consts';
 import type { MarkdownHeading } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 
@@ -18,7 +18,7 @@ const { headings, ...data } = Astro.props as Props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPage = Astro.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, '')}.md`;
-const githubEditUrl = `${CONSTS.GITHUB_EDIT_URL}/${currentFile}`;
+const githubEditUrl = `${GITHUB_EDIT_URL}/${currentFile}`;
 ---
 
 <html dir={data.dir} lang={data.lang} class="initial">
@@ -26,7 +26,7 @@ const githubEditUrl = `${CONSTS.GITHUB_EDIT_URL}/${currentFile}`;
 		<HeadCommon />
 		<HeadSEO {...data} canonicalUrl={canonicalURL} />
 		<title>
-			{`${data.title} 🚀 ${CONSTS.SITE.title}`}
+			{`${data.title} 🚀 ${SITE.title}`}
 		</title>
 		<style>
 			body {
