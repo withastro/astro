@@ -62,9 +62,9 @@ const style = /* css */ `
     );
 
     /* Theme toggle */
-    --theme-toggle-color: #6B7280;
-    --theme-toggle-background-hover-and-focus: var(--box-background);
-
+    --toggle-ball-color: var(--accent);
+    --sun-icon-color: #ffffff;
+    --moon-icon-color: var(--hint-text);
 
   /* Syntax Highlighting */
   --shiki-color-text: #000000;
@@ -114,9 +114,6 @@ const style = /* css */ `
       #090b11 89.84%
     );
 
-    /* Theme toggle */
-    --theme-toggle-color: #9CA3AF;
-
     /* Syntax Highlighting */
     --shiki-color-text: #ffffff;
     --shiki-token-constant: #90f4e3;
@@ -130,27 +127,50 @@ const style = /* css */ `
     --shiki-token-link: #ee0000;
   }
 
-#theme-toggle{
-  display: inline-flex; 
-  padding: 0.625rem; 
-  color: var(--theme-toggle-color);
-  background-color: var(--theme-toggle-background);
-  font-size: 0.875rem;
-  line-height: 1.25rem; 
-  align-items: center; 
-  border-radius: 0.5rem; 
-  border: none;
+.theme-toggle-checkbox {
+	opacity: 0;
+	position: absolute;
 }
 
-#theme-toggle:focus{
-  box-shadow: 0 0 0 4px var(--theme-toggle-background-hover-and-focus); 
-  outline: 0; 
+.theme-toggle-label {
+	background-color: #111;
+	border-radius: 50px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 5px;
+	position: relative;
+	height: 26px;
+	width: 65px;
+	transform: scale(1.2);
 }
 
-#theme-toggle:hover{
-  background-color: var(--theme-toggle-background-hover-and-focus);
+.theme-toggle-label .theme-toggle-ball {
+	background-color: var(--accent);
+	border-radius: 50%;
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	height: 22px;
+	width: 22px;
+	transform: translateX(0px);
+  transform: scale(1.3);
+  transform-origin: center;
+	transition: transform 0.2s linear;
 }
 
+.theme-toggle-checkbox:checked + .theme-toggle-label .theme-toggle-ball {
+	transform: translateX(24px);
+}
+
+.icon-tabler-moon {
+	color: var(--moon-icon-color);
+}
+
+.icon-tabler-sun {
+	color: var(--sun-icon-color);
+}
 
 #backdrop {
   font-family: var(--font-monospace);
@@ -421,19 +441,27 @@ ${style.trim()}
   <div id="layout">
     <header id="header">
       <section id="header-left">
-        <button type="button" aria-label="labelToggle between Dark and Light mode" id="theme-toggle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <div>
+        <input type="checkbox" class="theme-toggle-checkbox" id="chk" />
+        <label class="theme-toggle-label" for="chk">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-tabler-moon"  width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-tabler-sun" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <circle cx="12" cy="12" r="4" />
             <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
           </svg>
-        </button>
+          <div class="theme-toggle-ball"></div>
+        </label>
+      </div>
         <h2 id="name"></h2>
         <h1 id="title">An error occurred.</h1>
       </section>
       <div id="houston-overlay"></div>
       <div id="houston">
-<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
       </div>
     </header>
 
@@ -482,20 +510,27 @@ class ErrorOverlay extends HTMLElement {
 		this.root.innerHTML = overlayTemplate;
 
 		// theme toggle logic
-		const themeToggleButton = this.root.querySelector<HTMLButtonElement>('#theme-toggle');
+		const themeToggleLabel = this.root.querySelector<HTMLInputElement>('.theme-toggle-label');
+		const themeToggle = this.root.querySelector<HTMLInputElement>('.theme-toggle-checkbox');
 		if (
 			localStorage.astroErrorOverlayTheme === 'dark' ||
 			(!('astroErrorOverlayTheme' in localStorage) &&
 				window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
 			this?.classList.add('astro-dark');
+			themeToggle && (themeToggle.checked = true);
 		} else {
 			this?.classList.remove('astro-dark');
+			themeToggle?.checked && (themeToggle.checked = false);
 		}
-		themeToggleButton?.addEventListener('click', () => {
-			const isDark = localStorage.astroErrorOverlayTheme === 'dark';
-			this?.classList.toggle('astro-dark', !isDark);
-			localStorage.astroErrorOverlayTheme = isDark ? 'light' : 'dark';
+		themeToggleLabel?.addEventListener('click', () => {
+			if (localStorage.astroErrorOverlayTheme === 'dark') {
+				this?.classList.remove('astro-dark');
+				localStorage.astroErrorOverlayTheme = 'light';
+			} else {
+				this?.classList.add('astro-dark');
+				localStorage.astroErrorOverlayTheme = 'dark';
+			}
 		});
 
 		this.text('#name', err.name);
