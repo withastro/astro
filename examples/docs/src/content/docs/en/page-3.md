@@ -1,6 +1,6 @@
 ---
-title: Page 3
-description: Lorem ipsum dolor sit amet - 3
+title: "Page 3"
+description: "Lorem ipsum dolor sit amet - 3"
 ---
 
 This is a fully-featured page, written in Markdown!
