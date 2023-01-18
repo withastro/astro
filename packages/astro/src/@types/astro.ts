@@ -1033,7 +1033,10 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 
 type MD = MarkdownInstance<Record<string, any>>;
 
-export type MDXInstance<T extends Record<string, any>> = Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'>;
+export type MDXInstance<T extends Record<string, any>> = Omit<
+	MarkdownInstance<T>,
+	'rawContent' | 'compiledContent'
+>;
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	frontmatter: {
