@@ -81,58 +81,58 @@ const style = /* css */ `
   --shiki-token-link: #ee0000;
 }
 
- :host(.astro-dark) {
-    --background: #090b11;
-    --error-text: #f49090;
-    --error-text-hover: #ffaaaa;
-    --title-text: #ffffff;
-    --box-background: #141925;
-    --box-background-hover: #2e333f;
-    --hint-text: #a3acc8;
-    --hint-text-hover: #bdc6e2;
-    --border: #283044;
-    --accent: #c490f4;
-    --accent-hover: #deaaff;
-    --stack-text: #c3cadb;
-    --misc-text: #8490b5;
+:host(.astro-dark) {
+  --background: #090b11;
+  --error-text: #f49090;
+  --error-text-hover: #ffaaaa;
+  --title-text: #ffffff;
+  --box-background: #141925;
+  --box-background-hover: #2e333f;
+  --hint-text: #a3acc8;
+  --hint-text-hover: #bdc6e2;
+  --border: #283044;
+  --accent: #c490f4;
+  --accent-hover: #deaaff;
+  --stack-text: #c3cadb;
+  --misc-text: #8490b5;
 
-    --houston-overlay: linear-gradient(
-      180deg,
-      rgba(9, 11, 17, 0) 3.95%,
-      rgba(9, 11, 17, 0.0086472) 9.68%,
-      rgba(9, 11, 17, 0.03551) 15.4%,
-      rgba(9, 11, 17, 0.0816599) 21.13%,
-      rgba(9, 11, 17, 0.147411) 26.86%,
-      rgba(9, 11, 17, 0.231775) 32.58%,
-      rgba(9, 11, 17, 0.331884) 38.31%,
-      rgba(9, 11, 17, 0.442691) 44.03%,
-      rgba(9, 11, 17, 0.557309) 49.76%,
-      rgba(9, 11, 17, 0.668116) 55.48%,
-      rgba(9, 11, 17, 0.768225) 61.21%,
-      rgba(9, 11, 17, 0.852589) 66.93%,
-      rgba(9, 11, 17, 0.91834) 72.66%,
-      rgba(9, 11, 17, 0.96449) 78.38%,
-      rgba(9, 11, 17, 0.991353) 84.11%,
-      #090b11 89.84%
-    );
+  --houston-overlay: linear-gradient(
+    180deg,
+    rgba(9, 11, 17, 0) 3.95%,
+    rgba(9, 11, 17, 0.0086472) 9.68%,
+    rgba(9, 11, 17, 0.03551) 15.4%,
+    rgba(9, 11, 17, 0.0816599) 21.13%,
+    rgba(9, 11, 17, 0.147411) 26.86%,
+    rgba(9, 11, 17, 0.231775) 32.58%,
+    rgba(9, 11, 17, 0.331884) 38.31%,
+    rgba(9, 11, 17, 0.442691) 44.03%,
+    rgba(9, 11, 17, 0.557309) 49.76%,
+    rgba(9, 11, 17, 0.668116) 55.48%,
+    rgba(9, 11, 17, 0.768225) 61.21%,
+    rgba(9, 11, 17, 0.852589) 66.93%,
+    rgba(9, 11, 17, 0.91834) 72.66%,
+    rgba(9, 11, 17, 0.96449) 78.38%,
+    rgba(9, 11, 17, 0.991353) 84.11%,
+    #090b11 89.84%
+  );
 
-    /* Theme toggle */
-    --sun-icon-color: #505D84;
-    --moon-icon-color: #090B11;
-    --toggle-border-color: #3D4663;
+  /* Theme toggle */
+  --sun-icon-color: #505D84;
+  --moon-icon-color: #090B11;
+  --toggle-border-color: #3D4663;
 
-    /* Syntax Highlighting */
-    --shiki-color-text: #ffffff;
-    --shiki-token-constant: #90f4e3;
-    --shiki-token-string: #f4cf90;
-    --shiki-token-comment: #8490b5;
-    --shiki-token-keyword: var(--accent);
-    --shiki-token-parameter: #aa0000;
-    --shiki-token-function: #90f4e3;
-    --shiki-token-string-expression: #f4cf90;
-    --shiki-token-punctuation: #ffffff;
-    --shiki-token-link: #ee0000;
-  }
+  /* Syntax Highlighting */
+  --shiki-color-text: #ffffff;
+  --shiki-token-constant: #90f4e3;
+  --shiki-token-string: #f4cf90;
+  --shiki-token-comment: #8490b5;
+  --shiki-token-keyword: var(--accent);
+  --shiki-token-parameter: #aa0000;
+  --shiki-token-function: #90f4e3;
+  --shiki-token-string-expression: #f4cf90;
+  --shiki-token-punctuation: #ffffff;
+  --shiki-token-link: #ee0000;
+}
   
 #theme-toggle-wrapper{
   position: relative;
