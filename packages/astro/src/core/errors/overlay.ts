@@ -522,6 +522,15 @@ class ErrorOverlay extends HTMLElement {
 
 		const el = this.root.querySelector(selector);
 
+		if (html) {
+			// Automatically detect links
+			text = text.split(' ').map(v => {
+				if (!v.startsWith('https://')) return v;
+				if (v.endsWith('.')) return `<a target="_blank" href="${v.slice(0, -1)}">${v.slice(0, -1)}</a>.`
+				return `<a target="_blank" href="${v}">${v}</a>`
+			}).join(' ');
+		}
+
 		if (el) {
 			if (!html) {
 				el.textContent = text.trim();
