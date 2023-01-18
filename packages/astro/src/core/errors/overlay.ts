@@ -493,13 +493,9 @@ class ErrorOverlay extends HTMLElement {
 			this?.classList.remove('astro-dark');
 		}
 		themeToggleButton?.addEventListener('click', () => {
-			if (localStorage.astroErrorOverlayTheme === 'dark') {
-				this?.classList.remove('astro-dark');
-				localStorage.astroErrorOverlayTheme = 'light';
-			} else {
-				this?.classList.add('astro-dark');
-				localStorage.astroErrorOverlayTheme = 'dark';
-			}
+			const isDark = localStorage.astroErrorOverlayTheme === 'dark';
+			this?.classList.toggle('astro-dark', !isDark);
+			localStorage.astroErrorOverlayTheme = isDark ? 'light' : 'dark';
 		});
 
 		this.text('#name', err.name);
