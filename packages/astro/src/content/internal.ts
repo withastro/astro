@@ -69,18 +69,28 @@ export function createGetCollection({
 	};
 }
 
-export function createGetEntry({
-	collectionToEntryMap,
+export function createGetEntryBySlug({
+	getCollection,
 	collectionToRenderEntryMap,
 }: {
-	collectionToEntryMap: CollectionToEntryMap;
+	getCollection: ReturnType<typeof createGetCollection>;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function getEntry(collection: string, entryId: string) {
-		const lazyImport = collectionToEntryMap[collection]?.[entryId];
-		if (!lazyImport) throw new Error(`Failed to import ${JSON.stringify(entryId)}.`);
+	return async function getEntryBySlug(collection: string, slug: string) {
+		const entries = await getCollection(collection);
+		let candidate: typeof entries[number] | undefined = undefined;
+		for(let entry of entries) {
+			if(entry.slug === slug) {
+				candidate = entry;
+				break;
+			}
+		}
 
-		const entry = await lazyImport();
+		if(typeof candidate === 'undefined') {
+			throw new Error(`Failed to find slug ${JSON.stringify(slug)}.`);
+		}
+
+		const entry = candidate;
 		return {
 			id: entry.id,
 			slug: entry.slug,
