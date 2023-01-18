@@ -41,10 +41,9 @@ declare module 'astro:content' {
 	): entrySlug extends ValidEntrySlug<C> ? Promise<CollectionEntry<C>> : Promise<CollectionEntry<C> | undefined>;
 	export function getCollection<
 		C extends keyof typeof entryMap,
-		E extends keyof (typeof entryMap)[C]
 	>(
 		collection: C,
-		filter?: (data: (typeof entryMap)[C][E]) => boolean
+		filter?: (data: CollectionEntry<C>) => boolean
 	): Promise<CollectionEntry<C>[]>;
 
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
