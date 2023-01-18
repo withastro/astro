@@ -111,10 +111,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
 				}
-				export function getHeaders() {
-					console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
-					return getHeadings();
-				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
 					content.file = file;

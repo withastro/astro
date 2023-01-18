@@ -1028,8 +1028,6 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	compiledContent(): string;
 	/** List of headings (h1 -> h6) with associated metadata */
 	getHeadings(): MarkdownHeading[];
-	/** @deprecated Renamed to `getHeadings()` */
-	getHeaders(): void;
 	default: AstroComponentFactory;
 }
 
