@@ -17,7 +17,7 @@ export interface GetPictureParams {
 }
 
 export interface GetPictureResult {
-	image: astroHTML.JSX.HTMLAttributes;
+	image: astroHTML.JSX.ImgHTMLAttributes;
 	sources: { type: string; srcset: string }[];
 }
 
