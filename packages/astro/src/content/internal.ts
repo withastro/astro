@@ -87,7 +87,7 @@ export function createGetEntryBySlug({
 		}
 
 		if(typeof candidate === 'undefined') {
-			throw new Error(`Failed to find slug ${JSON.stringify(slug)}.`);
+			return undefined;
 		}
 
 		const entry = candidate;

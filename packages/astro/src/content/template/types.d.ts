@@ -30,10 +30,15 @@ declare module 'astro:content' {
 		input: BaseCollectionConfig<S>
 	): BaseCollectionConfig<S>;
 
+	type EntryMapKeys = keyof typeof entryMap;
+	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
+	type ValidEntrySlug<C extends EntryMapKeys> = AllValuesOf<typeof entryMap[C]>['slug'];
+
 	export function getEntryBySlug<C extends keyof typeof entryMap>(
 		collection: C,
-		entrySlug: string
-	): Promise<CollectionEntry<C>>;
+		// Note that this has to accept a regular string too, for SSR
+		entrySlug: ValidEntrySlug<C> | string
+	): entrySlug extends ValidEntrySlug<C> ? Promise<CollectionEntry<C>> : Promise<CollectionEntry<C> | undefined>;
 	export function getCollection<
 		C extends keyof typeof entryMap,
 		E extends keyof (typeof entryMap)[C]
