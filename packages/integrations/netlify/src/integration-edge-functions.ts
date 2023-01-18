@@ -3,7 +3,6 @@ import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as npath from 'path';
 import { fileURLToPath } from 'url';
-import type { Plugin as VitePlugin } from 'vite';
 import { createRedirects } from './shared.js';
 
 interface BuildConfig {
