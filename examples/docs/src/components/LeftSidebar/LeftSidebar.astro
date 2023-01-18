@@ -6,7 +6,7 @@ type Props = {
 	currentPage: string;
 };
 
-const { currentPage } = Astro.props as Props;
+const { currentPage } = Astro.props;
 const currentPageMatch = currentPage.endsWith('/')
 	? currentPage.slice(1, -1)
 	: currentPage.slice(1);

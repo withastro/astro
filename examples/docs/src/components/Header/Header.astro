@@ -11,7 +11,7 @@ type Props = {
 	currentPage: string;
 };
 
-const { currentPage } = Astro.props as Props;
+const { currentPage } = Astro.props;
 const lang = getLanguageFromURL(currentPage);
 ---
 
