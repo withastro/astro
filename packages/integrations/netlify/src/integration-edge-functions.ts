@@ -117,18 +117,6 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 		name: '@astrojs/netlify/edge-functions',
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
-				// Add a plugin that shims the global environment.
-				const injectPlugin: VitePlugin = {
-					name: '@astrojs/netlify/plugin-inject',
-					generateBundle(_options, bundle) {
-						if (_buildConfig.serverEntry in bundle) {
-							const chunk = bundle[_buildConfig.serverEntry];
-							if (chunk && chunk.type === 'chunk') {
-								chunk.code = `globalThis.process = { argv: [], env: {}, };${chunk.code}`;
-							}
-						}
-					},
-				};
 				const outDir = dist ?? new URL('./dist/', config.root);
 				updateConfig({
 					outDir,
@@ -136,9 +124,6 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 						client: outDir,
 						server: new URL('./.netlify/edge-functions/', config.root),
 						serverEntry: 'entry.js',
-					},
-					vite: {
-						plugins: [injectPlugin],
 					},
 				});
 			},
