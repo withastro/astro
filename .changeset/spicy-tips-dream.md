@@ -1,7 +1,7 @@
 ---
 '@astrojs/deno': major
 '@astrojs/netlify': major
-'@astrojs/image': major
+'@astrojs/image': minor
 'astro': major
 ---
 

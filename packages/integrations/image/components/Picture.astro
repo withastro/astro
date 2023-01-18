@@ -1,36 +1,9 @@
 ---
 import { getPicture } from '../dist/index.js';
 import { warnForMissingAlt } from './index.js';
-import type { ImgHTMLAttributes, HTMLAttributes } from './index.js';
-import type { ImageMetadata, OutputFormat, TransformOptions } from '../dist/index.js';
+import type { PictureComponentLocalImageProps, PictureComponentRemoteImageProps } from './index.js';
 
-interface LocalImageProps
-	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
-		Omit<TransformOptions, 'src'>,
-		Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
-	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
-	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
-	alt: string;
-	sizes: HTMLImageElement['sizes'];
-	widths: number[];
-	formats?: OutputFormat[];
-}
-
-interface RemoteImageProps
-	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
-		TransformOptions,
-		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
-	src: string;
-	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
-	alt: string;
-	sizes: HTMLImageElement['sizes'];
-	widths: number[];
-	aspectRatio: TransformOptions['aspectRatio'];
-	formats?: OutputFormat[];
-	background: TransformOptions['background'];
-}
-
-export type Props = LocalImageProps | RemoteImageProps;
+export type Props = PictureComponentLocalImageProps | PictureComponentRemoteImageProps;
 
 const {
 	src,
@@ -45,7 +18,7 @@ const {
 	loading = 'lazy',
 	decoding = 'async',
 	...attrs
-} = Astro.props as Props;
+} = Astro.props;
 
 if (alt === undefined || alt === null) {
 	warnForMissingAlt();
@@ -59,6 +32,7 @@ const { image, sources } = await getPicture({
 	fit,
 	background,
 	position,
+	alt,
 });
 
 delete image.width;

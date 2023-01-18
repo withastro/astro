@@ -53,16 +53,6 @@
     "./package.json": "./package.json",
     "./runtime/*": "./dist/runtime/*",
     "./server/*": "./dist/runtime/server/*",
-    "./vite-plugin-astro": "./dist/vite-plugin-astro/index.js",
-    "./vite-plugin-astro/*": "./dist/vite-plugin-astro/*",
-    "./vite-plugin-astro-postprocess": "./dist/vite-plugin-astro-postprocess/index.js",
-    "./vite-plugin-astro-postprocess/*": "./dist/vite-plugin-astro-postprocess/*",
-    "./vite-plugin-jsx/*": "./dist/vite-plugin-jsx/*",
-    "./vite-plugin-jsx": "./dist/vite-plugin-jsx/index.js",
-    "./vite-plugin-markdown-legacy": "./dist/vite-plugin-markdown-legacy/index.js",
-    "./vite-plugin-markdown-legacy/*": "./dist/vite-plugin-markdown-legacy/*",
-    "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
-    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
     "./dist/jsx/*": "./dist/jsx/*",
     "./zod": {
       "types": "./zod.d.ts",
@@ -109,7 +99,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.32.0",
+    "@astrojs/compiler": "^0.33.0",
     "@astrojs/language-server": "^0.28.3",
     "@astrojs/markdown-remark": "^2.0.0-beta.2",
     "@astrojs/telemetry": "^2.0.0-beta.0",

@@ -385,7 +385,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.32.0
+      '@astrojs/compiler': ^0.33.0
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^2.0.0-beta.2
       '@astrojs/telemetry': ^2.0.0-beta.0
@@ -475,7 +475,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.32.0
+      '@astrojs/compiler': 0.33.0
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -2694,7 +2694,6 @@ importers:
       sharp: ^0.31.0
       slash: ^4.0.0
       vite: ^4.0.3
-      web-streams-polyfill: ^3.2.1
     dependencies:
       '@altano/tiny-async-pool': 1.0.2
       http-cache-semantics: 4.1.0
@@ -2703,7 +2702,6 @@ importers:
       magic-string: 0.25.9
       mime: 3.0.0
       slash: 4.0.0
-      web-streams-polyfill: 3.2.1
     devDependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/mime': 2.0.3
@@ -3836,8 +3834,8 @@ packages:
   /@astrojs/compiler/0.31.4:
     resolution: {integrity: sha512-6bBFeDTtPOn4jZaiD3p0f05MEGQL9pw2Zbfj546oFETNmjJFWO3nzHz6/m+P53calknCvyVzZ5YhoBLIvzn5iw==}
 
-  /@astrojs/compiler/0.32.0:
-    resolution: {integrity: sha512-QL5qMGkfsC1/kDjJF4RRagz8/hACBUb19cHWrQ8AROphS42qXM6JhoO1Og5FohV3p2VfT5CdEJspn4uNsgZvmw==}
+  /@astrojs/compiler/0.33.0:
+    resolution: {integrity: sha512-REr2QpGR8+/ZccMFBcKqg5+cveuGG5C9b80XQn7ZCBkYDUJM+Yb2fC9koiWcK73ODXXDW14Ro+8+c58Q45lqRA==}
     dev: false
 
   /@astrojs/language-server/0.28.3:

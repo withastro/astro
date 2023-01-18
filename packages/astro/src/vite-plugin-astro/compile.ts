@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'url';
 import { ESBuildTransformResult, transformWithEsbuild } from 'vite';
 import { AstroConfig } from '../@types/astro';
 import { cachedCompilation, CompileProps, CompileResult } from '../core/compile/index.js';
@@ -121,32 +120,6 @@ async function enhanceCompileError({
 				);
 			}
 			throw frontmatterErr;
-		}
-	}
-
-	// improve compiler errors
-	if (err.stack && err.stack.includes('wasm-function')) {
-		const search = new URLSearchParams({
-			labels: 'compiler',
-			title: '🐛 BUG: `@astrojs/compiler` panic',
-			template: '---01-bug-report.yml',
-			'bug-description': `\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
-
-**${id.replace(fileURLToPath(config.root), '')}**
-\`\`\`astro
-${source}
-\`\`\``,
-		});
-		(err as any).url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
-		err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
-
-    Please open
-    a GitHub issue using the link below:
-    ${(err as any).url}`;
-
-		if (logging.level !== 'debug') {
-			// TODO: remove stack replacement when compiler throws better errors
-			err.stack = `    at ${id}`;
 		}
 	}
 
