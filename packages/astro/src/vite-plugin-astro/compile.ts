@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'url';
 import { ESBuildTransformResult, transformWithEsbuild } from 'vite';
 import { AstroConfig } from '../@types/astro';
 import { cachedCompilation, CompileProps, CompileResult } from '../core/compile/index.js';
