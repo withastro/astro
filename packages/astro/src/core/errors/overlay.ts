@@ -163,6 +163,12 @@ const style = /* css */ `
 	height: 30px;
 	transform: scale(1.2);
   box-shadow: 0 0 0 1px var(--toggle-border-color);
+  outline: 1px solid transparent;
+}
+
+.theme-toggle-checkbox:focus ~ #theme-toggle-label {
+    outline: 2px solid var(--toggle-border-color);
+    outline-offset: 4px;
 }
 
 #theme-toggle-label #theme-toggle-ball {
@@ -175,8 +181,32 @@ const style = /* css */ `
 	transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 
+@media (forced-colors: active) {
+	#theme-toggle-label {
+		--moon-icon-color: CanvasText;
+		--sun-icon-color: CanvasText;
+	}
+	#theme-toggle-label #theme-toggle-ball {
+		background-color: SelectedItem;
+	}
+}
+
 .theme-toggle-checkbox:checked + #theme-toggle-label #theme-toggle-ball {
 	transform: translateX(28.5px);
+}
+
+.sr-only {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	-webkit-clip-path: inset(50%) !important;
+		clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	white-space: nowrap !important;
 }
 
 .icon-tabler{
@@ -479,7 +509,9 @@ ${style.trim()}
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
           </svg>
-          <div id="theme-toggle-ball"></div>
+          <div id="theme-toggle-ball">
+            <span class="sr-only">Use dark theme</span>
+          </div>
         </label>
       </div>
     </div>
