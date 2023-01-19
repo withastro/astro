@@ -14,14 +14,14 @@ const CI_INSTRUCTIONS = {
 };
 
 // Hardcode supported Node.js version so we don't have to read differently in CJS & ESM.
-// NOTE: Should update `parseInt` below too.
 const engines = '>=16.12.0';
+const skipSemverCheckIfAbove = 16;
 
 /** `astro *` */
 async function main() {
 	const version = process.versions.node;
-	// Use `parseInt` to fast-path for higher Node.js versions
-	if ((parseInt(version) || 0) <= 16) {
+	// Fast-path for higher Node.js versions
+	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
 		try {
 			const semver = await import('semver');
 			if (!semver.satisfies(version, engines)) {
