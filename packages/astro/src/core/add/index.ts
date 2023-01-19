@@ -57,7 +57,7 @@ const SVELTE_CONFIG_STUB = `\
 import { vitePreprocess } from '@astrojs/svelte';
 
 export default {
-	preprocess: [vitePreprocess()],
+	preprocess: vitePreprocess(),
 }
 `;
 

@@ -11,6 +11,6 @@ To migrate, make sure you're using the latest version of `astro` and `@astrojs/s
 import { vitePreprocess } from '@astrojs/svelte';
 
 export default {
-	preprocess: [vitePreprocess()],
+	preprocess: vitePreprocess(),
 }
 ```
