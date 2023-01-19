@@ -58,7 +58,7 @@ import { vitePreprocess } from '@astrojs/svelte';
 
 export default {
 	preprocess: vitePreprocess(),
-}
+};
 `;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
