@@ -181,7 +181,7 @@ Will inject the following XML:
 
 The `content` key contains the full content of the post as HTML. This allows you to make your entire post content available to RSS feed readers.
 
-**Note:** Whenever you're using HTML content in XML, suggest using a package like [`sanitize-html`](https://www.npmjs.com/package/sanitize-html) in order to make sure that your content is properly sanitized, escaped, and encoded.
+**Note:** Whenever you're using HTML content in XML, we suggest using a package like [`sanitize-html`](https://www.npmjs.com/package/sanitize-html) in order to make sure that your content is properly sanitized, escaped, and encoded.
 
 [See our RSS documentation](https://docs.astro.build/en/guides/rss/#including-full-post-content) for examples using content collections and glob imports.
 
