@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.15.0-beta.0
+
+### Minor Changes
+
+- [#5891](https://github.com/withastro/astro/pull/5891) [`05caf445d`](https://github.com/withastro/astro/commit/05caf445d4d2728f1010aeb2179a9e756c2fd17d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove deprecated Markdown APIs from Astro v0.X. This includes `getHeaders()`, the `.astro` property for layouts, and the `rawContent()` and `compiledContent()` error messages for MDX.
+
 ## 1.0.0-beta.2
 
 ### Major Changes
