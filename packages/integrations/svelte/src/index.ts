@@ -1,5 +1,5 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
-import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { UserConfig } from 'vite';
 
@@ -20,7 +20,6 @@ function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserCo
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
-		preprocess: [vitePreprocess()],
 	};
 
 	// Disable hot mode during the build
@@ -43,8 +42,6 @@ function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserCo
 				// Always use dev and hydratable from defaults
 				...defaultOptions.compilerOptions,
 			},
-			// Ignore default preprocessor if the user provided their own
-			preprocess: options.preprocess ?? defaultOptions.preprocess,
 		};
 	}
 
@@ -75,3 +72,5 @@ export default function (options?: Options | OptionsCallback): AstroIntegration 
 		},
 	};
 }
+
+export { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
