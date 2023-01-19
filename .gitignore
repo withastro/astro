@@ -28,3 +28,4 @@ packages/integrations/**/.netlify/
 # ignore content collection generated files
 packages/**/test/**/fixtures/**/.astro/
 packages/**/test/**/fixtures/**/env.d.ts
+packages/**/test/**/fixtures/**/types.generated.d.ts
