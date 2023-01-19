@@ -1,8 +1,8 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
-import type { UserConfig } from 'vite';
 import { fileURLToPath } from 'url';
+import type { UserConfig } from 'vite';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -29,7 +29,11 @@ type ViteConfigurationArgs = {
 	root: URL;
 };
 
-async function getViteConfiguration({ options, isDev, root }: ViteConfigurationArgs): Promise<UserConfig> {
+async function getViteConfiguration({
+	options,
+	isDev,
+	root,
+}: ViteConfigurationArgs): Promise<UserConfig> {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
