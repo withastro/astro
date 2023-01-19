@@ -179,9 +179,7 @@ Will inject the following XML:
 
 ## `rssSchema`
 
-The `@astrojs/rss` package exposes an `rssSchema` for use with [content collections](https://docs.astro.build/en/guides/content-collections/). This ensures your frontmatter contains all properties expected by [an `RSSFeedItem`](#items).
-
-Apply this to your collection schema like so:
+When using content collections, you can configure your collection schema to enforce expected [`RSSFeedItem`](#items) properties. Import and apply `rssSchema` to ensure that each collection entry produces a valid RSS feed item:
 
 ```ts "schema: rssSchema,"
 import { defineCollection } from 'astro:content';
