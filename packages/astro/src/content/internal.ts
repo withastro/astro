@@ -80,15 +80,15 @@ export function createGetEntryBySlug({
 		// This is not an optimized lookup. Should look into an O(1) implementation
 		// as it's probably that people will have very large collections.
 		const entries = await getCollection(collection);
-		let candidate: typeof entries[number] | undefined = undefined;
-		for(let entry of entries) {
-			if(entry.slug === slug) {
+		let candidate: (typeof entries)[number] | undefined = undefined;
+		for (let entry of entries) {
+			if (entry.slug === slug) {
 				candidate = entry;
 				break;
 			}
 		}
 
-		if(typeof candidate === 'undefined') {
+		if (typeof candidate === 'undefined') {
 			return undefined;
 		}
 
