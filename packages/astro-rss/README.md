@@ -205,11 +205,9 @@ const blog = defineCollection({
 
 ## `pagesGlobToRssItems()`
 
-You may generate an RSS feed from documents in `src/pages/`. Since `Astro.glob` is not available from endpoint routes, we've included a `pagesGlobToRssItems()` helper. This accepts an `import.meta.glob` result ([see Vite documentation](https://vitejs.dev/guide/features.html#glob-import)) and outputs an array of valid [`RSSFeedItem`s](#items).
+To create an RSS feed from documents in `src/pages/`, use the `pagesGlobToRssItems()` helper. This accepts an `import.meta.glob` result ([see Vite documentation](https://vitejs.dev/guide/features.html#glob-import)) and outputs an array of valid [`RSSFeedItem`s](#items).
 
-:::note
-This assumes a) you are globbing for items inside `src/pages/`, and b) all necessary feed properties are present in each document's frontmatter.
-:::
+This function assumes, but does not verify, you are globbing for items inside `src/pages/`, and all necessary feed properties are present in each document's frontmatter. If you encounter errors, verify each page frontmatter manually.
 
 ```ts "pagesGlobToRssItems"
 // src/pages/rss.xml.js
@@ -217,6 +215,9 @@ import rss, { pagesGlobToRssItems } from '@astrojs/rss';
 
 export async function get(context) {
   return rss({
+    title: 'Buzz’s Blog',
+    description: 'A humble Astronaut’s guide to the stars',
+    site: context.site,
     items: await pagesGlobToRssItems(
       import.meta.glob('./blog/*.{md,mdx}'),
     ),
