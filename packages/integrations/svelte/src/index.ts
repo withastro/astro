@@ -29,7 +29,7 @@ type ViteConfigurationArgs = {
 	root: URL;
 };
 
-async function getViteConfiguration({ options, isDev, root }: ViteConfigurationArgs): UserConfig {
+async function getViteConfiguration({ options, isDev, root }: ViteConfigurationArgs): Promise<UserConfig> {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
@@ -77,10 +77,10 @@ export default function (options?: Options | OptionsCallback): AstroIntegration 
 		name: '@astrojs/svelte',
 		hooks: {
 			// Anything that gets returned here is merged into Astro Config
-			'astro:config:setup': ({ command, updateConfig, addRenderer, config }) => {
+			'astro:config:setup': async ({ command, updateConfig, addRenderer, config }) => {
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: getViteConfiguration({
+					vite: await getViteConfiguration({
 						options,
 						isDev: command === 'dev',
 						root: config.root,
