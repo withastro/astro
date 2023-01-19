@@ -74,7 +74,7 @@ importers:
       '@astrojs/sitemap': ^1.0.0
       astro: ^2.0.0-beta.2
     dependencies:
-      '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/mdx': 1.0.0-beta.2_astro@packages+astro
       '@astrojs/rss': link:../../packages/astro-rss
       '@astrojs/sitemap': link:../../packages/integrations/sitemap
       astro: link:../../packages/astro
@@ -285,16 +285,6 @@ importers:
       unocss: 0.15.6
       vite-imagetools: 4.0.14
 
-  examples/with-content:
-    specifiers:
-      '@astrojs/mdx': ^1.0.0-beta.2
-      '@astrojs/sitemap': ^1.0.0
-      astro: ^2.0.0-beta.2
-    dependencies:
-      '@astrojs/mdx': link:../../packages/integrations/mdx
-      '@astrojs/sitemap': link:../../packages/integrations/sitemap
-      astro: link:../../packages/astro
-
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^2.0.0-beta.2
@@ -326,7 +316,7 @@ importers:
       astro: ^2.0.0-beta.2
       preact: ^10.6.5
     dependencies:
-      '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/mdx': 1.0.0-beta.2_astro@packages+astro
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
       preact: 10.11.3
@@ -356,7 +346,7 @@ importers:
       postcss: ^8.4.14
       tailwindcss: ^3.0.24
     dependencies:
-      '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/mdx': 1.0.0-beta.2_astro@packages+astro
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       '@types/canvas-confetti': 1.6.0
       astro: link:../../packages/astro
@@ -3269,15 +3259,19 @@ importers:
       astro-scripts: workspace:*
       autoprefixer: ^10.4.7
       postcss: ^8.4.14
+      postcss-load-config: ^4.0.1
       tailwindcss: ^3.0.24
+      vite: ^4.0.3
     dependencies:
       '@proload/core': 0.3.3
       autoprefixer: 10.4.13_postcss@8.4.21
       postcss: 8.4.21
+      postcss-load-config: 4.0.1_postcss@8.4.21
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       tailwindcss: 3.2.4_postcss@8.4.21
+      vite: 4.0.4
 
   packages/integrations/turbolinks:
     specifiers:
@@ -3856,6 +3850,56 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
+  /@astrojs/markdown-remark/2.0.0-beta.2_astro@packages+astro:
+    resolution: {integrity: sha512-2Rubc5VuFY4qmXWAeJ0DY+FOj9190vgHSN33AYxcHVazXqLvMMmIXZCDzaeQXiGUk8vXt0UBJJrRtfrL6C/aRg==}
+    peerDependencies:
+      astro: '*'
+    dependencies:
+      '@astrojs/prism': 2.0.0-beta.0
+      astro: link:packages/astro
+      github-slugger: 1.5.0
+      import-meta-resolve: 2.2.1
+      rehype-raw: 6.1.1
+      rehype-stringify: 9.0.3
+      remark-gfm: 3.0.1
+      remark-parse: 10.0.1
+      remark-rehype: 10.1.0
+      remark-smartypants: 2.0.0
+      shiki: 0.11.1
+      unified: 10.1.2
+      unist-util-visit: 4.1.1
+      vfile: 5.3.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@astrojs/mdx/1.0.0-beta.2_astro@packages+astro:
+    resolution: {integrity: sha512-jGdM+5zQfS7BB7q2DUi/vZlJnv164pjJZ6x3EOzU+uLgtw9ycWJSNOf3/AsTujrRPvaPVXXQ6IPwoSwz/mIAvA==}
+    engines: {node: '>=16.12.0'}
+    dependencies:
+      '@astrojs/markdown-remark': 2.0.0-beta.2_astro@packages+astro
+      '@astrojs/prism': 2.0.0-beta.0
+      '@mdx-js/mdx': 2.2.1
+      '@mdx-js/rollup': 2.2.1
+      acorn: 8.8.1
+      es-module-lexer: 0.10.5
+      estree-util-visit: 1.2.0
+      github-slugger: 1.5.0
+      gray-matter: 4.0.3
+      kleur: 4.1.5
+      rehype-raw: 6.1.1
+      remark-frontmatter: 4.0.1
+      remark-gfm: 3.0.1
+      remark-smartypants: 2.0.0
+      shiki: 0.11.1
+      unist-util-visit: 4.1.1
+      vfile: 5.3.6
+    transitivePeerDependencies:
+      - astro
+      - rollup
+      - supports-color
+    dev: false
+
   /@astrojs/node/1.1.0:
     resolution: {integrity: sha512-4KkCEFYtmTUSvU49UZSJD/VQfD/oKzf0ld8COjFW1pxfquBgvevLxRVpYLRanZB20L3c8/xyyQpDq7zMSMqQrg==}
     dependencies:
@@ -3876,6 +3920,13 @@ packages:
       preact-render-to-string: 5.2.6_preact@10.11.3
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@astrojs/prism/2.0.0-beta.0:
+    resolution: {integrity: sha512-GjQIA9faCexnuBrwCw8wvl34YMYIRRDOSSC7rnNpJZVuxh88QKdVksC5h1dY/x0piitXhLl4npuhMT5TN/mVcw==}
+    engines: {node: '>=16.12.0'}
+    dependencies:
+      prismjs: 1.29.0
     dev: false
 
   /@astrojs/webapi/1.1.1:
@@ -12812,6 +12863,23 @@ packages:
       postcss: 8.4.21
       yaml: 1.10.2
 
+  /postcss-load-config/4.0.1_postcss@8.4.21:
+    resolution: {integrity: sha512-vEJIc8RdiBRu3oRAI0ymerOn+7rPuMvRXslTvZUKZonDHFIczxztIyJ1urxM1x9JXEikvpWWTUUqal5j/8QgvA==}
+    engines: {node: '>= 14'}
+    peerDependencies:
+      postcss: '>=8.0.9'
+      ts-node: '>=9.0.0'
+    peerDependenciesMeta:
+      postcss:
+        optional: true
+      ts-node:
+        optional: true
+    dependencies:
+      lilconfig: 2.0.6
+      postcss: 8.4.21
+      yaml: 2.2.1
+    dev: false
+
   /postcss-logical/5.0.4_postcss@8.4.21:
     resolution: {integrity: sha512-RHXxplCeLh9VjinvMrZONq7im4wjWGlRJAqmAVLXyZaXwfDWP73/oq4NdIp+OZwhQUMj0zjqDfM5Fj7qby+B4g==}
     engines: {node: ^12 || ^14 || >=16}
@@ -15702,6 +15770,11 @@ packages:
   /yaml/1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+
+  /yaml/2.2.1:
+    resolution: {integrity: sha512-e0WHiYql7+9wr4cWMx3TVQrNwejKaEe7/rHNmQmqRjazfOP5W8PB6Jpebb5o6fIapbz9o9+2ipcaTM2ZwDI6lw==}
+    engines: {node: '>= 14'}
+    dev: false
 
   /yargs-parser/18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
