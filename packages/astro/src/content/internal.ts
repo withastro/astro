@@ -77,6 +77,8 @@ export function createGetEntryBySlug({
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
+		// This is not an optimized lookup. Should look into an O(1) implementation
+		// as it's probably that people will have very large collections.
 		const entries = await getCollection(collection);
 		let candidate: typeof entries[number] | undefined = undefined;
 		for(let entry of entries) {
