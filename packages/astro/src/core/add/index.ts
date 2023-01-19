@@ -53,6 +53,13 @@ module.exports = {
 	},
 	plugins: [],
 }\n`;
+const SVELTE_CONFIG_STUB = `\
+import { vitePreprocess } from '@astrojs/svelte';
+
+export default {
+	preprocess: vitePreprocess(),
+};
+`;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify/functions',
@@ -114,37 +121,30 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	switch (installResult) {
 		case UpdateResult.updated: {
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				const possibleConfigFiles = [
-					'./tailwind.config.cjs',
-					'./tailwind.config.mjs',
-					'./tailwind.config.js',
-				].map((p) => fileURLToPath(new URL(p, root)));
-				let alreadyConfigured = false;
-				for (const possibleConfigPath of possibleConfigFiles) {
-					if (existsSync(possibleConfigPath)) {
-						alreadyConfigured = true;
-						break;
-					}
-				}
-				if (!alreadyConfigured) {
-					info(
-						logging,
-						null,
-						`\n  ${magenta(
-							`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`
-						)}\n`
-					);
-					if (await askToContinue({ flags })) {
-						await fs.writeFile(
-							fileURLToPath(new URL('./tailwind.config.cjs', root)),
-							TAILWIND_CONFIG_STUB,
-							{ encoding: 'utf-8' }
-						);
-						debug('add', `Generated default ./tailwind.config.cjs file`);
-					}
-				} else {
-					debug('add', `Using existing Tailwind configuration`);
-				}
+				await setupIntegrationConfig({
+					root,
+					logging,
+					flags,
+					integrationName: 'Tailwind',
+					possibleConfigFiles: [
+						'./tailwind.config.cjs',
+						'./tailwind.config.mjs',
+						'./tailwind.config.js',
+					],
+					defaultConfigFile: './tailwind.config.cjs',
+					defaultConfigContent: TAILWIND_CONFIG_STUB,
+				});
+			}
+			if (integrations.find((integration) => integration.id === 'svelte')) {
+				await setupIntegrationConfig({
+					root,
+					logging,
+					flags,
+					integrationName: 'Svelte',
+					possibleConfigFiles: ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'],
+					defaultConfigFile: './svelte.config.js',
+					defaultConfigContent: SVELTE_CONFIG_STUB,
+				});
 			}
 			break;
 		}
@@ -885,4 +885,44 @@ function getDiffContent(input: string, output: string): string | null {
 	}
 
 	return diffed;
+}
+
+async function setupIntegrationConfig(opts: {
+	root: URL;
+	logging: LogOptions;
+	flags: yargs.Arguments;
+	integrationName: string;
+	possibleConfigFiles: string[];
+	defaultConfigFile: string;
+	defaultConfigContent: string;
+}) {
+	const possibleConfigFiles = opts.possibleConfigFiles.map((p) =>
+		fileURLToPath(new URL(p, opts.root))
+	);
+	let alreadyConfigured = false;
+	for (const possibleConfigPath of possibleConfigFiles) {
+		if (existsSync(possibleConfigPath)) {
+			alreadyConfigured = true;
+			break;
+		}
+	}
+	if (!alreadyConfigured) {
+		info(
+			opts.logging,
+			null,
+			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`
+		);
+		if (await askToContinue({ flags: opts.flags })) {
+			await fs.writeFile(
+				fileURLToPath(new URL(opts.defaultConfigFile, opts.root)),
+				opts.defaultConfigContent,
+				{
+					encoding: 'utf-8',
+				}
+			);
+			debug('add', `Generated default ${opts.defaultConfigFile} file`);
+		}
+	} else {
+		debug('add', `Using existing ${opts.integrationName} configuration`);
+	}
 }

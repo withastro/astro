@@ -2,6 +2,7 @@ import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { UserConfig } from 'vite';
+import { fileURLToPath } from 'url';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -11,16 +12,27 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
+async function svelteConfigHasPreprocess(root: URL) {
+	const svelteConfigFiles = ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'];
+	for (const file of svelteConfigFiles) {
+		const filePath = fileURLToPath(new URL(file, root));
+		try {
+			const config = (await import(filePath)).default;
+			return !!config.preprocess;
+		} catch {}
+	}
+}
+
 type ViteConfigurationArgs = {
 	isDev: boolean;
 	options?: Options | OptionsCallback;
+	root: URL;
 };
 
-function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserConfig {
+async function getViteConfiguration({ options, isDev, root }: ViteConfigurationArgs): Promise<UserConfig> {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
-		preprocess: [vitePreprocess()],
 	};
 
 	// Disable hot mode during the build
@@ -43,9 +55,11 @@ function getViteConfiguration({ options, isDev }: ViteConfigurationArgs): UserCo
 				// Always use dev and hydratable from defaults
 				...defaultOptions.compilerOptions,
 			},
-			// Ignore default preprocessor if the user provided their own
-			preprocess: options.preprocess ?? defaultOptions.preprocess,
 		};
+	}
+
+	if (!resolvedOptions.preprocess && !(await svelteConfigHasPreprocess(root))) {
+		resolvedOptions.preprocess = vitePreprocess();
 	}
 
 	return {
@@ -63,15 +77,18 @@ export default function (options?: Options | OptionsCallback): AstroIntegration 
 		name: '@astrojs/svelte',
 		hooks: {
 			// Anything that gets returned here is merged into Astro Config
-			'astro:config:setup': ({ command, updateConfig, addRenderer }) => {
+			'astro:config:setup': async ({ command, updateConfig, addRenderer, config }) => {
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: getViteConfiguration({
+					vite: await getViteConfiguration({
 						options,
 						isDev: command === 'dev',
+						root: config.root,
 					}),
 				});
 			},
 		},
 	};
 }
+
+export { vitePreprocess };
