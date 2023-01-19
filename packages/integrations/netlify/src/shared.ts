@@ -5,6 +5,7 @@ type RedirectDefinition = {
 	dynamic: boolean;
 	input: string;
 	target: string;
+	weight: 0 | 1;
 	status: 200 | 404;
 };
 
@@ -26,15 +27,17 @@ export async function createRedirects(
 				definitions.push({
 					dynamic: false,
 					input: route.pathname,
-					target: route.distURL.toString().replace(dir.toString(), ''),
-					status: 200
+					target: prependForwardSlash(route.distURL.toString().replace(dir.toString(), '')),
+					status: 200,
+					weight: 1
 				});
 			} else {
 				definitions.push({
 					dynamic: false,
 					input: route.pathname,
 					target: `/.netlify/${kind}/${entryFile}`,
-					status: 200
+					status: 200,
+					weight: 1,
 				});
 
 				if (route.route === '/404') {
@@ -42,7 +45,8 @@ export async function createRedirects(
 						dynamic: true,
 						input: '/*',
 						target: `/.netlify/${kind}/${entryFile}`,
-						status: 404
+						status: 404,
+						weight: 0
 					});
 				}
 			}
@@ -67,14 +71,16 @@ export async function createRedirects(
 					dynamic: true,
 					input: pattern,
 					target,
-					status: 200
+					status: 200,
+					weight: 1
 				});
 			} else {
 				definitions.push({
 					dynamic: true,
 					input: pattern,
 					target: `/.netlify/${kind}/${entryFile}`,
-					status: 200
+					status: 200,
+					weight: 1
 				});
 			}
 		}
@@ -94,22 +100,21 @@ function prettify(definitions: RedirectDefinition[]) {
 		// Find the longest input, so we can format things nicely
 		if(a.input.length > minInputLength) {
 			minInputLength = a.input.length;
-		} else if(b.input.length > minInputLength) {
+		}
+		if(b.input.length > minInputLength) {
 			minInputLength = b.input.length;
 		}
 
 		// Same for the target
 		if(a.target.length > minTargetLength) {
 			minTargetLength = a.target.length;
-		} else if(b.target.length > minTargetLength) {
+		}
+		if(b.target.length > minTargetLength) {
 			minTargetLength = b.target.length;
 		}
 
 		// Sort dynamic routes on top
-		if(a.dynamic === b.dynamic) {
-			// If both are the same, sort alphabetically
-			return a.input > b.input ? 1 : -1;
-		} else if(a.dynamic) {
+		if(a.weight > b.weight) {
 			return -1;
 		} else {
 			return 1;
@@ -126,4 +131,8 @@ function prettify(definitions: RedirectDefinition[]) {
 		_redirects += (i === 0 ? '' : '\n') + defn.input + ' '.repeat(inputSpaces) + defn.target + ' '.repeat(Math.abs(targetSpaces)) + defn.status;
 	});
 	return _redirects;
+}
+
+function prependForwardSlash(str: string) {
+	return str[0] === '/' ? str : '/' + str;
 }
