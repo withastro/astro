@@ -3,7 +3,9 @@
 'astro': minor
 ---
 
-The fallback Svelte preprocessor will only be applied if a custom `preprocess` option is not passed to the `svelte()` integration option, or in the `svelte.config.js` file. This allows Svelte autocompletion with preprocessors to work correctly by setting up `svelte.config.js` with:
+The fallback Svelte preprocessor will only be applied if a custom `preprocess` option is not passed to the `svelte()` integration option, or in the `svelte.config.js` file.
+
+To support IDE autocompletion, or if you're migrating from `@astrojs/svelte` v1, you can create a `svelte.config.js` file with:
 
 ```js
 import { vitePreprocess } from '@astrojs/svelte';
