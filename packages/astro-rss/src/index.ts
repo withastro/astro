@@ -1,8 +1,8 @@
 import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+import { yellow } from 'kleur/colors';
 import { rssSchema } from './schema.js';
 import { createCanonicalURL, errorMap, isValidURL } from './util.js';
-import { yellow } from 'kleur/colors';
 
 export { rssSchema };
 
@@ -57,10 +57,7 @@ const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
 const rssOptionsValidator = z.object({
 	title: z.string(),
 	description: z.string(),
-	site: z.preprocess(
-		url => url instanceof URL ? url.href : url,
-		z.string().url(),
-	),
+	site: z.preprocess((url) => (url instanceof URL ? url.href : url), z.string().url()),
 	items: z
 		.array(rssFeedItemValidator)
 		.or(globResultValidator)
