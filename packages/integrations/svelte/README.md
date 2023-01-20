@@ -74,11 +74,11 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 ## Options
 
-This integration is powered by `@sveltejs/vite-plugin-svelte`. To customize the Svelte compiler, options can be provided to the integration. See the `@sveltejs/vite-plugin-svelte` [docs](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/config.md) for more details.
+This integration is powered by `@sveltejs/vite-plugin-svelte`. To customize the Svelte compiler, options can be provided to the integration. See the [`@sveltejs/vite-plugin-svelte` docs](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/config.md) for more details.
 
 ### Default options
 
-A few of the default options passed to the Svelte compiler are required to build properly for Astro and cannot be overridden.
+This integration passes the following default options to the Svelte compiler:
 
 ```js
 const defaultOptions = {
@@ -88,9 +88,9 @@ const defaultOptions = {
 };
 ```
 
-The `emitCss`, `compilerOptions.dev`, and `compilerOptions.hydratable` cannot be overridden.
+These `emitCss`, `compilerOptions.dev`, and `compilerOptions.hydratable` values are required to build properly for Astro and cannot be overridden.
 
-Providing your own `preprocess` options **will** override the defaults - make sure to enable the preprocessor flags needed for your project. For example,
+Providing your own `preprocess` options **will** override the `vitePreprocess()` default. Make sure to enable the preprocessor flags needed for your project. For example,
 
 ```js
 // astro.config.js
@@ -110,7 +110,7 @@ export default {
 };
 ```
 
-Will override the default `preprocess` option. You can read the [`vitePreprocess` docs](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/preprocess.md) for more information of how it works.
+Will override the default `preprocess` option. You can read the [`vitePreprocess()` docs](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/preprocess.md) for more information on how it works.
 
 ## Intellisense for TypeScript
 
