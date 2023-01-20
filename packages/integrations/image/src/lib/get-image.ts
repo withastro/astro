@@ -6,6 +6,7 @@ import type {
 	TransformOptions,
 } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
+import { metadata as imageMetadata } from '../utils/metadata.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
@@ -14,55 +15,85 @@ export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	alt: string;
 }
 
-function resolveSize(transform: TransformOptions): TransformOptions {
-	// keep width & height as provided
+async function resolveSize(transform: TransformOptions): Promise<TransformOptions> {
+	// If the user provided a width and a height, let's directly go with that
 	if (transform.width && transform.height) {
 		return transform;
 	}
 
-	if (!transform.width && !transform.height) {
-		throw new Error(`"width" and "height" cannot both be undefined`);
+	// If the user provided an aspect ratio, and just one of width or height, let's try to make the image fit their need
+	if (transform.aspectRatio && (transform.width || transform.height)) {
+		let aspectRatio: number;
+
+		// parse aspect ratio strings, if required (ex: "16:9")
+		if (typeof transform.aspectRatio === 'number') {
+			aspectRatio = transform.aspectRatio;
+		} else {
+			const [width, height] = transform.aspectRatio.split(':');
+			aspectRatio = Number.parseInt(width) / Number.parseInt(height);
+		}
+
+		if (transform.width) {
+			// only width was provided, calculate height
+			return {
+				...transform,
+				width: transform.width,
+				height: Math.round(transform.width / aspectRatio),
+			} as TransformOptions;
+		} else if (transform.height) {
+			// only height was provided, calculate width
+			return {
+				...transform,
+				width: Math.round(transform.height * aspectRatio),
+				height: transform.height,
+			};
+		}
 	}
 
-	if (!transform.aspectRatio) {
-		throw new Error(
-			`"aspectRatio" must be included if only "${transform.width ? 'width' : 'height'}" is provided`
-		);
+	// If it's not a remote image, we have access to the local file and can tell the aspect ratio
+	if (!isRemoteImage(transform.src)) {
+		const data = await imageMetadata(transform.src);
+
+		if (data) {
+			const aspectRatio = data.width / data.height;
+
+			if (!transform.format) transform.format = data.format as OutputFormat;
+
+			if (transform.width) {
+				// only width was provided, calculate height
+				return {
+					...transform,
+					width: transform.width,
+					height: Math.round(transform.width / aspectRatio),
+				} as TransformOptions;
+			} else if (transform.height) {
+				// only height was provided, calculate width
+				return {
+					...transform,
+					width: Math.round(transform.height * aspectRatio),
+					height: transform.height,
+				};
+			} else {
+				// neither width or height were provided, so just return as is
+				return {
+					...transform,
+					width: data.width,
+					height: data.height,
+				};
+			}
+		}
 	}
 
-	let aspectRatio: number;
-
-	// parse aspect ratio strings, if required (ex: "16:9")
-	if (typeof transform.aspectRatio === 'number') {
-		aspectRatio = transform.aspectRatio;
-	} else {
-		const [width, height] = transform.aspectRatio.split(':');
-		aspectRatio = Number.parseInt(width) / Number.parseInt(height);
-	}
-
-	if (transform.width) {
-		// only width was provided, calculate height
-		return {
-			...transform,
-			width: transform.width,
-			height: Math.round(transform.width / aspectRatio),
-		} as TransformOptions;
-	} else if (transform.height) {
-		// only height was provided, calculate width
-		return {
-			...transform,
-			width: Math.round(transform.height * aspectRatio),
-			height: transform.height,
-		};
-	}
+	// If the user only provided one of width or height and no aspect ratio and the image is remote, that's okay
+	// We'll guess the aspect ratio they want from the missing width or height from the fetch later if we can
 
 	return transform;
 }
 
 async function resolveTransform(input: GetImageTransform): Promise<TransformOptions> {
-	// for remote images, only validate the width and height props
+	// For non-statically analyzable images (remote, dynamic file paths etc), only validate the width and height props
 	if (typeof input.src === 'string') {
-		return resolveSize(input as TransformOptions);
+		return await resolveSize(input as TransformOptions);
 	}
 
 	// resolve the metadata promise, usually when the ESM import is inlined

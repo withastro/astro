@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
-import { isRemoteImage } from '../utils/paths.js';
+import { isRemoteImage, removeLeadingForwardSlash } from '../utils/paths.js';
 import { ImageCache } from './cache.js';
 
 async function loadLocalImage(src: string | URL) {
@@ -146,7 +146,11 @@ export async function ssgBuild({
 			inputBuffer = res?.data;
 			expires = res?.expires || 0;
 		} else {
-			const inputFileURL = new URL(`.${src}`, outDir);
+			if (src.startsWith('/')) {
+				src = outDir + removeLeadingForwardSlash(src);
+			}
+
+			const inputFileURL = new URL(src, config.root);
 			inputFile = fileURLToPath(inputFileURL);
 
 			const res = await loadLocalImage(inputFile);

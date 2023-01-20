@@ -18,8 +18,15 @@ export async function metadata(src: URL | string, data?: Buffer): Promise<Metada
 		return undefined;
 	}
 
+	let url;
+	try {
+		url = fileURLToPath(src);
+	} catch (e) {
+		url = src as string;
+	}
+
 	return {
-		src: fileURLToPath(src),
+		src: url,
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
 		format: type as InputFormat,
