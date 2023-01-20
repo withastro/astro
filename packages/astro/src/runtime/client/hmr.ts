@@ -1,15 +1,15 @@
 /// <reference types="vite/client" />
 
 if (import.meta.hot) {
-	// Vite injects `<style type="text/css">` for ESM imports of styles
-	// but Astro also SSRs with `<style>` blocks. This MutationObserver
+	// Vite injects `<style type="text/css" data-vite-dev-id>` for ESM imports of styles
+	// but Astro also SSRs with `<style type="text/css" data-astro-dev-id>` blocks. This MutationObserver
 	// removes any duplicates as soon as they are hydrated client-side.
 	const injectedStyles = getInjectedStyles();
 	const mo = new MutationObserver((records) => {
 		for (const record of records) {
 			for (const node of record.addedNodes) {
 				if (isViteInjectedStyle(node)) {
-					injectedStyles.get(node.innerHTML.trim())?.remove();
+					injectedStyles.get(node.getAttribute('data-vite-dev-id')!)?.remove();
 				}
 			}
 		}
@@ -31,8 +31,8 @@ if (import.meta.hot) {
 
 function getInjectedStyles() {
 	const injectedStyles = new Map<string, Element>();
-	document.querySelectorAll<HTMLStyleElement>('style').forEach((el) => {
-		injectedStyles.set(el.innerHTML.trim(), el);
+	document.querySelectorAll<HTMLStyleElement>('style[data-astro-dev-id]').forEach((el) => {
+		injectedStyles.set(el.getAttribute('data-astro-dev-id')!, el);
 	});
 	return injectedStyles;
 }
@@ -42,5 +42,5 @@ function isStyle(node: Node): node is HTMLStyleElement {
 }
 
 function isViteInjectedStyle(node: Node): node is HTMLStyleElement {
-	return isStyle(node) && node.getAttribute('type') === 'text/css';
+	return isStyle(node) && node.getAttribute('type') === 'text/css' && !!node.getAttribute('data-vite-dev-id');
 }
