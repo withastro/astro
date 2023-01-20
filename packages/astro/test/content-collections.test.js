@@ -70,7 +70,7 @@ describe('Content Collections', () => {
 				expect(Array.isArray(json.withSlugConfig)).to.equal(true);
 
 				const slugs = json.withSlugConfig.map((item) => item.slug);
-				expect(slugs).to.deep.equal(['fancy-one.md', 'excellent-three.md', 'interesting-two.md']);
+				expect(slugs).to.deep.equal(['custom-one.md', 'custom-three.md', 'custom-two.md']);
 			});
 
 			it('Returns `with union schema` collection', async () => {
