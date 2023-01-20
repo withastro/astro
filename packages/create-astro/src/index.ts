@@ -192,7 +192,20 @@ export async function main() {
 		} catch (err: any) {
 			fs.rmdirSync(cwd);
 			if (err.message.includes('404')) {
-				console.error(`Template ${color.underline(options.template)} does not exist!`);
+				console.error(`Could not find template ${color.underline(options.template)}!`);
+				if (isThirdParty) {
+					const hasBranch = options.template.includes('#');
+					if (hasBranch) {
+						console.error('Are you sure this GitHub repo and branch exist?');
+					} else {
+						console.error(
+							`Are you sure this GitHub repo exists?` +
+								`This command uses the ${color.bold('main')} branch by default.\n` +
+								`If the repo doesn't have a main branch, specify a custom branch name:\n` +
+								color.underline(options.template + color.bold('#branch-name'))
+						);
+					}
+				}
 			} else {
 				console.error(err.message);
 			}
