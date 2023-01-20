@@ -77,7 +77,7 @@ const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
 
 function isValidProjectDirectory(dirPath: string) {
 	if (!fs.existsSync(dirPath)) {
-    return true;
+		return true;
 	}
 
 	const conflicts = fs.readdirSync(dirPath).filter((content) => {
@@ -93,14 +93,14 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']
 
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
-  const pkgManager = detectPackageManager()?.name || 'npm';
+	const pkgManager = detectPackageManager()?.name || 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 
 	logger.debug('Verbose logging turned on');
 	if (!args.skipHouston) {
-    await say(
-      [
-        [
+		await say(
+			[
+				[
 					'Welcome',
 					'to',
 					label('astro', color.bgGreen, color.black),
@@ -213,26 +213,30 @@ export async function main() {
 	templateSpinner.text = green('Template copied!');
 	templateSpinner.succeed();
 
-  const install = args.y ? true : (await prompts(
-		{
-			type: 'confirm',
-			name: 'install',
-			message: `Would you like to install ${pkgManager} dependencies? ${reset(
-				dim('(recommended)')
-			)}`,
-			initial: true,
-		},
-		{
-			onCancel: () => {
-				ora().info(
-					dim(
-						'Operation cancelled. Your project folder has already been created, however no dependencies have been installed'
-					)
-				);
-				process.exit(1);
-			},
-		}
-	)).install;
+	const install = args.y
+		? true
+		: (
+				await prompts(
+					{
+						type: 'confirm',
+						name: 'install',
+						message: `Would you like to install ${pkgManager} dependencies? ${reset(
+							dim('(recommended)')
+						)}`,
+						initial: true,
+					},
+					{
+						onCancel: () => {
+							ora().info(
+								dim(
+									'Operation cancelled. Your project folder has already been created, however no dependencies have been installed'
+								)
+							);
+							process.exit(1);
+						},
+					}
+				)
+		  ).install;
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
@@ -255,22 +259,28 @@ export async function main() {
 		await info('No problem!', 'Remember to install dependencies after setup.');
 	}
 
-	const gitResponse = args.y ? true : (await prompts(
-		{
-			type: 'confirm',
-			name: 'git',
-			message: `Would you like to initialize a new git repository? ${reset(dim('(optional)'))}`,
-			initial: true,
-		},
-		{
-			onCancel: () => {
-				ora().info(
-					dim('Operation cancelled. No worries, your project folder has already been created')
-				);
-				process.exit(1);
-			},
-		}
-	)).git;
+	const gitResponse = args.y
+		? true
+		: (
+				await prompts(
+					{
+						type: 'confirm',
+						name: 'git',
+						message: `Would you like to initialize a new git repository? ${reset(
+							dim('(optional)')
+						)}`,
+						initial: true,
+					},
+					{
+						onCancel: () => {
+							ora().info(
+								dim('Operation cancelled. No worries, your project folder has already been created')
+							);
+							process.exit(1);
+						},
+					}
+				)
+		  ).git;
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
@@ -284,36 +294,38 @@ export async function main() {
 		);
 	}
 
-  if (args.y && !args.typescript) {
-    ora().warn(
-      dim('--typescript <choice> missing. Defaulting to "strict"')
-    );
-    args.typescript = 'strict';
-  }
+	if (args.y && !args.typescript) {
+		ora().warn(dim('--typescript <choice> missing. Defaulting to "strict"'));
+		args.typescript = 'strict';
+	}
 
-	const tsResponse = args.typescript || (await prompts(
-		{
-			type: 'select',
-			name: 'typescript',
-			message: 'How would you like to setup TypeScript?',
-			choices: [
-				{ value: 'strict', title: 'Strict', description: '(recommended)' },
-				{ value: 'strictest', title: 'Strictest' },
-				{ value: 'base', title: 'Relaxed' },
-				{ value: 'unsure', title: 'Help me choose' },
-			],
-		},
-		{
-			onCancel: () => {
-				ora().info(
-					dim(
-						'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
-					)
-				);
-				process.exit(1);
-			},
-		}
-	)).typescript;
+	const tsResponse =
+		args.typescript ||
+		(
+			await prompts(
+				{
+					type: 'select',
+					name: 'typescript',
+					message: 'How would you like to setup TypeScript?',
+					choices: [
+						{ value: 'strict', title: 'Strict', description: '(recommended)' },
+						{ value: 'strictest', title: 'Strictest' },
+						{ value: 'base', title: 'Relaxed' },
+						{ value: 'unsure', title: 'Help me choose' },
+					],
+				},
+				{
+					onCancel: () => {
+						ora().info(
+							dim(
+								'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
+							)
+						);
+						process.exit(1);
+					},
+				}
+			)
+		).typescript;
 
 	if (tsResponse === 'unsure') {
 		await typescriptByDefault();
