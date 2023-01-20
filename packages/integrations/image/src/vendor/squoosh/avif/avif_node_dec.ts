@@ -1,8 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 import { createRequire } from 'module';
-import { dirname } from '../emscripten-utils.js';
-const require = createRequire(import.meta.url);
+import { dirname, getModuleURL } from '../emscripten-utils.js';
+const require = createRequire(getModuleURL(import.meta.url));
 
 var Module = (function () {
   return function (Module) {
@@ -43,7 +43,7 @@ var Module = (function () {
       if (ENVIRONMENT_IS_WORKER) {
         scriptDirectory = require('path').dirname(scriptDirectory) + '/'
       } else {
-        scriptDirectory = dirname(import.meta.url) + '/'
+        scriptDirectory = dirname(getModuleURL(import.meta.url)) + '/'
       }
       read_ = function shell_read(filename, binary) {
         if (!nodeFS) nodeFS = require('fs')

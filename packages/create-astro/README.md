@@ -43,6 +43,8 @@ May be provided in place of prompts
 | `--template` | Specify the template name ([list][examples])        |
 | `--commit`   | Specify a specific Git commit or branch to use from this repo (by default, `main` branch of this repo will be used) |
 | `--fancy`    | For Windows users, `--fancy` will enable full unicode support |
+| `--typescript` | Specify the [tsconfig][typescript] to use            |
+| `--yes`/`-y` | Skip prompts and use default values                 |
 
 ### Debugging
 
@@ -60,3 +62,4 @@ yarn create astro my-astro-project --verbose
 ```
 
 [examples]: https://github.com/withastro/astro/tree/main/examples
+[typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs
