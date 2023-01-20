@@ -30,7 +30,7 @@ import { TEMPLATES } from './templates.js';
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const args = yargs(cleanArgv, { boolean: ['fancy'] });
+const args = yargs(cleanArgv, { boolean: ['fancy', 'y'], alias: { y: 'yes' } });
 // Always skip Houston on Windows (for now)
 if (platform() === 'win32') args.skipHouston = true;
 prompts.override(args);
@@ -77,7 +77,7 @@ const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
 
 function isValidProjectDirectory(dirPath: string) {
 	if (!fs.existsSync(dirPath)) {
-		return true;
+    return true;
 	}
 
 	const conflicts = fs.readdirSync(dirPath).filter((content) => {
@@ -93,14 +93,14 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']
 
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
-	const pkgManager = detectPackageManager()?.name || 'npm';
+  const pkgManager = detectPackageManager()?.name || 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 
 	logger.debug('Verbose logging turned on');
 	if (!args.skipHouston) {
-		await say(
-			[
-				[
+    await say(
+      [
+        [
 					'Welcome',
 					'to',
 					label('astro', color.bgGreen, color.black),
@@ -213,7 +213,7 @@ export async function main() {
 	templateSpinner.text = green('Template copied!');
 	templateSpinner.succeed();
 
-	const installResponse = await prompts(
+  const install = args.y ? true : (await prompts(
 		{
 			type: 'confirm',
 			name: 'install',
@@ -232,11 +232,11 @@ export async function main() {
 				process.exit(1);
 			},
 		}
-	);
+	)).install;
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (installResponse.install) {
+	} else if (install) {
 		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
 		const installSpinner = await loadWithRocketGradient(installingPackagesMsg);
@@ -255,7 +255,7 @@ export async function main() {
 		await info('No problem!', 'Remember to install dependencies after setup.');
 	}
 
-	const gitResponse = await prompts(
+	const gitResponse = args.y ? true : (await prompts(
 		{
 			type: 'confirm',
 			name: 'git',
@@ -270,11 +270,11 @@ export async function main() {
 				process.exit(1);
 			},
 		}
-	);
+	)).git;
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (gitResponse.git) {
+	} else if (gitResponse) {
 		await execaCommand('git init', { cwd });
 		ora().succeed('Git repository created!');
 	} else {
@@ -284,7 +284,14 @@ export async function main() {
 		);
 	}
 
-	const tsResponse = await prompts(
+  if (args.y && !args.typescript) {
+    ora().warn(
+      dim('--typescript <choice> missing. Defaulting to "strict"')
+    );
+    args.typescript = 'strict';
+  }
+
+	const tsResponse = args.typescript || (await prompts(
 		{
 			type: 'select',
 			name: 'typescript',
@@ -306,22 +313,22 @@ export async function main() {
 				process.exit(1);
 			},
 		}
-	);
+	)).typescript;
 
-	if (tsResponse.typescript === 'unsure') {
+	if (tsResponse === 'unsure') {
 		await typescriptByDefault();
 		tsResponse.typescript = 'base';
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (tsResponse.typescript) {
+	} else if (tsResponse) {
 		const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
 		fs.readFile(templateTSConfigPath, (err, data) => {
 			if (err && err.code === 'ENOENT') {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				fs.writeFileSync(
 					templateTSConfigPath,
-					stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
+					stringify({ extends: `astro/tsconfigs/${tsResponse}` }, null, 2)
 				);
 
 				return;
