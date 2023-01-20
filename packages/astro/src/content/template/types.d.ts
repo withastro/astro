@@ -21,9 +21,6 @@ declare module 'astro:content' {
 		slug?: (entry: {
 			id: CollectionEntry<keyof typeof entryMap>['id'];
 			defaultSlug: string;
-			collection: string;
-			body: string;
-			data: import('astro/zod').infer<S>;
 		}) => string | Promise<string>;
 	};
 	export function defineCollection<S extends BaseSchema>(

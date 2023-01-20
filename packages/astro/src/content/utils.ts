@@ -17,10 +17,7 @@ export const collectionConfigParser = z.object({
 		.args(
 			z.object({
 				id: z.string(),
-				collection: z.string(),
 				defaultSlug: z.string(),
-				body: z.string(),
-				data: z.record(z.any()),
 			})
 		)
 		.returns(z.union([z.string(), z.promise(z.string())]))
@@ -67,10 +64,7 @@ export async function getEntrySlug(entry: Entry, collectionConfig: CollectionCon
 	return (
 		collectionConfig.slug?.({
 			id: entry.id,
-			data: entry.data,
 			defaultSlug: entry.slug,
-			collection: entry.collection,
-			body: entry.body,
 		}) ?? entry.slug
 	);
 }
