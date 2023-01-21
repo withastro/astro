@@ -53,6 +53,13 @@ module.exports = {
 	},
 	plugins: [],
 }\n`;
+const SVELTE_CONFIG_STUB = `\
+import { vitePreprocess } from '@astrojs/svelte';
+
+export default {
+	preprocess: vitePreprocess(),
+};
+`;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify/functions',
@@ -114,37 +121,30 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	switch (installResult) {
 		case UpdateResult.updated: {
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				const possibleConfigFiles = [
-					'./tailwind.config.cjs',
-					'./tailwind.config.mjs',
-					'./tailwind.config.js',
-				].map((p) => fileURLToPath(new URL(p, root)));
-				let alreadyConfigured = false;
-				for (const possibleConfigPath of possibleConfigFiles) {
-					if (existsSync(possibleConfigPath)) {
-						alreadyConfigured = true;
-						break;
-					}
-				}
-				if (!alreadyConfigured) {
-					info(
-						logging,
-						null,
-						`\n  ${magenta(
-							`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`
-						)}\n`
-					);
-					if (await askToContinue({ flags })) {
-						await fs.writeFile(
-							fileURLToPath(new URL('./tailwind.config.cjs', root)),
-							TAILWIND_CONFIG_STUB,
-							{ encoding: 'utf-8' }
-						);
-						debug('add', `Generated default ./tailwind.config.cjs file`);
-					}
-				} else {
-					debug('add', `Using existing Tailwind configuration`);
-				}
+				await setupIntegrationConfig({
+					root,
+					logging,
+					flags,
+					integrationName: 'Tailwind',
+					possibleConfigFiles: [
+						'./tailwind.config.cjs',
+						'./tailwind.config.mjs',
+						'./tailwind.config.js',
+					],
+					defaultConfigFile: './tailwind.config.cjs',
+					defaultConfigContent: TAILWIND_CONFIG_STUB,
+				});
+			}
+			if (integrations.find((integration) => integration.id === 'svelte')) {
+				await setupIntegrationConfig({
+					root,
+					logging,
+					flags,
+					integrationName: 'Svelte',
+					possibleConfigFiles: ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'],
+					defaultConfigFile: './svelte.config.js',
+					defaultConfigContent: SVELTE_CONFIG_STUB,
+				});
 			}
 			break;
 		}
@@ -801,7 +801,7 @@ async function updateTSConfig(
 
 	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
 	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
-	// can be compatible with some frameworks (ex: Solid), though ultimately run into issues on the current version of Volar
+	// can be compatible with some frameworks (ex: Solid)
 	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
 	const hasConflictingIntegrations =
 		integrations.filter((integration) => presets.has(integration)).length > 1 &&
@@ -817,26 +817,6 @@ async function updateTSConfig(
 				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
 					firstIntegrationWithTSSettings
 				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`
-			)
-		);
-	}
-
-	// TODO: Remove this when Volar 1.0 ships, as it fixes the issue.
-	// Info: https://github.com/johnsoncodehk/volar/discussions/592#discussioncomment-3660903
-	if (
-		integrations.includes('vue') &&
-		hasConflictingIntegrations &&
-		((outputConfig.compilerOptions?.jsx !== 'preserve' &&
-			outputConfig.compilerOptions?.jsxImportSource !== undefined) ||
-			integrations.includes('react')) // https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed
-	) {
-		info(
-			logging,
-			null,
-			red(
-				`  ${bold(
-					'Caution:'
-				)} Using Vue together with a JSX framework can lead to type checking issues inside Vue files.\n  More information: https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed\n`
 			)
 		);
 	}
@@ -905,4 +885,44 @@ function getDiffContent(input: string, output: string): string | null {
 	}
 
 	return diffed;
+}
+
+async function setupIntegrationConfig(opts: {
+	root: URL;
+	logging: LogOptions;
+	flags: yargs.Arguments;
+	integrationName: string;
+	possibleConfigFiles: string[];
+	defaultConfigFile: string;
+	defaultConfigContent: string;
+}) {
+	const possibleConfigFiles = opts.possibleConfigFiles.map((p) =>
+		fileURLToPath(new URL(p, opts.root))
+	);
+	let alreadyConfigured = false;
+	for (const possibleConfigPath of possibleConfigFiles) {
+		if (existsSync(possibleConfigPath)) {
+			alreadyConfigured = true;
+			break;
+		}
+	}
+	if (!alreadyConfigured) {
+		info(
+			opts.logging,
+			null,
+			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`
+		);
+		if (await askToContinue({ flags: opts.flags })) {
+			await fs.writeFile(
+				fileURLToPath(new URL(opts.defaultConfigFile, opts.root)),
+				opts.defaultConfigContent,
+				{
+					encoding: 'utf-8',
+				}
+			);
+			debug('add', `Generated default ${opts.defaultConfigFile} file`);
+		}
+	} else {
+		debug('add', `Using existing ${opts.integrationName} configuration`);
+	}
 }

@@ -73,7 +73,7 @@ describe('Scripts (hoisted and not)', () => {
 
 			// test 2: inside assets
 			let entryURL = $('script').attr('src');
-			expect(entryURL.includes('assets/')).to.equal(true);
+			expect(entryURL.includes('_astro/')).to.equal(true);
 		});
 
 		it('External page using non-hoist scripts that are not modules are built standalone', async () => {
@@ -85,7 +85,7 @@ describe('Scripts (hoisted and not)', () => {
 
 			// test 2: inside assets
 			let entryURL = $('script').attr('src');
-			expect(entryURL.includes('assets/')).to.equal(true);
+			expect(entryURL.includes('_astro/')).to.equal(true);
 		});
 
 		it('Scripts added via Astro.glob are hoisted', async () => {

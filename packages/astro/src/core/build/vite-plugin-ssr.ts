@@ -7,13 +7,15 @@ import type { StaticBuildOptions } from './types';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
+import { getContentPaths } from '../../content/index.js';
 import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../app/index.js';
 import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { eachPageData, sortedCSS } from './internal.js';
+import { getOutFile, getOutFolder } from './common.js';
+import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from './internal.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -42,7 +44,7 @@ const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	renderers: _main.renderers
 });
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
-
+export * from '${pagesVirtualModuleId}';
 ${
 	adapter.exports
 		? `const _exports = adapter.createExports(_manifest, _args);
@@ -136,17 +138,48 @@ function buildManifest(
 	const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
 	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
 
-	for (const pageData of eachPageData(internals)) {
+	for (const pageData of eachPrerenderedPageData(internals)) {
+		if (!pageData.route.pathname) continue;
+
+		const outFolder = getOutFolder(
+			opts.settings.config,
+			pageData.route.pathname!,
+			pageData.route.type
+		);
+		const outFile = getOutFile(
+			opts.settings.config,
+			outFolder,
+			pageData.route.pathname!,
+			pageData.route.type
+		);
+		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+		routes.push({
+			file,
+			links: [],
+			scripts: [],
+			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
+		});
+		staticFiles.push(file);
+	}
+
+	for (const pageData of eachServerPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
+			const hoistedValue = pageData.hoistedScript.value;
+			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue;
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
-					value: joinBase(pageData.hoistedScript.value),
+					value,
 				})
 			);
 		}
 		if (settings.scripts.some((script) => script.stage === 'page')) {
-			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
+			const src = entryModules[PAGE_SCRIPT_ID];
+
+			scripts.push({
+				type: 'external',
+				value: joinBase(src),
+			});
 		}
 
 		const links = sortedCSS(pageData).map((pth) => joinBase(pth));
@@ -177,7 +210,7 @@ function buildManifest(
 		base: settings.config.base,
 		markdown: {
 			...settings.config.markdown,
-			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		pageMap: null as any,
 		renderers: [],

@@ -31,6 +31,7 @@ type CLICommand =
 	| 'build'
 	| 'preview'
 	| 'reload'
+	| 'sync'
 	| 'check'
 	| 'telemetry';
 
@@ -48,6 +49,7 @@ function printAstroHelp() {
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
 				['preview', 'Preview your build locally.'],
+				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
 			],
 			'Global Flags': [
@@ -74,6 +76,7 @@ async function printVersion() {
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (cmd === 'add') return 'add';
+	if (cmd === 'sync') return 'sync';
 	if (cmd === 'telemetry') return 'telemetry';
 	if (flags.version) return 'version';
 	else if (flags.help) return 'help';
@@ -153,6 +156,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
+	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
+	if (!process.env.NODE_ENV) {
+		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
+	}
+
 	let { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
 		cwd: root,
 		flags,
@@ -181,6 +189,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await devServer(settings, {
 				configFlag,
 				configFlagPath,
+				flags,
 				logging,
 				telemetry,
 				handleConfigError(e) {
@@ -198,7 +207,14 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'check': {
-			const ret = await check(settings);
+			const ret = await check(settings, { logging });
+			return process.exit(ret);
+		}
+
+		case 'sync': {
+			const { sync } = await import('./sync/index.js');
+
+			const ret = await sync(settings, { logging, fs });
 			return process.exit(ret);
 		}
 

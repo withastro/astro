@@ -1,8 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 import { createRequire } from 'module';
-import { dirname } from '../emscripten-utils.js';
-const require = createRequire(import.meta.url);
+import { dirname, getModuleURL } from '../emscripten-utils.js';
+const require = createRequire(getModuleURL(import.meta.url));
 
 var Module = (function () {
   return function (Module) {
@@ -43,7 +43,7 @@ var Module = (function () {
       if (ENVIRONMENT_IS_WORKER) {
         scriptDirectory = require('path').dirname(scriptDirectory) + '/'
       } else {
-        scriptDirectory = dirname(import.meta.url) + '/'
+        scriptDirectory = dirname(getModuleURL(import.meta.url)) + '/'
       }
       read_ = function shell_read(filename, binary) {
         if (!nodeFS) nodeFS = require('fs')
@@ -384,22 +384,6 @@ var Module = (function () {
       }
     }
     function getBinaryPromise() {
-      if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
-        if (typeof fetch === 'function') {
-          return fetch(wasmBinaryFile, { credentials: 'same-origin' })
-            .then(function (response) {
-              if (!response['ok']) {
-                throw (
-                  "failed to load wasm binary file at '" + wasmBinaryFile + "'"
-                )
-              }
-              return response['arrayBuffer']()
-            })
-            .catch(function () {
-              return getBinary(wasmBinaryFile)
-            })
-        }
-      }
       return Promise.resolve().then(function () {
         return getBinary(wasmBinaryFile)
       })
@@ -431,25 +415,7 @@ var Module = (function () {
           })
       }
       function instantiateAsync() {
-        if (
-          !wasmBinary &&
-          typeof WebAssembly.instantiateStreaming === 'function' &&
-          !isDataURI(wasmBinaryFile) &&
-          typeof fetch === 'function'
-        ) {
-          return fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(
-            function (response) {
-              var result = WebAssembly.instantiateStreaming(response, info)
-              return result.then(receiveInstantiationResult, function (reason) {
-                err('wasm streaming compile failed: ' + reason)
-                err('falling back to ArrayBuffer instantiation')
-                return instantiateArrayBuffer(receiveInstantiationResult)
-              })
-            }
-          )
-        } else {
-          return instantiateArrayBuffer(receiveInstantiationResult)
-        }
+        return instantiateArrayBuffer(receiveInstantiationResult)
       }
       if (Module['instantiateWasm']) {
         try {
@@ -1135,7 +1101,7 @@ var Module = (function () {
     }
     function replacePublicSymbol(name, value, numArguments) {
       if (!Module.hasOwnProperty(name)) {
-        throwInternalError('Replacing nonexistant public symbol')
+        throwInternalError('Replacing nonexistent public symbol')
       }
       if (
         undefined !== Module[name].overloadTable &&

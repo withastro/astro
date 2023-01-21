@@ -1,8 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../app/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import type { BuildInternals } from './internal.js';
-import { eachPageData } from './internal.js';
+import { BuildInternals, eachPageData, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
@@ -10,7 +9,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if (opts.settings.config.output === 'static') {
+			if (opts.settings.config.output === 'static' || hasPrerenderedPages(internals)) {
 				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},
@@ -28,8 +27,8 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let i = 0;
 				for (const pageData of eachPageData(internals)) {
 					const variable = `_page${i}`;
-					imports.push(`import * as ${variable} from '${pageData.moduleSpecifier}';`);
-					importMap += `['${pageData.component}', ${variable}],`;
+					imports.push(`import * as ${variable} from ${JSON.stringify(pageData.moduleSpecifier)};`);
+					importMap += `[${JSON.stringify(pageData.component)}, ${variable}],`;
 					i++;
 				}
 

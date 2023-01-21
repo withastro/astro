@@ -24,14 +24,6 @@ THE SOFTWARE.
 
 Code from [@astrocommunity/webapi](https://www.npmjs.com/@astrocommunity/webapi) is licensed under the CC0-1.0 License.
 
-Code from [abort-controller](https://www.npmjs.com/package/abort-controller) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
-
 Code from [event-target-shim](https://www.npmjs.com/package/event-target-shim) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
 
-Code from [fetch-blob](https://www.npmjs.com/package/fetch-blob) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
-
 Code from [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
-
-Code from [node-fetch](https://www.npmjs.com/package/node-fetch) is licensed under the MIT License (MIT), Copyright Node Fetch Team.
-
-Code from [web-streams-polyfill](https://www.npmjs.com/package/web-streams-polyfill) is licensed under the MIT License (MIT), Copyright Mattias Buelens and Diwank Singh Tomer.

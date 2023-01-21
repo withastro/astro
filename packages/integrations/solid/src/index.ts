@@ -26,7 +26,7 @@ function getRenderer(): AstroRenderer {
 
 async function getViteConfiguration(isDev: boolean, astroConfig: AstroConfig) {
 	// https://github.com/solidjs/vite-plugin-solid
-	// We inject the dev mode only if the user explicitely wants it or if we are in dev (serve) mode
+	// We inject the dev mode only if the user explicitly wants it or if we are in dev (serve) mode
 	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
 	const solidPkgsConfig = await getSolidPkgsConfig(!isDev, astroConfig);
 	return {

@@ -10,9 +10,11 @@ import type {
 	ComponentInstance,
 	EndpointHandler,
 	RouteType,
+	SSRError,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { BuildInternals } from '../../core/build/internal.js';
+import { getContentPaths } from '../../content/index.js';
+import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
@@ -21,6 +23,7 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -29,7 +32,12 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
+import {
+	eachPageData,
+	eachPrerenderedPageData,
+	getPageDataByComponent,
+	sortedCSS,
+} from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -70,17 +78,27 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
-
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+
+	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
+
+	const verb = ssr ? 'prerendering' : 'generating';
+	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
+
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	for (const pageData of eachPageData(internals)) {
-		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+	if (opts.settings.config.output === 'server') {
+		for (const pageData of eachPrerenderedPageData(internals)) {
+			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		}
+	} else {
+		for (const pageData of eachPageData(internals)) {
+			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		}
 	}
 
 	await runHookBuildGenerated({
@@ -106,7 +124,7 @@ async function generatePage(
 	const linkIds: string[] = sortedCSS(pageData);
 	const scripts = pageInfo?.hoistedScript ?? null;
 
-	const pageModule = ssrEntry.pageMap.get(pageData.component);
+	const pageModule = ssrEntry.pageMap?.get(pageData.component);
 
 	if (!pageModule) {
 		throw new Error(
@@ -331,7 +349,7 @@ async function generatePath(
 		logging,
 		markdown: {
 			...settings.config.markdown,
-			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		mode: opts.mode,
 		renderers,
@@ -379,7 +397,15 @@ async function generatePath(
 			encoding = result.encoding;
 		}
 	} else {
-		const response = await renderPage(mod, ctx, env);
+		let response: Response;
+		try {
+			response = await renderPage(mod, ctx, env);
+		} catch (err) {
+			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+				(err as SSRError).id = pageData.component;
+			}
+			throw err;
+		}
 		throwIfRedirectNotAllowed(response, opts.settings.config);
 		// If there's no body, do nothing
 		if (!response.body) return;

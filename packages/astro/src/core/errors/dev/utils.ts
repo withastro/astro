@@ -1,40 +1,58 @@
-import type { BuildResult } from 'esbuild';
+import { escape } from 'html-escaper';
+import { bold, underline } from 'kleur/colors';
 import * as fs from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
+import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
 import { AggregateError, ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
 
-export const incompatiblePackages = {
-	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`,
-};
-export const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackages).join('|')})`);
+type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 
 /**
  * Takes any error-like object and returns a standardized Error + metadata object.
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
 export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
-	const err = AggregateError.is(e) ? (e.errors as SSRError[]) : [e as SSRError];
+	const err =
+		AggregateError.is(e) || Array.isArray((e as any).errors)
+			? (e.errors as SSRError[])
+			: [e as SSRError];
 
 	err.forEach((error) => {
 		if (error.stack) {
 			error = collectInfoFromStacktrace(e);
 		}
 
-		if (error.loc?.file && rootFolder && !error.loc.file.startsWith('/')) {
+		// Make sure the file location is absolute, otherwise:
+		// - It won't be clickable in the terminal
+		// - We'll fail to show the file's content in the browser
+		// - We'll fail to show the code frame in the terminal
+		// - The "Open in Editor" button won't work
+		if (
+			error.loc?.file &&
+			rootFolder &&
+			(!error.loc.file.startsWith(rootFolder.pathname) || !isAbsolute(error.loc.file))
+		) {
 			error.loc.file = join(fileURLToPath(rootFolder), error.loc.file);
 		}
 
 		// If we don't have a frame, but we have a location let's try making up a frame for it
-		if (!error.frame && error.loc) {
+		if (error.loc && (!error.frame || !error.fullCode)) {
 			try {
 				const fileContents = fs.readFileSync(error.loc.file!, 'utf8');
-				const frame = codeFrame(fileContents, error.loc);
-				error.frame = frame;
+
+				if (!error.frame) {
+					const frame = codeFrame(fileContents, error.loc);
+					error.frame = frame;
+				}
+
+				if (!error.fullCode) {
+					error.fullCode = fileContents;
+				}
 			} catch {}
 		}
 
@@ -42,13 +60,16 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		error.hint = generateHint(e);
 	});
 
-	// If we received an array of errors and it's not from us, it should be from ESBuild, try to extract info for Vite to display
+	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
+	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
 	if (!AggregateError.is(e) && Array.isArray((e as any).errors)) {
-		(e as BuildResult).errors.forEach((buildError, i) => {
+		(e.errors as EsbuildMessage[]).forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
 			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
-			err[i].message = text;
+			if (text) {
+				err[i].message = text;
+			}
 
 			if (location) {
 				err[i].loc = { file: location.file, line: location.line, column: location.column };
@@ -66,13 +87,17 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 				}
 			}
 
-			const possibleFilePath = err[i].pluginCode || err[i].id || location?.file;
-			if (possibleFilePath && !err[i].frame) {
+			const possibleFilePath = location?.file ?? err[i].id;
+			if (possibleFilePath && err[i].loc && (!err[i].frame || !err[i].fullCode)) {
 				try {
 					const fileContents = fs.readFileSync(possibleFilePath, 'utf8');
-					err[i].frame = codeFrame(fileContents, { ...err[i].loc, file: possibleFilePath });
+					if (!err[i].frame) {
+						err[i].frame = codeFrame(fileContents, { ...err[i].loc, file: possibleFilePath });
+					}
+
+					err[i].fullCode = fileContents;
 				} catch {
-					// do nothing, code frame isn't that big a deal
+					err[i].fullCode = err[i].pluginCode;
 				}
 			}
 
@@ -89,26 +114,22 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 }
 
 function generateHint(err: ErrorWithMetadata): string | undefined {
+	const commonBrowserAPIs = ['document', 'window'];
+
 	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
-	} else if (err.toString().includes('document')) {
+	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
 
 ${
 	err.loc?.file?.endsWith('.astro')
-		? 'Move your code to a <script> tag outside of the frontmatter, so the code runs on the client'
-		: 'If the code is in a framework component, try to access these objects after rendering using lifecycle methods or use a `client:only` directive to make the component exclusively run on the client'
+		? 'Move your code to a <script> tag outside of the frontmatter, so the code runs on the client.'
+		: 'If the code is in a framework component, try to access these objects after rendering using lifecycle methods or use a `client:only` directive to make the component exclusively run on the client.'
 }
 
 See https://docs.astro.build/en/guides/troubleshooting/#document-or-window-is-not-defined for more information.
 		`;
 		return hint;
-	} else {
-		const res = incompatPackageExp.exec(err.stack);
-		if (res) {
-			const key = res[0] as keyof typeof incompatiblePackages;
-			return incompatiblePackages[key];
-		}
 	}
 	return err.hint;
 }
@@ -167,4 +188,27 @@ function cleanErrorStack(stack: string) {
 		.split(/\n/g)
 		.map((l) => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
+}
+
+/**
+ * Render a subset of Markdown to HTML or a CLI output
+ */
+export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
+	const linkRegex = /\[(.+)\]\((.+)\)/gm;
+	const boldRegex = /\*\*(.+)\*\*/gm;
+	const urlRegex = / (\b(https?|ftp):\/\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|]) /gim;
+	const codeRegex = /`([^`]+)`/gim;
+
+	if (target === 'html') {
+		return escape(markdown)
+			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
+			.replace(boldRegex, '<b>$1</b>')
+			.replace(urlRegex, ' <a href="$1" target="_blank">$1</a> ')
+			.replace(codeRegex, '<code>$1</code>');
+	} else {
+		return markdown
+			.replace(linkRegex, (fullMatch, m1, m2) => `${bold(m1)} ${underline(m2)}`)
+			.replace(urlRegex, (fullMatch, m1) => ` ${underline(fullMatch.trim())} `)
+			.replace(boldRegex, (fullMatch, m1) => `${bold(m1)}`);
+	}
 }

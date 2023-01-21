@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "1.2.2",
+  "version": "2.0.0-beta.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -52,6 +52,6 @@
     "@types/react-dom": "^17.0.17 || ^18.0.6"
   },
   "engines": {
-    "node": "^14.18.0 || >=16.12.0"
+    "node": ">=16.12.0"
   }
 }

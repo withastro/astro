@@ -1,4 +1,4 @@
-import type { RouteData, SSRElement } from '../../@types/astro';
+import type { RouteData, SSRElement, SSRResult } from '../../@types/astro';
 
 /**
  * The RenderContext represents the parts of rendering that are specific to one request.
@@ -11,6 +11,7 @@ export interface RenderContext {
 	scripts?: Set<SSRElement>;
 	links?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
+	propagation?: SSRResult['propagation'];
 	route?: RouteData;
 	status?: number;
 }

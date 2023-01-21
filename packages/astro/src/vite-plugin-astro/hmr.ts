@@ -1,7 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import { cachedCompilation, invalidateCompilation, isCached } from '../core/compile/index.js';
+import {
+	cachedCompilation,
+	CompileResult,
+	invalidateCompilation,
+	isCached,
+} from '../core/compile/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
@@ -17,32 +22,24 @@ export interface HandleHotUpdateOptions {
 	config: AstroConfig;
 	logging: LogOptions;
 	compile: () => ReturnType<typeof cachedCompilation>;
+	source: string;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ config, logging, compile }: HandleHotUpdateOptions
+	{ config, logging, compile, source }: HandleHotUpdateOptions
 ) {
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro') && isCached(config, ctx.file)) {
 		// Get the compiled result from the cache
 		const oldResult = await compile();
-		// But we also need a fresh, uncached result to compare it to
+		// Skip HMR if source isn't changed
+		if (oldResult.source === source) return [];
+		// Invalidate to get fresh, uncached result to compare it to
 		invalidateCompilation(config, ctx.file);
 		const newResult = await compile();
-		// If the hashes are identical, we assume only styles have changed
-		if (oldResult.scope === newResult.scope) {
+		if (isStyleOnlyChanged(oldResult, newResult)) {
 			isStyleOnlyChange = true;
-			// All styles are the same, we can skip an HMR update
-			const styles = new Set(newResult.css);
-			for (const style of oldResult.css) {
-				if (styles.has(style)) {
-					styles.delete(style);
-				}
-			}
-			if (styles.size === 0) {
-				return [];
-			}
 		}
 	} else {
 		invalidateCompilation(config, ctx.file);
@@ -82,7 +79,7 @@ export async function handleHotUpdate(
 	for (const file of files) {
 		if (isStyleOnlyChange && file === ctx.file) continue;
 		invalidateCompilation(config, file);
-		// If `ctx.file` is depended by an .astro file, e.g via `this.addWatchFile`,
+		// If `ctx.file` is depended by an .astro file, e.g. via `this.addWatchFile`,
 		// Vite doesn't trigger updating that .astro file by default. See:
 		// https://github.com/vitejs/vite/issues/3216
 		// For now, we trigger the change manually here.
@@ -133,4 +130,34 @@ export async function handleHotUpdate(
 	}
 
 	return mods;
+}
+
+function isStyleOnlyChanged(oldResult: CompileResult, newResult: CompileResult) {
+	return (
+		normalizeCode(oldResult.code) === normalizeCode(newResult.code) &&
+		!isArrayEqual(oldResult.css, newResult.css)
+	);
+}
+
+const astroStyleImportRE = /import\s*"[^"]+astro&type=style[^"]+";/g;
+const sourceMappingUrlRE = /\/\/# sourceMappingURL=[^ ]+$/gm;
+
+/**
+ * Remove style-related code and sourcemap from the final astro output so they
+ * can be compared between non-style code
+ */
+function normalizeCode(code: string) {
+	return code.replace(astroStyleImportRE, '').replace(sourceMappingUrlRE, '').trim();
+}
+
+function isArrayEqual(a: any[], b: any[]) {
+	if (a.length !== b.length) {
+		return false;
+	}
+	for (let i = 0; i < a.length; i++) {
+		if (a[i] !== b[i]) {
+			return false;
+		}
+	}
+	return true;
 }

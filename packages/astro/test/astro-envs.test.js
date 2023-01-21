@@ -52,7 +52,8 @@ describe('Environment Variables', () => {
 		});
 
 		it('includes public env in client-side JS', async () => {
-			let dirs = await fixture.readdir('/');
+			let dirs = await fixture.readdir('/_astro');
+			console.log(dirs);
 			let found = false;
 
 			// Look in all of the .js files to see if the public env is inlined.
@@ -61,7 +62,7 @@ describe('Environment Variables', () => {
 			await Promise.all(
 				dirs.map(async (path) => {
 					if (path.endsWith('.js')) {
-						let js = await fixture.readFile(`/${path}`);
+						let js = await fixture.readFile(`/_astro/${path}`);
 						if (js.includes('BLUE_BAYOU')) {
 							found = true;
 						}
@@ -78,7 +79,7 @@ describe('Environment Variables', () => {
 
 			// Look in all of the .js files to see if the public env is inlined.
 			// Testing this way prevents hardcoding expected js files.
-			// If we find it in any of them that's good enough to know its NOT working.
+			// If we find it in any of them that's good enough to know it's NOT working.
 			await Promise.all(
 				dirs.map(async (path) => {
 					if (path.endsWith('.js')) {

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/webapi",
   "description": "Use Web APIs in Node",
-  "version": "1.1.1",
+  "version": "2.0.0-beta.0",
   "type": "module",
   "exports": {
     ".": {
@@ -50,8 +50,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "dependencies": {
-    "global-agent": "^3.0.0",
-    "node-fetch": "^3.2.5"
+    "undici": "^5.14.0"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
@@ -59,23 +58,18 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.2",
     "@types/chai": "^4.3.1",
-    "@types/global-agent": "^2.1.1",
     "@types/mocha": "^9.1.1",
     "@types/node": "^14.18.21",
     "@ungap/structured-clone": "^0.3.4",
-    "abort-controller": "^3.0.0",
     "chai": "^4.3.6",
     "event-target-shim": "^6.0.2",
-    "fetch-blob": "^3.1.5",
     "formdata-polyfill": "^4.0.10",
     "magic-string": "^0.25.9",
     "mocha": "^9.2.2",
     "rollup": "^2.79.1",
-    "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
     "typescript": "~4.7.3",
-    "urlpattern-polyfill": "^1.0.0-rc5",
-    "web-streams-polyfill": "^3.2.1"
+    "urlpattern-polyfill": "^1.0.0-rc5"
   },
   "scripts": {
     "build": "node run/build.js",

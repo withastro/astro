@@ -75,6 +75,6 @@ describe('Dynamic components subpath', () => {
 		expect($('astro-island').html()).to.equal('');
 		// test 2: has component url
 		const attr = $('astro-island').attr('component-url');
-		expect(attr).to.include(`blog/PersistentCounter`);
+		expect(attr).to.include(`blog/_astro/PersistentCounter`);
 	});
 });

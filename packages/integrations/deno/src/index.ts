@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 interface BuildConfig {
 	server: URL;
 	serverEntry: string;
+	assets: string;
 }
 
 interface Options {
@@ -31,12 +32,10 @@ export function getAdapter(args?: Options): AstroAdapter {
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _buildConfig: BuildConfig;
 	let _vite: any;
-	let needsBuildConfig = false;
 	return {
 		name: '@astrojs/deno',
 		hooks: {
 			'astro:config:done': ({ setAdapter, config }) => {
-				needsBuildConfig = !config.build.client;
 				setAdapter(getAdapter(args));
 				_buildConfig = config.build;
 
@@ -45,12 +44,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					console.warn(
 						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
 					);
-				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				// Backwards compat
-				if (needsBuildConfig) {
-					_buildConfig = buildConfig;
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
@@ -94,7 +87,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
 				try {
 					const chunkFileNames =
-						_vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
+						_vite?.build?.rollupOptions?.output?.chunkFileNames ?? `chunks/chunk.[hash].mjs`;
 					const chunkPath = npath.dirname(chunkFileNames);
 					const chunksDirUrl = new URL(chunkPath + '/', _buildConfig.server);
 					await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });

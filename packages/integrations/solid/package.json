@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "1.2.3",
+  "version": "2.0.0-beta.0",
   "description": "Use Solid components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -44,6 +44,6 @@
     "solid-js": "^1.4.3"
   },
   "engines": {
-    "node": "^14.18.0 || >=16.12.0"
+    "node": ">=16.12.0"
   }
 }

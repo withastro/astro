@@ -1,20 +1,25 @@
+![The Astro logo.](assets/social/banner-minimal.png 'The Astro logo.')
+
 <p align="center">
-  <img src="assets/social/banner-minimal.png" alt="Astro logo">
-  <br/><br/>
+  <br/>
   <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
   <br/>
   powerful developer experience meets lightweight output.
   <br/><br/>
 </p>
 
+
 ## Install
 
+The **recommended** way to install the latest version of Astro is by running the command below:
 
 ```bash
-# Recommended!
 npm create astro@latest
+```
 
-# Manual:
+You can also install Astro **manually** by running this command instead:
+
+```bash
 npm install --save-dev astro
 ```
 
@@ -42,7 +47,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [create-astro](packages/create-astro)                   | [![create-astro version](https://img.shields.io/npm/v/create-astro.svg?label=%20)](packages/create-astro/CHANGELOG.md)            |
 | [@astrojs/react](packages/integrations/react)           | [![astro version](https://img.shields.io/npm/v/@astrojs/react.svg?label=%20)](packages/integrations/react/CHANGELOG.md)           |
 | [@astrojs/preact](packages/integrations/preact)         | [![astro version](https://img.shields.io/npm/v/@astrojs/preact.svg?label=%20)](packages/integrations/preact/CHANGELOG.md)         |
-| [@astrojs/solid-js](packages/integrations/solid)        | [![astro version](https://img.shields.io/npm/v/@astrojs/solid-js.svg?label=%20)](packages/integrations/solid-js/CHANGELOG.md)     |
+| [@astrojs/solid-js](packages/integrations/solid)        | [![astro version](https://img.shields.io/npm/v/@astrojs/solid-js.svg?label=%20)](packages/integrations/solid/CHANGELOG.md)     |
 | [@astrojs/svelte](packages/integrations/svelte)         | [![astro version](https://img.shields.io/npm/v/@astrojs/svelte.svg?label=%20)](packages/integrations/svelte/CHANGELOG.md)         |
 | [@astrojs/vue](packages/integrations/vue)               | [![astro version](https://img.shields.io/npm/v/@astrojs/vue.svg?label=%20)](packages/integrations/vue/CHANGELOG.md)               |
 | [@astrojs/lit](packages/integrations/lit)               | [![astro version](https://img.shields.io/npm/v/@astrojs/lit.svg?label=%20)](packages/integrations/lit/CHANGELOG.md)               |
@@ -86,6 +91,12 @@ Astro is generously supported by Netlify, Storyblok, and several other amazing o
 
 <p align="center">
   <a target="_blank" href="https://github.com/sponsors/withastro">
-    <img alt="sponsors" src="https://astro.build/sponsors.png">
+
+[![Astro's sponsors.](https://astro.build/sponsors.png 
+"Astro's sponsors.
+Platinum sponsors: Netlify, storyblok, Vercel, Ship Shape
+Gold sponsors: ‹div›RIOTS, StackUp, DEEPGRAM
+Sponsors: Monogram, Qoddi, Dimension")](https://github.com/sponsors/withastro)
+
   </a>
 </p>

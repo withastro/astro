@@ -1,5 +1,13 @@
 # @astrojs/lit
 
+## 1.0.2-beta.0
+
+### Patch Changes
+
+- [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Only shim fetch if not already present
+
+- [#5791](https://github.com/withastro/astro/pull/5791) [`f7aa1ec25`](https://github.com/withastro/astro/commit/f7aa1ec25d1584f7abd421903fbef66b1c050e2a) Thanks [@ba55ie](https://github.com/ba55ie)! - Fix Lit slotted content
+
 ## 1.0.1
 
 ### Patch Changes
@@ -48,7 +56,7 @@
 
 ### Patch Changes
 
-- [#3511](https://github.com/withastro/astro/pull/3511) [`2fedb974`](https://github.com/withastro/astro/commit/2fedb974899b37a8d9ddabc476764a6d35d1e446) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Patch Lit's server shim to allow for `sass` compatability
+- [#3511](https://github.com/withastro/astro/pull/3511) [`2fedb974`](https://github.com/withastro/astro/commit/2fedb974899b37a8d9ddabc476764a6d35d1e446) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Patch Lit's server shim to allow for `sass` compatibility
 
 ## 0.1.4
 

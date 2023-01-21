@@ -111,9 +111,10 @@ export function resolveRoot(cwd?: string | URL): string {
 }
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
+function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.markdown = astroConfig.markdown || {};
+	astroConfig.experimental = astroConfig.experimental || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
 	if (typeof flags.base === 'string') astroConfig.base = flags.base;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
@@ -130,6 +131,23 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	return astroConfig;
 }
 
+async function search(fsMod: typeof fs, root: string) {
+	const paths = [
+		'astro.config.mjs',
+		'astro.config.js',
+		'astro.config.ts',
+		'astro.config.mts',
+		'astro.config.cjs',
+		'astro.config.cts',
+	].map((p) => path.join(root, p));
+
+	for (const file of paths) {
+		if (fsMod.existsSync(file)) {
+			return file;
+		}
+	}
+}
+
 interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
@@ -141,41 +159,36 @@ interface LoadConfigOptions {
 	fsMod?: typeof fs;
 }
 
+interface ResolveConfigPathOptions {
+	cwd?: string;
+	flags?: Flags;
+	fs: typeof fs;
+}
+
 /**
  * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
- * Note: currently the same as loadConfig but only returns the `filePath`
- * instead of the resolved config
  */
 export async function resolveConfigPath(
-	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'> & { fs: typeof fs }
+	configOptions: ResolveConfigPathOptions
 ): Promise<string | undefined> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
-	let userConfigPath: string | undefined;
 
+	let userConfigPath: string | undefined;
 	if (flags?.config) {
 		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
 		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
-	}
-
-	// Resolve config file path using Proload
-	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	try {
-		const config = await loadConfigWithVite({
-			configPath: userConfigPath,
-			root,
-			fs: configOptions.fs,
-		});
-		return config.filePath;
-	} catch (e) {
-		if (flags.config) {
+		if (!configOptions.fs.existsSync(userConfigPath)) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
 				message: AstroErrorData.ConfigNotFound.message(flags.config),
 			});
 		}
-		throw e;
+	} else {
+		userConfigPath = await search(configOptions.fs, root);
 	}
+
+	return userConfigPath;
 }
 
 interface OpenConfigResult {
@@ -255,22 +268,6 @@ async function tryLoadConfig(
 	}
 }
 
-/**
- * Attempt to load an `astro.config.mjs` file
- * @deprecated
- */
-export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
-	const root = resolveRoot(configOptions.cwd);
-	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
-
-	const config = await tryLoadConfig(configOptions, root);
-	if (config) {
-		userConfig = config.value;
-	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd);
-}
-
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
 export async function resolveConfig(
 	userConfig: AstroUserConfig,
@@ -278,7 +275,7 @@ export async function resolveConfig(
 	flags: CLIFlags = {},
 	cmd: string
 ): Promise<AstroConfig> {
-	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
+	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
 
 	return validatedConfig;

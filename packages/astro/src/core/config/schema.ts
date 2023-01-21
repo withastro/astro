@@ -1,14 +1,12 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
-import type * as Postcss from 'postcss';
+import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
-import postcssrc from 'postcss-load-config';
+import { OutgoingHttpHeaders } from 'http';
 import { BUNDLED_THEMES } from 'shiki';
-import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
-import { isObject } from '../util.js';
 
 const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	root: '.',
@@ -21,6 +19,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		format: 'directory',
 		client: './dist/client/',
 		server: './dist/server/',
+		assets: '_astro',
 		serverEntry: 'entry.mjs',
 	},
 	server: {
@@ -28,24 +27,13 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		port: 3000,
 		streaming: true,
 	},
-	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
 	markdown: {
 		drafts: false,
-		syntaxHighlight: 'shiki',
-		shikiConfig: {
-			langs: [],
-			theme: 'github-dark',
-			wrap: false,
-		},
-		remarkPlugins: [],
-		rehypePlugins: [],
-		remarkRehype: {},
+		...markdownConfigDefaults,
 	},
 	vite: {},
-	legacy: {
-		astroFlavoredMarkdown: false,
-	},
+	legacy: {},
 };
 
 export const AstroConfigSchema = z.object({
@@ -69,11 +57,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
-	site: z
-		.string()
-		.url()
-		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val)),
+	site: z.string().url().optional(),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
@@ -108,6 +92,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.server)
 				.transform((val) => new URL(val)),
+			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 		})
 		.optional()
@@ -125,22 +110,11 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+				headers: z.custom<OutgoingHttpHeaders>().optional(),
 			})
 			.optional()
 			.default({})
 	),
-	style: z
-		.object({
-			postcss: z
-				.object({
-					options: z.any(),
-					plugins: z.array(z.any()),
-				})
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.style.postcss),
-		})
-		.optional()
-		.default({}),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
@@ -179,51 +153,16 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			extendDefaultPlugins: z.boolean().default(false),
+			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
+			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.default({}),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	legacy: z
-		.object({
-			astroFlavoredMarkdown: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
-		})
-		.optional()
-		.default({}),
+	experimental: z.object({}).optional().default({}),
+	legacy: z.object({}).optional().default({}),
 });
-
-interface PostCSSConfigResult {
-	options: Postcss.ProcessOptions;
-	plugins: Postcss.Plugin[];
-}
-
-async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
-	if (isObject(inlineOptions)) {
-		const options = { ...inlineOptions };
-		delete options.plugins;
-		return {
-			options,
-			plugins: inlineOptions.plugins || [],
-		};
-	}
-	const searchPath = typeof inlineOptions === 'string' ? inlineOptions : fileURLToPath(root);
-	try {
-		// @ts-ignore
-		return await postcssrc({}, searchPath);
-	} catch (err: any) {
-		if (!/No PostCSS Config found/.test(err.message)) {
-			throw err;
-		}
-		return {
-			options: {},
-			plugins: [],
-		};
-	}
-}
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 	// We need to extend the global schema to add transforms that are relative to root.
@@ -261,6 +200,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
 					.transform((val) => new URL(val, fileProtocolRoot)),
+				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			})
 			.optional()
@@ -287,26 +227,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					headers: z.custom<OutgoingHttpHeaders>().optional(),
 					streaming: z.boolean().optional().default(true),
 				})
 				.optional()
 				.default({})
 		),
-		style: z
-			.object({
-				postcss: z.preprocess(
-					(val) => resolvePostcssConfig(val, fileProtocolRoot),
-					z
-						.object({
-							options: z.any(),
-							plugins: z.array(z.any()),
-						})
-						.optional()
-						.default(ASTRO_CONFIG_DEFAULTS.style.postcss)
-				),
-			})
-			.optional()
-			.default({}),
 	}).transform((config) => {
 		// If the user changed outDir but not build.server, build.config, adjust so those
 		// are relative to the outDir, as is the expected default.

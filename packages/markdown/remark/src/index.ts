@@ -1,31 +1,43 @@
-import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
+import type {
+	AstroMarkdownOptions,
+	MarkdownRenderingOptions,
+	MarkdownRenderingResult,
+	MarkdownVFile,
+} from './types';
 
+import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
-import createCollectHeadings from './rehype-collect-headings.js';
-import rehypeEscape from './rehype-escape.js';
-import rehypeExpressions from './rehype-expressions.js';
-import rehypeIslands from './rehype-islands.js';
-import rehypeJsx from './rehype-jsx.js';
-import remarkEscape from './remark-escape.js';
-import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
-import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
-import remarkMdxish from './remark-mdxish.js';
+import { rehypeHeadingIds } from './rehype-collect-headings.js';
+import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
 import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
-import remarkUnwrap from './remark-unwrap.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
+import remarkGfm from 'remark-gfm';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
+import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
 
+export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
 
-export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
-export const DEFAULT_REHYPE_PLUGINS = [];
+export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {
+	syntaxHighlight: 'shiki',
+	shikiConfig: {
+		langs: [],
+		theme: 'github-dark',
+		wrap: false,
+	},
+	remarkPlugins: [],
+	rehypePlugins: [],
+	remarkRehype: {},
+	gfm: true,
+	smartypants: true,
+};
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
@@ -34,26 +46,30 @@ export async function renderMarkdown(
 ): Promise<MarkdownRenderingResult> {
 	let {
 		fileURL,
-		syntaxHighlight = 'shiki',
-		shikiConfig = {},
-		remarkPlugins = [],
-		rehypePlugins = [],
-		remarkRehype = {},
-		extendDefaultPlugins = false,
-		isAstroFlavoredMd = false,
+		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
+		shikiConfig = markdownConfigDefaults.shikiConfig,
+		remarkPlugins = markdownConfigDefaults.remarkPlugins,
+		rehypePlugins = markdownConfigDefaults.rehypePlugins,
+		remarkRehype = markdownConfigDefaults.remarkRehype,
+		gfm = markdownConfigDefaults.gfm,
+		smartypants = markdownConfigDefaults.smartypants,
+		contentDir,
+		frontmatter: userFrontmatter = {},
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
-	const { headings, rehypeCollectHeadings } = createCollectHeadings();
 
 	let parser = unified()
 		.use(markdown)
-		.use(remarkInitializeAstroData)
-		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
+		.use(toRemarkInitializeAstroData({ userFrontmatter }))
+		.use([]);
 
-	if (extendDefaultPlugins || (remarkPlugins.length === 0 && rehypePlugins.length === 0)) {
-		remarkPlugins = [...DEFAULT_REMARK_PLUGINS, ...remarkPlugins];
-		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS, ...rehypePlugins];
+	if (gfm) {
+		parser.use(remarkGfm);
+	}
+
+	if (smartypants) {
+		parser.use(remarkSmartypants);
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -73,20 +89,15 @@ export async function renderMarkdown(
 		parser.use([remarkPrism(scopedClassName)]);
 	}
 
+	// Apply later in case user plugins resolve relative image paths
+	parser.use([toRemarkContentRelImageError({ contentDir })]);
+
 	parser.use([
 		[
 			markdownToHtml as any,
 			{
 				allowDangerousHtml: true,
-				passThrough: isAstroFlavoredMd
-					? [
-							'raw',
-							'mdxFlowExpression',
-							'mdxJsxFlowElement',
-							'mdxJsxTextElement',
-							'mdxTextExpression',
-					  ]
-					: [],
+				passThrough: [],
 				...remarkRehype,
 			},
 		],
@@ -96,15 +107,9 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	parser
-		.use(
-			isAstroFlavoredMd
-				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeadings]
-				: [rehypeCollectHeadings, rehypeRaw]
-		)
-		.use(rehypeStringify, { allowDangerousHtml: true });
+	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 
-	let vfile: VFile;
+	let vfile: MarkdownVFile;
 	try {
 		vfile = await parser.process(input);
 	} catch (err) {
@@ -116,6 +121,7 @@ export async function renderMarkdown(
 		throw err;
 	}
 
+	const headings = vfile?.data.__astroHeadings || [];
 	return {
 		metadata: { headings, source: content, html: String(vfile.value) },
 		code: String(vfile.value),

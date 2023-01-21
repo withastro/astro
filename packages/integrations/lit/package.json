@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/lit",
-  "version": "1.0.1",
+  "version": "1.0.2-beta.0",
   "description": "Use Lit components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -33,7 +33,8 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@lit-labs/ssr": "^2.2.0"
+    "@lit-labs/ssr": "^2.2.0",
+    "parse5": "^7.1.2"
   },
   "devDependencies": {
     "astro": "workspace:*",

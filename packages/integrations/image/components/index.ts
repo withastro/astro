@@ -1,15 +1,60 @@
 /// <reference types="astro/astro-jsx" />
 export { default as Image } from './Image.astro';
 export { default as Picture } from './Picture.astro';
+import type { HTMLAttributes } from 'astro/types';
 
-// TODO: should these directives be removed from astroHTML.JSX?
-export type ImgHTMLAttributes = Omit<
-	astroHTML.JSX.ImgHTMLAttributes,
-	'client:list' | 'set:text' | 'set:html' | 'is:raw'
->;
-export type HTMLAttributes = Omit<
+import type { TransformOptions, OutputFormat } from '../dist/loaders/index.js';
+import type { ImageMetadata } from '../dist/vite-plugin-astro-image.js';
+import type { AstroBuiltinAttributes } from 'astro';
+
+export interface ImageComponentLocalImageProps
+	extends Omit<TransformOptions, 'src'>,
+		Omit<ImgHTMLAttributes, 'src' | 'width' | 'height'> {
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
+	alt: string;
+}
+
+export interface ImageComponentRemoteImageProps extends TransformOptions, ImgHTMLAttributes {
+	src: string;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
+	alt: string;
+	format?: OutputFormat;
+	width: number;
+	height: number;
+}
+
+export interface PictureComponentLocalImageProps
+	extends GlobalHTMLAttributes,
+		Omit<TransformOptions, 'src'>,
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
+	alt: string;
+	sizes: HTMLImageElement['sizes'];
+	widths: number[];
+	formats?: OutputFormat[];
+}
+
+export interface PictureComponentRemoteImageProps
+	extends GlobalHTMLAttributes,
+		TransformOptions,
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
+	src: string;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
+	alt: string;
+	sizes: HTMLImageElement['sizes'];
+	widths: number[];
+	aspectRatio: TransformOptions['aspectRatio'];
+	formats?: OutputFormat[];
+	background: TransformOptions['background'];
+}
+
+export type ImgHTMLAttributes = HTMLAttributes<'img'>;
+
+export type GlobalHTMLAttributes = Omit<
 	astroHTML.JSX.HTMLAttributes,
-	'client:list' | 'set:text' | 'set:html' | 'is:raw'
+	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 >;
 
 let altWarningShown = false;

@@ -1,23 +1,16 @@
 import type { TransformResult } from 'rollup';
-import type { TsConfigJson } from 'tsconfig-resolver';
-import type { Plugin, ResolvedConfig } from 'vite';
+import { EsbuildTransformOptions, Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
-import * as eslexer from 'es-module-lexer';
-import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
 import { removeQueryString } from '../core/path.js';
-import { parseNpmName } from '../core/util.js';
+import { detectImportSource } from './import-source.js';
 import tagExportsPlugin from './tag.js';
-
-type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
-	jsxImportSource?: string;
-};
 
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
@@ -27,16 +20,10 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 	astro: "import 'astro/jsx-runtime'",
 };
 
-// A code snippet to inject into JS files to prevent esbuild reference bugs.
-// The `tsx` loader in esbuild will remove unused imports, so we need to
-// be careful about esbuild not treating h, React, Fragment, etc. as unused.
-const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
-// A fast check regex for the import keyword. False positives are okay.
-const IMPORT_KEYWORD_REGEX = /import/;
-
-function getEsbuildLoader(fileExt: string): string {
+function getEsbuildLoader(filePath: string): EsbuildTransformOptions['loader'] {
+	const fileExt = path.extname(filePath);
 	if (fileExt === '.mdx') return 'jsx';
-	return fileExt.slice(1);
+	return fileExt.slice(1) as EsbuildTransformOptions['loader'];
 }
 
 function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRenderer> {
@@ -46,53 +33,6 @@ function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRende
 	);
 }
 
-/**
- * Scan a file for an explicit @jsxImportSource comment.
- * If one is found, return it's value. Otherwise, return undefined.
- */
-function detectImportSourceFromComments(code: string): string | undefined {
-	// if no imports were found, look for @jsxImportSource comment
-	const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];
-	for (const comment of multiline) {
-		const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
-		if (lib) {
-			return lib.trim();
-		}
-	}
-}
-
-/**
- * Scan a file's imports to detect which renderer it may need.
- * ex: if the file imports "preact", it's safe to assume the
- * component should be built as a Preact component.
- * If no relevant imports found, return undefined.
- */
-async function detectImportSourceFromImports(
-	code: string,
-	id: string,
-	jsxRenderers: Map<string, AstroRenderer>
-) {
-	// We need valid JS to scan for imports.
-	// NOTE: Because we only need imports, it is okay to use `h` and `Fragment` as placeholders.
-	const { code: jsCode } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
-		loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
-		jsx: 'transform',
-		jsxFactory: 'h',
-		jsxFragment: 'Fragment',
-		sourcefile: id,
-		sourcemap: 'inline',
-	});
-	const [imports] = eslexer.parse(jsCode);
-	if (imports.length > 0) {
-		for (let { n: spec } of imports) {
-			const pkg = spec && parseNpmName(spec);
-			if (!pkg) continue;
-			if (jsxRenderers.has(pkg.name)) {
-				return pkg.name;
-			}
-		}
-	}
-}
 interface TransformJSXOptions {
 	code: string;
 	id: string;
@@ -196,11 +136,16 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
 			if (id.endsWith('.mdx')) {
-				const { code: jsxCode } = await esbuild.transform(code, {
-					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+				const { code: jsxCode } = await transformWithEsbuild(code, id, {
+					loader: getEsbuildLoader(id),
 					jsx: 'preserve',
-					sourcefile: id,
 					sourcemap: 'inline',
+					tsconfigRaw: {
+						compilerOptions: {
+							// Ensure client:only imports are treeshaken
+							importsNotUsedAsValues: 'remove',
+						},
+					},
 				});
 				return transformJSX({
 					code: jsxCode,
@@ -213,10 +158,9 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			}
 			if (defaultJSXRendererEntry && jsxRenderersIntegrationOnly.size === 1) {
 				// downlevel any non-standard syntax, but preserve JSX
-				const { code: jsxCode } = await esbuild.transform(code, {
-					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+				const { code: jsxCode } = await transformWithEsbuild(code, id, {
+					loader: getEsbuildLoader(id),
 					jsx: 'preserve',
-					sourcefile: id,
 					sourcemap: 'inline',
 				});
 				return transformJSX({
@@ -229,16 +173,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 				});
 			}
 
-			let importSource = detectImportSourceFromComments(code);
-			if (!importSource && IMPORT_KEYWORD_REGEX.test(code)) {
-				importSource = await detectImportSourceFromImports(code, id, jsxRenderers);
-			}
-
-			// Check the tsconfig
-			if (!importSource) {
-				const compilerOptions = settings.tsConfig?.compilerOptions;
-				importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
-			}
+			const importSource = await detectImportSource(code, jsxRenderers, settings.tsConfig);
 
 			// if we still can’t tell the import source, now is the time to throw an error.
 			if (!importSource && defaultJSXRendererEntry) {
@@ -280,10 +215,9 @@ https://docs.astro.build/en/core-concepts/framework-components/#installing-integ
 			}
 
 			// downlevel any non-standard syntax, but preserve JSX
-			const { code: jsxCode } = await esbuild.transform(code, {
-				loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+			const { code: jsxCode } = await transformWithEsbuild(code, id, {
+				loader: getEsbuildLoader(id),
 				jsx: 'preserve',
-				sourcefile: id,
 				sourcemap: 'inline',
 			});
 			return await transformJSX({

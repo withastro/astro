@@ -61,9 +61,12 @@ DEBUG=vite:[name] astro dev   # debug specific process, e.g. "vite:deps" or "vit
 ```shell
 # run this in the top-level project root to run all tests
 pnpm run test
-# run only a few tests, great for working on a single feature
-# (example - `pnpm run test:match "RSS"` runs `astro-rss.test.js`)
+# run only a few tests in the `astro` package, great for working on a single feature
+# (example - `pnpm run test:match "cli"` runs `cli.test.js`)
 pnpm run test:match "$STRING_MATCH"
+# run tests on another package
+# (example - `pnpm --filter @astrojs/rss run test` runs `packages/astro-rss/test/rss.test.js`)
+pnpm --filter $STRING_MATCH run test
 ```
 
 #### E2E tests

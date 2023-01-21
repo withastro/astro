@@ -1,5 +1,19 @@
 # create-astro
 
+## 2.0.0-beta.0
+
+### Major Changes
+
+- [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 14. Minimum supported Node version is now >=16.12.0
+
+## 1.2.4
+
+### Patch Changes
+
+- [#5579](https://github.com/withastro/astro/pull/5579) [`2c2c65297`](https://github.com/withastro/astro/commit/2c2c65297a18c52691f09621ead55144efd601d4) Thanks [@yuhang-dong](https://github.com/yuhang-dong)! - Upgrade giget to support env proxy config
+
+- [#5616](https://github.com/withastro/astro/pull/5616) [`61302ab7a`](https://github.com/withastro/astro/commit/61302ab7a09cc4c298c903d725e35355eb069497) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Skip Houston on Windows until we can debug the prompt issue
+
 ## 1.2.3
 
 ### Patch Changes
@@ -40,7 +54,7 @@
 
 ### Minor Changes
 
-- [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Alway write chosen config to `tsconfig.json`.
+- [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Always write chosen config to `tsconfig.json`.
 
   - Before: Only when `strict` & `strictest` was selected
   - After: Also when `base` is selected (via "Relaxed" or "I prefer not to use TypeScript")
@@ -255,7 +269,7 @@
 
 ### Patch Changes
 
-- 0eeb2534: change rm to unlink for node 12 compatability
+- 0eeb2534: change rm to unlink for node 12 compatibility
 
 ## 0.6.2
 
@@ -306,7 +320,7 @@
 
 ### Minor Changes
 
-- 36e104b: Use new client: prefix for component exmaples
+- 36e104b: Use new client: prefix for component examples
 
 ## 0.4.0
 

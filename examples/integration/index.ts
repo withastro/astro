@@ -10,7 +10,7 @@ export default function createIntegration(): AstroIntegration {
 				// See the @astrojs/react integration for an example
 				// https://github.com/withastro/astro/blob/main/packages/integrations/react/src/index.ts
 			},
-			'astro:build:start': ({ buildConfig }) => {
+			'astro:build:setup': ({ config, updateConfig }) => {
 				// See the @astrojs/netlify integration for an example
 				// https://github.com/withastro/astro/blob/main/packages/integrations/netlify/src/integration-functions.ts
 			},

@@ -1,5 +1,4 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
@@ -15,8 +14,6 @@ import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { LogOptions, warn } from '../logger/core.js';
-import { isScriptRequest } from './script.js';
-import { isCSSRequest } from './util.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
@@ -45,6 +42,7 @@ export interface CreateResultArgs {
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
+	propagation?: SSRResult['propagation'];
 	request: Request;
 	status: number;
 }
@@ -56,7 +54,6 @@ function getFunctionExpression(slot: any) {
 }
 
 class Slots {
-	#cache = new Map<string, string>();
 	#result: SSRResult;
 	#slots: Record<string, any> | null;
 	#loggingOpts: LogOptions;
@@ -90,42 +87,37 @@ class Slots {
 	}
 
 	public async render(name: string, args: any[] = []) {
-		const cacheable = args.length === 0;
-		if (!this.#slots) return undefined;
-		if (cacheable && this.#cache.has(name)) {
-			const result = this.#cache.get(name);
-			return result;
-		}
-		if (!this.has(name)) return undefined;
-		if (!cacheable) {
-			const component = await this.#slots[name]();
-			if (!Array.isArray(args)) {
-				warn(
-					this.#loggingOpts,
-					'Astro.slots.render',
-					`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
+		if (!this.#slots || !this.has(name)) return;
+
+		if (!Array.isArray(args)) {
+			warn(
+				this.#loggingOpts,
+				'Astro.slots.render',
+				`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
+			);
+		} else if (args.length > 0) {
+			const slotValue = this.#slots[name];
+			const component = typeof slotValue === 'function' ? await slotValue() : await slotValue;
+
+			// Astro
+			const expression = getFunctionExpression(component);
+			if (expression) {
+				const slot = expression(...args);
+				return await renderSlot(this.#result, slot).then((res) =>
+					res != null ? String(res) : res
 				);
-			} else {
-				// Astro
-				const expression = getFunctionExpression(component);
-				if (expression) {
-					const slot = expression(...args);
-					return await renderSlot(this.#result, slot).then((res) =>
-						res != null ? String(res) : res
-					);
-				}
-				// JSX
-				if (typeof component === 'function') {
-					return await renderJSX(this.#result, component(...args)).then((res) =>
-						res != null ? String(res) : res
-					);
-				}
+			}
+			// JSX
+			if (typeof component === 'function') {
+				return await renderJSX(this.#result, component(...args)).then((res) =>
+					res != null ? String(res) : res
+				);
 			}
 		}
+
 		const content = await renderSlot(this.#result, this.#slots[name]);
 		const outHTML = stringifyChunk(this.#result, content);
 
-		if (cacheable) this.#cache.set(name, outHTML);
 		return outHTML;
 	}
 }
@@ -161,6 +153,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
+		propagation: args.propagation ?? new Map(),
+		propagators: new Map(),
+		extraHead: [],
 		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(
@@ -171,8 +166,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			const astroSlots = new Slots(result, slots, args.logging);
 
 			const Astro: AstroGlobal = {
-				// @ts-expect-error set prototype
+				// @ts-expect-error
 				__proto__: astroGlobal,
+				// @ts-ignore
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
@@ -185,7 +181,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 						}
 					}
 
-					return Reflect.get(request, clientAddressSymbol);
+					return Reflect.get(request, clientAddressSymbol) as string;
 				},
 				get cookies() {
 					if (cookies) {
@@ -209,58 +205,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 							});
 					  }
 					: onlyAvailableInSSR('Astro.redirect'),
-				resolve(path: string) {
-					let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
-					if (isCSSRequest(path)) {
-						extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
----
-import "${path}";
----
-`;
-					} else if (isScriptRequest(path)) {
-						extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
-
-<script type="module" src={(await import("${path}?url")).default}></script>
-
-or consider make it a module like so:
-
-<script>
-	import MyModule from "${path}";
-</script>
-`;
-					}
-
-					warn(
-						args.logging,
-						`deprecation`,
-						`${bold(
-							'Astro.resolve()'
-						)} is deprecated. We see that you are trying to resolve ${path}.
-${extra}`
-					);
-					// Intentionally return an empty string so that it is not relied upon.
-					return '';
-				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
 			};
-
-			Object.defineProperty(Astro, 'canonicalURL', {
-				get: function () {
-					warn(
-						args.logging,
-						'deprecation',
-						`${bold('Astro.canonicalURL')} is deprecated! Use \`Astro.url\` instead.
-Example:
-
----
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
----
-`
-					);
-					return new URL(this.request.url.pathname, this.site);
-				},
-			});
 
 			Object.defineProperty(Astro, '__renderMarkdown', {
 				// Ensure this API is not exposed to users

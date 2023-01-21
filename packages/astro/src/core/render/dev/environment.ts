@@ -1,4 +1,5 @@
 import type { AstroSettings, RuntimeMode } from '../../../@types/astro';
+import { getContentPaths } from '../../../content/index.js';
 import type { LogOptions } from '../../logger/core.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import type { Environment } from '../index';
@@ -23,7 +24,7 @@ export function createDevelopmentEnvironment(
 		logging,
 		markdown: {
 			...settings.config.markdown,
-			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
+			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		mode,
 		// This will be overridden in the dev server
@@ -33,6 +34,7 @@ export function createDevelopmentEnvironment(
 		site: settings.config.site,
 		ssr: settings.config.output === 'server',
 		streaming: true,
+		telemetry: Boolean(settings.forceDisableTelemetry),
 	});
 
 	return {

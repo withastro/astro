@@ -32,7 +32,12 @@ export function testFactory(inlineConfig) {
 	return test;
 }
 
-export async function getErrorOverlayMessage(page) {
+/**
+ *
+ * @param {string} page
+ * @returns {Promise<{message: string, hint: string}>}
+ */
+export async function getErrorOverlayContent(page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
 		strict: true,
 		timeout: 10 * 1000,
@@ -40,7 +45,10 @@ export async function getErrorOverlayMessage(page) {
 
 	expect(overlay).toBeTruthy();
 
-	return await overlay.$$eval('.message-body', (m) => m[0].textContent);
+	const message = await overlay.$$eval('#message-content', (m) => m[0].textContent);
+	const hint = await overlay.$$eval('#hint-content', (m) => m[0].textContent);
+
+	return { message, hint };
 }
 
 /**

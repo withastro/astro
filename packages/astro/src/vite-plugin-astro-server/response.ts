@@ -28,7 +28,9 @@ export async function handle500Response(
 	res: http.ServerResponse,
 	err: ErrorWithMetadata
 ) {
-	res.on('close', () => setTimeout(() => loader.webSocketSend(getViteErrorPayload(err)), 200));
+	res.on('close', async () =>
+		setTimeout(async () => loader.webSocketSend(await getViteErrorPayload(err)), 200)
+	);
 	if (res.headersSent) {
 		res.write(`<script type="module" src="/@vite/client"></script>`);
 		res.end();

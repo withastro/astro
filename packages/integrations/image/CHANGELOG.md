@@ -1,5 +1,57 @@
 # @astrojs/image
 
+## 0.12.2-beta.0
+
+### Patch Changes
+
+- [#5788](https://github.com/withastro/astro/pull/5788) [`006405d33`](https://github.com/withastro/astro/commit/006405d33c2b8eb1307cb84161659428e43efa51) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - - Refactor types to support props auto-completion for the `Image` and `Picture` components.
+
+  - Pass previously missing `alt` prop to the `getPicture` function
+
+- [#5871](https://github.com/withastro/astro/pull/5871) [`1bd42c6b2`](https://github.com/withastro/astro/commit/1bd42c6b2a072210411cffb42dcc80170b9a618b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix the integration failing to work properly on Node 18+
+
+- [#5888](https://github.com/withastro/astro/pull/5888) [`35b26f377`](https://github.com/withastro/astro/commit/35b26f377f9f379207fb4b5c16877bad1661ac6b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix crash on Netlify Functions due to `import.meta.url`
+
+- Updated dependencies [[`16dc36a87`](https://github.com/withastro/astro/commit/16dc36a870df47a4151a8ed2d91d0bd1bb812458), [`05caf445d`](https://github.com/withastro/astro/commit/05caf445d4d2728f1010aeb2179a9e756c2fd17d), [`a342a486c`](https://github.com/withastro/astro/commit/a342a486c2831461e24e6c2f1ca8a9d3e15477b6), [`ce5c5dbd4`](https://github.com/withastro/astro/commit/ce5c5dbd46afbe738b03600758bf5c35113de522), [`be901dc98`](https://github.com/withastro/astro/commit/be901dc98c4a7f6b5536540aa8f7ba5108e939a0), [`e818cc046`](https://github.com/withastro/astro/commit/e818cc0466a942919ea3c41585e231c8c80cb3d0), [`8c100a6fe`](https://github.com/withastro/astro/commit/8c100a6fe6cc652c3799d1622e12c2c969f30510), [`64b8082e7`](https://github.com/withastro/astro/commit/64b8082e776b832f1433ed288e6f7888adb626d0), [`899214298`](https://github.com/withastro/astro/commit/899214298cee5f0c975c7245e623c649e1842d73), [`3a00ecb3e`](https://github.com/withastro/astro/commit/3a00ecb3eb4bc44be758c064f2bde6e247e8a593), [`1ca81c16b`](https://github.com/withastro/astro/commit/1ca81c16b8b66236e092e6eb6ec3f73f5668421c), [`b66d7195c`](https://github.com/withastro/astro/commit/b66d7195c17a55ea0931bc3744888bd4f5f01ce6)]:
+  - astro@2.0.0-beta.3
+
+## 1.0.0-beta.2
+
+### Major Changes
+
+- [#5842](https://github.com/withastro/astro/pull/5842) [`c4b0cb8bf`](https://github.com/withastro/astro/commit/c4b0cb8bf2b41887d9106440bb2e70d421a5f481) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **Breaking Change**: client assets are built to an `_astro` directory in the build output directory. Previously these were built to various locations, including `assets/`, `chunks/` and the root of build output.
+
+  You can control this location with the new `build` configuration option named `assets`.
+
+### Minor Changes
+
+- [#5806](https://github.com/withastro/astro/pull/5806) [`7572f7402`](https://github.com/withastro/astro/commit/7572f7402238da37de748be58d678fedaf863b53) Thanks [@matthewp](https://github.com/matthewp)! - Make astro a peerDependency of integrations
+
+  This marks `astro` as a peerDependency of several packages that are already getting `major` version bumps. This is so we can more properly track the dependency between them and what version of Astro they are being used with.
+
+### Patch Changes
+
+- Updated dependencies [[`01f3f463b`](https://github.com/withastro/astro/commit/01f3f463bf2918b310d130a9fabbf3ee21d14029), [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a), [`c2180746b`](https://github.com/withastro/astro/commit/c2180746b4f6d9ef1b6f86924f21f52cc6ab4e63), [`ae8a012a7`](https://github.com/withastro/astro/commit/ae8a012a7b6884a03c50494332ee37b4505c2c3b), [`cf2de5422`](https://github.com/withastro/astro/commit/cf2de5422c26bfdea4c75f76e57b57299ded3e3a), [`ec09bb664`](https://github.com/withastro/astro/commit/ec09bb6642064dbd7d2f3369afb090363ae18de2), [`665a2c222`](https://github.com/withastro/astro/commit/665a2c2225e42881f5a9550599e8f3fc1deea0b4), [`f7aa1ec25`](https://github.com/withastro/astro/commit/f7aa1ec25d1584f7abd421903fbef66b1c050e2a), [`302e0ef8f`](https://github.com/withastro/astro/commit/302e0ef8f5d5232e3348afe680e599f3e537b5c5), [`840412128`](https://github.com/withastro/astro/commit/840412128b00a04515156e92c314a929d6b94f6d), [`1f49cddf9`](https://github.com/withastro/astro/commit/1f49cddf9e9ffc651efc171b2cbde9fbe9e8709d), [`4a1cabfe6`](https://github.com/withastro/astro/commit/4a1cabfe6b9ef8a6fbbcc0727a0dc6fa300cedaa), [`c4b0cb8bf`](https://github.com/withastro/astro/commit/c4b0cb8bf2b41887d9106440bb2e70d421a5f481), [`23dc9ea96`](https://github.com/withastro/astro/commit/23dc9ea96a10343852d965efd41fe6665294f1fb), [`63a6ceb38`](https://github.com/withastro/astro/commit/63a6ceb38d88331451dca64d0034c7c58e3d26f1), [`52209ca2a`](https://github.com/withastro/astro/commit/52209ca2ad72a30854947dcb3a90ab4db0ac0a6f), [`2303f9514`](https://github.com/withastro/astro/commit/2303f95142aa740c99213a098f82b99dd37d74a0)]:
+  - astro@2.0.0-beta.2
+
+## 0.13.0-beta.0
+
+### Minor Changes
+
+- [#5707](https://github.com/withastro/astro/pull/5707) [`5eba34fcc`](https://github.com/withastro/astro/commit/5eba34fcc663def20bdf6e0daad02a6a5472776b) Thanks [@bluwy](https://github.com/bluwy)! - Remove `astro:build:start` backwards compatibility code
+
+## 0.12.1
+
+### Patch Changes
+
+- [#5521](https://github.com/withastro/astro/pull/5521) [`65d27666e`](https://github.com/withastro/astro/commit/65d27666e1a0e668d02f7106e89f6d7b45f5de02) Thanks [@truesri](https://github.com/truesri)! - Allows passing alt to getPicture
+
+## 0.12.0
+
+### Minor Changes
+
+- [#5474](https://github.com/withastro/astro/pull/5474) [`299ae9bb6`](https://github.com/withastro/astro/commit/299ae9bb6a84e178e742cceb20d87190e64653fc) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - added a warning if the image was GIF
+
 ## 0.11.6
 
 ### Patch Changes

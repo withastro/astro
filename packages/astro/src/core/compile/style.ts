@@ -62,6 +62,7 @@ function enhanceCSSError(err: any, filename: string) {
 				line: errorLine,
 				column: err.column,
 			},
+			stack: err.stack,
 		});
 	}
 
@@ -78,6 +79,7 @@ function enhanceCSSError(err: any, filename: string) {
 				column: err.column,
 			},
 			frame: err.frame,
+			stack: err.stack,
 		});
 	}
 
@@ -94,5 +96,6 @@ function enhanceCSSError(err: any, filename: string) {
 			column: 0,
 		},
 		frame: err.frame,
+		stack: err.stack,
 	});
 }

@@ -1,16 +1,21 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
+import {
+	InvalidAstroDataError,
+	safelyGetAstroData,
+} from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { AstroErrorData, MarkdownError } from '../core/errors/index.js';
+import { getContentPaths } from '../content/index.js';
+import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
+import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -66,29 +71,30 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
-					isAstroFlavoredMd: false,
-				} as any);
+					contentDir: getContentPaths(settings.config).contentDir,
+					frontmatter: raw.data,
+				});
 
 				const html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				const { frontmatter: injectedFrontmatter } = safelyGetAstroData(renderResult.vfile.data);
-				const frontmatter = {
-					...injectedFrontmatter,
-					...raw.data,
-				} as any;
+				const astroData = safelyGetAstroData(renderResult.vfile.data);
+				if (astroData instanceof InvalidAstroDataError) {
+					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
+				}
 
+				const { frontmatter } = astroData;
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
 					warn(
 						logging,
 						'markdown',
-						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
+						`[${id}] Astro now supports MDX! Support for components in ".md" (or alternative extensions like ".markdown") files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX.`
 					);
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from '${astroJsxRuntimeModulePath}';
+				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				const html = ${JSON.stringify(html)};
@@ -105,30 +111,10 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
 				}
-				export function getHeaders() {
-					console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
-					return getHeadings();
-				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
-					content.astro = {};
-					Object.defineProperty(content.astro, 'headings', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
-						}
-					});
-					Object.defineProperty(content.astro, 'html', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
-						}
-					});
-					Object.defineProperty(content.astro, 'source', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
-						}
-					});
 					const contentFragment = h(Fragment, { 'set:html': html });
 					return ${
 						layout
@@ -157,6 +143,8 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 							hydratedComponents: [],
 							clientOnlyComponents: [],
 							scripts: [],
+							propagation: 'none',
+							pageOptions: {},
 						} as PluginMetadata['astro'],
 						vite: {
 							lang: 'ts',
@@ -166,11 +154,4 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 			}
 		},
 	};
-}
-
-// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
-// which prevents Vite from replacing strings like `import.meta.env.SITE`
-// in our JS representation of loaded Markdown files
-function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

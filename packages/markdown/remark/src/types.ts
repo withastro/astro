@@ -11,6 +11,10 @@ import type { VFile } from 'vfile';
 
 export type { Node } from 'unist';
 
+export type MarkdownAstroData = {
+	frontmatter: Record<string, any>;
+};
+
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	mdast.Root
@@ -26,8 +30,9 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
-	handlers: typeof Handlers;
-} & { handler: typeof Handler };
+	handlers?: typeof Handlers;
+	handler?: typeof Handler;
+};
 
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
@@ -36,14 +41,14 @@ export interface ShikiConfig {
 }
 
 export interface AstroMarkdownOptions {
-	mode?: 'md' | 'mdx';
 	drafts?: boolean;
 	syntaxHighlight?: 'shiki' | 'prism' | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
-	extendDefaultPlugins?: boolean;
+	gfm?: boolean;
+	smartypants?: boolean;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
@@ -53,7 +58,10 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	$?: {
 		scopedClassName: string | null;
 	};
-	isAstroFlavoredMd?: boolean;
+	/** Used to prevent relative image imports from `src/content/` */
+	contentDir: URL;
+	/** Used for frontmatter injection plugins */
+	frontmatter?: Record<string, any>;
 }
 
 export interface MarkdownHeading {
@@ -66,6 +74,12 @@ export interface MarkdownMetadata {
 	headings: MarkdownHeading[];
 	source: string;
 	html: string;
+}
+
+export interface MarkdownVFile extends VFile {
+	data: {
+		__astroHeadings?: MarkdownHeading[];
+	};
 }
 
 export interface MarkdownRenderingResult {

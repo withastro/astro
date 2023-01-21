@@ -21,6 +21,7 @@ export interface Environment {
 	site?: string;
 	ssr: boolean;
 	streaming: boolean;
+	telemetry?: boolean;
 }
 
 export type CreateEnvironmentArgs = Environment;
@@ -33,16 +34,24 @@ export type CreateBasicEnvironmentArgs = Partial<Environment> & {
 	logging: CreateEnvironmentArgs['logging'];
 };
 
+/**
+ * Only used in tests
+ */
 export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Environment {
 	const mode = options.mode ?? 'development';
 	return createEnvironment({
 		...options,
-		markdown: options.markdown ?? {},
+		markdown: {
+			...(options.markdown ?? {}),
+			// Stub out, not important for basic rendering
+			contentDir: new URL('file:///src/content/'),
+		},
 		mode,
 		renderers: options.renderers ?? [],
 		resolve: options.resolve ?? ((s: string) => Promise.resolve(s)),
 		routeCache: new RouteCache(options.logging, mode),
 		ssr: options.ssr ?? true,
 		streaming: options.streaming ?? true,
+		telemetry: false,
 	});
 }

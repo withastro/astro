@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 export const testDir = dirname(__filename);
-export const timeout = 5000;
+export const timeout = 25000;
 
 const timeoutError = function (details) {
 	let errorMsg = 'Timed out waiting for create-astro to respond with expected output.';
@@ -42,7 +42,7 @@ export const PROMPT_MESSAGES = {
 };
 
 export function setup(args = []) {
-	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--skip-houston', '--dryrun'], {
+	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--skip-houston', '--dry-run'], {
 		cwd: testDir,
 	});
 	return {

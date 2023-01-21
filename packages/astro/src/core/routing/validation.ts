@@ -31,10 +31,10 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	}
 ) {
-	if (ssr && mod.getStaticPaths) {
+	if (ssr && mod.getStaticPaths && !mod.prerender) {
 		warn(logging, 'getStaticPaths', 'getStaticPaths() is ignored when "output: server" is set.');
 	}
-	if (!ssr && !mod.getStaticPaths) {
+	if ((!ssr || mod.prerender) && !mod.getStaticPaths) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsRequired,
 			location: { file: route.component },

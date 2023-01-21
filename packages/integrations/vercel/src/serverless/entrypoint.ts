@@ -3,7 +3,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import { getRequest, setResponse } from './request-transform.js';
+import { getRequest, setResponse } from './request-transform';
 
 polyfill(globalThis, {
 	exclude: 'window document',

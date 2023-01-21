@@ -1,7 +1,7 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
-import preprocess from 'svelte-preprocess';
+import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import type { AstroIntegration, AstroRenderer } from 'astro';
+import { fileURLToPath } from 'url';
 import type { UserConfig } from 'vite';
 
 function getRenderer(): AstroRenderer {
@@ -12,30 +12,31 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
+async function svelteConfigHasPreprocess(root: URL) {
+	const svelteConfigFiles = ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'];
+	for (const file of svelteConfigFiles) {
+		const filePath = fileURLToPath(new URL(file, root));
+		try {
+			const config = (await import(filePath)).default;
+			return !!config.preprocess;
+		} catch {}
+	}
+}
+
 type ViteConfigurationArgs = {
 	isDev: boolean;
 	options?: Options | OptionsCallback;
-	postcssConfig: AstroConfig['style']['postcss'];
+	root: URL;
 };
 
-function getViteConfiguration({
+async function getViteConfiguration({
 	options,
-	postcssConfig,
 	isDev,
-}: ViteConfigurationArgs): UserConfig {
+	root,
+}: ViteConfigurationArgs): Promise<UserConfig> {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
-		preprocess: [
-			preprocess({
-				less: true,
-				postcss: postcssConfig,
-				sass: { renderSync: true },
-				scss: { renderSync: true },
-				stylus: true,
-				typescript: true,
-			}),
-		],
 	};
 
 	// Disable hot mode during the build
@@ -58,14 +59,16 @@ function getViteConfiguration({
 				// Always use dev and hydratable from defaults
 				...defaultOptions.compilerOptions,
 			},
-			// Ignore default preprocessor if the user provided their own
-			preprocess: options.preprocess ?? defaultOptions.preprocess,
 		};
+	}
+
+	if (!resolvedOptions.preprocess && !(await svelteConfigHasPreprocess(root))) {
+		resolvedOptions.preprocess = vitePreprocess();
 	}
 
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/svelte/client.js', 'svelte', 'svelte/internal'],
+			include: ['@astrojs/svelte/client.js'],
 			exclude: ['@astrojs/svelte/server.js'],
 		},
 		plugins: [svelte(resolvedOptions)],
@@ -78,16 +81,18 @@ export default function (options?: Options | OptionsCallback): AstroIntegration 
 		name: '@astrojs/svelte',
 		hooks: {
 			// Anything that gets returned here is merged into Astro Config
-			'astro:config:setup': ({ command, updateConfig, addRenderer, config }) => {
+			'astro:config:setup': async ({ command, updateConfig, addRenderer, config }) => {
 				addRenderer(getRenderer());
 				updateConfig({
-					vite: getViteConfiguration({
+					vite: await getViteConfiguration({
 						options,
 						isDev: command === 'dev',
-						postcssConfig: config.style.postcss,
+						root: config.root,
 					}),
 				});
 			},
 		},
 	};
 }
+
+export { vitePreprocess };

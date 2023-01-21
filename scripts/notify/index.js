@@ -2,7 +2,8 @@ import { globby as glob } from 'globby';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
-const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
+const { GITHUB_REF = 'main' } = process.env;
+const baseUrl = new URL(`https://github.com/withastro/astro/blob/${GITHUB_REF}/`);
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
 const descriptors = [
@@ -44,6 +45,19 @@ const verbs = [
 	'landed! The internet just got a little more fun.',
 	'– from our family to yours.',
 	'– go forth and build!',
+];
+const extraVerbs = [
+	'new',
+	'here',
+	'released',
+	'freshly made',
+	'going out',
+	'hitting the registry',
+	'available',
+	'live now',
+	'hot and fresh',
+	'for you',
+	"comin' atcha",
 ];
 
 function item(items) {
@@ -102,15 +116,42 @@ async function run() {
 	const descriptor = item(descriptors);
 	const verb = item(verbs);
 
+	let message = '';
+
 	if (packages.length === 1) {
 		const { name, version, url } = packages[0];
-		console.log(
-			`${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)`
-		);
+		message += `${emoji} \`${name}@${version}\` ${singularlize(
+			verb
+		)}\nRead the [release notes →](<${url}>)\n`;
 	} else {
-		console.log(`${emoji} Some ${descriptor} ${pluralize(verb)}\n`);
+		message += `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
 		for (const { name, version, url } of packages) {
-			console.log(`• \`${name}@${version}\` Read the [release notes →](<${url}>)`);
+			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
+		}
+	}
+
+	if (message.length < 2000) {
+		console.log(message);
+	} else {
+		const { name, version, url } = packages.find((pkg) => pkg.name === 'astro') ?? packages[0];
+		message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
+		message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
+
+		message += `\nAlso ${item(extraVerbs)}:`;
+
+		const remainingPackages = packages.filter((p) => p.name !== name);
+		for (const { name, version, url } of remainingPackages) {
+			message += `\n• \`${name}@${version}\``;
+		}
+
+		if (message.length < 2000) {
+			console.log(message);
+		} else {
+			message = `${emoji} Some ${descriptor} ${pluralize(verb)}\n\n`;
+			message += `• \`${name}@${version}\` Read the [release notes →](<${url}>)\n`;
+
+			message += `\n\nAlso ${item(extraVerbs)}: ${remainingPackages.length} other packages!`;
+			console.log(message);
 		}
 	}
 }

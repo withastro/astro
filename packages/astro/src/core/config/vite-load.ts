@@ -1,15 +1,7 @@
 import type fsType from 'fs';
-import npath from 'path';
 import { pathToFileURL } from 'url';
 import * as vite from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-
-// Fallback for legacy
-import load from '@proload/core';
-import loadTypeScript from '@proload/plugin-tsm';
-
-load.use([loadTypeScript]);
 
 export interface ViteLoader {
 	root: string;
@@ -24,9 +16,15 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 		appType: 'custom',
 		ssr: {
 			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
-			// these dependencies trip up Vite's dev SSR transform. In the future, we should
-			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
-			external: ['@astrojs/tailwind', '@astrojs/mdx', '@astrojs/react'],
+			// these dependencies trip up Vite's dev SSR transform. Awaiting upstream feature:
+			// https://github.com/vitejs/vite/pull/10939
+			external: [
+				'@astrojs/tailwind',
+				'@astrojs/mdx',
+				'@astrojs/react',
+				'@astrojs/preact',
+				'@astrojs/sitemap',
+			],
 		},
 		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
 	});
@@ -35,40 +33,6 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 		root,
 		viteServer,
 	};
-}
-
-async function stat(fs: typeof fsType, configPath: string, mustExist: boolean): Promise<boolean> {
-	try {
-		await fs.promises.stat(configPath);
-		return true;
-	} catch {
-		if (mustExist) {
-			throw new AstroError({
-				...AstroErrorData.ConfigNotFound,
-				message: AstroErrorData.ConfigNotFound.message(configPath),
-			});
-		}
-		return false;
-	}
-}
-
-async function search(fs: typeof fsType, root: string) {
-	const paths = [
-		'astro.config.mjs',
-		'astro.config.js',
-		'astro.config.ts',
-		'astro.config.mts',
-		'astro.config.cjs',
-		'astro.config.cjs',
-	].map((path) => npath.join(root, path));
-
-	for (const file of paths) {
-		// First verify the file event exists
-		const exists = await stat(fs, file, false);
-		if (exists) {
-			return file;
-		}
-	}
 }
 
 interface LoadConfigWithViteOptions {
@@ -85,35 +49,25 @@ export async function loadConfigWithVite({
 	value: Record<string, any>;
 	filePath?: string;
 }> {
-	let file: string;
-	if (configPath) {
-		// Go ahead and check if the file exists and throw if not.
-		await stat(fs, configPath, true);
-		file = configPath;
-	} else {
-		const found = await search(fs, root);
-		if (!found) {
-			// No config file found, return an empty config that will be populated with defaults
-			return {
-				value: {},
-				filePath: undefined,
-			};
-		} else {
-			file = found;
-		}
+	// No config file found, return an empty config that will be populated with defaults
+	if (!configPath) {
+		return {
+			value: {},
+			filePath: undefined,
+		};
 	}
 
 	// Try loading with Node import()
-	if (/\.[cm]?js$/.test(file)) {
+	if (/\.[cm]?js$/.test(configPath)) {
 		try {
-			const config = await import(pathToFileURL(file).toString());
+			const config = await import(pathToFileURL(configPath).toString());
 			return {
 				value: config.default ?? {},
-				filePath: file,
+				filePath: configPath,
 			};
 		} catch {
 			// We do not need to keep the error here because with fallback the error will be rethrown
-			// when/if it fails in Proload.
+			// when/if it fails in Vite.
 		}
 	}
 
@@ -121,22 +75,10 @@ export async function loadConfigWithVite({
 	let loader: ViteLoader | undefined;
 	try {
 		loader = await createViteLoader(root, fs);
-		const mod = await loader.viteServer.ssrLoadModule(file);
+		const mod = await loader.viteServer.ssrLoadModule(configPath);
 		return {
 			value: mod.default ?? {},
-			filePath: file,
-		};
-	} catch {
-		// Try loading with Proload
-		// TODO deprecate - this is only for legacy compatibility
-		const res = await load('astro', {
-			mustExist: true,
-			cwd: root,
-			filePath: file,
-		});
-		return {
-			value: res?.value ?? {},
-			filePath: file,
+			filePath: configPath,
 		};
 	} finally {
 		if (loader) {
