@@ -2679,7 +2679,7 @@ importers:
       http-cache-semantics: ^4.1.0
       image-size: ^1.0.2
       kleur: ^4.1.5
-      magic-string: ^0.25.9
+      magic-string: ^0.27.0
       mime: ^3.0.0
       mocha: ^9.2.2
       rollup-plugin-copy: ^3.4.0
@@ -2691,7 +2691,7 @@ importers:
       http-cache-semantics: 4.1.0
       image-size: 1.0.2
       kleur: 4.1.5
-      magic-string: 0.25.9
+      magic-string: 0.27.0
       mime: 3.0.0
       slash: 4.0.0
     devDependencies:
@@ -3567,7 +3567,7 @@ importers:
       chai: ^4.3.6
       event-target-shim: ^6.0.2
       formdata-polyfill: ^4.0.10
-      magic-string: ^0.25.9
+      magic-string: ^0.27.0
       mocha: ^9.2.2
       rollup: ^2.79.1
       tslib: ^2.4.0
@@ -3588,7 +3588,7 @@ importers:
       chai: 4.3.7
       event-target-shim: 6.0.2
       formdata-polyfill: 4.0.10
-      magic-string: 0.25.9
+      magic-string: 0.27.0
       mocha: 9.2.2
       rollup: 2.79.1
       tslib: 2.4.1
@@ -6034,7 +6034,6 @@ packages:
 
   /@jridgewell/sourcemap-codec/1.4.14:
     resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
-    dev: false
 
   /@jridgewell/trace-mapping/0.3.17:
     resolution: {integrity: sha512-MCNzAp77qzKca9+W/+I0+sEpaUnZoeasnghNeVc41VZCEKaCH73Vq3BZZ/SzWIgrqE4H4ceI+p+b6C0mHf9T4g==}
@@ -11242,7 +11241,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.14
-    dev: false
 
   /make-dir/3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}

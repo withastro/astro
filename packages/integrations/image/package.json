@@ -46,7 +46,7 @@
     "http-cache-semantics": "^4.1.0",
     "image-size": "^1.0.2",
     "kleur": "^4.1.5",
-    "magic-string": "^0.25.9",
+    "magic-string": "^0.27.0",
     "mime": "^3.0.0",
     "slash": "^4.0.0"
   },
@@ -64,8 +64,8 @@
     "vite": "^4.0.3"
   },
   "peerDependencies": {
-    "sharp": ">=0.31.0",
-    "astro": "workspace:^2.0.0-beta.3"
+    "astro": "workspace:^2.0.0-beta.3",
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {
