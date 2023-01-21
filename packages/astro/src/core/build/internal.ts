@@ -1,5 +1,4 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
-import type { ResolvedConfig } from 'vite';
 import type { PageBuildData, ViteID } from './types';
 
 import { PageOptions } from '../../vite-plugin-astro/types';
