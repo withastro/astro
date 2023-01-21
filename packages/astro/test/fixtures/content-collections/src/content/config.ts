@@ -4,9 +4,6 @@ const withSlugConfig = defineCollection({
 	slug({ id }) {
 		return `custom-${id}`;
 	},
-	schema: z.object({
-		prefix: z.string(),
-	}),
 });
 
 const withSchemaConfig = defineCollection({
