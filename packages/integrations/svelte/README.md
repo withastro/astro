@@ -92,7 +92,7 @@ These `emitCss`, `compilerOptions.dev`, and `compilerOptions.hydratable` values 
 
 Providing your own `preprocess` options **will** override the [`vitePreprocess()`](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/preprocess.md) default. Make sure to enable the preprocessor flags needed for your project.
 
-You can set options either by passing them to the `svelte` integration `astro.config.mjs` or in `svelte.config.js`. Either of these would override the default `preprocess` setting:
+You can set options either by passing them to the `svelte` integration in `astro.config.mjs` or in `svelte.config.js`. Either of these would override the default `preprocess` setting:
 
 ```js
 // astro.config.mjs
