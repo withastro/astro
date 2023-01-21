@@ -90,18 +90,18 @@ const defaultOptions = {
 
 These `emitCss`, `compilerOptions.dev`, and `compilerOptions.hydratable` values are required to build properly for Astro and cannot be overridden.
 
-Providing your own `preprocess` options **will** override the `vitePreprocess()` default. Make sure to enable the preprocessor flags needed for your project. For example,
+Providing your own `preprocess` options **will** override the [`vitePreprocess()`](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/preprocess.md) default. Make sure to enable the preprocessor flags needed for your project.
+
+You can set options either by passing them to the `svelte` integration `astro.config.mjs` or in `svelte.config.js`. Either of these would override the default `preprocess` setting:
 
 ```js
-// astro.config.js
+// astro.config.mjs
 import svelte from '@astrojs/svelte';
 
 export default {
   integrations: [svelte({ preprocess: [] })],
 };
 ```
-
-and
 
 ```js
 // svelte.config.js
@@ -110,13 +110,12 @@ export default {
 };
 ```
 
-Will override the default `preprocess` option. You can read the [`vitePreprocess()` docs](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/preprocess.md) for more information on how it works.
-
 ## Intellisense for TypeScript
 
-If you're using a preprocessor like TypeScript or SCSS in your Svelte files, you can create a `svelte.config.js` file with:
+If you're using a preprocessor like TypeScript or SCSS in your Svelte files, you can create a `svelte.config.js` file so that the Svelte IDE extension can correctly parse the Svelte files.
 
 ```js
+// svelte.config.js
 import { vitePreprocess } from '@astrojs/svelte';
 
 export default {
@@ -124,4 +123,4 @@ export default {
 };
 ```
 
-So the Svelte IDE extension can correctly parse the Svelte files. This config file is added by default when you run `astro add svelte`.
+This config file will be automatically added for you when you run `astro add svelte`.
