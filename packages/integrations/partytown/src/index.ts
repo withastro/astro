@@ -1,6 +1,7 @@
 import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import { appendForwardSlash } from 'astro';
 import * as fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
@@ -26,7 +27,7 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 		name: '@astrojs/partytown',
 		hooks: {
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
-				const lib = `${_config.base}~partytown/`;
+				const lib = `${appendForwardSlash(_config.base)}~partytown/`;
 				const forward = options?.config?.forward || [];
 				const debug = options?.config?.debug || command === 'dev';
 				partytownSnippetHtml = partytownSnippet({ lib, debug, forward });
