@@ -111,30 +111,10 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
 				}
-				export function getHeaders() {
-					console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
-					return getHeadings();
-				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
-					content.astro = {};
-					Object.defineProperty(content.astro, 'headings', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
-						}
-					});
-					Object.defineProperty(content.astro, 'html', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
-						}
-					});
-					Object.defineProperty(content.astro, 'source', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
-						}
-					});
 					const contentFragment = h(Fragment, { 'set:html': html });
 					return ${
 						layout

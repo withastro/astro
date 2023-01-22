@@ -1,5 +1,20 @@
 # @astrojs/image
 
+## 0.12.2-beta.0
+
+### Patch Changes
+
+- [#5788](https://github.com/withastro/astro/pull/5788) [`006405d33`](https://github.com/withastro/astro/commit/006405d33c2b8eb1307cb84161659428e43efa51) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - - Refactor types to support props auto-completion for the `Image` and `Picture` components.
+
+  - Pass previously missing `alt` prop to the `getPicture` function
+
+- [#5871](https://github.com/withastro/astro/pull/5871) [`1bd42c6b2`](https://github.com/withastro/astro/commit/1bd42c6b2a072210411cffb42dcc80170b9a618b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix the integration failing to work properly on Node 18+
+
+- [#5888](https://github.com/withastro/astro/pull/5888) [`35b26f377`](https://github.com/withastro/astro/commit/35b26f377f9f379207fb4b5c16877bad1661ac6b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix crash on Netlify Functions due to `import.meta.url`
+
+- Updated dependencies [[`16dc36a87`](https://github.com/withastro/astro/commit/16dc36a870df47a4151a8ed2d91d0bd1bb812458), [`05caf445d`](https://github.com/withastro/astro/commit/05caf445d4d2728f1010aeb2179a9e756c2fd17d), [`a342a486c`](https://github.com/withastro/astro/commit/a342a486c2831461e24e6c2f1ca8a9d3e15477b6), [`ce5c5dbd4`](https://github.com/withastro/astro/commit/ce5c5dbd46afbe738b03600758bf5c35113de522), [`be901dc98`](https://github.com/withastro/astro/commit/be901dc98c4a7f6b5536540aa8f7ba5108e939a0), [`e818cc046`](https://github.com/withastro/astro/commit/e818cc0466a942919ea3c41585e231c8c80cb3d0), [`8c100a6fe`](https://github.com/withastro/astro/commit/8c100a6fe6cc652c3799d1622e12c2c969f30510), [`64b8082e7`](https://github.com/withastro/astro/commit/64b8082e776b832f1433ed288e6f7888adb626d0), [`899214298`](https://github.com/withastro/astro/commit/899214298cee5f0c975c7245e623c649e1842d73), [`3a00ecb3e`](https://github.com/withastro/astro/commit/3a00ecb3eb4bc44be758c064f2bde6e247e8a593), [`1ca81c16b`](https://github.com/withastro/astro/commit/1ca81c16b8b66236e092e6eb6ec3f73f5668421c), [`b66d7195c`](https://github.com/withastro/astro/commit/b66d7195c17a55ea0931bc3744888bd4f5f01ce6)]:
+  - astro@2.0.0-beta.3
+
 ## 1.0.0-beta.2
 
 ### Major Changes

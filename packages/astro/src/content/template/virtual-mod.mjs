@@ -2,7 +2,7 @@
 import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
-	createGetEntry,
+	createGetEntryBySlug,
 } from 'astro/content/internal';
 
 export { z } from 'astro/zod';
@@ -34,7 +34,7 @@ export const getCollection = createGetCollection({
 	collectionToRenderEntryMap,
 });
 
-export const getEntry = createGetEntry({
-	collectionToEntryMap,
+export const getEntryBySlug = createGetEntryBySlug({
+	getCollection,
 	collectionToRenderEntryMap,
 });
