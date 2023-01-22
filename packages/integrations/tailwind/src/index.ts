@@ -71,21 +71,20 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 
 async function getPostCssConfig(
 	root: UserConfig['root'],
-	postcssInlineOptions: CSSOptions['postcss'],
-	addWatchFile: AddWatchFile
+	postcssInlineOptions: CSSOptions['postcss']
 ) {
 	let postcssConfigResult;
 	// Check if postcss config is not inlined
 	if (!(typeof postcssInlineOptions === 'object' && postcssInlineOptions !== null)) {
 		let { default: postcssrc } = await import('postcss-load-config');
 		const searchPath = typeof postcssInlineOptions === 'string' ? postcssInlineOptions : root!;
-		addWatchFile(searchPath);
 		try {
 			postcssConfigResult = await postcssrc({}, searchPath);
 		} catch (e) {
 			postcssConfigResult = null;
 		}
 	}
+	postcssConfigResult?.file;
 	return postcssConfigResult;
 }
 
@@ -97,11 +96,8 @@ async function getViteConfiguration(
 ) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
-	const postcssConfigResult = await getPostCssConfig(
-		viteConfig.root,
-		viteConfig.css?.postcss,
-		addWatchFile
-	);
+	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
+	postcssConfigResult?.file && addWatchFile(postcssConfigResult.file);
 
 	const postcssOptions = (postcssConfigResult && postcssConfigResult.options) || {};
 
