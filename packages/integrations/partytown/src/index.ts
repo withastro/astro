@@ -1,7 +1,6 @@
 import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { appendForwardSlash } from '../../../astro/src/core/path.js';
 import * as fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
@@ -17,6 +16,10 @@ type PartytownOptions =
 			};
 	  }
 	| undefined;
+	
+function appendForwardSlash(path: string) {
+	return path.endsWith('/') ? path : path + '/';
+}
 
 export default function createPlugin(options: PartytownOptions): AstroIntegration {
 	let config: AstroConfig;
