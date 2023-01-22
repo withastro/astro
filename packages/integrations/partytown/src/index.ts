@@ -16,7 +16,7 @@ type PartytownOptions =
 			};
 	  }
 	| undefined;
-	
+
 function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
