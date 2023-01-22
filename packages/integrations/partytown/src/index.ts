@@ -17,8 +17,8 @@ type PartytownOptions =
 	  }
 	| undefined;
 
-function appendForwardSlash(path: string) {
-	return path.endsWith('/') ? path : path + '/';
+function appendForwardSlash(str: string) {
+	return str.endsWith('/') ? str : str + '/';
 }
 
 export default function createPlugin(options: PartytownOptions): AstroIntegration {
