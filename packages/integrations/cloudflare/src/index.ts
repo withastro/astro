@@ -49,7 +49,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					build: {
 						client: new URL(`.${config.base}`, config.outDir),
 						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
-						serverEntry: '_worker.js',
+						serverEntry: '_worker.mjs',
 					},
 				});
 			},
@@ -89,9 +89,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:done': async () => {
+				console.log('BUILD DONE');
 				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server)),
 					entryUrl = new URL(_buildConfig.serverEntry, _config.outDir),
 					buildPath = fileURLToPath(entryUrl);
+
+				console.log("ENTRY", buildPath);
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
