@@ -60,12 +60,8 @@ export function getEntrySlug({
 		return z.string().default(slug).parse(unparsedData.slug);
 	} catch {
 		throw new AstroError({
-			title: 'Invalid content entry slug',
-			message: `${String(collection)} → ${String(
-				id
-			)} has an invalid frontmatter slug. \`slug\` must be a string.`,
-			hint: 'See our docs for more information about the reserved `slug` field: https://docs.astro.build/en/guides/content-collections/',
-			code: 99999,
+			...AstroErrorData.InvalidContentEntrySlugError,
+			message: AstroErrorData.InvalidContentEntrySlugError.message(collection, id),
 		});
 	}
 }
@@ -108,8 +104,8 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 			data = parsed.data;
 		} else {
 			const formattedError = new AstroError({
-				...AstroErrorData.MarkdownContentSchemaValidationError,
-				message: AstroErrorData.MarkdownContentSchemaValidationError.message(
+				...AstroErrorData.InvalidContentEntryFrontmatterError,
+				message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
 					entry.collection,
 					entry.id,
 					parsed.error
