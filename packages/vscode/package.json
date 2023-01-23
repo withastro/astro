@@ -108,6 +108,24 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "astro.restartLanguageServer",
+          "when": "editorLangId == astro"
+        },
+        {
+          "command": "astro.showTSXOutput",
+          "when": "editorLangId == astro"
+        },
+        {
+          "command": "astro.selectTypescriptVersion",
+          "when": "editorLangId == astro"
+        },
+        {
+          "command": "astro.findFileReferences",
+          "when": "editorLangId == astro"
+        }
+      ],
       "editor/context": [
         {
           "command": "astro.findFileReferences",
