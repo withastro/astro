@@ -84,20 +84,17 @@ async function getPostCssConfig(
 			postcssConfigResult = null;
 		}
 	}
-	postcssConfigResult?.file;
 	return postcssConfigResult;
 }
 
 async function getViteConfiguration(
 	isBuild: boolean,
 	tailwindConfig: TailwindConfig,
-	viteConfig: UserConfig,
-	addWatchFile: AddWatchFile
+	viteConfig: UserConfig
 ) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
 	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
-	postcssConfigResult?.file && addWatchFile(postcssConfigResult.file);
 
 	const postcssOptions = (postcssConfigResult && postcssConfigResult.options) || {};
 
@@ -171,12 +168,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
 
 				updateConfig({
-					vite: await getViteConfiguration(
-						command === 'build',
-						tailwindConfig,
-						config.vite,
-						addWatchFile
-					),
+					vite: await getViteConfiguration(command === 'build', tailwindConfig, config.vite),
 				});
 
 				if (applyBaseStyles) {
