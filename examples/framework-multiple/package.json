@@ -11,7 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.0.0-beta.3",
+    "astro": "^2.0.0-beta.4",
     "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -21,7 +21,7 @@
     "@astrojs/preact": "^2.0.0-beta.0",
     "@astrojs/react": "^2.0.0-beta.0",
     "@astrojs/solid-js": "^2.0.0-beta.0",
-    "@astrojs/svelte": "^2.0.0-beta.2",
+    "@astrojs/svelte": "^2.0.0-beta.3",
     "@astrojs/vue": "^2.0.0-beta.1"
   }
 }
