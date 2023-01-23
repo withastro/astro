@@ -27,7 +27,7 @@ const post = await getEntryBySlug('blog', 'post-1-custom-slug');
 
 #### Migration
 
-If you relied on the `slug()` config option, we suggest moving all custom slugs to `slug` frontmatter properties in each collection entry.
+If you relied on the `slug()` config option, you will need to move all custom slugs to `slug` frontmatter properties in each collection entry.
 
 Additionally, Astro no longer allows `slug` as a collection schema property. This ensures Astro can manage the `slug` property for type generation and performance. Remove this property from your schema and any relevant `slug()` configuration:
 
