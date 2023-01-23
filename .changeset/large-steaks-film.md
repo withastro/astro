@@ -2,9 +2,9 @@
 'astro': major
 ---
 
-Replace the content collection `slug()` config with a new `slug` frontmatter field.
+Content collections: Introduce a new `slug` frontmatter field for overriding the generated slug. This replaces the previous `slug()` collection config option from Astro 1.X and the 2.0 beta.
 
-This introduces a reserved `slug` property you can add to any Markdown or MDX collection entry. When present, this will override the generated slug for that entry.
+When present in a Markdown or MDX file, this will override the generated slug for that entry.
 
 ```diff
 # src/content/blog/post-1.md
