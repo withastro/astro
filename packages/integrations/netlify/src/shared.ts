@@ -29,7 +29,7 @@ export async function createRedirects(
 					input: route.pathname,
 					target: prependForwardSlash(route.distURL.toString().replace(dir.toString(), '')),
 					status: 200,
-					weight: 1
+					weight: 1,
 				});
 			} else {
 				definitions.push({
@@ -46,33 +46,37 @@ export async function createRedirects(
 						input: '/*',
 						target: `/.netlify/${kind}/${entryFile}`,
 						status: 404,
-						weight: 0
+						weight: 0,
 					});
 				}
 			}
 		} else {
 			const pattern =
-				'/' + route.segments.map(([part]) => {
-					//(part.dynamic ? '*' : part.content)
-					if(part.dynamic) {
-						if(part.spread) {
-							return '*';
+				'/' +
+				route.segments
+					.map(([part]) => {
+						//(part.dynamic ? '*' : part.content)
+						if (part.dynamic) {
+							if (part.spread) {
+								return '*';
+							} else {
+								return ':' + part.content;
+							}
 						} else {
-							return ':' + part.content;
+							return part.content;
 						}
-					} else {
-						return part.content;
-					}
-				}).join('/');
+					})
+					.join('/');
 
 			if (route.distURL) {
-				const target = `${pattern}` + (config.build.format === 'directory' ? '/index.html' : '.html');
+				const target =
+					`${pattern}` + (config.build.format === 'directory' ? '/index.html' : '.html');
 				definitions.push({
 					dynamic: true,
 					input: pattern,
 					target,
 					status: 200,
-					weight: 1
+					weight: 1,
 				});
 			} else {
 				definitions.push({
@@ -80,7 +84,7 @@ export async function createRedirects(
 					input: pattern,
 					target: `/.netlify/${kind}/${entryFile}`,
 					status: 200,
-					weight: 1
+					weight: 1,
 				});
 			}
 		}
@@ -95,21 +99,22 @@ export async function createRedirects(
 }
 
 function prettify(definitions: RedirectDefinition[]) {
-	let minInputLength = 0, minTargetLength = 0;
+	let minInputLength = 0,
+		minTargetLength = 0;
 	definitions.sort((a, b) => {
 		// Find the longest input, so we can format things nicely
-		if(a.input.length > minInputLength) {
+		if (a.input.length > minInputLength) {
 			minInputLength = a.input.length;
 		}
-		if(b.input.length > minInputLength) {
+		if (b.input.length > minInputLength) {
 			minInputLength = b.input.length;
 		}
 
 		// Same for the target
-		if(a.target.length > minTargetLength) {
+		if (a.target.length > minTargetLength) {
 			minTargetLength = a.target.length;
 		}
-		if(b.target.length > minTargetLength) {
+		if (b.target.length > minTargetLength) {
 			minTargetLength = b.target.length;
 		}
 
@@ -122,9 +127,15 @@ function prettify(definitions: RedirectDefinition[]) {
 	definitions.forEach((defn, i) => {
 		// Figure out the number of spaces to add. We want at least 4 spaces
 		// after the input. This ensure that all targets line up together.
-		let inputSpaces = (minInputLength - defn.input.length) + 4;
-		let targetSpaces = (minTargetLength - defn.target.length) + 4;
-		_redirects += (i === 0 ? '' : '\n') + defn.input + ' '.repeat(inputSpaces) + defn.target + ' '.repeat(Math.abs(targetSpaces)) + defn.status;
+		let inputSpaces = minInputLength - defn.input.length + 4;
+		let targetSpaces = minTargetLength - defn.target.length + 4;
+		_redirects +=
+			(i === 0 ? '' : '\n') +
+			defn.input +
+			' '.repeat(inputSpaces) +
+			defn.target +
+			' '.repeat(Math.abs(targetSpaces)) +
+			defn.status;
 	});
 	return _redirects;
 }
