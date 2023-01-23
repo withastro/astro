@@ -12,19 +12,6 @@ import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
-	slug: z
-		.function()
-		.args(
-			z.object({
-				id: z.string(),
-				collection: z.string(),
-				defaultSlug: z.string(),
-				body: z.string(),
-				data: z.record(z.any()),
-			})
-		)
-		.returns(z.union([z.string(), z.promise(z.string())]))
-		.optional(),
 });
 
 export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
@@ -63,7 +50,7 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function getEntrySlug({id, collection, slug, data: unparsedData}: Entry){ 
+export function getEntrySlug({id, collection, slug, data: unparsedData}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>){ 
 	try {
 		return z.string().default(slug).parse(unparsedData.slug);
 	} catch {

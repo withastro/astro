@@ -14,8 +14,10 @@ import {
 	ContentPaths,
 	getContentPaths,
 	getEntryInfo,
+	getEntrySlug,
 	loadContentConfig,
 	NoCollectionError,
+	parseFrontmatter,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -155,7 +157,11 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, slug, collection } = entryInfo;
+		const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
+		const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
+		const slug = getEntrySlug({ ...entryInfo, data: frontmatter });
+		const { id, collection } = entryInfo;
+
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
 
@@ -295,11 +301,7 @@ async function writeContentFiles({
 		for (const entryKey of entryKeys) {
 			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			// If user has custom slug function, we can't predict slugs at type compilation.
-			// Would require parsing all data and evaluating ahead-of-time;
-			// We evaluate with lazy imports at dev server runtime
-			// to prevent excessive errors
-			const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(entryMetadata.slug);
+			const slugType = JSON.stringify(entryMetadata.slug);
 			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;
