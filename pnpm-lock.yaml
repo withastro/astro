@@ -127,8 +127,8 @@ importers:
   packages/vscode:
     specifiers:
       '@astrojs/compiler': ^0.31.3
-      '@astrojs/language-server': 0.29.4
-      '@astrojs/ts-plugin': 0.4.2
+      '@astrojs/language-server': 0.29.5
+      '@astrojs/ts-plugin': 0.4.3
       '@types/mocha': ^9.1.0
       '@types/vscode': ^1.67.0
       '@vscode/test-electron': ^2.1.3

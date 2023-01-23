@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.4.3
+
+### Patch Changes
+
+- 6b81412: Added an explanation on how to generate types for content collections to the error message for the `astro:content` import
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.29.5
+
+### Patch Changes
+
+- 59bfc7b: Fixed Astro commands showing even outside Astro files
+- Updated dependencies [6b81412]
+  - @astrojs/ts-plugin@0.4.3
+
 ## 0.29.4
 
 ### Patch Changes
