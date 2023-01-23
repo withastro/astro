@@ -1,12 +1,12 @@
 import load, { resolve } from '@proload/core';
 import type { AstroIntegration } from 'astro';
-import type { CSSOptions, UserConfig } from 'vite';
 import autoprefixerPlugin from 'autoprefixer';
 import fs from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
+import type { CSSOptions, UserConfig } from 'vite';
 
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	return resolveConfig({
