@@ -63,16 +63,17 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export async function getEntrySlug(entry: Entry, collectionConfig: CollectionConfig) {
-	return (
-		collectionConfig.slug?.({
-			id: entry.id,
-			data: entry.data,
-			defaultSlug: entry.slug,
-			collection: entry.collection,
-			body: entry.body,
-		}) ?? entry.slug
-	);
+export function getEntrySlug({id, collection, slug, data: unparsedData}: Entry){ 
+	try {
+		return z.string().default(slug).parse(unparsedData.slug);
+	} catch {
+		throw new AstroError({
+			title: 'Invalid content entry slug',
+			message: `${String(collection)} → ${String(id)} has an invalid frontmatter slug. \`slug\` must be a string.`,
+			hint: 'See our docs for more information about the reserved `slug` field: https://docs.astro.build/en/guides/content-collections/',
+			code: 99999,
+		});
+	}
 }
 
 export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
