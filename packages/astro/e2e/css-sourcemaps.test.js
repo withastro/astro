@@ -19,8 +19,8 @@ test.describe('CSS Sourcemap HMR', () => {
 	test.skip(isWindows, 'TODO: fix css hmr in windows');
 
 	test('removes Astro-injected CSS once Vite-injected CSS loads', async ({ page, astro }) => {
-		const html = await astro.fetch('/').then(res => res.text());
-		
+		const html = await astro.fetch('/').then((res) => res.text());
+
 		// style[data-astro-dev-id] should exist in initial SSR'd markup
 		expect(html).toMatch('data-astro-dev-id');
 

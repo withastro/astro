@@ -136,7 +136,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 			props: {
 				type: 'text/css',
 				// Track the ID so we can match it to Vite's injected style later
-				'data-astro-dev-id': viteID(new URL(`.${url}`, env.settings.config.root))
+				'data-astro-dev-id': viteID(new URL(`.${url}`, env.settings.config.root)),
 			},
 			children: content,
 		});
