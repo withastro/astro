@@ -74,7 +74,7 @@ importers:
       '@astrojs/sitemap': ^1.0.0
       astro: ^2.0.0-beta.3
     dependencies:
-      '@astrojs/mdx': 1.0.0-beta.2_astro@packages+astro
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/rss': link:../../packages/astro-rss
       '@astrojs/sitemap': link:../../packages/integrations/sitemap
       astro: link:../../packages/astro
@@ -316,7 +316,7 @@ importers:
       astro: ^2.0.0-beta.3
       preact: ^10.6.5
     dependencies:
-      '@astrojs/mdx': 1.0.0-beta.2_astro@packages+astro
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
       preact: 10.11.3
@@ -346,7 +346,7 @@ importers:
       postcss: ^8.4.14
       tailwindcss: ^3.0.24
     dependencies:
-      '@astrojs/mdx': 1.0.0-beta.2_astro@packages+astro
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       '@types/canvas-confetti': 1.6.0
       astro: link:../../packages/astro
@@ -3852,56 +3852,6 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdown-remark/2.0.0-beta.2_astro@packages+astro:
-    resolution: {integrity: sha512-2Rubc5VuFY4qmXWAeJ0DY+FOj9190vgHSN33AYxcHVazXqLvMMmIXZCDzaeQXiGUk8vXt0UBJJrRtfrL6C/aRg==}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/prism': 2.0.0-beta.0
-      astro: link:packages/astro
-      github-slugger: 1.5.0
-      import-meta-resolve: 2.2.1
-      rehype-raw: 6.1.1
-      rehype-stringify: 9.0.3
-      remark-gfm: 3.0.1
-      remark-parse: 10.0.1
-      remark-rehype: 10.1.0
-      remark-smartypants: 2.0.0
-      shiki: 0.11.1
-      unified: 10.1.2
-      unist-util-visit: 4.1.1
-      vfile: 5.3.6
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/mdx/1.0.0-beta.2_astro@packages+astro:
-    resolution: {integrity: sha512-jGdM+5zQfS7BB7q2DUi/vZlJnv164pjJZ6x3EOzU+uLgtw9ycWJSNOf3/AsTujrRPvaPVXXQ6IPwoSwz/mIAvA==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      '@astrojs/markdown-remark': 2.0.0-beta.2_astro@packages+astro
-      '@astrojs/prism': 2.0.0-beta.0
-      '@mdx-js/mdx': 2.2.1
-      '@mdx-js/rollup': 2.2.1
-      acorn: 8.8.1
-      es-module-lexer: 0.10.5
-      estree-util-visit: 1.2.0
-      github-slugger: 1.5.0
-      gray-matter: 4.0.3
-      kleur: 4.1.5
-      rehype-raw: 6.1.1
-      remark-frontmatter: 4.0.1
-      remark-gfm: 3.0.1
-      remark-smartypants: 2.0.0
-      shiki: 0.11.1
-      unist-util-visit: 4.1.1
-      vfile: 5.3.6
-    transitivePeerDependencies:
-      - astro
-      - rollup
-      - supports-color
-    dev: false
-
   /@astrojs/node/1.1.0:
     resolution: {integrity: sha512-4KkCEFYtmTUSvU49UZSJD/VQfD/oKzf0ld8COjFW1pxfquBgvevLxRVpYLRanZB20L3c8/xyyQpDq7zMSMqQrg==}
     dependencies:
@@ -3922,13 +3872,6 @@ packages:
       preact-render-to-string: 5.2.6_preact@10.11.3
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /@astrojs/prism/2.0.0-beta.0:
-    resolution: {integrity: sha512-GjQIA9faCexnuBrwCw8wvl34YMYIRRDOSSC7rnNpJZVuxh88QKdVksC5h1dY/x0piitXhLl4npuhMT5TN/mVcw==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      prismjs: 1.29.0
     dev: false
 
   /@astrojs/webapi/1.1.1:
