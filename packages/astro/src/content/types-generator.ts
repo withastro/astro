@@ -171,7 +171,7 @@ export async function createContentTypesGenerator({
 					addCollection(contentTypes, collectionKey);
 				}
 				if (!(entryKey in contentTypes[collectionKey])) {
-					addEntry(contentTypes, collectionKey, entryKey, slug);
+					setEntry(contentTypes, collectionKey, entryKey, slug);
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
@@ -180,7 +180,12 @@ export async function createContentTypesGenerator({
 				}
 				return { shouldGenerateTypes: true };
 			case 'change':
-				// noop. Frontmatter types are inferred from collection schema import, so they won't change!
+				// User may modify `slug` in their frontmatter.
+				// Only regen types if this change is detected.
+				if (contentTypes[collectionKey]?.[entryKey]?.slug !== slug) {
+					setEntry(contentTypes, collectionKey, entryKey, slug);
+					return { shouldGenerateTypes: true };
+				}
 				return { shouldGenerateTypes: false };
 		}
 	}
@@ -249,7 +254,7 @@ function removeCollection(contentMap: ContentTypes, collectionKey: string) {
 	delete contentMap[collectionKey];
 }
 
-function addEntry(
+function setEntry(
 	contentTypes: ContentTypes,
 	collectionKey: string,
 	entryKey: string,
