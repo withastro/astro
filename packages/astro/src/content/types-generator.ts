@@ -157,6 +157,11 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
+		// `slug` may be present in entry frontmatter.
+		// This should be respected by the generated `slug` type!
+		// Parse frontmatter and retrieve `slug` value for this.
+		// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
+		// on dev server startup or production build init.
 		const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
 		const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
 		const slug = getEntrySlug({ ...entryInfo, data: frontmatter });
