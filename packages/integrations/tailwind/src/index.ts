@@ -8,8 +8,6 @@ import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 
-type AddWatchFile = (path: string | URL) => void;
-
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	return resolveConfig({
 		theme: {
