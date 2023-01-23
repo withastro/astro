@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.12.2-beta.0",
+  "version": "0.12.2-beta.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -64,7 +64,7 @@
     "vite": "^4.0.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.0-beta.3",
+    "astro": "workspace:^2.0.0-beta.4",
     "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {

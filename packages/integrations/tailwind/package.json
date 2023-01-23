@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Tailwind + Astro Integrations",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -41,7 +41,7 @@
   },
   "peerDependencies": {
     "tailwindcss": "^3.0.24",
-    "astro": "workspace:^2.0.0-beta.3"
+    "astro": "workspace:^2.0.0-beta.4"
   },
   "pnpm": {
     "peerDependencyRules": {

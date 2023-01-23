@@ -25,7 +25,7 @@
     "test": "mocha --exit --timeout 20000"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.0-beta.2"
+    "astro": "workspace:^2.0.0-beta.4"
   },
   "dependencies": {
     "@astrojs/prism": "^2.0.0-beta.0",
