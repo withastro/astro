@@ -628,7 +628,22 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 				entryId
 			)} has an invalid slug. \`slug\` must be a string.`;
 		},
-		hint: 'See our docs for more information about the reserved `slug` field: https://docs.astro.build/en/guides/content-collections/',
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * @description
+	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 */
+	ContentSchemaContainsSlugError: {
+		title: 'Content Schema should not contain `slug`.',
+		code: 9003,
+		message: (collection: string) => {
+			return `A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collection} collection schema.`;
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
 	// Generic catch-all

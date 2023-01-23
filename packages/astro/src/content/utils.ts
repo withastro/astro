@@ -90,12 +90,8 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 			collectionConfig.schema.shape.slug
 		) {
 			throw new AstroError({
-				title: 'Invalid content collection config',
-				message: `\`slug\` is a reserved frontmatter property for slug generation. Remove it from your ${JSON.stringify(
-					entry.collection
-				)} collection schema.`,
-				hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` frontmatter property',
-				code: 99999,
+				...AstroErrorData.ContentSchemaContainsSlugError,
+				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
 			});
 		}
 		// Use `safeParseAsync` to allow async transforms
