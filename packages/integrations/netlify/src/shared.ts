@@ -114,11 +114,7 @@ function prettify(definitions: RedirectDefinition[]) {
 		}
 
 		// Sort dynamic routes on top
-		if(a.weight > b.weight) {
-			return -1;
-		} else {
-			return 1;
-		}
+		return b.weight - a.weight;
 	});
 
 	let _redirects = '';
