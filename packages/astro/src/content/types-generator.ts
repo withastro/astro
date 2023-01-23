@@ -12,6 +12,7 @@ import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
+	EntryInfo,
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
@@ -157,14 +158,6 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		// `slug` may be present in entry frontmatter.
-		// This should be respected by the generated `slug` type!
-		// Parse frontmatter and retrieve `slug` value for this.
-		// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
-		// on dev server startup or production build init.
-		const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
-		const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
-		const slug = getEntrySlug({ ...entryInfo, data: frontmatter });
 		const { id, collection } = entryInfo;
 
 		const collectionKey = JSON.stringify(collection);
@@ -172,11 +165,12 @@ export async function createContentTypesGenerator({
 
 		switch (event.name) {
 			case 'add':
+				const addedSlug = await parseSlug({ fs, event, entryInfo });
 				if (!(collectionKey in contentTypes)) {
 					addCollection(contentTypes, collectionKey);
 				}
 				if (!(entryKey in contentTypes[collectionKey])) {
-					setEntry(contentTypes, collectionKey, entryKey, slug);
+					setEntry(contentTypes, collectionKey, entryKey, addedSlug);
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
@@ -187,8 +181,9 @@ export async function createContentTypesGenerator({
 			case 'change':
 				// User may modify `slug` in their frontmatter.
 				// Only regen types if this change is detected.
-				if (contentTypes[collectionKey]?.[entryKey]?.slug !== slug) {
-					setEntry(contentTypes, collectionKey, entryKey, slug);
+				const changedSlug = await parseSlug({ fs, event, entryInfo });
+				if (contentTypes[collectionKey]?.[entryKey]?.slug !== changedSlug) {
+					setEntry(contentTypes, collectionKey, entryKey, changedSlug);
 					return { shouldGenerateTypes: true };
 				}
 				return { shouldGenerateTypes: false };
@@ -257,6 +252,25 @@ function addCollection(contentMap: ContentTypes, collectionKey: string) {
 
 function removeCollection(contentMap: ContentTypes, collectionKey: string) {
 	delete contentMap[collectionKey];
+}
+
+async function parseSlug({
+	fs,
+	event,
+	entryInfo,
+}: {
+	fs: typeof fsMod;
+	event: ContentEvent;
+	entryInfo: EntryInfo;
+}) {
+	// `slug` may be present in entry frontmatter.
+	// This should be respected by the generated `slug` type!
+	// Parse frontmatter and retrieve `slug` value for this.
+	// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
+	// on dev server startup or production build init.
+	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
+	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
+	return getEntrySlug({ ...entryInfo, data: frontmatter });
 }
 
 function setEntry(
