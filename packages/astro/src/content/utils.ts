@@ -50,13 +50,20 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function getEntrySlug({id, collection, slug, data: unparsedData}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>){ 
+export function getEntrySlug({
+	id,
+	collection,
+	slug,
+	data: unparsedData,
+}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>) {
 	try {
 		return z.string().default(slug).parse(unparsedData.slug);
 	} catch {
 		throw new AstroError({
 			title: 'Invalid content entry slug',
-			message: `${String(collection)} → ${String(id)} has an invalid frontmatter slug. \`slug\` must be a string.`,
+			message: `${String(collection)} → ${String(
+				id
+			)} has an invalid frontmatter slug. \`slug\` must be a string.`,
 			hint: 'See our docs for more information about the reserved `slug` field: https://docs.astro.build/en/guides/content-collections/',
 			code: 99999,
 		});
@@ -81,10 +88,16 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 		}
 		// Catch reserved `slug` field inside schema
 		// Note: will not warn for `z.union` or `z.intersection` schemas
-		if (typeof collectionConfig.schema === 'object' && 'shape' in collectionConfig.schema && collectionConfig.schema.shape.slug) {
+		if (
+			typeof collectionConfig.schema === 'object' &&
+			'shape' in collectionConfig.schema &&
+			collectionConfig.schema.shape.slug
+		) {
 			throw new AstroError({
 				title: 'Invalid content collection config',
-				message: `\`slug\` is a reserved frontmatter property for slug generation. Remove it from your ${JSON.stringify(entry.collection)} collection schema.`,
+				message: `\`slug\` is a reserved frontmatter property for slug generation. Remove it from your ${JSON.stringify(
+					entry.collection
+				)} collection schema.`,
 				hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` frontmatter property',
 				code: 99999,
 			});

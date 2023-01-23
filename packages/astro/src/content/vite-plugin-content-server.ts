@@ -140,7 +140,7 @@ export function astroContentServerPlugin({
 					// TODO: move slug calculation to the start of the build
 					// to generate a performant lookup map for `getEntryBySlug`
 					const slug = getEntrySlug(partialEntry);
-					
+
 					const collectionConfig = contentConfig?.collections[entryInfo.collection];
 					const data = collectionConfig
 						? await getEntryData(partialEntry, collectionConfig)
