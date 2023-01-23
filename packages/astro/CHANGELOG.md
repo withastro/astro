@@ -405,6 +405,9 @@
 
 ## 2.0.0-beta.4
 
+<details>
+<summary>See changes in 2.0.0-beta.4</summary>
+
 ### Major Changes
 
 - [#5941](https://github.com/withastro/astro/pull/5941) [`304823811`](https://github.com/withastro/astro/commit/304823811eddd8e72aa1d8e2d39b40ab5cda3565) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Content collections: Introduce a new `slug` frontmatter field for overriding the generated slug. This replaces the previous `slug()` collection config option from Astro 1.X and the 2.0 beta.
@@ -460,7 +463,12 @@
 - Updated dependencies [[`46ecd5de3`](https://github.com/withastro/astro/commit/46ecd5de34df619e2ee73ccea39a57acd37bc0b8)]:
   - @astrojs/webapi@2.0.0-beta.1
 
+</details>
+
 ## 2.0.0-beta.3
+
+<details>
+<summary>See changes in 2.0.0-beta.3</summary>
 
 ### Major Changes
 
@@ -524,7 +532,12 @@
 
 - [#5872](https://github.com/withastro/astro/pull/5872) [`b66d7195c`](https://github.com/withastro/astro/commit/b66d7195c17a55ea0931bc3744888bd4f5f01ce6) Thanks [@bluwy](https://github.com/bluwy)! - Enable `skipLibCheck` by default
 
+</details>
+
 ## 2.0.0-beta.2
+
+<details>
+<summary>See changes in 2.0.0-beta.2</summary>
 
 ### Major Changes
 
@@ -604,7 +617,12 @@
   - @astrojs/markdown-remark@2.0.0-beta.2
   - @astrojs/webapi@2.0.0-beta.0
 
+</details>
+
 ## 2.0.0-beta.1
+
+<details>
+<summary>See changes in 2.0.0-beta.1</summary>
 
 ### Major Changes
 
@@ -663,7 +681,12 @@
 - Updated dependencies [[`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b)]:
   - @astrojs/markdown-remark@2.0.0-beta.1
 
+</details>
+
 ## 2.0.0-beta.0
+
+<details>
+<summary>See changes in 2.0.0-beta.0</summary>
 
 ### Major Changes
 
@@ -837,6 +860,8 @@
 
 - Updated dependencies [[`e2019be6f`](https://github.com/withastro/astro/commit/e2019be6ffa46fa33d92cfd346f9ecbe51bb7144), [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d)]:
   - @astrojs/markdown-remark@2.0.0-beta.0
+
+</details>
 
 ## 1.9.2
 
