@@ -1,5 +1,6 @@
 import load, { resolve } from '@proload/core';
 import type { AstroIntegration } from 'astro';
+import type { CSSOptions, UserConfig } from 'vite';
 import autoprefixerPlugin from 'autoprefixer';
 import fs from 'fs/promises';
 import path from 'path';
@@ -66,14 +67,46 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 	}
 }
 
-function getViteConfiguration(isBuild: boolean, tailwindConfig: TailwindConfig) {
-	const postcssPlugins = [tailwindPlugin(tailwindConfig)];
+async function getPostCssConfig(
+	root: UserConfig['root'],
+	postcssInlineOptions: CSSOptions['postcss']
+) {
+	let postcssConfigResult;
+	// Check if postcss config is not inlined
+	if (!(typeof postcssInlineOptions === 'object' && postcssInlineOptions !== null)) {
+		let { default: postcssrc } = await import('postcss-load-config');
+		const searchPath = typeof postcssInlineOptions === 'string' ? postcssInlineOptions : root!;
+		try {
+			postcssConfigResult = await postcssrc({}, searchPath);
+		} catch (e) {
+			postcssConfigResult = null;
+		}
+	}
+	return postcssConfigResult;
+}
+
+async function getViteConfiguration(
+	isBuild: boolean,
+	tailwindConfig: TailwindConfig,
+	viteConfig: UserConfig
+) {
+	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
+	// that causes vite to ignore postcss config files
+	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
+
+	const postcssOptions = (postcssConfigResult && postcssConfigResult.options) || {};
+
+	const postcssPlugins =
+		postcssConfigResult && postcssConfigResult.plugins ? postcssConfigResult.plugins.slice() : [];
+	postcssPlugins.push(tailwindPlugin(tailwindConfig));
+
 	if (isBuild) {
 		postcssPlugins.push(autoprefixerPlugin());
 	}
 	return {
 		css: {
 			postcss: {
+				options: postcssOptions,
 				plugins: postcssPlugins,
 			},
 		},
@@ -131,7 +164,10 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 
 				const tailwindConfig =
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
-				updateConfig({ vite: getViteConfiguration(command === 'build', tailwindConfig) });
+
+				updateConfig({
+					vite: await getViteConfiguration(command === 'build', tailwindConfig, config.vite),
+				});
 
 				if (applyBaseStyles) {
 					// Inject the Tailwind base import
