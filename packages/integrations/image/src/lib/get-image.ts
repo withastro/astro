@@ -20,6 +20,25 @@ function resolveSize(transform: TransformOptions): TransformOptions {
 		return transform;
 	}
 
+	try {
+    const parsedUrl = new URL(`file://${transform.src}`)
+		const width = parsedUrl.searchParams.get('w')
+		const height = parsedUrl.searchParams.get('h')
+    if (width !== null && height !== null) {
+			const w = parseInt(width, 10)
+			const h = parseInt(height, 10)
+      transform.width = w
+			transform.height = h
+			transform.aspectRatio = `${w}:${h}`
+    }
+		const format = parsedUrl.searchParams.get('f')
+		if (format !== null) {
+			transform.format = format as OutputFormat
+		}
+  } catch (e) {
+    console.error(`ERROR: Image ${transform.src} attributes malformed`)
+  }
+
 	if (!transform.width && !transform.height) {
 		throw new Error(`"width" and "height" cannot both be undefined`);
 	}
@@ -146,7 +165,7 @@ export async function getImage(
 	let src: string;
 
 	if (/^[\/\\]?@astroimage/.test(imgSrc)) {
-		src = `${imgSrc}?${searchParams.toString()}`;
+		src = imgSrc
 	} else {
 		searchParams.set('href', imgSrc);
 		src = `/_image?${searchParams.toString()}`;

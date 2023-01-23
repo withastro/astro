@@ -73,7 +73,23 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				meta.src = slash(meta.src);
 			}
 
-			return `export default ${JSON.stringify(meta)}`;
+			if (meta instanceof String) {
+				return `export default "${meta}"`
+			} else if (meta instanceof Object) {
+				const metaUrl = new URL(`file://${meta.src}`)
+				if (meta.width && meta.height) {
+					metaUrl.searchParams.append('w', `${meta.width}`)
+					metaUrl.searchParams.append('h', `${meta.height}`)
+					metaUrl.searchParams.append('ar', `${meta.width}:${meta.height}`)
+				}
+				if (meta.format) {
+					metaUrl.searchParams.append('f', meta.format)
+				}
+				if (meta.orientation) {
+					metaUrl.searchParams.append('o', `${meta.orientation}`)
+				}
+				return `export default "${meta.src}${metaUrl.search}"`
+			}
 		},
 		configureServer(server) {
 			server.middlewares.use(async (req, res, next) => {

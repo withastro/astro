@@ -54,6 +54,19 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		throw new Error('[@astrojs/image] at least one `width` is required');
 	}
 
+	try {
+    const parsedUrl = new URL(`file://${params.src}`)
+		const width = parsedUrl.searchParams.get('w')
+		const height = parsedUrl.searchParams.get('h')
+    if (!params.aspectRatio && width !== null && height !== null) {
+			const w = parseInt(width, 10)
+			const h = parseInt(height, 10)
+			params.aspectRatio = `${w}:${h}`
+    }
+  } catch (e) {
+    console.error(`ERROR: Image ${params.src} attributes malformed`)
+  }
+
 	const aspectRatio = await resolveAspectRatio(params);
 
 	if (!aspectRatio) {
