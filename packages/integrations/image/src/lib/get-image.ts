@@ -1,4 +1,5 @@
 /// <reference types="astro/astro-jsx" />
+import probe from 'probe-image-size';
 import type {
 	ColorDefinition,
 	ImageService,
@@ -20,6 +21,8 @@ async function resolveSize(transform: TransformOptions): Promise<TransformOption
 	if (transform.width && transform.height) {
 		return transform;
 	}
+
+	transform.format = 'jpg';
 
 	// If the user provided an aspect ratio, and just one of width or height, let's try to make the image fit their need
 	if (transform.aspectRatio && (transform.width || transform.height)) {
@@ -52,7 +55,14 @@ async function resolveSize(transform: TransformOptions): Promise<TransformOption
 
 	// If it's not a remote image, we have access to the local file and can tell the aspect ratio
 	if (!isRemoteImage(transform.src)) {
-		const data = await imageMetadata(transform.src);
+		let data;
+
+		try {
+			data = await imageMetadata(transform.src);
+		} catch (e) {
+			// TODO: Do this properly, just done like this for now as a proof of concept
+			data = await imageMetadata('./public' + transform.src);
+		}
 
 		if (data) {
 			const aspectRatio = data.width / data.height;
@@ -82,10 +92,49 @@ async function resolveSize(transform: TransformOptions): Promise<TransformOption
 				};
 			}
 		}
-	}
+	} else {
+		const imageData = await probe(transform.src);
+		if (!transform.format) transform.format = imageData.type as OutputFormat;
 
-	// If the user only provided one of width or height and no aspect ratio and the image is remote, that's okay
-	// We'll guess the aspect ratio they want from the missing width or height from the fetch later if we can
+		if (!transform.width || !transform.height) {
+			if (imageData) {
+				let aspectRatio;
+				if (transform.aspectRatio) {
+					if (typeof transform.aspectRatio === 'number') {
+						aspectRatio = transform.aspectRatio;
+					} else {
+						const [width, height] = transform.aspectRatio.split(':');
+						aspectRatio = Number.parseInt(width) / Number.parseInt(height);
+					}
+				}
+
+				aspectRatio = aspectRatio ? aspectRatio : imageData.width / imageData.height;
+
+				if (transform.width) {
+					// only width was provided, calculate height
+					return {
+						...transform,
+						width: transform.width,
+						height: Math.round(transform.width / aspectRatio),
+					} as TransformOptions;
+				} else if (transform.height) {
+					// only height was provided, calculate width
+					return {
+						...transform,
+						width: Math.round(transform.height * aspectRatio),
+						height: transform.height,
+					};
+				} else {
+					// neither width or height were provided, so just return as is
+					return {
+						...transform,
+						width: imageData.width,
+						height: imageData.height,
+					};
+				}
+			}
+		}
+	}
 
 	return transform;
 }

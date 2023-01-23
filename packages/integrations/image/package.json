@@ -48,11 +48,13 @@
     "kleur": "^4.1.5",
     "magic-string": "^0.25.9",
     "mime": "^3.0.0",
+    "probe-image-size": "^7.2.3",
     "slash": "^4.0.0"
   },
   "devDependencies": {
     "@types/http-cache-semantics": "^4.0.1",
     "@types/mime": "^2.0.3",
+    "@types/probe-image-size": "^7.2.0",
     "@types/sharp": "^0.30.5",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
@@ -64,8 +66,8 @@
     "vite": "^4.0.3"
   },
   "peerDependencies": {
-    "sharp": ">=0.31.0",
-    "astro": "workspace:^2.0.0-beta.3"
+    "astro": "workspace:^2.0.0-beta.3",
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {
