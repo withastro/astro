@@ -1,5 +1,14 @@
 # @astrojs/svelte
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- [#5923](https://github.com/withastro/astro/pull/5923) [`f32bf07c1`](https://github.com/withastro/astro/commit/f32bf07c19ebd8f9c85ed47c52e2a4137074e9b3) Thanks [@delucis](https://github.com/delucis)! - Improve README
+
+- Updated dependencies [[`4987d6f44`](https://github.com/withastro/astro/commit/4987d6f44cfd0d81d88f21f5c380503403dc1e6a), [`304823811`](https://github.com/withastro/astro/commit/304823811eddd8e72aa1d8e2d39b40ab5cda3565), [`7325df412`](https://github.com/withastro/astro/commit/7325df412107fc0e65cd45c1b568fb686708f723), [`a8d3e7924`](https://github.com/withastro/astro/commit/a8d3e79246605d252dcddad159e358e2d79bd624), [`5fd9208d4`](https://github.com/withastro/astro/commit/5fd9208d447f5ab8909a2188b6c2491a0debd49d)]:
+  - astro@2.0.0-beta.4
+
 ## 2.0.0-beta.2
 
 ### Major Changes

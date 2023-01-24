@@ -1,5 +1,62 @@
 # astro
 
+## 2.0.0-beta.4
+
+### Major Changes
+
+- [#5941](https://github.com/withastro/astro/pull/5941) [`304823811`](https://github.com/withastro/astro/commit/304823811eddd8e72aa1d8e2d39b40ab5cda3565) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Content collections: Introduce a new `slug` frontmatter field for overriding the generated slug. This replaces the previous `slug()` collection config option from Astro 1.X and the 2.0 beta.
+
+  When present in a Markdown or MDX file, this will override the generated slug for that entry.
+
+  ```diff
+  # src/content/blog/post-1.md
+  ---
+  title: Post 1
+  + slug: post-1-custom-slug
+  ---
+  ```
+
+  Astro will respect this slug in the generated `slug` type and when using the `getEntryBySlug()` utility:
+
+  ```astro
+  ---
+  import { getEntryBySlug } from 'astro:content';
+
+  // Retrieve `src/content/blog/post-1.md` by slug with type safety
+  const post = await getEntryBySlug('blog', 'post-1-custom-slug');
+  ---
+  ```
+
+  #### Migration
+
+  If you relied on the `slug()` config option, you will need to move all custom slugs to `slug` frontmatter properties in each collection entry.
+
+  Additionally, Astro no longer allows `slug` as a collection schema property. This ensures Astro can manage the `slug` property for type generation and performance. Remove this property from your schema and any relevant `slug()` configuration:
+
+  ```diff
+  const blog = defineCollection({
+    schema: z.object({
+  -   slug: z.string().optional(),
+    }),
+  - slug({ defaultSlug, data }) {
+  -   return data.slug ?? defaultSlug;
+  - },
+  })
+  ```
+
+### Patch Changes
+
+- [#5499](https://github.com/withastro/astro/pull/5499) [`4987d6f44`](https://github.com/withastro/astro/commit/4987d6f44cfd0d81d88f21f5c380503403dc1e6a) Thanks [@bluwy](https://github.com/bluwy)! - Handle custom injected entry files during build
+
+- [#5917](https://github.com/withastro/astro/pull/5917) [`7325df412`](https://github.com/withastro/astro/commit/7325df412107fc0e65cd45c1b568fb686708f723) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix duplicate CSS in dev mode when `vite.css.devSourcemap` is provided
+
+- [#5905](https://github.com/withastro/astro/pull/5905) [`a8d3e7924`](https://github.com/withastro/astro/commit/a8d3e79246605d252dcddad159e358e2d79bd624) Thanks [@bluwy](https://github.com/bluwy)! - Fix CLI node version check
+
+- [#5909](https://github.com/withastro/astro/pull/5909) [`5fd9208d4`](https://github.com/withastro/astro/commit/5fd9208d447f5ab8909a2188b6c2491a0debd49d) Thanks [@jasikpark](https://github.com/jasikpark)! - Update compiler to 1.0.1
+
+- Updated dependencies [[`46ecd5de3`](https://github.com/withastro/astro/commit/46ecd5de34df619e2ee73ccea39a57acd37bc0b8)]:
+  - @astrojs/webapi@2.0.0-beta.1
+
 ## 2.0.0-beta.3
 
 ### Major Changes
@@ -377,6 +434,18 @@
 
 - Updated dependencies [[`e2019be6f`](https://github.com/withastro/astro/commit/e2019be6ffa46fa33d92cfd346f9ecbe51bb7144), [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d)]:
   - @astrojs/markdown-remark@2.0.0-beta.0
+
+## 1.9.2
+
+### Patch Changes
+
+- [#5776](https://github.com/withastro/astro/pull/5776) [`6a31433ed`](https://github.com/withastro/astro/commit/6a31433ed79c7f84fd3ce602005b42ad95007d84) Thanks [@ba55ie](https://github.com/ba55ie)! - Fix Lit slotted content
+
+## 1.9.1
+
+### Patch Changes
+
+- [`adad7e966`](https://github.com/withastro/astro/commit/adad7e96680640e1d0a5ec270cd2516f350c7652) Thanks [@matthewp](https://github.com/matthewp)! - Fix for hoisted scripts in project with spaces in the file path
 
 ## 1.9.0
 

@@ -499,30 +499,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
-	 * @message
-	 * **Example error message:**<br/>
-	 * Could not parse frontmatter in **blog** → **post.md**<br/>
-	 * "title" is required.<br/>
-	 * "date" must be a valid date.
-	 * @description
-	 * A Markdown document's frontmatter in `src/content/` does not match its collection schema.
-	 * Make sure that all required fields are present, and that all fields are of the correct type.
-	 * You can check against the collection schema in your `src/content/config.*` file.
-	 * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
-	 */
-	MarkdownContentSchemaValidationError: {
-		title: 'Content collection frontmatter invalid.',
-		code: 6002,
-		message: (collection: string, entryId: string, error: ZodError) => {
-			return [
-				`${String(collection)} → ${String(entryId)} frontmatter does not match collection schema.`,
-				...error.errors.map((zodError) => zodError.message),
-			].join('\n');
-		},
-		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
-	},
-	/**
-	 * @docs
 	 * @see
 	 * - [Modifying frontmatter programmatically](https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically)
 	 * @description
@@ -602,6 +578,72 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 8001,
 		message: '`astro sync` command failed to generate content collection types.',
 		hint: 'Check your `src/content/config.*` file for typos.',
+	},
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Content Collection Errors
+	 */
+	// Content Collection Errors - 9xxx
+	UnknownContentCollectionError: {
+		title: 'Unknown Content Collection Error.',
+		code: 9000,
+	},
+	/**
+	 * @docs
+	 * @message
+	 * **Example error message:**<br/>
+	 * **blog** → **post.md** frontmatter does not match collection schema.<br/>
+	 * "title" is required.<br/>
+	 * "date" must be a valid date.
+	 * @description
+	 * A Markdown or MDX entry in `src/content/` does not match its collection schema.
+	 * Make sure that all required fields are present, and that all fields are of the correct type.
+	 * You can check against the collection schema in your `src/content/config.*` file.
+	 * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+	 */
+	InvalidContentEntryFrontmatterError: {
+		title: 'Content entry frontmatter does not match schema.',
+		code: 9001,
+		message: (collection: string, entryId: string, error: ZodError) => {
+			return [
+				`${String(collection)} → ${String(entryId)} frontmatter does not match collection schema.`,
+				...error.errors.map((zodError) => zodError.message),
+			].join('\n');
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * @description
+	 * An entry in `src/content/` has an invalid `slug`. This field is reserved for generating entry slugs, and must be a string when present.
+	 */
+	InvalidContentEntrySlugError: {
+		title: 'Invalid content entry slug.',
+		code: 9002,
+		message: (collection: string, entryId: string) => {
+			return `${String(collection)} → ${String(
+				entryId
+			)} has an invalid slug. \`slug\` must be a string.`;
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * @description
+	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 */
+	ContentSchemaContainsSlugError: {
+		title: 'Content Schema should not contain `slug`.',
+		code: 9003,
+		message: (collection: string) => {
+			return `A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collection} collection schema.`;
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
 	// Generic catch-all

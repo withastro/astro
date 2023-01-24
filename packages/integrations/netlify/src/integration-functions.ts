@@ -48,7 +48,7 @@ function netlifyFunctions({
 				}
 			},
 			'astro:build:done': async ({ routes, dir }) => {
-				await createRedirects(routes, dir, entryFile, false);
+				await createRedirects(_config, routes, dir, entryFile, false);
 			},
 		},
 	};

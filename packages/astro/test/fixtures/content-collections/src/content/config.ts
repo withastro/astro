@@ -1,12 +1,7 @@
 import { z, defineCollection } from 'astro:content';
 
-const withSlugConfig = defineCollection({
-	slug({ id, data }) {
-		return `${data.prefix}-${id}`;
-	},
-	schema: z.object({
-		prefix: z.string(),
-	}),
+const withCustomSlugs = defineCollection({
+	schema: z.object({}),
 });
 
 const withSchemaConfig = defineCollection({
@@ -33,7 +28,7 @@ const withUnionSchema = defineCollection({
 });
 
 export const collections = {
-	'with-slug-config': withSlugConfig,
+	'with-custom-slugs': withCustomSlugs,
 	'with-schema-config': withSchemaConfig,
 	'with-union-schema': withUnionSchema,
 }

@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 1.0.2
+
+### Patch Changes
+
+- [#5776](https://github.com/withastro/astro/pull/5776) [`6a31433ed`](https://github.com/withastro/astro/commit/6a31433ed79c7f84fd3ce602005b42ad95007d84) Thanks [@ba55ie](https://github.com/ba55ie)! - Fix Lit slotted content
+
 ## 1.0.2-beta.0
 
 ### Patch Changes
