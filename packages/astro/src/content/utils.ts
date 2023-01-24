@@ -227,7 +227,7 @@ export async function loadContentConfig({
 		return undefined;
 	}
 	try {
-		const configPathname = decodeURIComponent(contentPaths.config.pathname);
+		const configPathname = fileURLToPath(contentPaths.config);
 		unparsedConfig = await tempConfigServer.ssrLoadModule(configPathname);
 	} catch (e) {
 		throw e;
