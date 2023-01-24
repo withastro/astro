@@ -10,15 +10,25 @@
 
 ## 1.0.3-beta.1
 
+<details>
+<summary>See changes in 1.0.3-beta.1</summary>
+
 ### Patch Changes
 
 - [#5936](https://github.com/withastro/astro/pull/5936) [`77ae7a597`](https://github.com/withastro/astro/commit/77ae7a597a8fdd5c939291b4f63237c659a79225) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - fix trailing slash with base path
 
+</details>
+
 ## 1.0.3-beta.0
+
+<details>
+<summary>See changes in 1.0.3-beta.0</summary>
 
 ### Patch Changes
 
 - [#5820](https://github.com/withastro/astro/pull/5820) [`813073add`](https://github.com/withastro/astro/commit/813073addd669538d67032a48ef6b649216dafc5) Thanks [@davlet61](https://github.com/davlet61)! - Bumps `@builder.io/partytown` version in partytown integration to fix deprecation warning in pagespeed insights
+
+</details>
 
 ## 1.0.2
 
