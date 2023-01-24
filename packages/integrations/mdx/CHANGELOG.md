@@ -6,46 +6,46 @@
 
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use. & [#5769](https://github.com/withastro/astro/pull/5769) [`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce a `smartypants` flag to opt-out of Astro's default SmartyPants plugin.
 
- **Markdown**
+  - **Markdown**
 
-  - **Replace the `extendDefaultPlugins` option** with a `gfm` boolean and a `smartypants` boolean. These are enabled by default, and can be disabled to remove GitHub-Flavored Markdown and SmartyPants.
-  
-  - Ensure GitHub-Flavored Markdown and SmartyPants are applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove Astro's default plugins, manually set `gfm: false` and `smartypants: false` in your config.
+      - **Replace the `extendDefaultPlugins` option** with a `gfm` boolean and a `smartypants` boolean. These are enabled by default, and can be disabled to remove GitHub-Flavored Markdown and SmartyPants.
+      
+      - Ensure GitHub-Flavored Markdown and SmartyPants are applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove Astro's default plugins, manually set `gfm: false` and `smartypants: false` in your config.
 
-  **Migrate `extendDefaultPlugins` to `gfm` and `smartypants`**
+  - **Migrate `extendDefaultPlugins` to `gfm` and `smartypants`**
 
-  You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
+      You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
 
-  - `markdown.gfm` to disable GitHub-Flavored Markdown
-  - `markdown.smartypants` to disable SmartyPants
+      - `markdown.gfm` to disable GitHub-Flavored Markdown
+      - `markdown.smartypants` to disable SmartyPants
 
-  ```diff
-  // astro.config.mjs
-  import { defineConfig } from 'astro/config';
+      ```diff
+      // astro.config.mjs
+      import { defineConfig } from 'astro/config';
 
-  export default defineConfig({
-    markdown: {
-  -   extendDefaultPlugins: false,
-  +   smartypants: false,
-  +   gfm: false,
-    }
-  });
-  ```
+      export default defineConfig({
+        markdown: {
+      -   extendDefaultPlugins: false,
+      +   smartypants: false,
+      +   gfm: false,
+        }
+      });
+      ```
 
-  Additionally, applying remark and rehype plugins **no longer disables** `gfm` and `smartypants`. You will need to opt-out manually by setting `gfm` and `smartypants` to `false`.
+      Additionally, applying remark and rehype plugins **no longer disables** `gfm` and `smartypants`. You will need to opt-out manually by setting `gfm` and `smartypants` to `false`.
 
-    **MDX**
+  - **MDX**
 
-  - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
+      - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
 
-  - Simplify `extendPlugins` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
+      - Simplify `extendPlugins` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
 
-  **Migrate MDX's `extendPlugins` to `extendMarkdownConfig`**
+  - **Migrate MDX's `extendPlugins` to `extendMarkdownConfig`**
 
-  You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 3 flags:
+      You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 3 flags:
 
-  - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
-  - `gfm` (`true` by default) and `smartypants` (`true` by default) to toggle GitHub-Flavored Markdown and SmartyPants in MDX. This replaces the `extendPlugins: 'defaults'` option.
+      - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
+      - `gfm` (`true` by default) and `smartypants` (`true` by default) to toggle GitHub-Flavored Markdown and SmartyPants in MDX. This replaces the `extendPlugins: 'defaults'` option.
 
 
 
@@ -62,13 +62,9 @@
   }
   ```
 
-  #### Content Collections - new `remarkPluginFrontmatter` property
+  When using Content Collections, you can access this modified frontmatter using the `remarkPluginFrontmatter` property returned when rendering an entry.
 
-  We have changed _inject_ frontmatter to _modify_ frontmatter in our docs to improve discoverability. This is based on support forum feedback, where "injection" is rarely the term used.
-
-  To reflect this, the `injectedFrontmatter` property has been renamed to `remarkPluginFrontmatter`. This should clarify this plugin is still separate from the `data` export Content Collections expose today.
-
-  #### Migration instructions
+  **Migration instructions**
 
   Plugin authors should now **check for user frontmatter when applying defaults.**
 
