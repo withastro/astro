@@ -190,11 +190,13 @@ describe('Content Collections', () => {
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
 			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
+			let error = null;
 			try {
 				await fixture.build();
 			} catch (e) {
-				expect(e.message).to.not.contain('Failed to load url');
+				error = e.message;
 			}
+			expect(error).to.be.null;
 		});
 	});
 
