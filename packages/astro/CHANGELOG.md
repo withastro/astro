@@ -139,47 +139,47 @@
 - [#5724](https://github.com/withastro/astro/pull/5724) [`16c7d0bfd`](https://github.com/withastro/astro/commit/16c7d0bfd49d2b9bfae45385f506bcd642f9444a) Thanks [@bluwy](https://github.com/bluwy)! - Remove outdated Vue info log. Remove `toString` support for `RenderTemplateResult`.
 
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) & [#5769](https://github.com/withastro/astro/pull/5769) [`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
-  
+
   - **Markdown**
 
-      - **Replace the `extendDefaultPlugins` option** with a `gfm` boolean and a `smartypants` boolean. These are enabled by default, and can be disabled to remove GitHub-Flavored Markdown and SmartyPants.
-  
-      - Ensure GitHub-Flavored Markdown and SmartyPants are applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove Astro's default plugins, manually set `gfm: false` and `smartypants: false` in your config.
+    - **Replace the `extendDefaultPlugins` option** with a `gfm` boolean and a `smartypants` boolean. These are enabled by default, and can be disabled to remove GitHub-Flavored Markdown and SmartyPants.
+
+    - Ensure GitHub-Flavored Markdown and SmartyPants are applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove Astro's default plugins, manually set `gfm: false` and `smartypants: false` in your config.
 
   - **Migrate `extendDefaultPlugins` to `gfm` and `smartypants`**
 
-      You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
+    You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
 
-      - `markdown.gfm` to disable GitHub-Flavored Markdown
-      - `markdown.smartypants` to disable SmartyPants
+    - `markdown.gfm` to disable GitHub-Flavored Markdown
+    - `markdown.smartypants` to disable SmartyPants
 
-      ```diff
-      // astro.config.mjs
-      import { defineConfig } from 'astro/config';
+    ```diff
+    // astro.config.mjs
+    import { defineConfig } from 'astro/config';
 
-      export default defineConfig({
-        markdown: {
-      -   extendDefaultPlugins: false,
-      +   smartypants: false,
-      +   gfm: false,
-        }
-      });
-      ```
+    export default defineConfig({
+      markdown: {
+    -   extendDefaultPlugins: false,
+    +   smartypants: false,
+    +   gfm: false,
+      }
+    });
+    ```
 
-      Additionally, applying remark and rehype plugins **no longer disables** `gfm` and `smartypants`. You will need to opt-out manually by setting `gfm` and `smartypants` to `false`.
+    Additionally, applying remark and rehype plugins **no longer disables** `gfm` and `smartypants`. You will need to opt-out manually by setting `gfm` and `smartypants` to `false`.
 
   - **MDX**
 
-      - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
+    - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
 
-      - Simplify `extendPlugins` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
+    - Simplify `extendPlugins` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
 
   - **Migrate MDX's `extendPlugins` to `extendMarkdownConfig`**
 
-      You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 3 flags:
+    You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 3 flags:
 
-      - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
-      - `gfm` (`true` by default) and `smartypants` (`true` by default) to toggle GitHub-Flavored Markdown and SmartyPants in MDX. This replaces the `extendPlugins: 'defaults'` option.
+    - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
+    - `gfm` (`true` by default) and `smartypants` (`true` by default) to toggle GitHub-Flavored Markdown and SmartyPants in MDX. This replaces the `extendPlugins: 'defaults'` option.
 
 - [#5717](https://github.com/withastro/astro/pull/5717) [`a3a7fc929`](https://github.com/withastro/astro/commit/a3a7fc9298e6d88abb4b7bee1e58f05fa9558cf1) Thanks [@bluwy](https://github.com/bluwy)! - Remove `style.postcss` Astro config. Refactor tailwind integration to configure through `vite` instead. Also disables `autoprefixer` in dev.
 
@@ -198,34 +198,34 @@
 
   - **`Astro.resolve`**
 
-      You can resolve asset paths using `import` instead. For example:
+    You can resolve asset paths using `import` instead. For example:
 
-      ```astro
-      ---
-      import 'style.css';
-      import imageUrl from './image.png';
-      ---
+    ```astro
+    ---
+    import 'style.css';
+    import imageUrl from './image.png';
+    ---
 
-      <img src={imageUrl} />
-      ```
+    <img src={imageUrl} />
+    ```
 
-      See the [v0.25 migration guide](https://docs.astro.build/en/migrate/#deprecated-astroresolve) for more information.
+    See the [v0.25 migration guide](https://docs.astro.build/en/migrate/#deprecated-astroresolve) for more information.
 
   - **`Astro.fetchContent`**
 
-      Use `Astro.glob` instead to fetch markdown files, or migrate to the [Content Collections](https://docs.astro.build/en/guides/content-collections/) feature.
+    Use `Astro.glob` instead to fetch markdown files, or migrate to the [Content Collections](https://docs.astro.build/en/guides/content-collections/) feature.
 
-      ```js
-      let allPosts = await Astro.glob('./posts/*.md');
-      ```
+    ```js
+    let allPosts = await Astro.glob('./posts/*.md');
+    ```
 
   - **`Astro.canonicalURL`**
 
-      Use `Astro.url` instead to construct the canonical URL.
+    Use `Astro.url` instead to construct the canonical URL.
 
-      ```js
-      const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-      ```
+    ```js
+    const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+    ```
 
 - [#5608](https://github.com/withastro/astro/pull/5608) [`899214298`](https://github.com/withastro/astro/commit/899214298cee5f0c975c7245e623c649e1842d73) Thanks [@konojunya](https://github.com/konojunya)! - A trailing slash will not be automatically appended to `import.meta.env.SITE`. Instead, it will be the value of the `site` config as is. This may affect usages of `${import.meta.env.SITE}image.png`, which will need to be updated accordingly.
 
