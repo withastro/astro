@@ -1,6 +1,10 @@
 # create-astro
 
-## 2.0.0-beta.1
+## 2.0.0
+
+### Major Changes
+
+- [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 14. Minimum supported Node version is now >=16.12.0
 
 ### Patch Changes
 
@@ -8,11 +12,29 @@
 
 - [#5920](https://github.com/withastro/astro/pull/5920) [`f27bb3d79`](https://github.com/withastro/astro/commit/f27bb3d79f9774f01037e60e656b1f9d8e03367d) Thanks [@delucis](https://github.com/delucis)! - Improve error message for third-party template 404s
 
+## 2.0.0-beta.1
+
+<details>
+<summary>See changes in 2.0.0-beta.1</summary>
+
+### Patch Changes
+
+- [#5898](https://github.com/withastro/astro/pull/5898) [`d8919b1a2`](https://github.com/withastro/astro/commit/d8919b1a2197616b70ec57f0fb00b0bde6943e43) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Support headless runs with `-y` / `--yes`
+
+- [#5920](https://github.com/withastro/astro/pull/5920) [`f27bb3d79`](https://github.com/withastro/astro/commit/f27bb3d79f9774f01037e60e656b1f9d8e03367d) Thanks [@delucis](https://github.com/delucis)! - Improve error message for third-party template 404s
+
+</details>
+
 ## 2.0.0-beta.0
+
+<details>
+<summary>See changes in 2.0.0-beta.0</summary>
 
 ### Major Changes
 
 - [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 14. Minimum supported Node version is now >=16.12.0
+
+</details>
 
 ## 1.2.4
 

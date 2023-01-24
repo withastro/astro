@@ -1,46 +1,93 @@
 # @astrojs/rss
 
-## 2.1.0-beta.0
+## 2.1.0
 
 ### Minor Changes
 
 - [#5851](https://github.com/withastro/astro/pull/5851) [`81dce94f2`](https://github.com/withastro/astro/commit/81dce94f2a6db598bd9e47fc2a4b9d713e58f286) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update RSS config for readability and consistency with Astro 2.0.
 
-  #### Migration - `import.meta.glob()` handling
+    - **Migration - `import.meta.glob()` handling**
 
-  We have deprecated `items: import.meta.glob(...)` handling in favor of a separate `pagesGlobToRssItems()` helper. This simplifies our `items` configuration option to accept a single type, without losing existing functionality.
+      We have deprecated `items: import.meta.glob(...)` handling in favor of a separate `pagesGlobToRssItems()` helper. This simplifies our `items` configuration option to accept a single type, without losing existing functionality.
 
-  If you rely on our `import.meta.glob()` handling, we suggest adding the `pagesGlobToRssItems()` wrapper to your RSS config:
+      If you rely on our `import.meta.glob()` handling, we suggest adding the `pagesGlobToRssItems()` wrapper to your RSS config:
 
-  ```diff
-  // src/pages/rss.xml.js
-  import rss, {
-  +  pagesGlobToRssItems
-  } from '@astrojs/rss';
+      ```diff
+      // src/pages/rss.xml.js
+      import rss, {
+      +  pagesGlobToRssItems
+      } from '@astrojs/rss';
 
-  export function get(context) {
-    return rss({
-  +    items: pagesGlobToRssItems(
-        import.meta.glob('./blog/*.{md,mdx}'),
-  +    ),
-    });
-  }
-  ```
+      export function get(context) {
+        return rss({
+      +    items: pagesGlobToRssItems(
+            import.meta.glob('./blog/*.{md,mdx}'),
+      +    ),
+        });
+      }
+      ```
 
-  #### New `rssSchema` for content collections
+    - **New `rssSchema` for content collections**
 
-  `@astrojs/rss` now exposes an `rssSchema` for use with content collections. This ensures all RSS feed properties are present in your frontmatter:
+      `@astrojs/rss` now exposes an `rssSchema` for use with content collections. This ensures all RSS feed properties are present in your frontmatter:
 
-  ```ts
-  import { defineCollection } from 'astro:content';
-  import { rssSchema } from '@astrojs/rss';
+      ```ts
+      import { defineCollection } from 'astro:content';
+      import { rssSchema } from '@astrojs/rss';
 
-  const blog = defineCollection({
-    schema: rssSchema,
-  });
+      const blog = defineCollection({
+        schema: rssSchema,
+      });
 
-  export const collections = { blog };
-  ```
+      export const collections = { blog };
+      ```
+
+## 2.1.0-beta.0
+
+<details>
+<summary>See changes in 2.1.0-beta.0</summary>
+
+### Minor Changes
+
+- [#5851](https://github.com/withastro/astro/pull/5851) [`81dce94f2`](https://github.com/withastro/astro/commit/81dce94f2a6db598bd9e47fc2a4b9d713e58f286) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update RSS config for readability and consistency with Astro 2.0.
+
+    - **Migration - `import.meta.glob()` handling**
+
+      We have deprecated `items: import.meta.glob(...)` handling in favor of a separate `pagesGlobToRssItems()` helper. This simplifies our `items` configuration option to accept a single type, without losing existing functionality.
+
+      If you rely on our `import.meta.glob()` handling, we suggest adding the `pagesGlobToRssItems()` wrapper to your RSS config:
+
+      ```diff
+      // src/pages/rss.xml.js
+      import rss, {
+      +  pagesGlobToRssItems
+      } from '@astrojs/rss';
+
+      export function get(context) {
+        return rss({
+      +    items: pagesGlobToRssItems(
+            import.meta.glob('./blog/*.{md,mdx}'),
+      +    ),
+        });
+      }
+      ```
+
+    - **New `rssSchema` for content collections**
+
+      `@astrojs/rss` now exposes an `rssSchema` for use with content collections. This ensures all RSS feed properties are present in your frontmatter:
+
+      ```ts
+      import { defineCollection } from 'astro:content';
+      import { rssSchema } from '@astrojs/rss';
+
+      const blog = defineCollection({
+        schema: rssSchema,
+      });
+
+      export const collections = { blog };
+      ```
+
+</details>
 
 ## 2.0.0
 
