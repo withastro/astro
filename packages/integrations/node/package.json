@@ -30,11 +30,11 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^2.0.0-beta.0",
+    "@astrojs/webapi": "^2.0.0-beta.1",
     "send": "^0.18.0"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.0-beta.3"
+    "astro": "workspace:^2.0.0-beta.4"
   },
   "devDependencies": {
     "@types/send": "^0.17.1",

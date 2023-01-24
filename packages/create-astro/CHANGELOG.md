@@ -1,5 +1,13 @@
 # create-astro
 
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- [#5898](https://github.com/withastro/astro/pull/5898) [`d8919b1a2`](https://github.com/withastro/astro/commit/d8919b1a2197616b70ec57f0fb00b0bde6943e43) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Support headless runs with `-y` / `--yes`
+
+- [#5920](https://github.com/withastro/astro/pull/5920) [`f27bb3d79`](https://github.com/withastro/astro/commit/f27bb3d79f9774f01037e60e656b1f9d8e03367d) Thanks [@delucis](https://github.com/delucis)! - Improve error message for third-party template 404s
+
 ## 2.0.0-beta.0
 
 ### Major Changes

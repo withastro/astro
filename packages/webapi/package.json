@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/webapi",
   "description": "Use Web APIs in Node",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "type": "module",
   "exports": {
     ".": {
@@ -64,7 +64,7 @@
     "chai": "^4.3.6",
     "event-target-shim": "^6.0.2",
     "formdata-polyfill": "^4.0.10",
-    "magic-string": "^0.25.9",
+    "magic-string": "^0.27.0",
     "mocha": "^9.2.2",
     "rollup": "^2.79.1",
     "tslib": "^2.4.0",

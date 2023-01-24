@@ -21,6 +21,13 @@ describe('Dynamic pages', () => {
 
 	it('Dynamic pages are included in the redirects file', async () => {
 		const redir = await fixture.readFile('/_redirects');
-		expect(redir).to.match(/\/products\/\*/);
+		expect(redir).to.match(/\/products\/:id/);
+	});
+
+	it('Prerendered routes are also included using placeholder syntax', async () => {
+		const redir = await fixture.readFile('/_redirects');
+		expect(redir).to.include('/pets/:cat       /pets/:cat/index.html        200');
+		expect(redir).to.include('/pets/:dog       /pets/:dog/index.html        200');
+		expect(redir).to.include('/pets            /.netlify/functions/entry    200');
 	});
 });

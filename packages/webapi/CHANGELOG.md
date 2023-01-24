@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- [#5930](https://github.com/withastro/astro/pull/5930) [`46ecd5de3`](https://github.com/withastro/astro/commit/46ecd5de34df619e2ee73ccea39a57acd37bc0b8) Thanks [@h3y6e](https://github.com/h3y6e)! - Update magic-string from 0.25.9 to 0.27.0
+
 ## 2.0.0-beta.0
 
 ### Major Changes
