@@ -1,5 +1,11 @@
 # create-astro
 
+## 2.0.1
+
+### Patch Changes
+
+- [#5958](https://github.com/withastro/astro/pull/5958) [`d0d7f6118`](https://github.com/withastro/astro/commit/d0d7f6118299bf328de5abd0b66450d8ac620da3) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix typescript prompt handling
+
 ## 2.0.0
 
 ### Major Changes
