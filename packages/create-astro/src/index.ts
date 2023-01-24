@@ -353,7 +353,7 @@ export async function main() {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				fs.writeFileSync(
 					templateTSConfigPath,
-					stringify({ extends: `astro/tsconfigs/${tsResponse}` }, null, 2)
+					stringify({ extends: `astro/tsconfigs/${tsResponse ?? 'base'}` }, null, 2)
 				);
 
 				return;
