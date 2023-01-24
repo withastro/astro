@@ -1,6 +1,6 @@
 ---
 'astro': patch
-'@astrojs/lit': patch
+'@astrojs/lit': minor
 ---
 
 Fix Lit slotted content
