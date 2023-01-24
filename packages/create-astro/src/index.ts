@@ -312,7 +312,7 @@ export async function main() {
 		args.typescript = 'strict';
 	}
 
-	const tsResponse =
+	let tsResponse =
 		args.typescript ||
 		(
 			await prompts(
@@ -342,7 +342,7 @@ export async function main() {
 
 	if (tsResponse === 'unsure') {
 		await typescriptByDefault();
-		tsResponse.typescript = 'base';
+		tsResponse = 'base';
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
