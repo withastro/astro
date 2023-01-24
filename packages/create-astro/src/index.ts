@@ -30,7 +30,7 @@ import { TEMPLATES } from './templates.js';
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const args = yargs(cleanArgv, { boolean: ['fancy', 'y'], alias: { y: 'yes' } });
+const args = yargs(cleanArgv, { boolean: ['fancy'] });
 // Always skip Houston on Windows (for now)
 if (platform() === 'win32') args.skipHouston = true;
 prompts.override(args);
@@ -226,34 +226,30 @@ export async function main() {
 	templateSpinner.text = green('Template copied!');
 	templateSpinner.succeed();
 
-	const install = args.y
-		? true
-		: (
-				await prompts(
-					{
-						type: 'confirm',
-						name: 'install',
-						message: `Would you like to install ${pkgManager} dependencies? ${reset(
-							dim('(recommended)')
-						)}`,
-						initial: true,
-					},
-					{
-						onCancel: () => {
-							ora().info(
-								dim(
-									'Operation cancelled. Your project folder has already been created, however no dependencies have been installed'
-								)
-							);
-							process.exit(1);
-						},
-					}
-				)
-		  ).install;
+	const installResponse = await prompts(
+		{
+			type: 'confirm',
+			name: 'install',
+			message: `Would you like to install ${pkgManager} dependencies? ${reset(
+				dim('(recommended)')
+			)}`,
+			initial: true,
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim(
+						'Operation cancelled. Your project folder has already been created, however no dependencies have been installed'
+					)
+				);
+				process.exit(1);
+			},
+		}
+	);
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (install) {
+	} else if (installResponse.install) {
 		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
 		const installSpinner = await loadWithRocketGradient(installingPackagesMsg);
@@ -272,32 +268,26 @@ export async function main() {
 		await info('No problem!', 'Remember to install dependencies after setup.');
 	}
 
-	const gitResponse = args.y
-		? true
-		: (
-				await prompts(
-					{
-						type: 'confirm',
-						name: 'git',
-						message: `Would you like to initialize a new git repository? ${reset(
-							dim('(optional)')
-						)}`,
-						initial: true,
-					},
-					{
-						onCancel: () => {
-							ora().info(
-								dim('Operation cancelled. No worries, your project folder has already been created')
-							);
-							process.exit(1);
-						},
-					}
-				)
-		  ).git;
+	const gitResponse = await prompts(
+		{
+			type: 'confirm',
+			name: 'git',
+			message: `Would you like to initialize a new git repository? ${reset(dim('(optional)'))}`,
+			initial: true,
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim('Operation cancelled. No worries, your project folder has already been created')
+				);
+				process.exit(1);
+			},
+		}
+	);
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (gitResponse) {
+	} else if (gitResponse.git) {
 		await execaCommand('git init', { cwd });
 		ora().succeed('Git repository created!');
 	} else {
@@ -307,53 +297,44 @@ export async function main() {
 		);
 	}
 
-	if (args.y && !args.typescript) {
-		ora().warn(dim('--typescript <choice> missing. Defaulting to "strict"'));
-		args.typescript = 'strict';
-	}
+	const tsResponse = await prompts(
+		{
+			type: 'select',
+			name: 'typescript',
+			message: 'How would you like to setup TypeScript?',
+			choices: [
+				{ value: 'strict', title: 'Strict', description: '(recommended)' },
+				{ value: 'strictest', title: 'Strictest' },
+				{ value: 'base', title: 'Relaxed' },
+				{ value: 'unsure', title: 'Help me choose' },
+			],
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim(
+						'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
+					)
+				);
+				process.exit(1);
+			},
+		}
+	);
 
-	const tsResponse =
-		args.typescript ||
-		(
-			await prompts(
-				{
-					type: 'select',
-					name: 'typescript',
-					message: 'How would you like to setup TypeScript?',
-					choices: [
-						{ value: 'strict', title: 'Strict', description: '(recommended)' },
-						{ value: 'strictest', title: 'Strictest' },
-						{ value: 'base', title: 'Relaxed' },
-						{ value: 'unsure', title: 'Help me choose' },
-					],
-				},
-				{
-					onCancel: () => {
-						ora().info(
-							dim(
-								'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
-							)
-						);
-						process.exit(1);
-					},
-				}
-			)
-		).typescript;
-
-	if (tsResponse === 'unsure') {
+	if (tsResponse.typescript === 'unsure') {
 		await typescriptByDefault();
 		tsResponse.typescript = 'base';
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
-	} else if (tsResponse) {
+	} else if (tsResponse.typescript) {
 		const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
 		fs.readFile(templateTSConfigPath, (err, data) => {
 			if (err && err.code === 'ENOENT') {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				fs.writeFileSync(
 					templateTSConfigPath,
-					stringify({ extends: `astro/tsconfigs/${tsResponse}` }, null, 2)
+					stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
 				);
 
 				return;
