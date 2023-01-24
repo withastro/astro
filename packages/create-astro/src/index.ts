@@ -363,7 +363,7 @@ export async function main() {
 
 			if (templateTSConfig && typeof templateTSConfig === 'object') {
 				const result = assign(templateTSConfig, {
-					extends: `astro/tsconfigs/${tsResponse.typescript}`,
+					extends: `astro/tsconfigs/${tsResponse ?? 'base'}`,
 				});
 
 				fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
