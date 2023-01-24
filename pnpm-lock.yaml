@@ -139,7 +139,7 @@ importers:
 
   examples/framework-lit:
     specifiers:
-      '@astrojs/lit': ^1.0.2
+      '@astrojs/lit': ^1.1.0
       '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^2.0.0
       lit: ^2.2.5
