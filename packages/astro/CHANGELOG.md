@@ -21,13 +21,9 @@
   }
   ```
 
-  #### Content Collections - new `remarkPluginFrontmatter` property
+  When using Content Collections, you can access this modified frontmatter using the `remarkPluginFrontmatter` property returned when rendering an entry.
 
-  We have changed _inject_ frontmatter to _modify_ frontmatter in our docs to improve discoverability. This is based on support forum feedback, where "injection" is rarely the term used.
-
-  To reflect this, the `injectedFrontmatter` property has been renamed to `remarkPluginFrontmatter`. This should clarify this plugin is still separate from the `data` export Content Collections expose today.
-
-  #### Migration instructions
+  **Migration instructions**
 
   Plugin authors should now **check for user frontmatter when applying defaults.**
 
@@ -91,7 +87,7 @@
   ---
   ```
 
-  #### Migration
+  **Migration**
 
   If you relied on the `slug()` config option, you will need to move all custom slugs to `slug` frontmatter properties in each collection entry.
 
@@ -110,13 +106,13 @@
 
 - [#5753](https://github.com/withastro/astro/pull/5753) [`302e0ef8f`](https://github.com/withastro/astro/commit/302e0ef8f5d5232e3348afe680e599f3e537b5c5) Thanks [@bluwy](https://github.com/bluwy)! - Default preview host to `localhost` instead of `127.0.0.1`. This allows the static server and integration preview servers to serve under ipv6.
 
-- [#5716](https://github.com/withastro/astro/pull/5716) [`dd56c1941`](https://github.com/withastro/astro/commit/dd56c19411b126439b8bc42d681b6fa8c06e8c61) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX Fragment hack. This was used by `@astrojs/mdx` to access the `Fragment` component, but isn't require anymore since `@astrojs/mdx` v0.12.1.
+- [#5716](https://github.com/withastro/astro/pull/5716) [`dd56c1941`](https://github.com/withastro/astro/commit/dd56c19411b126439b8bc42d681b6fa8c06e8c61) Thanks [@bluwy](https://github.com/bluwy)! - Remove MDX Fragment hack. This was used by `@astrojs/mdx` to access the `Fragment` component, but isn't required anymore since `@astrojs/mdx` v0.12.1.
 
-- [#5584](https://github.com/withastro/astro/pull/5584) [`9963c6e4d`](https://github.com/withastro/astro/commit/9963c6e4d50c392c3d1ac4492237020f15ccb1de) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - **Breaking Change**: client assets are built to an `_astro` directory rather than the previous `assets` directory. This setting can now be controlled by the new `build` configuration option named `assets`.
+- [#5584](https://github.com/withastro/astro/pull/5584) [`9963c6e4d`](https://github.com/withastro/astro/commit/9963c6e4d50c392c3d1ac4492237020f15ccb1de) & [#5842](https://github.com/withastro/astro/pull/5842) [`c4b0cb8bf`](https://github.com/withastro/astro/commit/c4b0cb8bf2b41887d9106440bb2e70d421a5f481) Thanks [@wulinsheng123](https://github.com/wulinsheng123) and [@natemoo-re](https://github.com/natemoo-re)! - **Breaking Change**: client assets are built to an `_astro` directory in the build output directory. Previously these were built to various locations, including `assets/`, `chunks/` and the root of build output.
 
-  This should simplify configuring immutable caching with your adapter provider as all files are now in the same `_astro` directory.
+  You can control this location with the new `build` configuration option named `assets`.
 
-- [#5893](https://github.com/withastro/astro/pull/5893) [`be901dc98`](https://github.com/withastro/astro/commit/be901dc98c4a7f6b5536540aa8f7ba5108e939a0) Thanks [@matthewp](https://github.com/matthewp)! - Move getEntry to getEntryBySlug
+- [#5893](https://github.com/withastro/astro/pull/5893) [`be901dc98`](https://github.com/withastro/astro/commit/be901dc98c4a7f6b5536540aa8f7ba5108e939a0) Thanks [@matthewp](https://github.com/matthewp)! - Rename `getEntry` to `getEntryBySlug`
 
   This change moves `getEntry` to `getEntryBySlug` and accepts a slug rather than an id.
 
@@ -144,65 +140,44 @@
 
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
 
-  #### Markdown
+  - **Markdown**
 
-  - **Remove `remark-smartypants`** from Astro's default Markdown plugins.
-  - **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
-  - Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
+    - **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
+    - Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
 
-  #### MDX
+  - **MDX**
 
-  - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
-  - Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
+    - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
+    - Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
 
-  #### Migration
+  - **Migration**
 
-  To preserve your existing Markdown and MDX setup, you may need some configuration changes:
+    To preserve your existing Markdown and MDX setup, you may need some configuration changes:
+  
+    - **Migrate `extendDefaultPlugins` to `gfm`**
 
-  ##### Smartypants manual installation
+        You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. Since Smartypants has been removed, this has been renamed to `gfm`.
 
-  [Smartypants](https://github.com/silvenon/remark-smartypants) has been removed from Astro's default setup. If you rely on this plugin, [install `remark-smartypants`](https://github.com/silvenon/remark-smartypants#installing) and apply to your `astro.config.*`:
+        ```diff
+        // astro.config.mjs
+        import { defineConfig } from 'astro/config';
 
-  ```diff
-  // astro.config.mjs
-  import { defineConfig } from 'astro/config';
-  + import smartypants from 'remark-smartypants';
+        export default defineConfig({
+          markdown: {
+        -   extendDefaultPlugins: false,
+        +   gfm: false,
+          }
+        });
+        ```
 
-  export default defineConfig({
-    markdown: {
-  +   remarkPlugins: [smartypants],
-    }
-  });
-  ```
+        Additionally, applying remark and rehype plugins **no longer disables** `gfm`. You will need to opt-out manually by setting `gfm` to `false`.
 
-  ##### Migrate `extendDefaultPlugins` to `gfm`
+    - **Migrate MDX's `extendPlugins` to `extendMarkdownConfig`**
 
-  You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. Since Smartypants has been removed, this has been renamed to `gfm`.
+      You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
 
-  ```diff
-  // astro.config.mjs
-  import { defineConfig } from 'astro/config';
-
-  export default defineConfig({
-    markdown: {
-  -   extendDefaultPlugins: false,
-  +   gfm: false,
-    }
-  });
-  ```
-
-  Additionally, applying remark and rehype plugins **no longer disables** `gfm`. You will need to opt-out manually by setting `gfm` to `false`.
-
-  ##### Migrate MDX's `extendPlugins` to `extendMarkdownConfig`
-
-  You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
-
-  - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
-  - `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
-
-- [#5842](https://github.com/withastro/astro/pull/5842) [`c4b0cb8bf`](https://github.com/withastro/astro/commit/c4b0cb8bf2b41887d9106440bb2e70d421a5f481) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **Breaking Change**: client assets are built to an `_astro` directory in the build output directory. Previously these were built to various locations, including `assets/`, `chunks/` and the root of build output.
-
-  You can control this location with the new `build` configuration option named `assets`.
+      - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
+      - `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
 
 - [#5717](https://github.com/withastro/astro/pull/5717) [`a3a7fc929`](https://github.com/withastro/astro/commit/a3a7fc9298e6d88abb4b7bee1e58f05fa9558cf1) Thanks [@bluwy](https://github.com/bluwy)! - Remove `style.postcss` Astro config. Refactor tailwind integration to configure through `vite` instead. Also disables `autoprefixer` in dev.
 
@@ -219,36 +194,36 @@
 
 - [#5707](https://github.com/withastro/astro/pull/5707) [`5eba34fcc`](https://github.com/withastro/astro/commit/5eba34fcc663def20bdf6e0daad02a6a5472776b) Thanks [@bluwy](https://github.com/bluwy)! - Remove deprecated `Astro` global APIs, including `Astro.resolve`, `Astro.fetchContent`, and `Astro.canonicalURL`.
 
-  #### `Astro.resolve`
+  - **`Astro.resolve`**
 
-  You can resolve asset paths using `import` instead. For example:
+      You can resolve asset paths using `import` instead. For example:
 
-  ```astro
-  ---
-  import 'style.css';
-  import imageUrl from './image.png';
-  ---
+      ```astro
+      ---
+      import 'style.css';
+      import imageUrl from './image.png';
+      ---
 
-  <img src={imageUrl} />
-  ```
+      <img src={imageUrl} />
+      ```
 
-  See the [v0.25 migration guide](https://docs.astro.build/en/migrate/#deprecated-astroresolve) for more information.
+      See the [v0.25 migration guide](https://docs.astro.build/en/migrate/#deprecated-astroresolve) for more information.
 
-  #### `Astro.fetchContent`
+  - **`Astro.fetchContent`**
 
-  Use `Astro.glob` instead to fetch markdown files, or migrate to the [Content Collections](https://docs.astro.build/en/guides/content-collections/) feature.
+      Use `Astro.glob` instead to fetch markdown files, or migrate to the [Content Collections](https://docs.astro.build/en/guides/content-collections/) feature.
 
-  ```js
-  let allPosts = await Astro.glob('./posts/*.md');
-  ```
+      ```js
+      let allPosts = await Astro.glob('./posts/*.md');
+      ```
 
-  #### `Astro.canonicalURL`
+  - **`Astro.canonicalURL`**
 
-  Use `Astro.url` instead to construct the canonical URL.
+      Use `Astro.url` instead to construct the canonical URL.
 
-  ```js
-  const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-  ```
+      ```js
+      const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+      ```
 
 - [#5608](https://github.com/withastro/astro/pull/5608) [`899214298`](https://github.com/withastro/astro/commit/899214298cee5f0c975c7245e623c649e1842d73) Thanks [@konojunya](https://github.com/konojunya)! - A trailing slash will not be automatically appended to `import.meta.env.SITE`. Instead, it will be the value of the `site` config as is. This may affect usages of `${import.meta.env.SITE}image.png`, which will need to be updated accordingly.
 
@@ -287,7 +262,7 @@
   }
   ```
 
-  #### Migration
+  **Migration**
 
   You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
 
