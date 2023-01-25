@@ -105,7 +105,7 @@ if (typeof process !== 'undefined') {
 	// NodeJS.process. This code treats it as a plain object so TS doesn't let us
 	// get away with incorrect assumptions.
 	let proc: object = process;
-	if('argv' in proc && Array.isArray(proc.argv)) {
+	if ('argv' in proc && Array.isArray(proc.argv)) {
 		if (proc.argv.includes('--verbose')) {
 			defaultLogLevel = 'debug';
 		} else if (proc.argv.includes('--silent')) {
