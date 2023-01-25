@@ -25,7 +25,6 @@ async function resolveHighlighter(opts) {
 		resolvedThemes.push(await themes[opts.theme]());
 	}
 
-
 	let resolvedLanguages;
 	if (opts.langs) {
 		resolvedLanguages = opts.langs;
