@@ -1,5 +1,6 @@
 ---
 import type * as shiki from 'shiki';
+import { renderToHtml } from 'shiki';
 import { getHighlighter } from './Shiki.js';
 
 export interface Props {
@@ -30,14 +31,30 @@ export interface Props {
 	 * @default false
 	 */
 	wrap?: boolean | null;
+	/**
+	 * Supports rendering for inline code, i.e. just code in a <code></code> tag.
+	 *  - true: removes the base pre tag.
+	 *  - false: uses the default shiki code-block, with the pre tag.
+	 *
+	 * @default false
+	 */
+	inline?: boolean;
 }
 
-const { code, lang = 'plaintext', theme = 'github-dark', wrap = false } = Astro.props;
+const {
+	code,
+	lang = 'plaintext',
+	theme = 'github-dark',
+	wrap = false,
+	inline = false,
+} = Astro.props;
 
 /** Replace the shiki class name with a custom astro class name. */
 function repairShikiTheme(html: string): string {
-	// Replace "shiki" class naming with "astro"
-	html = html.replace(/<pre class="(.*?)shiki(.*?)"/, '<pre class="$1astro-code$2"');
+	// Replace "shiki" class naming with "astro" only if it is a code block (not inline)
+	if (!inline) {
+		html = html.replace(/<pre class="(.*?)shiki(.*?)"/, '<pre class="$1astro-code$2"');
+	}
 	// Handle code wrapping
 	// if wrap=null, do nothing.
 	if (wrap === false) {
@@ -56,10 +73,27 @@ const highlighter = await getHighlighter({
 	// Load custom lang if passed an object, otherwise load the default
 	langs: typeof lang !== 'string' ? [lang] : undefined,
 });
-const _html = highlighter.codeToHtml(code, {
-	lang: typeof lang === 'string' ? lang : lang.id,
-	theme,
+
+// Find the name of the language used and theme
+const languageName = typeof lang === 'string' ? lang : lang.id;
+const _theme = highlighter.getTheme(theme);
+
+// We do this step manually instead of using highlighter.codeToHtml so as to parse inline code
+const tokens = highlighter.codeToThemedTokens(code, languageName, theme, {
+	includeExplanation: false,
 });
+const _html = renderToHtml(tokens, {
+	fg: _theme.fg,
+	bg: _theme.bg,
+	themeName: _theme.name,
+	// disables the usage of pre tag for inline codeblocks
+	elements: inline ? {
+		pre({ children }) {
+			return `${children}`;
+		},
+	} : undefined,
+});
+
 const html = repairShikiTheme(_html);
 ---
 
