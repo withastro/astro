@@ -101,10 +101,18 @@ function padStr(str: string, len: number) {
 
 export let defaultLogLevel: LoggerLevel;
 if (typeof process !== 'undefined') {
-	if (process.argv.includes('--verbose')) {
-		defaultLogLevel = 'debug';
-	} else if (process.argv.includes('--silent')) {
-		defaultLogLevel = 'silent';
+	// This could be a shimmed environment so we don't know that `process` is the full
+	// NodeJS.process. This code treats it as a plain object so TS doesn't let us
+	// get away with incorrect assumptions.
+	let proc: object = process;
+	if ('argv' in proc && Array.isArray(proc.argv)) {
+		if (proc.argv.includes('--verbose')) {
+			defaultLogLevel = 'debug';
+		} else if (proc.argv.includes('--silent')) {
+			defaultLogLevel = 'silent';
+		} else {
+			defaultLogLevel = 'info';
+		}
 	} else {
 		defaultLogLevel = 'info';
 	}

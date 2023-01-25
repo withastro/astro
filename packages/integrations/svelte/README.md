@@ -112,6 +112,8 @@ export default {
 
 ## Intellisense for TypeScript
 
+**Added in:** `@astrojs/svelte@2.0.0`
+
 If you're using a preprocessor like TypeScript or SCSS in your Svelte files, you can create a `svelte.config.js` file so that the Svelte IDE extension can correctly parse the Svelte files.
 
 ```js
