@@ -312,7 +312,7 @@ export async function main() {
 		args.typescript = 'strict';
 	}
 
-	const tsResponse =
+	let tsResponse =
 		args.typescript ||
 		(
 			await prompts(
@@ -342,7 +342,7 @@ export async function main() {
 
 	if (tsResponse === 'unsure') {
 		await typescriptByDefault();
-		tsResponse.typescript = 'base';
+		tsResponse = 'base';
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
@@ -353,7 +353,7 @@ export async function main() {
 				// If the template doesn't have a tsconfig.json, let's add one instead
 				fs.writeFileSync(
 					templateTSConfigPath,
-					stringify({ extends: `astro/tsconfigs/${tsResponse}` }, null, 2)
+					stringify({ extends: `astro/tsconfigs/${tsResponse ?? 'base'}` }, null, 2)
 				);
 
 				return;
@@ -363,7 +363,7 @@ export async function main() {
 
 			if (templateTSConfig && typeof templateTSConfig === 'object') {
 				const result = assign(templateTSConfig, {
-					extends: `astro/tsconfigs/${tsResponse.typescript}`,
+					extends: `astro/tsconfigs/${tsResponse ?? 'base'}`,
 				});
 
 				fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
