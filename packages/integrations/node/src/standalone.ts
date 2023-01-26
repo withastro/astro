@@ -1,4 +1,5 @@
 import type { NodeApp } from 'astro/app/node';
+import https from 'https';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from './http-server.js';
@@ -53,8 +54,9 @@ export default function startServer(app: NodeApp, options: Options) {
 		handler
 	);
 
+	const protocol = server.server instanceof https.Server ? 'https' : 'http';
 	// eslint-disable-next-line no-console
-	console.log(`Server listening on http://${host}:${port}`);
+	console.log(`Server listening on ${protocol}://${host}:${port}`);
 
 	return server.closed();
 }

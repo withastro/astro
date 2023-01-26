@@ -43,13 +43,14 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "svelte()"
+import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [svelte()],
-}
+});
 ```
 
 ## Getting started
@@ -94,17 +95,20 @@ Providing your own `preprocess` options **will** override the [`vitePreprocess()
 
 You can set options either by passing them to the `svelte` integration in `astro.config.mjs` or in `svelte.config.js`. Either of these would override the default `preprocess` setting:
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
+import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 
-export default {
+export default defineConfig({
   integrations: [svelte({ preprocess: [] })],
-};
+});
 ```
 
+__`svelte.config.js`__
+
 ```js
-// svelte.config.js
 export default {
   preprocess: [],
 };
@@ -116,8 +120,9 @@ export default {
 
 If you're using a preprocessor like TypeScript or SCSS in your Svelte files, you can create a `svelte.config.js` file so that the Svelte IDE extension can correctly parse the Svelte files.
 
+__`svelte.config.js`__
+
 ```js
-// svelte.config.js
 import { vitePreprocess } from '@astrojs/svelte';
 
 export default {

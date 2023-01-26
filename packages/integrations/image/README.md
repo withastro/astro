@@ -63,13 +63,14 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "image()"
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [image()],
-}
+});
 ```
 
 ### Installing `sharp` (optional)
@@ -82,16 +83,18 @@ npm install sharp
 
 Then, update the integration in your `astro.config.*` file to use the built-in `sharp` image transformer.
 
-```js ins={2,7}
-// astro.config.mjs
+__`astro.config.mjs`__
+
+```js ins={3,8}
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [image({
     serviceEntryPoint: '@astrojs/image/sharp'
   })],
-}
+})
 ```
 
 ### Update `env.d.ts`
@@ -446,33 +449,37 @@ The integration can be configured to run with a different image service, either 
 
 The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/squoosh`, which resolves to the entry point exported from this integration's `package.json`.
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   integrations: [image({
     // Example: The entrypoint for a third-party image service installed from NPM
     serviceEntryPoint: 'my-image-service/astro.js'
   })],
-}
+});
 ```
 
 ### config.logLevel
 
 The `logLevel` controls can be used to control how much detail is logged by the integration during builds. This may be useful to track down a specific image or transformation that is taking a long time to build.
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   integrations: [image({
     // supported levels: 'debug' | 'info' | 'warn' | 'error' | 'silent'
     // default: 'info'
     logLevel: 'debug'
   })],
-}
+});
 ```
 
 ### config.cacheDir
@@ -483,7 +490,12 @@ Local images will be cached for 1 year and invalidated when the original image f
 
 By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
 
+__`astro.config.mjs`__
+
 ```js
+import { defineConfig } from 'astro/config';
+import image from '@astrojs/image';
+
 export default defineConfig({
 	integrations: [image({
     // may be useful if your hosting provider allows caching between CI builds
