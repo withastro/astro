@@ -89,7 +89,7 @@ You can configure how your MDX is rendered with the following options:
 All [`markdown` configuration options](https://docs.astro.build/en/reference/configuration-reference/#markdown-options) except `drafts` can be configured separately in the MDX integration. This includes remark and rehype plugins, syntax highlighting, and more. Options will default to those in your Markdown config ([see the `extendMarkdownConfig` option](#extendmarkdownconfig) to modify this).
 
 :::note
-There is no separate MDX configuration for [including pages marked as draft in the build](https://docs.astro.build/en/reference/configuration-reference/#markdowndrafts). This Markdown setting will be respected by both Markdown and MDX files and cannot be overriden for MDX files specifically.
+There is no separate MDX configuration for [including pages marked as draft in the build](https://docs.astro.build/en/reference/configuration-reference/#markdowndrafts). This Markdown setting will be respected by both Markdown and MDX files and cannot be overridden for MDX files specifically.
 :::
 
 ```ts

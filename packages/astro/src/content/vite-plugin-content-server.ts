@@ -137,13 +137,14 @@ export function astroContentServerPlugin({
 
 					const _internal = { filePath: fileId, rawData };
 					const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
+					// TODO: move slug calculation to the start of the build
+					// to generate a performant lookup map for `getEntryBySlug`
+					const slug = getEntrySlug(partialEntry);
+
 					const collectionConfig = contentConfig?.collections[entryInfo.collection];
 					const data = collectionConfig
 						? await getEntryData(partialEntry, collectionConfig)
 						: unparsedData;
-					const slug = collectionConfig
-						? await getEntrySlug({ ...partialEntry, data }, collectionConfig)
-						: entryInfo.slug;
 
 					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};

@@ -17,6 +17,10 @@ type PartytownOptions =
 	  }
 	| undefined;
 
+function appendForwardSlash(str: string) {
+	return str.endsWith('/') ? str : str + '/';
+}
+
 export default function createPlugin(options: PartytownOptions): AstroIntegration {
 	let config: AstroConfig;
 	let partytownSnippetHtml: string;
@@ -26,7 +30,7 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 		name: '@astrojs/partytown',
 		hooks: {
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
-				const lib = `${_config.base}~partytown/`;
+				const lib = `${appendForwardSlash(_config.base)}~partytown/`;
 				const forward = options?.config?.forward || [];
 				const debug = options?.config?.debug || command === 'dev';
 				partytownSnippetHtml = partytownSnippet({ lib, debug, forward });

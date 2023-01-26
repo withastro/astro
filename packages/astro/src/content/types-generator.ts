@@ -12,10 +12,13 @@ import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
+	EntryInfo,
 	getContentPaths,
 	getEntryInfo,
+	getEntrySlug,
 	loadContentConfig,
 	NoCollectionError,
+	parseFrontmatter,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -155,17 +158,19 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, slug, collection } = entryInfo;
+		const { id, collection } = entryInfo;
+
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
 
 		switch (event.name) {
 			case 'add':
+				const addedSlug = await parseSlug({ fs, event, entryInfo });
 				if (!(collectionKey in contentTypes)) {
 					addCollection(contentTypes, collectionKey);
 				}
 				if (!(entryKey in contentTypes[collectionKey])) {
-					addEntry(contentTypes, collectionKey, entryKey, slug);
+					setEntry(contentTypes, collectionKey, entryKey, addedSlug);
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
@@ -174,7 +179,13 @@ export async function createContentTypesGenerator({
 				}
 				return { shouldGenerateTypes: true };
 			case 'change':
-				// noop. Frontmatter types are inferred from collection schema import, so they won't change!
+				// User may modify `slug` in their frontmatter.
+				// Only regen types if this change is detected.
+				const changedSlug = await parseSlug({ fs, event, entryInfo });
+				if (contentTypes[collectionKey]?.[entryKey]?.slug !== changedSlug) {
+					setEntry(contentTypes, collectionKey, entryKey, changedSlug);
+					return { shouldGenerateTypes: true };
+				}
 				return { shouldGenerateTypes: false };
 		}
 	}
@@ -243,7 +254,26 @@ function removeCollection(contentMap: ContentTypes, collectionKey: string) {
 	delete contentMap[collectionKey];
 }
 
-function addEntry(
+async function parseSlug({
+	fs,
+	event,
+	entryInfo,
+}: {
+	fs: typeof fsMod;
+	event: ContentEvent;
+	entryInfo: EntryInfo;
+}) {
+	// `slug` may be present in entry frontmatter.
+	// This should be respected by the generated `slug` type!
+	// Parse frontmatter and retrieve `slug` value for this.
+	// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
+	// on dev server startup or production build init.
+	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
+	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
+	return getEntrySlug({ ...entryInfo, data: frontmatter });
+}
+
+function setEntry(
 	contentTypes: ContentTypes,
 	collectionKey: string,
 	entryKey: string,
@@ -295,11 +325,7 @@ async function writeContentFiles({
 		for (const entryKey of entryKeys) {
 			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			// If user has custom slug function, we can't predict slugs at type compilation.
-			// Would require parsing all data and evaluating ahead-of-time;
-			// We evaluate with lazy imports at dev server runtime
-			// to prevent excessive errors
-			const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(entryMetadata.slug);
+			const slugType = JSON.stringify(entryMetadata.slug);
 			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;

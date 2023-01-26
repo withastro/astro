@@ -10,7 +10,7 @@ import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
 import type { ModuleLoader } from '../../module-loader/index';
-import { isPage, resolveIdToUrl } from '../../util.js';
+import { isPage, resolveIdToUrl, viteID } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { getStylesForURL } from './css.js';
@@ -133,7 +133,11 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 		});
 		// But we still want to inject the styles to avoid FOUC
 		styles.add({
-			props: {},
+			props: {
+				type: 'text/css',
+				// Track the ID so we can match it to Vite's injected style later
+				'data-astro-dev-id': viteID(new URL(`.${url}`, env.settings.config.root)),
+			},
 			children: content,
 		});
 	});

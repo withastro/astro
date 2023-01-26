@@ -12,19 +12,6 @@ import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
-	slug: z
-		.function()
-		.args(
-			z.object({
-				id: z.string(),
-				collection: z.string(),
-				defaultSlug: z.string(),
-				body: z.string(),
-				data: z.record(z.any()),
-			})
-		)
-		.returns(z.union([z.string(), z.promise(z.string())]))
-		.optional(),
 });
 
 export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
@@ -63,20 +50,25 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export async function getEntrySlug(entry: Entry, collectionConfig: CollectionConfig) {
-	return (
-		collectionConfig.slug?.({
-			id: entry.id,
-			data: entry.data,
-			defaultSlug: entry.slug,
-			collection: entry.collection,
-			body: entry.body,
-		}) ?? entry.slug
-	);
+export function getEntrySlug({
+	id,
+	collection,
+	slug,
+	data: unparsedData,
+}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>) {
+	try {
+		return z.string().default(slug).parse(unparsedData.slug);
+	} catch {
+		throw new AstroError({
+			...AstroErrorData.InvalidContentEntrySlugError,
+			message: AstroErrorData.InvalidContentEntrySlugError.message(collection, id),
+		});
+	}
 }
 
 export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
-	let data = entry.data;
+	// Remove reserved `slug` field before parsing data
+	let { slug, ...data } = entry.data;
 	if (collectionConfig.schema) {
 		// TODO: remove for 2.0 stable release
 		if (
@@ -90,14 +82,26 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 				code: 99999,
 			});
 		}
+		// Catch reserved `slug` field inside schema
+		// Note: will not warn for `z.union` or `z.intersection` schemas
+		if (
+			typeof collectionConfig.schema === 'object' &&
+			'shape' in collectionConfig.schema &&
+			collectionConfig.schema.shape.slug
+		) {
+			throw new AstroError({
+				...AstroErrorData.ContentSchemaContainsSlugError,
+				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
+			});
+		}
 		// Use `safeParseAsync` to allow async transforms
 		const parsed = await collectionConfig.schema.safeParseAsync(entry.data, { errorMap });
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
 			const formattedError = new AstroError({
-				...AstroErrorData.MarkdownContentSchemaValidationError,
-				message: AstroErrorData.MarkdownContentSchemaValidationError.message(
+				...AstroErrorData.InvalidContentEntryFrontmatterError,
+				message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
 					entry.collection,
 					entry.id,
 					parsed.error
@@ -223,7 +227,8 @@ export async function loadContentConfig({
 		return undefined;
 	}
 	try {
-		unparsedConfig = await tempConfigServer.ssrLoadModule(contentPaths.config.pathname);
+		const configPathname = fileURLToPath(contentPaths.config);
+		unparsedConfig = await tempConfigServer.ssrLoadModule(configPathname);
 	} catch (e) {
 		throw e;
 	} finally {
