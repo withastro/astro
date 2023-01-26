@@ -38,6 +38,7 @@ export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
 	theme?: Theme | IThemeRegistration;
 	wrap?: boolean | null;
+	inline?: boolean;
 }
 
 export interface AstroMarkdownOptions {
