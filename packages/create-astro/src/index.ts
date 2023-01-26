@@ -301,10 +301,8 @@ export async function main() {
 		// Add a check to see if there is already a .git directory and skip 'git init' if yes (with msg to output)
 		const gitDir = './.git';
 		if (fs.existsSync(gitDir)) {
-			ora().info(
-				dim('A .git directory already exists. Skipping creating a new Git repository.')
-			);
-		 } else {
+			ora().info(dim('A .git directory already exists. Skipping creating a new Git repository.'));
+		} else {
 			await execaCommand('git init', { cwd });
 			ora().succeed('Git repository created!');
 		}
