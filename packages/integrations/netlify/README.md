@@ -134,7 +134,7 @@ export default defineConfig({
 });
 ```
 
-This functionality is only available whith the `@astrojs/netlify/functions` adapter and is not compatible with Edge Functions.
+On-demand Builders are only available with the `@astrojs/netlify/functions` adapter and are not compatible with Edge Functions.
 
 
 
