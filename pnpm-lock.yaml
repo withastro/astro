@@ -2645,6 +2645,14 @@ importers:
       '@astrojs/cloudflare': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/prerender:
+    specifiers:
+      '@astrojs/cloudflare': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/cloudflare': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/deno:
     specifiers:
       astro: workspace:*
