@@ -65,13 +65,8 @@ export async function validateConfig(
 		process.exit(1);
 	}
 
-	let legacyConfigKey: string | undefined;
-	for (const key of Object.keys(userConfig)) {
-		if (LEGACY_ASTRO_CONFIG_KEYS.has(key)) {
-			legacyConfigKey = key;
-			break;
-		}
-	}
+	const legacyConfigKey: string | undefined = Object.keys(userConfig).find(key => LEGACY_ASTRO_CONFIG_KEYS.has(key))
+
 	if (legacyConfigKey) {
 		throw new AstroError({
 			...AstroErrorData.ConfigLegacyKey,
@@ -141,11 +136,7 @@ async function search(fsMod: typeof fs, root: string) {
 		'astro.config.cts',
 	].map((p) => path.join(root, p));
 
-	for (const file of paths) {
-		if (fsMod.existsSync(file)) {
-			return file;
-		}
-	}
+	return paths.find(file => fsMod.existsSync(file))
 }
 
 interface LoadConfigOptions {
@@ -228,7 +219,7 @@ async function tryLoadConfig(
 	root: string
 ): Promise<TryLoadConfigResult | undefined> {
 	const fsMod = configOptions.fsMod ?? fs;
-	let finallyCleanup = async () => {};
+	let finallyCleanup = async () => { };
 	try {
 		let configPath = await resolveConfigPath({
 			cwd: configOptions.cwd,
