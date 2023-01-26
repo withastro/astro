@@ -149,3 +149,46 @@ describe('MDX heading IDs can be injected before user plugins', () => {
 		expect(h1?.id).to.equal('heading-test');
 	});
 });
+
+describe('MDX headings with frontmatter', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/mdx-get-headings/', import.meta.url),
+			integrations: [mdx()],
+		});
+
+		await fixture.build();
+	});
+
+	it('adds anchor IDs to headings', async () => {
+		const html = await fixture.readFile('/test-with-frontmatter/index.html');
+		const { document } = parseHTML(html);
+
+		const h3Ids = document.querySelectorAll('h3').map((el) => el?.id);
+
+		expect(document.querySelector('h1').id).to.equal('the-frontmatter-title');
+		expect(document.querySelector('h2').id).to.equal('frontmattertitle');
+		expect(h3Ids).to.contain('keyword-2');
+		expect(h3Ids).to.contain('tag-1');
+		expect(document.querySelector('h4').id).to.equal('item-2');
+		expect(document.querySelector('h5').id).to.equal('nested-item-3');
+		expect(document.querySelector('h6').id).to.equal('frontmatterunknown');
+	});
+
+	it('generates correct getHeadings() export', async () => {
+		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
+		expect(JSON.stringify(headingsByPage['./test-with-frontmatter.mdx'])).to.equal(
+			JSON.stringify([
+				{ depth: 1, slug: 'the-frontmatter-title', text: 'The Frontmatter Title' },
+				{ depth: 2, slug: 'frontmattertitle', text: 'frontmatter.title' },
+				{ depth: 3, slug: 'keyword-2', text: 'Keyword 2' },
+				{ depth: 3, slug: 'tag-1', text: 'Tag 1' },
+				{ depth: 4, slug: 'item-2', text: 'Item 2' },
+				{ depth: 5, slug: 'nested-item-3', text: 'Nested Item 3' },
+				{ depth: 6, slug: 'frontmatterunknown', text: 'frontmatter.unknown' },
+			])
+		);
+	});
+});
