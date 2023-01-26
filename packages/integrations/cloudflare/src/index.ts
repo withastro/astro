@@ -147,7 +147,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
 						.map((file: string) => `/${file}`);
 
-					for(let page of pages) {
+					for (let page of pages) {
 						staticPathList.push(prependForwardSlash(page.pathname));
 					}
 
