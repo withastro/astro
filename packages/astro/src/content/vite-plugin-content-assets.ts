@@ -34,7 +34,7 @@ export function astroDelayedAssetPlugin({ mode }: { mode: string }): Plugin {
 			if (isDelayedAsset(id)) {
 				const basePath = id.split('?')[0];
 				const code = `
-					export { Content, getHeadings } from ${JSON.stringify(basePath)};
+					export { Content, getHeadings, frontmatter } from ${JSON.stringify(basePath)};
 					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
 					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
 				`;
