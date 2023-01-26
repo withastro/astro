@@ -14,6 +14,7 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 		const headings: MarkdownHeading[] = [];
 		const slugger = new Slugger();
 		const isMDX = isMDXFile(file);
+		const astroData = safelyGetAstroData(file.data);
 		visit(tree, (node) => {
 			if (node.type !== 'element') return;
 			const { tagName } = node;
@@ -35,7 +36,6 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 				if (rawNodeTypes.has(child.type)) {
 					if (isMDX || codeTagNames.has(parent.tagName)) {
 						let value = child.value;
-						const astroData = safelyGetAstroData(file.data);
 						if (isMdxTextExpression(child) && !(astroData instanceof InvalidAstroDataError)) {
 							const frontmatterPath = getMdxFrontmatterVariablePath(child);
 							if (Array.isArray(frontmatterPath) && frontmatterPath.length > 0) {
@@ -82,7 +82,7 @@ function getMdxFrontmatterVariablePath(node: MdxTextExpression): string[] | Erro
 	const statement = node.data.estree.body[0];
 
 	// Check for "[ANYTHING].[ANYTHING]".
-	if (statement.type !== 'ExpressionStatement' || statement.expression.type !== 'MemberExpression')
+	if (statement?.type !== 'ExpressionStatement' || statement.expression.type !== 'MemberExpression')
 		return new Error();
 
 	let expression: Expression | Super = statement.expression;
