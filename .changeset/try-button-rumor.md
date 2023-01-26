@@ -1,3 +1,4 @@
+---
 "create-astro": patch
 ---
 
