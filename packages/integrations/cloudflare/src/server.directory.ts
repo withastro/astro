@@ -5,7 +5,7 @@ import { getProcessEnvProxy } from './util.js';
 process.env = getProcessEnvProxy();
 
 export function createExports(manifest: SSRManifest) {
-	const app = new App(manifest, false);
+	const app = new App(manifest);
 
 	const onRequest = async ({
 		request,

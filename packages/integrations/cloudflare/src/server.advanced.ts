@@ -10,7 +10,7 @@ type Env = {
 };
 
 export function createExports(manifest: SSRManifest) {
-	const app = new App(manifest, false);
+	const app = new App(manifest);
 
 	const fetch = async (request: Request, env: Env, context: any) => {
 		process.env = env as any;
