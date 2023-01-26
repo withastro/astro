@@ -1,8 +1,10 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-import { getProcessEnvProxy } from './util.js';
+import { getProcessEnvProxy, isNode } from './util.js';
 
-process.env = getProcessEnvProxy();
+if(!isNode) {
+	process.env = getProcessEnvProxy();
+}
 
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
