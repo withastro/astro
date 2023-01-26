@@ -41,13 +41,14 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "prefetch()"
+import { defineConfig } from 'astro/config';
 import prefetch from '@astrojs/prefetch';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [prefetch()],
-}
+});
 ```
   
 
@@ -63,31 +64,37 @@ The Astro Prefetch integration handles which links on the site are prefetched an
   
 By default the prefetch script searches the page for any links that include a `rel="prefetch"` attribute, ex: `<a rel="prefetch" />` or `<a rel="nofollow prefetch" />`. This behavior can be changed in your `astro.config.*` file to use a custom query selector when finding prefetch links. 
 
+__`astro.config.mjs`__
+
 ```js
+import { defineConfig } from 'astro/config';
 import prefetch from '@astrojs/prefetch';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [prefetch({
     // Only prefetch links with an href that begins with `/products`
     selector: "a[href^='/products']"
   })],
-}
+});
 ```
 ### config.throttle
   
 By default the prefetch script will only prefetch one link at a time. This behavior can be changed in your `astro.config.*` file to increase the limit for concurrent downloads.
 
+__`astro.config.mjs`__
+
 ```js
+import { defineConfig } from 'astro/config';
 import prefetch from '@astrojs/prefetch';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [prefetch({
     // Allow up to three links to be prefetched concurrently
     throttle: 3
   })],
-}
+});
 ```
 
 ## Troubleshooting
