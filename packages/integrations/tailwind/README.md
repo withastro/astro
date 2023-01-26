@@ -52,7 +52,7 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "tailwind()"
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
@@ -91,16 +91,18 @@ If you want to use a different Tailwind configuration file instead of the defaul
 > **Warning**
 > Changing this isn't recommended since it can cause problems with other tools that integrate with Tailwind, like the official Tailwind VSCode extension.
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
+import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
-export default {
+export default defineConfig({
   integrations: [tailwind({
     // Example: Provide a custom path to a Tailwind config file
     config: { path: './custom-config.cjs' },
   })],
-}
+});
 ```
 
 #### config.applyBaseStyles
@@ -116,15 +118,18 @@ export default {
 
 To disable this default behavior, set `config.applyBaseStyles` to `false`. This can be useful if you need to define your own `base.css` file (to include a [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer), for example). This can also be useful if you do not want `base.css` to be imported on every page of your project.
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
-export default {
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
   integrations: [tailwind({
     // Example: Disable injecting a basic `base.css` import on every page.
     // Useful if you need to define and/or import your own custom `base.css`.
     config: { applyBaseStyles: false },
   })],
-}
+});
 ```
 
 You can now [import your own `base.css` as a local stylesheet](https://docs.astro.build/en/guides/styling/#import-a-local-stylesheet).
