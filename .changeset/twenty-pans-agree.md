@@ -2,4 +2,4 @@
 '@astrojs/netlify': minor
 ---
 
-Add on-demand builders Netlify functions
+Add `builders` config option for Netlify On-demand Builders.
