@@ -3109,6 +3109,14 @@ importers:
       '@astrojs/node': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/url-protocol:
+    specifiers:
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/node': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/well-known-locations:
     specifiers:
       '@astrojs/node': workspace:*
