@@ -1,5 +1,14 @@
 # @astrojs/markdown-remark
 
+## 2.0.1
+
+### Patch Changes
+
+- [#5978](https://github.com/withastro/astro/pull/5978) [`7abb1e905`](https://github.com/withastro/astro/commit/7abb1e9056c4b4fd0abfced347df32a41cdfbf28) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fix MDX heading IDs generation when using a frontmatter reference
+
+- Updated dependencies [[`b53e0717b`](https://github.com/withastro/astro/commit/b53e0717b7f6b042baaeec7f87999e99c76c031c), [`60b32d585`](https://github.com/withastro/astro/commit/60b32d58565d87e87573eb268408293fc28ec657), [`883e0cc29`](https://github.com/withastro/astro/commit/883e0cc29968d51ed6c7515be035a40b28bafdad), [`dabce6b8c`](https://github.com/withastro/astro/commit/dabce6b8c684f851c3535f8acead06cbef6dce2a), [`aedf23f85`](https://github.com/withastro/astro/commit/aedf23f8582e32a6b94b81ddba9b323831f2b22a)]:
+  - astro@2.0.2
+
 ## 2.0.0
 
 ### Major Changes

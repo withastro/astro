@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 0.15.1
+
+### Patch Changes
+
+- [#5978](https://github.com/withastro/astro/pull/5978) [`7abb1e905`](https://github.com/withastro/astro/commit/7abb1e9056c4b4fd0abfced347df32a41cdfbf28) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fix MDX heading IDs generation when using a frontmatter reference
+
+- Updated dependencies [[`7abb1e905`](https://github.com/withastro/astro/commit/7abb1e9056c4b4fd0abfced347df32a41cdfbf28)]:
+  - @astrojs/markdown-remark@2.0.1
+
 ## 0.15.0
 
 ### Minor Changes
