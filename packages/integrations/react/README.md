@@ -43,13 +43,14 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "react()"
+import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [react()],
-}
+});
 ```
 
 ## Getting started
