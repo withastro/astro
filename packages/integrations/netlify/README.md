@@ -119,7 +119,7 @@ directory = "dist/functions"
 
 ### builders
 
-On-demand Builders are serverless functions used to generate web content as needed that’s automatically cached on Netlify’s Edge CDN. To activate rendering with this type of functions, use the `builders` option:
+[Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to build and cache page content on Netlify’s Edge CDN. You can enable these functions with the `builders` option:
 
 ```js
 // astro.config.mjs
