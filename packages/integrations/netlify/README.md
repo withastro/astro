@@ -136,7 +136,6 @@ export default defineConfig({
 
 This functionality is only available whith the `@astrojs/netlify/functions` adapter and is not compatible with Edge Functions.
 
-For more information about Netlify On-demand Builders visit the [Netlify documentation.](https://docs.netlify.com/configure-builds/on-demand-builders/)
 
 
 ### binaryMediaTypes
