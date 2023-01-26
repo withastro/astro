@@ -455,12 +455,12 @@ __`astro.config.mjs`__
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   integrations: [image({
     // Example: The entrypoint for a third-party image service installed from NPM
     serviceEntryPoint: 'my-image-service/astro.js'
   })],
-}
+});
 ```
 
 ### config.logLevel
@@ -479,7 +479,7 @@ export default defineConfig({
     // default: 'info'
     logLevel: 'debug'
   })],
-})
+});
 ```
 
 ### config.cacheDir
