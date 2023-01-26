@@ -2,7 +2,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
 
-if(!isNode) {
+if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
 
