@@ -43,13 +43,14 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "svelte()"
+import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [svelte()],
-}
+});
 ```
 
 ## Getting started
