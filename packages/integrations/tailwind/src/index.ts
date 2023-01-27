@@ -86,7 +86,6 @@ async function getPostCssConfig(
 }
 
 async function getViteConfiguration(
-	isBuild: boolean,
 	tailwindConfig: TailwindConfig,
 	viteConfig: UserConfig
 ) {
@@ -100,9 +99,7 @@ async function getViteConfiguration(
 		postcssConfigResult && postcssConfigResult.plugins ? postcssConfigResult.plugins.slice() : [];
 	postcssPlugins.push(tailwindPlugin(tailwindConfig));
 
-	if (isBuild) {
-		postcssPlugins.push(autoprefixerPlugin());
-	}
+	postcssPlugins.push(autoprefixerPlugin());
 	return {
 		css: {
 			postcss: {
@@ -140,7 +137,6 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({
-				command,
 				config,
 				updateConfig,
 				injectScript,
@@ -166,7 +162,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
 
 				updateConfig({
-					vite: await getViteConfiguration(command === 'build', tailwindConfig, config.vite),
+					vite: await getViteConfiguration(tailwindConfig, config.vite),
 				});
 
 				if (applyBaseStyles) {
