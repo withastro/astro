@@ -41,7 +41,7 @@
   },
   "peerDependencies": {
     "tailwindcss": "^3.0.24",
-    "astro": "workspace:^2.0.1"
+    "astro": "workspace:^2.0.2"
   },
   "pnpm": {
     "peerDependencyRules": {

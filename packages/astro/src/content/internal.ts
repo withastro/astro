@@ -40,7 +40,7 @@ export function createGetCollection({
 	collectionToEntryMap: CollectionToEntryMap;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function getCollection(collection: string, filter?: () => boolean) {
+	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
 		const entries = Promise.all(
 			lazyImports.map(async (lazyImport) => {
