@@ -33,6 +33,13 @@ test.describe('Tailwind CSS', () => {
 
 		const button = page.locator('button');
 
+		await expect(button, 'should have appearance none').toHaveClass(/appearance-none/);
+		await expect(button, 'should have appearance: none').toHaveCSS('appearance', 'none');
+		await expect(button, 'should have appearance-none with webkit prefix').toHaveCSS(
+			'-webkit-appearance',
+			'none'
+		);
+
 		await expect(button, 'should have bg-purple-600').toHaveClass(/bg-purple-600/);
 		await expect(button, 'should have background color').toHaveCSS(
 			'background-color',

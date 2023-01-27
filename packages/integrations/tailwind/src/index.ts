@@ -85,11 +85,7 @@ async function getPostCssConfig(
 	return postcssConfigResult;
 }
 
-async function getViteConfiguration(
-	isBuild: boolean,
-	tailwindConfig: TailwindConfig,
-	viteConfig: UserConfig
-) {
+async function getViteConfiguration(tailwindConfig: TailwindConfig, viteConfig: UserConfig) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
 	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
@@ -100,9 +96,7 @@ async function getViteConfiguration(
 		postcssConfigResult && postcssConfigResult.plugins ? postcssConfigResult.plugins.slice() : [];
 	postcssPlugins.push(tailwindPlugin(tailwindConfig));
 
-	if (isBuild) {
-		postcssPlugins.push(autoprefixerPlugin());
-	}
+	postcssPlugins.push(autoprefixerPlugin());
 	return {
 		css: {
 			postcss: {
@@ -140,7 +134,6 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({
-				command,
 				config,
 				updateConfig,
 				injectScript,
@@ -166,7 +159,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
 
 				updateConfig({
-					vite: await getViteConfiguration(command === 'build', tailwindConfig, config.vite),
+					vite: await getViteConfiguration(tailwindConfig, config.vite),
 				});
 
 				if (applyBaseStyles) {
