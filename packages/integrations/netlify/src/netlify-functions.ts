@@ -1,5 +1,5 @@
 import { polyfill } from '@astrojs/webapi';
-import type { Handler } from '@netlify/functions';
+import { builder, Handler } from '@netlify/functions';
 import { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
@@ -8,6 +8,7 @@ polyfill(globalThis, {
 });
 
 export interface Args {
+	builders?: boolean;
 	binaryMediaTypes?: string[];
 }
 
@@ -20,6 +21,7 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 export const createExports = (manifest: SSRManifest, args: Args) => {
 	const app = new App(manifest);
 
+	const builders = args.builders ?? false;
 	const binaryMediaTypes = args.binaryMediaTypes ?? [];
 	const knownBinaryMediaTypes = new Set([
 		'audio/3gpp',
@@ -53,7 +55,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		...binaryMediaTypes,
 	]);
 
-	const handler: Handler = async (event) => {
+	const myHandler: Handler = async (event) => {
 		const { httpMethod, headers, rawUrl, body: requestBody, isBase64Encoded } = event;
 		const init: RequestInit = {
 			method: httpMethod,
@@ -142,6 +144,8 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 
 		return fnResponse;
 	};
+
+	const handler = builders ? builder(myHandler) : myHandler
 
 	return { handler };
 };

@@ -13,11 +13,13 @@ export function getAdapter(args: Args = {}): AstroAdapter {
 
 interface NetlifyFunctionsOptions {
 	dist?: URL;
+	builders?: boolean;
 	binaryMediaTypes?: string[];
 }
 
 function netlifyFunctions({
 	dist,
+	builders,
 	binaryMediaTypes,
 }: NetlifyFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -36,7 +38,7 @@ function netlifyFunctions({
 				});
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter({ binaryMediaTypes }));
+				setAdapter(getAdapter({ binaryMediaTypes, builders }));
 				_config = config;
 				entryFile = config.build.serverEntry.replace(/\.m?js/, '');
 
@@ -48,7 +50,8 @@ function netlifyFunctions({
 				}
 			},
 			'astro:build:done': async ({ routes, dir }) => {
-				await createRedirects(_config, routes, dir, entryFile, false);
+				const type = builders ? 'builders' : 'functions'
+				await createRedirects(_config, routes, dir, entryFile, type);
 			},
 		},
 	};
