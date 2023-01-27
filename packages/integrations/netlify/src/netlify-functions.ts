@@ -145,7 +145,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		return fnResponse;
 	};
 
-	const handler = builders ? builder(myHandler) : myHandler
+	const handler = builders ? builder(myHandler) : myHandler;
 
 	return { handler };
 };
