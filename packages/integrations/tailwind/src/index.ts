@@ -85,10 +85,7 @@ async function getPostCssConfig(
 	return postcssConfigResult;
 }
 
-async function getViteConfiguration(
-	tailwindConfig: TailwindConfig,
-	viteConfig: UserConfig
-) {
+async function getViteConfiguration(tailwindConfig: TailwindConfig, viteConfig: UserConfig) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
 	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
