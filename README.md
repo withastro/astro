@@ -1,11 +1,13 @@
+![The Astro logo.](assets/social/banner-minimal.png 'The Astro logo.')
+
 <p align="center">
-  <img src="assets/social/banner-minimal.png" alt="Astro logo">
-  <br/><br/>
+  <br/>
   <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
   <br/>
   powerful developer experience meets lightweight output.
   <br/><br/>
 </p>
+
 
 ## Install
 
@@ -89,6 +91,12 @@ Astro is generously supported by Netlify, Storyblok, and several other amazing o
 
 <p align="center">
   <a target="_blank" href="https://github.com/sponsors/withastro">
-    <img alt="sponsors" src="https://astro.build/sponsors.png">
+
+[![Astro's sponsors.](https://astro.build/sponsors.png 
+"Astro's sponsors.
+Platinum sponsors: Netlify, storyblok, Vercel, Ship Shape
+Gold sponsors: ‹div›RIOTS, StackUp, DEEPGRAM
+Sponsors: Monogram, Qoddi, Dimension")](https://github.com/sponsors/withastro)
+
   </a>
 </p>

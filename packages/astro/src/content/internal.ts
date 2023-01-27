@@ -40,7 +40,7 @@ export function createGetCollection({
 	collectionToEntryMap: CollectionToEntryMap;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function getCollection(collection: string, filter?: () => boolean) {
+	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
 		const entries = Promise.all(
 			lazyImports.map(async (lazyImport) => {
@@ -69,18 +69,30 @@ export function createGetCollection({
 	};
 }
 
-export function createGetEntry({
-	collectionToEntryMap,
+export function createGetEntryBySlug({
+	getCollection,
 	collectionToRenderEntryMap,
 }: {
-	collectionToEntryMap: CollectionToEntryMap;
+	getCollection: ReturnType<typeof createGetCollection>;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function getEntry(collection: string, entryId: string) {
-		const lazyImport = collectionToEntryMap[collection]?.[entryId];
-		if (!lazyImport) throw new Error(`Failed to import ${JSON.stringify(entryId)}.`);
+	return async function getEntryBySlug(collection: string, slug: string) {
+		// This is not an optimized lookup. Should look into an O(1) implementation
+		// as it's probably that people will have very large collections.
+		const entries = await getCollection(collection);
+		let candidate: (typeof entries)[number] | undefined = undefined;
+		for (let entry of entries) {
+			if (entry.slug === slug) {
+				candidate = entry;
+				break;
+			}
+		}
 
-		const entry = await lazyImport();
+		if (typeof candidate === 'undefined') {
+			return undefined;
+		}
+
+		const entry = candidate;
 		return {
 			id: entry.id,
 			slug: entry.slug,

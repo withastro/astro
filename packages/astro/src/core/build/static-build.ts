@@ -15,6 +15,7 @@ import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { resolvedPagesVirtualModuleId } from '../app/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -138,7 +139,13 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					chunkFileNames: `chunks/[name].[hash].mjs`,
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
-					entryFileNames: opts.buildConfig.serverEntry,
+					entryFileNames(chunkInfo) {
+						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
+							return opts.buildConfig.serverEntry;
+						} else {
+							return '[name].mjs';
+						}
+					},
 				},
 			},
 			ssr: true,

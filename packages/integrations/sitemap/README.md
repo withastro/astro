@@ -47,7 +47,7 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "sitemap()"
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -114,8 +114,11 @@ Now, [build your site for production](https://docs.astro.build/en/reference/cli-
 To configure this integration, pass an object to the `sitemap()` function call in `astro.config.mjs`.
 
 __`astro.config.mjs`__
+
 ```js
-...
+import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+
 export default defineConfig({
   integrations: [sitemap({
     filter: ...
@@ -172,16 +175,17 @@ The maximum number entries per sitemap file. The default value is 45000. A sitem
 __`astro.config.mjs`__
 
 ```js
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   site: 'https://stargazers.club',
   integrations: [
     sitemap({
       entryLimit: 10000,
     }),
   ],
-}
+});
 ```
 
 ### changefreq, lastmod, and priority
@@ -196,9 +200,10 @@ Note that `changefreq` and `priority` are ignored by Google.
 __`astro.config.mjs`__
 
 ```js
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   site: 'https://stargazers.club',
   integrations: [
     sitemap({
@@ -207,7 +212,7 @@ export default {
       lastmod: new Date('2022-02-24'),
     }),
   ],
-}
+});
 ```
 
 ### serialize
@@ -232,9 +237,10 @@ The example below shows the ability to add sitemap specific properties individua
 __`astro.config.mjs`__
 
 ```js
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   site: 'https://stargazers.club',
   integrations: [
     sitemap({
@@ -251,7 +257,7 @@ export default {
       },
     }),
   ],
-}
+});
 ```
 
 ### i18n
@@ -270,9 +276,10 @@ This object has two required properties:
 __`astro.config.mjs`__
 
 ```js
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   site: 'https://stargazers.club',
   integrations: [
     sitemap({  
@@ -286,7 +293,7 @@ export default {
       },
     }),
   ],
-};
+});
 ```
 
 The resulting sitemap looks like this:

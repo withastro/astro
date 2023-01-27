@@ -1028,20 +1028,15 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	compiledContent(): string;
 	/** List of headings (h1 -> h6) with associated metadata */
 	getHeadings(): MarkdownHeading[];
-	/** @deprecated Renamed to `getHeadings()` */
-	getHeaders(): void;
 	default: AstroComponentFactory;
 }
 
 type MD = MarkdownInstance<Record<string, any>>;
 
-export interface MDXInstance<T extends Record<string, any>>
-	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
-	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
-	rawContent: never;
-	/** MDX does not support compiledContent! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
-	compiledContent: never;
-}
+export type MDXInstance<T extends Record<string, any>> = Omit<
+	MarkdownInstance<T>,
+	'rawContent' | 'compiledContent'
+>;
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	frontmatter: {

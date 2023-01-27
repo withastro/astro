@@ -1,5 +1,4 @@
 /* tslint-disable ban-types */
-import { TransformStream } from 'web-streams-polyfill';
 import { parentPort, Worker } from 'worker_threads';
 
 function uuid() {

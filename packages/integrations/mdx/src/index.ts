@@ -12,12 +12,6 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import { getFileInfo, parseFrontmatter } from './utils.js';
 
-const RAW_CONTENT_ERROR =
-	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
-
-const COMPILED_CONTENT_ERROR =
-	'MDX does not support compiledContent()! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
-
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
 	recmaPlugins: PluggableList;
@@ -122,16 +116,6 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									}
 									if (!moduleExports.includes('file')) {
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
-									}
-									if (!moduleExports.includes('rawContent')) {
-										code += `\nexport function rawContent() { throw new Error(${JSON.stringify(
-											RAW_CONTENT_ERROR
-										)}) };`;
-									}
-									if (!moduleExports.includes('compiledContent')) {
-										code += `\nexport function compiledContent() { throw new Error(${JSON.stringify(
-											COMPILED_CONTENT_ERROR
-										)}) };`;
 									}
 									if (!moduleExports.includes('Content')) {
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`

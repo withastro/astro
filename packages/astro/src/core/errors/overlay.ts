@@ -59,7 +59,14 @@ const style = /* css */ `
     rgba(255, 255, 255, 0.96449) 78.38%,
     rgba(255, 255, 255, 0.991353) 84.11%,
     #ffffff 89.84%
-  );
+    );
+
+    /* Theme toggle */
+    --toggle-ball-color: var(--accent);
+    --toggle-tabel-background: var(--background);
+    --sun-icon-color: #ffffff;
+    --moon-icon-color: #a3acc8;
+    --toggle-border-color: #C3CADB;
 
   /* Syntax Highlighting */
   --shiki-color-text: #000000;
@@ -74,54 +81,145 @@ const style = /* css */ `
   --shiki-token-link: #ee0000;
 }
 
-@media (prefers-color-scheme: dark) {
-  :host {
-    --background: #090b11;
-    --error-text: #f49090;
-    --error-text-hover: #ffaaaa;
-    --title-text: #ffffff;
-    --box-background: #141925;
-    --box-background-hover: #2e333f;
-    --hint-text: #a3acc8;
-    --hint-text-hover: #bdc6e2;
-    --border: #283044;
-    --accent: #c490f4;
-    --accent-hover: #deaaff;
-    --stack-text: #c3cadb;
-    --misc-text: #8490b5;
+:host(.astro-dark) {
+  --background: #090b11;
+  --error-text: #f49090;
+  --error-text-hover: #ffaaaa;
+  --title-text: #ffffff;
+  --box-background: #141925;
+  --box-background-hover: #2e333f;
+  --hint-text: #a3acc8;
+  --hint-text-hover: #bdc6e2;
+  --border: #283044;
+  --accent: #c490f4;
+  --accent-hover: #deaaff;
+  --stack-text: #c3cadb;
+  --misc-text: #8490b5;
 
-    --houston-overlay: linear-gradient(
-      180deg,
-      rgba(9, 11, 17, 0) 3.95%,
-      rgba(9, 11, 17, 0.0086472) 9.68%,
-      rgba(9, 11, 17, 0.03551) 15.4%,
-      rgba(9, 11, 17, 0.0816599) 21.13%,
-      rgba(9, 11, 17, 0.147411) 26.86%,
-      rgba(9, 11, 17, 0.231775) 32.58%,
-      rgba(9, 11, 17, 0.331884) 38.31%,
-      rgba(9, 11, 17, 0.442691) 44.03%,
-      rgba(9, 11, 17, 0.557309) 49.76%,
-      rgba(9, 11, 17, 0.668116) 55.48%,
-      rgba(9, 11, 17, 0.768225) 61.21%,
-      rgba(9, 11, 17, 0.852589) 66.93%,
-      rgba(9, 11, 17, 0.91834) 72.66%,
-      rgba(9, 11, 17, 0.96449) 78.38%,
-      rgba(9, 11, 17, 0.991353) 84.11%,
-      #090b11 89.84%
-    );
+  --houston-overlay: linear-gradient(
+    180deg,
+    rgba(9, 11, 17, 0) 3.95%,
+    rgba(9, 11, 17, 0.0086472) 9.68%,
+    rgba(9, 11, 17, 0.03551) 15.4%,
+    rgba(9, 11, 17, 0.0816599) 21.13%,
+    rgba(9, 11, 17, 0.147411) 26.86%,
+    rgba(9, 11, 17, 0.231775) 32.58%,
+    rgba(9, 11, 17, 0.331884) 38.31%,
+    rgba(9, 11, 17, 0.442691) 44.03%,
+    rgba(9, 11, 17, 0.557309) 49.76%,
+    rgba(9, 11, 17, 0.668116) 55.48%,
+    rgba(9, 11, 17, 0.768225) 61.21%,
+    rgba(9, 11, 17, 0.852589) 66.93%,
+    rgba(9, 11, 17, 0.91834) 72.66%,
+    rgba(9, 11, 17, 0.96449) 78.38%,
+    rgba(9, 11, 17, 0.991353) 84.11%,
+    #090b11 89.84%
+  );
 
-    /* Syntax Highlighting */
-    --shiki-color-text: #ffffff;
-    --shiki-token-constant: #90f4e3;
-    --shiki-token-string: #f4cf90;
-    --shiki-token-comment: #8490b5;
-    --shiki-token-keyword: var(--accent);
-    --shiki-token-parameter: #aa0000;
-    --shiki-token-function: #90f4e3;
-    --shiki-token-string-expression: #f4cf90;
-    --shiki-token-punctuation: #ffffff;
-    --shiki-token-link: #ee0000;
-  }
+  /* Theme toggle */
+  --sun-icon-color: #505D84;
+  --moon-icon-color: #090B11;
+  --toggle-border-color: #3D4663;
+
+  /* Syntax Highlighting */
+  --shiki-color-text: #ffffff;
+  --shiki-token-constant: #90f4e3;
+  --shiki-token-string: #f4cf90;
+  --shiki-token-comment: #8490b5;
+  --shiki-token-keyword: var(--accent);
+  --shiki-token-parameter: #aa0000;
+  --shiki-token-function: #90f4e3;
+  --shiki-token-string-expression: #f4cf90;
+  --shiki-token-punctuation: #ffffff;
+  --shiki-token-link: #ee0000;
+}
+  
+#theme-toggle-wrapper{
+  position: relative;
+  display: inline-block
+}
+
+#theme-toggle-wrapper > div{
+  position: absolute;
+  right: 3px;
+  margin-top: 3px;
+}
+  
+.theme-toggle-checkbox {
+	opacity: 0;
+	position: absolute;
+}
+
+#theme-toggle-label {
+	background-color: var(--toggle-tabel-background);
+	border-radius: 50px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+  padding: 7.5px;
+	position: relative;
+	width: 66px;
+	height: 30px;
+	transform: scale(1.2);
+  box-shadow: 0 0 0 1px var(--toggle-border-color);
+  outline: 1px solid transparent;
+}
+
+.theme-toggle-checkbox:focus ~ #theme-toggle-label {
+    outline: 2px solid var(--toggle-border-color);
+    outline-offset: 4px;
+}
+
+#theme-toggle-label #theme-toggle-ball {
+	background-color: var(--accent);
+	border-radius: 50%;
+	position: absolute;
+	height: 30px;
+	width: 30px;
+	transform: translateX(-7.5px);
+	transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+
+@media (forced-colors: active) {
+	#theme-toggle-label {
+		--moon-icon-color: CanvasText;
+		--sun-icon-color: CanvasText;
+	}
+	#theme-toggle-label #theme-toggle-ball {
+		background-color: SelectedItem;
+	}
+}
+
+.theme-toggle-checkbox:checked + #theme-toggle-label #theme-toggle-ball {
+	transform: translateX(28.5px);
+}
+
+.sr-only {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	-webkit-clip-path: inset(50%) !important;
+		clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	white-space: nowrap !important;
+}
+
+.icon-tabler{
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  z-index: 10;
+}
+
+.icon-tabler-moon {
+	color: var(--moon-icon-color);
+}
+
+.icon-tabler-sun {
+	color: var(--sun-icon-color);
 }
 
 #backdrop {
@@ -138,6 +236,7 @@ const style = /* css */ `
 
 #layout {
   max-width: min(100%, 1280px);
+  position: relative;
   width: 1280px;
   margin: 0 auto;
   padding: 40px;
@@ -150,6 +249,12 @@ const style = /* css */ `
   #header {
     padding: 12px;
     margin-top: 12px;
+  }
+  
+  #theme-toggle-wrapper > div{
+    position: absolute;
+    right: 22px;
+    margin-top: 47px;
   }
 
   #layout {
@@ -172,6 +277,7 @@ const style = /* css */ `
 #header-left {
   min-height: 63px;
   display: flex;
+  align-items: flex-start;
   flex-direction: column;
   justify-content: end;
 }
@@ -390,6 +496,25 @@ ${style.trim()}
 </style>
 <div id="backdrop">
   <div id="layout">
+    <div id="theme-toggle-wrapper">
+      <div>
+        <input type="checkbox" class="theme-toggle-checkbox" id="chk" />
+        <label id="theme-toggle-label" for="chk">
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="icon-tabler icon-tabler-sun" width="15px" height="15px" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="icon-tabler icon-tabler-moon"  width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+          </svg>
+          <div id="theme-toggle-ball">
+            <span class="sr-only">Use dark theme</span>
+          </div>
+        </label>
+      </div>
+    </div>
     <header id="header">
       <section id="header-left">
         <h2 id="name"></h2>
@@ -397,7 +522,7 @@ ${style.trim()}
       </section>
       <div id="houston-overlay"></div>
       <div id="houston">
-<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="175" height="131" fill="none"><path fill="currentColor" d="M55.977 81.512c0 8.038-6.516 14.555-14.555 14.555S26.866 89.55 26.866 81.512c0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.555 6.517 14.555 14.556Zm24.745-5.822c0-.804.651-1.456 1.455-1.456h11.645c.804 0 1.455.652 1.455 1.455v11.645c0 .804-.651 1.455-1.455 1.455H82.177a1.456 1.456 0 0 1-1.455-1.455V75.689Zm68.411 5.822c0 8.038-6.517 14.555-14.556 14.555-8.039 0-14.556-6.517-14.556-14.555 0-8.04 6.517-14.556 14.556-14.556 8.039 0 14.556 6.517 14.556 14.556Z"/><rect width="168.667" height="125" x="3.667" y="3" stroke="currentColor" stroke-width="4" rx="20.289"/></svg>
       </div>
     </header>
 
@@ -444,6 +569,25 @@ class ErrorOverlay extends HTMLElement {
 		super();
 		this.root = this.attachShadow({ mode: 'open' });
 		this.root.innerHTML = overlayTemplate;
+
+		// theme toggle logic
+		const themeToggle = this.root.querySelector<HTMLInputElement>('.theme-toggle-checkbox');
+		if (
+			localStorage.astroErrorOverlayTheme === 'dark' ||
+			(!('astroErrorOverlayTheme' in localStorage) &&
+				window.matchMedia('(prefers-color-scheme: dark)').matches)
+		) {
+			this?.classList.add('astro-dark');
+			themeToggle!.checked = true;
+		} else {
+			this?.classList.remove('astro-dark');
+			themeToggle!.checked = false;
+		}
+		themeToggle?.addEventListener('click', () => {
+			const isDark = localStorage.astroErrorOverlayTheme === 'dark';
+			this?.classList.toggle('astro-dark', !isDark);
+			localStorage.astroErrorOverlayTheme = isDark ? 'light' : 'dark';
+		});
 
 		this.text('#name', err.name);
 		this.text('#title', err.title);
@@ -521,6 +665,19 @@ class ErrorOverlay extends HTMLElement {
 		}
 
 		const el = this.root.querySelector(selector);
+
+		if (html) {
+			// Automatically detect links
+			text = text
+				.split(' ')
+				.map((v) => {
+					if (!v.startsWith('https://')) return v;
+					if (v.endsWith('.'))
+						return `<a target="_blank" href="${v.slice(0, -1)}">${v.slice(0, -1)}</a>.`;
+					return `<a target="_blank" href="${v}">${v}</a>`;
+				})
+				.join(' ');
+		}
 
 		if (el) {
 			if (!html) {

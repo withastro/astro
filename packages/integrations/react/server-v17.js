@@ -62,8 +62,11 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 	const newProps = {
 		...props,
 		...slots,
-		children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
 	};
+	const newChildren = children ?? props.children;
+	if (newChildren != null) {
+		newProps.children = React.createElement(StaticHtml, { value: newChildren });
+	}
 	const vnode = React.createElement(Component, newProps);
 	let html;
 	if (metadata && metadata.hydrate) {

@@ -57,11 +57,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
-	site: z
-		.string()
-		.url()
-		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val)),
+	site: z.string().url().optional(),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])

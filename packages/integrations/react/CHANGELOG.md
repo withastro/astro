@@ -1,10 +1,27 @@
 # @astrojs/react
 
-## 2.0.0-beta.0
+## 2.0.1
+
+### Patch Changes
+
+- [#5886](https://github.com/withastro/astro/pull/5886) [`9d4bfc76e`](https://github.com/withastro/astro/commit/9d4bfc76e8de7cf85997100145532a6fa7d2b025) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Support passing `children` as props to a React component
+
+## 2.0.0
 
 ### Major Changes
 
 - [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 14. Minimum supported Node version is now >=16.12.0
+
+## 2.0.0-beta.0
+
+<details>
+<summary>See changes in 2.0.0-beta.0</summary>
+
+### Major Changes
+
+- [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove support for Node 14. Minimum supported Node version is now >=16.12.0
+
+</details>
 
 ## 1.2.2
 
