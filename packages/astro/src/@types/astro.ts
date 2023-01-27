@@ -28,6 +28,7 @@ export type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
+export type { AstroCookies } from '../core/cookies';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
