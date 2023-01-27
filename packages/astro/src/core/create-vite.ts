@@ -8,7 +8,7 @@ import { crawlFrameworkPkgs } from 'vitefu';
 import {
 	astroContentServerPlugin,
 	astroContentVirtualModPlugin,
-	astroDelayedAssetPlugin,
+	astroContentAssetPropagationPlugin,
 } from '../content/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -106,7 +106,7 @@ export async function createVite(
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentServerPlugin({ fs, settings, logging, mode }),
-			astroDelayedAssetPlugin({ mode }),
+			astroContentAssetPropagationPlugin({ mode }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
