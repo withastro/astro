@@ -117,6 +117,27 @@ And then point to the dist in your `netlify.toml`:
 directory = "dist/functions"
 ```
 
+### builders
+
+[Netlify On-demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) are serverless functions used to build and cache page content on Netlify’s Edge CDN. You can enable these functions with the `builders` option:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/functions';
+
+export default defineConfig({
+  output: 'server',
+  adapter: netlify({
+    builders: true
+  }),
+});
+```
+
+On-demand Builders are only available with the `@astrojs/netlify/functions` adapter and are not compatible with Edge Functions.
+
+
+
 ### binaryMediaTypes
 
 > This option is only needed for the Functions adapter and is not needed for Edge Functions.
