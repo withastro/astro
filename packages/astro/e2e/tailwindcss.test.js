@@ -35,10 +35,6 @@ test.describe('Tailwind CSS', () => {
 
 		await expect(button, 'should have appearance none').toHaveClass(/appearance-none/);
 		await expect(button, 'should have appearance: none').toHaveCSS('appearance', 'none');
-		// await expect(button, 'should have appearance none with moz prefix').toHaveCSS(
-		// 	'-moz-appearance',
-		// 	'none'
-		// );
 		await expect(button, 'should have appearance-none with webkit prefix').toHaveCSS(
 			'-webkit-appearance',
 			'none'
