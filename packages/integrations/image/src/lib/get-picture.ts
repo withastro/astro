@@ -51,7 +51,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 	}
 
 	if (!widths || !Array.isArray(widths)) {
-		throw new Error('[@astrojs/image] at least one `width` is required');
+		throw new Error('[@astrojs/image] at least one `width` is required. ex: `widths={[100]}`');
 	}
 
 	const aspectRatio = await resolveAspectRatio(params);
