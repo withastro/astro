@@ -1,5 +1,5 @@
 export const contentFileExts = ['.md', '.mdx'];
-export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAsset';
+export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
 export const CONTENT_FLAG = 'astroContent';
 export const VIRTUAL_MODULE_ID = 'astro:content';
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
