@@ -275,6 +275,8 @@ How the image should be resized to fit both `height` and `width`.
 
 Position of the crop when fit is `cover` or `contain`.
 
+> For more information on how the `sharp` service uses the `fit` and `position` parameters, see the [sharp docs.](https://sharp.pixelplumbing.com/api-resize)
+
 ### `<Picture />`
 
 The built-in `<Picture />` component is used to create an optimized `<picture />` for both remote images hosted on other domains as well as local images imported from your project's `src` directory.
@@ -409,6 +411,8 @@ How the image should be resized to fit both `height` and `width`.
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
 
 Position of the crop when fit is `cover` or `contain`.
+
+> For more information on how the `sharp` service uses the `fit` and `position` parameters, see the [sharp docs.](https://sharp.pixelplumbing.com/api-resize)
 
 ### `getImage`
 
