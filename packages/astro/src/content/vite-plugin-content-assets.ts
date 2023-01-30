@@ -8,8 +8,8 @@ import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
 	contentFileExts,
-	PROPAGATED_ASSET_FLAG,
 	LINKS_PLACEHOLDER,
+	PROPAGATED_ASSET_FLAG,
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';

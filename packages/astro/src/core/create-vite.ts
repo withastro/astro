@@ -6,9 +6,9 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import {
+	astroContentAssetPropagationPlugin,
 	astroContentServerPlugin,
 	astroContentVirtualModPlugin,
-	astroContentAssetPropagationPlugin,
 } from '../content/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
