@@ -76,6 +76,7 @@ export async function restartContainer({
 	beforeRestart,
 }: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
 	const { logging, close, resolvedRoot, settings: existingSettings } = container;
+	const root = flags.root || resolvedRoot;
 	container.restartInFlight = true;
 
 	if (beforeRestart) {
@@ -84,7 +85,7 @@ export async function restartContainer({
 	const needsStart = isStarted(container);
 	try {
 		const newConfig = await openConfig({
-			cwd: resolvedRoot,
+			cwd: root,
 			flags,
 			cmd: 'dev',
 			logging,
@@ -93,7 +94,7 @@ export async function restartContainer({
 		});
 		info(logging, 'astro', logMsg + '\n');
 		let astroConfig = newConfig.astroConfig;
-		const settings = createSettings(astroConfig, resolvedRoot);
+		const settings = createSettings(astroConfig, root);
 		await close();
 		return {
 			container: await createRestartedContainer(container, settings, needsStart),
