@@ -259,7 +259,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 How the image should be resized to fit both `height` and `width`.
 
@@ -271,11 +271,9 @@ How the image should be resized to fit both `height` and `width`.
 **Default:** `'centre'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 Position of the crop when fit is `cover` or `contain`.
-
-> For more information on how the `sharp` service uses the `fit` and `position` parameters, see the [sharp docs.](https://sharp.pixelplumbing.com/api-resize)
 
 ### `<Picture />`
 
@@ -394,7 +392,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 How the image should be resized to fit both `height` and `width`.
 
@@ -408,11 +406,9 @@ How the image should be resized to fit both `height` and `width`.
 **Default:** `'centre'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 Position of the crop when fit is `cover` or `contain`.
-
-> For more information on how the `sharp` service uses the `fit` and `position` parameters, see the [sharp docs.](https://sharp.pixelplumbing.com/api-resize)
 
 ### `getImage`
 
