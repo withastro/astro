@@ -1,14 +1,14 @@
 import type { PropagationHint } from '../../@types/astro';
-import type { AstroComponentFactory } from './render/index.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import type { AstroComponentFactory } from './render/index.js';
 
 function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory> {
 	if (args.length !== 3) return false;
-	if (!args[0] ||typeof args[0] !== 'object') return false;
+	if (!args[0] || typeof args[0] !== 'object') return false;
 	return true;
 }
 function baseCreateComponent(cb: AstroComponentFactory, moduleId?: string): AstroComponentFactory {
-	const name = moduleId?.split('/').pop()?.replace('.astro', '') ?? ''
+	const name = moduleId?.split('/').pop()?.replace('.astro', '') ?? '';
 	const fn = (...args: Parameters<AstroComponentFactory>) => {
 		if (!validateArgs(args)) {
 			throw new AstroError({
@@ -17,7 +17,7 @@ function baseCreateComponent(cb: AstroComponentFactory, moduleId?: string): Astr
 			});
 		}
 		return cb(...args);
-	}
+	};
 	Object.defineProperty(fn, 'name', { value: name, writable: false });
 	// Add a flag to this callback to mark it as an Astro component
 	fn.isAstroComponentFactory = true;
