@@ -10,6 +10,6 @@ export type RenderDirectiveInstruction = {
 export type RenderHeadInstruction = {
 	type: 'head';
 	result: SSRResult;
-}
+};
 
 export type RenderInstruction = RenderDirectiveInstruction | RenderHeadInstruction;

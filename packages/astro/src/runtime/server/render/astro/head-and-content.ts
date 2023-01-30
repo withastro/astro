@@ -12,10 +12,7 @@ export function isHeadAndContent(obj: unknown): obj is HeadAndContent {
 	return typeof obj === 'object' && !!(obj as any)[headAndContentSym];
 }
 
-export function createHeadAndContent(
-	head: string,
-	content: RenderTemplateResult
-): HeadAndContent {
+export function createHeadAndContent(head: string, content: RenderTemplateResult): HeadAndContent {
 	return {
 		[headAndContentSym]: true,
 		head,

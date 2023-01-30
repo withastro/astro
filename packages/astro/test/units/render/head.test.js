@@ -7,7 +7,7 @@ import {
 	renderSlot,
 	maybeRenderHead,
 	renderHead,
-	Fragment
+	Fragment,
 } from '../../../dist/runtime/server/index.js';
 import {
 	createBasicEnvironment,
@@ -41,41 +41,63 @@ describe('core/render', () => {
 						${renderSlot(result, slots['default'])}
 					</body>
 				</html>`;
-			})
+			});
 
 			const PageLayout = createComponent((result, _props, slots) => {
-				return render`${renderComponent(result, 'Layout', BaseLayout, {}, {
-						'default': () => render`
+				return render`${renderComponent(
+					result,
+					'Layout',
+					BaseLayout,
+					{},
+					{
+						default: () => render`
 							${maybeRenderHead(result)}
 							<main>
 								${renderSlot(result, slots['default'])}
 							</main>
 						`,
-						'head': () => render`
-							${renderComponent(result, 'Fragment', Fragment, { slot: 'head' }, {
-								'default': () => render`${renderSlot(result, slots['head'])}`
-							})}
-						`
-					})}
+						head: () => render`
+							${renderComponent(
+								result,
+								'Fragment',
+								Fragment,
+								{ slot: 'head' },
+								{
+									default: () => render`${renderSlot(result, slots['head'])}`,
+								}
+							)}
+						`,
+					}
+				)}
 				`;
 			});
 
 			const Page = createComponent((result, _props) => {
-				return render`${renderComponent(result, 'PageLayout', PageLayout, {}, {
-					'default': () => render`${maybeRenderHead(result)}<div>hello world</div>`,
-					'head': () => render`
-						${renderComponent(result, 'Fragment', Fragment, {slot: 'head'}, {
-							'default': () => render`<meta charset="utf-8">`
-						})}
-					`
-				})}`;
+				return render`${renderComponent(
+					result,
+					'PageLayout',
+					PageLayout,
+					{},
+					{
+						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+						head: () => render`
+						${renderComponent(
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							}
+						)}
+					`,
+					}
+				)}`;
 			});
 
 			const ctx = createRenderContext({
 				request: new Request('http://example.com/'),
-				links: [
-					{ name: 'link', props: {rel:'stylesheet', href:'/main.css'}, children: '' }
-				]
+				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 			});
 			const PageModule = createAstroModule(Page);
 
@@ -97,41 +119,63 @@ describe('core/render', () => {
 						${renderSlot(result, slots['default'])}
 					</body>
 				</html>`;
-			})
+			});
 
 			const PageLayout = createComponent((result, _props, slots) => {
-				return render`${renderComponent(result, 'Layout', BaseLayout, {}, {
-						'default': () => render`
+				return render`${renderComponent(
+					result,
+					'Layout',
+					BaseLayout,
+					{},
+					{
+						default: () => render`
 							${maybeRenderHead(result)}
 							<main>
 								${renderSlot(result, slots['default'])}
 							</main>
 						`,
-						'head': () => render`
-							${renderComponent(result, 'Fragment', Fragment, { slot: 'head' }, {
-								'default': () => render`${renderSlot(result, slots['head'])}`
-							})}
-						`
-					})}
+						head: () => render`
+							${renderComponent(
+								result,
+								'Fragment',
+								Fragment,
+								{ slot: 'head' },
+								{
+									default: () => render`${renderSlot(result, slots['head'])}`,
+								}
+							)}
+						`,
+					}
+				)}
 				`;
 			});
 
 			const Page = createComponent((result, _props) => {
-				return render`${renderComponent(result, 'PageLayout', PageLayout, {}, {
-					'default': () => render`${maybeRenderHead(result)}<div>hello world</div>`,
-					'head': () => render`
-						${renderComponent(result, 'Fragment', Fragment, {slot: 'head'}, {
-							'default': () => render`<meta charset="utf-8">`
-						})}
-					`
-				})}`;
+				return render`${renderComponent(
+					result,
+					'PageLayout',
+					PageLayout,
+					{},
+					{
+						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+						head: () => render`
+						${renderComponent(
+							result,
+							'Fragment',
+							Fragment,
+							{ slot: 'head' },
+							{
+								default: () => render`<meta charset="utf-8">`,
+							}
+						)}
+					`,
+					}
+				)}`;
 			});
 
 			const ctx = createRenderContext({
 				request: new Request('http://example.com/'),
-				links: [
-					{ name: 'link', props: {rel:'stylesheet', href:'/main.css'}, children: '' }
-				]
+				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 			});
 			const PageModule = createAstroModule(Page);
 
@@ -147,26 +191,36 @@ describe('core/render', () => {
 		it('Multi-level layouts and head injection, without any content in layouts', async () => {
 			const BaseLayout = createComponent((result, _props, slots) => {
 				return render`${renderSlot(result, slots['default'])}`;
-			})
+			});
 
 			const PageLayout = createComponent((result, _props, slots) => {
-				return render`${renderComponent(result, 'Layout', BaseLayout, {}, {
-						'default': () => render`${renderSlot(result, slots['default'])}	`,
-					})}
+				return render`${renderComponent(
+					result,
+					'Layout',
+					BaseLayout,
+					{},
+					{
+						default: () => render`${renderSlot(result, slots['default'])}	`,
+					}
+				)}
 				`;
 			});
 
 			const Page = createComponent((result, _props) => {
-				return render`${renderComponent(result, 'PageLayout', PageLayout, {}, {
-					'default': () => render`${maybeRenderHead(result)}<div>hello world</div>`,
-				})}`;
+				return render`${renderComponent(
+					result,
+					'PageLayout',
+					PageLayout,
+					{},
+					{
+						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+					}
+				)}`;
 			});
 
 			const ctx = createRenderContext({
 				request: new Request('http://example.com/'),
-				links: [
-					{ name: 'link', props: {rel:'stylesheet', href:'/main.css'}, children: '' }
-				]
+				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
 			});
 			const PageModule = createAstroModule(Page);
 

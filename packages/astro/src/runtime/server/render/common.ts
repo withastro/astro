@@ -2,13 +2,13 @@ import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
 import { HTMLBytes, markHTMLString } from '../escape.js';
-import { renderAllHeadContent } from './head.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
 	PrescriptType,
 } from '../scripts.js';
+import { renderAllHeadContent } from './head.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -21,15 +21,15 @@ export const decoder = new TextDecoder();
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
 export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
-	if(typeof (chunk as any).type === 'string') {
+	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
-		switch(instruction.type) {
+		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
 				let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
 				let needsDirectiveScript =
 					hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
-	
+
 				let prescriptType: PrescriptType = needsHydrationScript
 					? 'both'
 					: needsDirectiveScript
@@ -43,8 +43,8 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				}
 			}
 			case 'head': {
-				if(result._metadata.hasRenderedHead) {
-					return '';	
+				if (result._metadata.hasRenderedHead) {
+					return '';
 				}
 				return renderAllHeadContent(result);
 			}

@@ -39,7 +39,7 @@ export function renderAllHeadContent(result: SSRResult) {
 	return markHTMLString(content);
 }
 
-export function * renderHead(result: SSRResult) {
+export function* renderHead(result: SSRResult) {
 	yield { type: 'head', result } as const;
 }
 
