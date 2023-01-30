@@ -85,7 +85,7 @@ export function astroContentProdBundlePlugin({ internals }: { internals: BuildIn
 								const pageViteID = pageInfo.id;
 								const pageData = getPageDataByViteID(internals, pageViteID);
 								if (!pageData) continue;
-								console.log({ pageData });
+
 								const entryCss = pageData.contentCollectionCss?.get(id);
 								const entryScripts = pageData.propagatedScripts?.get(id);
 								if (entryCss) {
@@ -95,7 +95,6 @@ export function astroContentProdBundlePlugin({ internals }: { internals: BuildIn
 									);
 								}
 								if (entryScripts) {
-									console.log({ entryScripts });
 									chunk.code = chunk.code.replace(
 										JSON.stringify(SCRIPTS_PLACEHOLDER),
 										JSON.stringify(
