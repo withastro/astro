@@ -1439,7 +1439,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	propagation: Map<string, PropagationHint>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<any>;
+	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

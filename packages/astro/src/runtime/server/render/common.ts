@@ -2,7 +2,7 @@ import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
 import { HTMLBytes, markHTMLString } from '../escape.js';
-import { renderHead } from './head.js';
+import { renderAllHeadContent } from './head.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -46,7 +46,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				if(result._metadata.hasRenderedHead) {
 					return '';	
 				}
-				return renderHead(result)();
+				return renderAllHeadContent(result);
 			}
 		}
 	} else {
