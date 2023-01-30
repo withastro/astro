@@ -12,7 +12,7 @@ import {
 	RouteData,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
-import type { PageBuildData } from '../core/build/types';
+import type { AllPagesData, PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
 import { info, LogOptions } from '../core/logger/core.js';
 
@@ -297,12 +297,14 @@ export async function runHookBuildGenerated({
 export async function runHookBuildDone({
 	config,
 	buildConfig,
+	pageBuildData,
 	pages,
 	routes,
 	logging,
 }: {
 	config: AstroConfig;
 	buildConfig: BuildConfig;
+	pageBuildData: AllPagesData;
 	pages: string[];
 	routes: RouteData[];
 	logging: LogOptions;
@@ -318,6 +320,7 @@ export async function runHookBuildDone({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
+					pageBuildData,
 				}),
 				logging,
 			});

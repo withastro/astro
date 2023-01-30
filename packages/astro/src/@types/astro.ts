@@ -14,7 +14,7 @@ import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
-import type { PageBuildData } from '../core/build/types';
+import type { AllPagesData, PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
@@ -1372,6 +1372,7 @@ export interface AstroIntegration {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
+			pageBuildData: AllPagesData;
 		}) => void | Promise<void>;
 	};
 }

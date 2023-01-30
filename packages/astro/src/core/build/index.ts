@@ -147,6 +147,7 @@ class AstroBuilder {
 		await runHookBuildDone({
 			config: this.settings.config,
 			buildConfig,
+			pageBuildData: allPages,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
