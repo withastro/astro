@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 1.1.1
+
+### Patch Changes
+
+- [#5478](https://github.com/withastro/astro/pull/5478) [`1c7eef308`](https://github.com/withastro/astro/commit/1c7eef308e808aa5ed4662b53e67ec8d1b814d1f) Thanks [@nemo0](https://github.com/nemo0)! - Update READMEs for consistency
+
 ## 1.1.0
 
 ### Minor Changes
