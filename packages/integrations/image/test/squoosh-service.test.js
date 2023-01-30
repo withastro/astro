@@ -5,7 +5,8 @@ import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const toAstroImage = (relpath) => '/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/squoosh-service', relpath)).pathname;
+const toAstroImage = (relpath) =>
+	'/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/squoosh-service', relpath)).pathname;
 
 describe('Squoosh service', function () {
 	let fixture;

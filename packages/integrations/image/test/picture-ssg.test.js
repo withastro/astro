@@ -8,7 +8,8 @@ import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const toAstroImage = (relpath) => '/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-picture', relpath)).pathname;
+const toAstroImage = (relpath) =>
+	'/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-picture', relpath)).pathname;
 
 describe('SSG pictures - dev', function () {
 	let fixture;
