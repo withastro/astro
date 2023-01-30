@@ -6,7 +6,8 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const toAstroImage = (relpath) => '/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-image', relpath)).pathname;
+const toAstroImage = (relpath) =>
+	'/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-image', relpath)).pathname;
 
 describe('SSR images - dev', function () {
 	let fixture;

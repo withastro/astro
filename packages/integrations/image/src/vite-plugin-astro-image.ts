@@ -1,9 +1,9 @@
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
 import fs from 'node:fs/promises';
-import { basename, extname, join } from 'node:path';
+import { basename, extname } from 'node:path';
 import { Readable } from 'node:stream';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
 import type { InputFormat } from './loaders/index.js';

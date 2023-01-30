@@ -7,7 +7,8 @@ import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const toAstroImage = (relpath) => '/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-image', relpath)).pathname;
+const toAstroImage = (relpath) =>
+	'/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-image', relpath)).pathname;
 
 describe('SSG images - dev', function () {
 	let fixture;
@@ -234,7 +235,11 @@ describe('SSG images - build', function () {
 	});
 
 	function verifyImage(pathname, expected) {
-		const dist = join(fileURLToPath(new URL('.', import.meta.url)), 'fixtures/basic-image/dist', pathname);
+		const dist = join(
+			fileURLToPath(new URL('.', import.meta.url)),
+			'fixtures/basic-image/dist',
+			pathname
+		);
 		const result = sizeOf(dist);
 		expect(result).to.deep.equal(expected);
 	}
