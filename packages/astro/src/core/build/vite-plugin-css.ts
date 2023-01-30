@@ -6,7 +6,7 @@ import { isCSSRequest } from '../render/util.js';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
 
-import { DELAYED_ASSET_FLAG } from '../../content/consts.js';
+import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
 import * as assetName from './css-asset-name.js';
 import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
@@ -79,7 +79,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 						for (const [pageInfo] of walkParentInfos(id, {
 							getModuleInfo: args[0].getModuleInfo,
 						})) {
-							if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
+							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
 								return createNameHash(id, [id]);
@@ -172,10 +172,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										id,
 										this,
 										function until(importer) {
-											return new URL(importer, 'file://').searchParams.has(DELAYED_ASSET_FLAG);
+											return new URL(importer, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
 										}
 									)) {
-										if (new URL(pageInfo.id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) {
+										if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
 											for (const parent of walkParentInfos(id, this)) {
 												const parentInfo = parent[0];
 												if (moduleIsTopLevelPage(parentInfo)) {
