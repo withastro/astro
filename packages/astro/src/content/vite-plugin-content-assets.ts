@@ -75,19 +75,37 @@ export function astroContentProdBundlePlugin({ internals }: { internals: BuildIn
 		name: 'astro:content-prod-bundle',
 		async generateBundle(_options, bundle) {
 			for (const [_, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'chunk' && chunk.code.includes(LINKS_PLACEHOLDER)) {
+				if (
+					chunk.type === 'chunk' &&
+					(chunk.code.includes(LINKS_PLACEHOLDER) || chunk.code.includes(SCRIPTS_PLACEHOLDER))
+				) {
 					for (const id of Object.keys(chunk.modules)) {
 						for (const [pageInfo, depth, order] of walkParentInfos(id, this)) {
 							if (moduleIsTopLevelPage(pageInfo)) {
 								const pageViteID = pageInfo.id;
 								const pageData = getPageDataByViteID(internals, pageViteID);
 								if (!pageData) continue;
+								console.log({ pageData });
 								const entryCss = pageData.contentCollectionCss?.get(id);
-								if (!entryCss) continue;
-								chunk.code = chunk.code.replace(
-									JSON.stringify(LINKS_PLACEHOLDER),
-									JSON.stringify([...entryCss])
-								);
+								const entryScripts = pageData.propagatedScripts?.get(id);
+								if (entryCss) {
+									chunk.code = chunk.code.replace(
+										JSON.stringify(LINKS_PLACEHOLDER),
+										JSON.stringify([...entryCss])
+									);
+								}
+								if (entryScripts) {
+									console.log({ entryScripts });
+									chunk.code = chunk.code.replace(
+										JSON.stringify(SCRIPTS_PLACEHOLDER),
+										JSON.stringify(
+											[...entryScripts].map((src) => ({
+												props: { src, type: 'module' },
+												children: '',
+											}))
+										)
+									);
+								}
 							}
 						}
 					}
