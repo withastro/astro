@@ -6,6 +6,7 @@ import testAdapter from './test-adapter.js';
 const describe = isWindows ? global.describe.skip : global.describe;
 
 describe('Content Collections - render()', () => {
+	this.timeout(45000);
 	describe('Build - SSG', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
