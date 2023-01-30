@@ -321,7 +321,8 @@ const style = /* css */ `
 
 #message-hints,
 #stack,
-#code {
+#code,
+#cause {
   border-radius: var(--roundiness);
   background-color: var(--box-background);
 }
@@ -606,8 +607,13 @@ class ErrorOverlay extends HTMLElement {
 
     const cause = this.root.querySelector<HTMLElement>('#cause');
     if (cause && err.cause) {
-      this.text('#cause', `${err.cause}`, true);
-      cause.style.display = 'flex';
+      if (typeof err.cause === 'string') {
+        this.text('#cause-content', err.cause);
+        cause.style.display = 'block';
+      } else {
+        this.text('#cause-content', JSON.stringify(err.cause, null, 2));
+        cause.style.display = 'block';
+      }
     }
 
 		const hint = this.root.querySelector<HTMLElement>('#hint');
