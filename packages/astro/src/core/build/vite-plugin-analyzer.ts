@@ -89,22 +89,13 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 					internals.discoveredScripts.add(moduleId);
 
+					// TODO: map raw URL (?type=script) to client build ready URL
+					// This will inject the raw URL as a script tag as-is,
+					// which will fail to map with the client build output.
 					pageData.propagatedScripts = propagatedMapByImporter;
 
 					// Add propagated scripts to client build,
 					// but DON'T add to pages -> hoisted script map.
-					// const flattenedPropagatedScripts = Array.from(propagatedMapByImporter.values())
-					// 	.map((s) => Array.from(s))
-					// 	.flat();
-					// const uniquePropagatedId = JSON.stringify(flattenedPropagatedScripts.sort());
-					// if (uniqueHoistedIds.has(uniquePropagatedId)) {
-					// 	moduleId = uniqueHoistedIds.get(uniquePropagatedId)!;
-					// } else {
-					// 	// Otherwise, create a unique id for this set of hoisted scripts
-					// 	moduleId = `/astro/hoisted.js?q=${uniqueHoistedIds.size}`;
-					// 	console.log('uniquePropagatedId', uniquePropagatedId, moduleId);
-					// 	uniqueHoistedIds.set(uniquePropagatedId, moduleId);
-					// }
 					for (const propagatedScripts of propagatedMapByImporter.values()) {
 						for (const propagatedScript of propagatedScripts) {
 							internals.discoveredScripts.add(propagatedScript);
