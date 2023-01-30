@@ -90,6 +90,9 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 					internals.discoveredScripts.add(moduleId);
 
+					// TODO: map raw URL (?type=script) to client build ready URL
+					// This will inject the raw URL as a script tag as-is,
+					// which will fail to map with the client build output.
 					pageData.propagatedScripts = propagatedMapByImporter;
 
 					// Add propagated scripts to client build,
