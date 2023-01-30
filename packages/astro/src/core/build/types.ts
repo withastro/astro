@@ -22,6 +22,7 @@ export interface PageBuildData {
 	moduleSpecifier: string;
 	css: Map<string, { depth: number; order: number }>;
 	contentCollectionCss: Map<string, Set<string>>;
+	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
