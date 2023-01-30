@@ -152,7 +152,7 @@ There are 3 contexts in which code executes:
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
 
-## Repo Structure
+## Branches
 
 ### `main`
 
