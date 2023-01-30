@@ -2706,7 +2706,6 @@ importers:
       mocha: ^9.2.2
       rollup-plugin-copy: ^3.4.0
       sharp: ^0.31.0
-      slash: ^4.0.0
       vite: ^4.0.3
     dependencies:
       '@altano/tiny-async-pool': 1.0.2
@@ -2715,7 +2714,6 @@ importers:
       kleur: 4.1.5
       magic-string: 0.27.0
       mime: 3.0.0
-      slash: 4.0.0
     devDependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/mime': 2.0.3

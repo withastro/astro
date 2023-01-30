@@ -1,7 +1,12 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const toAstroImage = (relpath) => '/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/basic-image', relpath)).pathname;
 
 describe('SSR images - dev', function () {
 	let fixture;
@@ -28,28 +33,35 @@ describe('SSR images - dev', function () {
 		{
 			title: 'Local images',
 			id: '#social-jpg',
-			url: '/@astroimage/assets/social.jpg',
+			url: toAstroImage('src/assets/social.jpg'),
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
 		},
 		{
 			title: 'Local image no transforms',
 			id: '#no-transforms',
-			url: '/@astroimage/assets/social.jpg',
+			url: toAstroImage('src/assets/social.jpg'),
 			query: {},
 			contentType: 'image/jpeg',
 		},
 		{
 			title: 'Filename with spaces',
 			id: '#spaces',
-			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			url: toAstroImage('src/assets/blog/introducing astro.jpg'),
 			query: { f: 'webp', w: '768', h: '414' },
 			contentType: 'image/webp',
 		},
 		{
+			title: 'File outside src',
+			id: '#outside-src',
+			url: toAstroImage('social.png'),
+			query: { f: 'png', w: '2024', h: '1012' },
+			contentType: 'image/png',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
-			url: '/@astroimage/assets/social.jpg',
+			url: toAstroImage('src/assets/social.jpg'),
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
 		},
@@ -150,21 +162,28 @@ describe('SSR images with subpath - dev', function () {
 		{
 			title: 'Local images',
 			id: '#social-jpg',
-			url: '/@astroimage/assets/social.jpg',
+			url: toAstroImage('src/assets/social.jpg'),
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
 		},
 		{
 			title: 'Filename with spaces',
 			id: '#spaces',
-			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			url: toAstroImage('src/assets/blog/introducing astro.jpg'),
 			query: { f: 'webp', w: '768', h: '414' },
 			contentType: 'image/webp',
 		},
 		{
+			title: 'File outside src',
+			id: '#outside-src',
+			url: toAstroImage('social.png'),
+			query: { f: 'png', w: '2024', h: '1012' },
+			contentType: 'image/png',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
-			url: '/@astroimage/assets/social.jpg',
+			url: toAstroImage('src/assets/social.jpg'),
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
 		},
