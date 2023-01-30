@@ -10,7 +10,7 @@ describe('mode: "directory"', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basics/',
-			adapter: cloudflare({ mode: 'directory' })
+			adapter: cloudflare({ mode: 'directory' }),
 		});
 	});
 
