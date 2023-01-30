@@ -471,7 +471,8 @@ const style = /* css */ `
   color: var(--error-text);
 }
 
-#stack h2 {
+#stack h2,
+#cause h2 {
   color: var(--title-text);
   font-family: var(--font-normal);
   font-size: 22px;
@@ -480,13 +481,18 @@ const style = /* css */ `
   border-bottom: 1px solid var(--border);
 }
 
-#stack-content {
+#stack-content,
+#cause-content {
   font-size: 14px;
   white-space: pre;
   line-height: 21px;
   overflow: auto;
   padding: 24px;
   color: var(--stack-text);
+}
+
+#cause {
+  display: none;
 }
 `;
 
@@ -552,6 +558,11 @@ ${style.trim()}
       <h2>Stack Trace</h2>
       <div id="stack-content"></div>
     </section>
+
+    <section id="cause">
+      <h2>Cause</h2>
+      <div id="cause-content"></div>
+    </section>
   </div>
 </div>
 `;
@@ -592,6 +603,12 @@ class ErrorOverlay extends HTMLElement {
 		this.text('#name', err.name);
 		this.text('#title', err.title);
 		this.text('#message-content', err.message, true);
+
+    const cause = this.root.querySelector<HTMLElement>('#cause');
+    if (cause && err.cause) {
+      this.text('#cause', `${err.cause}`, true);
+      cause.style.display = 'flex';
+    }
 
 		const hint = this.root.querySelector<HTMLElement>('#hint');
 		if (hint && err.hint) {
