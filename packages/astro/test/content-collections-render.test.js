@@ -55,9 +55,7 @@ describe('Content Collections - render()', () => {
 			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
 		});
 
-		// TODO: Script bleed isn't solved for prod builds.
-		// Tackling in separate PR.
-		it.skip('Excludes component scripts for non-rendered entries', async () => {
+		it('Excludes component scripts for non-rendered entries', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
