@@ -56,6 +56,19 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 					internals.discoveredScripts.add(moduleId);
 
+					// TODO: map raw URL (?type=script) to client build ready URL
+					// This will inject the raw URL as a script tag as-is,
+					// which will fail to map with the client build output.
+					pageData.propagatedScripts = propagatedMapByImporter;
+
+					// Add propagated scripts to client build,
+					// but DON'T add to pages -> hoisted script map.
+					for (const propagatedScripts of propagatedMapByImporter.values()) {
+						for (const propagatedScript of propagatedScripts) {
+							internals.discoveredScripts.add(propagatedScript);
+						}
+					}
+
 					// Make sure to track that this page uses this set of hoisted scripts
 					if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {
 						const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
