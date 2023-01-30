@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const toAstroImage = (relpath) => '/@astroimage' + pathToFileURL(join(__dirname, 'fixtures/squoosh-service', relpath)).pathname;
 
 describe('Squoosh service', function () {
 	let fixture;
@@ -22,7 +27,7 @@ describe('Squoosh service', function () {
 		{
 			title: 'Local images',
 			id: '#social-jpg',
-			url: '/@astroimage/assets/social.jpg',
+			url: toAstroImage('src/assets/social.jpg'),
 			query: { f: 'jpg', w: '506', h: '253' },
 		},
 		{
