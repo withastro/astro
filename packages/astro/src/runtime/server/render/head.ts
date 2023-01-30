@@ -1,4 +1,5 @@
 import type { SSRResult } from '../../../@types/astro';
+import type { RenderHeadInstruction } from './types';
 
 import { markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
@@ -44,7 +45,7 @@ function renderAllHeadContent(result: SSRResult) {
 	}
 }
 
-export function createRenderHead(result: SSRResult) {
+export function createRenderHead(result: SSRResult): () => string {
 	result._metadata.hasRenderedHead = true;
 	return renderAllHeadContent.bind(null, result);
 }
@@ -55,9 +56,12 @@ export const renderHead = createRenderHead;
 // This accommodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export async function* maybeRenderHead(result: SSRResult) {
+export function* maybeRenderHead(result: SSRResult) {
 	if (result._metadata.hasRenderedHead) {
 		return;
 	}
-	yield createRenderHead(result)();
+
+	// This is an instruction informing the page rendering that head might need rendering.
+	// This allows the page to deduplicate head injections.
+	yield { type: 'head', result } as const;
 }
