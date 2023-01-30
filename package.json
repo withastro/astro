@@ -92,6 +92,7 @@
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
+    "jsdoc-api": "^8.0.0",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.7.0",

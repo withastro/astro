@@ -734,6 +734,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.syntaxHighlight
+		 * @category config
 		 * @type {'shiki' | 'prism' | false}
 		 * @default `shiki`
 		 * @description
