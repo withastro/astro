@@ -49,7 +49,7 @@ function* render(Component, attrs, slots) {
 
 	instance.connectedCallback();
 
-	yield `<${tagName}`;
+	yield `<${tagName} defer-hydration`;
 	yield* instance.renderAttributes();
 	yield `>`;
 	const shadowContents = instance.renderShadow({});
