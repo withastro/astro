@@ -4,6 +4,7 @@ import {
 	createComponent,
 	createHeadAndContent,
 	renderComponent,
+	renderScriptElement,
 	renderStyleElement,
 	renderTemplate,
 	renderUniqueStylesheet,
@@ -127,7 +128,8 @@ async function render({
 	const Content = createComponent({
 		factory(result, props, slots) {
 			let styles = '',
-				links = '';
+				links = '',
+				scripts = '';
 			if (Array.isArray(mod?.collectedStyles)) {
 				styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
 			}
@@ -140,9 +142,12 @@ async function render({
 					})
 					.join('');
 			}
+			if (Array.isArray(mod?.collectedScripts)) {
+				scripts = mod.collectedScripts.map((script: any) => renderScriptElement(script)).join('');
+			}
 
 			return createHeadAndContent(
-				unescapeHTML(styles + links) as any,
+				unescapeHTML(styles + links + scripts) as any,
 				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
 			);
 		},

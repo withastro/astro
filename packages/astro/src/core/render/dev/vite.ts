@@ -1,7 +1,7 @@
 import type { ModuleLoader, ModuleNode } from '../../module-loader/index';
 
 import npath from 'path';
-import { DELAYED_ASSET_FLAG } from '../../../content/consts.js';
+import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { unwrapId } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
@@ -23,7 +23,7 @@ export async function* crawlGraph(
 ): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<ModuleNode>();
-	if (new URL(id, 'file://').searchParams.has(DELAYED_ASSET_FLAG)) return;
+	if (new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) return;
 
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),

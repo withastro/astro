@@ -22,7 +22,7 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 });
 
 const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
-	query: { astroAssetSsr: true },
+	query: { astroPropagatedAssets: true },
 });
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,

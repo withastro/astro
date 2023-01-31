@@ -3,7 +3,7 @@ import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
 import glob from 'tiny-glob';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 type Options = {
 	mode: 'directory' | 'advanced';
@@ -89,9 +89,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:done': async ({ pages }) => {
-				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server)),
-					entryUrl = new URL(_buildConfig.serverEntry, _config.outDir),
-					buildPath = fileURLToPath(entryUrl);
+				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
+				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
+				const buildPath = fileURLToPath(entryUrl);
+				// A URL for the final build path after renaming
+				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
 				await esbuild.build({
 					target: 'es2020',
@@ -108,7 +110,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				});
 
 				// Rename to worker.js
-				await fs.promises.rename(buildPath, buildPath.replace(/\.mjs$/, '.js'));
+				await fs.promises.rename(buildPath, finalBuildUrl);
 
 				// throw the server folder in the bin
 				const serverUrl = new URL(_buildConfig.server);
@@ -204,7 +206,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const functionsUrl = new URL(`file://${process.cwd()}/functions/`);
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
-					await fs.promises.rename(entryUrl, directoryUrl);
+					await fs.promises.rename(finalBuildUrl, directoryUrl);
 				}
 			},
 		},
