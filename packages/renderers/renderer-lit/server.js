@@ -29,11 +29,31 @@ function* render(tagName, attrs, children) {
 
   // LitElementRenderer creates a new element instance, so copy over.
   const Ctr = getCustomElementConstructor(tagName);
-  for (let [name, value] of Object.entries(attrs)) {
-    // check if this is a reactive property
-    if (name in Ctr.prototype) {
-      instance.setProperty(name, value);
-    } else {
+
+  if (attrs) {
+    for (let [name, value] of Object.entries(attrs)) {
+      // Stringify every JSX bound object. This means that one cannot pass a
+      // non-stringifiable object as a bound JSX prop, e.g. an HTMLElement ref.
+      if (typeof value === 'object') {
+        value = JSON.stringify(value);
+      }
+
+      // Check if this is on the element prototype. In many cases it is probably
+      // a reactive property. If it's not, then we make the tradeoff that that
+      // property is not SSR-able without an additional script.
+      if (name in Ctr.prototype) {
+        if (typeof value === 'boolean') {
+          // Booleans are calculated with hasAttibute, so don't setAttribute if
+          // false
+          if (!value) {
+            continue;
+          }
+
+          value = '';
+        }
+      }
+
+      // Set the attribute no matter if it's a reactive property or not
       instance.setAttribute(name, value);
     }
   }
