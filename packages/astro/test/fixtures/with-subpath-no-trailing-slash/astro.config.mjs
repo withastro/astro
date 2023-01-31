@@ -1,6 +1,4 @@
 
 export default {
-  buildOptions: {
-    site: 'http://example.com/blog'
-  }
+	site: 'http://example.com',
 }

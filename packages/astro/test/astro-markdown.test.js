@@ -1,149 +1,152 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import * as cheerio from 'cheerio';
+import { loadFixture, fixLineEndings } from './test-utils.js';
+
+const FIXTURE_ROOT = './fixtures/astro-markdown/';
 
 describe('Astro Markdown', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({
-      projectRoot: './fixtures/astro-markdown/',
-      renderers: ['@astrojs/renderer-preact'],
-      buildOptions: {
-        sitemap: false,
-      },
-    });
-    await fixture.build();
-  });
+	before(async () => {
+		fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+		});
+		await fixture.build();
+	});
 
-  it('Can load markdown pages with Astro', async () => {
-    const html = await fixture.readFile('/post/index.html');
-    const $ = cheerio.load(html);
+	it('Exposes raw markdown content', async () => {
+		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
-    // test 1: There is a div added in markdown
-    expect($('#first').length).to.be.ok;
+		expect(fixLineEndings(raw).trim()).to.equal(
+			`# Basic page\n\nLets make sure raw and compiled content look right!`
+		);
+	});
 
-    // test 2: There is a div added via a component from markdown
-    expect($('#test').length).to.be.ok;
-  });
+	it('Exposes compiled HTML content', async () => {
+		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
-  it('Can load more complex jsxy stuff', async () => {
-    const html = await fixture.readFile('/complex/index.html');
-    const $ = cheerio.load(html);
+		expect(fixLineEndings(compiled).trim()).to.equal(
+			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`
+		);
+	});
 
-    expect($('#test').text()).to.equal('Hello world');
-  });
+	describe('syntax highlighting', async () => {
+		it('handles Shiki', async () => {
+			const html = await fixture.readFile('/code-in-md/index.html');
+			const $ = cheerio.load(html);
 
-  it('Empty code blocks do not fail', async () => {
-    const html = await fixture.readFile('/empty-code/index.html');
-    const $ = cheerio.load(html);
+			expect($('pre.astro-code').length).to.not.equal(0);
+		});
 
-    // test 1: There is not a `<code>` in the codeblock
-    expect($('pre')[0].children).to.have.lengthOf(1);
+		it('handles Prism', async () => {
+			const prismFixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'prism',
+				},
+			});
+			await prismFixture.build();
 
-    // test 2: The empty `<pre>` failed to render
-    expect($('pre')[1].children).to.have.lengthOf(0);
-  });
+			const html = await prismFixture.readFile('/code-in-md/index.html');
+			const $ = cheerio.load(html);
 
-  it('Runs code blocks through syntax highlighter', async () => {
-    const html = await fixture.readFile('/code/index.html');
-    const $ = cheerio.load(html);
+			expect($('pre.language-html').length).to.not.equal(0);
+		});
+	});
 
-    // test 1: There are child spans in code blocks
-    expect($('code span').length).greaterThan(0);
-  });
+	it('Passes frontmatter to layout via "content" and "frontmatter" props', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
 
-  it('Scoped styles should not break syntax highlight', async () => {
-    const html = await fixture.readFile('/scopedStyles-code/index.html');
-    const $ = cheerio.load(html);
+		const contentTitle = $('[data-content-title]');
+		const frontmatterTitle = $('[data-frontmatter-title]');
 
-    // test 1: <pre> tag has scopedStyle class passed down
-    expect($('pre').is('[class]')).to.equal(true);
-    expect($('pre').attr('class').split(' ').length).to.equal(2);
+		expect(contentTitle.text()).to.equal('With layout');
+		expect(frontmatterTitle.text()).to.equal('With layout');
+	});
 
-    // test 2: <pre> tag has correct language
-    expect($('pre').hasClass('language-js')).to.equal(true);
+	it('Passes headings to layout via "headings" prop', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
 
-    // test 3: <code> tag has correct language
-    expect($('code').hasClass('language-js')).to.equal(true);
+		const headingSlugs = [...$('body').find('[data-headings] > li')].map((el) => $(el).text());
 
-    // test 4: There are child spans in code blocks
-    expect($('code span').length).to.be.greaterThan(0);
-  });
+		expect(headingSlugs.length).to.be.greaterThan(0);
+		expect(headingSlugs).to.contain('section-1');
+		expect(headingSlugs).to.contain('section-2');
+	});
 
-  it('Renders correctly when deeply nested on a page', async () => {
-    const html = await fixture.readFile('/deep/index.html');
-    const $ = cheerio.load(html);
+	it('Passes compiled content to layout via "compiledContent" prop', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
 
-    // test 1: Rendered all children
-    expect($('#deep').children()).to.have.lengthOf(3);
+		const compiledContent = $('[data-compiled-content]');
 
-    // tests 2–4: Only rendered title in each section
-    expect($('.a').children()).to.have.lengthOf(1);
-    expect($('.b').children()).to.have.lengthOf(1);
-    expect($('.c').children()).to.have.lengthOf(1);
+		expect(fixLineEndings(compiledContent.text()).trim()).to.equal(
+			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`
+		);
+	});
 
-    // test 5–7: Rendered title in correct section
-    expect($('.a > h2').text()).to.equal('A');
-    expect($('.b > h2').text()).to.equal('B');
-    expect($('.c > h2').text()).to.equal('C');
-  });
+	it('Passes raw content to layout via "rawContent" prop', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
 
-  it('Renders dynamic content though the content attribute', async () => {
-    const html = await fixture.readFile('/external/index.html');
-    const $ = cheerio.load(html);
+		const rawContent = $('[data-raw-content]');
 
-    // test 1: Rendered markdown content
-    expect($('#outer')).to.have.lengthOf(1);
+		expect(fixLineEndings(rawContent.text()).trim()).to.equal(`## Section 1\n\n## Section 2`);
+	});
 
-    // test 2: Nested markdown content
-    expect($('#inner')).to.have.lengthOf(1);
+	it('Exposes getHeadings() on glob imports', async () => {
+		const { headings } = JSON.parse(await fixture.readFile('/headings-glob.json'));
 
-    // test 3: Scoped class passed down
-    expect($('#inner').is('[class]')).to.equal(true);
-  });
+		const headingSlugs = headings.map((heading) => heading?.slug);
 
-  it('Renders curly braces correctly', async () => {
-    const html = await fixture.readFile('/braces/index.html');
-    const $ = cheerio.load(html);
+		expect(headingSlugs).to.contain('section-1');
+		expect(headingSlugs).to.contain('section-2');
+	});
 
-    // test 1: Rendered curly braces markdown content
-    expect($('code')).to.have.lengthOf(3);
+	it('passes "file" and "url" to layout', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
 
-    // test 2: Rendered curly braces markdown content
-    expect($('code:first-child').text()).to.equal('({})');
+		const frontmatterFile = $('[data-frontmatter-file]')?.text();
+		const frontmatterUrl = $('[data-frontmatter-url]')?.text();
+		const file = $('[data-file]')?.text();
+		const url = $('[data-url]')?.text();
 
-    // test 3: Rendered curly braces markdown content
-    expect($('code:nth-child(2)').text()).to.equal('{...props}');
+		expect(frontmatterFile?.endsWith('with-layout.md')).to.equal(
+			true,
+			'"file" prop does not end with correct path or is undefined'
+		);
+		expect(frontmatterUrl).to.equal('/with-layout');
+		expect(file).to.equal(frontmatterFile);
+		expect(url).to.equal(frontmatterUrl);
+	});
 
-    // test 4: Rendered curly braces markdown content
-    expect($('code:last-child').text()).to.equal('{/* JavaScript */}');
-  });
+	describe('Vite env vars (#3412)', () => {
+		it('Allows referencing import.meta.env in content', async () => {
+			const html = await fixture.readFile('/vite-env-vars/index.html');
+			const $ = cheerio.load(html);
 
-  it('Does not close parent early when using content attribute (#494)', async () => {
-    const html = await fixture.readFile('/close/index.html');
-    const $ = cheerio.load(html);
+			// test 1: referencing an existing var name
+			expect($('code').eq(0).text()).to.equal('import.meta.env.SITE');
+			expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
+			expect($('code').eq(3).text()).to.contain('site: import.meta.env.SITE');
 
-    // test <Markdown content /> closed div#target early
-    expect($('#target').children()).to.have.lengthOf(2);
-  });
+			// // test 2: referencing a non-existing var name
+			expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
+			expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
+			expect($('code').eq(3).text()).to.contain('title: import.meta.env.TITLE');
 
-  it('Can render markdown with --- for horizontal rule', async () => {
-    const html = await fixture.readFile('/dash/index.html');
-    expect(!!html).to.equal(true);
-  });
-
-  it('Can render markdown content prop (#1259)', async () => {
-    const html = await fixture.readFile('/content/index.html');
-    const $ = cheerio.load(html);
-
-    // test Markdown rendered correctly via content prop
-    expect($('h1').text()).to.equal('Foo');
-  });
-
-  it("doesn't occurs TypeError when no elements", async () => {
-    const html = await fixture.readFile('/no-elements/index.html');
-    // render html without error
-    expect(html).to.be.ok;
-  });
+			// // test 3: referencing `import.meta.env` itself (without any var name)
+			expect($('code').eq(2).text()).to.equal('import.meta.env');
+			expect($('li').eq(2).text()).to.equal('import.meta.env');
+			expect($('code').eq(3).text()).to.contain('// Use Vite env vars with import.meta.env');
+		});
+		it('Allows referencing import.meta.env in frontmatter', async () => {
+			const { title = '' } = JSON.parse(await fixture.readFile('/vite-env-vars-glob.json'));
+			expect(title).to.contain('import.meta.env.SITE');
+			expect(title).to.contain('import.meta.env.TITLE');
+		});
+	});
 });

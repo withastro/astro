@@ -1,0 +1,28 @@
+---
+import ReactCounter from '../components/ReactCounter.jsx';
+import PreactCounter from '../components/PreactCounter.tsx';
+import SolidCounter from '../components/SolidCounter.tsx';
+import VueCounter from '../components/VueCounter.vue';
+import SvelteCounter from '../components/SvelteCounter.svelte';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	</head>
+	<body>
+		<main>
+			<ReactCounter id="react-counter" client:idle>
+				<PreactCounter id="preact-counter" client:idle>
+					<SolidCounter id="solid-counter" client:idle>
+						<SvelteCounter id="svelte-counter" client:idle>
+							<VueCounter id="vue-counter" client:idle />
+						</SvelteCounter>
+					</SolidCounter>
+				</PreactCounter>
+			</ReactCounter>
+		</main>
+	</body>
+</html>

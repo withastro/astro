@@ -1,0 +1,15 @@
+{
+  "include": ["src/*"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationDir": ".",
+    "strict": true,
+    "sourceMap": true,
+    "declarationMap": true
+  }
+}

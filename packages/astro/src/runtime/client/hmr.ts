@@ -1,38 +1,50 @@
+/// <reference types="vite/client" />
+
 if (import.meta.hot) {
-  const parser = new DOMParser();
-  import.meta.hot.on('astro:reload', async ({ html }: { html: string }) => {
-    const { default: morphdom } = await import('morphdom');
-    const doc = parser.parseFromString(html, 'text/html');
+	// Vite injects `<style type="text/css" data-vite-dev-id>` for ESM imports of styles
+	// but Astro also SSRs with `<style type="text/css" data-astro-dev-id>` blocks. This MutationObserver
+	// removes any duplicates as soon as they are hydrated client-side.
+	const injectedStyles = getInjectedStyles();
+	const mo = new MutationObserver((records) => {
+		for (const record of records) {
+			for (const node of record.addedNodes) {
+				if (isViteInjectedStyle(node)) {
+					injectedStyles.get(node.getAttribute('data-vite-dev-id')!)?.remove();
+				}
+			}
+		}
+	});
+	mo.observe(document.documentElement, { subtree: true, childList: true });
 
-    morphdom(document.head, doc.head, {
-      onBeforeElUpdated(fromEl, toEl) {
-        // Do not update identical tags
-        if (fromEl.isEqualNode(toEl)) {
-          return false;
-        }
+	// Vue `link` styles need to be manually refreshed in Firefox
+	import.meta.hot.on('vite:beforeUpdate', async (payload) => {
+		for (const file of payload.updates) {
+			if (file.acceptedPath.includes('vue&type=style')) {
+				const link = document.querySelector(`link[href="${file.acceptedPath}"]`);
+				if (link) {
+					link.replaceWith(link.cloneNode(true));
+				}
+			}
+		}
+	});
+}
 
-        // Do not update <link> or <script> tags
-        // to avoid re-fetching their contents
-        if (fromEl.tagName === toEl.tagName && (toEl.tagName === 'LINK' || toEl.tagName === 'SCRIPT')) {
-          return false;
-        }
+function getInjectedStyles() {
+	const injectedStyles = new Map<string, Element>();
+	document.querySelectorAll<HTMLStyleElement>('style[data-astro-dev-id]').forEach((el) => {
+		injectedStyles.set(el.getAttribute('data-astro-dev-id')!, el);
+	});
+	return injectedStyles;
+}
 
-        return true;
-      },
-    });
+function isStyle(node: Node): node is HTMLStyleElement {
+	return node.nodeType === node.ELEMENT_NODE && (node as Element).tagName.toLowerCase() === 'style';
+}
 
-    morphdom(document.body, doc.body, {
-      onBeforeElUpdated(fromEl, toEl) {
-        if (fromEl.localName === 'astro-root') {
-          return fromEl.getAttribute('uid') !== toEl.getAttribute('uid');
-        }
-
-        if (fromEl.isEqualNode(toEl)) {
-          return false;
-        }
-
-        return true;
-      },
-    });
-  });
+function isViteInjectedStyle(node: Node): node is HTMLStyleElement {
+	return (
+		isStyle(node) &&
+		node.getAttribute('type') === 'text/css' &&
+		!!node.getAttribute('data-vite-dev-id')
+	);
 }

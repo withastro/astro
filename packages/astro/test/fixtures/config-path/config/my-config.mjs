@@ -1,5 +1,6 @@
 export default {
-  renderers: [
-    '@astrojs/renderer-preact'
-  ]
+  server: {
+    host: true,
+    port: 8080,
+  },
 }

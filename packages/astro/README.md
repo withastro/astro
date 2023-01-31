@@ -1,52 +1,46 @@
-<img src="https://github.com/withastro/astro/blob/main/assets/social/banner.jpg?raw=true" />
+<br/>
+<p align="center">
+  <img src="../../assets/social/banner-minimal.png" alt="Astro logo">
+  <br/><br/>
+  <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
+  <br/>
+  powerful developer experience meets lightweight output.
+  <br/><br/>
+</p>
 
-**Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era. Use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default.
 
+## Install
 
-### [Announcement Post →](https://astro.build/blog/introducing-astro)
-
-### [Full Documentation Site →](https://docs.astro.build/)
-
-## Project Status
-
-⚠️ **Astro is still an early beta, missing features and bugs are to be expected!** If you can stomach it, then Astro-built sites are production ready and several production websites built with Astro already exist in the wild. We will update this note once we get closer to a stable, v1.0 release.
-
-## Quick Start
 
 ```bash
-# get started with astro in 3 easy steps:
-mkdir new-project-directory
-cd new-project-directory
-npm init astro
+# Recommended!
+npm create astro@latest
+
+# Manual:
+npm install --save-dev astro
 ```
 
-### [Full Documentation Site →](https://docs.astro.build/)
+Looking for help? Start with our [Getting Started](https://docs.astro.build/en/getting-started/) guide.  
+
+Looking for quick examples? [Open a starter project](https://astro.new/) right in your browser.
+
+## Documentation
+
+Visit our [official documentation](https://docs.astro.build/).
+
+## Support
+
+Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
+## Contributing
+
+**New contributors welcome!** Check out our [Contributors Guide](/CONTRIBUTING.md) for help getting started. 
+
+Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll help you get your first contribution in no time!
 
 ## Sponsors
 
-You can sponsor Astro's development on [Open Collective][oc]. Astro is generously supported by the following companies and individuals:
+Astro is generously supported by [Netlify](https://www.netlify.com/), [Vercel](https://vercel.com/), and several other amazing organizations [listed here.](https://astro.build/)
 
-### Platinum Sponsors
+[❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
-<table>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://www.netlify.com/#gh-light-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify.svg#gh-light-mode-only" alt="Netlify" /></a><a href="https://www.netlify.com/#gh-dark-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify-dark.svg#gh-dark-mode-only" alt="Netlify" />
-      </a></td>
-      <td align="center"><a href="https://www.vercel.com/#gh-light-mode-only" target="_blank"><img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel.svg#gh-light-mode-only" alt="Vercel" /></a><a href="https://www.vercel.com/#gh-dark-mode-only"><img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel-dark.svg#gh-dark-mode-only" alt="Vercel" />
-      </a></td>
-    </tr>
-  </tbody>
-</table>
 
-### Sponsors
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/sentry.svg" alt="Sentry" /></a></td>
-    </tr>
-  </tbody>
-</table>
-
-[oc]: https://opencollective.com/astrodotbuild

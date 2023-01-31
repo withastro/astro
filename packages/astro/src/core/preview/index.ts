@@ -1,92 +1,62 @@
-import type { AstroConfig } from '../../@types/astro';
-import type { LogOptions } from '../logger';
-
-import http from 'http';
-import { performance } from 'perf_hooks';
-import send from 'send';
-import { fileURLToPath } from 'url';
-import * as msg from '../dev/messages.js';
-import { error, info } from '../logger.js';
-import { subpathNotUsedTemplate } from '../dev/template/4xx.js';
+import type { AstroTelemetry } from '@astrojs/telemetry';
+import { createRequire } from 'module';
+import { pathToFileURL } from 'url';
+import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
+import type { LogOptions } from '../logger/core';
+import createStaticPreviewServer from './static-preview-server.js';
+import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
-  logging: LogOptions;
-}
-
-interface PreviewServer {
-  hostname: string;
-  port: number;
-  server: http.Server;
-  stop(): Promise<void>;
+	logging: LogOptions;
+	telemetry: AstroTelemetry;
 }
 
 /** The primary dev action */
-export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
-  const startServerTime = performance.now();
-  const base = config.buildOptions.site ? new URL(config.buildOptions.site).pathname : '/';
+export default async function preview(
+	_settings: AstroSettings,
+	{ logging }: PreviewOptions
+): Promise<PreviewServer> {
+	const settings = await runHookConfigSetup({
+		settings: _settings,
+		command: 'preview',
+		logging: logging,
+	});
+	await runHookConfigDone({ settings: settings, logging: logging });
 
-  // Create the preview server, send static files out of the `dist/` directory.
-  const server = http.createServer((req, res) => {
-    if (!req.url!.startsWith(base)) {
-      res.statusCode = 404;
-      res.end(subpathNotUsedTemplate(base, req.url!));
-      return;
-    }
+	if (settings.config.output === 'static') {
+		const server = await createStaticPreviewServer(settings, logging);
+		return server;
+	}
+	if (!settings.adapter) {
+		throw new Error(`[preview] No adapter found.`);
+	}
+	if (!settings.adapter.previewEntrypoint) {
+		throw new Error(
+			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`
+		);
+	}
+	// We need to use require.resolve() here so that advanced package managers like pnpm
+	// don't treat this as a dependency of Astro itself. This correctly resolves the
+	// preview entrypoint of the integration package, relative to the user's project root.
+	const require = createRequire(settings.config.root);
+	const previewEntrypointUrl = pathToFileURL(
+		require.resolve(settings.adapter.previewEntrypoint)
+	).href;
 
-    send(req, req.url!.substr(base.length - 1), {
-      root: fileURLToPath(config.dist),
-    }).pipe(res);
-  });
+	const previewModule = (await import(previewEntrypointUrl)) as Partial<PreviewModule>;
+	if (typeof previewModule.default !== 'function') {
+		throw new Error(`[preview] ${settings.adapter.name} cannot preview your app.`);
+	}
 
-  let port = config.devOptions.port;
-  const { hostname } = config.devOptions;
-  let httpServer: http.Server;
+	const server = await previewModule.default({
+		outDir: settings.config.outDir,
+		client: settings.config.build.client,
+		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
+		host: getResolvedHostForHttpServer(settings.config.server.host),
+		port: settings.config.server.port,
+		base: settings.config.base,
+	});
 
-  /** Expose dev server to `port` */
-  function startServer(timerStart: number): Promise<void> {
-    let showedPortTakenMsg = false;
-    let showedListenMsg = false;
-    return new Promise<void>((resolve, reject) => {
-      const listen = () => {
-        httpServer = server.listen(port, hostname, () => {
-          if (!showedListenMsg) {
-            info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
-            info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${base}` }));
-          }
-          showedListenMsg = true;
-          resolve();
-        });
-        httpServer?.on('error', onError);
-      };
-
-      const onError = (err: NodeJS.ErrnoException) => {
-        if (err.code && err.code === 'EADDRINUSE') {
-          if (!showedPortTakenMsg) {
-            info(logging, 'astro', msg.portInUse({ port }));
-            showedPortTakenMsg = true; // only print this once
-          }
-          port++;
-          return listen(); // retry
-        } else {
-          error(logging, 'astro', err.stack);
-          httpServer?.removeListener('error', onError);
-          reject(err); // reject
-        }
-      };
-
-      listen();
-    });
-  }
-
-  // Start listening on `hostname:port`.
-  await startServer(startServerTime);
-
-  return {
-    hostname,
-    port,
-    server: httpServer!,
-    stop: async () => {
-      httpServer.close();
-    },
-  };
+	return server;
 }

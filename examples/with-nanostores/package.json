@@ -1,21 +1,20 @@
 {
   "name": "@example/with-nanostores",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "@nanostores/preact": "^0.1.2",
-    "@nanostores/react": "^0.1.2",
-    "@nanostores/vue": "^0.4.1",
-    "nanostores": "^0.5.6"
-  },
-  "devDependencies": {
-    "@astrojs/renderer-solid": "^0.2.1",
-    "astro": "^0.21.8"
+    "astro": "^2.0.4",
+    "preact": "^10.7.3",
+    "@astrojs/preact": "^2.0.1",
+    "nanostores": "^0.5.12",
+    "@nanostores/preact": "^0.1.3"
   }
 }

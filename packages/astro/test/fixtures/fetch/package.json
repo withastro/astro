@@ -1,0 +1,14 @@
+{
+  "name": "@test/fetch",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "preact": "^10.11.0",
+    "svelte": "^3.48.0",
+    "vue": "^3.2.39"
+  }
+}

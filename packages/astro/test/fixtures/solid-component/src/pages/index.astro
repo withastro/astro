@@ -1,11 +1,19 @@
 ---
 import Hello from '../components/Hello.jsx';
+import WithNewlines from '../components/WithNewlines.jsx';
+import { Router } from "@solidjs/router";
+import ProxyComponent from '../components/ProxyComponent.jsx';
+import { Counter as DepCounter } from '@test/solid-jsx-component';
 ---
 <html>
 <head><title>Solid</title></head>
 <body>
   <div>
     <Hello client:load />
+		<WithNewlines client:load />
+    <Router />
+    <ProxyComponent client:load />
+    <DepCounter client:load />
   </div>
 </body>
 </html>

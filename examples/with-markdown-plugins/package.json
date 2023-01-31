@@ -1,18 +1,21 @@
 {
   "name": "@example/with-markdown-plugins",
+  "type": "module",
   "version": "0.0.2",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
-  "devDependencies": {
-    "astro": "^0.21.8",
-    "rehype-add-classes": "^1.0.0",
-    "rehype-autolink-headings": "^6.1.0",
-    "rehype-slug": "^5.0.0",
+  "dependencies": {
+    "astro": "^2.0.4",
+    "@astrojs/markdown-remark": "^2.0.1",
+    "hast-util-select": "5.0.1",
+    "rehype-autolink-headings": "^6.1.1",
+    "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2"
   }

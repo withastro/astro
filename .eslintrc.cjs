@@ -1,7 +1,7 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: ['plugin:@typescript-eslint/recommended', 'prettier'],
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'no-only-tests'],
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/camelcase': 'off',
@@ -12,9 +12,31 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-this-alias': 'off',
     'no-console': 'warn',
-    'no-shadow': 'error',
     'prefer-const': 'off',
-    // 'require-jsdoc': 'error', // re-enable this to enforce JSDoc for all functions
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+    'no-only-tests/no-only-tests': 'error',
   },
+  overrides: [
+    {
+      files: ['packages/**/test/*.js', 'packages/**/*.js'],
+      env: {
+        mocha: true,
+      },
+      globals: {
+        globalThis: false, // false means read-only
+      },
+      rules: {
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['packages/integrations/**/*.ts'],
+      rules: {
+        'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
+      },
+    },
+  ],
 };

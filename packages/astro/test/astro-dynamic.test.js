@@ -1,58 +1,80 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Dynamic components', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/' });
-    await fixture.build();
-  });
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-dynamic/',
+		});
+		await fixture.build();
+	});
 
-  it('Loads packages that only run code in client', async () => {
-    const html = await fixture.readFile('/index.html');
+	it('Loads packages that only run code in client', async () => {
+		const html = await fixture.readFile('/index.html');
 
-    const $ = cheerio.load(html);
-    expect($('script').length).to.eq(1);
-  });
+		const $ = cheerio.load(html);
+		expect($('script').length).to.eq(1);
+	});
 
-  it('Loads pages using client:media hydrator', async () => {
-    const root = new URL('http://example.com/media/index.html');
-    const html = await fixture.readFile('/media/index.html');
-    const $ = cheerio.load(html);
+	it('Loads pages using client:media hydrator', async () => {
+		const root = new URL('http://example.com/media/index.html');
+		const html = await fixture.readFile('/media/index.html');
+		const $ = cheerio.load(html);
 
-    // test 1: static value rendered
-    let js = await fixture.readFile(new URL($('script').attr('src'), root).pathname);
-    expect(js).to.include(`value:"(max-width: 700px)"`);
+		// test 1: static value rendered
+		expect($('script').length).to.equal(1);
+	});
 
-    // test 2: dynamic value rendered
-    expect(js).to.include(`value:"(max-width: 600px)"`);
-  });
+	it('Loads pages using client:only hydrator', async () => {
+		const html = await fixture.readFile('/client-only/index.html');
+		const $ = cheerio.load(html);
 
-  it('Loads pages using client:only hydrator', async () => {
-    const html = await fixture.readFile('/client-only/index.html');
-    const $ = cheerio.load(html);
+		// test 1: <astro-island> is empty.
+		expect($('astro-island').html()).to.equal('');
+		// test 2: component url
+		const href = $('astro-island').attr('component-url');
+		expect(href).to.include(`/PersistentCounter`);
+	});
+});
 
-    // test 1: <astro-root> is empty
-    expect($('<astro-root>').html()).to.equal('');
-    const script = $('script').text();
-    console.log(script);
+describe('Dynamic components subpath', () => {
+	let fixture;
 
-    // Grab the svelte import
-    // const exp = /import\("(.+?)"\)/g;
-    // let match, svelteRenderer;
-    // while ((match = exp.exec(result.contents))) {
-    //   if (match[1].includes('renderers/renderer-svelte/client.js')) {
-    //     svelteRenderer = match[1];
-    //   }
-    // }
+	before(async () => {
+		fixture = await loadFixture({
+			site: 'https://site.com',
+			base: '/blog',
+			root: './fixtures/astro-dynamic/',
+		});
+		await fixture.build();
+	});
 
-    // test 2: Svelte renderer is on the page
-    // expect(svelteRenderer).to.be.ok;
+	it('Loads packages that only run code in client', async () => {
+		const html = await fixture.readFile('/index.html');
 
-    // test 3: Can load svelte renderer
-    // const result = await fixture.fetch(svelteRenderer);
-    // expect(result.status).to.equal(200);
-  });
+		const $ = cheerio.load(html);
+		expect($('script').length).to.eq(1);
+	});
+
+	it('Loads pages using client:media hydrator', async () => {
+		const html = await fixture.readFile('/media/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: static value rendered
+		expect($('script').length).to.equal(1);
+	});
+
+	it('Loads pages using client:only hydrator', async () => {
+		const html = await fixture.readFile('/client-only/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: <astro-island> is empty.
+		expect($('astro-island').html()).to.equal('');
+		// test 2: has component url
+		const attr = $('astro-island').attr('component-url');
+		expect(attr).to.include(`blog/_astro/PersistentCounter`);
+	});
 });

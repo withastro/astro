@@ -1,3 +1,5 @@
 .solid {
-  appearance: none;
+	&.nested {
+		color: red;
+	}
 }

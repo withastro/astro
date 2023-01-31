@@ -1,0 +1,28 @@
+---
+import { Counter as ReactCounter } from '../components/ReactCounter.jsx';
+import { PreactCounter } from '../components/PreactCounter.tsx';
+import SolidCounter from '../components/SolidCounter.tsx';
+import VueCounter from '../components/VueCounter.vue';
+import SvelteCounter from '../components/SvelteCounter.svelte';
+
+// Full Astro Component Syntax:
+// https://docs.astro.build/core-concepts/astro-components/
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	</head>
+	<body>
+		<main>
+			<VueCounter id="vue-counter" client:load>
+				<ReactCounter id="react-counter" client:load />
+				<SolidCounter id="solid-counter" client:load />
+				<SvelteCounter id="svelte-counter" client:load />
+				<PreactCounter id="preact-counter" client:load />
+			</VueCounter>
+		</main>
+	</body>
+</html>

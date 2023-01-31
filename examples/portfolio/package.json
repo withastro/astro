@@ -1,14 +1,16 @@
 {
   "name": "@example/portfolio",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
-  "devDependencies": {
-    "astro": "^0.21.8"
+  "dependencies": {
+    "astro": "^2.0.4"
   }
 }

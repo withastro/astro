@@ -1,35 +1,27 @@
-import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
-
 /**
- * Hydrate this component when one of it's children becomes visible.
- * We target the children because `astro-root` is set to `display: contents`
+ * Hydrate this component when one of it's children becomes visible
+ * We target the children because `astro-island` is set to `display: contents`
  * which doesn't work with IntersectionObserver
  */
-export default async function onVisible(astroId: string, _options: HydrateOptions, getHydrateCallback: GetHydrateCallback) {
-  const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
-  const innerHTML = roots[0].querySelector(`astro-fragment`)?.innerHTML ?? null;
+(self.Astro = self.Astro || {}).visible = (getHydrateCallback, _opts, root) => {
+	const cb = async () => {
+		let hydrate = await getHydrateCallback();
+		await hydrate();
+	};
 
-  const cb = async () => {
-    const hydrate = await getHydrateCallback();
-    for (const root of roots) {
-      hydrate(root, innerHTML);
-    }
-  };
+	let io = new IntersectionObserver((entries) => {
+		for (const entry of entries) {
+			if (!entry.isIntersecting) continue;
+			// As soon as we hydrate, disconnect this IntersectionObserver for every `astro-island`
+			io.disconnect();
+			cb();
+			break; // break loop on first match
+		}
+	});
 
-  const io = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      // As soon as we hydrate, disconnect this IntersectionObserver for every `astro-root`
-      io.disconnect();
-      cb();
-      break; // break loop on first match
-    }
-  });
-
-  for (const root of roots) {
-    for (let i = 0; i < root.children.length; i++) {
-      const child = root.children[i];
-      io.observe(child);
-    }
-  }
-}
+	for (let i = 0; i < root.children.length; i++) {
+		const child = root.children[i];
+		io.observe(child);
+	}
+};
+window.dispatchEvent(new Event('astro:visible'));

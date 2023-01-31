@@ -1,0 +1,19 @@
+---
+import Markdown from '@astrojs/markdown-component';
+
+const outer = `# Outer`;
+const inner = `## Inner`;
+---
+
+<style>
+	#root { color: green; }
+</style>
+<div id="root">
+	<Markdown content={outer} />
+
+	<Markdown>
+		# Nested
+
+		<Markdown content={inner} />
+	</Markdown>
+</div>

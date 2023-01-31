@@ -5,7 +5,7 @@
 **With NPM:**
 
 ```bash
-npm init astro
+npm create astro@latest
 ```
 
 **With Yarn:**
@@ -18,10 +18,10 @@ yarn create astro
 
 ```bash
 # npm 6.x
-npm init astro my-astro-project --template starter
+npm create astro@latest my-astro-project --template starter
 
 # npm 7+, extra double-dash is needed:
-npm init astro my-astro-project -- --template starter
+npm create astro@latest my-astro-project -- --template starter
 
 # yarn
 yarn create astro my-astro-project --template starter
@@ -31,7 +31,7 @@ yarn create astro my-astro-project --template starter
 You can also use any GitHub repo as a template:
 
 ```bash
-npm init astro my-astro-project -- --template cassidoo/shopify-react-astro
+npm create astro@latest my-astro-project -- --template cassidoo/shopify-react-astro
 ```
 
 ### CLI Flags
@@ -42,5 +42,24 @@ May be provided in place of prompts
 |:-------------|:----------------------------------------------------|
 | `--template` | Specify the template name ([list][examples])        |
 | `--commit`   | Specify a specific Git commit or branch to use from this repo (by default, `main` branch of this repo will be used) |
+| `--fancy`    | For Windows users, `--fancy` will enable full unicode support |
+| `--typescript` | Specify the [tsconfig][typescript] to use            |
+| `--yes`/`-y` | Skip prompts and use default values                 |
+
+### Debugging
+
+To debug `create-astro`, you can use the `--verbose` flag which will log the output of degit and some more information about the command, this can be useful when you encounter an error and want to report it.
+
+```bash
+# npm 6.x
+npm create astro@latest my-astro-project --verbose
+
+# npm 7+, extra double-dash is needed:
+npm create astro@latest my-astro-project -- --verbose
+
+# yarn
+yarn create astro my-astro-project --verbose
+```
 
 [examples]: https://github.com/withastro/astro/tree/main/examples
+[typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs

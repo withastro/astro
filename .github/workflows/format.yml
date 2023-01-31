@@ -8,25 +8,30 @@ on:
 jobs:
   format:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
       - name: Check out code using Git
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-      - name: Set Node version to 16
-        uses: actions/setup-node@v2
+          # Needs access to push to main
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn --frozen-lockfile --ignore-engines
-        env:
-          CI: true
-      - run: yarn lerna run build --scope @astrojs/parser
+        run: pnpm install
       - name: Format code
-        run: yarn format
+        run: pnpm run format:ci
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: '[ci] yarn format'
+          commit_message: '[ci] format'
           branch: ${{ github.head_ref }}
+          commit_user_name: fredkbot
+          commit_user_email: fred+astrobot@astro.build

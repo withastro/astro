@@ -1,0 +1,22 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1 id="result">Loading...</h1>
+		<script>
+			// Non-HTML files will be included in your final build, so you
+			// can fetch them directly in the browser.
+			const response = await fetch(`/about.json`);
+			const data = await response.json();
+			const resultHeader = document.getElementById('result');
+
+			if (resultHeader) {
+				resultHeader.innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
+			}
+		</script>
+	</body>
+</html>

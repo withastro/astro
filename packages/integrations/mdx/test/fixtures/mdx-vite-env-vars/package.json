@@ -1,0 +1,7 @@
+{
+  "name": "@test/mdx-env-variables",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*"
+  }
+}

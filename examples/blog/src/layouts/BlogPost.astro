@@ -1,25 +1,47 @@
 ---
+import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
-import BlogHeader from '../components/BlogHeader.astro';
-import BlogPost from '../components/BlogPost.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
-const {content} = Astro.props;
-const {title, description, publishDate, author, heroImage, permalink, alt} = content;
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 ---
 
-<html lang={ content.lang || 'en' }>
-  <head>
-    <BaseHead title={title} description={description} permalink={permalink} />
-    <link rel="stylesheet" href={Astro.resolve('../styles/blog.css')} />
-  </head>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			.title {
+				font-size: 2em;
+				margin: 0.25em 0 0;
+			}
+			hr {
+				border-top: 1px solid #ddd;
+				margin: 1rem 0;
+			}
+		</style>
+	</head>
 
-  <body>
-    <BlogHeader />
-    <div class="wrapper">
-      <BlogPost title={title} author={author} heroImage={heroImage} publishDate={publishDate} alt={alt}>
-        <slot />
-      </BlogPost>
-    </div>
-  </body>
+	<body>
+		<Header />
+		<main>
+			<article>
+				{heroImage && <img width={720} height={360} src={heroImage} alt="" />}
+				<h1 class="title">{title}</h1>
+				{pubDate && <time>{pubDate}</time>}
+				{
+					updatedDate && (
+						<div>
+							Last updated on <time>{updatedDate}</time>
+						</div>
+					)
+				}
+				<hr />
+				<slot />
+			</article>
+		</main>
+		<Footer />
+	</body>
 </html>
-

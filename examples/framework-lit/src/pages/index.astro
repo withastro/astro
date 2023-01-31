@@ -1,19 +1,32 @@
 ---
 import Lorem from '../components/Lorem.astro';
-import '../components/Test.js';
-import '../components/Counter.js';
+import { CalcAdd } from '../components/calc-add.js';
+import { MyCounter } from '../components/my-counter.js';
+
+// Full Astro Component Syntax:
+// https://docs.astro.build/core-concepts/astro-components/
 ---
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <title>Demo</title>
-  </head>
-  <body>
-    <h1>Test app</h1>
-    <my-counter client:load />
-    <Lorem />
-    <calc-add num={33} />
-  </body>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>Demo</title>
+	</head>
+	<body>
+		<h1>Test app</h1>
+		<MyCounter client:load />
+		<Lorem />
+
+		{
+			/**
+			 * Our VS Code extension does not currently properly typecheck attributes on Lit components
+			 * As such, the following code will result in a TypeScript error inside the editor, nonetheless, it works in Astro!
+			 */
+		}
+		{/** @ts-expect-error */}
+		<CalcAdd num={0} />
+	</body>
 </html>
