@@ -10,6 +10,7 @@ import {
 	astroContentServerPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
+import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -107,6 +108,7 @@ export async function createVite(
 			astroContentVirtualModPlugin({ settings }),
 			astroContentServerPlugin({ fs, settings, logging, mode }),
 			astroContentAssetPropagationPlugin({ mode }),
+			astroAssetsPlugin({ settings, logging }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

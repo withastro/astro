@@ -243,6 +243,12 @@ importers:
       '@astrojs/node': link:../../packages/integrations/node
       astro: link:../../packages/astro
 
+  examples/images:
+    specifiers:
+      astro: ^2.0.4
+    dependencies:
+      astro: link:../../packages/astro
+
   examples/integration:
     specifiers:
       astro: ^2.0.4

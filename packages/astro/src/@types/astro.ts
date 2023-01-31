@@ -17,6 +17,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
+import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
@@ -1374,6 +1375,11 @@ export interface AstroIntegration {
 			routes: RouteData[];
 		}) => void | Promise<void>;
 	};
+}
+
+export interface AstroPluginOptions {
+	settings: AstroSettings;
+	logging: LogOptions;
 }
 
 export type RouteType = 'page' | 'endpoint';
