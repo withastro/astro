@@ -1,11 +1,12 @@
 import type { PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from '../../core/build/internal.js';
-import type { PluginMetadata as AstroPluginMetadata } from '../../vite-plugin-astro/types';
+import type { BuildInternals } from '../internal.js';
+import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
+import type { AstroBuildPlugin } from '../plugin.js';
 
-import { prependForwardSlash } from '../../core/path.js';
-import { getTopLevelPages } from './graph.js';
-import { getPageDataByViteID, trackClientOnlyPageDatas } from './internal.js';
+import { prependForwardSlash } from '../../path.js';
+import { getTopLevelPages } from '../graph.js';
+import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
 
 export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	function hoistedScriptScanner() {
@@ -120,5 +121,18 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 			// Finalize hoisting
 			hoistScanner.finalize();
 		},
+	};
+}
+
+export function pluginAnalyzer(internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin: vitePluginAnalyzer(internals)
+				};
+			}
+		}
 	};
 }

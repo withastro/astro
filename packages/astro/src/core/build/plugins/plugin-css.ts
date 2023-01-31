@@ -2,20 +2,21 @@ import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
-import { isCSSRequest } from '../render/util.js';
-import type { BuildInternals } from './internal';
-import type { PageBuildData, StaticBuildOptions } from './types';
+import { isCSSRequest } from '../../render/util.js';
+import type { BuildInternals } from '../internal';
+import type { PageBuildData, StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin';
 
-import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
-import * as assetName from './css-asset-name.js';
-import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
+import * as assetName from '../css-asset-name.js';
+import { moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
 	getPageDatasByClientOnlyID,
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
-} from './internal.js';
+} from '../internal.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -271,4 +272,23 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 			},
 		},
 	];
+}
+
+export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'both',
+		hooks: {
+			'build:before': ({ build }) => {
+				let plugins = rollupPluginAstroBuildCSS({
+					buildOptions: options,
+					internals,
+					target: build === 'ssr' ? 'server' : 'client'
+				});
+
+				return {
+					vitePlugin: plugins
+				};
+			}
+		}
+	}
 }

@@ -1,6 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types';
+import type { BuildInternals } from '../internal.js';
+import type { AstroBuildPlugin } from '../plugin.js';
+import type { StaticBuildOptions } from '../types';
 
 export function vitePluginPrerender(
 	opts: StaticBuildOptions,
@@ -39,5 +40,18 @@ export function vitePluginPrerender(
 				}
 			};
 		},
+	};
+}
+
+export function pluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin: vitePluginPrerender(opts, internals)
+				};
+			}
+		}
 	};
 }

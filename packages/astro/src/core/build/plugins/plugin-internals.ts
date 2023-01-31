@@ -1,5 +1,6 @@
 import type { Plugin as VitePlugin, UserConfig } from 'vite';
-import type { BuildInternals } from './internal.js';
+import type { BuildInternals } from '../internal.js';
+import type { AstroBuildPlugin } from '../plugin';
 
 export function vitePluginInternals(input: Set<string>, internals: BuildInternals): VitePlugin {
 	return {
@@ -58,5 +59,18 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 				}
 			}
 		},
+	};
+}
+
+export function pluginInternals(internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': ({ input }) => {
+				return {
+					vitePlugin: vitePluginInternals(input, internals)
+				};
+			}
+		}
 	};
 }
