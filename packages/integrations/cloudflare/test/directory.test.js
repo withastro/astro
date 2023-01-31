@@ -1,6 +1,5 @@
-import { loadFixture, runCLI } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import cloudflare from '../dist/index.js';
 
 describe('mode: "directory"', () => {
@@ -10,11 +9,16 @@ describe('mode: "directory"', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basics/',
+			output: 'server',
 			adapter: cloudflare({ mode: 'directory' }),
 		});
+		await fixture.build();
 	});
 
-	it('Builds', async () => {
-		await fixture.build();
+	it('generates the functions folder on under the config root', async () => {
+		// const functions = await fixture.readFile('/_routes.json')
+		// expect(routes.exclude).to.include('/one/');
+		console.log(await fixture.readdir('../../basics'));
+		expect(await fixture.pathExists('../functions')).to.be.true;
 	});
 });
