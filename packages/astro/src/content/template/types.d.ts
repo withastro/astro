@@ -48,6 +48,10 @@ declare module 'astro:content' {
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => entry is E
 	): Promise<E[]>;
+	export function getCollection<C extends keyof typeof entryMap>(
+		collection: C,
+		filter?: (entry: CollectionEntry<C>) => unknown
+	): Promise<CollectionEntry<C>[]>;
 
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
 		Required<ContentConfig['collections'][C]>['schema']

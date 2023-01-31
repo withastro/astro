@@ -1,5 +1,11 @@
 # create-astro
 
+## 2.0.2
+
+### Patch Changes
+
+- [#5953](https://github.com/withastro/astro/pull/5953) [`5c64324c0`](https://github.com/withastro/astro/commit/5c64324c0a1b06e836c3d53668940faca4cb517d) Thanks [@ZermattChris](https://github.com/ZermattChris)! - Check for a pre-existing .git directory and if found, skip trying to create a new one.
+
 ## 2.0.1
 
 ### Patch Changes

@@ -98,23 +98,23 @@ export interface TransformOptions {
 	 *
 	 * @default undefined The original image format will be used.
 	 */
-	format?: OutputFormat;
+	format?: OutputFormat | undefined;
 	/**
 	 * The compression quality used during optimization.
 	 *
 	 * @default undefined Allows the image service to determine defaults.
 	 */
-	quality?: number;
+	quality?: number | undefined;
 	/**
 	 * The desired width of the output image. Combine with `height` to crop the image
 	 * to an exact size, or `aspectRatio` to automatically calculate and crop the height.
 	 */
-	width?: number;
+	width?: number | undefined;
 	/**
 	 * The desired height of the output image. Combine with `height` to crop the image
 	 * to an exact size, or `aspectRatio` to automatically calculate and crop the width.
 	 */
-	height?: number;
+	height?: number | undefined;
 	/**
 	 * The desired aspect ratio of the output image. Combine with either `width` or `height`
 	 * to automatically calculate and crop the other dimension.
@@ -122,7 +122,7 @@ export interface TransformOptions {
 	 * @example 1.777 - numbers can be used for computed ratios, useful for doing `{width/height}`
 	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
 	 */
-	aspectRatio?: number | `${number}:${number}`;
+	aspectRatio?: number | `${number}:${number}` | undefined;
 	/**
 	 * The background color to use when converting from a transparent image format to a
 	 * non-transparent format. This is useful for converting PNGs to JPEGs.
@@ -131,19 +131,19 @@ export interface TransformOptions {
 	 * @example "#ffffff" - a hex color
 	 * @example "rgb(255, 255, 255)" - an rgb color
 	 */
-	background?: ColorDefinition;
+	background?: ColorDefinition | undefined;
 	/**
 	 * How the image should be resized to fit both `height` and `width`.
 	 *
 	 * @default 'cover'
 	 */
-	fit?: CropFit;
+	fit?: CropFit | undefined;
 	/**
 	 * Position of the crop when fit is `cover` or `contain`.
 	 *
 	 * @default 'centre'
 	 */
-	position?: CropPosition;
+	position?: CropPosition | undefined;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {

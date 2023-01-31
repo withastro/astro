@@ -112,8 +112,6 @@ declare module '*.mdx' {
 	export const url: MDX['url'];
 	export const getHeadings: MDX['getHeadings'];
 	export const Content: MDX['Content'];
-	export const rawContent: MDX['rawContent'];
-	export const compiledContent: MDX['compiledContent'];
 
 	const load: MDX['default'];
 	export default load;

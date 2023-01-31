@@ -28,6 +28,7 @@ export type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
+export type { AstroCookies } from '../core/cookies';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -1439,7 +1440,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	propagation: Map<string, PropagationHint>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<any>;
+	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

@@ -26,7 +26,7 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any):
 		let content = '';
 		let instructions: null | RenderInstruction[] = null;
 		for await (const chunk of iterator) {
-			if ((chunk as any).type === 'directive') {
+			if (typeof (chunk as any).type === 'string') {
 				if (instructions === null) {
 					instructions = [];
 				}

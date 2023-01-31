@@ -16,6 +16,7 @@ export {
 	renderHead,
 	renderHTMLElement,
 	renderPage,
+	renderScriptElement,
 	renderSlot,
 	renderStyleElement,
 	renderTemplate as render,

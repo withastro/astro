@@ -1,5 +1,16 @@
 # @astrojs/netlify
 
+## 2.1.0
+
+### Minor Changes
+
+- [#5874](https://github.com/withastro/astro/pull/5874) [`1c230f103`](https://github.com/withastro/astro/commit/1c230f10373ec392b6cdcd5c196ae932f89033aa) Thanks [@juanmiguelguerrero](https://github.com/juanmiguelguerrero)! - Add `builders` config option for Netlify On-demand Builders.
+
+### Patch Changes
+
+- Updated dependencies [[`b4432cd6b`](https://github.com/withastro/astro/commit/b4432cd6b65bad685a99fe15867710b0663c13b2), [`98a4a914b`](https://github.com/withastro/astro/commit/98a4a914bc47f3da2764b3bdc01577d25fe2e261), [`071e1dee7`](https://github.com/withastro/astro/commit/071e1dee7e1943be67d1ded39a9af1b7a2aafd02), [`322e059d0`](https://github.com/withastro/astro/commit/322e059d0da9ab0d6a546a111fabda755bd5f1b6), [`b994f6f35`](https://github.com/withastro/astro/commit/b994f6f35e29b2d93ff8ddc281a69c0af3cc3edf), [`12c68343c`](https://github.com/withastro/astro/commit/12c68343c0aa891037d39d3c9b9378b004be6642)]:
+  - astro@2.0.3
+
 ## 2.0.0
 
 ### Major Changes

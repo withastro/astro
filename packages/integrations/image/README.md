@@ -530,7 +530,7 @@ import heroImage from '../assets/hero.png';
 <Image src={heroImage} width={300} height={600} alt="descriptive text" />
 
 // cropping to a specific aspect ratio and converting to an avif format
-<Image src={heroImage} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={heroImage} width={300} aspectRatio="16:9" format="avif" alt="descriptive text" />
 
 // image imports can also be inlined directly
 <Image src={import('../assets/hero.png')} alt="descriptive text" />
