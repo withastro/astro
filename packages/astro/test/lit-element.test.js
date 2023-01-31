@@ -54,7 +54,7 @@ describe('LitElement test', function () {
 		);
 
 		// test 6: JSX binding to custom element attribute conversion
-		expect($('my-element').attr('obj')).to.equal('{"data": 1}');
+		expect($('my-element').attr('obj')).to.equal('{"data":1}');
     // true bool attribute conversion toggles attribute true
 		expect($('my-element').attr('bool')).to.equal('');
     // false bool attribute conversion doesn't set attribute
