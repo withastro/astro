@@ -75,7 +75,6 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 					}
 
 					vite.ssr = {
-						target: 'webworker',
 						noExternal: true,
 					};
 
