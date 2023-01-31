@@ -1,266 +1,210 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro';
-import type { LogOptions } from '../logger';
-import type { AllPagesData } from './types';
-import type { RenderedChunk } from 'rollup';
+import type { AstroTelemetry } from '@astrojs/telemetry';
+import type { AstroSettings, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
+import type { LogOptions } from '../logger/core';
 
-import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
-import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import vite, { ViteDevServer } from '../vite.js';
-import { fileURLToPath } from 'url';
-import { createVite, ViteConfigWithSSR } from '../create-vite.js';
-import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
-import { preload as ssrPreload } from '../ssr/index.js';
-import { generatePaginateFunction } from '../ssr/paginate.js';
-import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
-import { generateRssFunction } from '../ssr/rss.js';
-import { generateSitemap } from '../ssr/sitemap.js';
+import * as vite from 'vite';
+import {
+	runHookBuildDone,
+	runHookBuildStart,
+	runHookConfigDone,
+	runHookConfigSetup,
+} from '../../integrations/index.js';
+import { createVite } from '../create-vite.js';
+import { debug, info, levels, timerMessage } from '../logger/core.js';
+import { apply as applyPolyfill } from '../polyfill.js';
+import { RouteCache } from '../render/route-cache.js';
+import { createRouteManifest } from '../routing/index.js';
+import { collectPagesData } from './page-data.js';
+import { staticBuild } from './static-build.js';
+import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-  mode?: string;
-  logging: LogOptions;
+	mode?: RuntimeMode;
+	logging: LogOptions;
+	telemetry: AstroTelemetry;
 }
 
 /** `astro build` */
-export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
-  const builder = new AstroBuilder(config, options);
-  await builder.build();
+export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
+	applyPolyfill();
+	const builder = new AstroBuilder(settings, options);
+	await builder.run();
 }
 
 class AstroBuilder {
-  private config: AstroConfig;
-  private logging: LogOptions;
-  private mode = 'production';
-  private origin: string;
-  private routeCache: RouteCache = {};
-  private manifest: ManifestData;
-  private viteServer?: ViteDevServer;
-  private viteConfig?: ViteConfigWithSSR;
+	private settings: AstroSettings;
+	private logging: LogOptions;
+	private mode: RuntimeMode = 'production';
+	private origin: string;
+	private routeCache: RouteCache;
+	private manifest: ManifestData;
+	private timer: Record<string, number>;
 
-  constructor(config: AstroConfig, options: BuildOptions) {
-    if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
-      warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
-    }
+	constructor(settings: AstroSettings, options: BuildOptions) {
+		if (options.mode) {
+			this.mode = options.mode;
+		}
+		this.settings = settings;
+		this.logging = options.logging;
+		this.routeCache = new RouteCache(this.logging);
+		this.origin = settings.config.site
+			? new URL(settings.config.site).origin
+			: `http://localhost:${settings.config.server.port}`;
+		this.manifest = { routes: [] };
+		this.timer = {};
+	}
 
-    if (options.mode) this.mode = options.mode;
-    this.config = config;
-    const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
-    this.logging = options.logging;
-    this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
-    this.manifest = createRouteManifest({ config }, this.logging);
-  }
+	/** Setup Vite and run any async setup logic that couldn't run inside of the constructor. */
+	private async setup() {
+		debug('build', 'Initial setup...');
+		const { logging } = this;
+		this.timer.init = performance.now();
+		this.settings = await runHookConfigSetup({
+			settings: this.settings,
+			command: 'build',
+			logging,
+		});
+		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
 
-  async build() {
-    const { logging, origin } = this;
-    const timer: Record<string, number> = {};
-    timer.init = performance.now();
-    timer.viteStart = performance.now();
-    const viteConfig = await createVite(
-      vite.mergeConfig(
-        {
-          mode: this.mode,
-          server: {
-            hmr: { overlay: false },
-            middlewareMode: 'ssr',
-          },
-        },
-        this.config.vite || {}
-      ),
-      { astroConfig: this.config, logging }
-    );
-    this.viteConfig = viteConfig;
-    const viteServer = await vite.createServer(viteConfig);
-    this.viteServer = viteServer;
-    debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
+		const viteConfig = await createVite(
+			{
+				mode: this.mode,
+				server: {
+					hmr: false,
+					middlewareMode: true,
+				},
+			},
+			{ settings: this.settings, logging, mode: 'build' }
+		);
+		await runHookConfigDone({ settings: this.settings, logging });
+		return { viteConfig };
+	}
 
-    timer.loadStart = performance.now();
-    const assets: Record<string, string> = {};
-    const allPages: AllPagesData = {};
-    // Collect all routes ahead-of-time, before we start the build.
-    // NOTE: This enforces that `getStaticPaths()` is only called once per route,
-    // and is then cached across all future SSR builds. In the past, we've had trouble
-    // with parallelized builds without guaranteeing that this is called first.
-    await Promise.all(
-      this.manifest.routes.map(async (route) => {
-        // static route:
-        if (route.pathname) {
-          allPages[route.component] = {
-            route,
-            paths: [route.pathname],
-            preload: await ssrPreload({
-              astroConfig: this.config,
-              filePath: new URL(`./${route.component}`, this.config.projectRoot),
-              logging,
-              mode: 'production',
-              origin,
-              pathname: route.pathname,
-              route,
-              routeCache: this.routeCache,
-              viteServer,
-            })
-              .then((routes) => {
-                const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-                debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
-                return routes;
-              })
-              .catch((err) => {
-                debug(logging, 'build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
-                throw err;
-              }),
-          };
-          return;
-        }
-        // dynamic route:
-        const result = await this.getStaticPathsForRoute(route)
-          .then((routes) => {
-            const label = routes.paths.length === 1 ? 'page' : 'pages';
-            debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${routes.paths.length} ${label}]`)}`);
-            return routes;
-          })
-          .catch((err) => {
-            debug(logging, 'build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-            throw err;
-          });
-        if (result.rss?.xml) {
-          const rssFile = new URL(result.rss.url.replace(/^\/?/, './'), this.config.dist);
-          if (assets[fileURLToPath(rssFile)]) {
-            throw new Error(`[getStaticPaths] RSS feed ${result.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
-          }
-          assets[fileURLToPath(rssFile)] = result.rss.xml;
-        }
-        allPages[route.component] = {
-          route,
-          paths: result.paths,
-          preload: await ssrPreload({
-            astroConfig: this.config,
-            filePath: new URL(`./${route.component}`, this.config.projectRoot),
-            logging,
-            mode: 'production',
-            origin,
-            pathname: result.paths[0],
-            route,
-            routeCache: this.routeCache,
-            viteServer,
-          }),
-        };
-      })
-    );
-    debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
+	/** Run the build logic. build() is marked private because usage should go through ".run()" */
+	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
+		const buildConfig: BuildConfig = {
+			client: this.settings.config.build.client,
+			server: this.settings.config.build.server,
+			serverEntry: this.settings.config.build.serverEntry,
+		};
+		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
+		this.validateConfig();
 
-    // Pure CSS chunks are chunks that only contain CSS.
-    // This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
-    const pureCSSChunks = new Set<RenderedChunk>();
-    const chunkToReferenceIdMap = new Map<string, string>();
+		info(this.logging, 'build', `output target: ${colors.green(this.settings.config.output)}`);
+		if (this.settings.adapter) {
+			info(this.logging, 'build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
+		}
+		info(this.logging, 'build', 'Collecting build info...');
+		this.timer.loadStart = performance.now();
+		const { assets, allPages } = await collectPagesData({
+			settings: this.settings,
+			logging: this.logging,
+			manifest: this.manifest,
+		});
 
-    // This is a mapping of pathname to the string source of all collected
-    // inline <style> for a page.
-    const astroStyleMap = new Map<string, string>();
-    // This is a virtual JS module that imports all dependent styles for a page.
-    const astroPageStyleMap = new Map<string, string>();
+		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
-    const pageNames: string[] = [];
+		// The names of each pages
+		const pageNames: string[] = [];
 
-    // Bundle the assets in your final build: This currently takes the HTML output
-    // of every page (stored in memory) and bundles the assets pointed to on those pages.
-    timer.buildStart = performance.now();
-    await vite.build({
-      logLevel: 'error',
-      mode: 'production',
-      build: {
-        emptyOutDir: true,
-        minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
-        outDir: fileURLToPath(this.config.dist),
-        rollupOptions: {
-          // The `input` will be populated in the build rollup plugin.
-          input: [],
-          output: { format: 'esm' },
-        },
-        target: 'es2020', // must match an esbuild target
-      },
-      plugins: [
-        rollupPluginAstroBuildHTML({
-          astroConfig: this.config,
-          astroPageStyleMap,
-          astroStyleMap,
-          chunkToReferenceIdMap,
-          pureCSSChunks,
-          logging,
-          origin,
-          allPages,
-          pageNames,
-          routeCache: this.routeCache,
-          viteServer,
-        }),
-        rollupPluginAstroBuildCSS({
-          astroPageStyleMap,
-          astroStyleMap,
-          chunkToReferenceIdMap,
-          pureCSSChunks,
-        }),
-        ...(viteConfig.plugins || []),
-      ],
-      publicDir: viteConfig.publicDir,
-      root: viteConfig.root,
-      envPrefix: 'PUBLIC_',
-      server: viteConfig.server,
-      base: this.config.buildOptions.site ? new URL(this.config.buildOptions.site).pathname : '/',
-    });
-    debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
+		// Bundle the assets in your final build: This currently takes the HTML output
+		// of every page (stored in memory) and bundles the assets pointed to on those pages.
+		this.timer.buildStart = performance.now();
+		info(
+			this.logging,
+			'build',
+			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
+		);
 
-    // Write any additionally generated assets to disk.
-    timer.assetsStart = performance.now();
-    Object.keys(assets).map((k) => {
-      if (!assets[k]) return;
-      const filePath = new URL(`file://${k}`);
-      fs.mkdirSync(new URL('./', filePath), { recursive: true });
-      fs.writeFileSync(filePath, assets[k], 'utf8');
-      delete assets[k]; // free up memory
-    });
-    debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
+		await staticBuild({
+			allPages,
+			settings: this.settings,
+			logging: this.logging,
+			manifest: this.manifest,
+			mode: this.mode,
+			origin: this.origin,
+			pageNames,
+			routeCache: this.routeCache,
+			viteConfig,
+			buildConfig,
+		});
 
-    // Build your final sitemap.
-    timer.sitemapStart = performance.now();
-    if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
-      const sitemap = generateSitemap(pageNames.map((pageName) => new URL(`/${pageName}`, this.config.buildOptions.site).href));
-      const sitemapPath = new URL('./sitemap.xml', this.config.dist);
-      await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
-      await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
-    }
-    debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
+		// Write any additionally generated assets to disk.
+		this.timer.assetsStart = performance.now();
+		Object.keys(assets).map((k) => {
+			if (!assets[k]) return;
+			const filePath = new URL(`file://${k}`);
+			fs.mkdirSync(new URL('./', filePath), { recursive: true });
+			fs.writeFileSync(filePath, assets[k], 'utf8');
+			delete assets[k]; // free up memory
+		});
+		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
-    // You're done! Time to clean up.
-    await viteServer.close();
-    if (logging.level && levels[logging.level] <= levels['info']) {
-      await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length });
-    }
-  }
+		// You're done! Time to clean up.
+		await runHookBuildDone({
+			config: this.settings.config,
+			buildConfig,
+			pages: pageNames,
+			routes: Object.values(allPages).map((pd) => pd.route),
+			logging: this.logging,
+		});
 
-  /** Extract all static paths from a dynamic route */
-  private async getStaticPathsForRoute(route: RouteData): Promise<{ paths: string[]; rss?: RSSResult }> {
-    if (!this.viteServer) throw new Error(`vite.createServer() not called!`);
-    const filePath = new URL(`./${route.component}`, this.config.projectRoot);
-    const mod = (await this.viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-    validateGetStaticPathsModule(mod);
-    const rss = generateRssFunction(this.config.buildOptions.site, route);
-    const staticPaths: GetStaticPathsResult = (await mod.getStaticPaths!({ paginate: generatePaginateFunction(route), rss: rss.generator })).flat();
-    this.routeCache[route.component] = staticPaths;
-    validateGetStaticPathsResult(staticPaths, this.logging);
-    return {
-      paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),
-      rss: rss.rss,
-    };
-  }
+		if (this.logging.level && levels[this.logging.level] <= levels['info']) {
+			await this.printStats({
+				logging: this.logging,
+				timeStart: this.timer.init,
+				pageCount: pageNames.length,
+				buildMode: this.settings.config.output,
+			});
+		}
+	}
 
-  /** Stats */
-  private async printStats({ logging, timeStart, pageCount }: { logging: LogOptions; timeStart: number; pageCount: number }) {
-    /* eslint-disable no-console */
-    debug(logging, ''); // empty line for debug
-    const buildTime = performance.now() - timeStart;
-    const total = buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
-    const perPage = `${Math.round(buildTime / pageCount)}ms`;
-    info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${perPage}/page)`)}`);
-    info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
-  }
+	/** Build the given Astro project.  */
+	async run() {
+		const setupData = await this.setup();
+		try {
+			await this.build(setupData);
+		} catch (_err) {
+			throw _err;
+		}
+	}
+
+	private validateConfig() {
+		const { config } = this.settings;
+
+		// outDir gets blown away so it can't be the root.
+		if (config.outDir.toString() === config.root.toString()) {
+			throw new Error(
+				`the outDir cannot be the root folder. Please build to a folder such as dist.`
+			);
+		}
+	}
+
+	/** Stats */
+	private async printStats({
+		logging,
+		timeStart,
+		pageCount,
+		buildMode,
+	}: {
+		logging: LogOptions;
+		timeStart: number;
+		pageCount: number;
+		buildMode: 'static' | 'server';
+	}) {
+		const total = getTimeStat(timeStart, performance.now());
+
+		let messages: string[] = [];
+		if (buildMode === 'static') {
+			messages = [`${pageCount} page(s) built in`, colors.bold(total)];
+		} else {
+			messages = ['Server built in', colors.bold(total)];
+		}
+
+		info(logging, 'build', messages.join(' '));
+		info(logging, 'build', `${colors.bold('Complete!')}`);
+	}
 }

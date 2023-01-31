@@ -7,58 +7,98 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
-    "release": "yarn build:all && changeset publish",
-    "benchmark": "yarn workspace astro run benchmark",
-    "build": "yarn build:core",
-    "build:one": "lerna run build --scope",
-    "build:all": "lerna run build --scope \"{astro,create-astro,@astrojs/*}\"",
-    "build:core": "lerna run build --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\"",
-    "dev": "yarn dev:core --parallel --stream",
-    "dev:one": "lerna run dev --scope --parallel --stream",
-    "dev:all": "lerna run dev --scope \"{astro,create-astro,@astrojs/*}\" --parallel --stream",
-    "dev:core": "lerna run dev --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\" --parallel --stream",
-    "format": "prettier -w .",
-    "lint": "eslint \"packages/**/*.ts\"",
-    "test": "yarn workspace astro run test",
-    "test:templates": "lerna run test --scope create-astro --stream"
+    "release": "pnpm run build && changeset publish",
+    "build": "turbo run build --output-logs=new-only --no-deps --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
+    "build:ci": "turbo run build:ci --output-logs=new-only --no-deps --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
+    "build:examples": "turbo run build --filter=\"@example/*\"",
+    "dev": "turbo run dev --no-deps --no-cache --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
+    "format": "pnpm run format:code",
+    "format:ci": "pnpm run format:imports && pnpm run format:code",
+    "format:code": "prettier -w . --cache --plugin-search-dir=.",
+    "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
+    "test": "turbo run test --output-logs=new-only --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
+    "test:match": "cd packages/astro && pnpm run test:match",
+    "test:smoke": "turbo run build --filter=\"@example/*\" --filter=\"docs\" --output-logs=new-only --concurrency=1",
+    "test:check-examples": "node ./scripts/smoke/check.js",
+    "test:vite-ci": "turbo run test --filter=astro --output-logs=new-only --no-deps --concurrency=1",
+    "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
+    "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
+    "benchmark": "pnpm --filter @benchmark/simple run build && pnpm dlx concurrently -k -s first --raw \"node packages/astro/test/benchmark/simple/server.mjs\" \"pnpm dlx autocannon -c 100 -d 30 -p 10 localhost:3002/\"",
+    "lint": "eslint --cache .",
+    "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
+    "preinstall": "npx only-allow pnpm"
   },
   "workspaces": [
-    "compiled/*",
     "packages/markdown/*",
-    "packages/renderers/*",
+    "packages/integrations/*",
     "packages/*",
     "examples/*",
+    "examples/component/demo",
     "scripts",
-    "www",
-    "docs",
-    "packages/astro/test/fixtures/builtins/packages/*",
-    "packages/astro/test/fixtures/builtins-polyfillnode",
-    "packages/astro/test/fixtures/custom-elements/my-component-lib"
+    "packages/astro/test/fixtures/component-library-shared",
+    "packages/astro/test/fixtures/custom-elements/my-component-lib",
+    "packages/astro/test/fixtures/static build/pkg"
   ],
-  "volta": {
-    "node": "14.17.0",
-    "npm": "7.11.2",
-    "yarn": "1.22.10"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@changesets/changelog-github": "^0.4.2",
-    "@changesets/cli": "^2.16.0",
-    "@octokit/action": "^3.15.4",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "del": "^6.0.0",
-    "esbuild": "0.13.7",
-    "eslint": "^8.0.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "execa": "^5.0.0",
-    "lerna": "^4.0.0",
-    "prettier": "^2.4.1",
-    "tiny-glob": "^0.2.8",
-    "typescript": "4.4.4"
-  },
   "engines": {
-    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    "node": "^14.18.0 || >=16.12.0",
+    "pnpm": ">=7.9.5"
+  },
+  "packageManager": "pnpm@7.12.2",
+  "pnpm": {
+    "packageExtensions": {
+      "svelte2tsx": {
+        "peerDependenciesMeta": {
+          "typescript": {
+            "optional": true
+          }
+        }
+      }
+    },
+    "overrides": {
+      "tsconfig-resolver>type-fest": "3.0.0"
+    },
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "rollup",
+        "@babel/core",
+        "@babel/plugin-transform-react-jsx",
+        "vite",
+        "react",
+        "react-dom",
+        "@types/react"
+      ],
+      "allowAny": [
+        "astro"
+      ]
+    },
+    "patchedDependencies": {
+      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch"
+    }
+  },
+  "dependencies": {
+    "@astrojs/webapi": "workspace:*"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "0.4.4",
+    "@changesets/cli": "2.23.0",
+    "@octokit/action": "^3.18.1",
+    "@types/node": "^18.7.21",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
+    "del": "^7.0.0",
+    "esbuild": "^0.15.18",
+    "eslint": "^8.17.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-no-only-tests": "^2.6.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "execa": "^6.1.0",
+    "only-allow": "^1.1.1",
+    "organize-imports-cli": "^0.10.0",
+    "prettier": "^2.7.0",
+    "prettier-plugin-astro": "^0.7.0",
+    "pretty-bytes": "^6.0.0",
+    "tiny-glob": "^0.2.9",
+    "turbo": "1.2.5",
+    "typescript": "~4.7.3"
   }
 }

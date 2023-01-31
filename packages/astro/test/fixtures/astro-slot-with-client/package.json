@@ -1,0 +1,8 @@
+{
+  "name": "@test/astro-slot-with-client",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/preact": "workspace:*",
+    "preact": "^10.11.0"
+  }
+}

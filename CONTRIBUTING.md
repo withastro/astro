@@ -10,28 +10,41 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisite
 
 ```shell
-node: "^12.20.0 || ^14.13.1 || >=16.0.0"
-yarn: "^1.22.10"
+node: "^14.18.0 || >=16.12.0"
+pnpm: "^7.5.0"
 # otherwise, your build will fail
 ```
 
 ### Setting up your local repo
 
-Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo.
+Astro uses pnpm workspaces, so you should **always run `pnpm install` from the top-level project directory.** running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
 
 ```shell
 git clone && cd ...
-yarn install
-yarn build:all
+pnpm install
+pnpm run build
+```
+
+In [#2254](https://github.com/withastro/astro/pull/2254) a `.git-blame-ignore-revs` file was added to ignore repo-wide formatting changes. To improve your experience, you should run the following command locally.
+
+```shell
+git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+To automatically handle merge conflicts in `pnpm-lock.yaml`, you should run the following commands locally.
+
+```shell
+pnpm add -g @pnpm/merge-driver
+pnpx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-merge-driver %A %O %B %P" --files pnpm-lock.yaml
 ```
 
 ### Development
 
 ```shell
 # starts a file-watching, live-reloading dev script for active development
-yarn dev
+pnpm run dev
 # build the entire project, one time.
-yarn build
+pnpm run build
 ```
 
 #### Debugging Vite
@@ -47,32 +60,53 @@ DEBUG=vite:[name] astro dev   # debug specific process, e.g. "vite:deps" or "vit
 
 ```shell
 # run this in the top-level project root to run all tests
-yarn test
-# run only a few tests, great for working on a single feature
-# (example - `yarn test -g "RSS"` runs `astro-rss.test.js`)
-yarn test -g "$STRING_MATCH"
+pnpm run test
+# run only a few tests in the `astro` package, great for working on a single feature
+# (example - `pnpm run test:match "cli"` runs `cli.test.js`)
+pnpm run test:match "$STRING_MATCH"
+# run tests on another package
+# (example - `pnpm --filter @astrojs/rss run test` runs `packages/astro-rss/test/rss.test.js`)
+pnpm --filter $STRING_MATCH run test
 ```
+
+#### E2E tests
+
+Certain features, like HMR and client hydration, need end-to-end tests to verify functionality in the dev server. [Playwright](https://playwright.dev/) is used to test against the dev server.
+
+```shell
+# run this in the top-level project root to run all E2E tests
+pnpm run test:e2e
+# run only a few tests, great for working on a single feature
+# (example - `pnpm run test:e2e:match "Tailwind CSS" runs `tailwindcss.test.js`)
+pnpm run test:e2e:match "$STRING_MATCH"
+```
+
+**When should you add E2E tests?**
+
+Any tests for `astro build` output should use the main `mocha` tests rather than E2E - these tests will run faster than having Playwright start the `astro preview` server.
+
+If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
 
 ### Other useful commands
 
 ```shell
 # auto-format the entire project
 # (optional - a GitHub Action formats every commit after a PR is merged)
-yarn format
+pnpm run format
 ```
 
 ```shell
 # lint the project
 # (optional - our linter creates helpful warnings, but not errors.)
-yarn lint
+pnpm run lint
 ```
 
 ### Making a Pull Request
 
-When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`, `docs/*`, and `www/*`) do not need changesets.
+When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`) do not need changesets.
 
 ```shell
-yarn changeset
+pnpm exec changeset
 ```
 
 ### Running benchmarks
@@ -80,7 +114,7 @@ yarn changeset
 We have benchmarks to keep performance under control. You can run these by running (from the project root):
 
 ```shell
-yarn workspace astro run benchmark
+pnpm run benchmark --filter astro
 ```
 
 Which will fail if the performance has regressed by **10%** or more.
@@ -118,9 +152,24 @@ There are 3 contexts in which code executes:
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
 
+## Branches
+
+### `main`
+
+Active Astro development happens on the [`main`](https://github.com/withastro/astro/tree/main) branch. `main` always reflects the latest code.
+
+> **Note:**
+> During certain periods, we put `main` into a [**prerelease**](https://github.com/changesets/changesets/blob/main/docs/prereleases.md#prereleases) state. Read more about [Releasing Astro](#releasing-astro).
+
+### `latest`
+
+The **stable** release of Astro can always be found on the [`latest`](https://github.com/withastro/astro/tree/latest) branch. `latest` is automatically updated every time we publish a stable (not prerelease) version of Astro.
+
+By default, `create-astro` and [astro.new](https://astro.new) point to this branch.
+
 ## Releasing Astro
 
-_Note: Only priviledged contributors (L3+) can release new versions of Astro._
+_Note: Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core-maintainer) can release new versions of Astro._
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
@@ -130,20 +179,27 @@ To release a new version of Astro, find the `Version Packages` PR, read it over,
 
 Our release tool `changeset` has a feature for releasing "snapshot" releases from a PR or custom branch. These are npm package publishes that live temporarily, so that you can give users a way to test a PR before merging. This can be a great way to get early user feedback while still in the PR review process.
 
+To run `changeset version` locally, you'll need to create a GitHub [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set it as a `GITHUB_TOKEN` environment variable.
+
 To release a snapshot, run the following locally:
 
 ```shell
-# Note: XXX should be a keyword to identify this release. Ex: `--snapshot routing` & `--tag next--routing`
+# Notes:
+# - YYY should be a keyword to identify this release. Ex: `--snapshot routing` & `--tag next--routing`
+# - Use npm/npx instead of pnpm, since npm handles registry login, authentication and publishing.
+# - Adding GITHUB_TOKEN in the command adds that token to your bash history. Set a short expiration!
 
-# 1:
-yarn changeset version --snapshot XXX
-# 2: (Manual) review the diff, and make sure that you're not releasing more than you need to.
-git checkout -- examples/ docs/ www/
-# 3:
-yarn release --tag next--XXX
-# 4: (Manual) review the publish, and if you're happy then you can throw out all local changes
+# 1: Tag the new release versions
+GITHUB_TOKEN=XXX npx changeset version --snapshot YYY
+# 2: Review the diff, and make sure that you're not releasing more than you need to.
+git checkout -- examples/
+# 3: Release
+npm run release --tag next--YYY
+# 4: If you're satisfied, you can now throw out all local changes
 git reset --hard
 ```
+
+By default, every package with a changeset will be released. If you only want to target a smaller subset of packages for release, you can consider clearing out the `.changesets` directory to replace all existing changesets with a single changeset of only the packages that you want to release. Just be sure not to commit or push this to `main`, since it will destroy existing changesets that you will still want to eventually release.
 
 Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
 
@@ -159,7 +215,7 @@ Full documentation: https://github.com/atlassian/changesets/blob/main/docs/prere
 
 If you have gotten permission from the core contributors, you can enter into prerelease mode by following the following steps:
 
-- Run: `yarn changeset pre enter next` in the project root
+- Run: `pnpm exec changeset pre enter next` in the project root
 - Create a new PR from the changes created by this command
 - Review, approve, and more the PR to enter prerelease mode.
 - If successful, The "Version Packages" PR (if one exists) will now say "Version Packages (next)".
@@ -168,7 +224,7 @@ If you have gotten permission from the core contributors, you can enter into pre
 
 Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor run these steps. These steps should be run before
 
-- Run: `yarn changeset pre exit` in the project root
+- Run: `pnpm exec changeset pre exit` in the project root
 - Create a new PR from the changes created by this command.
 - Review, approve, and more the PR to enter prerelease mode.
 - If successful, The "Version Packages (next)" PR (if one exists) will now say "Version Packages".
@@ -181,37 +237,16 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Create a new `release/0.X` branch, if none exists.
 1. Point `release/0.X` to the latest commit for the `v0.X` version.
 1. `git cherry-pick` commits from `main`, as needed.
-1. Make sure that all changesets for the new release are included. You can create some manually (via `yarn changeset`) if needed.
-1. Run `yarn changeset version` to create your new release.
-1. Run `yarn release` to publish your new release.
+1. Make sure that all changesets for the new release are included. You can create some manually (via `pnpm exec changeset`) if needed.
+1. Run `pnpm exec changeset version` to create your new release.
+1. Run `pnpm exec release` to publish your new release.
 1. Run `git push && git push --tags` to push your new release to GitHub.
-1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
+1. Run `git push release/0.X:latest` to push your release branch to `latest`.
 1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 
-## Translations
+## Documentation
 
-Help us translate [docs.astro.build](https://docs.astro.build/) into as many languages as possible! This can be a great way to get involved with open source development without having to code.
+Help us make [docs.astro.build](https://docs.astro.build/) as accurate and easy-to-use as possible. Contributing to documentation can be a great way to get involved with open source development without having to code.
 
-Our translation process is loosely based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
-
-### Important: Beta Status
-
-Astro is changing quickly, and so are the docs. We cannot translate too many pages until Astro is closer to a v1.0.0 release candidate. **To start, do not translate more than the "getting started" page.** Once we are closer to a v1.0.0 release candidate, we will begin translating all pages.
-
-### Tier 1: Priority Languages
-
-**Tier 1** languages are considered a top priority for Astro documentation. The docs site should be fully translated into these languages, and reasonably kept up-to-date:
-
-- Simplified Chinese (zh-CN)
-- Traditional Chinese (zh-TW)
-- French (fr)
-- Japanese (ja)
-
-We are always looking for people to help us with these translations. If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
-
-### Tier 2 Languages
-
-All other languages are considered **Tier 2**. Tier 2 language translations are driven by the community, with support from core maintainers. If you want to see the Astro docs site translated into a new language, then we need your help to kick off the project!
-
-If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
+Head over to [the `withastro/docs` repo](https://github.com/withastro/docs) to get involved!

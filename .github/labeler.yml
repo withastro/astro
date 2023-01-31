@@ -6,23 +6,6 @@ example:
 '🚨 action':
 - .github/workflows/**
 
-docs:
-- docs/**
-
-www:
-- www/**
-
-test:
-- packages/**/*.test.js
-
-i18n:
-- any:
-  - 'docs/src/pages/*/**'
-  - '!docs/src/pages/core-concepts/**'
-  - '!docs/src/pages/guides/**'
-  - '!docs/src/pages/migration/**'
-  - '!docs/src/pages/reference/**'
-
 core:
 - packages/astro/**
 
@@ -32,23 +15,23 @@ create-astro:
 markdown:
 - packages/markdown/**
 
-renderer:
-- packages/renderers/**
+integration:
+- packages/integrations/**
 
 framework-lit:
-- packages/renderers/renderer-lit/**
+- packages/integrations/lit/**
 
 framework-preact:
-- packages/renderers/renderer-preact/**
+- packages/integrations/preact/**
 
 framework-react:
-- packages/renderers/renderer-react/**
+- packages/integrations/react/**
 
 framework-solid:
-- packages/renderers/renderer-solid/**
+- packages/integrations/solid/**
 
 framework-svelte:
-- packages/renderers/renderer-svelte/**
+- packages/integrations/svelte/**
 
 framework-vue:
-- packages/renderers/renderer-vue/**
+- packages/integrations/vue/**

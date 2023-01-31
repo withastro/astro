@@ -1,78 +1,69 @@
-import type * as t from '@babel/types';
-import type { Plugin } from '../core/vite';
-import type { AstroConfig } from '../@types/astro';
-import type { AstroDevServer } from '../core/dev/index';
+import { parse } from 'acorn';
+import { walk } from 'estree-walker';
+import MagicString from 'magic-string';
+import type { Plugin } from 'vite';
+import type { AstroSettings } from '../@types/astro';
+import { isMarkdownFile } from '../core/util.js';
 
-import * as babelTraverse from '@babel/traverse';
-import * as babel from '@babel/core';
+// Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
+const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
 
 interface AstroPluginOptions {
-  config: AstroConfig;
-  devServer?: AstroDevServer;
+	settings: AstroSettings;
 }
 
-// esbuild transforms the component-scoped Astro into Astro2, so need to check both.
-const validAstroGlobalNames = new Set(['Astro', 'Astro2']);
+export default function astro(_opts: AstroPluginOptions): Plugin {
+	return {
+		name: 'astro:postprocess',
+		async transform(code, id) {
+			// Currently only supported in ".astro" and ".md" (or any alternative markdown file extension like `.markdown`) files
+			if (!id.endsWith('.astro') && !isMarkdownFile(id)) {
+				return null;
+			}
 
-export default function astro({ config, devServer }: AstroPluginOptions): Plugin {
-  return {
-    name: '@astrojs/vite-plugin-astro-postprocess',
-    async transform(code, id) {
-      // Currently only supported in ".astro" & ".md" files
-      if (!id.endsWith('.astro') && !id.endsWith('.md')) {
-        return null;
-      }
+			// Optimization: Detect usage with a quick string match.
+			// Only perform the transform if this function is found
+			if (!ASTRO_GLOB_REGEX.test(code)) {
+				return null;
+			}
 
-      // Optimization: only run on a probably match
-      // Open this up if need for post-pass extends past fetchContent
-      if (!code.includes('fetchContent')) {
-        return null;
-      }
+			let s: MagicString | undefined;
+			const ast = parse(code, {
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+			});
+			// @ts-expect-error acorn.Node is not assignable to estree.Node
+			walk(ast, {
+				enter(node: any) {
+					// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`
+					// Also handle for `Astro2.glob()`
+					if (
+						node.type === 'CallExpression' &&
+						node.callee.type === 'MemberExpression' &&
+						node.callee.property.name === 'glob' &&
+						(node.callee.object.name === 'Astro' || node.callee.object.name === 'Astro2') &&
+						node.arguments.length
+					) {
+						const firstArgStart = node.arguments[0].start;
+						const firstArgEnd = node.arguments[0].end;
+						const lastArgEnd = node.arguments[node.arguments.length - 1].end;
+						const firstArg = code.slice(firstArgStart, firstArgEnd);
+						s ??= new MagicString(code);
+						s.overwrite(
+							firstArgStart,
+							lastArgEnd,
+							`import.meta.glob(${firstArg}), () => ${firstArg}`
+						);
+					}
+				},
+			});
 
-      // Handle the second-pass JS AST Traversal
-      const result = await babel.transformAsync(code, {
-        sourceType: 'module',
-        sourceMaps: true,
-        plugins: [
-          () => {
-            return {
-              visitor: {
-                StringLiteral(path: babelTraverse.NodePath<t.StringLiteral>) {
-                  if (
-                    path.parent.type !== 'CallExpression' ||
-                    path.parent.callee.type !== 'MemberExpression' ||
-                    !validAstroGlobalNames.has((path.parent.callee.object as any).name) ||
-                    (path.parent.callee.property as any).name !== 'fetchContent'
-                  ) {
-                    return;
-                  }
-                  const { value } = path.node;
-                  if (/[a-z]\:\/\//.test(value)) {
-                    return;
-                  }
-                  path.replaceWith({
-                    type: 'CallExpression',
-                    callee: {
-                      type: 'MemberExpression',
-                      object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
-                      property: { type: 'Identifier', name: 'globEager' },
-                      computed: false,
-                    },
-                    arguments: [path.node],
-                  } as any);
-                },
-              },
-            };
-          },
-        ],
-      });
-
-      // Undocumented baby behavior, but possible according to Babel types.
-      if (!result || !result.code) {
-        return null;
-      }
-
-      return { code: result.code, map: result.map };
-    },
-  };
+			if (s) {
+				return {
+					code: s.toString(),
+					map: s.generateMap(),
+				};
+			}
+		},
+	};
 }

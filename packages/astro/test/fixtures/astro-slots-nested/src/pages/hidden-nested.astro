@@ -1,0 +1,18 @@
+---
+import Parent from '../components/Parent'
+import Inner from '../components/Inner'
+---
+
+<html lang="en">
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<main>
+			<!-- Try to remove client:load to see it work -->
+			<Parent client:load>
+				<Inner client:load />
+			</Parent>
+		</main>
+	</body>
+</html>

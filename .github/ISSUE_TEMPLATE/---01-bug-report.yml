@@ -1,6 +1,5 @@
 name: "\U0001F41B Bug Report"
 description: Report an issue or possible bug
-title: "\U0001F41B BUG:"
 labels: []
 assignees: []
 body:
@@ -11,35 +10,54 @@ body:
         Thank you for taking the time to file a bug report! Please fill out this form as completely as possible.
 
         ✅ I am using the **latest version of Astro** and all plugins.
-        ✅ I am using a version of Node that supports ESM (`v12.20.0+`, `v14.13.1+`, or `v16.0.0+`)
+        ✅ I am using a version of Node that supports ESM (`v14.18.0+`, or `v16.12.0+`)
   - type: input
+    id: astro-version
     attributes:
       label: What version of `astro` are you using?
       placeholder: 0.0.0
     validations:
       required: true
   - type: input
+    id: ssr-adapter
+    attributes:
+      label: Are you using an SSR adapter? If so, which one?
+      placeholder: None, or Netlify, Vercel, Cloudflare, etc.
+    validations:
+      required: true
+  - type: input
+    id: package-manager
     attributes:
       label: What package manager are you using?
       placeholder: npm, yarn, pnpm
     validations:
       required: true
   - type: input
+    id: os
     attributes:
       label: What operating system are you using?
       placeholder: Mac, Windows, Linux
     validations:
       required: true
   - type: textarea
+    id: bug-description
     attributes:
       label: Describe the Bug
       description: A clear and concise description of what the bug is.
     validations:
       required: true
   - type: input
+    id: bug-reproduction
     attributes:
       label: Link to Minimal Reproducible Example
-      description: 'Please use the following link to create a reproduction: https://astro.new'
+      description: 'Use [astro.new](https://astro.new) to create a minimal reproduction of the problem. **A minimal reproduction is required** so that others can help debug your issue. If a report is vague (e.g. just a generic error message) and has no reproduction, it may be auto-closed.'
       placeholder: 'https://stackblitz.com/abcd1234'
     validations:
       required: true
+  - type: checkboxes
+    id: will-pr
+    attributes:
+      label: Participation
+      options:
+        - label:  I am willing to submit a pull request for this issue.
+          required: false

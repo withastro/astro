@@ -1,15 +1,25 @@
 ---
+image:
+  file: .Dockerfile
 # Commands to start on workspace startup
 tasks:
-  - init: yarn install
-    command: yarn build
+  - before: |
+      # Get latest pnpm version, in case the custom docker image was not updated
+      # Until this issue gets resolved - https://github.com/gitpod-io/gitpod/issues/12551
+      curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
+    init: |
+      pnpm install
+      pnpm run build
+    command: |
+      .gitpod/gitpod-setup.sh
 vscode:
   extensions:
-    # TODO Once astro is on [vsx](https://open-vsx.org/), we should be able to specify it as an extension as well!
-    # https://www.gitpod.io/docs/vscode-extensions
-    - https://marketplace.visualstudio.com/_apis/public/gallery/publishers/astro-build/vsextensions/astro-vscode/0.7.13/vspackage
+    - astro-build.astro-vscode
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
+ports:
+  - port: 3000
+    onOpen: open-preview
 github:
   prebuilds:
     # enable for the master/default branch (defaults to true)

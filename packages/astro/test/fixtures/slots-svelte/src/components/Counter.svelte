@@ -17,9 +17,7 @@
   <button on:click={add}>+</button>
 </div>
 <div id={id}>
-  <slot>
-    <h1 id="fallback">Fallback</h1>
-  </slot>
+  <slot><h1 id="fallback">Fallback</h1></slot><slot name="named" /><slot name="dash-case" />
 </div>
 
 <style>

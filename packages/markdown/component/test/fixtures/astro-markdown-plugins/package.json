@@ -1,0 +1,13 @@
+{
+  "name": "@test/astro-markdown-component-plugins",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/markdown-component": "workspace:*",
+    "@astrojs/preact": "workspace:*",
+    "astro": "workspace:*",
+    "hast-util-select": "^5.0.2",
+    "preact": "^10.11.0",
+    "rehype-slug": "^5.0.1"
+  }
+}

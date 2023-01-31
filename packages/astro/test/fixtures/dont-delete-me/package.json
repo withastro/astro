@@ -1,0 +1,6 @@
+{
+  "name": "@test/dont-delete-me",
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}

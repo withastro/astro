@@ -10,9 +10,9 @@ For the RFC writing guide, check out the [RFC issue template](https://github.com
 
 ### Linting (Style Rules)
 
-We use tools like ESLint and TypeScript to automatically enforce some parts of our style guide. Run the `yarn lint` command to lint the codebase. We also use tools like Prettier to automatically enforce code formatting. Run the `yarn format` command to format the entire codebase.
+We use tools like ESLint and TypeScript to automatically enforce some parts of our style guide. Run the `pnpm run lint` command to lint the codebase. We also use tools like Prettier to automatically enforce code formatting. Run the `pnpm run format` command to format the entire codebase.
 
-Anything enforced by linting and formatting is considered a **style rule.** It is strictly required that you follow all style rules while working in the codebase. Run the `yarn lint` and `yarn format` commands to check your code at any time.
+Anything enforced by linting and formatting is considered a **style rule.** It is strictly required that you follow all style rules while working in the codebase. Run the `pnpm run lint` and `pnpm run format` commands to check your code at any time.
 
 These style rules are maintained in configuration files, and therefore not documented in this document. Read any of the following configuration files to learn more about the style rules that we strictly enforced across the codebase:
 

@@ -1,0 +1,8 @@
+{
+  "name": "@e2e/invalidate-script-deps",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "astro": "workspace:*"
+  }
+}

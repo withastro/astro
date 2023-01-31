@@ -1,0 +1,15 @@
+---
+import Head from '../components/Head.astro';
+import Component from '../components/Component.jsx';
+---
+
+<html>
+	<!-- <head> element delegated to component -->
+	<Head />
+	<body>
+		<Component client:load>
+			<h1>JSX Partial HTML</h1>
+		</Component>
+	</body>
+</html>
+

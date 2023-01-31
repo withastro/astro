@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { createSignal } from 'solid-js';
 
-export default function Counter({ children, count: initialCount, case: id }) {
+export default function Counter({ named, dashCase, children, count: initialCount, case: id }) {
+	const [count] = createSignal(0);
   return (
     <>
       <div className="counter">
@@ -8,6 +9,8 @@ export default function Counter({ children, count: initialCount, case: id }) {
       </div>
       <div id={id} className="counter-message">
         {children || <h1>Fallback</h1>}
+				{named}
+				{dashCase}
       </div>
     </>
   );

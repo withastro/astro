@@ -1,1 +1,0 @@
-export function addAstro(Prism: any): void;

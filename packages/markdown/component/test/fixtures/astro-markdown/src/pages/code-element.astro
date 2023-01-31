@@ -1,0 +1,7 @@
+---
+const content = await Astro.glob('../content/*.md');
+---
+
+<div>
+	{content.map(({ Content }) => <Content />)}
+</div>

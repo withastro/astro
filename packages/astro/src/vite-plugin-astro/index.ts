@@ -1,132 +1,206 @@
-import type { TransformResult } from '@astrojs/compiler';
-import type { SourceMapInput } from 'rollup';
-import type vite from '../core/vite';
-import type { AstroConfig } from '../@types/astro';
+import type { SourceDescription } from 'rollup';
+import type * as vite from 'vite';
+import type { AstroSettings } from '../@types/astro';
+import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata as AstroPluginMetadata } from './types';
 
-import esbuild from 'esbuild';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { transform } from '@astrojs/compiler';
-import { AstroDevServer } from '../core/dev/index.js';
-import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
+import { normalizePath } from 'vite';
+import { cachedCompilation, CompileProps, getCachedCompileResult } from '../core/compile/index.js';
+import { isRelativePath } from '../core/path.js';
+import { normalizeFilename } from '../vite-plugin-utils/index.js';
+import { cachedFullCompilation } from './compile.js';
+import { handleHotUpdate } from './hmr.js';
+import { parseAstroRequest } from './query.js';
+export { getAstroMetadata } from './metadata.js';
+export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
-  config: AstroConfig;
-  devServer?: AstroDevServer;
-}
-
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
+	settings: AstroSettings;
+	logging: LogOptions;
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ config, devServer }: AstroPluginOptions): vite.Plugin {
-  let viteTransform: TransformHook;
-  return {
-    name: '@astrojs/vite-plugin-astro',
-    enforce: 'pre', // run transforms before other plugins can
-    configResolved(resolvedConfig) {
-      viteTransform = getViteTransform(resolvedConfig);
-    },
-    // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
-    async load(id, opts) {
-      if (!id.endsWith('.astro')) {
-        return null;
-      }
-      // pages and layouts should be transformed as full documents (implicit <head> <body> etc)
-      // everything else is treated as a fragment
-      const normalizedID = fileURLToPath(new URL(`file://${id}`));
-      const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
-      let source = await fs.promises.readFile(id, 'utf8');
-      let tsResult: TransformResult | undefined;
-      let cssTransformError: Error | undefined;
+export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
+	const { config } = settings;
+	let resolvedConfig: vite.ResolvedConfig;
 
-      try {
-        // Transform from `.astro` to valid `.ts`
-        // use `sourcemap: "both"` so that sourcemap is included in the code
-        // result passed to esbuild, but also available in the catch handler.
-        tsResult = await transform(source, {
-          as: isPage ? 'document' : 'fragment',
-          projectRoot: config.projectRoot.toString(),
-          site: config.buildOptions.site,
-          sourcefile: id,
-          sourcemap: 'both',
-          internalURL: 'astro/internal',
-          preprocessStyle: async (value: string, attrs: Record<string, string>) => {
-            const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-            try {
-              const result = await transformWithVite({ value, lang, id, transformHook: viteTransform, ssr: isSSR(opts) });
-              let map: SourceMapInput | undefined;
-              if (!result) return null as any; // TODO: add type in compiler to fix "any"
-              if (result.map) {
-                if (typeof result.map === 'string') {
-                  map = result.map;
-                } else if (result.map.mappings) {
-                  map = result.map.toString();
-                }
-              }
-              return { code: result.code, map };
-            } catch (err) {
-              // save error to throw in plugin context
-              cssTransformError = err as any;
-              return null;
-            }
-          },
-        });
+	// Variables for determining if an id starts with /src...
+	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
+	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
 
-        // throw CSS transform errors here if encountered
-        if (cssTransformError) throw cssTransformError;
+	const prePlugin: vite.Plugin = {
+		name: 'astro:build',
+		enforce: 'pre', // run transforms before other plugins can
+		configResolved(_resolvedConfig) {
+			resolvedConfig = _resolvedConfig;
+		},
+		async load(id, opts) {
+			const parsedId = parseAstroRequest(id);
+			const query = parsedId.query;
+			if (!query.astro) {
+				return null;
+			}
+			// For CSS / hoisted scripts, the main Astro module should already be cached
+			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+			const compileResult = getCachedCompileResult(config, filename);
+			if (!compileResult) {
+				return null;
+			}
 
-        // Compile `.ts` to `.js`
-        const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
+			switch (query.type) {
+				case 'style': {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for Astro CSS must include an index.`);
+					}
 
-        return {
-          code,
-          map,
-        };
-      } catch (err: any) {
-        // improve compiler errors
-        if (err.stack.includes('wasm-function')) {
-          const search = new URLSearchParams({
-            labels: 'compiler',
-            title: '🐛 BUG: `@astrojs/compiler` panic',
-            body: `### Describe the Bug
+					const code = compileResult.css[query.index];
+					if (!code) {
+						throw new Error(`No Astro CSS at index ${query.index}`);
+					}
 
-\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+					return {
+						code,
+						meta: {
+							vite: {
+								isSelfAccepting: true,
+							},
+						},
+					};
+				}
+				case 'script': {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for hoisted scripts must include an index`);
+					}
+					// HMR hoisted script only exists to make them appear in the module graph.
+					if (opts?.ssr) {
+						return {
+							code: `/* client hoisted script, empty in SSR: ${id} */`,
+						};
+					}
 
-**${id.replace(fileURLToPath(config.projectRoot), '')}**
-\`\`\`astro
-${source}
-\`\`\`
-`,
-          });
-          err.url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
-          err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
+					const hoistedScript = compileResult.scripts[query.index];
+					if (!hoistedScript) {
+						throw new Error(`No hoisted script at index ${query.index}`);
+					}
 
-Please open
-a GitHub issue using the link below:
-${err.url}`;
-          // TODO: remove stack replacement when compiler throws better errors
-          err.stack = `    at ${id}`;
-        }
+					if (hoistedScript.type === 'external') {
+						const src = hoistedScript.src!;
+						if (src.startsWith('/') && !isBrowserPath(src)) {
+							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
+							throw new Error(
+								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`
+							);
+						}
+					}
 
-        throw err;
-      }
-    },
-    // async handleHotUpdate(context) {
-    //   if (devServer) {
-    //     return devServer.handleHotUpdate(context);
-    //   }
-    // },
-  };
+					const result: SourceDescription = {
+						code: '',
+						meta: {
+							vite: {
+								lang: 'ts',
+							},
+						},
+					};
+
+					switch (hoistedScript.type) {
+						case 'inline': {
+							const { code, map } = hoistedScript;
+							result.code = appendSourceMap(code, map);
+							break;
+						}
+						case 'external': {
+							const { src } = hoistedScript;
+							result.code = `import "${src}"`;
+							break;
+						}
+					}
+
+					return result;
+				}
+				default:
+					return null;
+			}
+		},
+		async transform(source, id) {
+			const parsedId = parseAstroRequest(id);
+			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
+			if (!id.endsWith('.astro') || parsedId.query.astro) {
+				return;
+			}
+			// if we still get a relative path here, vite couldn't resolve the import
+			if (isRelativePath(parsedId.filename)) {
+				return;
+			}
+
+			const compileProps: CompileProps = {
+				astroConfig: config,
+				viteConfig: resolvedConfig,
+				filename: normalizePath(parsedId.filename),
+				source,
+			};
+
+			const transformResult = await cachedFullCompilation({ compileProps, logging });
+
+			for (const dep of transformResult.cssDeps) {
+				this.addWatchFile(dep);
+			}
+
+			const astroMetadata: AstroPluginMetadata['astro'] = {
+				clientOnlyComponents: transformResult.clientOnlyComponents,
+				hydratedComponents: transformResult.hydratedComponents,
+				scripts: transformResult.scripts,
+				propagation: 'none',
+				pageOptions: {},
+			};
+
+			return {
+				code: transformResult.code,
+				map: transformResult.map,
+				meta: {
+					astro: astroMetadata,
+					vite: {
+						// Setting this vite metadata to `ts` causes Vite to resolve .js
+						// extensions to .ts files.
+						lang: 'ts',
+					},
+				},
+			};
+		},
+		async handleHotUpdate(context) {
+			if (context.server.config.isProduction) return;
+			const compileProps: CompileProps = {
+				astroConfig: config,
+				viteConfig: resolvedConfig,
+				filename: context.file,
+				source: await context.read(),
+			};
+			const compile = () => cachedCompilation(compileProps);
+			return handleHotUpdate(context, {
+				config,
+				logging,
+				compile,
+				source: compileProps.source,
+			});
+		},
+	};
+
+	const normalPlugin: vite.Plugin = {
+		name: 'astro:build:normal',
+		resolveId(id) {
+			// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
+			const parsedId = parseAstroRequest(id);
+			if (parsedId.query.astro) {
+				return id;
+			}
+		},
+	};
+
+	return [prePlugin, normalPlugin];
+}
+
+function appendSourceMap(content: string, map?: string) {
+	if (!map) return content;
+	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+		map
+	).toString('base64')}`;
 }

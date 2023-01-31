@@ -1,0 +1,9 @@
+{
+  "name": "@test/static-build",
+  "version": "0.0.0",
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "@test/static-build-pkg": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

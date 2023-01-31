@@ -1,5 +1,5 @@
 ---
-import '../components/my-element.js';
+import {MyElement} from '../components/my-element.js';
 ---
 
 <html>
@@ -7,11 +7,12 @@ import '../components/my-element.js';
   <title>LitElements</title>
 </head>
 <body>
-  <my-element
+  <MyElement
       foo="bar"
       str-attr={'initialized'}
       bool={false}
-      obj={{data: 1}}>
-  </my-element>
+      obj={{data: 1}}
+      reflectedStrProp={'initialized reflected'}>
+  </MyElement>
 </body>
 </html>

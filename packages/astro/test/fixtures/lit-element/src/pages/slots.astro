@@ -1,0 +1,39 @@
+---
+import {MyElement} from '../components/my-element.js';
+---
+
+<html>
+<head>
+  <title>LitElement | Slot</title>
+</head>
+<body>
+  <MyElement id="root">
+		<div class="default">my-element default 1</div>
+		<div class="default">my-element default 2</div>
+
+		<h1 slot="named">my-element named 1</h1>
+		<h2 slot="named">my-element named 2</h2>
+
+		<ul slot="named" id="list">
+			<li>Custom elements</li>
+			<li>Shadow DOM</li>
+			<li>HTML templates</li>
+		</ul>
+
+		<my-element id="slotted" slot="named">
+			<h3 class="default">slotted my-element default</h3>
+
+			<div slot="named">slotted my-element named 1</div>
+			<div slot="named">slotted my-element named 2</div>
+
+			<MyElement id="slotted-slotted" slot="named">
+				<h4 class="default">slotted slotted my-element default 1</h4>
+				<h5 class="default">slotted slotted my-element default 2</h5>
+
+				<div slot="named">slotted slotted my-element named 1</div>
+				<div slot="named">slotted slotted my-element named 2</div>
+			</MyElement>
+		</my-element>
+	</MyElement>
+</body>
+</html>
