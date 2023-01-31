@@ -419,7 +419,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @docs
 	 * @message
 	 * **Example error messages:**<br/>
-	 * InvalidComponentArgs: Invalid arguments passed to <MyAstroComponent> component.
+	 * InvalidComponentArgs: Invalid arguments passed to `<MyAstroComponent>` component.
 	 * @description
 	 * Astro components cannot be rendered manually via a function call, such as `Component()` or `{items.map(Component)}`. Prefer the component syntax `<Component />` or `{items.map(item => <Component {...item} />)}`.
 	 */
