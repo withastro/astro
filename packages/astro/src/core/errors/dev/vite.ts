@@ -175,7 +175,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 			},
 			plugin,
 			stack: err.stack,
-			cause: err.cause
+			cause: err.cause,
 		},
 	};
 

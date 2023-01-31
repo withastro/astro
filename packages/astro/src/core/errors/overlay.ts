@@ -605,16 +605,16 @@ class ErrorOverlay extends HTMLElement {
 		this.text('#title', err.title);
 		this.text('#message-content', err.message, true);
 
-    const cause = this.root.querySelector<HTMLElement>('#cause');
-    if (cause && err.cause) {
-      if (typeof err.cause === 'string') {
-        this.text('#cause-content', err.cause);
-        cause.style.display = 'block';
-      } else {
-        this.text('#cause-content', JSON.stringify(err.cause, null, 2));
-        cause.style.display = 'block';
-      }
-    }
+		const cause = this.root.querySelector<HTMLElement>('#cause');
+		if (cause && err.cause) {
+			if (typeof err.cause === 'string') {
+				this.text('#cause-content', err.cause);
+				cause.style.display = 'block';
+			} else {
+				this.text('#cause-content', JSON.stringify(err.cause, null, 2));
+				cause.style.display = 'block';
+			}
+		}
 
 		const hint = this.root.querySelector<HTMLElement>('#hint');
 		if (hint && err.hint) {
