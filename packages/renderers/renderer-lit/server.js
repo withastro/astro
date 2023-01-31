@@ -27,9 +27,6 @@ async function check(Component, _props, _children) {
 function* render(tagName, attrs, children) {
   const instance = new LitElementRenderer(tagName);
 
-  // LitElementRenderer creates a new element instance, so copy over.
-  const Ctr = getCustomElementConstructor(tagName);
-
   if (attrs) {
     for (let [name, value] of Object.entries(attrs)) {
       // Stringify every JSX bound object. This means that one cannot pass a
@@ -38,22 +35,20 @@ function* render(tagName, attrs, children) {
         value = JSON.stringify(value);
       }
 
-      // Check if this is on the element prototype. In many cases it is probably
-      // a reactive property. If it's not, then we make the tradeoff that that
-      // property is not SSR-able without an additional script.
-      if (name in Ctr.prototype) {
-        if (typeof value === 'boolean') {
-          // Booleans are calculated with hasAttibute, so don't setAttribute if
-          // false
-          if (!value) {
-            continue;
-          }
-
-          value = '';
+      if (typeof value === 'boolean') {
+        // Booleans are calculated with hasAttibute, so don't setAttribute if
+        // false. If user wants `attr="false"` then they must use a string.
+        if (!value) {
+          continue;
         }
+
+        value = '';
       }
 
-      // Set the attribute no matter if it's a reactive property or not
+      // Set the attribute no matter if it's a reactive property or not this
+      // helps make sure that all SSRd values are serialized to the DOM. If a
+      // property cannot react to attribute changes, then it's not suitable for
+      // SSG that Astro provides.
       instance.setAttribute(name, value);
     }
   }

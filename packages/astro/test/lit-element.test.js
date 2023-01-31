@@ -37,19 +37,24 @@ describe('LitElement test', () => {
     // test 3: string reactive property set
     expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="str">initialized</div>`);
 
-    // test 4: boolean reactive property correctly set
+    // test 4: non-reactive don't react
+    expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="non-reactive">not initialized</div>`);
+
+    // test 5: boolean reactive property correctly set
     // <my-element bool="false"> Lit will equate to true because it uses
     // this.hasAttribute to determine its value
-    expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="bool">B</div>`);
+    expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="bool">A</div>`);
+    expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="false-bool">B</div>`);
 
-    // test 5: object reactive property set
-    // by default objects will be stringifed to [object Object]
+    // test 6: object reactive property set
     expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="data">data: 1</div>`);
 
-    // test 6: reactive properties are not rendered as attributes
-    expect($('my-element').attr('obj')).to.equal(undefined);
-    expect($('my-element').attr('bool')).to.equal(undefined);
+    // test 7: JSX bindings to Lit attribute conversions done correctly
+    expect($('my-element').attr('obj')).to.equal('{"data":1}');
+    expect($('my-element').attr('bool')).to.equal('');
+    expect($('my-element').attr('falseBool')).to.equal(undefined);
     expect($('my-element').attr('str')).to.equal(undefined);
+    expect($('my-element').attr('str-attr')).to.equal('initialized');
   });
 
   // Skipped because not supported by Lit

@@ -5,13 +5,15 @@ export const tagName = 'my-element';
 export class MyElement extends LitElement {
   static properties = {
     bool: {type: Boolean},
+    falseBool: {type: Boolean},
     str: {type: String, attribute: 'str-attr'},
     obj: {type: Object},
   }
 
   constructor() {
     super();
-    this.bool = true;
+    this.bool = false;
+    this.falseBool = false;
     this.str = 'not initialized';
     this.obj = {data: null};
     // not a reactive property
@@ -21,7 +23,9 @@ export class MyElement extends LitElement {
     return html`
       <div>Testing...</div>
       <div id="bool">${this.bool ? 'A' : 'B'}</div>
+      <div id="false-bool">${this.falseBool ? 'A' : 'B'}</div>
       <div id="str">${this.str}</div>
+      <div id="non-reactive">${this.foo}</div>
       <div id="data">data: ${this.obj.data}</div>
     `;
   }
