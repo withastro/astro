@@ -3024,10 +3024,10 @@ importers:
       vite: ^4.0.3
     dependencies:
       '@astrojs/webapi': link:../../webapi
+      '@netlify/functions': 1.4.0
       esbuild: 0.15.18
     devDependencies:
       '@netlify/edge-handler-types': 0.34.1
-      '@netlify/functions': 1.4.0
       '@types/node': 14.18.36
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -6389,7 +6389,7 @@ packages:
     engines: {node: '>=8.3.0'}
     dependencies:
       is-promise: 4.0.0
-    dev: true
+    dev: false
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -10839,7 +10839,7 @@ packages:
 
   /is-promise/4.0.0:
     resolution: {integrity: sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==}
-    dev: true
+    dev: false
 
   /is-reference/3.0.1:
     resolution: {integrity: sha512-baJJdQLiYaJdvFbJqXrcGv3WU3QCzBlUcI5QhbesIm6/xPsvmO+2CDoi/GMOFBQEQm+PXkwOPrp9KK5ozZsp2w==}
