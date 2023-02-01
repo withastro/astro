@@ -71,16 +71,18 @@ describe('LitElement test', function () {
 		const $ = cheerio.load(html);
 
 		// test 1: reflected reactive props are rendered as attributes
-		expect($('#deferred').attr('count')).to.equal('10');
+		expect($('#non-deferred').attr('count')).to.equal('10');
 
 		// test 2: non-reactive props are set as attributes
-		expect($('#deferred').attr('foo')).to.equal('bar');
+		expect($('#non-deferred').attr('foo')).to.equal('bar');
 
-		// test 3: components with only reflected reactive props set are deferred
-		expect($('#deferred').attr('defer-hydration')).to.equal('');
+		// test 3: components with only reflected reactive props set are not
+		// deferred because their state can be completely serialized via attributes
+		expect($('#non-deferred').attr('defer-hydration')).to.equal(undefined);
 
-		// test 4: components with non-reflected reactive props set are not deferred
-		expect($('#default').attr('defer-hydration')).to.equal(undefined);
+		// test 4: components with non-reflected reactive props set are deferred because
+		// their state needs to be synced with the server on the client.
+		expect($('#default').attr('defer-hydration')).to.equal('');
 	});
 
 	it('Correctly passes child slots', async () => {
