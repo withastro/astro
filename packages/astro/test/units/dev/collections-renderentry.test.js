@@ -18,10 +18,10 @@ describe('Content Collections - render()', () => {
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
-						schema: {
+						schema: z.object({
 							title: z.string(),
 							description: z.string().max(60, 'For SEO purposes, keep descriptions short!'),
-						},
+						}),
 					});
 
 					export const collections = { blog };
@@ -75,10 +75,10 @@ describe('Content Collections - render()', () => {
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
-						schema: {
+						schema: z.object({
 							title: z.string(),
 							description: z.string().max(60, 'For SEO purposes, keep descriptions short!'),
-						},
+						}),
 					});
 
 					export const collections = { blog };
@@ -148,10 +148,10 @@ describe('Content Collections - render()', () => {
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
-						schema: {
+						schema: z.object({
 							title: z.string(),
 							description: z.string().max(60, 'For SEO purposes, keep descriptions short!'),
-						},
+						}),
 					});
 
 					export const collections = { blog };
@@ -219,10 +219,10 @@ describe('Content Collections - render()', () => {
 					import { z, defineCollection } from 'astro:content';
 
 					const blog = defineCollection({
-						schema: {
+						schema: z.object({
 							title: z.string(),
 							description: z.string().max(60, 'For SEO purposes, keep descriptions short!'),
-						},
+						}),
 					});
 
 					export const collections = { blog };
