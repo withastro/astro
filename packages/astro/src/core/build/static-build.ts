@@ -94,7 +94,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const clientOutput = await clientBuild(opts, internals, clientInput, container);
 
 	timer.generate = performance.now();
-	runPostBuildHooks(container, ssrOutput, clientOutput);
+	await runPostBuildHooks(container, ssrOutput, clientOutput);
+
 	switch (settings.config.output) {
 		case 'static': {
 			await generatePages(opts, internals);
