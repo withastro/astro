@@ -12,4 +12,5 @@ export async function next(ctx: Pick<Context, 'cwd'|'pkgManager'|'skipHouston'>)
 	if (!ctx.skipHouston) {
 		await say(['Good luck out there, astronaut! 🚀']);
 	}
+	return;
 }
