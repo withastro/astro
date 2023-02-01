@@ -16,7 +16,7 @@ export interface ImageMetadata {
 	format: InputFormat;
 }
 
-const absoluteImageImports = new Map<string, string>();
+const absoluteImageImports = new Set<string>();
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
@@ -38,7 +38,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// public directory by vue for asset registration
 			// We want to catch those imports to ignore them in the `load` hook
 			if (filter(id) && id.startsWith('/') && source?.endsWith('.vue')) {
-				!absoluteImageImports.has(id) && absoluteImageImports.set(id, id);
+				absoluteImageImports.add(id);
 			}
 
 			// The virtual model redirects imports to the ImageService being used
