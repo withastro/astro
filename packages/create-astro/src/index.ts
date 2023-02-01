@@ -37,4 +37,5 @@ export async function main() {
 	for (const step of steps) {
 		await step(ctx)
 	}
+	process.exit(0);
 }
