@@ -23,6 +23,7 @@
     ".": "./dist/index.js",
     "./server.js": "./server.js",
     "./client-shim.js": "./client-shim.js",
+    "./dist/client.js": "./dist/client.js",
     "./hydration-support.js": "./hydration-support.js",
     "./package.json": "./package.json"
   },
