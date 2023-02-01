@@ -28,7 +28,7 @@ export async function dependencies(ctx: Pick<Context, 'install'|'yes'|'prompt'|'
 		});
 	} else {
 		await info(
-			typeof deps === 'boolean' ? 'deps [skip]' : 'No problem!',
+			ctx.yes === false ? 'deps [skip]' : 'No problem!',
 			'Remember to install dependencies after setup.'
 		);
 	}

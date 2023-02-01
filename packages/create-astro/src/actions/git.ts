@@ -33,7 +33,7 @@ export async function git(ctx: Pick<Context, 'cwd'|'git'|'yes'|'prompt'|'dryRun'
 		});
 	} else {
 		await info(
-			typeof init === 'boolean' ? 'git [skip]' : 'Sounds good!',
+			ctx.yes === false ? 'git [skip]' : 'Sounds good!',
 			`You can always run ${color.reset('git init')}${color.dim(' manually.')}`
 		);
 	}
