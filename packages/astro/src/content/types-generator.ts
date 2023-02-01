@@ -32,7 +32,8 @@ type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
 	logging: LogOptions;
 	settings: AstroSettings;
-	viteServer?: ViteDevServer;
+	/** This is required for loading the content config */
+	viteServer: ViteDevServer;
 	fs: typeof fsMod;
 };
 

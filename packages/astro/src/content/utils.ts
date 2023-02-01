@@ -219,31 +219,19 @@ export async function loadContentConfig({
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-	viteServer?: ViteDevServer;
+	/** For prod builds, create a viteServer before calling this function */
+	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(settings.config);
-	const tempConfigServer: ViteDevServer =
-		viteServer ??
-		(await createServer({
-			root: fileURLToPath(settings.config.root),
-			server: { middlewareMode: true, hmr: false },
-			optimizeDeps: { entries: [] },
-			clearScreen: false,
-			appType: 'custom',
-			logLevel: 'silent',
-			plugins: [astroContentVirtualModPlugin({ settings })],
-		}));
 	let unparsedConfig;
 	if (!fs.existsSync(contentPaths.config)) {
 		return undefined;
 	}
 	try {
 		const configPathname = fileURLToPath(contentPaths.config);
-		unparsedConfig = await tempConfigServer.ssrLoadModule(configPathname);
+		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 	} catch (e) {
 		throw e;
-	} finally {
-		// await tempConfigServer.close();
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
