@@ -2773,6 +2773,18 @@ importers:
       astro: link:../../../../../astro
       sharp: 0.31.3
 
+  packages/integrations/image/test/fixtures/ignore-vue-public-imports:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      sharp: ^0.31.0
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/vue': link:../../../../vue
+      astro: link:../../../../../astro
+      sharp: 0.31.3
+
   packages/integrations/image/test/fixtures/no-alt-text-image:
     specifiers:
       '@astrojs/image': workspace:*
