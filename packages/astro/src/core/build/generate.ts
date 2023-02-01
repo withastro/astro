@@ -370,6 +370,7 @@ async function generatePath(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		ssr,
+		prependDoctype: settings.config.prependDoctype,
 		streaming: true,
 	});
 	const ctx = createRenderContext({

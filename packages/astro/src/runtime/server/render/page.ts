@@ -30,19 +30,18 @@ function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): b
 async function iterableToHTMLBytes(
 	result: SSRResult,
 	iterable: ComponentIterable,
+	prependDoctype: boolean,
 	onDocTypeInjection?: (parts: HTMLParts) => Promise<void>
 ): Promise<Uint8Array> {
 	const parts = new HTMLParts();
 	let i = 0;
 	for await (const chunk of iterable) {
-		if (isHTMLString(chunk)) {
-			if (i === 0) {
-				i++;
-				if (!/<!doctype html/i.test(String(chunk))) {
-					parts.append('<!DOCTYPE html>\n', result);
-					if (onDocTypeInjection) {
-						await onDocTypeInjection(parts);
-					}
+		if (prependDoctype && i === 0 && isHTMLString(chunk)) {
+			i++;
+			if (!/<!doctype html/i.test(String(chunk))) {
+				parts.append('<!DOCTYPE html>\n', result);
+				if (onDocTypeInjection) {
+					await onDocTypeInjection(parts);
 				}
 			}
 		}
@@ -73,6 +72,7 @@ export async function renderPage(
 	props: any,
 	children: any,
 	streaming: boolean,
+	prependDoctype: boolean,
 	route?: RouteData | undefined
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
@@ -103,7 +103,7 @@ export async function renderPage(
 		}
 
 		// Accumulate the HTML string and append the head if necessary.
-		const bytes = await iterableToHTMLBytes(result, output, async (parts) => {
+		const bytes = await iterableToHTMLBytes(result, output, prependDoctype, async (parts) => {
 			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
 				for await (let chunk of maybeRenderHead(result)) {
 					parts.append(chunk, result);
@@ -139,11 +139,9 @@ export async function renderPage(
 						let i = 0;
 						try {
 							for await (const chunk of iterable) {
-								if (isHTMLString(chunk)) {
-									if (i === 0) {
-										if (!/<!doctype html/i.test(String(chunk))) {
-											controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
-										}
+								if (prependDoctype && i === 0 && isHTMLString(chunk)) {
+									if (!/<!doctype html/i.test(String(chunk))) {
+										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 									}
 								}
 
@@ -168,7 +166,7 @@ export async function renderPage(
 				},
 			});
 		} else {
-			body = await iterableToHTMLBytes(result, iterable);
+			body = await iterableToHTMLBytes(result, iterable, prependDoctype);
 			headers.set('Content-Length', body.byteLength.toString());
 		}
 

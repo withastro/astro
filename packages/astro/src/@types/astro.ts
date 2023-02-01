@@ -471,6 +471,17 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name prependDoctype
+	 * @type {boolean}
+	 * @default true
+	 * @description
+	 *
+	 * When enabled Astro will prepend `<!DOCTYPE html>` to your HTML responses when it is missing.
+	 */
+	prependDoctype?: boolean;
+
+	/**
+	 * @docs
 	 * @name adapter
 	 * @typeraw {AstroIntegration}
 	 * @see output

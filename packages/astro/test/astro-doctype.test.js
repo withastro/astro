@@ -75,3 +75,22 @@ describe('Doctype', () => {
 		expect($('head link')).to.have.lengthOf(1);
 	});
 });
+
+describe('No auto doctype', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-doctype/',
+			prependDoctype: false,
+		});
+		await fixture.build();
+	});
+
+	it('Do not automatically prepend a doctype', async () => {
+		const html = await fixture.readFile('/prepend/index.html');
+
+		// test that Doctype always included
+		expect(html).to.not.match(/^<!DOCTYPE html>/i);
+	});
+});

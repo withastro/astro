@@ -119,6 +119,7 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 		pageProps,
 		null,
 		env.streaming,
+		env.prependDoctype,
 		ctx.route
 	);
 

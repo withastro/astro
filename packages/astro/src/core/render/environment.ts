@@ -20,6 +20,7 @@ export interface Environment {
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
+	prependDoctype: boolean;
 	streaming: boolean;
 	telemetry?: boolean;
 }
@@ -51,6 +52,7 @@ export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Env
 		resolve: options.resolve ?? ((s: string) => Promise.resolve(s)),
 		routeCache: new RouteCache(options.logging, mode),
 		ssr: options.ssr ?? true,
+		prependDoctype: options.prependDoctype ?? true,
 		streaming: options.streaming ?? true,
 		telemetry: false,
 	});

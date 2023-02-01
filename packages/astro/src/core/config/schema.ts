@@ -15,6 +15,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	outDir: './dist',
 	base: '/',
 	trailingSlash: 'ignore',
+	prependDoctype: true,
 	build: {
 		format: 'directory',
 		client: './dist/client/',
@@ -63,6 +64,7 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+	prependDoctype: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.prependDoctype),
 	output: z
 		.union([z.literal('static'), z.literal('server')])
 		.optional()
@@ -256,7 +258,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			config.base = sitePathname;
 			/* eslint-disable no-console */
 			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
-			
+
 A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
 		}
 
