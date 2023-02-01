@@ -7,7 +7,6 @@
     <div v-if="!viewMore">
       <button class="text-base my-2 ml-1 text-green-900 rounded px-2 py-1 underline" @click="viewMore = true">
         View More
-        <ChevronDownIcon class="w-6 h-6 inline-block ml-1" />
       </button>
     </div>
     <div v-else>
@@ -20,6 +19,5 @@
 
 <script setup>
 import { ref } from 'vue';
-import { ChevronDownIcon } from '@heroicons/vue/24/solid/esm/index.js';
 const viewMore = ref(false);
 </script>
