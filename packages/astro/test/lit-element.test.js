@@ -47,9 +47,7 @@ describe('LitElement test', function () {
 
 		// test 5: object reactive property set
 		// by default objects will be stringified to [object Object]
-		expect(stripExpressionMarkers($('#default').html())).to.include(
-			`<div id="data">data: 1</div>`
-		);
+		expect(stripExpressionMarkers($('#default').html())).to.include(`<div id="data">data: 1</div>`);
 
 		// test 6: reactive properties are not rendered as attributes
 		expect($('#default').attr('obj')).to.equal(undefined);
