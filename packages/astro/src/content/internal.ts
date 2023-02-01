@@ -1,3 +1,4 @@
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 
 import {
@@ -120,21 +121,32 @@ async function render({
 	id: string;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
-	if (!lazyImport) throw new Error(`${String(collection)} → ${String(id)} does not exist.`);
+	const UnexpectedRenderError = new AstroError({
+		...AstroErrorData.UnknownContentCollectionError,
+		message: `Unexpected error while rendering ${String(collection)} → ${String(id)}.`,
+	});
 
-	const mod = await lazyImport();
+	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
+	if (typeof lazyImport !== 'function') throw UnexpectedRenderError;
+
+	const baseMod = await lazyImport();
+	if (baseMod == null || typeof baseMod !== 'object') throw UnexpectedRenderError;
+
+	const { collectedStyles, collectedLinks, collectedScripts, getMod } = baseMod;
+	if (typeof getMod !== 'function') throw UnexpectedRenderError;
+	const mod = await getMod();
+	if (mod == null || typeof mod !== 'object') throw UnexpectedRenderError;
 
 	const Content = createComponent({
-		factory(result, props, slots) {
+		factory(result, baseProps, slots) {
 			let styles = '',
 				links = '',
 				scripts = '';
-			if (Array.isArray(mod?.collectedStyles)) {
-				styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+			if (Array.isArray(collectedStyles)) {
+				styles = collectedStyles.map((style: any) => renderStyleElement(style)).join('');
 			}
-			if (Array.isArray(mod?.collectedLinks)) {
-				links = mod.collectedLinks
+			if (Array.isArray(collectedLinks)) {
+				links = collectedLinks
 					.map((link: any) => {
 						return renderUniqueStylesheet(result, {
 							href: prependForwardSlash(link),
@@ -142,8 +154,17 @@ async function render({
 					})
 					.join('');
 			}
-			if (Array.isArray(mod?.collectedScripts)) {
-				scripts = mod.collectedScripts.map((script: any) => renderScriptElement(script)).join('');
+			if (Array.isArray(collectedScripts)) {
+				scripts = collectedScripts.map((script: any) => renderScriptElement(script)).join('');
+			}
+
+			let props = baseProps;
+			// Auto-apply MDX components export
+			if (id.endsWith('mdx')) {
+				props = {
+					components: mod.components ?? {},
+					...baseProps,
+				};
 			}
 
 			return createHeadAndContent(

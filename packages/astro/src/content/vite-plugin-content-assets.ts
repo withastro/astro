@@ -36,7 +36,9 @@ export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): 
 			if (isPropagatedAsset(id)) {
 				const basePath = id.split('?')[0];
 				const code = `
-					export { Content, getHeadings, frontmatter } from ${JSON.stringify(basePath)};
+					export async function getMod() {
+						return import(${JSON.stringify(basePath)});
+					}
 					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
 					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
 					export const collectedScripts = ${JSON.stringify(SCRIPTS_PLACEHOLDER)};
