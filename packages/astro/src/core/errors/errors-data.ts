@@ -629,6 +629,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message `COLLECTION_NAME` → `ENTRY_ID` has an invalid slug. `slug` must be a string.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
@@ -646,6 +647,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message A content collection schema should not contain `slug` since it is reserved for slug generation. Remove this from your `COLLECTION_NAME` collection schema.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
