@@ -44,7 +44,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// The virtual model redirects imports to the ImageService being used
 			// This ensures the module is available in `astro dev` and is included
 			// in the SSR server bundle.
-
 			if (id === virtualModuleId) {
 				return await this.resolve(options.serviceEntryPoint);
 			}

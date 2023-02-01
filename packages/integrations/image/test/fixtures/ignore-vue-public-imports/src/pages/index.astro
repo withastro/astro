@@ -1,0 +1,9 @@
+---
+import OldPhotos from '../components/OldPhotos.vue';
+import { Image } from '@astrojs/image/components';
+---
+
+<main>
+	<OldPhotos client:visible />
+	<Image src={import('../old-ute-1.jpg')} alt="alt text" />
+</main>
