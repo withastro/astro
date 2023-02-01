@@ -13,7 +13,7 @@ export interface Context {
 	username: string;
 	version: string;
 	skipHouston: boolean;
-	dryRun: boolean;
+	dryRun?: boolean;
 	yes?: boolean;
 	projectName?: string;
 	template?: string;
@@ -31,7 +31,9 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--yes': Boolean,
 		'--no': Boolean,
 		'--install': Boolean,
+		'--no-install': Boolean,
 		'--git': Boolean,
+		'--no-git': Boolean,
 		'--typescript': String,
 		'--skip-houston': Boolean,
 		'--dry-run': Boolean,
@@ -52,11 +54,13 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--no': no,
 		'--yes': yes,
 		'--install': install,
+		'--no-install': noInstall,
 		'--git': git,
+		'--no-git': noGit,
 		'--typescript': typescript,
 		'--fancy': fancy,
 		'--skip-houston': skipHouston,
-		'--dry-run': dryRun  = false,
+		'--dry-run': dryRun,
 		'--ref': ref,
 	} = flags;
 	let projectName = cwd;
@@ -82,8 +86,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 		template,
 		ref: ref ?? 'latest',
 		yes,
-		install,
-		git,
+		install: install ?? (noInstall ? false : undefined),
+		git: git ?? (noGit ? false : undefined),
 		typescript,
 		cwd
 	}

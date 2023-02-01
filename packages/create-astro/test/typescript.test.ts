@@ -16,10 +16,17 @@ describe('typescript', () => {
 	})
 
 	test('none', async () => {
-		const context = { cwd: '', dryRun: true, prompt: (() => ({ ts: 'strict' })) as any };
+		const context = { cwd: '', dryRun: true, prompt: (() => ({ ts: 'strict', useTs: true })) as any };
+		await typescript(context);
+		
+		expect(fixture.hasMessage('Skipping TypeScript setup')).toBeTruthy();
+	})
+
+	test('use false', async () => {
+		const context = { cwd: '', dryRun: true, prompt: (() => ({ ts: 'strict', useTs: false })) as any };
 		await typescript(context);
 
-		expect(fixture.hasMessage('Skipping TypeScript setup')).toBeTruthy();
+		expect(fixture.hasMessage('No worries.')).toBeTruthy();
 	})
 
 	test('strict', async () => {
