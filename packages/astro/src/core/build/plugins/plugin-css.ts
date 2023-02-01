@@ -17,6 +17,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from '../internal.js';
+import { extendManualChunks } from './util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -55,40 +56,30 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 			name: 'astro:rollup-plugin-build-css',
 
 			outputOptions(outputOptions) {
-				const manualChunks = outputOptions.manualChunks || Function.prototype;
 				const assetFileNames = outputOptions.assetFileNames;
 				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 				const createNameForParentPages = namingIncludesHash
 					? assetName.shortHashedName
 					: assetName.createSlugger(settings);
-				outputOptions.manualChunks = function (id, ...args) {
-					// Defer to user-provided `manualChunks`, if it was provided.
-					if (typeof manualChunks == 'object') {
-						if (id in manualChunks) {
-							return manualChunks[id];
-						}
-					} else if (typeof manualChunks === 'function') {
-						const outid = manualChunks.call(this, id, ...args);
-						if (outid) {
-							return outid;
-						}
-					}
 
-					// For CSS, create a hash of all of the pages that use it.
-					// This causes CSS to be built into shared chunks when used by multiple pages.
-					if (isCSSRequest(id)) {
-						for (const [pageInfo] of walkParentInfos(id, {
-							getModuleInfo: args[0].getModuleInfo,
-						})) {
-							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
-								// Split delayed assets to separate modules
-								// so they can be injected where needed
-								return createNameHash(id, [id]);
+				extendManualChunks(outputOptions, {
+					after(id, meta) {
+						// For CSS, create a hash of all of the pages that use it.
+						// This causes CSS to be built into shared chunks when used by multiple pages.
+						if (isCSSRequest(id)) {
+							for (const [pageInfo] of walkParentInfos(id, {
+								getModuleInfo: meta.getModuleInfo,
+							})) {
+								if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
+									// Split delayed assets to separate modules
+									// so they can be injected where needed
+									return createNameHash(id, [id]);
+								}
 							}
+							return createNameForParentPages(id, meta);
 						}
-						return createNameForParentPages(id, args[0]);
 					}
-				};
+				});
 			},
 
 			async generateBundle(_outputOptions, bundle) {
