@@ -208,20 +208,24 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 export async function loadContentConfig({
 	fs,
 	settings,
+	viteServer,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
+	viteServer?: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(settings.config);
-	const tempConfigServer: ViteDevServer = await createServer({
-		root: fileURLToPath(settings.config.root),
-		server: { middlewareMode: true, hmr: false },
-		optimizeDeps: { entries: [] },
-		clearScreen: false,
-		appType: 'custom',
-		logLevel: 'silent',
-		plugins: [astroContentVirtualModPlugin({ settings })],
-	});
+	const tempConfigServer: ViteDevServer =
+		viteServer ??
+		(await createServer({
+			root: fileURLToPath(settings.config.root),
+			server: { middlewareMode: true, hmr: false },
+			optimizeDeps: { entries: [] },
+			clearScreen: false,
+			appType: 'custom',
+			logLevel: 'silent',
+			plugins: [astroContentVirtualModPlugin({ settings })],
+		}));
 	let unparsedConfig;
 	if (!fs.existsSync(contentPaths.config)) {
 		return undefined;
@@ -232,7 +236,7 @@ export async function loadContentConfig({
 	} catch (e) {
 		throw e;
 	} finally {
-		await tempConfigServer.close();
+		// await tempConfigServer.close();
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
