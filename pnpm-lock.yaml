@@ -237,7 +237,7 @@ importers:
 
   examples/hackernews:
     specifiers:
-      '@astrojs/node': ^5.0.1
+      '@astrojs/node': ^5.0.2
       astro: ^2.0.5
     dependencies:
       '@astrojs/node': link:../../packages/integrations/node
@@ -269,7 +269,7 @@ importers:
 
   examples/ssr:
     specifiers:
-      '@astrojs/node': ^5.0.1
+      '@astrojs/node': ^5.0.2
       '@astrojs/svelte': ^2.0.1
       astro: ^2.0.5
       concurrently: ^7.2.1
