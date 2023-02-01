@@ -17,6 +17,7 @@ import { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import { attachContentServerListeners } from '../../content/index.js';
 
 const defaultLogging: LogOptions = {
 	dest: nodeLogDestination,
@@ -97,6 +98,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 	await runHookConfigDone({ settings, logging });
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config: settings.config, server: viteServer, logging });
+	await attachContentServerListeners({ viteServer, settings, logging, fs });
 
 	const container: Container = {
 		configFlag: params.configFlag,
