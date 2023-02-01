@@ -219,7 +219,6 @@ export async function loadContentConfig({
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-	/** For prod builds, create a viteServer before calling this function */
 	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(settings.config);
