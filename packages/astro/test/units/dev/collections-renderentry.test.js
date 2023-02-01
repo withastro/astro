@@ -5,10 +5,18 @@ import { runInContainer } from '../../../dist/core/dev/index.js';
 import { createFsWithFallback, createRequestAndResponse } from '../test-utils.js';
 import { isWindows } from '../../test-utils.js';
 import mdx from '../../../../integrations/mdx/dist/index.js';
+import { attachContentServerListeners } from '../../../dist/content/server-listeners.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
 const describe = isWindows ? global.describe.skip : global.describe;
+
+async function runInContainerWithContentListeners(params, callback) {
+	return await runInContainer(params, async (container) => {
+		await attachContentServerListeners(container);
+		await callback(container);
+	});
+}
 
 describe('Content Collections - render()', () => {
 	it('can be called in a page component', async () => {
@@ -40,7 +48,7 @@ describe('Content Collections - render()', () => {
 			root
 		);
 
-		await runInContainer(
+		await runInContainerWithContentListeners(
 			{
 				fs,
 				root,
@@ -113,7 +121,7 @@ describe('Content Collections - render()', () => {
 			root
 		);
 
-		await runInContainer(
+		await runInContainerWithContentListeners(
 			{
 				fs,
 				root,
@@ -184,7 +192,7 @@ describe('Content Collections - render()', () => {
 			root
 		);
 
-		await runInContainer(
+		await runInContainerWithContentListeners(
 			{
 				fs,
 				root,
@@ -249,7 +257,7 @@ describe('Content Collections - render()', () => {
 			root
 		);
 
-		await runInContainer(
+		await runInContainerWithContentListeners(
 			{
 				fs,
 				root,
