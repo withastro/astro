@@ -77,6 +77,7 @@ export class App {
 			},
 			routeCache: new RouteCache(this.#logging),
 			site: this.#manifest.site,
+			prependDoctype: this.#manifest.prependDoctype,
 			ssr: true,
 			streaming,
 		});

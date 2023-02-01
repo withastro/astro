@@ -33,6 +33,7 @@ export interface SSRManifest {
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;
+	prependDoctype: boolean;
 	assets: Set<string>;
 }
 

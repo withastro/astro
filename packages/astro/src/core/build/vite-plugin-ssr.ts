@@ -216,6 +216,7 @@ function buildManifest(
 		renderers: [],
 		entryModules,
 		assets: staticFiles.map((s) => settings.config.base + s),
+		prependDoctype: opts.settings.config.prependDoctype,
 	};
 
 	return ssrManifest;

@@ -32,6 +32,7 @@ export function createDevelopmentEnvironment(
 		resolve: createResolve(loader),
 		routeCache: new RouteCache(logging, mode),
 		site: settings.config.site,
+		prependDoctype: settings.config.prependDoctype,
 		ssr: settings.config.output === 'server',
 		streaming: true,
 		telemetry: Boolean(settings.forceDisableTelemetry),
