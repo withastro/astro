@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 2.1.1
+
+### Patch Changes
+
+- [#6090](https://github.com/withastro/astro/pull/6090) [`97a97196f`](https://github.com/withastro/astro/commit/97a97196fc4d2dd8ced838ddbca17a587cfa0957) Thanks [@matthewp](https://github.com/matthewp)! - Fix Netlify Function regression
+
 ## 2.1.0
 
 ### Minor Changes
