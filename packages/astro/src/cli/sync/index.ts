@@ -3,7 +3,8 @@ import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { createServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro';
-import { contentObservable, createContentTypesGenerator } from '../../content/index.js';
+import { createContentTypesGenerator } from '../../content/index.js';
+import { globalContentConfigObserver } from '../../content/utils.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { createVite } from '../../core/create-vite.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
@@ -29,7 +30,7 @@ export async function sync(
 
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({
-			contentConfigObserver: contentObservable({ status: 'loading' }),
+			contentConfigObserver: globalContentConfigObserver,
 			logging,
 			fs,
 			settings,

@@ -15,6 +15,8 @@ import {
 } from './utils.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { getEntryType } from './types-generator.js';
+import { AstroError } from '../core/errors/errors.js';
+import { AstroErrorData } from '../core/errors/errors-data.js';
 
 function isContentFlagImport(viteId: string) {
 	const { pathname, searchParams } = new URL(viteId, 'file://');
@@ -36,6 +38,15 @@ export function astroContentImportPlugin({
 			const { fileId } = getFileInfo(id, settings.config);
 			if (isContentFlagImport(id)) {
 				const observable = globalContentConfigObserver.get();
+
+				// Content config should be loaded before this plugin is used
+				if (observable.status === 'init') {
+					throw new AstroError({
+						...AstroErrorData.UnknownContentCollectionError,
+						message: 'Content config failed to load.',
+					});
+				}
+
 				let contentConfig: ContentConfig | undefined =
 					observable.status === 'loaded' ? observable.config : undefined;
 				if (observable.status === 'loading') {

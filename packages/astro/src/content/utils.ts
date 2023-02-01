@@ -210,7 +210,7 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
  * This global observable lets dependent plugins (like the content flag plugin)
  * subscribe to changes during dev server updates.
  */
-export const globalContentConfigObserver = contentObservable({ status: 'loading' });
+export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
 export async function loadContentConfig({
 	fs,
@@ -242,6 +242,7 @@ export async function loadContentConfig({
 }
 
 type ContentCtx =
+	| { status: 'init' }
 	| { status: 'loading' }
 	| { status: 'error' }
 	| { status: 'loaded'; config: ContentConfig };
