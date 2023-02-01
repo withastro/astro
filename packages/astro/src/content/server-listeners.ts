@@ -13,7 +13,6 @@ interface ContentServerListenerParams {
 	logging: LogOptions;
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
-	contentDirExists?: boolean;
 }
 
 export async function attachContentServerListeners({
@@ -21,11 +20,10 @@ export async function attachContentServerListeners({
 	fs,
 	logging,
 	settings,
-	contentDirExists,
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config);
 
-	if (contentDirExists || fs.existsSync(contentPaths.contentDir)) {
+	if (fs.existsSync(contentPaths.contentDir)) {
 		info(
 			logging,
 			'content',
