@@ -39,7 +39,8 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\" && pnpm run postbuild",
     "postbuild": "astro-scripts copy \"src/**/*.wasm\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000 test"
+    "test": "mocha --exit --timeout 20000 test",
+    "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
     "@altano/tiny-async-pool": "^1.0.2",
