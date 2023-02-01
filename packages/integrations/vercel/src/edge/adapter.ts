@@ -75,16 +75,16 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 						}
 					}
 
-          vite.ssr ||= {};
-          vite.ssr.target ||= 'webworker';
+					vite.ssr ||= {};
+					vite.ssr.target ||= 'webworker';
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
 				const entry = new URL(serverEntry, buildTempFolder);
 				const generatedFiles = await getFilesFromFolder(buildTempFolder);
-        const entryPath = fileURLToPath(entry);
+				const entryPath = fileURLToPath(entry);
 
-        await esbuild.build({
+				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
 					entryPoints: [entryPath],
