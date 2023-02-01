@@ -3,7 +3,7 @@ import type { Context } from "./context";
 import fs from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path';
-import { assign, parse, stringify } from 'comment-json';
+import stripJsonComments from 'strip-json-comments';
 import { spinner, color } from '@astrojs/cli-kit';
 import { title, info, error, typescriptByDefault } from '../messages.js';
 
@@ -59,13 +59,13 @@ export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
 	const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
 	try {
 		const data = await readFile(templateTSConfigPath, { encoding: 'utf-8' })
-		const templateTSConfig = parse(data);
+		const templateTSConfig = stripJsonComments(data);
 		if (templateTSConfig && typeof templateTSConfig === 'object') {
-			const result = assign(templateTSConfig, {
+			const result = Object.assign(templateTSConfig, {
 				extends: `astro/tsconfigs/${value}`,
 			});
 
-			fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
+			fs.writeFileSync(templateTSConfigPath, JSON.stringify(result, null, 2));
 		} else {
 			throw new Error("There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed")
 		}
@@ -74,7 +74,7 @@ export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
 			// If the template doesn't have a tsconfig.json, let's add one instead
 			fs.writeFileSync(
 				templateTSConfigPath,
-				stringify({ extends: `astro/tsconfigs/${value}` }, null, 2)
+				JSON.stringify({ extends: `astro/tsconfigs/${value}` }, null, 2)
 			);
 		}
 	}

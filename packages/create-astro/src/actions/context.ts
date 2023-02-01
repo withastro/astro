@@ -1,5 +1,5 @@
 import os from 'node:os';
-import yargs from 'yargs-parser';
+import minimist from 'minimist';
 import detectPackageManager from 'which-pm-runs';
 import { prompt } from '@astrojs/cli-kit';
 
@@ -25,9 +25,18 @@ export interface Context {
 
 
 export async function getContext(argv: string[]): Promise<Context> {
-	const flags = yargs(argv, {
+	const flags = minimist(argv, {
 		boolean: ['yes', 'no', 'install', 'git', 'skip-houston', 'dry-run', 'help', 'fancy'],
 		alias: { y: 'yes', n: 'no', h: 'help' },
+		default: {
+			yes: undefined,
+			no: undefined,
+			install: undefined,
+			'skip-houston': undefined,
+			'dry-run': undefined,
+			help: undefined,
+			fancy: undefined,
+		}
 	});
 	const pkgManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
