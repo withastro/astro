@@ -36,10 +36,18 @@ function* render(Component, attrs, slots) {
 
 	// LitElementRenderer creates a new element instance, so copy over.
 	const Ctr = getCustomElementConstructor(tagName);
+	let shouldDeferHydration = false;
+
 	if (attrs) {
 		for (let [name, value] of Object.entries(attrs)) {
-			// check if this is a reactive property
-			if (name in Ctr.prototype) {
+			const isReactiveProperty = name in Ctr.prototype;
+			const isReflectedReactiveProperty = Ctr.elementProperties.get(name)?.reflect;
+
+			// Only defer hydration if we are setting a reactive property that cannot
+			// be reflected / serialized as a property.
+			shouldDeferHydration ||= isReactiveProperty && !isReflectedReactiveProperty;
+
+			if (isReactiveProperty) {
 				instance.setProperty(name, value);
 			} else {
 				instance.setAttribute(name, value);
@@ -49,7 +57,7 @@ function* render(Component, attrs, slots) {
 
 	instance.connectedCallback();
 
-	yield `<${tagName}`;
+	yield `<${tagName}${shouldDeferHydration ? ' defer-hydration' : ''}`;
 	yield* instance.renderAttributes();
 	yield `>`;
 	const shadowContents = instance.renderShadow({});
