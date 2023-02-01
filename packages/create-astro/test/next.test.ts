@@ -11,7 +11,7 @@ describe('next steps', () => {
 		expect(fixture.hasMessage('Liftoff confirmed.')).toBeTruthy();
 		expect(fixture.hasMessage('npm run dev')).toBeTruthy();
 		expect(fixture.hasMessage('Good luck out there, astronaut!')).toBeTruthy();
-	}, 10000)
+	})
 
 	test('--skip-houston', async () => {
 		await next({ skipHouston: true, cwd: './test/fixtures/not-empty', pkgManager: 'npm' });
