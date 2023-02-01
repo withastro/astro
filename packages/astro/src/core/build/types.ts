@@ -48,3 +48,4 @@ export interface SingleFileBuiltModule {
 
 export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
 export type RollupOutput = Extract<Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>, { output: any }>;
+export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;
