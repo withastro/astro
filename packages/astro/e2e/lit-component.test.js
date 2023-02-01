@@ -40,6 +40,19 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
+		t('non-deferred attribute serialization', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+
+			const counter = page.locator('#non-deferred');
+			const count = counter.locator('p');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
+
+			const inc = counter.locator('button');
+			await inc.click();
+
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
+		});
+
 		t('client:load', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 

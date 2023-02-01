@@ -5,7 +5,10 @@ export default (element: HTMLElement) =>
 	) => {
 		// Get the LitElement element instance (may or may not be upgraded).
 		const component = element.children[0] as HTMLElement;
-		if (!component) {
+
+		// If there is no deferral of hydration, then all reactive properties are
+		// already serialzied as reflected attributes, or no reactive props were set
+		if (!component || !component.hasAttribute('defer-hydration')) {
 			return;
 		}
 
