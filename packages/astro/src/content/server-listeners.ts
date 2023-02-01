@@ -8,11 +8,11 @@ import { appendForwardSlash } from '../core/path.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { globalContentConfigObserver, getContentPaths } from './utils.js';
 
-interface AstroContentServerPluginParams {
+interface ContentServerListenerParams {
 	fs: typeof fsMod;
 	logging: LogOptions;
 	settings: AstroSettings;
-	mode: string;
+	viteServer: ViteDevServer;
 }
 
 export async function attachContentServerListeners({
@@ -20,7 +20,7 @@ export async function attachContentServerListeners({
 	fs,
 	logging,
 	settings,
-}: Omit<AstroContentServerPluginParams, 'mode'> & { viteServer: ViteDevServer }) {
+}: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config);
 
 	if (fs.existsSync(contentPaths.contentDir)) {
