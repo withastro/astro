@@ -30,36 +30,59 @@ describe('LitElement test', function () {
 		const $ = cheerio.load(html);
 
 		// test 1: attributes rendered – non reactive properties
-		expect($('my-element').attr('foo')).to.equal('bar');
+		expect($('#default').attr('foo')).to.equal('bar');
 
 		// test 2: shadow rendered
-		expect($('my-element').html()).to.include(`<div>Testing...</div>`);
+		expect($('#default').html()).to.include(`<div>Testing...</div>`);
 
 		// test 3: string reactive property set
-		expect(stripExpressionMarkers($('my-element').html())).to.include(
+		expect(stripExpressionMarkers($('#default').html())).to.include(
 			`<div id="str">initialized</div>`
 		);
 
 		// test 4: boolean reactive property correctly set
 		// <my-element bool="false"> Lit will equate to true because it uses
 		// this.hasAttribute to determine its value
-		expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="bool">B</div>`);
+		expect(stripExpressionMarkers($('#default').html())).to.include(`<div id="bool">B</div>`);
 
 		// test 5: object reactive property set
 		// by default objects will be stringified to [object Object]
-		expect(stripExpressionMarkers($('my-element').html())).to.include(
+		expect(stripExpressionMarkers($('#default').html())).to.include(
 			`<div id="data">data: 1</div>`
 		);
 
 		// test 6: reactive properties are not rendered as attributes
-		expect($('my-element').attr('obj')).to.equal(undefined);
-		expect($('my-element').attr('bool')).to.equal(undefined);
-		expect($('my-element').attr('str')).to.equal(undefined);
+		expect($('#default').attr('obj')).to.equal(undefined);
+		expect($('#default').attr('bool')).to.equal(undefined);
+		expect($('#default').attr('str')).to.equal(undefined);
 
 		// test 7: reflected reactive props are rendered as attributes
-		expect($('my-element').attr('reflectedbool')).to.equal('');
-		expect($('my-element').attr('reflected-str')).to.equal('default reflected string');
-		expect($('my-element').attr('reflected-str-prop')).to.equal('initialized reflected');
+		expect($('#default').attr('reflectedbool')).to.equal('');
+		expect($('#default').attr('reflected-str')).to.equal('default reflected string');
+		expect($('#default').attr('reflected-str-prop')).to.equal('initialized reflected');
+	});
+
+	it('Sets defer-hydration on element only when necessary', async () => {
+		// @lit-labs/ssr/ requires Node 13.9 or higher
+		if (NODE_VERSION < 13.9) {
+			return;
+		}
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: reflected reactive props are rendered as attributes
+		expect($('#non-deferred').attr('count')).to.equal('10');
+
+		// test 2: non-reactive props are set as attributes
+		expect($('#non-deferred').attr('foo')).to.equal('bar');
+
+		// test 3: components with only reflected reactive props set are not
+		// deferred because their state can be completely serialized via attributes
+		expect($('#non-deferred').attr('defer-hydration')).to.equal(undefined);
+
+		// test 4: components with non-reflected reactive props set are deferred because
+		// their state needs to be synced with the server on the client.
+		expect($('#default').attr('defer-hydration')).to.equal('');
 	});
 
 	it('Correctly passes child slots', async () => {
@@ -74,7 +97,7 @@ describe('LitElement test', function () {
 		const $slottedMyElement = $('#slotted');
 		const $slottedSlottedMyElement = $('#slotted-slotted');
 
-		expect($('my-element').length).to.equal(3);
+		expect($('#default').length).to.equal(3);
 
 		// Root my-element
 		expect($rootMyElement.children('.default').length).to.equal(2);

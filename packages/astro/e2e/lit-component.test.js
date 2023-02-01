@@ -32,12 +32,25 @@ test.describe('Lit components', () => {
 			await expect(counter).toHaveCount(1);
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
+		});
+
+		t('non-deferred attribute serialization', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+
+			const counter = page.locator('#non-deferred');
+			const count = counter.locator('p');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
+
+			const inc = counter.locator('button');
+			await inc.click();
+
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t('client:load', async ({ page, astro }) => {
@@ -47,12 +60,12 @@ test.describe('Lit components', () => {
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t('client:visible', async ({ page, astro }) => {
@@ -64,12 +77,12 @@ test.describe('Lit components', () => {
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t('client:media', async ({ page, astro }) => {
@@ -79,18 +92,18 @@ test.describe('Lit components', () => {
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'component not hydrated yet').toHaveText('Count: 0');
+			await expect(count, 'component not hydrated yet').toHaveText('Count: 10');
 
 			// Reset the viewport to hydrate the component (max-width: 50rem)
 			await page.setViewportSize({ width: 414, height: 1124 });
 
 			await inc.click();
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t.skip('HMR', async ({ page, astro }) => {

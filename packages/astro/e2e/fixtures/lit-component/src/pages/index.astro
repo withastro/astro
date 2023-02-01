@@ -1,8 +1,9 @@
 ---
 import MyCounter from '../components/Counter.js';
+import NonDeferredCounter from '../components/NonDeferredCounter.js';
 
 const someProps = {
-	count: 0,
+	count: 10,
 };
 ---
 
@@ -14,6 +15,9 @@ const someProps = {
 		<MyCounter id="client-idle" {...someProps} client:idle>
 			<h1>Hello, client:idle!</h1>
 		</MyCounter>
+
+		<NonDeferredCounter id="non-deferred" client:idle {...someProps}>
+		</NonDeferredCounter>
 
 		<MyCounter id="client-load" {...someProps} client:load>
 			<h1>Hello, client:load!</h1>
