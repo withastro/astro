@@ -205,6 +205,13 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 	}
 }
 
+/**
+ * The content config is loaded separately from other `src/` files.
+ * This global observable lets dependent plugins (like the content flag plugin)
+ * subscribe to changes during dev server updates.
+ */
+export const globalContentConfigObserver = contentObservable({ status: 'loading' });
+
 export async function loadContentConfig({
 	fs,
 	settings,

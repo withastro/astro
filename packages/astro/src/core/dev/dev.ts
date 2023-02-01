@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
-import { attachContentServerListeners } from '../../content/vite-plugin-content-server.js';
+import { attachContentServerListeners } from '../../content/index.js';
 import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
