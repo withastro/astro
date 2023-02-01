@@ -59,7 +59,6 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 	// Copy
 	if (!ctx.dryRun) {
 		try {
-			console.log({ templateTarget, ref });
 			await downloadTemplate(templateTarget, {
 				force: true,
 				provider: 'github',
