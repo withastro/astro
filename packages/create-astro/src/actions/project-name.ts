@@ -35,8 +35,8 @@ export async function projectName(ctx: Pick<Context, 'cwd'|'prompt'|'projectName
 		if (name === '.' || name === './') {
 			const parts = process.cwd().split(path.sep);
 			name = parts[parts.length - 1];
-		} else if (name[0] === '.' || name[1] === '/') {
-			const parts = name.split(path.sep);
+		} else if (name.startsWith('./') || name.startsWith('../')) {
+			const parts = name.split('/');
 			name = parts[parts.length - 1];
 		}
 		ctx.projectName = toValidName(name);
