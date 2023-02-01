@@ -1,5 +1,18 @@
 # @astrojs/image
 
+## 0.14.0
+
+### Minor Changes
+
+- [#5932](https://github.com/withastro/astro/pull/5932) [`b3e65991f`](https://github.com/withastro/astro/commit/b3e65991f731f5320ba5826c731934a8e8482493) Thanks [@rasendubi](https://github.com/rasendubi)! - Allow images from outside srcDir
+
+### Patch Changes
+
+- [#5894](https://github.com/withastro/astro/pull/5894) [`ca91976ed`](https://github.com/withastro/astro/commit/ca91976edbfd34adbb31096516a266f31d8f6216) Thanks [@ralacerda](https://github.com/ralacerda)! - `getPicture()` return object with the correct image type
+
+- Updated dependencies [[`9793f19ec`](https://github.com/withastro/astro/commit/9793f19ecd4e64cbf3140454fe52aeee2c22c8c9), [`f91615f5c`](https://github.com/withastro/astro/commit/f91615f5c04fde36f115dad9110dd75254efd61d), [`2fb72c887`](https://github.com/withastro/astro/commit/2fb72c887f71c0a69ab512870d65b8c867774766)]:
+  - astro@2.0.5
+
 ## 0.13.1
 
 ### Patch Changes
