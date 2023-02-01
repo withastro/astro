@@ -1,5 +1,5 @@
 import os from 'node:os';
-import minimist from 'minimist';
+import arg from 'arg';
 import detectPackageManager from 'which-pm-runs';
 import { prompt } from '@astrojs/cli-kit';
 
@@ -25,33 +25,39 @@ export interface Context {
 
 
 export async function getContext(argv: string[]): Promise<Context> {
-	const flags = minimist(argv, {
-		boolean: ['yes', 'no', 'install', 'git', 'skip-houston', 'dry-run', 'help', 'fancy'],
-		alias: { y: 'yes', n: 'no', h: 'help' },
-		default: {
-			yes: undefined,
-			no: undefined,
-			install: undefined,
-			'skip-houston': undefined,
-			'dry-run': undefined,
-			help: undefined,
-			fancy: undefined,
-		}
-	});
+	const flags = arg({
+		'--template': String,
+		'--ref': String,
+		'--yes': Boolean,
+		'--no': Boolean,
+		'--install': Boolean,
+		'--git': Boolean,
+		'--typescript': String,
+		'--skip-houston': Boolean,
+		'--dry-run': Boolean,
+		'--help': Boolean,
+		'--fancy': Boolean,
+
+		'-y': '--yes',
+		'-n': '--no',
+		'-h': '--help',
+	}, { argv, permissive: true });
+
 	const pkgManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][0] as string;
 	let {
-		help,
-		template,
-		no,
-		yes,
-		install,
-		git,
-		typescript,
-		fancy,
-		'skip-houston': skipHouston,
-		'dry-run': dryRun,
+		'--help': help = false,
+		'--template': template,
+		'--no': no,
+		'--yes': yes,
+		'--install': install,
+		'--git': git,
+		'--typescript': typescript,
+		'--fancy': fancy,
+		'--skip-houston': skipHouston,
+		'--dry-run': dryRun  = false,
+		'--ref': ref,
 	} = flags;
 	let projectName = cwd;
 
@@ -74,7 +80,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		dryRun,
 		projectName,
 		template,
-		ref: flags.ref ?? 'latest',
+		ref: ref ?? 'latest',
 		yes,
 		install,
 		git,
