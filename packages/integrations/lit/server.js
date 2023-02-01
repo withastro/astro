@@ -62,7 +62,7 @@ function* render(Component, attrs, slots) {
 	yield `>`;
 	const shadowContents = instance.renderShadow({});
 	if (shadowContents !== undefined) {
-		yield '<template shadowroot="open">';
+		yield '<template shadowroot="open" shadowrootmode="open">';
 		yield* shadowContents;
 		yield '</template>';
 	}

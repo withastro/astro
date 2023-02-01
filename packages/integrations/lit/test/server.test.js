@@ -38,7 +38,7 @@ describe('renderToStaticMarkup', () => {
 		customElements.define(tagName, class extends LitElement {});
 		const render = await renderToStaticMarkup(tagName);
 		expect(render).to.deep.equal({
-			html: `<${tagName}><template shadowroot="open"><!--lit-part--><!--/lit-part--></template></${tagName}>`,
+			html: `<${tagName}><template shadowroot="open" shadowrootmode="open"><!--lit-part--><!--/lit-part--></template></${tagName}>`,
 		});
 	});
 
