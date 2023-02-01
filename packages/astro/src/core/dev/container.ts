@@ -98,7 +98,8 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 	await runHookConfigDone({ settings, logging });
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config: settings.config, server: viteServer, logging });
-	await attachContentServerListeners({ viteServer, settings, logging, fs });
+
+	await attachContentServerListeners({ viteServer, settings, logging, fs, contentDirExists: true });
 
 	const container: Container = {
 		configFlag: params.configFlag,
