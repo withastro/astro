@@ -69,6 +69,15 @@ describe('Content Collections - render()', () => {
 				'`WithScripts.astro` hoisted script included unexpectedly.'
 			).to.be.undefined;
 		});
+
+		it('Applies MDX components export', async () => {
+			const html = await fixture.readFile('/launch-week-components-export/index.html');
+			const $ = cheerio.load(html);
+
+			const h2 = $('h2');
+			expect(h2).to.have.a.lengthOf(1);
+			expect(h2.attr('data-components-export-applied')).to.equal('true');
+		});
 	});
 
 	describe('Build - SSR', () => {
@@ -107,6 +116,18 @@ describe('Content Collections - render()', () => {
 
 			// Includes styles
 			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(0);
+		});
+
+		it('Applies MDX components export', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/launch-week-components-export');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const h2 = $('h2');
+			expect(h2).to.have.a.lengthOf(1);
+			expect(h2.attr('data-components-export-applied')).to.equal('true');
 		});
 	});
 
@@ -159,6 +180,18 @@ describe('Content Collections - render()', () => {
 
 			// Includes inline script
 			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
+		});
+
+		it('Applies MDX components export', async () => {
+			const response = await fixture.fetch('/launch-week-components-export', { method: 'GET' });
+			expect(response.status).to.equal(200);
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const h2 = $('h2');
+			expect(h2).to.have.a.lengthOf(1);
+			expect(h2.attr('data-components-export-applied')).to.equal('true');
 		});
 	});
 });
