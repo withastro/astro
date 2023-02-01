@@ -129,12 +129,7 @@ export async function getRemarkPlugins(
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
 	let remarkPlugins: PluggableList = [];
-	if (mdxOptions.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
-	}
-	if (mdxOptions.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
-	}
+
 	if (mdxOptions.gfm) {
 		remarkPlugins.push(remarkGfm);
 	}
@@ -143,6 +138,14 @@ export async function getRemarkPlugins(
 	}
 
 	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
+
+	// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
+	if (mdxOptions.syntaxHighlight === 'shiki') {
+		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+	}
+	if (mdxOptions.syntaxHighlight === 'prism') {
+		remarkPlugins.push(remarkPrism);
+	}
 
 	// Apply last in case user plugins resolve relative image paths
 	remarkPlugins.push(toRemarkContentRelImageError(config));
