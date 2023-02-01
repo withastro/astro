@@ -19,7 +19,7 @@ export function createServer(
 		if (req.url) {
 			let pathname = removeBase(req.url);
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
-			const stream = send(req, encodeURI(pathname), {
+			const stream = send(req, encodeURI(decodeURI(pathname)), {
 				root: fileURLToPath(client),
 				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});
