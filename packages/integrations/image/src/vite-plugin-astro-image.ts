@@ -16,6 +16,8 @@ export interface ImageMetadata {
 	format: InputFormat;
 }
 
+const absoluteImageImports = new Map<string, string>();
+
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
 		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
@@ -30,17 +32,26 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 		configResolved(viteConfig) {
 			resolvedConfig = viteConfig;
 		},
-		async resolveId(id) {
+		async resolveId(id, source) {
+			// during build, vite-plugin-vue forces the `template.transformAssetUrls.includeAbsolute`
+			// which generates imports with absolute urls aimed to be resolved relatively to the
+			// public directory by vue for asset registration
+			// We want to catch those imports to ignore them in the `load` hook
+			if (filter(id) && id.startsWith('/') && source?.endsWith('.vue')) {
+				!absoluteImageImports.has(id) && absoluteImageImports.set(id, id);
+			}
+
 			// The virtual model redirects imports to the ImageService being used
 			// This ensures the module is available in `astro dev` and is included
 			// in the SSR server bundle.
+
 			if (id === virtualModuleId) {
 				return await this.resolve(options.serviceEntryPoint);
 			}
 		},
 		async load(id) {
-			// only claim image ESM imports
-			if (!filter(id)) {
+			// only claim image ESM imports and ignore vue's absolute imports
+			if (!filter(id) || absoluteImageImports.has(id)) {
 				return null;
 			}
 
