@@ -2779,11 +2779,13 @@ importers:
       '@astrojs/vue': workspace:*
       astro: workspace:*
       sharp: ^0.31.0
+      vue: ^3.2.30
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/vue': link:../../../../vue
       astro: link:../../../../../astro
       sharp: 0.31.3
+      vue: 3.2.45
 
   packages/integrations/image/test/fixtures/no-alt-text-image:
     specifiers:
