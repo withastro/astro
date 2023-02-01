@@ -261,9 +261,11 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
-			} else if (html) {
+			} else if(html && html.length > 0) {
 				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
-			}
+			} else {
+        yield '';
+       }
 		})();
 	}
 
