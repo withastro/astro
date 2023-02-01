@@ -422,7 +422,10 @@ This can be helpful if you need to add preload links to a page's `<head>`.
 ---
 import { getImage } from '@astrojs/image';
 
-const { src } = await getImage({src: '../assets/hero.png'});
+const { src } = await getImage({
+    src: import('../assets/hero.png'),
+    alt: "My hero image"
+  });
 ---
 
 <html>
