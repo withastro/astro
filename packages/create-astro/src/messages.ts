@@ -27,7 +27,7 @@ export const welcome = [
     `Let's build something awesome!`,
     `Let's build something great!`,
     `Let's build something fast!`,
-		`Let's build the web we want.`,
+    `Let's build the web we want.`,
     `Let's make the web weird!`,
     `Let's make the web a better place!`,
     `Let's create a new project!`,
