@@ -14,7 +14,7 @@ export async function typescript(ctx: Pick<Context, 'typescript'|'yes'|'prompt'|
 			name: 'useTs',
 			type: 'confirm',
 			label: title('ts'),
-			message: `Do you want to use TypeScript?`,
+			message: `Do you plan to write TypeScript?`,
 			initial: true,
 		});
 		if (!useTs) {

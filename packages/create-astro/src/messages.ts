@@ -78,10 +78,8 @@ export const error = async (prefix: string, text: string) => {
 }
 
 export const typescriptByDefault = async () => {
-		await info(`No worries.`, 'JavaScript is cool too!');
-		console.log();
-		console.log(`${' '.repeat(9)}${color.dim('Astro includes a ')}${color.reset('tsconfig.json')}${color.dim(' and ')}${color.reset('env.d.ts')}${color.dim(` file`)}`);
-		console.log(`${' '.repeat(9)}${color.dim(`to improve the editing experience, but feel free to ignore these files.`)}`);
+		await info(`No worries!`, 'TypeScript is supported in Astro by default,');
+		console.log(`${' '.repeat(9)}${color.dim('but you are free to continue writing JavaScript instead.')}`);
 		await sleep(1000);
 }
 
