@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "babel-preset-solid": "^1.4.2",
-    "vitefu": "^0.2.1"
+    "vitefu": "^0.2.4"
   },
   "devDependencies": {
     "astro": "workspace:*",
