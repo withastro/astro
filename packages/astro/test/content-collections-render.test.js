@@ -80,6 +80,13 @@ describe('Content Collections - render()', () => {
 			expect(h2).to.have.a.lengthOf(1);
 			expect(h2.attr('data-components-export-applied')).to.equal('true');
 		});
+
+		it('Renders with raw html for markdown content', async () => {
+			const html = await fixture.readFile('/render-with-html/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('p').text()).to.equal('This is a post');
+		});
 	});
 
 	describe('Build - SSR', () => {
@@ -130,6 +137,16 @@ describe('Content Collections - render()', () => {
 			const h2 = $('h2');
 			expect(h2).to.have.a.lengthOf(1);
 			expect(h2.attr('data-components-export-applied')).to.equal('true');
+		});
+
+		it('Renders with raw html for markdown content', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/render-with-html');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			expect($('p').text()).to.equal('This is a post');
 		});
 	});
 
@@ -194,6 +211,16 @@ describe('Content Collections - render()', () => {
 			const h2 = $('h2');
 			expect(h2).to.have.a.lengthOf(1);
 			expect(h2.attr('data-components-export-applied')).to.equal('true');
+		});
+
+		it('Renders with raw html for markdown content', async () => {
+			const response = await fixture.fetch('/render-with-html', { method: 'GET' });
+			expect(response.status).to.equal(200);
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			expect($('p').text()).to.equal('This is a post');
 		});
 	});
 });

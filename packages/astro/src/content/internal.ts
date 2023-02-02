@@ -175,9 +175,16 @@ async function render({
 		propagation: 'self',
 	});
 
-	return {
+	// This should match the RenderResult type from template/types.d.ts
+	const renderResult: Record<string, any> = {
 		Content,
 		headings: mod.getHeadings(),
 		remarkPluginFrontmatter: mod.frontmatter,
 	};
+
+	if (!id.endsWith('mdx')) {
+		renderResult.html = mod.compiledContent();
+	}
+
+	return renderResult;
 }

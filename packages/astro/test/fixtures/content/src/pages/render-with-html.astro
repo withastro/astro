@@ -1,0 +1,14 @@
+---
+import { getEntryBySlug } from 'astro:content';
+
+const entry = await getEntryBySlug('blog', 'one');
+const { html } = await entry.render();
+---
+<html>
+<head>
+	<title>Launch Week</title>
+</head>
+<body>
+	<main set:html={html} />
+</body>
+</html>

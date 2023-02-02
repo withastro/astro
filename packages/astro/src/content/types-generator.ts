@@ -326,7 +326,8 @@ async function writeContentFiles({
 			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
 			const slugType = JSON.stringify(entryMetadata.slug);
-			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
+			const renderType = JSON.parse(entryKey).endsWith('.mdx') ? 'Render' : 'RenderWithHtml'; 
+			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType},\n  render: ${renderType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;
 	}
