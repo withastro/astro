@@ -1,12 +1,13 @@
 import { getContext } from './actions/context.js';
 
+import { setStdout } from './messages.js';
 import { help } from './actions/help.js';
 import { intro } from './actions/intro.js';
 import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js'
 import { dependencies } from './actions/dependencies.js';
 import { git } from './actions/git.js';
-import { typescript } from './actions/typescript.js';
+import { typescript, setupTypeScript } from './actions/typescript.js';
 import { next } from './actions/next-steps.js';
 
 const exit = () => process.exit(0)
@@ -42,4 +43,17 @@ export async function main() {
 		await step(ctx)
 	}
 	process.exit(0);
+}
+
+export {
+	setStdout,
+	getContext,
+	intro,
+	projectName,
+	template,
+	dependencies,
+	git,
+	typescript,
+	setupTypeScript,
+	next
 }

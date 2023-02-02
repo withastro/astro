@@ -1,8 +1,7 @@
 import { Context } from "./context";
 import path from 'node:path';
-import { say } from '@astrojs/cli-kit';
 
-import { nextSteps } from '../messages.js';
+import { nextSteps, say } from '../messages.js';
 
 export async function next(ctx: Pick<Context, 'cwd'|'pkgManager'|'skipHouston'>) {
 	let projectDir = path.relative(process.cwd(), ctx.cwd);

@@ -21,6 +21,9 @@ export interface Context {
 	install?: boolean;
 	git?: boolean;
 	typescript?: string;
+	stdin?: typeof process.stdin;
+	stdout?: typeof process.stdout;
+	exit(code: number): never;
 }
 
 
@@ -89,7 +92,10 @@ export async function getContext(argv: string[]): Promise<Context> {
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
 		typescript,
-		cwd
+		cwd,
+		exit(code) {
+			process.exit(code);
+		}
 	}
 	return context;
 }

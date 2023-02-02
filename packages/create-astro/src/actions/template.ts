@@ -5,10 +5,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { downloadTemplate } from 'giget';
 import { error } from '../messages.js';
-import { color, spinner } from '@astrojs/cli-kit';
-import { title, info } from '../messages.js';
+import { color } from '@astrojs/cli-kit';
+import { title, info, spinner } from '../messages.js';
 
-export async function template(ctx: Pick<Context, 'template'|'prompt'|'dryRun'>) {
+export async function template(ctx: Pick<Context, 'template'|'prompt'|'dryRun'|'exit'|'exit'>) {
 	if (!ctx.template) {
 		const { template: tmpl } = await ctx.prompt({
 			name: 'template',
@@ -36,7 +36,7 @@ export async function template(ctx: Pick<Context, 'template'|'prompt'|'dryRun'>)
 			while: () => copyTemplate(ctx.template!, ctx as Context),
 		});
 	} else {
-		process.exit(1);
+		ctx.exit(1);
 	}
 }
 
@@ -72,7 +72,7 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 			} else {
 				console.error(err.message);
 			}
-			process.exit(1);
+			ctx.exit(1);
 		}
 
 		// Post-process in parallel

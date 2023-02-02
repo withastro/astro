@@ -4,10 +4,10 @@ import fs from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
-import { spinner, color } from '@astrojs/cli-kit';
-import { title, info, error, typescriptByDefault } from '../messages.js';
+import { color } from '@astrojs/cli-kit';
+import { title, info, error, typescriptByDefault, spinner } from '../messages.js';
 
-export async function typescript(ctx: Pick<Context, 'typescript'|'yes'|'prompt'|'dryRun'|'cwd'>) {
+export async function typescript(ctx: Pick<Context, 'typescript'|'yes'|'prompt'|'dryRun'|'cwd'|'exit'>) {
 	let ts = ctx.typescript ?? (typeof ctx.yes !== 'undefined' ? 'strict' : undefined);
 	if (ts === undefined) {
 		const { useTs } = await ctx.prompt({
@@ -45,7 +45,7 @@ export async function typescript(ctx: Pick<Context, 'typescript'|'yes'|'prompt'|
 					'! Expected strict | strictest | relaxed'
 				)}`
 			);
-			process.exit(1);
+			ctx.exit(1);
 		}
 		await info('ts', `Using ${color.reset(ts)}${color.dim(' TypeScript configuration')}`);
 	}

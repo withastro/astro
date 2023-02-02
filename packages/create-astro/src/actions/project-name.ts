@@ -1,13 +1,12 @@
-/* eslint no-console: 'off' */
 import type { Context } from "./context";
 
 import { color, generateProjectName } from '@astrojs/cli-kit';
-import { title, info } from '../messages.js';
+import { title, info, log } from '../messages.js';
 import path from 'node:path';
 
 import { isEmpty, toValidName } from './shared.js';
 
-export async function projectName(ctx: Pick<Context, 'cwd'|'prompt'|'projectName'>) {
+export async function projectName(ctx: Pick<Context, 'cwd'|'prompt'|'projectName'|'exit'>) {
 	await checkCwd(ctx.cwd);
 
 	if (!ctx.cwd || !isEmpty(ctx.cwd)) {
@@ -43,14 +42,14 @@ export async function projectName(ctx: Pick<Context, 'cwd'|'prompt'|'projectName
 	}
 
 	if (!ctx.cwd) {
-		process.exit(1);
+		ctx.exit(1);
 	}
 }
 
 async function checkCwd(cwd: string | undefined) {
 	const empty = cwd && isEmpty(cwd);
 	if (empty) {
-		console.log('');
+		log('');
 		await info('dir', `Using ${color.reset(cwd)}${color.dim(' as project directory')}`);
 	}
 

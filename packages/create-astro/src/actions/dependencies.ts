@@ -1,7 +1,6 @@
 import type { Context } from "./context";
 
-import { spinner } from '@astrojs/cli-kit';
-import { title, info } from '../messages.js';
+import { title, info, spinner } from '../messages.js';
 import { execa } from 'execa';
 
 export async function dependencies(ctx: Pick<Context, 'install'|'yes'|'prompt'|'pkgManager'|'cwd'|'dryRun'>) {

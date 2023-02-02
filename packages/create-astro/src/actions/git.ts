@@ -2,8 +2,8 @@ import type { Context } from "./context";
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { spinner, color } from '@astrojs/cli-kit';
-import { title, info } from '../messages.js';
+import { color } from '@astrojs/cli-kit';
+import { title, info, spinner } from '../messages.js';
 import { execa } from 'execa';
 
 export async function git(ctx: Pick<Context, 'cwd'|'git'|'yes'|'prompt'|'dryRun'>) {

@@ -1,9 +1,22 @@
 /* eslint no-console: 'off' */
 import { exec } from 'node:child_process';
 import { get } from 'node:https';
-import { color, label } from '@astrojs/cli-kit';
+import { color, label, spinner as load, say as houston } from '@astrojs/cli-kit';
 import { sleep, align } from '@astrojs/cli-kit/utils';
 import stripAnsi from 'strip-ansi';
+
+let stdout = process.stdout;
+export function setStdout(writable: typeof process.stdout) {
+	stdout = writable;
+}
+
+export async function say(messages: string|string[], { clear = false, hat = '' } = {}) {
+	return houston(messages, { clear, hat, stdout });
+}
+
+export async function spinner(args: { start: string; end: string; while: (...args: any) => Promise<any>; }) {
+	return load(args, { stdout })
+}
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
@@ -56,49 +69,114 @@ export const getVersion = () => new Promise<string>((resolve) => {
     })
 })
 
-export const banner = async (version: string) => console.log(`\n${label('astro', color.bgGreen, color.black)}  ${color.green(color.bold(`v${version}`))} ${color.bold('Launch sequence initiated.')}`);
+export const log = (message: string) => stdout.write(message + '\n');
+export const banner = async (version: string) => log(`\n${label('astro', color.bgGreen, color.black)}  ${color.green(color.bold(`v${version}`))} ${color.bold('Launch sequence initiated.')}`);
 
 export const info = async (prefix: string, text: string) => {
     await sleep(100)
-    if (process.stdout.columns < 80) {
-        console.log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)}`);
-        console.log(`${' '.repeat(9)}${color.dim(text)}`);
+    if (stdout.columns < 80) {
+        log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)}`);
+        log(`${' '.repeat(9)}${color.dim(text)}`);
     } else {
-        console.log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
+        log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
     }
 }
 
 export const error = async (prefix: string, text: string) => {
-    if (process.stdout.columns < 80) {
-        console.log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);
-        console.log(`${' '.repeat(9)}${color.dim(text)}`);
+    if (stdout.columns < 80) {
+        log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);
+        log(`${' '.repeat(9)}${color.dim(text)}`);
     } else {
-        console.log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
+        log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
     }
 }
 
 export const typescriptByDefault = async () => {
 		await info(`No worries!`, 'TypeScript is supported in Astro by default,');
-		console.log(`${' '.repeat(9)}${color.dim('but you are free to continue writing JavaScript instead.')}`);
+		log(`${' '.repeat(9)}${color.dim('but you are free to continue writing JavaScript instead.')}`);
 		await sleep(1000);
 }
 
 export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string, devCmd: string }) => {
-    const max = process.stdout.columns;
+    const max = stdout.columns;
     const prefix = max < 80 ? ' ' : ' '.repeat(9);
     await sleep(200);
-    console.log(`\n ${color.bgCyan(` ${color.black('next')} `)}  ${color.bold('Liftoff confirmed. Explore your project!')}`)
+    log(`\n ${color.bgCyan(` ${color.black('next')} `)}  ${color.bold('Liftoff confirmed. Explore your project!')}`)
 
     await sleep(100);
 		if (projectDir !== '') {
 			const enter = [`\n${prefix}Enter your project directory using`, color.cyan(`cd ./${projectDir}`, '')];
 			const len = enter[0].length + stripAnsi(enter[1]).length;
-			console.log(enter.join((len > max) ? '\n' + prefix : ' '));
+			log(enter.join((len > max) ? '\n' + prefix : ' '));
 		}
-    console.log(`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`)
+    log(`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`)
     await sleep(100);
-    console.log(`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan('tailwind')} using ${color.cyan('astro add')}.`)
+    log(`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan('tailwind')} using ${color.cyan('astro add')}.`)
     await sleep(100);
-    console.log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}`)
+    log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}`)
     await sleep(200);
+}
+
+
+export function printHelp({
+	commandName,
+	headline,
+	usage,
+	tables,
+	description,
+}: {
+	commandName: string;
+	headline?: string;
+	usage?: string;
+	tables?: Record<string, [command: string, help: string][]>;
+	description?: string;
+}) {
+	const linebreak = () => '';
+	const table = (rows: [string, string][], { padding }: { padding: number }) => {
+		const split = stdout.columns < 60;
+		let raw = '';
+
+		for (const row of rows) {
+			if (split) {
+				raw += `    ${row[0]}\n    `;
+			} else {
+				raw += `${`${row[0]}`.padStart(padding)}`;
+			}
+			raw += '  ' + color.dim(row[1]) + '\n';
+		}
+
+		return raw.slice(0, -1); // remove latest \n
+	};
+
+	let message = [];
+
+	if (headline) {
+		message.push(
+			linebreak(),
+			`${title(commandName)} ${color.green(
+				`v${process.env.PACKAGE_VERSION ?? ''}`
+			)} ${headline}`
+		);
+	}
+
+	if (usage) {
+		message.push(linebreak(), `${color.green(commandName)} ${color.bold(usage)}`);
+	}
+
+	if (tables) {
+		function calculateTablePadding(rows: [string, string][]) {
+			return rows.reduce((val, [first]) => Math.max(val, first.length), 0);
+		}
+		const tableEntries = Object.entries(tables);
+		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
+		for (const [, tableRows] of tableEntries) {
+			message.push(linebreak(), table(tableRows, { padding }));
+		}
+	}
+
+	if (description) {
+		message.push(linebreak(), `${description}`);
+	}
+
+	log(message.join('\n') + '\n');
 }
