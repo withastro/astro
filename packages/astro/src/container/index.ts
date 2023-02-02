@@ -8,9 +8,10 @@ import type { CreateBasicEnvironmentArgs, Environment } from '../core/render/env
 export class AstroContainer {
 	env: Environment;
 
-	constructor(opts: Pick<CreateBasicEnvironmentArgs, 'mode'|'renderers'|'site'>) {
+	constructor(opts: Pick<CreateBasicEnvironmentArgs, 'renderers'|'site'>) {
 		this.env = createBasicEnvironment({
 			...opts,
+			mode: 'production',
 			logging: { dest: nodeLogDestination, level: 'error' },
 		});
 	}
@@ -23,11 +24,11 @@ export class AstroContainer {
 			params = {},
 			slots = {},
 		}: {
-			props: Record<string | number | symbol, any>,
+			props?: Record<string | number | symbol, any>,
 			slots?: Record<string, any>
 			params?: Record<string, any>,
 			request?: Request,
-		}
+		} = {}
 	) {
 		const { env } = this;
 		const ctx = createRenderContext({ request })
