@@ -38,18 +38,3 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 		return null;
 	};
 }
-
-/*
-
-					// Defer to user-provided `manualChunks`, if it was provided.
-					if (typeof manualChunks == 'object') {
-						if (id in manualChunks) {
-							return manualChunks[id];
-						}
-					} else if (typeof manualChunks === 'function') {
-						const outid = manualChunks.call(this, id, api, ...args);
-						if (outid) {
-							return outid;
-						}
-					}
-}*/
