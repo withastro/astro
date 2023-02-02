@@ -1,5 +1,11 @@
 # astro
 
+## 2.0.6
+
+### Patch Changes
+
+- [#6107](https://github.com/withastro/astro/pull/6107) [`9bec6bc41`](https://github.com/withastro/astro/commit/9bec6bc410f324a41c67e5d185fa86f78d7625f2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes head contents being placed in body in MDX components
+
 ## 2.0.5
 
 ### Patch Changes
