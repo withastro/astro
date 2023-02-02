@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.0.1
+
+### Patch Changes
+
+- [#6085](https://github.com/withastro/astro/pull/6085) [`b236b5cc8`](https://github.com/withastro/astro/commit/b236b5cc8eb9e078758d9c6cb77d88c39bb1fc3d) Thanks [@AirBorne04](https://github.com/AirBorne04)! - Added second build step through esbuild, to allow framework defined build (vite build) and target defined bundling (esbuilt step)
+
+- Updated dependencies [[`9bec6bc41`](https://github.com/withastro/astro/commit/9bec6bc410f324a41c67e5d185fa86f78d7625f2)]:
+  - astro@2.0.6
+
 ## 3.0.0
 
 ### Major Changes
