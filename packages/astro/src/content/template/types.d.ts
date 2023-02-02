@@ -57,14 +57,15 @@ declare module 'astro:content' {
 		Required<ContentConfig['collections'][C]>['schema']
 	>;
 
-	type RenderResult = {
+	interface RenderResult {
 		Content: import('astro').MarkdownInstance<{}>['Content'];
 		headings: import('astro').MarkdownHeading[];
 		remarkPluginFrontmatter: Record<string, any>;
-	};
-	type RenderResultWithHtml = RenderResult & {
+		html: undefined;
+	}
+	interface RenderResultWithHtml extends RenderResult {
 		html: string;
-	};
+	}
 	type Render = () => Promise<RenderResult>;
 	type RenderWithHtml = () => Promise<RenderResultWithHtml>;
 
