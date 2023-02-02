@@ -43,6 +43,8 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				}
 			}
 			case 'head': {
+				// Head should not be rendered when the scope is within a single component.
+				// That is, we are rendering a component and not within a page.
 				if (result._metadata.hasRenderedHead) {
 					return '';
 				}

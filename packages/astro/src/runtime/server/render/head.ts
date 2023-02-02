@@ -1,7 +1,9 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { renderElement } from './util.js';
+import { renderElement, ScopeFlags } from './util.js';
+
+const AstroAndJSXScope = ScopeFlags.Astro | ScopeFlags.JSX;
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -49,6 +51,12 @@ export function* renderHead(result: SSRResult) {
 // already injected it is a noop.
 export function* maybeRenderHead(result: SSRResult) {
 	if (result._metadata.hasRenderedHead) {
+		return;
+	}
+
+	// Don't render the head inside of a JSX component that's inside of an Astro component
+	// as the Astro component will be the one to render the head.
+	if(result.scope & AstroAndJSXScope) {
 		return;
 	}
 

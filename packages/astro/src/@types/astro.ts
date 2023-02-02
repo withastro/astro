@@ -1449,6 +1449,7 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
+	scope: 0 | 1 | 2 | 3;
 	_metadata: SSRMetadata;
 }
 
