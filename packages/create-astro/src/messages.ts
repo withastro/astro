@@ -6,6 +6,7 @@ import { sleep, align } from '@astrojs/cli-kit/utils';
 import stripAnsi from 'strip-ansi';
 
 let stdout = process.stdout;
+/** @internal Used to mock `process.stdout.write` for testing purposes */
 export function setStdout(writable: typeof process.stdout) {
 	stdout = writable;
 }
