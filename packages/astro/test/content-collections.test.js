@@ -129,6 +129,22 @@ describe('Content Collections', () => {
 				});
 			});
 		});
+
+		describe('Render HTML', () => {
+			let json;
+			before(async () => {
+				const rawJson = await fixture.readFile('/render-html.json');
+				json = JSON.parse(rawJson);
+			});
+
+			it('Renders HTML correctly', async () => {
+				expect(json).to.deep.equal({
+					one: '<h1 id="one">one</h1>',
+					three: '<h1 id="three">three</h1>',
+					two: '<h1 id="two">two</h1>',
+				});
+			});
+		});
 	});
 
 	const blogSlugToContents = {
