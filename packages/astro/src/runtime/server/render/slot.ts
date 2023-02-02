@@ -21,7 +21,11 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function renderSlot(result: SSRResult, slotted: string, fallback?: any): Promise<string> {
+export async function renderSlot(
+	result: SSRResult,
+	slotted: string,
+	fallback?: any
+): Promise<string> {
 	if (slotted) {
 		result.scope |= ScopeFlags.Slot;
 		let iterator = renderChild(slotted);
