@@ -28,6 +28,10 @@
       "types": "./dist/@types/astro.d.ts",
       "default": "./astro.js"
     },
+    "./container": {
+      "types": "./dist/container/index.d.ts",
+      "default": "./dist/container/index.js"
+    },
     "./env": "./env.d.ts",
     "./types": "./types.d.ts",
     "./client": "./client.d.ts",
