@@ -16,7 +16,7 @@ export async function say(messages: string|string[], { clear = false, hat = '' }
 }
 
 export async function spinner(args: { start: string; end: string; while: (...args: any) => Promise<any>; }) {
-	return load(args, { stdout })
+	await load(args, { stdout });
 }
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
@@ -70,7 +70,7 @@ export const getVersion = () => new Promise<string>((resolve) => {
     })
 })
 
-export const log = (message: string) => stdout.write(message + '\n');
+export const log = (message: string) => stdout.write(message + "\n");
 export const banner = async (version: string) => log(`\n${label('astro', color.bgGreen, color.black)}  ${color.green(color.bold(`v${version}`))} ${color.bold('Launch sequence initiated.')}`);
 
 export const info = async (prefix: string, text: string) => {
