@@ -153,7 +153,7 @@ export async function createVite(
 			// shiki is imported by Code.astro, which is no-externalized (processed by Vite).
 			// However, shiki's deps are in CJS and trips up Vite's dev SSR transform, externalize
 			// shiki to load it with node instead.
-			external: [...(mode === 'dev' ? ['shiki'] : []), ...astroPkgsConfig.ssr.external],
+			external: [...(mode === 'dev' ? ['shiki'] : []), 'astro/container', ...astroPkgsConfig.ssr.external],
 		},
 	};
 
