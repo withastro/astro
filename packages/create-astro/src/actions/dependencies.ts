@@ -12,7 +12,7 @@ export async function dependencies(ctx: Pick<Context, 'install'|'yes'|'prompt'|'
 			type: 'confirm',
 			label: title('deps'),
 			message: `Install dependencies?`,
-			hint: 'recommended',
+			hint: '(recommended)',
 			initial: true,
 		}));
 		ctx.install = deps;
