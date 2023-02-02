@@ -130,6 +130,7 @@ export function renderElement(
 }
 
 export const ScopeFlags = {
-	Astro: 1,
-	JSX: 2
+	Astro: 1 << 0,
+	JSX: 1 << 1,
+	Slot: 1 << 2
 };

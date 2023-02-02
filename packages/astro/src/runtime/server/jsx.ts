@@ -95,7 +95,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				result.scope |= ScopeFlags.JSX;
+				result.scope |= ScopeFlags.JSX;	
 				return markHTMLString(await renderToString(result, vnode.type as any, props, slots));
 			}
 			case !vnode.type && (vnode.type as any) !== 0:

@@ -1449,7 +1449,10 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
-	scope: 0 | 1 | 2 | 3;
+	// Bits 1 = astro, 2 = jsx, 4 = slot
+	// As rendering occurs these bits are manipulated to determine where content
+	// is within a slot. This is used for head injection.
+	scope: number;
 	_metadata: SSRMetadata;
 }
 
