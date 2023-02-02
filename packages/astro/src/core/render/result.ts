@@ -156,6 +156,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		propagation: args.propagation ?? new Map(),
 		propagators: new Map(),
 		extraHead: [],
+		scope: 0,
 		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(

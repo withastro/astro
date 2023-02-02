@@ -5,6 +5,7 @@ import type { RenderTemplateResult } from './render-template';
 import { HTMLParts } from '../common.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { renderAstroTemplateResult } from './render-template.js';
+import { ScopeFlags } from '../util.js';
 
 export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent;
 
@@ -27,6 +28,7 @@ export async function renderToString(
 	props: any,
 	children: any
 ): Promise<string> {
+	result.scope |= ScopeFlags.Astro;
 	const factoryResult = await componentFactory(result, props, children);
 
 	if (factoryResult instanceof Response) {
