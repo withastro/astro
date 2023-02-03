@@ -292,7 +292,7 @@ export function getEntryType(
 	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
 	const fileUrl = new URL(base, dir);
 
-	if (hasUnderscoreInPath(fileUrl)) {
+	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(fileUrl)) {
 		return 'ignored';
 	} else if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
@@ -301,6 +301,11 @@ export function getEntryType(
 	} else {
 		return 'unsupported';
 	}
+}
+
+function isOnIgnoreList(fileUrl: URL) {
+	const { base } = path.parse(fileURLToPath(fileUrl));
+	return ['.DS_Store'].includes(base);
 }
 
 function hasUnderscoreInPath(fileUrl: URL): boolean {
