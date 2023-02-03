@@ -8,9 +8,10 @@ import { prependForwardSlash } from '../../../core/path.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
+import { pathToFileURL } from 'url';
 
 function isPropagatedAsset(id: string) {
-	return new URL('file://' + id).searchParams.has(PROPAGATED_ASSET_FLAG);
+	return pathToFileURL(id).searchParams.has(PROPAGATED_ASSET_FLAG);
 }
 
 export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
