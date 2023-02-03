@@ -2,8 +2,8 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import send from 'send';
-import { fileURLToPath } from 'url';
 import enableDestroy from 'server-destroy';
+import { fileURLToPath } from 'url';
 
 interface CreateServerOptions {
 	client: URL;

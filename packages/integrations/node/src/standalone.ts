@@ -61,6 +61,6 @@ export default function startServer(app: NodeApp, options: Options) {
 
 	return {
 		server,
-		done: server.closed()
+		done: server.closed(),
 	};
 }
