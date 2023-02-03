@@ -1,5 +1,21 @@
 # @astrojs/mdx
 
+## 0.16.0
+
+### Minor Changes
+
+- [#6050](https://github.com/withastro/astro/pull/6050) [`2ab32b59e`](https://github.com/withastro/astro/commit/2ab32b59ef0a28d34757f2c2adb9cf2baa86855e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: load syntax highlighters after MDX remark plugins. This keeps MDX consistent with Astro's markdown behavior.
+
+### Patch Changes
+
+- [#6062](https://github.com/withastro/astro/pull/6062) [`c6cf847bd`](https://github.com/withastro/astro/commit/c6cf847bd0b6bef3c51a5710fba5ca43b11e46f9) Thanks [@delucis](https://github.com/delucis)! - Update MDX README
+
+## 0.15.2
+
+### Patch Changes
+
+- [#5478](https://github.com/withastro/astro/pull/5478) [`1c7eef308`](https://github.com/withastro/astro/commit/1c7eef308e808aa5ed4662b53e67ec8d1b814d1f) Thanks [@nemo0](https://github.com/nemo0)! - Update READMEs for consistency
+
 ## 0.15.1
 
 ### Patch Changes

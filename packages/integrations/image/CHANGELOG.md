@@ -1,5 +1,31 @@
 # @astrojs/image
 
+## 0.14.0
+
+### Minor Changes
+
+- [#5932](https://github.com/withastro/astro/pull/5932) [`b3e65991f`](https://github.com/withastro/astro/commit/b3e65991f731f5320ba5826c731934a8e8482493) Thanks [@rasendubi](https://github.com/rasendubi)! - Allow images from outside srcDir
+
+### Patch Changes
+
+- [#5894](https://github.com/withastro/astro/pull/5894) [`ca91976ed`](https://github.com/withastro/astro/commit/ca91976edbfd34adbb31096516a266f31d8f6216) Thanks [@ralacerda](https://github.com/ralacerda)! - `getPicture()` return object with the correct image type
+
+- Updated dependencies [[`9793f19ec`](https://github.com/withastro/astro/commit/9793f19ecd4e64cbf3140454fe52aeee2c22c8c9), [`f91615f5c`](https://github.com/withastro/astro/commit/f91615f5c04fde36f115dad9110dd75254efd61d), [`2fb72c887`](https://github.com/withastro/astro/commit/2fb72c887f71c0a69ab512870d65b8c867774766)]:
+  - astro@2.0.5
+
+## 0.13.1
+
+### Patch Changes
+
+- [#5478](https://github.com/withastro/astro/pull/5478) [`1c7eef308`](https://github.com/withastro/astro/commit/1c7eef308e808aa5ed4662b53e67ec8d1b814d1f) Thanks [@nemo0](https://github.com/nemo0)! - Update READMEs for consistency
+
+- [#6008](https://github.com/withastro/astro/pull/6008) [`9c298aa5a`](https://github.com/withastro/astro/commit/9c298aa5ae235e8b2555f26b1f19394aaab55da8) Thanks [@jasikpark](https://github.com/jasikpark)! - Updated error message for missing `widths` prop to provide an example
+
+- [#6008](https://github.com/withastro/astro/pull/6008) [`9c298aa5a`](https://github.com/withastro/astro/commit/9c298aa5ae235e8b2555f26b1f19394aaab55da8) Thanks [@jasikpark](https://github.com/jasikpark)! - Allow passing `undefined` to TransformOptions, this is a types fix for users with `exactOptionalTypes` enabled in their tsconfig
+
+- Updated dependencies [[`b4432cd6b`](https://github.com/withastro/astro/commit/b4432cd6b65bad685a99fe15867710b0663c13b2), [`98a4a914b`](https://github.com/withastro/astro/commit/98a4a914bc47f3da2764b3bdc01577d25fe2e261), [`071e1dee7`](https://github.com/withastro/astro/commit/071e1dee7e1943be67d1ded39a9af1b7a2aafd02), [`322e059d0`](https://github.com/withastro/astro/commit/322e059d0da9ab0d6a546a111fabda755bd5f1b6), [`b994f6f35`](https://github.com/withastro/astro/commit/b994f6f35e29b2d93ff8ddc281a69c0af3cc3edf), [`12c68343c`](https://github.com/withastro/astro/commit/12c68343c0aa891037d39d3c9b9378b004be6642)]:
+  - astro@2.0.3
+
 ## 0.13.0
 
 ### Minor Changes

@@ -259,7 +259,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 How the image should be resized to fit both `height` and `width`.
 
@@ -271,7 +271,7 @@ How the image should be resized to fit both `height` and `width`.
 **Default:** `'centre'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 Position of the crop when fit is `cover` or `contain`.
 
@@ -333,7 +333,7 @@ The list of sizes that should be built for responsive images. This is combined w
 
 ```astro
 // Builds three images: 400x400, 800x800, and 1200x1200
-<Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" />
+<Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" alt="descriptive text" />
 ```
 
 #### aspectRatio
@@ -392,7 +392,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 How the image should be resized to fit both `height` and `width`.
 
@@ -406,7 +406,7 @@ How the image should be resized to fit both `height` and `width`.
 **Default:** `'centre'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 Position of the crop when fit is `cover` or `contain`.
 
@@ -422,7 +422,10 @@ This can be helpful if you need to add preload links to a page's `<head>`.
 ---
 import { getImage } from '@astrojs/image';
 
-const { src } = await getImage({src: '../assets/hero.png'});
+const { src } = await getImage({
+    src: import('../assets/hero.png'),
+    alt: "My hero image"
+  });
 ---
 
 <html>
@@ -530,7 +533,7 @@ import heroImage from '../assets/hero.png';
 <Image src={heroImage} width={300} height={600} alt="descriptive text" />
 
 // cropping to a specific aspect ratio and converting to an avif format
-<Image src={heroImage} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={heroImage} width={300} aspectRatio="16:9" format="avif" alt="descriptive text" />
 
 // image imports can also be inlined directly
 <Image src={import('../assets/hero.png')} alt="descriptive text" />

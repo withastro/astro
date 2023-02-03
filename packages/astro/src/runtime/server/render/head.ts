@@ -1,8 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { renderChild } from './any.js';
-import { renderElement } from './util.js';
+import { renderElement, ScopeFlags } from './util.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -13,14 +12,8 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	);
 };
 
-async function* renderExtraHead(result: SSRResult, base: string) {
-	yield base;
-	for (const part of result.extraHead) {
-		yield* renderChild(part);
-	}
-}
-
-function renderAllHeadContent(result: SSRResult) {
+export function renderAllHeadContent(result: SSRResult) {
+	result._metadata.hasRenderedHead = true;
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
@@ -35,29 +28,39 @@ function renderAllHeadContent(result: SSRResult) {
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
 
-	const baseHeadContent = markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n'));
+	let content = links.join('\n') + styles.join('\n') + scripts.join('\n');
 
 	if (result.extraHead.length > 0) {
-		return renderExtraHead(result, baseHeadContent);
-	} else {
-		return baseHeadContent;
+		for (const part of result.extraHead) {
+			content += part;
+		}
 	}
+
+	return markHTMLString(content);
 }
 
-export function createRenderHead(result: SSRResult) {
-	result._metadata.hasRenderedHead = true;
-	return renderAllHeadContent.bind(null, result);
+export function* renderHead(result: SSRResult) {
+	yield { type: 'head', result } as const;
 }
-
-export const renderHead = createRenderHead;
 
 // This function is called by Astro components that do not contain a <head> component
 // This accommodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export async function* maybeRenderHead(result: SSRResult) {
+export function* maybeRenderHead(result: SSRResult) {
 	if (result._metadata.hasRenderedHead) {
 		return;
 	}
-	yield createRenderHead(result)();
+
+	// Don't render the head inside of a JSX component that's inside of an Astro component
+	// as the Astro component will be the one to render the head.
+	switch (result.scope) {
+		case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro: {
+			return;
+		}
+	}
+
+	// This is an instruction informing the page rendering that head might need rendering.
+	// This allows the page to deduplicate head injections.
+	yield { type: 'head', result } as const;
 }

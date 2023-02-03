@@ -415,6 +415,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
 	},
+	/**
+	 * @docs
+	 * @message
+	 * **Example error messages:**<br/>
+	 * InvalidComponentArgs: Invalid arguments passed to `<MyAstroComponent>` component.
+	 * @description
+	 * Astro components cannot be rendered manually via a function call, such as `Component()` or `{items.map(Component)}`. Prefer the component syntax `<Component />` or `{items.map(item => <Component {...item} />)}`.
+	 */
+	InvalidComponentArgs: {
+		title: 'Invalid component arguments.',
+		code: 3020,
+		message: (name: string) => `Invalid arguments passed to${name ? ` <${name}>` : ''} component.`,
+		hint: 'Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`.',
+	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',
@@ -615,6 +629,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message `COLLECTION_NAME` → `ENTRY_ID` has an invalid slug. `slug` must be a string.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
@@ -632,6 +647,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message A content collection schema should not contain `slug` since it is reserved for slug generation. Remove this from your `COLLECTION_NAME` collection schema.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description

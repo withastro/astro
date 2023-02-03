@@ -4,7 +4,7 @@ import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { astroBundleDelayedAssetPlugin } from '../../content/index.js';
+import { astroContentProdBundlePlugin } from '../../content/index.js';
 import {
 	BuildInternals,
 	createBuildInternals,
@@ -167,7 +167,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			vitePluginPrerender(opts, internals),
 			...(viteConfig.plugins || []),
-			astroBundleDelayedAssetPlugin({ internals }),
+			astroContentProdBundlePlugin({ internals }),
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
 		],
