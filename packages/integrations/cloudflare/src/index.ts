@@ -18,15 +18,15 @@ interface BuildConfig {
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 	return isModeDirectory
 		? {
-			name: '@astrojs/cloudflare',
-			serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-			exports: ['onRequest'],
-		}
+				name: '@astrojs/cloudflare',
+				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
+				exports: ['onRequest'],
+		  }
 		: {
-			name: '@astrojs/cloudflare',
-			serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
-			exports: ['default'],
-		};
+				name: '@astrojs/cloudflare',
+				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
+				exports: ['default'],
+		  };
 }
 
 const SHIM = `globalThis.process = {
@@ -203,7 +203,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory) {
-					const functionsUrl = new URL(`file://${_config.root}/functions/`);
+					const functionsUrl = new URL('functions', _config.root);
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
 					await fs.promises.rename(finalBuildUrl, directoryUrl);
