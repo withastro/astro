@@ -6,8 +6,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
-import { appendForwardSlash, isRelativePath } from '../core/path.js';
-import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
+import { isRelativePath } from '../core/path.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
@@ -16,6 +16,7 @@ import {
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
+	getEntryType,
 	loadContentConfig,
 	NoCollectionError,
 	parseFrontmatter,
@@ -111,7 +112,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: true };
 		}
 		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths);
-		if (fileType === 'generated-types') {
+		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
@@ -125,22 +126,21 @@ export async function createContentTypesGenerator({
 
 			return { shouldGenerateTypes: true };
 		}
-		if (fileType === 'unknown') {
+		if (fileType === 'unsupported') {
+			// Avoid warning if file was deleted.
+			if (event.name === 'unlink') {
+				return { shouldGenerateTypes: false };
+			}
 			const entryInfo = getEntryInfo({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
-				// Allow underscore `_` files outside collection directories
+				// Skip invalid file check. We already know it’s invalid.
 				allowFilesOutsideCollection: true,
 			});
-			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
-				// Silently ignore `_` files.
-				return { shouldGenerateTypes: false };
-			} else {
-				return {
-					shouldGenerateTypes: false,
-					error: new UnsupportedFileTypeError(entryInfo.id),
-				};
-			}
+			return {
+				shouldGenerateTypes: false,
+				error: new UnsupportedFileTypeError(entryInfo.id),
+			};
 		}
 		const entryInfo = getEntryInfo({
 			entry: event.entry,
@@ -287,23 +287,6 @@ function setEntry(
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
 	delete contentTypes[collectionKey][entryKey];
-}
-
-export function getEntryType(
-	entryPath: string,
-	paths: ContentPaths
-): 'content' | 'config' | 'unknown' | 'generated-types' {
-	const { dir: rawDir, ext, base } = path.parse(entryPath);
-	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
-	if ((contentFileExts as readonly string[]).includes(ext)) {
-		return 'content';
-	} else if (new URL(base, dir).href === paths.config.href) {
-		return 'config';
-	} else if (new URL(base, dir).href === new URL(CONTENT_TYPES_FILE, paths.cacheDir).href) {
-		return 'generated-types';
-	} else {
-		return 'unknown';
-	}
 }
 
 async function writeContentFiles({
