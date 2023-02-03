@@ -558,7 +558,7 @@ import socialImage from '/social.png';
 
 ### Remote images
 
-Remote images can be transformed with the <Image /> component. The <Image /> component needs to know the final dimensions for the <img /> element to avoid content layout shifts. For remote images, this means you must either provide width and height, or one of the dimensions plus the required aspectRatio.
+Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must either provide `width` and `height`, or one of the dimensions plus the required `aspectRatio`.
 
 ```astro
 ---
