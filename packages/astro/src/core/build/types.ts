@@ -11,6 +11,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 import type { RouteCache } from '../render/route-cache';
+import type { default as vite } from 'vite';
 
 export type ComponentPath = string;
 export type ViteID = string;
@@ -45,3 +46,7 @@ export interface SingleFileBuiltModule {
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 }
+
+export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
+export type RollupOutput = Extract<Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>, { output: any }>;
+export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;
