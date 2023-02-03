@@ -3070,6 +3070,7 @@ importers:
     specifiers:
       '@astrojs/webapi': ^2.0.0
       '@types/send': ^0.17.1
+      '@types/server-destroy': ^1.0.1
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
@@ -3077,12 +3078,15 @@ importers:
       mocha: ^9.2.2
       node-mocks-http: ^1.11.0
       send: ^0.18.0
+      server-destroy: ^1.0.1
       undici: ^5.14.0
     dependencies:
       '@astrojs/webapi': link:../../webapi
       send: 0.18.0
+      server-destroy: 1.0.1
     devDependencies:
       '@types/send': 0.17.1
+      '@types/server-destroy': 1.0.1
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
@@ -3108,6 +3112,14 @@ importers:
       astro: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/node-middleware:
+    specifiers:
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/node': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/prerender:
     specifiers:
       '@astrojs/node': workspace:*
       astro: workspace:*

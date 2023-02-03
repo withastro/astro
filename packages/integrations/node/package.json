@@ -31,13 +31,15 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^2.0.0",
-    "send": "^0.18.0"
+    "send": "^0.18.0",
+    "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
     "astro": "workspace:^2.0.6"
   },
   "devDependencies": {
     "@types/send": "^0.17.1",
+    "@types/server-destroy": "^1.0.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
