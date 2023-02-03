@@ -5,6 +5,7 @@ import type { ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
+import { setUpEnvTs } from '../core/sync/index.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { getContentPaths, globalContentConfigObserver } from './utils.js';
 
@@ -52,6 +53,7 @@ export async function attachContentServerListeners({
 			contentConfigObserver: globalContentConfigObserver,
 		});
 		await contentGenerator.init();
+		await setUpEnvTs({ settings, logging, fs });
 		info(logging, 'content', 'Types generated');
 
 		viteServer.watcher.on('add', (entry) => {
