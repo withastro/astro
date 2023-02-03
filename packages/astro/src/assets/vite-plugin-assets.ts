@@ -12,12 +12,10 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 				return resolvedVirtualModuleId;
 			}
 		},
-		load(id, options) {
+		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				return `
-					export function getImage() {
-						return "this will be an image one day!";
-					}
+					export { getImage, Image } from "astro/assets";
 				`;
 			}
 		},

@@ -1,0 +1,17 @@
+---
+import { AstroError, AstroErrorData } from "../dist/core/errors/index.js"
+import type { LocalImageProps, RemoteImageProps } from 'astro:assets';
+import { getImage } from "astro:assets";
+
+type Props = LocalImageProps | RemoteImageProps;
+
+const { loading = 'lazy', decoding = 'async', ...props } = Astro.props;
+
+if (props.alt === undefined || props.alt === null) {
+	throw new AstroError(AstroErrorData.ImageMissingAlt)
+}
+
+const attrs = await getImage();
+---
+
+<img {...attrs} {loading} {decoding} />

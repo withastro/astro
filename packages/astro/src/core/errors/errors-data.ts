@@ -429,6 +429,12 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (name: string) => `Invalid arguments passed to${name ? ` <${name}>` : ''} component.`,
 		hint: 'Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`.',
 	},
+	ImageMissingAlt: {
+		title: 'Missing alt property',
+		code: 3021,
+		message: 'The alt property is required.',
+		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',

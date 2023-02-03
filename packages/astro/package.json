@@ -47,6 +47,7 @@
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./assets": "./dist/assets/index.js",
     "./content/internal": "./dist/content/internal.js",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
