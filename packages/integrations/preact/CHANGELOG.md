@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 2.0.2
+
+### Patch Changes
+
+- [#6108](https://github.com/withastro/astro/pull/6108) [`f9babc38b`](https://github.com/withastro/astro/commit/f9babc38b48049f73a3a282f48d8cb26969cb0a0) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade babel dependency to fix security vuln
+
 ## 2.0.1
 
 ### Patch Changes
