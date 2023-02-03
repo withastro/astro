@@ -1,22 +1,22 @@
 import * as devalue from 'devalue';
+import type fsMod from 'node:fs';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import type fsMod from 'node:fs';
 import { AstroSettings } from '../@types/astro.js';
+import { AstroErrorData } from '../core/errors/errors-data.js';
+import { AstroError } from '../core/errors/errors.js';
+import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
+import { getEntryType } from './types-generator.js';
 import {
 	ContentConfig,
-	globalContentConfigObserver,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
 	getEntrySlug,
+	globalContentConfigObserver,
 	parseFrontmatter,
 } from './utils.js';
-import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
-import { getEntryType } from './types-generator.js';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/errors-data.js';
 
 function isContentFlagImport(viteId: string) {
 	const { pathname, searchParams } = new URL(viteId, 'file://');

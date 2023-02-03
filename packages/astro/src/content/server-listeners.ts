@@ -1,12 +1,12 @@
 import { cyan } from 'kleur/colors';
-import { pathToFileURL } from 'node:url';
 import type fsMod from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import type { ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { createContentTypesGenerator } from './types-generator.js';
-import { globalContentConfigObserver, getContentPaths } from './utils.js';
+import { getContentPaths, globalContentConfigObserver } from './utils.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;

@@ -3,12 +3,11 @@ import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createServer, ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
-import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
