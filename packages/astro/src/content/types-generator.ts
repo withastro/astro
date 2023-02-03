@@ -3,7 +3,7 @@ import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath } from 'vite';
+import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { appendForwardSlash, isRelativePath } from '../core/path.js';
@@ -32,6 +32,8 @@ type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
 	logging: LogOptions;
 	settings: AstroSettings;
+	/** This is required for loading the content config */
+	viteServer: ViteDevServer;
 	fs: typeof fsMod;
 };
 
@@ -44,6 +46,7 @@ export async function createContentTypesGenerator({
 	fs,
 	logging,
 	settings,
+	viteServer,
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config);
@@ -113,7 +116,7 @@ export async function createContentTypesGenerator({
 		}
 		if (fileType === 'config') {
 			contentConfigObserver.set({ status: 'loading' });
-			const config = await loadContentConfig({ fs, settings });
+			const config = await loadContentConfig({ fs, settings, viteServer });
 			if (config) {
 				contentConfigObserver.set({ status: 'loaded', config });
 			} else {

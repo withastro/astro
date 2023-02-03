@@ -205,34 +205,32 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 	}
 }
 
+/**
+ * The content config is loaded separately from other `src/` files.
+ * This global observable lets dependent plugins (like the content flag plugin)
+ * subscribe to changes during dev server updates.
+ */
+export const globalContentConfigObserver = contentObservable({ status: 'init' });
+
 export async function loadContentConfig({
 	fs,
 	settings,
+	viteServer,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
+	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(settings.config);
-	const tempConfigServer: ViteDevServer = await createServer({
-		root: fileURLToPath(settings.config.root),
-		server: { middlewareMode: true, hmr: false },
-		optimizeDeps: { entries: [] },
-		clearScreen: false,
-		appType: 'custom',
-		logLevel: 'silent',
-		plugins: [astroContentVirtualModPlugin({ settings })],
-	});
 	let unparsedConfig;
 	if (!fs.existsSync(contentPaths.config)) {
 		return undefined;
 	}
 	try {
 		const configPathname = fileURLToPath(contentPaths.config);
-		unparsedConfig = await tempConfigServer.ssrLoadModule(configPathname);
+		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 	} catch (e) {
 		throw e;
-	} finally {
-		await tempConfigServer.close();
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
@@ -243,6 +241,7 @@ export async function loadContentConfig({
 }
 
 type ContentCtx =
+	| { status: 'init' }
 	| { status: 'loading' }
 	| { status: 'error' }
 	| { status: 'loaded'; config: ContentConfig };
