@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { StaticBuildOptions } from '../types';
 import type { AstroBuildPlugin } from '../plugin';
+import type { StaticBuildOptions } from '../types';
 
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../../app/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -62,9 +62,9 @@ export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals)
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginPages(opts, internals)
+					vitePlugin: vitePluginPages(opts, internals),
 				};
-			}
-		}
+			},
+		},
 	};
 }

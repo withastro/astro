@@ -3,7 +3,7 @@ import type { BuildInternals } from './internal';
 import type { StaticBuildOptions, ViteBuildReturn } from './types';
 
 type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
-type OutputChunkorAsset = RollupOutputArray[number]['output'][number]
+type OutputChunkorAsset = RollupOutputArray[number]['output'][number];
 type OutputChunk = Extract<OutputChunkorAsset, { type: 'chunk' }>;
 
 type MutateChunk = (chunk: OutputChunk, build: 'server' | 'client', newCode: string) => void;
@@ -11,15 +11,16 @@ type MutateChunk = (chunk: OutputChunk, build: 'server' | 'client', newCode: str
 export type AstroBuildPlugin = {
 	build: 'ssr' | 'client' | 'both';
 	hooks?: {
-		'build:before'?: (opts: {
-			build: 'ssr' | 'client';
-			input: Set<string>;
-		}) => {
+		'build:before'?: (opts: { build: 'ssr' | 'client'; input: Set<string> }) => {
 			enforce?: 'after-user-plugins';
-			vitePlugin: VitePlugin | VitePlugin[] | undefined
+			vitePlugin: VitePlugin | VitePlugin[] | undefined;
 		};
-		'build:post'?: (opts: {ssrOutputs: RollupOutputArray; clientOutputs: RollupOutputArray; mutate: MutateChunk}) => void | Promise<void>;
-	}
+		'build:post'?: (opts: {
+			ssrOutputs: RollupOutputArray;
+			clientOutputs: RollupOutputArray;
+			mutate: MutateChunk;
+		}) => void | Promise<void>;
+	};
 };
 
 export function createPluginContainer(options: StaticBuildOptions, internals: BuildInternals) {
@@ -32,7 +33,7 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 		internals,
 		register(plugin: AstroBuildPlugin) {
 			allPlugins.add(plugin);
-			switch(plugin.build) {
+			switch (plugin.build) {
 				case 'client': {
 					clientPlugins.push(plugin);
 					break;
@@ -54,10 +55,10 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 			let plugins = build === 'ssr' ? ssrPlugins : clientPlugins;
 			let vitePlugins: Array<VitePlugin | VitePlugin[]> = [];
 			let lastVitePlugins: Array<VitePlugin | VitePlugin[]> = [];
-			for(const plugin of plugins) {
-				if(plugin.hooks?.['build:before']) {
+			for (const plugin of plugins) {
+				if (plugin.hooks?.['build:before']) {
 					let result = plugin.hooks['build:before']({ build, input });
-					if(result.vitePlugin) {
+					if (result.vitePlugin) {
 						vitePlugins.push(result.vitePlugin);
 					}
 				}
@@ -65,27 +66,30 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 
 			return {
 				vitePlugins,
-				lastVitePlugins
+				lastVitePlugins,
 			};
 		},
 
 		async runPostHook(ssrReturn: ViteBuildReturn, clientReturn: ViteBuildReturn | null) {
-			const mutations = new Map<string, {
-				build: 'server' | 'client';
-				code: string;
-			}>();
+			const mutations = new Map<
+				string,
+				{
+					build: 'server' | 'client';
+					code: string;
+				}
+			>();
 			const ssrOutputs: RollupOutputArray = [];
 			const clientOutputs: RollupOutputArray = [];
 
-			if(Array.isArray(ssrReturn)) {
+			if (Array.isArray(ssrReturn)) {
 				ssrOutputs.push(...ssrReturn);
-			} else if('output' in ssrReturn) {
+			} else if ('output' in ssrReturn) {
 				ssrOutputs.push(ssrReturn);
 			}
 
-			if(Array.isArray(clientReturn)) {
+			if (Array.isArray(clientReturn)) {
 				clientOutputs.push(...clientReturn);
-			} else if(clientReturn && 'output' in clientReturn) {
+			} else if (clientReturn && 'output' in clientReturn) {
 				clientOutputs.push(clientReturn);
 			}
 
@@ -97,19 +101,19 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 				});
 			};
 
-			for(const plugin of allPlugins) {
+			for (const plugin of allPlugins) {
 				const postHook = plugin.hooks?.['build:post'];
-				if(postHook) {
+				if (postHook) {
 					await postHook({
 						ssrOutputs,
 						clientOutputs,
-						mutate
+						mutate,
 					});
 				}
 			}
 
 			return mutations;
-		}
+		},
 	};
 }
 

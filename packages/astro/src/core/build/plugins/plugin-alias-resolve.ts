@@ -56,9 +56,9 @@ export function pluginAliasResolve(internals: BuildInternals): AstroBuildPlugin 
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin:  vitePluginAliasResolve(internals)
+					vitePlugin: vitePluginAliasResolve(internals),
 				};
-			}
-		}
+			},
+		},
 	};
 }

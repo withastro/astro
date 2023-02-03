@@ -5,7 +5,6 @@ import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types';
 
 import glob from 'fast-glob';
-import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getContentPaths } from '../../../content/index.js';
 import { runHookBuildSsr } from '../../../integrations/index.js';
@@ -220,7 +219,10 @@ function buildManifest(
 	return ssrManifest;
 }
 
-export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+export function pluginSSR(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
 	const ssr = options.settings.config.output === 'server';
 	return {
 		build: 'ssr',
@@ -230,15 +232,15 @@ export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals
 
 				return {
 					enforce: 'after-user-plugins',
-					vitePlugin
-				}
+					vitePlugin,
+				};
 			},
 			'build:post': async ({ mutate }) => {
-				if(!ssr) {
+				if (!ssr) {
 					return;
 				}
 
-				if(!internals.ssrEntryChunk) {
+				if (!internals.ssrEntryChunk) {
 					throw new Error(`Did not generate an entry chunk for SSR`);
 				}
 				// Mutate the filename
@@ -246,7 +248,7 @@ export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals
 
 				const code = await injectManifest(options, internals);
 				mutate(internals.ssrEntryChunk, 'server', code);
-			}
-		}
+			},
+		},
 	};
 }

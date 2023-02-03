@@ -7,14 +7,14 @@ type OutputOptions = Parameters<OutputOptionsHook>[0];
 type ExtendManualChunksHooks = {
 	before?: (id: string, meta: any) => string | undefined;
 	after?: (id: string, meta: any) => string | undefined;
-}
+};
 
 export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendManualChunksHooks) {
 	const manualChunks = outputOptions.manualChunks;
-	outputOptions.manualChunks = function(id, meta) {
-		if(hooks.before) {
+	outputOptions.manualChunks = function (id, meta) {
+		if (hooks.before) {
 			let value = hooks.before(id, meta);
-			if(value) {
+			if (value) {
 				return value;
 			}
 		}
@@ -31,8 +31,8 @@ export function extendManualChunks(outputOptions: OutputOptions, hooks: ExtendMa
 				return outid;
 			}
 		}
-		
-		if(hooks.after) {
+
+		if (hooks.after) {
 			return hooks.after(id, meta) || null;
 		}
 		return null;

@@ -123,9 +123,9 @@ export function astroConfigBuildPlugin(internals: BuildInternals): AstroBuildPlu
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: astroContentProdBundlePlugin({ internals })
+					vitePlugin: astroContentProdBundlePlugin({ internals }),
 				};
-			}
-		}
+			},
+		},
 	};
 }

@@ -1,7 +1,7 @@
 import type { PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from '../internal.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
+import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
 import { prependForwardSlash } from '../../../core/path.js';
@@ -177,9 +177,9 @@ export function pluginAnalyzer(internals: BuildInternals): AstroBuildPlugin {
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginAnalyzer(internals)
+					vitePlugin: vitePluginAnalyzer(internals),
 				};
-			}
-		}
+			},
+		},
 	};
 }
