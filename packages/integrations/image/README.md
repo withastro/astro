@@ -175,8 +175,7 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
-This property is required for remote images only, because the original format cannot be inferred.
-
+This property is only required for remote images when using the default image transformer `Squoosh`, this is because the original format cannot be inferred.
 #### quality
 
 <p>
@@ -559,7 +558,7 @@ import socialImage from '/social.png';
 
 ### Remote images
 
-Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final format and dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must provide a `format` and dimensions using both `width` and `height`, or one of the dimensions plus `aspectRatio`.
+Remote images can be transformed with the <Image /> component. The <Image /> component needs to know the final dimensions for the <img /> element to avoid content layout shifts. For remote images, this means you must either provide width and height, or one of the dimensions plus the required aspectRatio.
 
 ```astro
 ---
