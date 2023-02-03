@@ -25,8 +25,7 @@ export type OutputFormat = 'avif' | 'png' | 'webp' | 'jpeg' | 'jpg' | 'gif';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
-interface ImageSharedProps
-	extends WithRequired<Omit<HTMLAttributes<'img'>, 'src' | 'width' | 'height'>, 'alt'> {
+interface ImageSharedProps extends Omit<HTMLAttributes<'img'>, 'src' | 'width' | 'height'> {
 	/**
 	 * Width of the image, the value of this property will be used to assign the `width` property on the final `img` element.
 	 *
