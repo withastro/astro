@@ -46,7 +46,7 @@ describe('Content Collections - render()', () => {
 			// Includes hoisted script
 			expect(
 				[...allScripts].find((script) =>
-					$(script).text().includes('document.querySelector("#update-me")')
+					$(script).attr('src')?.includes('WithScripts')
 				),
 				'`WithScripts.astro` hoisted script missing from head.'
 			).to.not.be.undefined;
