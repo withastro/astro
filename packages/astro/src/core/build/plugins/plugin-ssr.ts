@@ -1,21 +1,21 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter } from '../../@types/astro';
-import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types';
+import type { AstroAdapter } from '../../../@types/astro';
+import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
+import type { BuildInternals } from '../internal.js';
+import type { StaticBuildOptions } from '../types';
 
 import glob from 'fast-glob';
-import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import { getContentPaths } from '../../content/index.js';
-import { runHookBuildSsr } from '../../integrations/index.js';
-import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { pagesVirtualModuleId } from '../app/index.js';
-import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
-import { serializeRouteData } from '../routing/index.js';
-import { addRollupInput } from './add-rollup-input.js';
-import { getOutFile, getOutFolder } from './common.js';
-import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from './internal.js';
+import { getContentPaths } from '../../../content/index.js';
+import { runHookBuildSsr } from '../../../integrations/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { pagesVirtualModuleId } from '../../app/index.js';
+import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../../path.js';
+import { serializeRouteData } from '../../routing/index.js';
+import { addRollupInput } from '../add-rollup-input.js';
+import { getOutFile, getOutFolder } from '../common.js';
+import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from '../internal.js';
+import { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -29,7 +29,7 @@ export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter):
 		options(opts) {
 			return addRollupInput(opts, [virtualModuleId]);
 		},
-		resolveId(id) {
+		resolveId(id, parent) {
 			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
@@ -114,12 +114,10 @@ export async function injectManifest(buildOpts: StaticBuildOptions, internals: B
 
 	const chunk = internals.ssrEntryChunk;
 	const code = chunk.code;
-	chunk.code = code.replace(replaceExp, () => {
+
+	return code.replace(replaceExp, () => {
 		return JSON.stringify(manifest);
 	});
-	const serverEntryURL = new URL(buildOpts.buildConfig.serverEntry, buildOpts.buildConfig.server);
-	await fs.promises.mkdir(new URL('./', serverEntryURL), { recursive: true });
-	await fs.promises.writeFile(serverEntryURL, chunk.code, 'utf-8');
 }
 
 function buildManifest(
@@ -219,4 +217,38 @@ function buildManifest(
 	};
 
 	return ssrManifest;
+}
+
+export function pluginSSR(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
+	const ssr = options.settings.config.output === 'server';
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': () => {
+				let vitePlugin = ssr ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
+
+				return {
+					enforce: 'after-user-plugins',
+					vitePlugin,
+				};
+			},
+			'build:post': async ({ mutate }) => {
+				if (!ssr) {
+					return;
+				}
+
+				if (!internals.ssrEntryChunk) {
+					throw new Error(`Did not generate an entry chunk for SSR`);
+				}
+				// Mutate the filename
+				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
+
+				const code = await injectManifest(options, internals);
+				mutate(internals.ssrEntryChunk, 'server', code);
+			},
+		},
+	};
 }

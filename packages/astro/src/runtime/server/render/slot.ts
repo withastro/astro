@@ -3,6 +3,7 @@ import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
+import { ScopeFlags } from './util.js';
 
 const slotString = Symbol.for('astro:slot-string');
 
@@ -20,8 +21,13 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function renderSlot(_result: any, slotted: string, fallback?: any): Promise<string> {
+export async function renderSlot(
+	result: SSRResult,
+	slotted: string,
+	fallback?: any
+): Promise<string> {
 	if (slotted) {
+		result.scope |= ScopeFlags.Slot;
 		let iterator = renderChild(slotted);
 		let content = '';
 		let instructions: null | RenderInstruction[] = null;
@@ -35,6 +41,8 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any):
 				content += chunk;
 			}
 		}
+		// Remove the flag since we are now outside of the scope.
+		result.scope &= ~ScopeFlags.Slot;
 		return markHTMLString(new SlotString(content, instructions));
 	}
 	return fallback;

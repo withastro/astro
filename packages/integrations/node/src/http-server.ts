@@ -2,6 +2,7 @@ import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import send from 'send';
+import enableDestroy from 'server-destroy';
 import { fileURLToPath } from 'url';
 
 interface CreateServerOptions {
@@ -19,6 +20,7 @@ export function createServer(
 		if (req.url) {
 			let pathname = removeBase(req.url);
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
+			pathname = new URL(pathname, `http://${host}:${port}`).pathname;
 			const stream = send(req, encodeURI(decodeURI(pathname)), {
 				root: fileURLToPath(client),
 				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
@@ -63,6 +65,7 @@ export function createServer(
 		httpServer = http.createServer(listener);
 	}
 	httpServer.listen(port, host);
+	enableDestroy(httpServer);
 
 	// Resolves once the server is closed
 	const closed = new Promise<void>((resolve, reject) => {
@@ -79,7 +82,7 @@ export function createServer(
 		server: httpServer,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
-				httpServer.close((err) => (err ? reject(err) : resolve(undefined)));
+				httpServer.destroy((err) => (err ? reject(err) : resolve(undefined)));
 			});
 		},
 	};
