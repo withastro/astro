@@ -179,7 +179,7 @@ export function pluginAnalyzer(internals: BuildInternals): AstroBuildPlugin {
 				return {
 					vitePlugin: vitePluginAnalyzer(internals),
 				};
-			},
+			}
 		},
 	};
 }
