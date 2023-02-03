@@ -2,12 +2,13 @@ import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { appendForwardSlash } from '../core/path.js';
+import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -156,6 +157,38 @@ export function getEntryInfo({
 		collection: normalizePath(rawCollection),
 	};
 	return res;
+}
+
+export function getEntryType(
+	entryPath: string,
+	paths: Pick<ContentPaths, 'config'>
+): 'content' | 'config' | 'ignored' | 'unsupported' {
+	const { dir: rawDir, ext, base } = path.parse(entryPath);
+	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
+	const fileUrl = new URL(base, dir);
+
+	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(fileUrl)) {
+		return 'ignored';
+	} else if ((contentFileExts as readonly string[]).includes(ext)) {
+		return 'content';
+	} else if (fileUrl.href === paths.config.href) {
+		return 'config';
+	} else {
+		return 'unsupported';
+	}
+}
+
+function isOnIgnoreList(fileUrl: URL) {
+	const { base } = path.parse(fileURLToPath(fileUrl));
+	return ['.DS_Store'].includes(base);
+}
+
+function hasUnderscoreInPath(fileUrl: URL): boolean {
+	const parts = fileUrl.pathname.split('/');
+	for (const part of parts) {
+		if (part.startsWith('_')) return true;
+	}
+	return false;
 }
 
 const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');

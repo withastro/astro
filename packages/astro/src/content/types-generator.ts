@@ -6,8 +6,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
-import { appendForwardSlash, isRelativePath } from '../core/path.js';
-import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
+import { isRelativePath } from '../core/path.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
@@ -16,6 +16,7 @@ import {
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
+	getEntryType,
 	loadContentConfig,
 	NoCollectionError,
 	parseFrontmatter,
@@ -282,38 +283,6 @@ function setEntry(
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
 	delete contentTypes[collectionKey][entryKey];
-}
-
-export function getEntryType(
-	entryPath: string,
-	paths: ContentPaths
-): 'content' | 'config' | 'ignored' | 'unsupported' {
-	const { dir: rawDir, ext, base } = path.parse(entryPath);
-	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
-	const fileUrl = new URL(base, dir);
-
-	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(fileUrl)) {
-		return 'ignored';
-	} else if ((contentFileExts as readonly string[]).includes(ext)) {
-		return 'content';
-	} else if (fileUrl.href === paths.config.href) {
-		return 'config';
-	} else {
-		return 'unsupported';
-	}
-}
-
-function isOnIgnoreList(fileUrl: URL) {
-	const { base } = path.parse(fileURLToPath(fileUrl));
-	return ['.DS_Store'].includes(base);
-}
-
-function hasUnderscoreInPath(fileUrl: URL): boolean {
-	const parts = fileUrl.pathname.split('/');
-	for (const part of parts) {
-		if (part.startsWith('_')) return true;
-	}
-	return false;
 }
 
 async function writeContentFiles({
