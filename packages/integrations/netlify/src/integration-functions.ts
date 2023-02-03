@@ -35,6 +35,11 @@ function netlifyFunctions({
 						client: outDir,
 						server: new URL('./.netlify/functions-internal/', config.root),
 					},
+					vite: {
+						ssr: {
+							external: ['@astrojs/netlify/polyfill'],
+						},
+					},
 				});
 			},
 			'astro:config:done': ({ config, setAdapter }) => {

@@ -1,11 +1,8 @@
-import { polyfill } from '@astrojs/webapi';
+import './polyfill';
+
 import { builder, Handler } from '@netlify/functions';
 import { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-
-polyfill(globalThis, {
-	exclude: 'window document',
-});
 
 export interface Args {
 	builders?: boolean;
