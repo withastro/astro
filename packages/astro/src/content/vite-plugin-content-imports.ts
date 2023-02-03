@@ -7,13 +7,13 @@ import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
-import { getEntryType } from './types-generator.js';
 import {
 	ContentConfig,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
 	getEntrySlug,
+	getEntryType,
 	globalContentConfigObserver,
 	parseFrontmatter,
 } from './utils.js';
