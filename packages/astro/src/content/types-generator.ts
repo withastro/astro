@@ -111,7 +111,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: true };
 		}
 		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths);
-		if (fileType === 'generated-types') {
+		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
@@ -125,22 +125,17 @@ export async function createContentTypesGenerator({
 
 			return { shouldGenerateTypes: true };
 		}
-		if (fileType === 'unknown') {
+		if (fileType === 'unsupported') {
 			const entryInfo = getEntryInfo({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
-				// Allow underscore `_` files outside collection directories
+				// Skip invalid file check. We already know it’s invalid.
 				allowFilesOutsideCollection: true,
 			});
-			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
-				// Silently ignore `_` files.
-				return { shouldGenerateTypes: false };
-			} else {
-				return {
-					shouldGenerateTypes: false,
-					error: new UnsupportedFileTypeError(entryInfo.id),
-				};
-			}
+			return {
+				shouldGenerateTypes: false,
+				error: new UnsupportedFileTypeError(entryInfo.id),
+			};
 		}
 		const entryInfo = getEntryInfo({
 			entry: event.entry,
@@ -292,18 +287,28 @@ function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey
 export function getEntryType(
 	entryPath: string,
 	paths: ContentPaths
-): 'content' | 'config' | 'unknown' | 'generated-types' {
+): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { dir: rawDir, ext, base } = path.parse(entryPath);
 	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
-	if ((contentFileExts as readonly string[]).includes(ext)) {
+	const fileUrl = new URL(base, dir);
+
+	if (hasUnderscoreInPath(fileUrl)) {
+		return 'ignored';
+	} else if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
-	} else if (new URL(base, dir).href === paths.config.href) {
+	} else if (fileUrl.href === paths.config.href) {
 		return 'config';
-	} else if (new URL(base, dir).href === new URL(CONTENT_TYPES_FILE, paths.cacheDir).href) {
-		return 'generated-types';
 	} else {
-		return 'unknown';
+		return 'unsupported';
 	}
+}
+
+function hasUnderscoreInPath(fileUrl: URL): boolean {
+	const parts = fileUrl.pathname.split('/');
+	for (const part of parts) {
+		if (part.startsWith('_')) return true;
+	}
+	return false;
 }
 
 async function writeContentFiles({
