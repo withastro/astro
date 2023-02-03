@@ -28,21 +28,24 @@ export function vitePluginPrerender(
 						// dynamic pages should all go in their own chunk in the pages/* directory
 						return `pages/all`;
 					}
-				}
+				},
 			});
 		},
 	};
 }
 
-export function pluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+export function pluginPrerender(
+	opts: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginPrerender(opts, internals)
+					vitePlugin: vitePluginPrerender(opts, internals),
 				};
-			}
-		}
+			},
+		},
 	};
 }

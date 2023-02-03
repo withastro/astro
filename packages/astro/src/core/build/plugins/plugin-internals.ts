@@ -68,9 +68,9 @@ export function pluginInternals(internals: BuildInternals): AstroBuildPlugin {
 		hooks: {
 			'build:before': ({ input }) => {
 				return {
-					vitePlugin: vitePluginInternals(input, internals)
+					vitePlugin: vitePluginInternals(input, internals),
 				};
-			}
-		}
+			},
+		},
 	};
 }

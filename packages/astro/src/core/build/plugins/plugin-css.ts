@@ -4,8 +4,8 @@ import type { GetModuleInfo } from 'rollup';
 import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import { isCSSRequest } from '../../render/util.js';
 import type { BuildInternals } from '../internal';
-import type { PageBuildData, StaticBuildOptions } from '../types';
 import type { AstroBuildPlugin } from '../plugin';
+import type { PageBuildData, StaticBuildOptions } from '../types';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import * as assetName from '../css-asset-name.js';
@@ -78,7 +78,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							}
 							return createNameForParentPages(id, meta);
 						}
-					}
+					},
 				});
 			},
 
@@ -265,7 +265,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 	];
 }
 
-export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+export function pluginCSS(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
 	return {
 		build: 'both',
 		hooks: {
@@ -273,13 +276,13 @@ export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals
 				let plugins = rollupPluginAstroBuildCSS({
 					buildOptions: options,
 					internals,
-					target: build === 'ssr' ? 'server' : 'client'
+					target: build === 'ssr' ? 'server' : 'client',
 				});
 
 				return {
-					vitePlugin: plugins
+					vitePlugin: plugins,
 				};
-			}
-		}
-	}
+			},
+		},
+	};
 }

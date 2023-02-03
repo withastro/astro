@@ -20,10 +20,10 @@ import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import type { PageBuildData, StaticBuildOptions } from './types';
-import { getTimeStat } from './util.js';
 import { AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import type { PageBuildData, StaticBuildOptions } from './types';
+import { getTimeStat } from './util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -66,7 +66,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Register plugins
 	const container = createPluginContainer(opts, internals);
 	registerAllPlugins(container);
-
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
@@ -112,7 +111,12 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	}
 }
 
-async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>, container: AstroBuildPluginContainer) {
+async function ssrBuild(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	input: Set<string>,
+	container: AstroBuildPluginContainer
+) {
 	const { settings, viteConfig } = opts;
 	const ssr = settings.config.output === 'server';
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
@@ -155,11 +159,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
-		plugins: [
-			...vitePlugins,
-			...(viteConfig.plugins || []),
-			...lastVitePlugins
-		],
+		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
@@ -199,7 +199,6 @@ async function clientBuild(
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('client', input);
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
-
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
 		mode: viteConfig.mode || 'production',
@@ -222,11 +221,7 @@ async function clientBuild(
 				preserveEntrySignatures: 'exports-only',
 			},
 		},
-		plugins: [
-			...vitePlugins,
-			...(viteConfig.plugins || []),
-			...lastVitePlugins,
-		],
+		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
@@ -251,7 +246,7 @@ async function runPostBuildHooks(
 ) {
 	const mutations = await container.runPostHook(ssrReturn, clientReturn);
 	const buildConfig = container.options.settings.config.build;
-	for(const [fileName, mutation] of mutations) {
+	for (const [fileName, mutation] of mutations) {
 		const root = mutation.build === 'server' ? buildConfig.server : buildConfig.client;
 		const fileURL = new URL(fileName, root);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
