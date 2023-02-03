@@ -15,7 +15,7 @@ describe('mode: "directory"', () => {
 		await fixture.build();
 	});
 
-	it('generates the functions folder on under the config root', async () => {
+	it('generates functions folder inside the project root', async () => {
 		expect(await fixture.pathExists('../functions')).to.be.true;
 	});
 });
