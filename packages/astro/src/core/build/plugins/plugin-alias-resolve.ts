@@ -1,5 +1,6 @@
 import type { Alias, Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from '../../core/build/internal.js';
+import type { BuildInternals } from '../internal.js';
+import { AstroBuildPlugin } from '../plugin.js';
 
 /**
  * `@rollup/plugin-alias` doesn't resolve aliases in Rollup input by default. This plugin fixes it
@@ -47,4 +48,17 @@ function matches(pattern: string | RegExp, importee: string) {
 		return true;
 	}
 	return importee.startsWith(pattern + '/');
+}
+
+export function pluginAliasResolve(internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'client',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin:  vitePluginAliasResolve(internals)
+				};
+			}
+		}
+	};
 }

@@ -2,6 +2,7 @@ import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
+import { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
@@ -96,5 +97,18 @@ export function astroContentProdBundlePlugin({ internals }: { internals: BuildIn
 				}
 			}
 		},
+	};
+}
+
+export function astroConfigBuildPlugin(internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin: astroContentProdBundlePlugin({ internals })
+				};
+			}
+		}
 	};
 }
