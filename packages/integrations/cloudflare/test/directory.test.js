@@ -1,20 +1,21 @@
-import { loadFixture, runCLI } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import cloudflare from '../dist/index.js';
 
+/** @type {import('./test-utils').Fixture} */
 describe('mode: "directory"', () => {
-	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basics/',
+			output: 'server',
 			adapter: cloudflare({ mode: 'directory' }),
 		});
+		await fixture.build();
 	});
 
-	it('Builds', async () => {
-		await fixture.build();
+	it('generates functions folder inside the project root', async () => {
+		expect(await fixture.pathExists('../functions')).to.be.true;
 	});
 });
