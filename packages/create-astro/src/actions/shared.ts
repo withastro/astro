@@ -48,10 +48,14 @@ export function isValidName(projectName: string) {
 }
 
 export function toValidName(projectName: string) {
+	if (isValidName(projectName)) return projectName;
+
   return projectName
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/^[._]/, '')
     .replace(/[^a-z\d\-~]+/g, '-')
+		.replace(/^-+/, '')
+		.replace(/-+$/, '')
 }

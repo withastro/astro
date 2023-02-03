@@ -27,6 +27,7 @@ export async function projectName(ctx: Pick<Context, 'cwd'|'prompt'|'projectName
 				return true;
 			},
 		});
+
 		ctx.cwd = name!;
 		ctx.projectName = toValidName(name!);
 	} else {

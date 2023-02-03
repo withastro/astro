@@ -61,4 +61,19 @@ describe('project name', () => {
 		expect(context.cwd).to.eq('Invalid Name');
 		expect(context.projectName).to.eq('invalid-name');
 	})
+
+	it('remove leading/trailing dashes', async () => {
+		const context = { projectName: '', cwd: '', prompt: (() => ({ name: '(invalid)' }))};
+		await projectName(context);
+
+		expect(context.projectName).to.eq('invalid');
+	})
+
+	it('handles scoped packages', async () => {
+		const context = { projectName: '', cwd: '', prompt: (() => ({ name: '@astro/site' }))};
+		await projectName(context);
+
+		expect(context.cwd).to.eq('@astro/site');
+		expect(context.projectName).to.eq('@astro/site');
+	})
 })
