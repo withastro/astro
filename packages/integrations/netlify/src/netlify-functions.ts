@@ -1,4 +1,4 @@
-import './polyfill';
+import '@astrojs/webapi/polyfill-ssr.js';
 
 import { builder, Handler } from '@netlify/functions';
 import { SSRManifest } from 'astro';

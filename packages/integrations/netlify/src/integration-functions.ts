@@ -37,7 +37,7 @@ function netlifyFunctions({
 					},
 					vite: {
 						ssr: {
-							external: ['@astrojs/netlify/polyfill'],
+							external: ['@astrojs/webapi/polyfill-ssr.js'],
 						},
 					},
 				});
