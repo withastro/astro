@@ -559,23 +559,20 @@ import socialImage from '/social.png';
 
 ### Remote images
 
-Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must either provide `width` and `height`, or one of the dimensions plus the required `aspectRatio`.
+Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final format and dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must provide a `format` and dimensions using both `width` and `height`, or one of the dimensions plus `aspectRatio`.
 
 ```astro
 ---
 import { Image } from '@astrojs/image/components';
 
-const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const imageUrl = 'https://astro.build/assets/press/full-logo-dark.png';
 ---
 
 // cropping to a specific width and height
-<Image src={imageUrl} width={544} height={184} alt="descriptive text" />
+<Image src={imageUrl} width={750} height={250} format="avif" alt="descriptive text" />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={300} aspectRatio={16/9} alt="descriptive text" />
-
-// cropping to a specific height and aspect ratio and converting to an avif format
-<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={imageUrl} width={750} aspectRatio={16/9} format="avif" alt="descriptive text" />
 ```
 
 ### Responsive pictures
