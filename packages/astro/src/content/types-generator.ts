@@ -126,7 +126,11 @@ export async function createContentTypesGenerator({
 
 			return { shouldGenerateTypes: true };
 		}
-		if (fileType === 'unsupported' && (event.name === 'add' || event.name === 'change')) {
+		if (fileType === 'unsupported') {
+			// Avoid warning if file was deleted.
+			if (event.name === 'unlink') {
+				return { shouldGenerateTypes: false };
+			}
 			const entryInfo = getEntryInfo({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
