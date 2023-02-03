@@ -93,5 +93,7 @@ export function chunkToByteArray(
 	if (chunk instanceof Uint8Array) {
 		return chunk as Uint8Array;
 	}
-	return encoder.encode(stringifyChunk(result, chunk));
+	// stringify chunk might return a HTMLString
+	let stringified = stringifyChunk(result, chunk);
+	return encoder.encode(stringified.toString());
 }

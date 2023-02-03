@@ -419,7 +419,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @docs
 	 * @message
 	 * **Example error messages:**<br/>
-	 * InvalidComponentArgs: Invalid arguments passed to <MyAstroComponent> component.
+	 * InvalidComponentArgs: Invalid arguments passed to `<MyAstroComponent>` component.
 	 * @description
 	 * Astro components cannot be rendered manually via a function call, such as `Component()` or `{items.map(Component)}`. Prefer the component syntax `<Component />` or `{items.map(item => <Component {...item} />)}`.
 	 */
@@ -635,6 +635,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message `COLLECTION_NAME` → `ENTRY_ID` has an invalid slug. `slug` must be a string.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
@@ -652,6 +653,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message A content collection schema should not contain `slug` since it is reserved for slug generation. Remove this from your `COLLECTION_NAME` collection schema.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description

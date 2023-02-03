@@ -1,5 +1,13 @@
 # @astrojs/lit
 
+## 1.1.2
+
+### Patch Changes
+
+- [#6080](https://github.com/withastro/astro/pull/6080) [`0db220415`](https://github.com/withastro/astro/commit/0db22041531d981a813a07f4c4e00cfb7ebddd51) Thanks [@e111077](https://github.com/e111077)! - Fixes Lit hydration not having the same reactive values as server (losing state upon hydration)
+
+- [#6055](https://github.com/withastro/astro/pull/6055) [`2567aa48b`](https://github.com/withastro/astro/commit/2567aa48bba8751cf7e10429555f1e85830c9169) Thanks [@e111077](https://github.com/e111077)! - Add forwards compatibility for streaming Declarative Shadow DOM
+
 ## 1.1.1
 
 ### Patch Changes
