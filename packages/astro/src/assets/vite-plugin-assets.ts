@@ -1,14 +1,8 @@
 import type * as vite from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
-import { LogOptions } from '../core/logger/core.js';
+import type { AstroPluginOptions } from '../@types/astro';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
-
-interface AstroPluginOptions {
-	settings: AstroSettings;
-	logging: LogOptions;
-}
 
 export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin {
 	return {
