@@ -23,8 +23,6 @@
     "./netlify-functions.js": "./dist/netlify-functions.js",
     "./edge-functions": "./dist/integration-edge-functions.js",
     "./netlify-edge-functions.js": "./dist/netlify-edge-functions.js",
-    "./polyfill.js": "./dist/polyfill.js",
-    "./polyfill": "./dist/polyfill.js",
     "./package.json": "./package.json"
   },
   "scripts": {
