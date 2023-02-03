@@ -26,7 +26,7 @@ export function* walkParentInfos(
 		if (seen.has(imp)) {
 			continue;
 		}
-		yield* walkParentInfos(imp, ctx, until, ++depth, order, seen, id);
+		yield* walkParentInfos(imp, ctx, until, ++depth, order, seen, info?.dynamicImporters?.includes(imp) ? '' : id);
 	}
 }
 
