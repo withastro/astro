@@ -97,7 +97,7 @@ importers:
   examples/docs:
     specifiers:
       '@algolia/client-search': ^4.13.1
-      '@astrojs/preact': ^2.0.1
+      '@astrojs/preact': ^2.0.2
       '@astrojs/react': ^2.0.2
       '@docsearch/css': ^3.1.0
       '@docsearch/react': ^3.1.0
@@ -151,7 +151,7 @@ importers:
 
   examples/framework-multiple:
     specifiers:
-      '@astrojs/preact': ^2.0.1
+      '@astrojs/preact': ^2.0.2
       '@astrojs/react': ^2.0.2
       '@astrojs/solid-js': ^2.0.2
       '@astrojs/svelte': ^2.0.1
@@ -179,7 +179,7 @@ importers:
 
   examples/framework-preact:
     specifiers:
-      '@astrojs/preact': ^2.0.1
+      '@astrojs/preact': ^2.0.2
       '@preact/signals': ^1.1.0
       astro: ^2.0.6
       preact: ^10.7.3
@@ -237,7 +237,7 @@ importers:
 
   examples/hackernews:
     specifiers:
-      '@astrojs/node': ^5.0.2
+      '@astrojs/node': ^5.0.3
       astro: ^2.0.6
     dependencies:
       '@astrojs/node': link:../../packages/integrations/node
@@ -269,7 +269,7 @@ importers:
 
   examples/ssr:
     specifiers:
-      '@astrojs/node': ^5.0.2
+      '@astrojs/node': ^5.0.3
       '@astrojs/svelte': ^2.0.1
       astro: ^2.0.6
       concurrently: ^7.2.1
@@ -312,7 +312,7 @@ importers:
   examples/with-mdx:
     specifiers:
       '@astrojs/mdx': ^0.16.0
-      '@astrojs/preact': ^2.0.1
+      '@astrojs/preact': ^2.0.2
       astro: ^2.0.6
       preact: ^10.6.5
     dependencies:
@@ -323,7 +323,7 @@ importers:
 
   examples/with-nanostores:
     specifiers:
-      '@astrojs/preact': ^2.0.1
+      '@astrojs/preact': ^2.0.2
       '@nanostores/preact': ^0.1.3
       astro: ^2.0.6
       nanostores: ^0.5.12

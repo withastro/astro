@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 5.0.3
+
+### Patch Changes
+
+- [#6110](https://github.com/withastro/astro/pull/6110) [`67ccec9e1`](https://github.com/withastro/astro/commit/67ccec9e168f241318d9dac40096016982d89b7b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes support for prerendering and query params
+
 ## 5.0.2
 
 ### Patch Changes
