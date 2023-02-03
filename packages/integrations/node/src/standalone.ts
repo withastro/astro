@@ -55,8 +55,12 @@ export default function startServer(app: NodeApp, options: Options) {
 	);
 
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';
+
 	// eslint-disable-next-line no-console
 	console.log(`Server listening on ${protocol}://${host}:${port}`);
 
-	return server.closed();
+	return {
+		server,
+		done: server.closed()
+	};
 }
