@@ -1,5 +1,6 @@
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
+import mime from 'mime';
 import fs from 'node:fs/promises';
 import { basename, extname } from 'node:path';
 import { Readable } from 'node:stream';
@@ -18,7 +19,7 @@ export interface ImageMetadata {
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
-		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
+		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id);
 
 	const virtualModuleId = 'virtual:image-loader';
 
@@ -97,7 +98,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 						format = result.format;
 					}
 
-					res.setHeader('Content-Type', `image/${format}`);
+					res.setHeader('Content-Type', mime.getType(format) || '');
 					res.setHeader('Cache-Control', 'max-age=360000');
 
 					const stream = Readable.from(data);
