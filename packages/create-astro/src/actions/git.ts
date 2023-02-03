@@ -40,5 +40,9 @@ export async function git(ctx: Pick<Context, 'cwd'|'git'|'yes'|'prompt'|'dryRun'
 }
 
 async function init({ cwd }: { cwd: string }) {
-	return execa('git', ['init'], { cwd });
+	try {
+		await execa('git', ['init'], { cwd, stdio: 'ignore' });
+		await execa('git', ['add', '-A'], { cwd, stdio: 'ignore' });
+		await execa('git', ['commit', '-m', 'Initial commit from Astro', '--author="houston[bot] <astrobot-houston@users.noreply.github.com>"'], { cwd, stdio: 'ignore' });
+	} catch (e) {}
 }
