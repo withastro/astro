@@ -1,8 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroSettings } from '../../@types/astro';
-import type { BuildInternals } from '../../core/build/internal.js';
-import { viteID } from '../util.js';
-import { getPageDataByViteID } from './internal.js';
+import type { AstroSettings } from '../../../@types/astro';
+import { viteID } from '../../util.js';
+import type { BuildInternals } from '../internal.js';
+import { getPageDataByViteID } from '../internal.js';
+import { AstroBuildPlugin } from '../plugin';
+import { StaticBuildOptions } from '../types';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
@@ -88,6 +90,22 @@ export function vitePluginHoistedScripts(
 					}
 				}
 			}
+		},
+	};
+}
+
+export function pluginHoistedScripts(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
+	return {
+		build: 'client',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin: vitePluginHoistedScripts(options.settings, internals),
+				};
+			},
 		},
 	};
 }

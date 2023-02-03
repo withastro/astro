@@ -1,8 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../app/index.js';
-import { addRollupInput } from './add-rollup-input.js';
-import { BuildInternals, eachPageData, hasPrerenderedPages } from './internal.js';
-import type { StaticBuildOptions } from './types';
+import type { AstroBuildPlugin } from '../plugin';
+import type { StaticBuildOptions } from '../types';
+
+import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../../app/index.js';
+import { addRollupInput } from '../add-rollup-input.js';
+import { BuildInternals, eachPageData, hasPrerenderedPages } from '../internal.js';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -50,6 +52,19 @@ export const renderers = [${rendererItems}];`;
 
 				return def;
 			}
+		},
+	};
+}
+
+export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin: vitePluginPages(opts, internals),
+				};
+			},
 		},
 	};
 }
