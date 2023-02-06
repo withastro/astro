@@ -1,11 +1,13 @@
-import { pathToFileURL } from 'url';
 import npath from 'node:path';
+import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import { AstroBuildPlugin } from '../core/build/plugin.js';
+import type { StaticBuildOptions } from '../core/build/types';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
+import { prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
@@ -15,8 +17,6 @@ import {
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
-import type { RollupOutput, OutputChunk, StaticBuildOptions } from '../core/build/types';
-import { prependForwardSlash } from '../core/path.js';
 
 function isPropagatedAsset(viteId: string): boolean {
 	const url = new URL(viteId, 'file://');
@@ -76,7 +76,10 @@ export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): 
 	};
 }
 
-export function astroConfigBuildPlugin(options: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
+export function astroConfigBuildPlugin(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
 	let ssrPluginContext: any = undefined;
 	return {
 		build: 'ssr',
@@ -86,15 +89,15 @@ export function astroConfigBuildPlugin(options: StaticBuildOptions, internals: B
 					vitePlugin: {
 						name: 'astro:content-build-plugin',
 						generateBundle() {
-							if(build === 'ssr') {
+							if (build === 'ssr') {
 								ssrPluginContext = this;
 							}
-						}
+						},
 					},
 				};
 			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
-				const outputs = ssrOutputs.flatMap(o => o.output);
+				const outputs = ssrOutputs.flatMap((o) => o.output);
 				for (const chunk of outputs) {
 					if (
 						chunk.type === 'chunk' &&
@@ -109,16 +112,16 @@ export function astroConfigBuildPlugin(options: StaticBuildOptions, internals: B
 									const pageViteID = pageInfo.id;
 									const pageData = getPageDataByViteID(internals, pageViteID);
 									if (!pageData) continue;
-	
+
 									const _entryCss = pageData.propagatedStyles?.get(id);
 									const _entryScripts = pageData.propagatedScripts?.get(id);
-									if(_entryCss) {
-										for(const value of _entryCss) {
+									if (_entryCss) {
+										for (const value of _entryCss) {
 											entryCSS.add(value);
 										}
 									}
-									if(_entryScripts) {
-										for(const value of _entryScripts) {
+									if (_entryScripts) {
+										for (const value of _entryScripts) {
 											entryScripts.add(value);
 										}
 									}
@@ -135,11 +138,11 @@ export function astroConfigBuildPlugin(options: StaticBuildOptions, internals: B
 						}
 						if (entryScripts.size) {
 							const entryFileNames = new Set<string>();
-							for(const output of clientOutputs) {
-								for(const clientChunk of output.output) {
-									if(clientChunk.type !== 'chunk') continue;
-									for(const [id] of Object.entries(clientChunk.modules)) {
-										if(entryScripts.has(id)) {
+							for (const output of clientOutputs) {
+								for (const clientChunk of output.output) {
+									if (clientChunk.type !== 'chunk') continue;
+									for (const [id] of Object.entries(clientChunk.modules)) {
+										if (entryScripts.has(id)) {
 											entryFileNames.add(clientChunk.fileName);
 										}
 									}
@@ -150,11 +153,8 @@ export function astroConfigBuildPlugin(options: StaticBuildOptions, internals: B
 								JSON.stringify(
 									[...entryFileNames].map((src) => ({
 										props: {
-											src: prependForwardSlash(npath.posix.join(
-												options.settings.config.base,
-												src
-											)),
-											type: 'module'
+											src: prependForwardSlash(npath.posix.join(options.settings.config.base, src)),
+											type: 'module',
 										},
 										children: '',
 									}))
@@ -164,7 +164,7 @@ export function astroConfigBuildPlugin(options: StaticBuildOptions, internals: B
 						mutate(chunk, 'server', newCode);
 					}
 				}
-			}
+			},
 		},
 	};
 }

@@ -45,9 +45,7 @@ describe('Content Collections - render()', () => {
 
 			// Includes hoisted script
 			expect(
-				[...allScripts].find((script) =>
-					$(script).attr('src')?.includes('WithScripts')
-				),
+				[...allScripts].find((script) => $(script).attr('src')?.includes('WithScripts')),
 				'`WithScripts.astro` hoisted script missing from head.'
 			).to.not.be.undefined;
 

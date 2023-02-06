@@ -248,9 +248,12 @@ async function runPostBuildHooks(
 	const config = container.options.settings.config;
 	const buildConfig = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
-		const root = config.output === 'server' ?
-			mutation.build === 'server' ? buildConfig.server : buildConfig.client :
-			config.outDir;
+		const root =
+			config.output === 'server'
+				? mutation.build === 'server'
+					? buildConfig.server
+					: buildConfig.client
+				: config.outDir;
 		const fileURL = new URL(fileName, root);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
 		await fs.promises.writeFile(fileURL, mutation.code, 'utf-8');
