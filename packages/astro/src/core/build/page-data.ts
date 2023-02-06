@@ -54,7 +54,8 @@ export async function collectPagesData(
 				route,
 				moduleSpecifier: '',
 				css: new Map(),
-				contentCollectionCss: new Map(),
+				propagatedStyles: new Map(),
+				propagatedScripts: new Map(),
 				hoistedScript: undefined,
 			};
 
@@ -76,7 +77,8 @@ export async function collectPagesData(
 			route,
 			moduleSpecifier: '',
 			css: new Map(),
-			contentCollectionCss: new Map(),
+			propagatedStyles: new Map(),
+			propagatedScripts: new Map(),
 			hoistedScript: undefined,
 		};
 	}

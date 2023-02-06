@@ -45,9 +45,7 @@ describe('Content Collections - render()', () => {
 
 			// Includes hoisted script
 			expect(
-				[...allScripts].find((script) =>
-					$(script).text().includes('document.querySelector("#update-me")')
-				),
+				[...allScripts].find((script) => $(script).attr('src')?.includes('WithScripts')),
 				'`WithScripts.astro` hoisted script missing from head.'
 			).to.not.be.undefined;
 
@@ -55,9 +53,7 @@ describe('Content Collections - render()', () => {
 			expect($('script[data-is-inline]')).to.have.a.lengthOf(1);
 		});
 
-		// TODO: Script bleed isn't solved for prod builds.
-		// Tackling in separate PR.
-		it.skip('Excludes component scripts for non-rendered entries', async () => {
+		it('Excludes component scripts for non-rendered entries', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
