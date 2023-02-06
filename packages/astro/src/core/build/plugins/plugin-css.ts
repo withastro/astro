@@ -176,8 +176,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 													if (pageData) {
 														for (const css of meta.importedCss) {
 															const existingCss =
-																pageData.contentCollectionCss.get(pageInfo.id) ?? new Set();
-															pageData.contentCollectionCss.set(
+																pageData.propagatedStyles.get(pageInfo.id) ?? new Set();
+															pageData.propagatedStyles.set(
 																pageInfo.id,
 																new Set([...existingCss, css])
 															);
