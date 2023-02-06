@@ -134,7 +134,7 @@ export default defineConfig({
 > **Type:** `boolean`
 > **Available for:** Serverless
 
-Use this property to enable Vercel Analytics (including Web Vitals and Audiences)
+Use this property to enable Vercel Analytics (including Web Vitals and Audiences).
 
 ```js
 import { defineConfig } from 'astro/config';
