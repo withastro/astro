@@ -1,7 +1,6 @@
 import fsPromises from 'fs/promises';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import { it } from 'node:test';
 
 const fixture_root = './fixtures/static-build-dir/';
 
@@ -13,11 +12,6 @@ describe('Static build: dir takes the URL path to the output directory', async (
 	before(async () => {
 		const fixture = await loadFixture({
 			root: fixture_root,
-      vite: {
-        build: {
-          assetsInlineLimit: 0
-        }
-      },
 			integrations: [
 				{
 					name: '@astrojs/dir',
@@ -53,6 +47,6 @@ describe('Static build: dir takes the URL path to the output directory', async (
   });
 
   it('copies a static file containing url encoded or special characters', async () => {
-    expect(await fsPromises.readdir(new URL(`${fixture_root}dist`, import.meta.url))).to.include('test_%26_ü.txt');
+    expect(await fsPromises.readdir(new URL(`${fixture_root}dist`, import.meta.url))).to.include('#:~:text=..test_%26_ü.txt');
   });
 });
