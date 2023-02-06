@@ -9,7 +9,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { addScopeFlag, renderSlot, stringifyChunk, ScopeFlags } from '../../runtime/server/index.js';
+import { addScopeFlag, renderSlot, stringifyChunk, ScopeFlags, createScopedResult } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -89,7 +89,7 @@ class Slots {
 	public async render(name: string, args: any[] = []) {
 		if (!this.#slots || !this.has(name)) return;
 
-		addScopeFlag(this.#result, ScopeFlags.RenderSlot);
+		const scoped = createScopedResult(this.#result, ScopeFlags.RenderSlot);
 		if (!Array.isArray(args)) {
 			warn(
 				this.#loggingOpts,
@@ -98,26 +98,26 @@ class Slots {
 			);
 		} else if (args.length > 0) {
 			const slotValue = this.#slots[name];
-			const component = typeof slotValue === 'function' ? await slotValue() : await slotValue;
+			const component = typeof slotValue === 'function' ? await slotValue(scoped) : await slotValue;
 
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = expression(...args);
-				return await renderSlot(this.#result, slot).then((res) =>
+				return await renderSlot(scoped, slot).then((res) =>
 					res != null ? String(res) : res
 				);
 			}
 			// JSX
 			if (typeof component === 'function') {
-				return await renderJSX(this.#result, component(...args)).then((res) =>
+				return await renderJSX(scoped, component(...args)).then((res) =>
 					res != null ? String(res) : res
 				);
 			}
 		}
 
-		const content = await renderSlot(this.#result, this.#slots[name]);
-		const outHTML = stringifyChunk(this.#result, content);
+		const content = await renderSlot(scoped, this.#slots[name]);
+		const outHTML = stringifyChunk(scoped, content);
 
 		return outHTML;
 	}

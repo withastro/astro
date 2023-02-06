@@ -53,22 +53,7 @@ export function* maybeRenderHead(result: SSRResult) {
 		return;
 	}
 
-	// Don't render the head inside of a JSX component that's inside of an Astro component
-	// as the Astro component will be the one to render the head.
-	switch (result.scope) {
-		case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
-		case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
-		case ScopeFlags.JSX |  ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
-			return;
-		}
-		case ScopeFlags.RenderSlot | ScopeFlags.Astro:
-		case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
-		case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {
-			return;
-		}
-	}
-
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	yield { type: 'head', result } as const;
+	yield { type: 'maybe-head', result, scope: result.scope } as const;
 }

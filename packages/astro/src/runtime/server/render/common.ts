@@ -10,6 +10,7 @@ import {
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
 import { isSlotString, type SlotString } from './slot.js';
+import { ScopeFlags } from './scope.js';
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
@@ -46,6 +47,27 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				if (result._metadata.hasRenderedHead) {
 					return '';
 				}
+				return renderAllHeadContent(result);
+			}
+			case 'maybe-head': {
+				const scope = instruction.scope;
+				switch (scope) {
+					// JSX with an Astro slot
+					case ScopeFlags.JSX | ScopeFlags.Astro:
+					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
+					case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
+					case ScopeFlags.JSX |  ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
+						return '';
+					}
+
+					// Astro.slots.render('default') should never render head content.
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro:
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {
+						return '';
+					}
+				}
+
 				return renderAllHeadContent(result);
 			}
 		}

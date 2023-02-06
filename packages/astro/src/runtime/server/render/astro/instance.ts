@@ -7,10 +7,10 @@ import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import { addScopeFlag, removeScopeFlag, ScopeFlags } from '../scope.js';
+import { createScopedResult, ScopeFlags } from '../scope.js';
 
 type ComponentProps = Record<string | number, any>;
-type ComponentSlotValue = () => ReturnType<typeof renderTemplate>;
+type ComponentSlotValue = (result: SSRResult) => ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
 export type ComponentSlotsWithValues = Record<string, ReturnType<ComponentSlotValue>>;
 
@@ -34,9 +34,9 @@ export class AstroComponentInstance {
 		this.props = props;
 		this.factory = factory;
 		this.slotValues = {};
-		addScopeFlag(result, ScopeFlags.Slot);
+		const scoped = createScopedResult(result, ScopeFlags.Slot);
 		for (const name in slots) {
-			this.slotValues[name] = slots[name]();
+			this.slotValues[name] = slots[name](scoped);
 		}
 	}
 
