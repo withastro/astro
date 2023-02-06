@@ -13,7 +13,8 @@
   "dependencies": {
     "@astrojs/markdoc": "^0.0.1",
     "astro": "^2.0.6",
-    "html-escaper": "^3.0.3"
+    "html-escaper": "^3.0.3",
+    "stringify-attributes": "^3.0.0"
   },
   "devDependencies": {
     "@markdoc/markdoc": "^0.2.2"
