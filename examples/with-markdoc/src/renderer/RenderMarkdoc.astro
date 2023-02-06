@@ -1,0 +1,14 @@
+---
+import type { RenderableTreeNode } from '@markdoc/markdoc';
+import { ComponentRenderer, createAstroNode } from './astroNode';
+import RenderNode from './RenderNode.astro';
+
+type Props = {
+	content: RenderableTreeNode;
+	components: Record<string, ComponentRenderer>;
+};
+
+const { content, components } = Astro.props as Props;
+---
+
+<RenderNode node={createAstroNode(content, components)} />
