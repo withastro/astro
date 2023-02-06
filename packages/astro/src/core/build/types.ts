@@ -1,4 +1,4 @@
-import type { InlineConfig } from 'vite';
+import type { default as vite, InlineConfig } from 'vite';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -21,7 +21,8 @@ export interface PageBuildData {
 	route: RouteData;
 	moduleSpecifier: string;
 	css: Map<string, { depth: number; order: number }>;
-	contentCollectionCss: Map<string, Set<string>>;
+	propagatedStyles: Map<string, Set<string>>;
+	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
@@ -44,3 +45,10 @@ export interface SingleFileBuiltModule {
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 }
+
+export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
+export type RollupOutput = Extract<
+	Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>,
+	{ output: any }
+>;
+export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;
