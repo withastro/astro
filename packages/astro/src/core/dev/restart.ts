@@ -1,8 +1,10 @@
+import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import type { AstroSettings } from '../../@types/astro';
 import { createSettings, openConfig } from '../config/index.js';
 import { createSafeError } from '../errors/index.js';
 import { info } from '../logger/core.js';
+import { prependForwardSlash, appendForwardSlash } from '../path.js';
 import type { Container, CreateContainerParams } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
 
@@ -76,8 +78,9 @@ export async function restartContainer({
 	beforeRestart,
 }: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
 	const { logging, close, resolvedRoot, settings: existingSettings } = container;
-	const root = flags.root || resolvedRoot;
 	container.restartInFlight = true;
+	// Resolve `flags.root` relative to `resolvedRoot`
+	const root = flags.root ? fileURLToPath(new URL('.' + prependForwardSlash(appendForwardSlash(flags.root)), pathToFileURL(resolvedRoot))) : resolvedRoot;
 
 	if (beforeRestart) {
 		beforeRestart();
