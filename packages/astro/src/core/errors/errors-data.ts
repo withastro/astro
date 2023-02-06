@@ -439,8 +439,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	PageNumberParamNotFound: {
 		title: 'Page number param not found.',
 		code: 3021,
-		message: (paramName: string) => `[paginate()] page number param \`${paramName}\` not found in your filepath.`,
-		hint: 'Rename your file to \`[page].astro\` or \`[...page].astro\`.'
+		message: (paramName: string) =>
+			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
+		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
