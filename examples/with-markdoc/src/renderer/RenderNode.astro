@@ -1,4 +1,5 @@
 ---
+import stringifyAttributes from 'stringify-attributes';
 import type { AstroNode } from './astroNode';
 
 type Props = {
@@ -19,7 +20,7 @@ const Node = (Astro.props as Props).node;
 		</Node.component>
 	) : (
 		<Fragment>
-			<Fragment set:html={`<${Node.tag}>`} />
+			<Fragment set:html={`<${Node.tag} ${stringifyAttributes(Node.attributes)}>`} />
 			{Node.children.map((child) => (
 				<Astro.self node={child} />
 			))}
