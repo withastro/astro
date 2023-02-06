@@ -59,6 +59,7 @@ function printAstroHelp() {
 				['--base <pathname>', 'Specify your project base.'],
 				['--verbose', 'Enable verbose logging.'],
 				['--silent', 'Disable all logging.'],
+				['--skip-sync', 'Skip automatic content type generation.'],
 				['--version', 'Show the version number and exit.'],
 				['--help', 'Show this help message.'],
 			],
@@ -203,7 +204,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'build': {
 			const { default: build } = await import('../core/build/index.js');
 
-			return await build(settings, { ...flags, logging, telemetry });
+			return await build(settings, {
+				mode: flags.mode,
+				skipSync: flags['skip-sync'],
+				logging,
+				telemetry,
+			});
 		}
 
 		case 'check': {

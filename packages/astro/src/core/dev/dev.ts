@@ -72,7 +72,9 @@ export default async function dev(
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
-	await attachContentServerListeners(restart.container);
+	if (!options.flags?.['skip-sync']) {
+		await attachContentServerListeners(restart.container);
+	}
 
 	return {
 		address: devServerAddressInfo,

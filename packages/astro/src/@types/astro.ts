@@ -84,6 +84,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	skipSync?: boolean;
 }
 
 export interface BuildConfig {

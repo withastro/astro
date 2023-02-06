@@ -23,6 +23,7 @@ import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
+	skipSync?: boolean;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 }
@@ -38,6 +39,7 @@ class AstroBuilder {
 	private settings: AstroSettings;
 	private logging: LogOptions;
 	private mode: RuntimeMode = 'production';
+	private skipSync: boolean = false;
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
@@ -46,6 +48,9 @@ class AstroBuilder {
 	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
 			this.mode = options.mode;
+		}
+		if (options.skipSync) {
+			this.skipSync = options.skipSync;
 		}
 		this.settings = settings;
 		this.logging = options.logging;
@@ -81,10 +86,12 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ settings: this.settings, logging });
 
-		const { sync } = await import('../sync/index.js');
-		const syncRet = await sync(this.settings, { logging, fs });
-		if (syncRet !== 0) {
-			return process.exit(syncRet);
+		if (!this.skipSync) {
+			const { sync } = await import('../sync/index.js');
+			const syncRet = await sync(this.settings, { logging, fs });
+			if (syncRet !== 0) {
+				return process.exit(syncRet);
+			}
 		}
 
 		return { viteConfig };
