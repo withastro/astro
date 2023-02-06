@@ -1,5 +1,17 @@
 # @astrojs/node
 
+## 5.0.3
+
+### Patch Changes
+
+- [#6110](https://github.com/withastro/astro/pull/6110) [`67ccec9e1`](https://github.com/withastro/astro/commit/67ccec9e168f241318d9dac40096016982d89b7b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes support for prerendering and query params
+
+## 5.0.2
+
+### Patch Changes
+
+- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrent encoded when path has other language characters
+
 ## 5.0.1
 
 ### Patch Changes

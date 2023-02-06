@@ -23,10 +23,10 @@ describe('Head injection w/ MDX', () => {
 			const html = await fixture.readFile('/indexThree/index.html');
 			const { document } = parseHTML(html);
 
-			const links = document.querySelectorAll('link[rel=stylesheet]');
+			const links = document.querySelectorAll('head link[rel=stylesheet]');
 			expect(links).to.have.a.lengthOf(1);
 
-			const scripts = document.querySelectorAll('script[type=module]');
+			const scripts = document.querySelectorAll('head script[type=module]');
 			expect(scripts).to.have.a.lengthOf(1);
 		});
 	});

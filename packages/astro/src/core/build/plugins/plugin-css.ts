@@ -2,20 +2,22 @@ import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
-import { isCSSRequest } from '../render/util.js';
-import type { BuildInternals } from './internal';
-import type { PageBuildData, StaticBuildOptions } from './types';
+import { isCSSRequest } from '../../render/util.js';
+import type { BuildInternals } from '../internal';
+import type { AstroBuildPlugin } from '../plugin';
+import type { PageBuildData, StaticBuildOptions } from '../types';
 
-import { PROPAGATED_ASSET_FLAG } from '../../content/consts.js';
-import * as assetName from './css-asset-name.js';
-import { moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
+import * as assetName from '../css-asset-name.js';
+import { moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
 	getPageDatasByClientOnlyID,
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
-} from './internal.js';
+} from '../internal.js';
+import { extendManualChunks } from './util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -54,40 +56,30 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 			name: 'astro:rollup-plugin-build-css',
 
 			outputOptions(outputOptions) {
-				const manualChunks = outputOptions.manualChunks || Function.prototype;
 				const assetFileNames = outputOptions.assetFileNames;
 				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 				const createNameForParentPages = namingIncludesHash
 					? assetName.shortHashedName
 					: assetName.createSlugger(settings);
-				outputOptions.manualChunks = function (id, ...args) {
-					// Defer to user-provided `manualChunks`, if it was provided.
-					if (typeof manualChunks == 'object') {
-						if (id in manualChunks) {
-							return manualChunks[id];
-						}
-					} else if (typeof manualChunks === 'function') {
-						const outid = manualChunks.call(this, id, ...args);
-						if (outid) {
-							return outid;
-						}
-					}
 
-					// For CSS, create a hash of all of the pages that use it.
-					// This causes CSS to be built into shared chunks when used by multiple pages.
-					if (isCSSRequest(id)) {
-						for (const [pageInfo] of walkParentInfos(id, {
-							getModuleInfo: args[0].getModuleInfo,
-						})) {
-							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
-								// Split delayed assets to separate modules
-								// so they can be injected where needed
-								return createNameHash(id, [id]);
+				extendManualChunks(outputOptions, {
+					after(id, meta) {
+						// For CSS, create a hash of all of the pages that use it.
+						// This causes CSS to be built into shared chunks when used by multiple pages.
+						if (isCSSRequest(id)) {
+							for (const [pageInfo] of walkParentInfos(id, {
+								getModuleInfo: meta.getModuleInfo,
+							})) {
+								if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
+									// Split delayed assets to separate modules
+									// so they can be injected where needed
+									return createNameHash(id, [id]);
+								}
 							}
+							return createNameForParentPages(id, meta);
 						}
-						return createNameForParentPages(id, args[0]);
-					}
-				};
+					},
+				});
 			},
 
 			async generateBundle(_outputOptions, bundle) {
@@ -271,4 +263,26 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 			},
 		},
 	];
+}
+
+export function pluginCSS(
+	options: StaticBuildOptions,
+	internals: BuildInternals
+): AstroBuildPlugin {
+	return {
+		build: 'both',
+		hooks: {
+			'build:before': ({ build }) => {
+				let plugins = rollupPluginAstroBuildCSS({
+					buildOptions: options,
+					internals,
+					target: build === 'ssr' ? 'server' : 'client',
+				});
+
+				return {
+					vitePlugin: plugins,
+				};
+			},
+		},
+	};
 }

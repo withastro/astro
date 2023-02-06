@@ -2,6 +2,7 @@ import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
+import { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
@@ -36,7 +37,9 @@ export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): 
 			if (isPropagatedAsset(id)) {
 				const basePath = id.split('?')[0];
 				const code = `
-					export { Content, getHeadings, frontmatter } from ${JSON.stringify(basePath)};
+					export async function getMod() {
+						return import(${JSON.stringify(basePath)});
+					}
 					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
 					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
 					export const collectedScripts = ${JSON.stringify(SCRIPTS_PLACEHOLDER)};
@@ -93,6 +96,19 @@ export function astroContentProdBundlePlugin({ internals }: { internals: BuildIn
 					}
 				}
 			}
+		},
+	};
+}
+
+export function astroConfigBuildPlugin(internals: BuildInternals): AstroBuildPlugin {
+	return {
+		build: 'ssr',
+		hooks: {
+			'build:before': () => {
+				return {
+					vitePlugin: astroContentProdBundlePlugin({ internals }),
+				};
+			},
 		},
 	};
 }
