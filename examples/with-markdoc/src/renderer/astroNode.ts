@@ -39,7 +39,7 @@ export function createAstroNode(
 	if (Object.hasOwn(components, node.name)) {
 		const componentRenderer = components[node.name];
 		const component =
-			'Component' in componentRenderer ? componentRenderer.component : componentRenderer;
+			'component' in componentRenderer ? componentRenderer.component : componentRenderer;
 		const props =
 			'props' in componentRenderer
 				? componentRenderer.props({
