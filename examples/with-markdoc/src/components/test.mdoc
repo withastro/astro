@@ -1,0 +1,31 @@
+# Hey there
+
+This is a test file?
+
+{% table %}
+* Heading 1
+* Heading 2
+---
+* Row 1 Cell 1
+* Row 1 Cell 2
+---
+* Row 2 Cell 1
+* Row 2 cell 2
+{% /table %}
+
+{% if $shouldMarquee %}
+{% mq direction="right" %}
+Testing!
+{% /mq %}
+{% /if %}
+
+{% link href=$href %}Link{% /link %}
+
+Some `inline code` should help
+
+```js
+const testing = true;
+function further() {
+	console.log('still highlighted!')
+}
+```

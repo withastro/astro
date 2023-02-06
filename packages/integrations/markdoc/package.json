@@ -30,6 +30,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
+    "@markdoc/markdoc": "^0.2.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
