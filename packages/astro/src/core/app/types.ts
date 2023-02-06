@@ -1,6 +1,7 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	ComponentInstance,
+	PropagationHint,
 	RouteData,
 	SerializedRouteData,
 	SSRLoadedRenderer,
@@ -38,9 +39,10 @@ export interface SSRManifest {
 	propagation: SSRResult['propagation'];
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets'> & {
+export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'propagation'> & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
+	propagation: readonly [string, PropagationHint][];
 };
 
 export type AdapterCreateExports<T = any> = (
