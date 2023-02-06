@@ -3,7 +3,7 @@ import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { ScopeFlags } from './util.js';
+import { ScopeFlags, addScopeFlag, removeScopeFlag } from './scope.js';
 
 const slotString = Symbol.for('astro:slot-string');
 
@@ -27,7 +27,7 @@ export async function renderSlot(
 	fallback?: any
 ): Promise<string> {
 	if (slotted) {
-		result.scope |= ScopeFlags.Slot;
+		addScopeFlag(result, ScopeFlags.Slot);
 		let iterator = renderChild(slotted);
 		let content = '';
 		let instructions: null | RenderInstruction[] = null;
@@ -42,7 +42,8 @@ export async function renderSlot(
 			}
 		}
 		// Remove the flag since we are now outside of the scope.
-		result.scope &= ~ScopeFlags.Slot;
+		removeScopeFlag(result, ScopeFlags.Slot);
+		
 		return markHTMLString(new SlotString(content, instructions));
 	}
 	return fallback;

@@ -128,9 +128,3 @@ export function renderElement(
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
-
-export const ScopeFlags = {
-	Astro: 1 << 0,
-	JSX: 1 << 1,
-	Slot: 1 << 2,
-};

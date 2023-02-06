@@ -6,6 +6,7 @@ export { renderJSX } from './jsx.js';
 export {
 	addAttribute,
 	createHeadAndContent,
+	createScopedResult,
 	defineScriptVars,
 	Fragment,
 	maybeRenderHead,
