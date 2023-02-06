@@ -129,6 +129,25 @@ export default defineConfig({
 });
 ```
 
+### analytics
+
+> **Type:** `boolean`
+> **Available for:** Serverless
+
+Use this property to enable Vercel Analytics (including Web Vitals and Audiences)
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    analytics: true
+  })
+});
+```
+
 ### Vercel Middleware
 
 You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
