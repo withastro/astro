@@ -1,52 +1,10 @@
 ---
-import { body } from '../components/test.mdoc';
 import { Markdoc } from '@astrojs/markdoc';
 import RenderMarkdoc from '../renderer/RenderMarkdoc.astro';
-import RedP from '../components/RedP.astro';
+
+import { getTransformed } from '../components/test.mdoc';
 import { Code } from 'astro/components';
-import { Tag } from '@markdoc/markdoc';
-import { ComponentRenderer } from '../renderer/astroNode';
-
-const parsed = Markdoc.parse(body);
-const content = Markdoc.transform(parsed, {
-	variables: {
-		shouldMarquee: true,
-		href: 'https://astro.build',
-	},
-	tags: {
-		mq: {
-			render: 'marquee',
-			attributes: {
-				direction: {
-					type: String,
-					default: 'left',
-					matches: ['left', 'right', 'up', 'down'],
-					errorLevel: 'critical',
-				},
-			},
-		},
-		link: {
-			render: 'a',
-			attributes: {
-				href: {
-					type: String,
-					required: true,
-				},
-			},
-		},
-	},
-});
-
-const code: ComponentRenderer = {
-	component: Code,
-	props({ attributes, getTreeNode }) {
-		return {
-			...attributes,
-			lang: attributes.lang ?? attributes['data-language'],
-			code: attributes.code ?? Markdoc.renderers.html(getTreeNode().children),
-		};
-	},
-};
+import Marquee from '../components/Marquee.astro';
 ---
 
 <html lang="en">
@@ -61,11 +19,19 @@ const code: ComponentRenderer = {
 		<h1>Astro</h1>
 		<article>
 			<RenderMarkdoc
-				content={content}
+				content={await getTransformed()}
 				components={{
-					p: RedP,
-					code,
-					pre: code,
+					marquee: Marquee,
+					pre: {
+						component: Code,
+						props({ attributes, getTreeNode }) {
+							return {
+								...attributes,
+								lang: attributes.lang ?? attributes['data-language'],
+								code: attributes.code ?? Markdoc.renderers.html(getTreeNode().children),
+							};
+						},
+					},
 				}}
 			/>
 		</article>
