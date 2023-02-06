@@ -1,9 +1,11 @@
-import type { Context } from "./context";
+import type { Context } from './context';
 
-import { title, info, spinner } from '../messages.js';
 import { execa } from 'execa';
+import { info, spinner, title } from '../messages.js';
 
-export async function dependencies(ctx: Pick<Context, 'install'|'yes'|'prompt'|'pkgManager'|'cwd'|'dryRun'>) {
+export async function dependencies(
+	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'pkgManager' | 'cwd' | 'dryRun'>
+) {
 	let deps = ctx.install ?? ctx.yes;
 	if (deps === undefined) {
 		({ deps } = await ctx.prompt({
@@ -33,11 +35,10 @@ export async function dependencies(ctx: Pick<Context, 'install'|'yes'|'prompt'|'
 	}
 }
 
-async function install({ pkgManager, cwd }: { pkgManager: string, cwd: string }) {
-		const installExec = execa(pkgManager, ['install'], { cwd });
-		return new Promise<void>((resolve, reject) => {
-			installExec.on('error', (error) => reject(error));
-			installExec.on('close', () => resolve());
-		});
+async function install({ pkgManager, cwd }: { pkgManager: string; cwd: string }) {
+	const installExec = execa(pkgManager, ['install'], { cwd });
+	return new Promise<void>((resolve, reject) => {
+		installExec.on('error', (error) => reject(error));
+		installExec.on('close', () => resolve());
+	});
 }
-

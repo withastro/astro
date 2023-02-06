@@ -1,7 +1,7 @@
-import os from 'node:os';
-import arg from 'arg';
-import detectPackageManager from 'which-pm-runs';
 import { prompt } from '@astrojs/cli-kit';
+import arg from 'arg';
+import os from 'node:os';
+import detectPackageManager from 'which-pm-runs';
 
 import { getName, getVersion } from '../messages.js';
 
@@ -26,27 +26,29 @@ export interface Context {
 	exit(code: number): never;
 }
 
-
 export async function getContext(argv: string[]): Promise<Context> {
-	const flags = arg({
-		'--template': String,
-		'--ref': String,
-		'--yes': Boolean,
-		'--no': Boolean,
-		'--install': Boolean,
-		'--no-install': Boolean,
-		'--git': Boolean,
-		'--no-git': Boolean,
-		'--typescript': String,
-		'--skip-houston': Boolean,
-		'--dry-run': Boolean,
-		'--help': Boolean,
-		'--fancy': Boolean,
+	const flags = arg(
+		{
+			'--template': String,
+			'--ref': String,
+			'--yes': Boolean,
+			'--no': Boolean,
+			'--install': Boolean,
+			'--no-install': Boolean,
+			'--git': Boolean,
+			'--no-git': Boolean,
+			'--typescript': String,
+			'--skip-houston': Boolean,
+			'--dry-run': Boolean,
+			'--help': Boolean,
+			'--fancy': Boolean,
 
-		'-y': '--yes',
-		'-n': '--no',
-		'-h': '--help',
-	}, { argv, permissive: true });
+			'-y': '--yes',
+			'-n': '--no',
+			'-h': '--help',
+		},
+		{ argv, permissive: true }
+	);
 
 	const pkgManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
@@ -75,8 +77,10 @@ export async function getContext(argv: string[]): Promise<Context> {
 		if (typescript == undefined) typescript = 'strict';
 	}
 
-	skipHouston = ((os.platform() === 'win32' && !fancy) || skipHouston) ?? [yes, no, install, git, typescript].some((v) => v !== undefined);
-	
+	skipHouston =
+		((os.platform() === 'win32' && !fancy) || skipHouston) ??
+		[yes, no, install, git, typescript].some((v) => v !== undefined);
+
 	const context: Context = {
 		help,
 		prompt,
@@ -95,7 +99,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		cwd,
 		exit(code) {
 			process.exit(code);
-		}
-	}
+		},
+	};
 	return context;
 }

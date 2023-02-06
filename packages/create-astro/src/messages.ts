@@ -1,8 +1,8 @@
 /* eslint no-console: 'off' */
+import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
+import { align, sleep } from '@astrojs/cli-kit/utils';
 import { exec } from 'node:child_process';
 import { get } from 'node:https';
-import { color, label, spinner as load, say as houston } from '@astrojs/cli-kit';
-import { sleep, align } from '@astrojs/cli-kit/utils';
 import stripAnsi from 'strip-ansi';
 
 let stdout = process.stdout;
@@ -11,113 +11,136 @@ export function setStdout(writable: typeof process.stdout) {
 	stdout = writable;
 }
 
-export async function say(messages: string|string[], { clear = false, hat = '' } = {}) {
+export async function say(messages: string | string[], { clear = false, hat = '' } = {}) {
 	return houston(messages, { clear, hat, stdout });
 }
 
-export async function spinner(args: { start: string; end: string; while: (...args: any) => Promise<any>; }) {
+export async function spinner(args: {
+	start: string;
+	end: string;
+	while: (...args: any) => Promise<any>;
+}) {
 	await load(args, { stdout });
 }
 
 export const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
 export const welcome = [
-    `Let's claim your corner of the internet.`,
-    `I'll be your assistant today.`,
-    `Let's build something awesome!`,
-    `Let's build something great!`,
-    `Let's build something fast!`,
-    `Let's build the web we want.`,
-    `Let's make the web weird!`,
-    `Let's make the web a better place!`,
-    `Let's create a new project!`,
-    `Let's create something unique!`,
-    `Time to build a new website.`,
-    `Time to build a faster website.`,
-    `Time to build a sweet new website.`,
-    `We're glad to have you on board.`,
-    `Keeping the internet weird since 2021.`,
-    `Initiating launch sequence...`,
-    `Initiating launch sequence... right... now!`,
-    `Awaiting further instructions.`,
-]
+	`Let's claim your corner of the internet.`,
+	`I'll be your assistant today.`,
+	`Let's build something awesome!`,
+	`Let's build something great!`,
+	`Let's build something fast!`,
+	`Let's build the web we want.`,
+	`Let's make the web weird!`,
+	`Let's make the web a better place!`,
+	`Let's create a new project!`,
+	`Let's create something unique!`,
+	`Time to build a new website.`,
+	`Time to build a faster website.`,
+	`Time to build a sweet new website.`,
+	`We're glad to have you on board.`,
+	`Keeping the internet weird since 2021.`,
+	`Initiating launch sequence...`,
+	`Initiating launch sequence... right... now!`,
+	`Awaiting further instructions.`,
+];
 
-export const getName = () => new Promise<string>((resolve) => {
-  exec('git config user.name', { encoding: 'utf-8' }, (_1, gitName, _2) => {
-    if (gitName.trim()) {
-        return resolve(gitName.split(' ')[0].trim());
-    }
-    exec('whoami', { encoding: 'utf-8' }, (_3, whoami, _4) => {
-        if (whoami.trim()) {
-            return resolve(whoami.split(' ')[0].trim());
-        }
-        return resolve('astronaut');
-    });
-  });
-});
+export const getName = () =>
+	new Promise<string>((resolve) => {
+		exec('git config user.name', { encoding: 'utf-8' }, (_1, gitName, _2) => {
+			if (gitName.trim()) {
+				return resolve(gitName.split(' ')[0].trim());
+			}
+			exec('whoami', { encoding: 'utf-8' }, (_3, whoami, _4) => {
+				if (whoami.trim()) {
+					return resolve(whoami.split(' ')[0].trim());
+				}
+				return resolve('astronaut');
+			});
+		});
+	});
 
 let v: string;
-export const getVersion = () => new Promise<string>((resolve) => {
-    if (v) return resolve(v);
-    get('https://registry.npmjs.org/astro/latest', (res) => {
-        let body = '';
-        res.on('data', chunk => body += chunk)
-        res.on('end', () => {
-            const { version } = JSON.parse(body);
-            v = version;
-            resolve(version);
-        })
-    })
-})
+export const getVersion = () =>
+	new Promise<string>((resolve) => {
+		if (v) return resolve(v);
+		get('https://registry.npmjs.org/astro/latest', (res) => {
+			let body = '';
+			res.on('data', (chunk) => (body += chunk));
+			res.on('end', () => {
+				const { version } = JSON.parse(body);
+				v = version;
+				resolve(version);
+			});
+		});
+	});
 
-export const log = (message: string) => stdout.write(message + "\n");
-export const banner = async (version: string) => log(`\n${label('astro', color.bgGreen, color.black)}  ${color.green(color.bold(`v${version}`))} ${color.bold('Launch sequence initiated.')}`);
+export const log = (message: string) => stdout.write(message + '\n');
+export const banner = async (version: string) =>
+	log(
+		`\n${label('astro', color.bgGreen, color.black)}  ${color.green(
+			color.bold(`v${version}`)
+		)} ${color.bold('Launch sequence initiated.')}`
+	);
 
 export const info = async (prefix: string, text: string) => {
-    await sleep(100)
-    if (stdout.columns < 80) {
-        log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)}`);
-        log(`${' '.repeat(9)}${color.dim(text)}`);
-    } else {
-        log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
-    }
-}
+	await sleep(100);
+	if (stdout.columns < 80) {
+		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)}`);
+		log(`${' '.repeat(9)}${color.dim(text)}`);
+	} else {
+		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
+	}
+};
 
 export const error = async (prefix: string, text: string) => {
-    if (stdout.columns < 80) {
-        log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);
-        log(`${' '.repeat(9)}${color.dim(text)}`);
-    } else {
-        log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
-    }
-}
+	if (stdout.columns < 80) {
+		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);
+		log(`${' '.repeat(9)}${color.dim(text)}`);
+	} else {
+		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
+	}
+};
 
 export const typescriptByDefault = async () => {
-		await info(`No worries!`, 'TypeScript is supported in Astro by default,');
-		log(`${' '.repeat(9)}${color.dim('but you are free to continue writing JavaScript instead.')}`);
-		await sleep(1000);
-}
+	await info(`No worries!`, 'TypeScript is supported in Astro by default,');
+	log(`${' '.repeat(9)}${color.dim('but you are free to continue writing JavaScript instead.')}`);
+	await sleep(1000);
+};
 
-export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string, devCmd: string }) => {
-    const max = stdout.columns;
-    const prefix = max < 80 ? ' ' : ' '.repeat(9);
-    await sleep(200);
-    log(`\n ${color.bgCyan(` ${color.black('next')} `)}  ${color.bold('Liftoff confirmed. Explore your project!')}`)
+export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; devCmd: string }) => {
+	const max = stdout.columns;
+	const prefix = max < 80 ? ' ' : ' '.repeat(9);
+	await sleep(200);
+	log(
+		`\n ${color.bgCyan(` ${color.black('next')} `)}  ${color.bold(
+			'Liftoff confirmed. Explore your project!'
+		)}`
+	);
 
-    await sleep(100);
-		if (projectDir !== '') {
-			const enter = [`\n${prefix}Enter your project directory using`, color.cyan(`cd ./${projectDir}`, '')];
-			const len = enter[0].length + stripAnsi(enter[1]).length;
-			log(enter.join((len > max) ? '\n' + prefix : ' '));
-		}
-    log(`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`)
-    await sleep(100);
-    log(`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan('tailwind')} using ${color.cyan('astro add')}.`)
-    await sleep(100);
-    log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}`)
-    await sleep(200);
-}
-
+	await sleep(100);
+	if (projectDir !== '') {
+		const enter = [
+			`\n${prefix}Enter your project directory using`,
+			color.cyan(`cd ./${projectDir}`, ''),
+		];
+		const len = enter[0].length + stripAnsi(enter[1]).length;
+		log(enter.join(len > max ? '\n' + prefix : ' '));
+	}
+	log(
+		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`
+	);
+	await sleep(100);
+	log(
+		`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan(
+			'tailwind'
+		)} using ${color.cyan('astro add')}.`
+	);
+	await sleep(100);
+	log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}`);
+	await sleep(200);
+};
 
 export function printHelp({
 	commandName,
@@ -154,9 +177,7 @@ export function printHelp({
 	if (headline) {
 		message.push(
 			linebreak(),
-			`${title(commandName)} ${color.green(
-				`v${process.env.PACKAGE_VERSION ?? ''}`
-			)} ${headline}`
+			`${title(commandName)} ${color.green(`v${process.env.PACKAGE_VERSION ?? ''}`)} ${headline}`
 		);
 	}
 

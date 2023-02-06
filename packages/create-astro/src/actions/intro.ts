@@ -1,10 +1,10 @@
 import { type Context } from './context';
 
-import { banner, welcome, say } from '../messages.js';
-import { label, color } from '@astrojs/cli-kit';
+import { color, label } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
+import { banner, say, welcome } from '../messages.js';
 
-export async function intro(ctx: Pick<Context, 'skipHouston'|'version'|'username'>) {
+export async function intro(ctx: Pick<Context, 'skipHouston' | 'version' | 'username'>) {
 	if (!ctx.skipHouston) {
 		await say([
 			[

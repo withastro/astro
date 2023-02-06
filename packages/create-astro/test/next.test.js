@@ -11,10 +11,10 @@ describe('next steps', () => {
 		expect(fixture.hasMessage('Liftoff confirmed.')).to.be.true;
 		expect(fixture.hasMessage('npm run dev')).to.be.true;
 		expect(fixture.hasMessage('Good luck out there, astronaut!')).to.be.true;
-	})
+	});
 
 	it('--skip-houston', async () => {
 		await next({ skipHouston: true, cwd: './it/fixtures/not-empty', pkgManager: 'npm' });
 		expect(fixture.hasMessage('Good luck out there, astronaut!')).to.be.false;
-	})
-})
+	});
+});

@@ -1,18 +1,18 @@
 import { getContext } from './actions/context.js';
 
-import { setStdout } from './messages.js';
-import { help } from './actions/help.js';
-import { intro } from './actions/intro.js';
-import { projectName } from './actions/project-name.js';
-import { template } from './actions/template.js'
 import { dependencies } from './actions/dependencies.js';
 import { git } from './actions/git.js';
-import { typescript, setupTypeScript } from './actions/typescript.js';
+import { help } from './actions/help.js';
+import { intro } from './actions/intro.js';
 import { next } from './actions/next-steps.js';
+import { projectName } from './actions/project-name.js';
+import { template } from './actions/template.js';
+import { setupTypeScript, typescript } from './actions/typescript.js';
+import { setStdout } from './messages.js';
 
-const exit = () => process.exit(0)
-process.on('SIGINT', exit)
-process.on('SIGTERM', exit)
+const exit = () => process.exit(0);
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
 
 // Please also update the installation instructions in the docs at
 // https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md
@@ -29,18 +29,10 @@ export async function main() {
 		return;
 	}
 
-	const steps = [
-		intro,
-		projectName,
-		template,
-		dependencies,
-		git,
-		typescript,
-		next
-	]
+	const steps = [intro, projectName, template, dependencies, git, typescript, next];
 
 	for (const step of steps) {
-		await step(ctx)
+		await step(ctx);
 	}
 	process.exit(0);
 }
@@ -55,5 +47,5 @@ export {
 	git,
 	typescript,
 	setupTypeScript,
-	next
-}
+	next,
+};

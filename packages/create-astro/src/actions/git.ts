@@ -1,15 +1,15 @@
-import type { Context } from "./context";
 import fs from 'node:fs';
 import path from 'node:path';
+import type { Context } from './context';
 
 import { color } from '@astrojs/cli-kit';
-import { title, info, spinner } from '../messages.js';
 import { execa } from 'execa';
+import { info, spinner, title } from '../messages.js';
 
-export async function git(ctx: Pick<Context, 'cwd'|'git'|'yes'|'prompt'|'dryRun'>) {
+export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun'>) {
 	if (fs.existsSync(path.join(ctx.cwd, '.git'))) {
 		await info('Nice!', `Git has already been initialized`);
-		return
+		return;
 	}
 	let _git = ctx.git ?? ctx.yes;
 	if (_git === undefined) {
@@ -43,6 +43,15 @@ async function init({ cwd }: { cwd: string }) {
 	try {
 		await execa('git', ['init'], { cwd, stdio: 'ignore' });
 		await execa('git', ['add', '-A'], { cwd, stdio: 'ignore' });
-		await execa('git', ['commit', '-m', 'Initial commit from Astro', '--author="houston[bot] <astrobot-houston@users.noreply.github.com>"'], { cwd, stdio: 'ignore' });
+		await execa(
+			'git',
+			[
+				'commit',
+				'-m',
+				'Initial commit from Astro',
+				'--author="houston[bot] <astrobot-houston@users.noreply.github.com>"',
+			],
+			{ cwd, stdio: 'ignore' }
+		);
 	} catch (e) {}
 }

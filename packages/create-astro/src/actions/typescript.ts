@@ -1,13 +1,15 @@
-import type { Context } from "./context";
+import type { Context } from './context';
 
-import fs from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { color } from '@astrojs/cli-kit';
+import fs from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
-import { color } from '@astrojs/cli-kit';
-import { title, info, error, typescriptByDefault, spinner } from '../messages.js';
+import { error, info, spinner, title, typescriptByDefault } from '../messages.js';
 
-export async function typescript(ctx: Pick<Context, 'typescript'|'yes'|'prompt'|'dryRun'|'cwd'|'exit'>) {
+export async function typescript(
+	ctx: Pick<Context, 'typescript' | 'yes' | 'prompt' | 'dryRun' | 'cwd' | 'exit'>
+) {
 	let ts = ctx.typescript ?? (typeof ctx.yes !== 'undefined' ? 'strict' : undefined);
 	if (ts === undefined) {
 		const { useTs } = await ctx.prompt({
@@ -68,7 +70,7 @@ export async function typescript(ctx: Pick<Context, 'typescript'|'yes'|'prompt'|
 export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
 	const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
 	try {
-		const data = await readFile(templateTSConfigPath, { encoding: 'utf-8' })
+		const data = await readFile(templateTSConfigPath, { encoding: 'utf-8' });
 		const templateTSConfig = JSON.parse(stripJsonComments(data));
 		if (templateTSConfig && typeof templateTSConfig === 'object') {
 			const result = Object.assign(templateTSConfig, {
@@ -77,7 +79,9 @@ export async function setupTypeScript(value: string, { cwd }: { cwd: string }) {
 
 			fs.writeFileSync(templateTSConfigPath, JSON.stringify(result, null, 2));
 		} else {
-			throw new Error("There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed")
+			throw new Error(
+				"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
+			);
 		}
 	} catch (err) {
 		if (err && (err as any).code === 'ENOENT') {
