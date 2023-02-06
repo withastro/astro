@@ -429,6 +429,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (name: string) => `Invalid arguments passed to${name ? ` <${name}>` : ''} component.`,
 		hint: 'Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Pagination](https://docs.astro.build/en/core-concepts/routing/#pagination)
+	 * @description
+	 * The page number parameter was not found in your filepath.
+	 */
+	PageNumberParamNotFound: {
+		title: 'Page number param not found.',
+		code: 3021,
+		message: (paramName: string) =>
+			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
+		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
+	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',
