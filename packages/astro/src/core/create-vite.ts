@@ -55,6 +55,12 @@ export async function createVite(
 		isBuild: mode === 'build',
 		viteUserConfig: settings.config.vite,
 		isFrameworkPkgByJson(pkgJson) {
+			// Certain packages will trigger the checks below, but need to be external. A common example are SSR adapters
+			// for node-based platforms, as we need to control the order of the import paths to make sure polyfills are applied in time.
+			if (pkgJson?.astro?.external === true) {
+				return false;
+			}
+
 			return (
 				// Attempt: package relies on `astro`. ✅ Definitely an Astro package
 				pkgJson.peerDependencies?.astro ||
