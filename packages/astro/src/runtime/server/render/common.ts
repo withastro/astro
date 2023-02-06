@@ -50,6 +50,10 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
+				if (result._metadata.hasRenderedHead) {
+					return '';
+				}
+
 				const scope = instruction.scope;
 				switch (scope) {
 					// JSX with an Astro slot
