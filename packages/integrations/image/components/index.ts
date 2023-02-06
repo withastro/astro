@@ -47,7 +47,7 @@ export interface PictureComponentRemoteImageProps
 	widths: number[];
 	aspectRatio: TransformOptions['aspectRatio'];
 	formats?: OutputFormat[];
-	background: TransformOptions['background'];
+	background?: TransformOptions['background'];
 }
 
 export type ImgHTMLAttributes = HTMLAttributes<'img'>;

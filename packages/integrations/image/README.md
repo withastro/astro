@@ -175,8 +175,7 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
-This property is required for remote images only, because the original format cannot be inferred.
-
+This property is required for remote images when using the default image transformer Squoosh, this is because the original format cannot be inferred.
 #### quality
 
 <p>
@@ -565,17 +564,14 @@ Remote images can be transformed with the `<Image />` component. The `<Image />`
 ---
 import { Image } from '@astrojs/image/components';
 
-const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const imageUrl = 'https://astro.build/assets/press/full-logo-dark.png';
 ---
 
 // cropping to a specific width and height
-<Image src={imageUrl} width={544} height={184} alt="descriptive text" />
+<Image src={imageUrl} width={750} height={250} format="avif" alt="descriptive text" />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={300} aspectRatio={16/9} alt="descriptive text" />
-
-// cropping to a specific height and aspect ratio and converting to an avif format
-<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={imageUrl} width={750} aspectRatio={16/9} format="avif" alt="descriptive text" />
 ```
 
 ### Responsive pictures
