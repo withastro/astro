@@ -285,6 +285,19 @@ importers:
       unocss: 0.15.6
       vite-imagetools: 4.0.18
 
+  examples/with-markdoc:
+    specifiers:
+      '@astrojs/markdoc': ^0.0.1
+      '@markdoc/markdoc': ^0.2.2
+      astro: ^2.0.6
+      html-escaper: ^3.0.3
+    dependencies:
+      '@astrojs/markdoc': link:../../packages/integrations/markdoc
+      astro: link:../../packages/astro
+      html-escaper: 3.0.3
+    devDependencies:
+      '@markdoc/markdoc': 0.2.2
+
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^2.0.1
@@ -2875,6 +2888,7 @@ importers:
 
   packages/integrations/markdoc:
     specifiers:
+      '@markdoc/markdoc': ^0.2.2
       '@types/chai': ^4.3.1
       '@types/mocha': ^9.1.1
       astro: workspace:*
@@ -2883,6 +2897,8 @@ importers:
       linkedom: ^0.14.12
       mocha: ^9.2.2
       vite: ^4.0.3
+    dependencies:
+      '@markdoc/markdoc': 0.2.2
     devDependencies:
       '@types/chai': 4.3.4
       '@types/mocha': 9.1.1
@@ -6421,6 +6437,20 @@ packages:
       - supports-color
     dev: false
 
+  /@markdoc/markdoc/0.2.2:
+    resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
+    engines: {node: '>=14.7.0'}
+    peerDependencies:
+      '@types/react': '*'
+      react: '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    optionalDependencies:
+      '@types/markdown-it': 12.2.3
+
   /@mdx-js/mdx/2.2.1:
     resolution: {integrity: sha512-hZ3ex7exYLJn6FfReq8yTvA6TE53uW9UHJQM9IlSauOuS55J9y8RtA7W+dzp6Yrzr00/U1sd7q+Wf61q6SfiTQ==}
     dependencies:
@@ -7225,10 +7255,26 @@ packages:
   /@types/json5/0.0.30:
     resolution: {integrity: sha512-sqm9g7mHlPY/43fcSNrCYfOeX9zkTTK+euO5E6+CVijSMm5tTjkVdwdqRkY3ljjIAf8679vps5jKUoJBCLsMDA==}
 
+  /@types/linkify-it/3.0.2:
+    resolution: {integrity: sha512-HZQYqbiFVWufzCwexrvh694SOim8z2d+xJl5UNamcvQFejLY/2YUtzXHYi3cHdI7PMlS8ejH2slRAOJQ32aNbA==}
+    optional: true
+
+  /@types/markdown-it/12.2.3:
+    resolution: {integrity: sha512-GKMHFfv3458yYy+v/N8gjufHO6MSZKCOXpZc5GXIWWy8uldwfmPn98vp81gZ5f9SVw8YYBctgfJ22a2d7AOMeQ==}
+    requiresBuild: true
+    dependencies:
+      '@types/linkify-it': 3.0.2
+      '@types/mdurl': 1.0.2
+    optional: true
+
   /@types/mdast/3.0.10:
     resolution: {integrity: sha512-W864tg/Osz1+9f4lrGTZpCSO5/z4608eUp19tbozkq2HJK6i3z1kT0H9tlADXuYIb1YYOBByU4Jsqkk75q48qA==}
     dependencies:
       '@types/unist': 2.0.6
+
+  /@types/mdurl/1.0.2:
+    resolution: {integrity: sha512-eC4U9MlIcu2q0KQmXszyn5Akca/0jrQmwDRgpAMJai7qBWq4amIQhZyNau4VYGtCeALvW1/NtjzJJ567aZxfKA==}
+    optional: true
 
   /@types/mdx/2.0.3:
     resolution: {integrity: sha512-IgHxcT3RC8LzFLhKwP3gbMPeaK7BM9eBH46OdapPA7yvuIUJ8H6zHZV53J8hGZcTSnt95jANt+rTBNUUc22ACQ==}

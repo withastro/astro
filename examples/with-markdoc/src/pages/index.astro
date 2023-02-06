@@ -1,0 +1,73 @@
+---
+import { body } from '../components/test.mdoc';
+import { Markdoc } from '@astrojs/markdoc';
+import RenderMarkdoc from '../renderer/RenderMarkdoc.astro';
+import RedP from '../components/RedP.astro';
+import { Code } from 'astro/components';
+import { Tag } from '@markdoc/markdoc';
+import { ComponentRenderer } from '../renderer/astroNode';
+
+const parsed = Markdoc.parse(body);
+const content = Markdoc.transform(parsed, {
+	variables: {
+		shouldMarquee: true,
+		href: 'https://astro.build',
+	},
+	tags: {
+		mq: {
+			render: 'marquee',
+			attributes: {
+				direction: {
+					type: String,
+					default: 'left',
+					matches: ['left', 'right', 'up', 'down'],
+					errorLevel: 'critical',
+				},
+			},
+		},
+		link: {
+			render: 'a',
+			attributes: {
+				href: {
+					type: String,
+					required: true,
+				},
+			},
+		},
+	},
+});
+
+const code: ComponentRenderer = {
+	component: Code,
+	props({ attributes, getTreeNode }) {
+		return {
+			...attributes,
+			lang: attributes.lang ?? attributes['data-language'],
+			code: attributes.code ?? Markdoc.renderers.html(getTreeNode().children),
+		};
+	},
+};
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Astro</h1>
+		<article>
+			<RenderMarkdoc
+				content={content}
+				components={{
+					p: RedP,
+					code,
+					pre: code,
+				}}
+			/>
+		</article>
+	</body>
+</html>
