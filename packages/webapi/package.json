@@ -10,9 +10,6 @@
     },
     "./apply": {
       "import": "./apply.js"
-    },
-    "./polyfill-ssr.js": {
-      "import": "./polyfill-ssr.js"
     }
   },
   "main": "mod.js",
@@ -21,8 +18,7 @@
     "apply.js",
     "mod.d.ts",
     "mod.js",
-    "mod.js.map",
-    "polyfill-ssr.js"
+    "mod.js.map"
   ],
   "keywords": [
     "astro",
