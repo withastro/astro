@@ -57,12 +57,13 @@ export function* maybeRenderHead(result: SSRResult) {
 	// as the Astro component will be the one to render the head.
 	switch (result.scope) {
 		case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
-		// TODO Explain
-		case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
+		case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
+		case ScopeFlags.JSX |  ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
 			return;
 		}
 		case ScopeFlags.RenderSlot | ScopeFlags.Astro:
-		case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX: {
+		case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
+		case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {
 			return;
 		}
 	}

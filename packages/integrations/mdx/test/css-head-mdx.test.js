@@ -38,16 +38,15 @@ describe('Head injection w/ MDX', () => {
 			expect(links).to.have.a.lengthOf(1);
 		});
 
-		it.skip('injects content from a component using Content#render()', async () => {
+		it('injects content from a component using Content#render()', async () => {
 			const html = await fixture.readFile('/DirectContentUsage/index.html');
-			console.log(html);
 			const { document } = parseHTML(html);
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
 			expect(links).to.have.a.lengthOf(1);
 
 			const scripts = document.querySelectorAll('head script[type=module]');
-			expect(scripts).to.have.a.lengthOf(1);
+			expect(scripts).to.have.a.lengthOf(2);
 		});
 
 		it('Using component using slots.render() API', async () => {

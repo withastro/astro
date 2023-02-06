@@ -4,6 +4,7 @@ import type {
 	RouteData,
 	SerializedRouteData,
 	SSRLoadedRenderer,
+	SSRResult,
 } from '../../@types/astro';
 
 export type ComponentPath = string;
@@ -34,6 +35,7 @@ export interface SSRManifest {
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;
 	assets: Set<string>;
+	propagation: SSRResult['propagation'];
 }
 
 export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets'> & {

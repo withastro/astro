@@ -4,6 +4,7 @@ import type { PageBuildData, ViteID } from './types';
 import { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
+import { SSRResult } from '../../@types/astro';
 
 export interface BuildInternals {
 	/**
@@ -66,6 +67,7 @@ export interface BuildInternals {
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: OutputChunk;
+	propagation: SSRResult['propagation'];
 }
 
 /**
@@ -95,6 +97,7 @@ export function createBuildInternals(): BuildInternals {
 		discoveredClientOnlyComponents: new Set(),
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
+		propagation: new Map(),
 	};
 }
 
