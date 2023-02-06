@@ -9,7 +9,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { renderSlot, stringifyChunk } from '../../runtime/server/index.js';
+import { addScopeFlag, renderSlot, stringifyChunk, ScopeFlags } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -89,6 +89,7 @@ class Slots {
 	public async render(name: string, args: any[] = []) {
 		if (!this.#slots || !this.has(name)) return;
 
+		addScopeFlag(this.#result, ScopeFlags.RenderSlot);
 		if (!Array.isArray(args)) {
 			warn(
 				this.#loggingOpts,

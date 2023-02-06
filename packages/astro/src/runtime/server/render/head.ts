@@ -61,8 +61,11 @@ export function* maybeRenderHead(result: SSRResult) {
 		case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
 			return;
 		}
+		case ScopeFlags.RenderSlot | ScopeFlags.Astro:
+		case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX: {
+			return;
+		}
 	}
-	
 
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
