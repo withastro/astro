@@ -4,10 +4,11 @@ import type { renderTemplate } from './astro/render-template.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { ScopeFlags, addScopeFlag, removeScopeFlag, createScopedResult } from './scope.js';
+import { ScopeFlags, createScopedResult } from './scope.js';
 
+type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
-export type ComponentSlotValue = (result: SSRResult) => ReturnType<typeof renderTemplate>;
+export type ComponentSlotValue = (result: SSRResult) => RenderTemplateResult;
 
 const slotString = Symbol.for('astro:slot-string');
 
@@ -27,12 +28,12 @@ export function isSlotString(str: string): str is any {
 
 export async function renderSlot(
 	result: SSRResult,
-	slotted: ComponentSlotValue,
-	fallback?: ComponentSlotValue
+	slotted: ComponentSlotValue | RenderTemplateResult,
+	fallback?: ComponentSlotValue | RenderTemplateResult
 ): Promise<string> {
 	if (slotted) {
 		const scoped = createScopedResult(result, ScopeFlags.Slot);
-		let iterator = renderChild(slotted(scoped));
+		let iterator = renderChild(typeof slotted === 'function' ? slotted(scoped) : slotted);
 		let content = '';
 		let instructions: null | RenderInstruction[] = null;
 		for await (const chunk of iterator) {

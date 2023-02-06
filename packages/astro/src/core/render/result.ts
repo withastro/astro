@@ -103,7 +103,7 @@ class Slots {
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
-				const slot = expression(...args);
+				const slot = () => expression(...args);
 				return await renderSlot(scoped, slot).then((res) =>
 					res != null ? String(res) : res
 				);
