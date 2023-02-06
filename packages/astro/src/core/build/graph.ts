@@ -41,9 +41,8 @@ export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 export function* getTopLevelPages(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo },
-	walkUntil?: (importer: string) => boolean
 ): Generator<[ModuleInfo, number, number], void, unknown> {
-	for (const res of walkParentInfos(id, ctx, walkUntil)) {
+	for (const res of walkParentInfos(id, ctx)) {
 		if (moduleIsTopLevelPage(res[0])) {
 			yield res;
 		}
