@@ -1,47 +1,64 @@
-import fs from 'fs';
+import fs, { promises as fsPromises } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { appendForwardSlash } from '../path.js';
 
 const isWindows = process.platform === 'win32';
 
+const convertToPath = (dir: URL | string): string => {
+	if (dir instanceof URL) {
+		return path.resolve(dir.pathname);
+	} else {
+		return path.resolve(dir);
+	}
+};
+
 /** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(_dir: URL): void {
-	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
+export async function removeDir(dir: URL | string): Promise<void> {
+	const dirPath = convertToPath(dir);
+	fs.rmSync(dirPath, { recursive: true, force: true, maxRetries: 3 });
 }
 
-export function removeEmptyDirs(root: URL): void {
-	const dir = fileURLToPath(root);
-	if (!fs.statSync(dir).isDirectory()) return;
-	let files = fs.readdirSync(dir);
+export async function removeEmptyDirs(dir: URL | string): Promise<void> {
+	const rootPath = convertToPath(dir),
+		dirPaths = [rootPath];
 
-	if (files.length > 0) {
-		files.map((file) => {
-			const url = new URL(`./${file}`, appendForwardSlash(root.toString()));
-			removeEmptyDirs(url);
-		});
-		files = fs.readdirSync(dir);
-	}
-
-	if (files.length === 0) {
-		fs.rmdirSync(dir);
+	while (dirPaths.length > 0) {
+		const dirPath = dirPaths.pop()!;
+		// dirPaths
+		if ((await fsPromises.stat(dirPath)).isDirectory()) {
+      const children = await fsPromises.readdir(dirPath);
+			if (children.length === 0) {
+				await fsPromises.rmdir(dirPath);
+        const parentDir = path.resolve(dirPath, "..");
+        // recheck parent path
+        if (!dirPaths.includes(parentDir)) {
+          dirPaths.push(parentDir);
+        }
+			} else {
+				dirPaths.push(...children.map((child) => path.join(dirPath, child)));
+			}
+		}
 	}
 }
 
-export function emptyDir(_dir: URL, skip?: Set<string>): void {
-	const dir = fileURLToPath(_dir);
-	if (!fs.existsSync(dir)) return undefined;
-	for (const file of fs.readdirSync(dir)) {
+export async function emptyDir(dir: URL | string, skip?: Set<string>): Promise<void> {
+	const dirPath = convertToPath(dir);
+
+	// check if file exists
+	try {
+		await fsPromises.stat(dirPath);
+	} catch (err) {
+		return;
+	}
+
+	const rmOptions = { recursive: true, force: true, maxRetries: 3 };
+	for (const file of await fsPromises.readdir(dirPath)) {
 		if (skip?.has(file)) {
 			continue;
 		}
 
-		const p = path.resolve(dir, file);
-		const rmOptions = { recursive: true, force: true, maxRetries: 3 };
-
+		const p = path.resolve(dirPath, file);
 		try {
-			fs.rmSync(p, rmOptions);
+			await fsPromises.rm(p, rmOptions);
 		} catch (er: any) {
 			if (er.code === 'ENOENT') {
 				return;

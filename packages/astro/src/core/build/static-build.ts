@@ -61,7 +61,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	emptyDir(settings.config.outDir, new Set('.git'));
+	await emptyDir(settings.config.outDir, new Set('.git'));
 
 	// Register plugins
 	const container = createPluginContainer(opts, internals);
@@ -293,7 +293,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 			})
 		);
 
-		removeEmptyDirs(out);
+		await removeEmptyDirs(out);
 	}
 }
 
@@ -312,7 +312,7 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 			})
 		);
 
-		removeEmptyDirs(out);
+		await removeEmptyDirs(out);
 	}
 
 	// Clean out directly if the outDir is outside of root
@@ -364,6 +364,6 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				return fs.promises.rename(currentUrl, clientUrl);
 			})
 		);
-		removeEmptyDirs(serverAssets);
+		await removeEmptyDirs(serverAssets);
 	}
 }
