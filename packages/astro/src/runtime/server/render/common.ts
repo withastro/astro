@@ -53,7 +53,6 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				const scope = instruction.scope;
 				switch (scope) {
 					// JSX with an Astro slot
-					case ScopeFlags.JSX | ScopeFlags.Astro:
 					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
 					case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
 					case ScopeFlags.JSX |  ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {

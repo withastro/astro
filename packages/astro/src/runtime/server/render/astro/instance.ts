@@ -40,14 +40,14 @@ export class AstroComponentInstance {
 		}
 	}
 
-	async init() {
-		this.returnValue = this.factory(this.result, this.props, this.slotValues);
+	async init(result: SSRResult) {
+		this.returnValue = this.factory(result, this.props, this.slotValues);
 		return this.returnValue;
 	}
 
 	async *render() {
 		if (this.returnValue === undefined) {
-			await this.init();
+			await this.init(this.result);
 		}
 
 		let value: AstroFactoryReturnValue | undefined = this.returnValue;
