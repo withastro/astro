@@ -2,4 +2,4 @@
 '@astrojs/image': patch
 ---
 
-fix@astrojs/image: wrong type definition
+Improve type definitions (`background` should be optional)
