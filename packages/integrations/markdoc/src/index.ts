@@ -1,5 +1,6 @@
 import type { AstroIntegration } from 'astro';
 import type { InlineConfig } from 'vite';
+import _Markdoc from '@markdoc/markdoc';
 
 export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 	return {
@@ -25,3 +26,5 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 		},
 	};
 }
+
+export const Markdoc = _Markdoc;
