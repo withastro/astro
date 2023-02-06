@@ -45,9 +45,11 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^2.0.0",
+    "@vercel/analytics": "^0.1.8",
     "@vercel/nft": "^0.22.1",
     "fast-glob": "^3.2.11",
-    "set-cookie-parser": "^2.5.1"
+    "set-cookie-parser": "^2.5.1",
+    "web-vitals": "^3.1.1"
   },
   "peerDependencies": {
     "astro": "workspace:^2.0.6"

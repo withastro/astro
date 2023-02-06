@@ -1,6 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import glob from 'fast-glob';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'url';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
@@ -19,11 +20,13 @@ function getAdapter(): AstroAdapter {
 export interface VercelServerlessConfig {
 	includeFiles?: string[];
 	excludeFiles?: string[];
+	analytics?: boolean;
 }
 
 export default function vercelServerless({
 	includeFiles,
 	excludeFiles,
+	analytics,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -33,7 +36,13 @@ export default function vercelServerless({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig }) => {
+			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
+				if (analytics) {
+					injectScript(
+						'page',
+						readFileSync(new URL('../../analytics.js', import.meta.url), { encoding: 'utf-8' })
+					);
+				}
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
