@@ -1,0 +1,3 @@
+👋 Welcome to Astro!
+
+The example app should automatically start soon in a new terminal tab.
