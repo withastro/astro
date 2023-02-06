@@ -9,7 +9,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { addScopeFlag, renderSlot, stringifyChunk, ScopeFlags, createScopedResult } from '../../runtime/server/index.js';
+import { renderSlot, stringifyChunk, ScopeFlags, createScopedResult, ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -55,10 +55,10 @@ function getFunctionExpression(slot: any) {
 
 class Slots {
 	#result: SSRResult;
-	#slots: Record<string, any> | null;
+	#slots: ComponentSlots | null;
 	#loggingOpts: LogOptions;
 
-	constructor(result: SSRResult, slots: Record<string, any> | null, logging: LogOptions) {
+	constructor(result: SSRResult, slots: ComponentSlots | null, logging: LogOptions) {
 		this.#result = result;
 		this.#slots = slots;
 		this.#loggingOpts = logging;
@@ -110,7 +110,7 @@ class Slots {
 			}
 			// JSX
 			if (typeof component === 'function') {
-				return await renderJSX(scoped, component(...args)).then((res) =>
+				return await renderJSX(scoped, (component as any)(...args)).then((res) =>
 					res != null ? String(res) : res
 				);
 			}

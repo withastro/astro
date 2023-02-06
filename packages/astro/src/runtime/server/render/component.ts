@@ -17,7 +17,7 @@ import {
 } from './astro/index.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
-import { renderSlot, renderSlots } from './slot.js';
+import { ComponentSlots, renderSlot, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -330,7 +330,7 @@ function sanitizeElementName(tag: string) {
 	return tag.trim().split(unsafe)[0].trim();
 }
 
-async function renderFragmentComponent(result: SSRResult, slots: any = {}) {
+async function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}) {
 	const children = await renderSlot(result, slots?.default);
 	if (children == null) {
 		return children;

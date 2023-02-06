@@ -33,9 +33,8 @@ export {
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
-	AstroComponentSlots,
-	AstroComponentSlotsWithValues,
 	RenderInstruction,
+	ComponentSlots
 } from './render/index.js';
 
 import { markHTMLString } from './escape.js';
