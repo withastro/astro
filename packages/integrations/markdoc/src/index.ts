@@ -9,6 +9,7 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdoc');
 				console.log('Markdoc working!');
+				const markdocConfigUrl = new URL('./markdoc.config.ts', config.srcDir);
 
 				const viteConfig: InlineConfig = {
 					plugins: [
@@ -16,7 +17,17 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 							name: '@astrojs/markdoc',
 							async transform(code, id) {
 								if (!id.endsWith('.mdoc')) return;
-								return `export const body = ${JSON.stringify(code)}`;
+								return `import { Markdoc } from '@astrojs/markdoc';\nexport const body = ${JSON.stringify(
+									code
+								)};\nexport function getParsed() { return Markdoc.parse(body); }\nexport async function getTransformed(inlineConfig) {
+let config = inlineConfig;
+if (!config) {
+	try {
+		const importedConfig = await import(${JSON.stringify(markdocConfigUrl.pathname)});
+		config = importedConfig.default.transform;
+	} catch {}
+}
+return Markdoc.transform(getParsed(), config) }`;
 							},
 						},
 					],
