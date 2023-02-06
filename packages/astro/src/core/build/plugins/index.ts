@@ -16,7 +16,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
 	register(pluginPrerender(options, internals));
-	register(astroConfigBuildPlugin(internals));
+	register(astroConfigBuildPlugin(options, internals));
 	register(pluginHoistedScripts(options, internals));
 	register(pluginSSR(options, internals));
 }
