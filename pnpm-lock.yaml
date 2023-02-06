@@ -2856,6 +2856,26 @@ importers:
       mocha: 9.2.2
       sass: 1.58.0
 
+  packages/integrations/markdoc:
+    specifiers:
+      '@types/chai': ^4.3.1
+      '@types/mocha': ^9.1.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+      chai: ^4.3.6
+      linkedom: ^0.14.12
+      mocha: ^9.2.2
+      vite: ^4.0.3
+    devDependencies:
+      '@types/chai': 4.3.4
+      '@types/mocha': 9.1.1
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      chai: 4.3.7
+      linkedom: 0.14.21
+      mocha: 9.2.2
+      vite: 4.1.1
+
   packages/integrations/mdx:
     specifiers:
       '@astrojs/markdown-remark': ^2.0.1
