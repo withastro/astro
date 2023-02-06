@@ -1,5 +1,3 @@
-import { HTMLAttributes } from '../../types.js';
-
 export interface ImageMetadata {
 	src: string;
 	width: number;
@@ -25,8 +23,7 @@ export type OutputFormat = 'avif' | 'png' | 'webp' | 'jpeg' | 'jpg' | 'gif';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
-interface ImageSharedProps
-	extends WithRequired<Omit<HTMLAttributes<'img'>, 'src' | 'width' | 'height'>, 'alt'> {
+type ImageSharedProps<T> = T & {
 	/**
 	 * Width of the image, the value of this property will be used to assign the `width` property on the final `img` element.
 	 *
@@ -43,9 +40,9 @@ interface ImageSharedProps
 	 */
 	width?: number | `${number}`;
 	height?: number | `${number}`;
-}
+};
 
-export interface LocalImageProps extends ImageSharedProps {
+export type LocalImageProps<T> = ImageSharedProps<T> & {
 	/**
 	 * A reference to a local image imported through an ESM import.
 	 *
@@ -81,9 +78,9 @@ export interface LocalImageProps extends ImageSharedProps {
 	 * ```
 	 */
 	quality?: ImageQuality;
-}
+};
 
-export interface RemoteImageProps extends WithRequired<ImageSharedProps, 'width' | 'height'> {
+export type RemoteImageProps<T> = WithRequired<ImageSharedProps<T>, 'width' | 'height'> & {
 	/**
 	 * URL of a remote image. Can start with a protocol (ex: `https://`) or alternatively `/`, or `Astro.url`, for images in the `public` folder
 	 *
@@ -95,4 +92,4 @@ export interface RemoteImageProps extends WithRequired<ImageSharedProps, 'width'
 	 * ```
 	 */
 	src: string;
-}
+};
