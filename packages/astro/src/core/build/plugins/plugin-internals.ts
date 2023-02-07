@@ -34,12 +34,16 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 
 		async generateBundle(_options, bundle) {
 			const promises = [];
-			const mapping = new Map<string, string>();
+			const mapping = new Map<string, Set<string>>();
 			for (const specifier of input) {
 				promises.push(
 					this.resolve(specifier).then((result) => {
 						if (result) {
-							mapping.set(result.id, specifier);
+							if(mapping.has(result.id)) {
+								mapping.get(result.id)!.add(specifier);
+							} else {
+								mapping.set(result.id, new Set<string>([specifier]));
+							}
 						}
 					})
 				);
@@ -47,8 +51,10 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 			await Promise.all(promises);
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
-					const specifier = mapping.get(chunk.facadeModuleId) || chunk.facadeModuleId;
-					internals.entrySpecifierToBundleMap.set(specifier, chunk.fileName);
+					const specifiers = mapping.get(chunk.facadeModuleId) || new Set([chunk.facadeModuleId]);
+					for(const specifier of specifiers) {
+						internals.entrySpecifierToBundleMap.set(specifier, chunk.fileName);
+					}
 				} else if (chunk.type === 'chunk') {
 					for (const id of Object.keys(chunk.modules)) {
 						const pageData = internals.pagesByViteID.get(id);
