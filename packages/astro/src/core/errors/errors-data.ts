@@ -461,7 +461,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Could not import file.',
 		code: 4001,
 		message: (importName: string) => `Could not import \`${importName}\`.`,
-		hint: 'This is often caused by a typo in the import path. Please make sure the file exists.',
+		hint: (suggestedPaths: string[]) => suggestedPaths.length > 0 ? `Did you mean ${suggestedPaths.join(" or ")}?` : 'This is often caused by a typo in the import path. Please make sure the file exists.',
 	},
 	/**
 	 * @docs

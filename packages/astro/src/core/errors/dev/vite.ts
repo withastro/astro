@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import path from 'path';
 import { getHighlighter } from 'shiki';
 import { fileURLToPath } from 'url';
 import type { ErrorPayload } from 'vite';
@@ -33,18 +34,21 @@ export function enhanceViteSSRError({
 	}
 
 	if (filePath) {
-		const path = fileURLToPath(filePath);
-		const content = fs.readFileSync(path).toString();
+		const currentFilePath = fileURLToPath(filePath);
+		const content = fs.readFileSync(currentFilePath).toString();
 		const lns = content.split('\n');
+
 
 		// Vite has a fairly generic error message when it fails to load a module, let's try to enhance it a bit
 		// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
 		let importName: string | undefined;
 		if ((importName = safeError.message.match(/Failed to load url (.*?) \(resolved id:/)?.[1])) {
+
+			const suggestedPaths = findSuggestedImportPaths(importName, currentFilePath)
 			safeError.title = AstroErrorData.FailedToLoadModuleSSR.title;
 			safeError.name = 'FailedToLoadModuleSSR';
 			safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
-			safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
+			safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint(suggestedPaths);
 			safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
 			const line = lns.findIndex((ln) => ln.includes(importName!));
 
@@ -52,7 +56,7 @@ export function enhanceViteSSRError({
 				const column = lns[line]?.indexOf(importName);
 
 				safeError.loc = {
-					file: path,
+					file: currentFilePath,
 					line: line + 1,
 					column,
 				};
@@ -186,4 +190,22 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	function getKebabErrorName(errorName: string): string {
 		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 	}
+}
+
+function findSuggestedImportPaths(failedImportString: string, currentFilePath: string): string[] {
+	const prefixes = ["../../", "../", "./", "/", "~/"]
+	const importPrefix = prefixes.find(prefix => failedImportString.startsWith(prefix))
+	if(!importPrefix){
+		return [];
+	}
+	const suggestedPaths: string[] = [];
+	const prefixesToTry = prefixes.filter(prefix => prefix !== importPrefix)
+	prefixesToTry.forEach(prefix => {
+		const modifiedImportPath = failedImportString.replace(importPrefix, prefix)
+		const fullPath = path.join(path.dirname(currentFilePath), modifiedImportPath)
+		if(fs.existsSync(fullPath)){
+			suggestedPaths.push(`\`${modifiedImportPath}\``)
+		}
+	})
+	return suggestedPaths;
 }
