@@ -3,7 +3,7 @@ import type { HeadAndContent } from './head-and-content';
 import type { RenderTemplateResult } from './render-template';
 
 import { HTMLParts } from '../common.js';
-import { addScopeFlag, createScopedResult, ScopeFlags } from '../scope.js';
+import { createScopedResult, ScopeFlags } from '../scope.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { renderAstroTemplateResult } from './render-template.js';
 

@@ -9,8 +9,8 @@ import {
 	PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
-import { isSlotString, type SlotString } from './slot.js';
 import { ScopeFlags } from './scope.js';
+import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
@@ -59,7 +59,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 					// JSX with an Astro slot
 					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
 					case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
-					case ScopeFlags.JSX |  ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
+					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
 						return '';
 					}
 

@@ -19,13 +19,13 @@ export function removeScopeFlag(result: SSRResult, flag: ScopeFlagValues) {
 }
 
 export function createScopedResult(result: SSRResult, flag?: ScopeFlagValues): SSRResult {
-	const scopedResult =  Object.create(result, {
+	const scopedResult = Object.create(result, {
 		scope: {
 			writable: true,
-			value: result.scope
-		}
+			value: result.scope,
+		},
 	});
-	if(flag != null) {
+	if (flag != null) {
 		addScopeFlag(scopedResult, flag);
 	}
 	return scopedResult;

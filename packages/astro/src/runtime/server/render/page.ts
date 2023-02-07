@@ -15,7 +15,7 @@ import {
 import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
-import { addScopeFlag, createScopedResult, removeScopeFlag, ScopeFlags } from './scope.js';
+import { createScopedResult, ScopeFlags } from './scope.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 

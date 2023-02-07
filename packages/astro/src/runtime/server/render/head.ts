@@ -2,7 +2,6 @@ import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
 import { renderElement } from './util.js';
-import { ScopeFlags } from './scope.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {

@@ -1,10 +1,10 @@
 import type { SSRResult } from '../../../@types/astro.js';
-import type { RenderInstruction } from './types.js';
 import type { renderTemplate } from './astro/render-template.js';
+import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { ScopeFlags, createScopedResult } from './scope.js';
+import { createScopedResult, ScopeFlags } from './scope.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
@@ -49,7 +49,7 @@ export async function renderSlot(
 		return markHTMLString(new SlotString(content, instructions));
 	}
 
-	if(fallback) {
+	if (fallback) {
 		return renderSlot(result, fallback);
 	}
 	return '';
@@ -60,7 +60,10 @@ interface RenderSlotsResult {
 	children: Record<string, string>;
 }
 
-export async function renderSlots(result: SSRResult, slots: ComponentSlots = {}): Promise<RenderSlotsResult> {
+export async function renderSlots(
+	result: SSRResult,
+	slots: ComponentSlots = {}
+): Promise<RenderSlotsResult> {
 	let slotInstructions: RenderSlotsResult['slotInstructions'] = null;
 	let children: RenderSlotsResult['children'] = {};
 	if (slots) {

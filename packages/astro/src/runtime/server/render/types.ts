@@ -16,6 +16,9 @@ export type MaybeRenderHeadInstruction = {
 	type: 'maybe-head';
 	result: SSRResult;
 	scope: number;
-}
+};
 
-export type RenderInstruction = RenderDirectiveInstruction | RenderHeadInstruction | MaybeRenderHeadInstruction;
+export type RenderInstruction =
+	| RenderDirectiveInstruction
+	| RenderHeadInstruction
+	| MaybeRenderHeadInstruction;
