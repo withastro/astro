@@ -50,7 +50,7 @@
     "set-cookie-parser": "^2.5.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.6"
+    "astro": "workspace:^2.0.7"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.2",
