@@ -157,7 +157,6 @@
       "title": "Astro configuration",
       "properties": {
         "astro.language-server.ls-path": {
-          "scope": "application",
           "type": "string",
           "title": "Language Server: Path",
           "description": "Path to the language server executable. You won't need this in most cases, set this only when needing a specific version of the language server"

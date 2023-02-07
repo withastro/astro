@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { ExtensionContext, Position, TextDocument, Uri, workspace } from 'vscode';
+import { ExtensionContext, Memento, Position, TextDocument, Uri, window, workspace } from 'vscode';
 import { LanguageClientOptions, RequestType, TextDocumentPositionParams } from 'vscode-languageclient';
 import { LanguageClient, ServerOptions, TransportKind } from 'vscode-languageclient/node';
 import * as tsVersion from './features/typescriptVersion';
@@ -14,7 +14,7 @@ export async function activate(context: ExtensionContext) {
 	const { workspaceFolders } = workspace;
 	const rootPath = workspaceFolders?.[0].uri.fsPath;
 
-	let lsPath = runtimeConfig.get<string>('ls-path');
+	let lsPath = await getConfiguredServerPath(context.workspaceState);
 	if (typeof lsPath === 'string' && lsPath.trim() !== '' && typeof rootPath === 'string') {
 		lsPath = path.isAbsolute(lsPath) ? lsPath : path.join(rootPath, lsPath);
 		console.info(`Using language server at ${lsPath}`);
@@ -72,4 +72,46 @@ export async function activate(context: ExtensionContext) {
 
 function createLanguageServer(serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
 	return new LanguageClient('astro', 'Astro', serverOptions, clientOptions);
+}
+
+async function getConfiguredServerPath(workspaceState: Memento) {
+	const scope = 'astro.language-server';
+	const detailedLSPath = workspace.getConfiguration(scope).inspect<string>('ls-path');
+
+	const lsPath = detailedLSPath?.globalLanguageValue
+		|| detailedLSPath?.defaultLanguageValue
+		|| detailedLSPath?.globalValue
+		|| detailedLSPath?.defaultValue;
+
+	const workspaceLSPath = detailedLSPath?.workspaceFolderLanguageValue
+		|| detailedLSPath?.workspaceLanguageValue
+		|| detailedLSPath?.workspaceFolderValue
+		|| detailedLSPath?.workspaceValue;
+
+	const useLocalLanguageServerKey = `${scope}.useLocalLS`;
+	let useWorkspaceServer = workspaceState.get<boolean>(useLocalLanguageServerKey);
+
+	if (useWorkspaceServer === undefined && workspaceLSPath !== undefined) {
+		const msg = 'This workspace contains an Astro Language Server version. Would you like to use the workplace version?';
+		const allowPrompt = 'Allow';
+		const dismissPrompt = 'Dismiss';
+		const neverPrompt = 'Never in This Workspace';
+
+		const result = await window.showInformationMessage(msg, allowPrompt, dismissPrompt, neverPrompt);
+
+		if (result === allowPrompt) {
+			await workspaceState.update(useLocalLanguageServerKey, true);
+			useWorkspaceServer = true;
+		}
+		else if (result === neverPrompt) {
+			await workspaceState.update(useLocalLanguageServerKey, false);
+		}
+	}
+
+	if (useWorkspaceServer === true) {
+		return workspaceLSPath || lsPath;
+	}
+	else {
+		return lsPath;
+	}
 }
