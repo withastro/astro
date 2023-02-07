@@ -106,6 +106,38 @@ test.describe('Lit components', () => {
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
+		test('client:only', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+
+			const label = page.locator('#client-only');
+			await expect(label, 'component is visible').toBeVisible();
+
+			// Light DOM reconstructed correctly (slots are rendered alphabetically) and shadow dom content rendered
+			await expect(label, 'slotted text is in DOM').toHaveText(
+				'Framework client:only component Should not be visible Shadow dom default content should not be visible'
+			);
+
+			// Projected content should be visible
+			await expect(
+				page.locator('#client-only .default'),
+				'slotted element is visible'
+			).toBeVisible();
+			await expect(page.locator('#client-only .foo1'), 'slotted element is visible').toBeVisible();
+			await expect(page.locator('#client-only .foo2'), 'slotted element is visible').toBeVisible();
+
+			// Non-projected content should not be visible
+			await expect(
+				page.locator('#client-only [slot="quux"]'),
+				'element without slot is not visible'
+			).toBeHidden();
+
+			// Default slot content should not be visible
+			await expect(
+				page.locator('#client-only .defaultContent'),
+				'element without slot is not visible'
+			).toBeHidden();
+		});
+
 		t.skip('HMR', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
