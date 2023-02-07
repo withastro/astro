@@ -15,4 +15,9 @@ const cssRe = new RegExp(
 		.map((s) => s.slice(1))
 		.join('|')})($|\\?)`
 );
-export const isCSSRequest = (request: string): boolean => cssRe.test(request);
+
+const rawRE = /(?:\?|&)raw(?:&|$)/;
+const inlineRE = /(?:\?|&)inline\b/;
+
+export const isCSSRequest = (request: string): boolean => cssRe.test(request) &&
+	!rawRE.test(request) && inlineRE.test(request);
