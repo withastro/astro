@@ -20,4 +20,4 @@ const rawRE = /(?:\?|&)raw(?:&|$)/;
 const inlineRE = /(?:\?|&)inline\b/;
 
 export const isCSSRequest = (request: string): boolean => cssRe.test(request) &&
-	!rawRE.test(request) && inlineRE.test(request);
+	!rawRE.test(request) && !inlineRE.test(request);
