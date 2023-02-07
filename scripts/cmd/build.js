@@ -48,6 +48,7 @@ export default async function build(...args) {
 	);
 
 	const noClean = args.includes('--no-clean-dist');
+	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
 
 	const {
@@ -68,7 +69,8 @@ export default async function build(...args) {
 	if (!isDev) {
 		await esbuild.build({
 			...config,
-			bundle: false,
+			bundle,
+			external: bundle ? Object.keys(dependencies) : undefined,
 			entryPoints,
 			outdir,
 			outExtension: forceCJS ? { '.js': '.cjs' } : {},
