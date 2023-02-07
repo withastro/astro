@@ -375,7 +375,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^1.0.1
+      '@astrojs/compiler': ^1.1.0
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^2.0.1
       '@astrojs/telemetry': ^2.0.0
@@ -465,7 +465,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 1.0.1
+      '@astrojs/compiler': 1.1.0
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -2924,6 +2924,16 @@ importers:
       remark-toc: 8.0.1
       vite: 4.1.1
 
+  packages/integrations/mdx/test/fixtures/css-head-mdx:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+      astro-remote: 0.2.3
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      astro: link:../../../../../astro
+      astro-remote: 0.2.3
+
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     specifiers:
       '@astrojs/mdx': workspace:*
@@ -3863,8 +3873,8 @@ packages:
   /@astrojs/compiler/0.31.4:
     resolution: {integrity: sha512-6bBFeDTtPOn4jZaiD3p0f05MEGQL9pw2Zbfj546oFETNmjJFWO3nzHz6/m+P53calknCvyVzZ5YhoBLIvzn5iw==}
 
-  /@astrojs/compiler/1.0.1:
-    resolution: {integrity: sha512-77aacobLKcL98NmhK3OBS5EHIrX9gs1ckB/vGSIdkVZuB7u51V4jh05I6W0tSvG7/86tALv6QtHTRZ8rLhFTbQ==}
+  /@astrojs/compiler/1.1.0:
+    resolution: {integrity: sha512-C4kTwirys+HafufMqaxCbML2wqkGaXJM+5AekXh/v1IIOnMIdcEON9GBYsG6qa8aAmLhZ58aUZGPhzcA3Dx7Uw==}
     dev: false
 
   /@astrojs/language-server/0.28.3:
@@ -7843,6 +7853,14 @@ packages:
       astro: link:packages/astro
     dev: false
 
+  /astro-remote/0.2.3:
+    resolution: {integrity: sha512-vsY736YjWhpFgx4KUxCBdK0QJmOk0W61VQwO7v6qmfGdIxZyx6N7hBNou57w2mw68hQSe5AbRs602pi05GDMHw==}
+    dependencies:
+      he: 1.2.0
+      marked: 4.2.12
+      ultrahtml: 0.1.3
+    dev: false
+
   /async-sema/3.1.1:
     resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
     dev: false
@@ -11283,6 +11301,12 @@ packages:
 
   /markdown-table/3.0.3:
     resolution: {integrity: sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==}
+    dev: false
+
+  /marked/4.2.12:
+    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
+    engines: {node: '>= 12'}
+    hasBin: true
     dev: false
 
   /matcher/3.0.0:
@@ -14741,6 +14765,10 @@ packages:
   /uhyphen/0.1.0:
     resolution: {integrity: sha512-o0QVGuFg24FK765Qdd5kk0zU/U4dEsCtN/GSiwNI9i8xsSVtjIAOdTaVhLwZ1nrbWxFVMxNDDl+9fednsOMsBw==}
     dev: true
+
+  /ultrahtml/0.1.3:
+    resolution: {integrity: sha512-P24ulZdT9UKyQuKA1IApdAZ+F9lwruGvmKb4pG3+sMvR3CjN0pjawPnxuSABHQFB+XqnB35TVXzJPOBYjCv6Kw==}
+    dev: false
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}

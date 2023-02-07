@@ -8,6 +8,7 @@ import { pluginInternals } from './plugin-internals.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginSSR } from './plugin-ssr.js';
+import { astroHeadPropagationBuildPlugin } from '../../../vite-plugin-head-propagation/index.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginAliasResolve(internals));
@@ -15,6 +16,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginInternals(internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
+	register(astroHeadPropagationBuildPlugin(options, internals));
 	register(pluginPrerender(options, internals));
 	register(astroConfigBuildPlugin(options, internals));
 	register(pluginHoistedScripts(options, internals));

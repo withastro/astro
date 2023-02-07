@@ -1,7 +1,8 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { renderElement, ScopeFlags } from './util.js';
+import { renderElement } from './util.js';
+import { ScopeFlags } from './scope.js';
 
 // Filter out duplicate elements in our set
 const uniqueElements = (item: any, index: number, all: any[]) => {
@@ -52,15 +53,7 @@ export function* maybeRenderHead(result: SSRResult) {
 		return;
 	}
 
-	// Don't render the head inside of a JSX component that's inside of an Astro component
-	// as the Astro component will be the one to render the head.
-	switch (result.scope) {
-		case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro: {
-			return;
-		}
-	}
-
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	yield { type: 'head', result } as const;
+	yield { type: 'maybe-head', result, scope: result.scope } as const;
 }
