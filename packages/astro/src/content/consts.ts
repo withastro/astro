@@ -1,4 +1,5 @@
-export const contentFileExts = ['.md', '.mdx'];
+/**  TODO as const*/
+export const defaultContentFileExts = ['.md', '.mdx'];
 export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
 export const CONTENT_FLAG = 'astroContent';
 export const VIRTUAL_MODULE_ID = 'astro:content';
