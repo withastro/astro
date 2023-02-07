@@ -46,6 +46,9 @@ export function astroContentImportPlugin({
 						message: 'Content config failed to load.',
 					});
 				}
+				if (observable.status === 'error') {
+					throw observable.error;
+				}
 
 				let contentConfig: ContentConfig | undefined =
 					observable.status === 'loaded' ? observable.config : undefined;
