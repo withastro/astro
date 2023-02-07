@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash } from '../core/path.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE, defaultContentEntryExts } from './consts.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -117,6 +117,14 @@ export async function getEntryData(
 		}
 	}
 	return data;
+}
+
+export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+	return [
+		// TODO: roll defaults into settings
+		...defaultContentEntryExts,
+		...settings.contentEntryTypes.map((t) => t.extensions).flat(),
+	];
 }
 
 export class NoCollectionError extends Error {}

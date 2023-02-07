@@ -15,6 +15,8 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		adapter: undefined,
 		injectedRoutes: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
+		/** TODO: default Markdown entry type */
+		contentEntryTypes: [],
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: [],
