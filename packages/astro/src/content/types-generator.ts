@@ -8,12 +8,13 @@ import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE, defaultContentFileExts } from './consts.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
 	EntryInfo,
+	getContentEntryExts,
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
@@ -22,7 +23,6 @@ import {
 	NoCollectionError,
 	parseFrontmatter,
 } from './utils.js';
-import { contentEntryTypes } from './~dream.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -53,10 +53,7 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config, fs);
-	const contentFileExts = [
-		...defaultContentFileExts,
-		...contentEntryTypes.map((t) => t.extensions).flat(),
-	];
+	const contentEntryExts = getContentEntryExts(settings);
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -117,7 +114,7 @@ export async function createContentTypesGenerator({
 			}
 			return { shouldGenerateTypes: true };
 		}
-		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths, contentFileExts);
+		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths, contentEntryExts);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}

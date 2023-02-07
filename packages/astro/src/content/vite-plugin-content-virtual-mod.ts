@@ -4,9 +4,8 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
-import { defaultContentFileExts, VIRTUAL_MODULE_ID } from './consts.js';
-import { getContentPaths } from './utils.js';
-import { contentEntryTypes } from './~dream.js';
+import { VIRTUAL_MODULE_ID } from './consts.js';
+import { getContentEntryExts, getContentPaths } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -23,12 +22,9 @@ export function astroContentVirtualModPlugin({
 			)
 		)
 	);
-	const contentFileExts = [
-		...defaultContentFileExts,
-		...contentEntryTypes.map((t) => t.extensions).flat(),
-	];
+	const contentEntryExts = getContentEntryExts(settings);
 
-	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
+	const entryGlob = `${relContentDir}**/*{${contentEntryExts.join(',')}}`;
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)

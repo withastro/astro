@@ -1,4 +1,3 @@
-import { contentEntryTypes } from './~dream.js';
 import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
 import { pathToFileURL } from 'url';
@@ -7,9 +6,10 @@ import { AstroSettings } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
-import { defaultContentFileExts, CONTENT_FLAG } from './consts.js';
+import { CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
+	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
@@ -19,9 +19,9 @@ import {
 	parseFrontmatter,
 } from './utils.js';
 
-function isContentFlagImport(viteId: string) {
-	const { searchParams } = new URL(viteId, 'file://');
-	return searchParams.has(CONTENT_FLAG);
+function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
+	const { searchParams, pathname } = new URL(viteId, 'file://');
+	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
 }
 
 export function astroContentImportPlugin({
@@ -32,16 +32,13 @@ export function astroContentImportPlugin({
 	settings: AstroSettings;
 }): Plugin {
 	const contentPaths = getContentPaths(settings.config, fs);
-	const contentFileExts = [
-		...defaultContentFileExts,
-		...contentEntryTypes.map((t) => t.extensions).flat(),
-	];
+	const contentEntryExts = getContentEntryExts(settings);
 
 	return {
 		name: 'astro:content-imports',
 		async load(id) {
 			const { fileId } = getFileInfo(id, settings.config);
-			if (isContentFlagImport(id)) {
+			if (isContentFlagImport(id, contentEntryExts)) {
 				const observable = globalContentConfigObserver.get();
 
 				// Content config should be loaded before this plugin is used
@@ -74,7 +71,7 @@ export function astroContentImportPlugin({
 					});
 				}
 				const rawContents = await fs.promises.readFile(fileId, 'utf-8');
-				const contentEntryType = contentEntryTypes.find((entryType) =>
+				const contentEntryType = settings.contentEntryTypes.find((entryType) =>
 					entryType.extensions.some((ext) => fileId.endsWith(ext))
 				);
 				let body: string,
@@ -129,11 +126,11 @@ export const _internal = {
 			viteServer.watcher.on('all', async (event, entry) => {
 				if (
 					['add', 'unlink', 'change'].includes(event) &&
-					getEntryType(entry, contentPaths, contentFileExts) === 'config'
+					getEntryType(entry, contentPaths, contentEntryExts) === 'config'
 				) {
 					// Content modules depend on config, so we need to invalidate them.
 					for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
-						if (isContentFlagImport(modUrl)) {
+						if (isContentFlagImport(modUrl, contentEntryExts)) {
 							const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
 							if (mod) {
 								viteServer.moduleGraph.invalidateModule(mod);
@@ -144,7 +141,7 @@ export const _internal = {
 			});
 		},
 		async transform(code, id) {
-			if (isContentFlagImport(id)) {
+			if (isContentFlagImport(id, contentEntryExts)) {
 				// Escape before Rollup internal transform.
 				// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
 				return { code: escapeViteEnvReferences(code) };
