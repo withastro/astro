@@ -7,6 +7,7 @@ import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from '
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { appendForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
@@ -29,14 +30,7 @@ export const contentConfigParser = z.object({
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
-type Entry = {
-	id: string;
-	collection: string;
-	slug: string;
-	data: any;
-	body: string;
-	_internal: { rawData: string; filePath: string };
-};
+type EntryInternal = { rawData: string; filePath: string };
 
 export type EntryInfo = {
 	id: string;
@@ -53,10 +47,10 @@ export function getEntrySlug({
 	id,
 	collection,
 	slug,
-	data: unparsedData,
-}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>) {
+	unvalidatedSlug,
+}: EntryInfo & { unvalidatedSlug?: unknown }) {
 	try {
-		return z.string().default(slug).parse(unparsedData.slug);
+		return z.string().default(slug).parse(unvalidatedSlug);
 	} catch {
 		throw new AstroError({
 			...AstroErrorData.InvalidContentEntrySlugError,
@@ -65,9 +59,12 @@ export function getEntrySlug({
 	}
 }
 
-export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
+export async function getEntryData(
+	entry: EntryInfo & { unvalidatedData: Record<string, unknown>; _internal: EntryInternal },
+	collectionConfig: CollectionConfig
+) {
 	// Remove reserved `slug` field before parsing data
-	let { slug, ...data } = entry.data;
+	let { slug, ...data } = entry.unvalidatedData;
 	if (collectionConfig.schema) {
 		// TODO: remove for 2.0 stable release
 		if (
@@ -94,7 +91,9 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 			});
 		}
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await collectionConfig.schema.safeParseAsync(entry.data, { errorMap });
+		const parsed = await collectionConfig.schema.safeParseAsync(entry.unvalidatedData, {
+			errorMap,
+		});
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
@@ -160,14 +159,15 @@ export function getEntryInfo({
 
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config'>
+	paths: Pick<ContentPaths, 'config'>,
+	contentFileExts: string[]
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
 	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(base)) {
 		return 'ignored';
-	} else if ((contentFileExts as readonly string[]).includes(ext)) {
+	} else if (contentFileExts.includes(ext)) {
 		return 'content';
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
