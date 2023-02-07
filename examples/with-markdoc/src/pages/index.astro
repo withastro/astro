@@ -5,6 +5,10 @@ import RenderMarkdoc from '../renderer/RenderMarkdoc.astro';
 import { getTransformed } from '../components/test.mdoc';
 import { Code } from 'astro/components';
 import Marquee from '../components/Marquee.astro';
+import { getEntryBySlug } from 'astro:content';
+
+const mdocEntry = await getEntryBySlug('blog', 'test');
+console.log(mdocEntry);
 ---
 
 <html lang="en">
