@@ -47,6 +47,8 @@ export function astroContentImportPlugin({
 					});
 				}
 				if (observable.status === 'error') {
+					// Throw here to bubble content config errors
+					// to the error overlay in development
 					throw observable.error;
 				}
 
