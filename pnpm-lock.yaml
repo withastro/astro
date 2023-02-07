@@ -2896,11 +2896,13 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
+      gray-matter: ^4.0.3
       linkedom: ^0.14.12
       mocha: ^9.2.2
       vite: ^4.0.3
     dependencies:
       '@markdoc/markdoc': 0.2.2
+      gray-matter: 4.0.3
     devDependencies:
       '@types/chai': 4.3.4
       '@types/mocha': 9.1.1
