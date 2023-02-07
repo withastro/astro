@@ -136,7 +136,7 @@ export default defineConfig({
 ### analytics
 
 > **Type:** `boolean`
-> **Available for:** Serverless
+> **Available for:** Serverless, Edge
 
 Use this property to enable Vercel Analytics (including Web Vitals and Audiences).
 

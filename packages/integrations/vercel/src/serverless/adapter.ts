@@ -38,10 +38,7 @@ export default function vercelServerless({
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
 				if (analytics) {
-					injectScript(
-						'page',
-						readFileSync(new URL('../../analytics.js', import.meta.url), { encoding: 'utf-8' })
-					);
+					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
 				updateConfig({

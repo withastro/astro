@@ -24,9 +24,13 @@ function getAdapter(): AstroAdapter {
 
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
+	analytics?: boolean;
 }
 
-export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {}): AstroIntegration {
+export default function vercelEdge({
+	includeFiles = [],
+	analytics,
+}: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
 	let functionFolder: URL;
@@ -35,7 +39,10 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig }) => {
+			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
+				if (analytics) {
+					injectScript('page', 'import "@astrojs/vercel/analytics"');
+				}
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
