@@ -39,6 +39,7 @@ function guessRenderers(componentUrl?: string): string[] {
 				'@astrojs/solid-js',
 				'@astrojs/vue',
 				'@astrojs/svelte',
+				'@astrojs/lit',
 			];
 	}
 }
