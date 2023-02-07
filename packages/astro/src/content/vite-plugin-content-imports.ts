@@ -1,3 +1,4 @@
+import { contentEntryTypes } from './~dream.js';
 import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
 import { pathToFileURL } from 'url';
@@ -6,7 +7,7 @@ import { AstroSettings } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
-import { contentFileExts, CONTENT_FLAG } from './consts.js';
+import { defaultContentFileExts, CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
 	getContentPaths,
@@ -19,8 +20,8 @@ import {
 } from './utils.js';
 
 function isContentFlagImport(viteId: string) {
-	const { pathname, searchParams } = new URL(viteId, 'file://');
-	return searchParams.has(CONTENT_FLAG) && contentFileExts.some((ext) => pathname.endsWith(ext));
+	const { searchParams } = new URL(viteId, 'file://');
+	return searchParams.has(CONTENT_FLAG);
 }
 
 export function astroContentImportPlugin({
@@ -31,6 +32,10 @@ export function astroContentImportPlugin({
 	settings: AstroSettings;
 }): Plugin {
 	const contentPaths = getContentPaths(settings.config);
+	const contentFileExts = [
+		...defaultContentFileExts,
+		...contentEntryTypes.map((t) => t.extensions).flat(),
+	];
 
 	return {
 		name: 'astro:content-imports',
@@ -64,11 +69,27 @@ export function astroContentImportPlugin({
 					});
 				}
 				const rawContents = await fs.promises.readFile(fileId, 'utf-8');
-				const {
-					content: body,
-					data: unparsedData,
-					matter: rawData = '',
-				} = parseFrontmatter(rawContents, fileId);
+				const contentEntryType = contentEntryTypes.find((entryType) =>
+					entryType.extensions.some((ext) => fileId.endsWith(ext))
+				);
+				let body: string,
+					unvalidatedData: Record<string, unknown>,
+					unvalidatedSlug: string,
+					rawData: string;
+				if (contentEntryType) {
+					const info = await contentEntryType.getEntryInfo({ fileUrl: pathToFileURL(fileId) });
+					body = info.body;
+					unvalidatedData = info.data;
+					unvalidatedSlug = info.slug;
+					rawData = info.rawData;
+				} else {
+					const parsed = parseFrontmatter(rawContents, fileId);
+					body = parsed.content;
+					unvalidatedData = parsed.data;
+					unvalidatedSlug = parsed.data.slug;
+					rawData = parsed.matter;
+				}
+
 				const entryInfo = getEntryInfo({
 					entry: pathToFileURL(fileId),
 					contentDir: contentPaths.contentDir,
@@ -76,15 +97,14 @@ export function astroContentImportPlugin({
 				if (entryInfo instanceof Error) return;
 
 				const _internal = { filePath: fileId, rawData };
-				const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
 				// TODO: move slug calculation to the start of the build
 				// to generate a performant lookup map for `getEntryBySlug`
-				const slug = getEntrySlug(partialEntry);
+				const slug = getEntrySlug({ ...entryInfo, unvalidatedSlug });
 
 				const collectionConfig = contentConfig?.collections[entryInfo.collection];
 				const data = collectionConfig
-					? await getEntryData(partialEntry, collectionConfig)
-					: unparsedData;
+					? await getEntryData({ ...entryInfo, _internal, unvalidatedData }, collectionConfig)
+					: unvalidatedData;
 
 				const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};
@@ -94,7 +114,7 @@ export const body = ${JSON.stringify(body)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
 	filePath: ${JSON.stringify(fileId)},
-	rawData: ${JSON.stringify(rawData)},
+	rawData: ${JSON.stringify(unvalidatedData)},
 };
 `);
 				return { code };
@@ -104,7 +124,7 @@ export const _internal = {
 			viteServer.watcher.on('all', async (event, entry) => {
 				if (
 					['add', 'unlink', 'change'].includes(event) &&
-					getEntryType(entry, contentPaths) === 'config'
+					getEntryType(entry, contentPaths, contentFileExts) === 'config'
 				) {
 					// Content modules depend on config, so we need to invalidate them.
 					for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {

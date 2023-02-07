@@ -7,7 +7,7 @@ import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE, defaultContentFileExts } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
@@ -21,6 +21,7 @@ import {
 	NoCollectionError,
 	parseFrontmatter,
 } from './utils.js';
+import { contentEntryTypes } from './~dream.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -51,6 +52,10 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config);
+	const contentFileExts = [
+		...defaultContentFileExts,
+		...contentEntryTypes.map((t) => t.extensions).flat(),
+	];
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -111,7 +116,7 @@ export async function createContentTypesGenerator({
 			}
 			return { shouldGenerateTypes: true };
 		}
-		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths);
+		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths, contentFileExts);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
@@ -273,7 +278,7 @@ async function parseSlug({
 	// on dev server startup or production build init.
 	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
 	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
-	return getEntrySlug({ ...entryInfo, data: frontmatter });
+	return getEntrySlug({ ...entryInfo, unvalidatedSlug: frontmatter.slug });
 }
 
 function setEntry(

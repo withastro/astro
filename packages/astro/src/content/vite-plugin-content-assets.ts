@@ -11,7 +11,7 @@ import { prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
-	contentFileExts,
+	defaultContentFileExts,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
 	SCRIPTS_PLACEHOLDER,
@@ -22,7 +22,7 @@ function isPropagatedAsset(viteId: string): boolean {
 	const url = new URL(viteId, 'file://');
 	return (
 		url.searchParams.has(PROPAGATED_ASSET_FLAG) &&
-		contentFileExts.some((ext) => url.pathname.endsWith(ext))
+		defaultContentFileExts.some((ext) => url.pathname.endsWith(ext))
 	);
 }
 
