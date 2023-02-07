@@ -30,7 +30,8 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@markdoc/markdoc": "^0.2.2"
+    "@markdoc/markdoc": "^0.2.2",
+    "gray-matter": "^4.0.3"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
