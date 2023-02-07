@@ -1,5 +1,11 @@
 # astro
 
+## 2.0.8
+
+### Patch Changes
+
+- [#6168](https://github.com/withastro/astro/pull/6168) [`c0e4b1df9`](https://github.com/withastro/astro/commit/c0e4b1df9fc2279a15eadb8aaa95efdc1c6e9cbf) Thanks [@matthewp](https://github.com/matthewp)! - Fix mixed usage of aliases and relative for client hydration
+
 ## 2.0.7
 
 ### Patch Changes
