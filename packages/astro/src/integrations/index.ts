@@ -8,6 +8,7 @@ import {
 	AstroRenderer,
 	AstroSettings,
 	BuildConfig,
+	ContentEntryType,
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
@@ -100,8 +101,19 @@ export async function runHookConfigSetup({
 				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
 				updatedSettings.pageExtensions.push(...exts);
 			}
+
+			// Semi-private `addContentEntryType` hook
+			function addContentEntryType(contentEntryType: ContentEntryType) {
+				updatedSettings.contentEntryTypes.push(contentEntryType);
+			}
+
 			Object.defineProperty(hooks, 'addPageExtension', {
 				value: addPageExtension,
+				writable: false,
+				enumerable: false,
+			});
+			Object.defineProperty(hooks, 'addContentEntryType', {
+				value: addContentEntryType,
 				writable: false,
 				enumerable: false,
 			});
