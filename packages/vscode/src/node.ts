@@ -78,21 +78,24 @@ async function getConfiguredServerPath(workspaceState: Memento) {
 	const scope = 'astro.language-server';
 	const detailedLSPath = workspace.getConfiguration(scope).inspect<string>('ls-path');
 
-	const lsPath = detailedLSPath?.globalLanguageValue
-		|| detailedLSPath?.defaultLanguageValue
-		|| detailedLSPath?.globalValue
-		|| detailedLSPath?.defaultValue;
+	const lsPath =
+		detailedLSPath?.globalLanguageValue ||
+		detailedLSPath?.defaultLanguageValue ||
+		detailedLSPath?.globalValue ||
+		detailedLSPath?.defaultValue;
 
-	const workspaceLSPath = detailedLSPath?.workspaceFolderLanguageValue
-		|| detailedLSPath?.workspaceLanguageValue
-		|| detailedLSPath?.workspaceFolderValue
-		|| detailedLSPath?.workspaceValue;
+	const workspaceLSPath =
+		detailedLSPath?.workspaceFolderLanguageValue ||
+		detailedLSPath?.workspaceLanguageValue ||
+		detailedLSPath?.workspaceFolderValue ||
+		detailedLSPath?.workspaceValue;
 
 	const useLocalLanguageServerKey = `${scope}.useLocalLS`;
 	let useWorkspaceServer = workspaceState.get<boolean>(useLocalLanguageServerKey);
 
 	if (useWorkspaceServer === undefined && workspaceLSPath !== undefined) {
-		const msg = 'This workspace contains an Astro Language Server version. Would you like to use the workplace version?';
+		const msg =
+			'This workspace contains an Astro Language Server version. Would you like to use the workplace version?';
 		const allowPrompt = 'Allow';
 		const dismissPrompt = 'Dismiss';
 		const neverPrompt = 'Never in This Workspace';
@@ -102,16 +105,14 @@ async function getConfiguredServerPath(workspaceState: Memento) {
 		if (result === allowPrompt) {
 			await workspaceState.update(useLocalLanguageServerKey, true);
 			useWorkspaceServer = true;
-		}
-		else if (result === neverPrompt) {
+		} else if (result === neverPrompt) {
 			await workspaceState.update(useLocalLanguageServerKey, false);
 		}
 	}
 
 	if (useWorkspaceServer === true) {
 		return workspaceLSPath || lsPath;
-	}
-	else {
+	} else {
 		return lsPath;
 	}
 }
