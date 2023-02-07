@@ -1,6 +1,5 @@
 import type { ModuleLoader } from '../../module-loader/index';
 
-import path from 'path';
 import { RuntimeMode } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
 import { isCSSRequest } from './util.js';
