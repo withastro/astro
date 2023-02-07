@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.0.0
+
+### Major Changes
+
+- [#6082](https://github.com/withastro/astro/pull/6082) [`8d2187d8b`](https://github.com/withastro/astro/commit/8d2187d8b8587b2a3a0207d9ffa8667c43686436) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Redesigned `create-astro` experience
+
 ## 2.0.2
 
 ### Patch Changes

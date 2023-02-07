@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 1.2.0
+
+### Minor Changes
+
+- [#6111](https://github.com/withastro/astro/pull/6111) [`ec38a8921`](https://github.com/withastro/astro/commit/ec38a8921f02a275949abcababe1b8afdf8184a2) Thanks [@e111077](https://github.com/e111077)! - Implement client:only functionality in Lit and add lit to the client:only warning
+
 ## 1.1.2
 
 ### Patch Changes
