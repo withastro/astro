@@ -4,7 +4,7 @@ import { getCLS, getFCP, getFID, getLCP, getTTFB } from 'web-vitals';
 
 const vitalsUrl = 'https://vitals.vercel-analytics.com/v1/vitals';
 
-type Options = { path: string; analyticsId: string; debug?: boolean };
+type Options = { path: string; analyticsId: string };
 
 const getConnectionSpeed = () => {
 	return 'connection' in navigator &&
@@ -24,14 +24,7 @@ const sendToAnalytics = (metric: Metric, options: Options) => {
 		value: metric.value.toString(),
 		speed: getConnectionSpeed(),
 	};
-
-	if (options.debug) {
-		// eslint-disable-next-line no-console
-		console.log('[Analytics]', metric.name, JSON.stringify(body, null, 2));
-	}
-
 	const blob = new Blob([new URLSearchParams(body).toString()], {
-		// This content type is necessary for `sendBeacon`
 		type: 'application/x-www-form-urlencoded',
 	});
 	if (navigator.sendBeacon) {
@@ -51,7 +44,7 @@ function webVitals() {
 		console.error('[Analytics] VERCEL_ANALYTICS_ID not found');
 		return;
 	}
-	const options = { path: window.location.pathname, analyticsId };
+	const options: Options = { path: window.location.pathname, analyticsId };
 	try {
 		getFID((metric) => sendToAnalytics(metric, options));
 		getTTFB((metric) => sendToAnalytics(metric, options));
