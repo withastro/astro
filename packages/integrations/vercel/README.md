@@ -92,7 +92,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 > **Type:** `boolean`
 > **Available for:** Serverless, Edge, Static
 
-Use this property to enable Vercel Analytics (including Web Vitals and Audiences).
+You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
 
 ```js
 // astro.config.mjs
