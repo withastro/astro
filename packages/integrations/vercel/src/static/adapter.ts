@@ -9,13 +9,20 @@ function getAdapter(): AstroAdapter {
 	return { name: PACKAGE_NAME };
 }
 
-export default function vercelStatic(): AstroIntegration {
+export interface VercelStaticConfig {
+	analytics?: boolean;
+}
+
+export default function vercelStatic({ analytics }: VercelStaticConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
-			'astro:config:setup': ({ config }) => {
+			'astro:config:setup': ({ config, injectScript }) => {
+				if (analytics) {
+					injectScript('page', 'import "@astrojs/vercel/analytics"');
+				}
 				config.outDir = new URL('./static/', getVercelOutput(config.root));
 				config.build.format = 'directory';
 			},
