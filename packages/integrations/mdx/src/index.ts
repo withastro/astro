@@ -6,6 +6,7 @@ import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
@@ -22,12 +23,33 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
+const contentEntryType = {
+	extensions: ['.mdx'],
+	async getEntryInfo({ fileUrl }: { fileUrl: URL }) {
+		const rawContents = await fs.readFile(fileUrl, 'utf-8');
+		const parsed = parseFrontmatter(rawContents, fileURLToPath(fileUrl));
+		return {
+			data: parsed.data,
+			body: parsed.content,
+			slug: parsed.data.slug,
+			rawData: parsed.matter,
+		};
+	},
+};
+
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
+			'astro:config:setup': async ({
+				updateConfig,
+				config,
+				addPageExtension,
+				addContentEntryType,
+				command,
+			}: any) => {
 				addPageExtension('.mdx');
+				addContentEntryType(contentEntryType);
 
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultOptions.extendMarkdownConfig;
