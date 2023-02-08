@@ -17,23 +17,6 @@ const contentEntryType = {
 			rawData: parsed.matter,
 		};
 	},
-	async render({ entry }: { entry: any }) {
-		function getParsed() {
-			return Markdoc.parse(entry.body);
-		}
-		async function getTransformed(inlineConfig: any) {
-			let config = inlineConfig;
-			// TODO: load config file
-			// if (!config) {
-			// 	try {
-			// 		const importedConfig = await import('./markdoc.config.ts');
-			// 		config = importedConfig.default.transform;
-			// 	} catch {}
-			// }
-			return Markdoc.transform(getParsed(), config);
-		}
-		return { getParsed, getTransformed };
-	},
 };
 
 export default function markdoc(partialOptions: {} = {}): AstroIntegration {
@@ -51,17 +34,18 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 							name: '@astrojs/markdoc',
 							async transform(code, id) {
 								if (!id.endsWith('.mdoc')) return;
-								return `import { Markdoc } from '@astrojs/markdoc';\nexport const body = ${JSON.stringify(
+								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Markdoc } from '@astrojs/markdoc';\nimport { Renderer } from '@astrojs/markdoc/components';\nexport const body = ${JSON.stringify(
 									code
 								)};\nexport function getParsed() { return Markdoc.parse(body); }\nexport async function getTransformed(inlineConfig) {
-let config = inlineConfig;
+let config = inlineConfig ?? {};
 if (!config) {
 	try {
 		const importedConfig = await import(${JSON.stringify(markdocConfigUrl.pathname)});
+		console.log({ importedConfig })
 		config = importedConfig.default.transform;
 	} catch {}
 }
-return Markdoc.transform(getParsed(), config) }`;
+return Markdoc.transform(getParsed(), config) }\nexport async function Content ({ transformConfig, components }) { return h(Renderer, { content: await getTransformed(transformConfig), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
 							},
 						},
 					],
