@@ -120,7 +120,9 @@ describe('CSS ordering - import order', () => {
 
 		it('dynamic imports taken into account', async () => {
 			let html = await fixture.readFile('/one/index.html');
-			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href, fixture)));
+			const content = await Promise.all(
+				getLinks(html).map((href) => getLinkContent(href, fixture))
+			);
 			let [link1, link2] = content;
 			expect(link1.css).to.contain('aliceblue');
 			expect(link2.css).to.contain('yellow');

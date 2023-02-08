@@ -17,7 +17,7 @@ export function* walkParentInfos(
 	if (info) {
 		if (childId) {
 			const idx = info.importedIds.indexOf(childId);
-			if(idx === -1) {
+			if (idx === -1) {
 				// Dynamic imports come after all normal imports. So first add the number of normal imports.
 				order += info.importedIds.length;
 				// Then add on the dynamic ones.
@@ -26,7 +26,7 @@ export function* walkParentInfos(
 				order += idx;
 			}
 		}
-		
+
 		yield [info, depth, order];
 	}
 	if (until?.(id)) return;
