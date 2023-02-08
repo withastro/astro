@@ -98,6 +98,7 @@ export function astroConfigBuildPlugin(
 			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
+				const prependBase = (src: string) => prependForwardSlash(npath.posix.join(options.settings.config.base, src));
 				for (const chunk of outputs) {
 					if (
 						chunk.type === 'chunk' &&
@@ -133,7 +134,7 @@ export function astroConfigBuildPlugin(
 						if (entryCSS.size) {
 							newCode = newCode.replace(
 								JSON.stringify(LINKS_PLACEHOLDER),
-								JSON.stringify([...entryCSS])
+								JSON.stringify(Array.from(entryCSS).map(prependBase))
 							);
 						}
 						if (entryScripts.size) {
@@ -153,7 +154,7 @@ export function astroConfigBuildPlugin(
 								JSON.stringify(
 									[...entryFileNames].map((src) => ({
 										props: {
-											src: prependForwardSlash(npath.posix.join(options.settings.config.base, src)),
+											src: prependBase(src),
 											type: 'module',
 										},
 										children: '',
