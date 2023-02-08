@@ -1,14 +1,13 @@
 ---
 import { Markdoc } from '@astrojs/markdoc';
-import RenderMarkdoc from '../renderer/RenderMarkdoc.astro';
-
-import { getTransformed } from '../components/test.mdoc';
 import { Code } from 'astro/components';
 import Marquee from '../components/Marquee.astro';
 import { getEntryBySlug } from 'astro:content';
+import RedP from '../components/RedP.astro';
 
-const mdocEntry = await getEntryBySlug('blog', 'test');
-console.log(mdocEntry);
+const testEntry = await getEntryBySlug('blog', 'test');
+console.log(testEntry);
+const { Content } = await testEntry.render();
 ---
 
 <html lang="en">
@@ -22,10 +21,10 @@ console.log(mdocEntry);
 	<body>
 		<h1>Astro</h1>
 		<article>
-			<RenderMarkdoc
-				content={await getTransformed()}
+			<Content
 				components={{
 					marquee: Marquee,
+					p: RedP,
 					pre: {
 						component: Code,
 						props({ attributes, getTreeNode }) {
