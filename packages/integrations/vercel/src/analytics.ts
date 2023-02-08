@@ -46,10 +46,12 @@ const sendToAnalytics = (metric: Metric, options: Options) => {
 };
 
 function webVitals() {
-	const options = {
-		path: window.location.pathname,
-		analyticsId: (import.meta as any).env.PUBLIC_VERCEL_ANALYTICS_ID,
-	};
+	const analyticsId = (import.meta as any).env.PUBLIC_VERCEL_ANALYTICS_ID;
+	if (!analyticsId) {
+		console.error('[Analytics] VERCEL_ANALYTICS_ID not found');
+		return;
+	}
+	const options = { path: window.location.pathname, analyticsId };
 	try {
 		getFID((metric) => sendToAnalytics(metric, options));
 		getTTFB((metric) => sendToAnalytics(metric, options));
