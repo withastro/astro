@@ -87,6 +87,26 @@ vercel deploy --prebuilt
 
 To configure this adapter, pass an object to the `vercel()` function call in `astro.config.mjs`:
 
+### analytics
+
+> **Type:** `boolean`
+> **Available for:** Serverless, Edge, Static
+
+Use this property to enable Vercel Analytics (including Web Vitals and Audiences).
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    analytics: true
+  })
+});
+```
+
 ### includeFiles
 
 > **Type:** `string[]`
@@ -126,26 +146,6 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     excludeFiles: ['./src/some_big_file.jpg']
-  })
-});
-```
-
-### analytics
-
-> **Type:** `boolean`
-> **Available for:** Serverless, Edge
-
-Use this property to enable Vercel Analytics (including Web Vitals and Audiences).
-
-```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel/serverless';
-
-export default defineConfig({
-  output: 'server',
-  adapter: vercel({
-    analytics: true
   })
 });
 ```
