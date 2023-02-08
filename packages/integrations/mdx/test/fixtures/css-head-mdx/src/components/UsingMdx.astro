@@ -1,0 +1,8 @@
+---
+import { getEntryBySlug } from 'astro:content';
+
+const launchWeek = await getEntryBySlug('blog', 'using-mdx');
+const { Content } = await launchWeek.render();
+---
+
+<Content />

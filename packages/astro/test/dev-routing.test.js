@@ -270,6 +270,15 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/images/1.svg');
 			expect(response.headers.get('content-type')).to.match(/image\/svg\+xml/);
 		});
+
+		it('correct encoding when loading /images/hex.ts', async () => {
+			const response = await fixture.fetch('/images/hex');
+			const body = await response.arrayBuffer();
+			const hex = Buffer.from(body).toString('hex', 0, 4);
+
+			// Check if we have a PNG
+			expect(hex).to.equal('89504e47');
+		});
 	});
 
 	describe('file format routing', () => {
