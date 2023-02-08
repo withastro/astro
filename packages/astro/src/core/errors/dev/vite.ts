@@ -97,7 +97,7 @@ export function enhanceViteSSRError({
 					const column = lns[line]?.indexOf(globPattern);
 
 					safeError.loc = {
-						file: path,
+						file: currentFilePath,
 						line: line + 1,
 						column,
 					};
