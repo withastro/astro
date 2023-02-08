@@ -184,7 +184,7 @@ async function render({
 
 	return {
 		Content,
-		headings: mod.getHeadings(),
-		remarkPluginFrontmatter: mod.frontmatter,
+		headings: mod.getHeadings?.() ?? [],
+		remarkPluginFrontmatter: mod.frontmatter ?? {},
 	};
 }
