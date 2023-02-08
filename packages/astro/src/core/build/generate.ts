@@ -376,6 +376,7 @@ async function generatePath(
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
+		propagation: internals.propagation,
 		scripts,
 		links,
 		route: pageData.route,
