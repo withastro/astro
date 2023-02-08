@@ -1,5 +1,5 @@
 ---
-'@astrojs/vercel': major
+'@astrojs/vercel': minor
 ---
 
 Add vercel analytics support
