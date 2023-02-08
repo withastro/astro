@@ -193,6 +193,7 @@ export class App {
 				request,
 				origin: url.origin,
 				pathname,
+				propagation: this.#manifest.propagation,
 				scripts,
 				links,
 				route: routeData,

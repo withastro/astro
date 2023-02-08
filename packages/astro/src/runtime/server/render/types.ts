@@ -12,4 +12,13 @@ export type RenderHeadInstruction = {
 	result: SSRResult;
 };
 
-export type RenderInstruction = RenderDirectiveInstruction | RenderHeadInstruction;
+export type MaybeRenderHeadInstruction = {
+	type: 'maybe-head';
+	result: SSRResult;
+	scope: number;
+};
+
+export type RenderInstruction =
+	| RenderDirectiveInstruction
+	| RenderHeadInstruction
+	| MaybeRenderHeadInstruction;
