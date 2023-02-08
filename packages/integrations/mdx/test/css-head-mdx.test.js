@@ -29,5 +29,32 @@ describe('Head injection w/ MDX', () => {
 			const scripts = document.querySelectorAll('head script[type=module]');
 			expect(scripts).to.have.a.lengthOf(1);
 		});
+
+		it('injects into the head for content collections', async () => {
+			const html = await fixture.readFile('/posts/test/index.html');
+			const { document } = parseHTML(html);
+
+			const links = document.querySelectorAll('head link[rel=stylesheet]');
+			expect(links).to.have.a.lengthOf(1);
+		});
+
+		it('injects content from a component using Content#render()', async () => {
+			const html = await fixture.readFile('/DirectContentUsage/index.html');
+			const { document } = parseHTML(html);
+
+			const links = document.querySelectorAll('head link[rel=stylesheet]');
+			expect(links).to.have.a.lengthOf(1);
+
+			const scripts = document.querySelectorAll('head script[type=module]');
+			expect(scripts).to.have.a.lengthOf(2);
+		});
+
+		it('Using component using slots.render() API', async () => {
+			const html = await fixture.readFile('/remote/index.html');
+			const { document } = parseHTML(html);
+
+			const links = document.querySelectorAll('head link[rel=stylesheet]');
+			expect(links).to.have.a.lengthOf(1);
+		});
 	});
 });
