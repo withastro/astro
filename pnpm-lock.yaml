@@ -1482,6 +1482,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-pagination-root-spread:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-partial-html:
     specifiers:
       '@astrojs/react': workspace:*
