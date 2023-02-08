@@ -98,7 +98,8 @@ export function astroConfigBuildPlugin(
 			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
-				const prependBase = (src: string) => prependForwardSlash(npath.posix.join(options.settings.config.base, src));
+				const prependBase = (src: string) =>
+					prependForwardSlash(npath.posix.join(options.settings.config.base, src));
 				for (const chunk of outputs) {
 					if (
 						chunk.type === 'chunk' &&
