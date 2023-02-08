@@ -1,5 +1,13 @@
 # astro
 
+## 2.0.9
+
+### Patch Changes
+
+- [#6176](https://github.com/withastro/astro/pull/6176) [`8bbdcf17d`](https://github.com/withastro/astro/commit/8bbdcf17dd6c9142c18bc1551ee4854a60bc58cb) Thanks [@matthewp](https://github.com/matthewp)! - Take dynamic import into account in CSS ordering
+
+- [#6170](https://github.com/withastro/astro/pull/6170) [`ec2f2a31d`](https://github.com/withastro/astro/commit/ec2f2a31dec78e5749cdea524ae926a19df300e3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Show content config errors in overlay, instead of stopping the dev server.
+
 ## 2.0.8
 
 ### Patch Changes
