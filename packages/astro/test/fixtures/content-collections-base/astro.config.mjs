@@ -5,4 +5,9 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
 	base: '/docs',
 	integrations: [mdx()],
+	vite: {
+		build: {
+			assetsInlineLimit: 0
+		}
+	}
 });

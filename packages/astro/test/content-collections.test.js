@@ -256,9 +256,14 @@ describe('Content Collections', () => {
 
 		it('Includes base in links', async () => {
 			const html = await fixture.readFile('/docs/index.html');
-			console.log(html);
 			const $ = cheerio.load(html);
 			expect($('link').attr('href')).to.satisfies(a => a.startsWith('/docs'))
+		});
+
+		it('Includes base in hoisted scripts', async () => {
+			const html = await fixture.readFile('/docs/index.html');
+			const $ = cheerio.load(html);
+			expect($('script').attr('src')).to.satisfies(a => a.startsWith('/docs'))
 		});
 	});
 });
