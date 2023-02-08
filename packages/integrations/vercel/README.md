@@ -94,9 +94,8 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 
 Use this property to force files to be bundled with your function. This is helpful when you notice missing files.
 
-__`astro.config.mjs`__
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
 
@@ -111,7 +110,6 @@ export default defineConfig({
 > **Note**
 > When building for the Edge, all the dependencies get bundled in a single file to save space. **No extra file will be bundled**. So, if you _need_ some file inside the function, you have to specify it in `includeFiles`.
 
-
 ### excludeFiles
 
 > **Type:** `string[]`
@@ -119,9 +117,8 @@ export default defineConfig({
 
 Use this property to exclude any files from the bundling process that would otherwise be included.
 
-__`astro.config.mjs`__
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
 
@@ -140,9 +137,8 @@ export default defineConfig({
 
 Use this property to enable Vercel Analytics (including Web Vitals and Audiences).
 
-__`astro.config.mjs`__
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
 
