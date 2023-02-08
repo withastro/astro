@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+
 import esbuild from 'esbuild';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
