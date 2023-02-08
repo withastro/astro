@@ -39,8 +39,8 @@ describe('CSS ordering - import order', () => {
 	 * @param {string} href
 	 * @returns {Promise<{ href: string; css: string; }>}
 	 */
-	async function getLinkContent(href) {
-		const css = await fixture.readFile(href);
+	async function getLinkContent(href, f = fixture) {
+		const css = await f.readFile(href);
 		return { href, css };
 	}
 
@@ -105,6 +105,25 @@ describe('CSS ordering - import order', () => {
 
 			expect(idx1).to.be.greaterThan(idx2);
 			expect(idx2).to.be.greaterThan(idx3);
+		});
+	});
+
+	describe('Dynamic import', () => {
+		// eslint-disable-next-line @typescript-eslint/no-shadow
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/css-order-dynamic-import/',
+			});
+			await fixture.build();
+		});
+
+		it('dynamic imports taken into account', async () => {
+			let html = await fixture.readFile('/one/index.html');
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href, fixture)));
+			let [link1, link2] = content;
+			expect(link1.css).to.contain('aliceblue');
+			expect(link2.css).to.contain('yellow');
 		});
 	});
 });
