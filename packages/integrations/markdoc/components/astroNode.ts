@@ -36,12 +36,12 @@ export function createAstroNode(
 		return '';
 	}
 
-	if (Object.hasOwn(components, node.name)) {
+	if (node.name in components) {
 		const componentRenderer = components[node.name];
 		const component =
 			'component' in componentRenderer ? componentRenderer.component : componentRenderer;
 		const props =
-			'props' in componentRenderer
+			'props' in componentRenderer && typeof componentRenderer.props === 'function'
 				? componentRenderer.props({
 						attributes: node.attributes,
 						getTreeNode() {
