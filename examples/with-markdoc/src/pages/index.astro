@@ -5,9 +5,11 @@ import Marquee from '../components/Marquee.astro';
 import { getEntryBySlug } from 'astro:content';
 import RedP from '../components/RedP.astro';
 
-const testEntry = await getEntryBySlug('blog', 'test');
-console.log(testEntry);
-const { Content } = await testEntry.render();
+const mdocEntry = await getEntryBySlug('blog', 'test');
+const mdxEntry = await getEntryBySlug('blog', 'with-mdx');
+console.log(mdocEntry);
+const { Content } = await mdocEntry.render();
+const { Content: MDXContent } = await mdxEntry.render();
 ---
 
 <html lang="en">
@@ -21,6 +23,7 @@ const { Content } = await testEntry.render();
 	<body>
 		<h1>Astro</h1>
 		<article>
+			<MDXContent />
 			<Content
 				components={{
 					marquee: Marquee,
