@@ -37,6 +37,12 @@ export async function sync(
 			viteServer: tempViteServer,
 		});
 		const typesResult = await contentTypesGenerator.init();
+
+		const contentConfig = globalContentConfigObserver.get();
+		if (contentConfig.status === 'error') {
+			throw contentConfig.error;
+		}
+
 		if (typesResult.typesGenerated === false) {
 			switch (typesResult.reason) {
 				case 'no-content-dir':

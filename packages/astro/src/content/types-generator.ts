@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
@@ -117,11 +118,19 @@ export async function createContentTypesGenerator({
 		}
 		if (fileType === 'config') {
 			contentConfigObserver.set({ status: 'loading' });
-			const config = await loadContentConfig({ fs, settings, viteServer });
-			if (config) {
-				contentConfigObserver.set({ status: 'loaded', config });
-			} else {
-				contentConfigObserver.set({ status: 'error' });
+			try {
+				const config = await loadContentConfig({ fs, settings, viteServer });
+				if (config) {
+					contentConfigObserver.set({ status: 'loaded', config });
+				} else {
+					contentConfigObserver.set({ status: 'does-not-exist' });
+				}
+			} catch (e) {
+				contentConfigObserver.set({
+					status: 'error',
+					error:
+						e instanceof Error ? e : new AstroError(AstroErrorData.UnknownContentCollectionError),
+				});
 			}
 
 			return { shouldGenerateTypes: true };
