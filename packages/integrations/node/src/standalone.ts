@@ -1,4 +1,5 @@
 import type { NodeApp } from 'astro/app/node';
+import https from 'https';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from './http-server.js';
@@ -37,7 +38,7 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 export default function startServer(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	const { client } = resolvePaths(options);
-	const handler = middleware(app);
+	const handler = middleware(app, options.mode);
 
 	// Allow to provide host value at runtime
 	const host = getResolvedHostForHttpServer(
@@ -53,8 +54,13 @@ export default function startServer(app: NodeApp, options: Options) {
 		handler
 	);
 
-	// eslint-disable-next-line no-console
-	console.log(`Server listening on http://${host}:${port}`);
+	const protocol = server.server instanceof https.Server ? 'https' : 'http';
 
-	return server.closed();
+	// eslint-disable-next-line no-console
+	console.log(`Server listening on ${protocol}://${host}:${port}`);
+
+	return {
+		server,
+		done: server.closed(),
+	};
 }

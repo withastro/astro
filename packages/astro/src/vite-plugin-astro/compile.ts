@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'url';
 import { ESBuildTransformResult, transformWithEsbuild } from 'vite';
 import { AstroConfig } from '../@types/astro';
 import { cachedCompilation, CompileProps, CompileResult } from '../core/compile/index.js';
@@ -7,7 +6,6 @@ import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface CachedFullCompilation {
 	compileProps: CompileProps;
-	rawId: string;
 	logging: LogOptions;
 }
 
@@ -27,7 +25,6 @@ const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 
 export async function cachedFullCompilation({
 	compileProps,
-	rawId,
 	logging,
 }: CachedFullCompilation): Promise<FullCompileResult> {
 	let transformResult: CompileResult;
@@ -37,7 +34,7 @@ export async function cachedFullCompilation({
 		transformResult = await cachedCompilation(compileProps);
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
-		esbuildResult = await transformWithEsbuild(transformResult.code, rawId, {
+		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
 			loader: 'ts',
 			target: 'esnext',
 			sourcemap: 'external',
@@ -51,7 +48,7 @@ export async function cachedFullCompilation({
 	} catch (err: any) {
 		await enhanceCompileError({
 			err,
-			id: rawId,
+			id: compileProps.filename,
 			source: compileProps.source,
 			config: compileProps.astroConfig,
 			logging: logging,
@@ -59,7 +56,10 @@ export async function cachedFullCompilation({
 		throw err;
 	}
 
-	const { fileId: file, fileUrl: url } = getFileInfo(rawId, compileProps.astroConfig);
+	const { fileId: file, fileUrl: url } = getFileInfo(
+		compileProps.filename,
+		compileProps.astroConfig
+	);
 
 	let SUFFIX = '';
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
@@ -70,7 +70,7 @@ export async function cachedFullCompilation({
 	if (!compileProps.viteConfig.isProduction) {
 		let i = 0;
 		while (i < transformResult.scripts.length) {
-			SUFFIX += `import "${rawId}?astro&type=script&index=${i}&lang.ts";`;
+			SUFFIX += `import "${compileProps.filename}?astro&type=script&index=${i}&lang.ts";`;
 			i++;
 		}
 	}
@@ -93,7 +93,8 @@ async function enhanceCompileError({
 	source,
 	config,
 	logging,
-}: EnhanceCompilerErrorOptions): Promise<never> {
+}: EnhanceCompilerErrorOptions): Promise<void> {
+	const lineText = (err as any).loc?.lineText;
 	// Verify frontmatter: a common reason that this plugin fails is that
 	// the user provided invalid JS/TS in the component frontmatter.
 	// If the frontmatter is invalid, the `err` object may be a compiler
@@ -104,8 +105,14 @@ async function enhanceCompileError({
 	// If frontmatter is valid or cannot be parsed, then continue.
 	const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
 	if (scannedFrontmatter) {
+		// Top-level return is not supported, so replace `return` with throw
+		const frontmatter = scannedFrontmatter[1].replace(/\breturn\b/g, 'throw');
+
+		// If frontmatter does not actually include the offending line, skip
+		if (lineText && !frontmatter.includes(lineText)) throw err;
+
 		try {
-			await transformWithEsbuild(scannedFrontmatter[1], id, {
+			await transformWithEsbuild(frontmatter, id, {
 				loader: 'ts',
 				target: 'esnext',
 				sourcemap: false,
@@ -120,32 +127,6 @@ async function enhanceCompileError({
 				);
 			}
 			throw frontmatterErr;
-		}
-	}
-
-	// improve compiler errors
-	if (err.stack && err.stack.includes('wasm-function')) {
-		const search = new URLSearchParams({
-			labels: 'compiler',
-			title: '🐛 BUG: `@astrojs/compiler` panic',
-			template: '---01-bug-report.yml',
-			'bug-description': `\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
-
-**${id.replace(fileURLToPath(config.root), '')}**
-\`\`\`astro
-${source}
-\`\`\``,
-		});
-		(err as any).url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
-		err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
-
-    Please open
-    a GitHub issue using the link below:
-    ${(err as any).url}`;
-
-		if (logging.level !== 'debug') {
-			// TODO: remove stack replacement when compiler throws better errors
-			err.stack = `    at ${id}`;
 		}
 	}
 

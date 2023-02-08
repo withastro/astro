@@ -28,6 +28,7 @@ export type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
+export type { AstroCookies } from '../core/cookies';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -83,7 +84,6 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalContentCollections?: boolean;
 }
 
 export interface BuildConfig {
@@ -911,34 +911,13 @@ export interface AstroUserConfig {
 	legacy?: object;
 
 	/**
-	 * @docs
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
 	 * Astro offers experimental flags to give users early access to new features.
 	 * These flags are not guaranteed to be stable.
 	 */
-	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.contentCollections
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 1.7.0
-		 * @description
-		 * Enable experimental support for [Content Collections](https://docs.astro.build/en/guides/content-collections/). This makes the `src/content/` directory a reserved directory for Astro to manage, and introduces the `astro:content` module for querying this content.
-		 *
-		 * To enable this feature, set `experimental.contentCollections` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		contentCollections: true,
-		 * 	},
-		 * }
-		 */
-		contentCollections?: boolean;
-	};
+	experimental?: object;
 
 	// Legacy options to be removed
 
@@ -1050,20 +1029,15 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	compiledContent(): string;
 	/** List of headings (h1 -> h6) with associated metadata */
 	getHeadings(): MarkdownHeading[];
-	/** @deprecated Renamed to `getHeadings()` */
-	getHeaders(): void;
 	default: AstroComponentFactory;
 }
 
 type MD = MarkdownInstance<Record<string, any>>;
 
-export interface MDXInstance<T extends Record<string, any>>
-	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
-	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
-	rawContent: never;
-	/** MDX does not support compiledContent! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
-	compiledContent: never;
-}
+export type MDXInstance<T extends Record<string, any>> = Omit<
+	MarkdownInstance<T>,
+	'rawContent' | 'compiledContent'
+>;
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	frontmatter: {
@@ -1466,7 +1440,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	propagation: Map<string, PropagationHint>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<any>;
+	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
@@ -1475,6 +1449,10 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
+	// Bits 1 = astro, 2 = jsx, 4 = slot
+	// As rendering occurs these bits are manipulated to determine where content
+	// is within a slot. This is used for head injection.
+	scope: number;
 	_metadata: SSRMetadata;
 }
 

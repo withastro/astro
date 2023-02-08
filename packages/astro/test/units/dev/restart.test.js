@@ -180,4 +180,35 @@ describe('dev container restarts', () => {
 			await restart.container.close();
 		}
 	});
+
+	it('Is able to restart on viteServer.restart API call', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': ``,
+			},
+			root
+		);
+
+		const { astroConfig } = await openConfig({
+			cwd: root,
+			flags: {},
+			cmd: 'dev',
+			logging: defaultLogging,
+		});
+		const settings = createSettings(astroConfig, fileURLToPath(root));
+
+		let restart = await createContainerWithAutomaticRestart({
+			params: { fs, root, settings },
+		});
+		await startContainer(restart.container);
+		expect(isStarted(restart.container)).to.equal(true);
+
+		try {
+			let restartComplete = restart.restarted();
+			await restart.container.viteServer.restart();
+			await restartComplete;
+		} finally {
+			await restart.container.close();
+		}
+	});
 });

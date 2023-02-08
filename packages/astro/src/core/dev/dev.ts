@@ -3,7 +3,9 @@ import type http from 'http';
 import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
+import yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
+import { attachContentServerListeners } from '../../content/index.js';
 import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
@@ -12,6 +14,7 @@ import { createContainerWithAutomaticRestart } from './restart.js';
 export interface DevOptions {
 	configFlag: string | undefined;
 	configFlagPath: string | undefined;
+	flags: yargs.Arguments | undefined;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 	handleConfigError: (error: Error) => void;
@@ -35,7 +38,7 @@ export default async function dev(
 
 	// Create a container which sets up the Vite server.
 	const restart = await createContainerWithAutomaticRestart({
-		flags: {},
+		flags: options.flags ?? {},
 		handleConfigError: options.handleConfigError,
 		// eslint-disable-next-line no-console
 		beforeRestart: () => console.clear(),
@@ -68,6 +71,8 @@ export default async function dev(
 	if (restart.container.viteConfig.server?.fs?.strict === false) {
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
+
+	await attachContentServerListeners(restart.container);
 
 	return {
 		address: devServerAddressInfo,

@@ -4,7 +4,6 @@ import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { astroBundleDelayedAssetPlugin } from '../../content/index.js';
 import {
 	BuildInternals,
 	createBuildInternals,
@@ -15,20 +14,16 @@ import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { resolvedPagesVirtualModuleId } from '../app/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
+import { AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
+import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
-import { rollupPluginAstroBuildCSS } from './vite-plugin-css.js';
-import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
-import { vitePluginInternals } from './vite-plugin-internals.js';
-import { vitePluginPages } from './vite-plugin-pages.js';
-import { vitePluginPrerender } from './vite-plugin-prerender.js';
-import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -66,12 +61,18 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	emptyDir(settings.config.outDir, new Set('.git'));
+	if (settings.config?.vite?.build?.emptyOutDir !== false) {
+		emptyDir(settings.config.outDir, new Set('.git'));
+	}
+
+	// Register plugins
+	const container = createPluginContainer(opts, internals);
+	registerAllPlugins(container);
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
 	info(opts.logging, 'build', `Building ${settings.config.output} entrypoints...`);
-	await ssrBuild(opts, internals, pageInput);
+	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
 	const rendererClientEntrypoints = settings.renderers
@@ -91,9 +92,11 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	timer.clientBuild = performance.now();
-	await clientBuild(opts, internals, clientInput);
+	const clientOutput = await clientBuild(opts, internals, clientInput, container);
 
 	timer.generate = performance.now();
+	await runPostBuildHooks(container, ssrOutput, clientOutput);
+
 	switch (settings.config.output) {
 		case 'static': {
 			await generatePages(opts, internals);
@@ -101,7 +104,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			return;
 		}
 		case 'server': {
-			await injectManifest(opts, internals);
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
@@ -111,10 +113,17 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	}
 }
 
-async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
+async function ssrBuild(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	input: Set<string>,
+	container: AstroBuildPluginContainer
+) {
 	const { settings, viteConfig } = opts;
 	const ssr = settings.config.output === 'server';
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
+
+	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -137,7 +146,13 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					chunkFileNames: `chunks/[name].[hash].mjs`,
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
-					entryFileNames: opts.buildConfig.serverEntry,
+					entryFileNames(chunkInfo) {
+						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
+							return opts.buildConfig.serverEntry;
+						} else {
+							return '[name].mjs';
+						}
+					},
 				},
 			},
 			ssr: true,
@@ -146,23 +161,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
-		plugins: [
-			vitePluginAnalyzer(internals),
-			vitePluginInternals(input, internals),
-			vitePluginPages(opts, internals),
-			rollupPluginAstroBuildCSS({
-				buildOptions: opts,
-				internals,
-				target: 'server',
-			}),
-			vitePluginPrerender(opts, internals),
-			...(viteConfig.plugins || []),
-			settings.config.experimental.contentCollections &&
-				astroBundleDelayedAssetPlugin({ internals }),
-			// SSR needs to be last
-			ssr && vitePluginSSR(internals, settings.adapter!),
-		],
-		envPrefix: 'PUBLIC_',
+		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],
+		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
 
@@ -180,7 +180,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 async function clientBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	input: Set<string>
+	input: Set<string>,
+	container: AstroBuildPluginContainer
 ) {
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
@@ -191,12 +192,13 @@ async function clientBuild(
 	if (!input.size) {
 		// If SSR, copy public over
 		if (ssr) {
-			await copyFiles(settings.config.publicDir, out);
+			await copyFiles(settings.config.publicDir, out, true);
 		}
 
 		return null;
 	}
 
+	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('client', input);
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
 	const viteBuildConfig: vite.InlineConfig = {
@@ -221,17 +223,8 @@ async function clientBuild(
 				preserveEntrySignatures: 'exports-only',
 			},
 		},
-		plugins: [
-			vitePluginInternals(input, internals),
-			vitePluginHoistedScripts(settings, internals),
-			rollupPluginAstroBuildCSS({
-				buildOptions: opts,
-				internals,
-				target: 'client',
-			}),
-			...(viteConfig.plugins || []),
-		],
-		envPrefix: 'PUBLIC_',
+		plugins: [...vitePlugins, ...(viteConfig.plugins || []), ...lastVitePlugins],
+		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 	};
 
@@ -246,6 +239,27 @@ async function clientBuild(
 	const buildResult = await vite.build(viteBuildConfig);
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
+}
+
+async function runPostBuildHooks(
+	container: AstroBuildPluginContainer,
+	ssrReturn: Awaited<ReturnType<typeof ssrBuild>>,
+	clientReturn: Awaited<ReturnType<typeof clientBuild>>
+) {
+	const mutations = await container.runPostHook(ssrReturn, clientReturn);
+	const config = container.options.settings.config;
+	const buildConfig = container.options.settings.config.build;
+	for (const [fileName, mutation] of mutations) {
+		const root =
+			config.output === 'server'
+				? mutation.build === 'server'
+					? buildConfig.server
+					: buildConfig.client
+				: config.outDir;
+		const fileURL = new URL(fileName, root);
+		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
+		await fs.promises.writeFile(fileURL, mutation.code, 'utf-8');
+	}
 }
 
 /**
@@ -318,9 +332,10 @@ async function cleanServerOutput(opts: StaticBuildOptions) {
 	}
 }
 
-async function copyFiles(fromFolder: URL, toFolder: URL) {
+async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false) {
 	const files = await glob('**/*', {
 		cwd: fileURLToPath(fromFolder),
+		dot: includeDotfiles,
 	});
 
 	await Promise.all(

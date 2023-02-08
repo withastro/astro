@@ -2,29 +2,26 @@ import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createServer, ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
-import { AstroSettings } from '../@types/astro.js';
+import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
+import { appendForwardSlash } from '../core/path.js';
+import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
-	slug: z
-		.function()
-		.args(
-			z.object({
-				id: z.string(),
-				collection: z.string(),
-				defaultSlug: z.string(),
-				body: z.string(),
-				data: z.record(z.any()),
-			})
-		)
-		.returns(z.union([z.string(), z.promise(z.string())]))
-		.optional(),
 });
+
+export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
+	const { cacheDir } = getContentPaths({ root, srcDir });
+	const contentTypesRelativeToSrcDir = normalizePath(
+		path.relative(fileURLToPath(srcDir), fileURLToPath(new URL(CONTENT_TYPES_FILE, cacheDir)))
+	);
+
+	return `/// <reference path=${JSON.stringify(contentTypesRelativeToSrcDir)} />`;
+}
 
 export const contentConfigParser = z.object({
 	collections: z.record(collectionConfigParser),
@@ -53,29 +50,58 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export async function getEntrySlug(entry: Entry, collectionConfig: CollectionConfig) {
-	return (
-		collectionConfig.slug?.({
-			id: entry.id,
-			data: entry.data,
-			defaultSlug: entry.slug,
-			collection: entry.collection,
-			body: entry.body,
-		}) ?? entry.slug
-	);
+export function getEntrySlug({
+	id,
+	collection,
+	slug,
+	data: unparsedData,
+}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>) {
+	try {
+		return z.string().default(slug).parse(unparsedData.slug);
+	} catch {
+		throw new AstroError({
+			...AstroErrorData.InvalidContentEntrySlugError,
+			message: AstroErrorData.InvalidContentEntrySlugError.message(collection, id),
+		});
+	}
 }
 
 export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
-	let data = entry.data;
+	// Remove reserved `slug` field before parsing data
+	let { slug, ...data } = entry.data;
 	if (collectionConfig.schema) {
+		// TODO: remove for 2.0 stable release
+		if (
+			typeof collectionConfig.schema === 'object' &&
+			!('safeParseAsync' in collectionConfig.schema)
+		) {
+			throw new AstroError({
+				title: 'Invalid content collection config',
+				message: `New: Content collection schemas must be Zod objects. Update your collection config to use \`schema: z.object({...})\` instead of \`schema: {...}\`.`,
+				hint: 'See https://docs.astro.build/en/reference/api-reference/#definecollection for an example.',
+				code: 99999,
+			});
+		}
+		// Catch reserved `slug` field inside schema
+		// Note: will not warn for `z.union` or `z.intersection` schemas
+		if (
+			typeof collectionConfig.schema === 'object' &&
+			'shape' in collectionConfig.schema &&
+			collectionConfig.schema.shape.slug
+		) {
+			throw new AstroError({
+				...AstroErrorData.ContentSchemaContainsSlugError,
+				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
+			});
+		}
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await z.object(collectionConfig.schema).safeParseAsync(entry.data, { errorMap });
+		const parsed = await collectionConfig.schema.safeParseAsync(entry.data, { errorMap });
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
 			const formattedError = new AstroError({
-				...AstroErrorData.MarkdownContentSchemaValidationError,
-				message: AstroErrorData.MarkdownContentSchemaValidationError.message(
+				...AstroErrorData.InvalidContentEntryFrontmatterError,
+				message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
 					entry.collection,
 					entry.id,
 					parsed.error
@@ -133,6 +159,38 @@ export function getEntryInfo({
 	return res;
 }
 
+export function getEntryType(
+	entryPath: string,
+	paths: Pick<ContentPaths, 'config'>
+): 'content' | 'config' | 'ignored' | 'unsupported' {
+	const { dir: rawDir, ext, base } = path.parse(entryPath);
+	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
+	const fileUrl = new URL(base, dir);
+
+	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(fileUrl)) {
+		return 'ignored';
+	} else if ((contentFileExts as readonly string[]).includes(ext)) {
+		return 'content';
+	} else if (fileUrl.href === paths.config.href) {
+		return 'config';
+	} else {
+		return 'unsupported';
+	}
+}
+
+function isOnIgnoreList(fileUrl: URL) {
+	const { base } = path.parse(fileURLToPath(fileUrl));
+	return ['.DS_Store'].includes(base);
+}
+
+function hasUnderscoreInPath(fileUrl: URL): boolean {
+	const parts = fileUrl.pathname.split('/');
+	for (const part of parts) {
+		if (part.startsWith('_')) return true;
+	}
+	return false;
+}
+
 const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
 
 const errorMap: z.ZodErrorMap = (error, ctx) => {
@@ -179,46 +237,47 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 	}
 }
 
-export class NotFoundError extends TypeError {}
-export class ZodParseError extends TypeError {}
+/**
+ * The content config is loaded separately from other `src/` files.
+ * This global observable lets dependent plugins (like the content flag plugin)
+ * subscribe to changes during dev server updates.
+ */
+export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
 export async function loadContentConfig({
 	fs,
 	settings,
+	viteServer,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-}): Promise<ContentConfig | Error> {
-	const contentPaths = getContentPaths({ srcDir: settings.config.srcDir });
-	const tempConfigServer: ViteDevServer = await createServer({
-		root: fileURLToPath(settings.config.root),
-		server: { middlewareMode: true, hmr: false },
-		optimizeDeps: { entries: [] },
-		clearScreen: false,
-		appType: 'custom',
-		logLevel: 'silent',
-		plugins: [astroContentVirtualModPlugin({ settings })],
-	});
+	viteServer: ViteDevServer;
+}): Promise<ContentConfig | undefined> {
+	const contentPaths = getContentPaths(settings.config);
 	let unparsedConfig;
+	if (!fs.existsSync(contentPaths.config)) {
+		return undefined;
+	}
 	try {
-		unparsedConfig = await tempConfigServer.ssrLoadModule(contentPaths.config.pathname);
-	} catch {
-		return new NotFoundError('Failed to resolve content config.');
-	} finally {
-		await tempConfigServer.close();
+		const configPathname = fileURLToPath(contentPaths.config);
+		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
+	} catch (e) {
+		throw e;
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
 		return config.data;
 	} else {
-		return new ZodParseError('Content config file is invalid.');
+		return undefined;
 	}
 }
 
 type ContentCtx =
+	| { status: 'init' }
 	| { status: 'loading' }
+	| { status: 'does-not-exist' }
 	| { status: 'loaded'; config: ContentConfig }
-	| { status: 'error'; error: NotFoundError | ZodParseError };
+	| { status: 'error'; error: Error };
 
 type Observable<C> = {
 	get: () => C;
@@ -255,16 +314,21 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 export type ContentPaths = {
 	contentDir: URL;
 	cacheDir: URL;
-	generatedInputDir: URL;
+	typesTemplate: URL;
+	virtualModTemplate: URL;
 	config: URL;
 };
 
-export function getContentPaths({ srcDir }: { srcDir: URL }): ContentPaths {
+export function getContentPaths({
+	srcDir,
+	root,
+}: Pick<AstroConfig, 'root' | 'srcDir'>): ContentPaths {
+	const templateDir = new URL('../../src/content/template/', import.meta.url);
 	return {
-		// Output generated types in content directory. May change in the future!
-		cacheDir: new URL('./content/', srcDir),
+		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
-		generatedInputDir: new URL('../../src/content/template/', import.meta.url),
-		config: new URL('./content/config', srcDir),
+		typesTemplate: new URL('types.d.ts', templateDir),
+		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
+		config: new URL('./content/config.ts', srcDir),
 	};
 }

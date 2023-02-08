@@ -1,9 +1,8 @@
 import type { ModuleLoader } from '../../module-loader/index';
 
-import path from 'path';
 import { RuntimeMode } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
-import { STYLE_EXTENSIONS } from '../util.js';
+import { isCSSRequest } from './util.js';
 import { crawlGraph } from './vite.js';
 
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
@@ -16,8 +15,7 @@ export async function getStylesForURL(
 	const importedStylesMap = new Map<string, string>();
 
 	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
-		const ext = path.extname(importedModule.url).toLowerCase();
-		if (STYLE_EXTENSIONS.has(ext)) {
+		if (isCSSRequest(importedModule.url)) {
 			let ssrModule: Record<string, any>;
 			try {
 				// The SSR module is possibly not loaded. Load it if it's null.

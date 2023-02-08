@@ -28,7 +28,6 @@ const exclusionsForNode = [
 	...exclusionsForElement,
 ] as const
 const exclusionsForEventTarget = [
-	'AbortSignal',
 	'Event',
 	'CustomEvent',
 	'EventTarget',
@@ -38,7 +37,6 @@ const exclusionsForEventTarget = [
 	...exclusionsForNode,
 ] as const
 const exclusionsForEvent = [
-	'AbortSignal',
 	'Event',
 	'CustomEvent',
 	'EventTarget',
@@ -49,7 +47,6 @@ const exclusionsForEvent = [
 ] as const
 
 export const exclusions = {
-	'Blob+': ['Blob', 'File'],
 	'Document+': exclusionsForDocument,
 	'Element+': exclusionsForElement,
 	'Event+': exclusionsForEvent,

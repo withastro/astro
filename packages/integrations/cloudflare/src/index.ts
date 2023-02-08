@@ -3,7 +3,7 @@ import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
 import glob from 'tiny-glob';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 type Options = {
 	mode: 'directory' | 'advanced';
@@ -49,7 +49,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					build: {
 						client: new URL(`.${config.base}`, config.outDir),
 						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
-						serverEntry: '_worker.js',
+						serverEntry: '_worker.mjs',
 					},
 				});
 			},
@@ -88,10 +88,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = vite.ssr.target || 'webworker';
 				}
 			},
-			'astro:build:done': async () => {
-				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server)),
-					entryUrl = new URL(_buildConfig.serverEntry, _config.outDir),
-					buildPath = fileURLToPath(entryUrl);
+			'astro:build:done': async ({ pages }) => {
+				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
+				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
+				const buildPath = fileURLToPath(entryUrl);
+				// A URL for the final build path after renaming
+				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
+
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
@@ -105,6 +108,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						js: SHIM,
 					},
 				});
+
+				// Rename to worker.js
+				await fs.promises.rename(buildPath, finalBuildUrl);
 
 				// throw the server folder in the bin
 				const serverUrl = new URL(_buildConfig.server);
@@ -142,6 +148,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					)
 						.filter((file: string) => cloudflareSpecialFiles.indexOf(file) < 0)
 						.map((file: string) => `/${file}`);
+
+					for (let page of pages) {
+						staticPathList.push(prependForwardSlash(page.pathname));
+					}
 
 					const redirectsExists = await fs.promises
 						.stat(new URL('./_redirects', _config.outDir))
@@ -193,12 +203,16 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory) {
-					const functionsUrl = new URL(`file://${process.cwd()}/functions/`);
+					const functionsUrl = new URL('functions', _config.root);
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
-					await fs.promises.rename(entryUrl, directoryUrl);
+					await fs.promises.rename(finalBuildUrl, directoryUrl);
 				}
 			},
 		},
 	};
+}
+
+function prependForwardSlash(path: string) {
+	return path[0] === '/' ? path : '/' + path;
 }

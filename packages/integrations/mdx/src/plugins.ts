@@ -79,22 +79,6 @@ export function rehypeApplyFrontmatterExport() {
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
-					content.astro = {};
-					Object.defineProperty(content.astro, 'headings', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
-						}
-					});
-					Object.defineProperty(content.astro, 'html', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
-						}
-					});
-					Object.defineProperty(content.astro, 'source', {
-						get() {
-							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
-						}
-					});
 					return layoutJsx(Layout, {
 						file,
 						url,
@@ -145,12 +129,7 @@ export async function getRemarkPlugins(
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
 	let remarkPlugins: PluggableList = [];
-	if (mdxOptions.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
-	}
-	if (mdxOptions.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
-	}
+
 	if (mdxOptions.gfm) {
 		remarkPlugins.push(remarkGfm);
 	}
@@ -160,10 +139,17 @@ export async function getRemarkPlugins(
 
 	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
 
-	// Apply last in case user plugins resolve relative image paths
-	if (config.experimental.contentCollections) {
-		remarkPlugins.push(toRemarkContentRelImageError(config));
+	// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
+	if (mdxOptions.syntaxHighlight === 'shiki') {
+		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
 	}
+	if (mdxOptions.syntaxHighlight === 'prism') {
+		remarkPlugins.push(remarkPrism);
+	}
+
+	// Apply last in case user plugins resolve relative image paths
+	remarkPlugins.push(toRemarkContentRelImageError(config));
+
 	return remarkPlugins;
 }
 

@@ -16,8 +16,17 @@ export function* walkParentInfos(
 	const info = ctx.getModuleInfo(id);
 	if (info) {
 		if (childId) {
-			order += info.importedIds.indexOf(childId);
+			const idx = info.importedIds.indexOf(childId);
+			if (idx === -1) {
+				// Dynamic imports come after all normal imports. So first add the number of normal imports.
+				order += info.importedIds.length;
+				// Then add on the dynamic ones.
+				order += info.dynamicallyImportedIds.indexOf(childId);
+			} else {
+				order += idx;
+			}
 		}
+
 		yield [info, depth, order];
 	}
 	if (until?.(id)) return;

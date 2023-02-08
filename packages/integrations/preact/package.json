@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "1.2.0",
+  "version": "2.0.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -34,7 +34,7 @@
   "dependencies": {
     "@babel/core": ">=7.0.0-0 <8.0.0",
     "@babel/plugin-transform-react-jsx": "^7.17.12",
-    "babel-plugin-module-resolver": "^4.1.0",
+    "babel-plugin-module-resolver": "^5.0.0",
     "preact-render-to-string": "^5.2.4",
     "@preact/signals": "^1.1.0"
   },
@@ -47,6 +47,6 @@
     "preact": "^10.6.5"
   },
   "engines": {
-    "node": "^14.18.0 || >=16.12.0"
+    "node": ">=16.12.0"
   }
 }

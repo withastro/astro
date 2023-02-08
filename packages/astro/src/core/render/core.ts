@@ -47,7 +47,7 @@ export async function getParamsAndProps(
 			routeCache.set(route, routeCacheEntry);
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
-		if (!matchedStaticPath && !ssr) {
+		if (!matchedStaticPath && (ssr ? mod.prerender : true)) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
 		// Note: considered using Object.create(...) for performance

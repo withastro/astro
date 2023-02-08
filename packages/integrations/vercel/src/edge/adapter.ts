@@ -1,4 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+
+import esbuild from 'esbuild';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,9 +25,13 @@ function getAdapter(): AstroAdapter {
 
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
+	analytics?: boolean;
 }
 
-export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {}): AstroIntegration {
+export default function vercelEdge({
+	includeFiles = [],
+	analytics,
+}: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
 	let functionFolder: URL;
@@ -34,7 +40,10 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig }) => {
+			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
+				if (analytics) {
+					injectScript('page', 'import "@astrojs/vercel/analytics"');
+				}
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
@@ -74,18 +83,25 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 						}
 					}
 
-					vite.ssr = {
-						target: 'webworker',
-						noExternal: true,
-					};
-
-					vite.build ||= {};
-					vite.build.minify = true;
+					vite.ssr ||= {};
+					vite.ssr.target ||= 'webworker';
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
 				const entry = new URL(serverEntry, buildTempFolder);
 				const generatedFiles = await getFilesFromFolder(buildTempFolder);
+				const entryPath = fileURLToPath(entry);
+
+				await esbuild.build({
+					target: 'es2020',
+					platform: 'browser',
+					entryPoints: [entryPath],
+					outfile: entryPath,
+					allowOverwrite: true,
+					format: 'esm',
+					bundle: true,
+					minify: true,
+				});
 
 				// Copy entry and other server files
 				const commonAncestor = await copyFilesToFunction(
@@ -100,7 +116,7 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 					runtime: 'edge',
-					entrypoint: relativePath(commonAncestor, fileURLToPath(entry)),
+					entrypoint: relativePath(commonAncestor, entryPath),
 				});
 
 				// Output configuration

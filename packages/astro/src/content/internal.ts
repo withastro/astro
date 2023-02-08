@@ -1,9 +1,12 @@
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 
 import {
 	createComponent,
 	createHeadAndContent,
+	createScopedResult,
 	renderComponent,
+	renderScriptElement,
 	renderStyleElement,
 	renderTemplate,
 	renderUniqueStylesheet,
@@ -40,7 +43,7 @@ export function createGetCollection({
 	collectionToEntryMap: CollectionToEntryMap;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function getCollection(collection: string, filter?: () => boolean) {
+	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
 		const entries = Promise.all(
 			lazyImports.map(async (lazyImport) => {
@@ -69,18 +72,30 @@ export function createGetCollection({
 	};
 }
 
-export function createGetEntry({
-	collectionToEntryMap,
+export function createGetEntryBySlug({
+	getCollection,
 	collectionToRenderEntryMap,
 }: {
-	collectionToEntryMap: CollectionToEntryMap;
+	getCollection: ReturnType<typeof createGetCollection>;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	return async function getEntry(collection: string, entryId: string) {
-		const lazyImport = collectionToEntryMap[collection]?.[entryId];
-		if (!lazyImport) throw new Error(`Failed to import ${JSON.stringify(entryId)}.`);
+	return async function getEntryBySlug(collection: string, slug: string) {
+		// This is not an optimized lookup. Should look into an O(1) implementation
+		// as it's probably that people will have very large collections.
+		const entries = await getCollection(collection);
+		let candidate: (typeof entries)[number] | undefined = undefined;
+		for (let entry of entries) {
+			if (entry.slug === slug) {
+				candidate = entry;
+				break;
+			}
+		}
 
-		const entry = await lazyImport();
+		if (typeof candidate === 'undefined') {
+			return undefined;
+		}
+
+		const entry = candidate;
 		return {
 			id: entry.id,
 			slug: entry.slug,
@@ -107,20 +122,32 @@ async function render({
 	id: string;
 	collectionToRenderEntryMap: CollectionToEntryMap;
 }) {
-	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
-	if (!lazyImport) throw new Error(`${String(collection)} → ${String(id)} does not exist.`);
+	const UnexpectedRenderError = new AstroError({
+		...AstroErrorData.UnknownContentCollectionError,
+		message: `Unexpected error while rendering ${String(collection)} → ${String(id)}.`,
+	});
 
-	const mod = await lazyImport();
+	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
+	if (typeof lazyImport !== 'function') throw UnexpectedRenderError;
+
+	const baseMod = await lazyImport();
+	if (baseMod == null || typeof baseMod !== 'object') throw UnexpectedRenderError;
+
+	const { collectedStyles, collectedLinks, collectedScripts, getMod } = baseMod;
+	if (typeof getMod !== 'function') throw UnexpectedRenderError;
+	const mod = await getMod();
+	if (mod == null || typeof mod !== 'object') throw UnexpectedRenderError;
 
 	const Content = createComponent({
-		factory(result, props, slots) {
+		factory(result, baseProps, slots) {
 			let styles = '',
-				links = '';
-			if (Array.isArray(mod?.collectedStyles)) {
-				styles = mod.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+				links = '',
+				scripts = '';
+			if (Array.isArray(collectedStyles)) {
+				styles = collectedStyles.map((style: any) => renderStyleElement(style)).join('');
 			}
-			if (Array.isArray(mod?.collectedLinks)) {
-				links = mod.collectedLinks
+			if (Array.isArray(collectedLinks)) {
+				links = collectedLinks
 					.map((link: any) => {
 						return renderUniqueStylesheet(result, {
 							href: prependForwardSlash(link),
@@ -128,10 +155,28 @@ async function render({
 					})
 					.join('');
 			}
+			if (Array.isArray(collectedScripts)) {
+				scripts = collectedScripts.map((script: any) => renderScriptElement(script)).join('');
+			}
+
+			let props = baseProps;
+			// Auto-apply MDX components export
+			if (id.endsWith('mdx')) {
+				props = {
+					components: mod.components ?? {},
+					...baseProps,
+				};
+			}
 
 			return createHeadAndContent(
-				unescapeHTML(styles + links) as any,
-				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
+				unescapeHTML(styles + links + scripts) as any,
+				renderTemplate`${renderComponent(
+					createScopedResult(result),
+					'Content',
+					mod.Content,
+					props,
+					slots
+				)}`
 			);
 		},
 		propagation: 'self',

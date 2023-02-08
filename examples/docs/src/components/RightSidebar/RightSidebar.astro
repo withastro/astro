@@ -1,14 +1,14 @@
 ---
+import type { MarkdownHeading } from 'astro';
 import TableOfContents from './TableOfContents';
 import MoreMenu from './MoreMenu.astro';
-import type { MarkdownHeading } from 'astro';
 
 type Props = {
 	headings: MarkdownHeading[];
 	githubEditUrl: string;
 };
 
-const { headings, githubEditUrl } = Astro.props as Props;
+const { headings, githubEditUrl } = Astro.props;
 ---
 
 <nav class="sidebar-nav" aria-labelledby="grid-right">

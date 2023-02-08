@@ -189,6 +189,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await devServer(settings, {
 				configFlag,
 				configFlagPath,
+				flags,
 				logging,
 				telemetry,
 				handleConfigError(e) {
@@ -206,7 +207,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'check': {
-			const ret = await check(settings);
+			const ret = await check(settings, { logging });
 			return process.exit(ret);
 		}
 

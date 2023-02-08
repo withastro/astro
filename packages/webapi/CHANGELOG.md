@@ -1,5 +1,45 @@
 # @astrojs/webapi
 
+## 2.0.0
+
+### Major Changes
+
+- [#5814](https://github.com/withastro/astro/pull/5814) [`c55fbcb8e`](https://github.com/withastro/astro/commit/c55fbcb8edca1fe118a44f68c9f9436a4719d171) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Moved target to Node 16. Removed polyfills for `AbortController`, `AbortSignal`, `atob`, `btoa`, `Object.hasOwn`, `Promise.all`, `Array.at` and `String.replaceAll`
+
+- [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replace `node-fetch`'s polyfill with `undici`.
+
+  Since `undici` does not support it, this change also removes custom support for the `file:` protocol
+
+### Patch Changes
+
+- [#5930](https://github.com/withastro/astro/pull/5930) [`46ecd5de3`](https://github.com/withastro/astro/commit/46ecd5de34df619e2ee73ccea39a57acd37bc0b8) Thanks [@h3y6e](https://github.com/h3y6e)! - Update magic-string from 0.25.9 to 0.27.0
+
+## 2.0.0-beta.1
+
+<details>
+<summary>See changes in 2.0.0-beta.1</summary>
+
+### Patch Changes
+
+- [#5930](https://github.com/withastro/astro/pull/5930) [`46ecd5de3`](https://github.com/withastro/astro/commit/46ecd5de34df619e2ee73ccea39a57acd37bc0b8) Thanks [@h3y6e](https://github.com/h3y6e)! - Update magic-string from 0.25.9 to 0.27.0
+
+</details>
+
+## 2.0.0-beta.0
+
+<details>
+<summary>See changes in 2.0.0-beta.0</summary>
+
+### Major Changes
+
+- [#5814](https://github.com/withastro/astro/pull/5814) [`c55fbcb8e`](https://github.com/withastro/astro/commit/c55fbcb8edca1fe118a44f68c9f9436a4719d171) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Moved target to Node 16. Removed polyfills for `AbortController`, `AbortSignal`, `atob`, `btoa`, `Object.hasOwn`, `Promise.all`, `Array.at` and `String.replaceAll`
+
+- [#5782](https://github.com/withastro/astro/pull/5782) [`1f92d64ea`](https://github.com/withastro/astro/commit/1f92d64ea35c03fec43aff64eaf704dc5a9eb30a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replace `node-fetch`'s polyfill with `undici`.
+
+  Since `undici` does not support it, this change also removes custom support for the `file:` protocol
+
+</details>
+
 ## 1.1.1
 
 ### Patch Changes

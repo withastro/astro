@@ -349,7 +349,6 @@ async function generatePath(
 		logging,
 		markdown: {
 			...settings.config.markdown,
-			isExperimentalContentCollections: settings.config.experimental.contentCollections,
 			contentDir: getContentPaths(settings.config).contentDir,
 		},
 		mode: opts.mode,
@@ -377,6 +376,7 @@ async function generatePath(
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
+		propagation: internals.propagation,
 		scripts,
 		links,
 		route: pageData.route,

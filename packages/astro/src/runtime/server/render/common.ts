@@ -8,6 +8,8 @@ import {
 	getPrescripts,
 	PrescriptType,
 } from '../scripts.js';
+import { renderAllHeadContent } from './head.js';
+import { ScopeFlags } from './scope.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -20,40 +22,72 @@ export const decoder = new TextDecoder();
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
 export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
-	switch ((chunk as any).type) {
-		case 'directive': {
-			const { hydration } = chunk as RenderInstruction;
-			let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-			let needsDirectiveScript =
-				hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
+	if (typeof (chunk as any).type === 'string') {
+		const instruction = chunk as RenderInstruction;
+		switch (instruction.type) {
+			case 'directive': {
+				const { hydration } = instruction;
+				let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+				let needsDirectiveScript =
+					hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
-			let prescriptType: PrescriptType = needsHydrationScript
-				? 'both'
-				: needsDirectiveScript
-				? 'directive'
-				: null;
-			if (prescriptType) {
-				let prescripts = getPrescripts(prescriptType, hydration.directive);
-				return markHTMLString(prescripts);
-			} else {
-				return '';
+				let prescriptType: PrescriptType = needsHydrationScript
+					? 'both'
+					: needsDirectiveScript
+					? 'directive'
+					: null;
+				if (prescriptType) {
+					let prescripts = getPrescripts(prescriptType, hydration.directive);
+					return markHTMLString(prescripts);
+				} else {
+					return '';
+				}
 			}
-		}
-		default: {
-			if (isSlotString(chunk as string)) {
-				let out = '';
-				const c = chunk as SlotString;
-				if (c.instructions) {
-					for (const instr of c.instructions) {
-						out += stringifyChunk(result, instr);
+			case 'head': {
+				if (result._metadata.hasRenderedHead) {
+					return '';
+				}
+				return renderAllHeadContent(result);
+			}
+			case 'maybe-head': {
+				if (result._metadata.hasRenderedHead) {
+					return '';
+				}
+
+				const scope = instruction.scope;
+				switch (scope) {
+					// JSX with an Astro slot
+					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
+					case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
+					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
+						return '';
+					}
+
+					// Astro.slots.render('default') should never render head content.
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro:
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {
+						return '';
 					}
 				}
-				out += chunk.toString();
-				return out;
-			}
 
-			return chunk.toString();
+				return renderAllHeadContent(result);
+			}
 		}
+	} else {
+		if (isSlotString(chunk as string)) {
+			let out = '';
+			const c = chunk as SlotString;
+			if (c.instructions) {
+				for (const instr of c.instructions) {
+					out += stringifyChunk(result, instr);
+				}
+			}
+			out += chunk.toString();
+			return out;
+		}
+
+		return chunk.toString();
 	}
 }
 
@@ -84,5 +118,7 @@ export function chunkToByteArray(
 	if (chunk instanceof Uint8Array) {
 		return chunk as Uint8Array;
 	}
-	return encoder.encode(stringifyChunk(result, chunk));
+	// stringify chunk might return a HTMLString
+	let stringified = stringifyChunk(result, chunk);
+	return encoder.encode(stringified.toString());
 }

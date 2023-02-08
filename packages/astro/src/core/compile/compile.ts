@@ -3,6 +3,8 @@ import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 
 import { transform } from '@astrojs/compiler';
+import { fileURLToPath } from 'url';
+import { normalizePath } from 'vite';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { resolvePath } from '../util.js';
@@ -12,7 +14,6 @@ export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
 	filename: string;
-	id: string | undefined;
 	source: string;
 }
 
@@ -25,7 +26,6 @@ export async function compile({
 	astroConfig,
 	viteConfig,
 	filename,
-	id: moduleId,
 	source,
 }: CompileProps): Promise<CompileResult> {
 	const cssDeps = new Set<string>();
@@ -37,15 +37,12 @@ export async function compile({
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
 		transformResult = await transform(source, {
-			moduleId,
-			pathname: filename,
-			projectRoot: astroConfig.root.toString(),
-			site: astroConfig.site?.toString(),
-			sourcefile: filename,
+			filename,
+			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/server/index.js',
-			// TODO: baseline flag
-			experimentalStaticExtraction: true,
+			astroGlobalArgs: JSON.stringify(astroConfig.site),
+			resultScopedSlot: true,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
@@ -111,5 +108,15 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 				errors: cssTransformErrors,
 			});
 		}
+	}
+}
+
+function normalizeFilename(filename: string, root: URL) {
+	const normalizedFilename = normalizePath(filename);
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	if (normalizedFilename.startsWith(normalizedRoot)) {
+		return normalizedFilename.slice(normalizedRoot.length - 1);
+	} else {
+		return normalizedFilename;
 	}
 }

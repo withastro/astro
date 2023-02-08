@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.13.0-beta.1",
+  "version": "0.14.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -46,10 +46,8 @@
     "http-cache-semantics": "^4.1.0",
     "image-size": "^1.0.2",
     "kleur": "^4.1.5",
-    "magic-string": "^0.25.9",
-    "mime": "^3.0.0",
-    "slash": "^4.0.0",
-    "web-streams-polyfill": "^3.2.1"
+    "magic-string": "^0.27.0",
+    "mime": "^3.0.0"
   },
   "devDependencies": {
     "@types/http-cache-semantics": "^4.0.1",
@@ -65,8 +63,8 @@
     "vite": "^4.0.3"
   },
   "peerDependencies": {
-    "sharp": ">=0.31.0",
-    "astro": "workspace:^2.0.0-beta.0"
+    "astro": "workspace:^2.0.9",
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {

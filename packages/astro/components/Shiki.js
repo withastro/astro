@@ -19,7 +19,9 @@ function stringify(opts) {
  */
 async function resolveHighlighter(opts) {
 	const resolvedThemes = [];
-	if (opts.theme && opts.theme in themes) {
+	if (Object.keys(opts.theme).length) {
+		resolvedThemes.push(opts.theme);
+	} else if (opts.theme && opts.theme in themes) {
 		resolvedThemes.push(await themes[opts.theme]());
 	}
 

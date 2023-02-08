@@ -87,6 +87,26 @@ vercel deploy --prebuilt
 
 To configure this adapter, pass an object to the `vercel()` function call in `astro.config.mjs`:
 
+### analytics
+
+> **Type:** `boolean`
+> **Available for:** Serverless, Edge, Static
+
+You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    analytics: true
+  })
+});
+```
+
 ### includeFiles
 
 > **Type:** `string[]`
@@ -95,6 +115,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 Use this property to force files to be bundled with your function. This is helpful when you notice missing files.
 
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
 
@@ -109,7 +130,6 @@ export default defineConfig({
 > **Note**
 > When building for the Edge, all the dependencies get bundled in a single file to save space. **No extra file will be bundled**. So, if you _need_ some file inside the function, you have to specify it in `includeFiles`.
 
-
 ### excludeFiles
 
 > **Type:** `string[]`
@@ -118,6 +138,7 @@ export default defineConfig({
 Use this property to exclude any files from the bundling process that would otherwise be included.
 
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
 

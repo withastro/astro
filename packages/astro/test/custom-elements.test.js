@@ -23,7 +23,7 @@ describe('Custom Elements', () => {
 		expect($('my-element')).to.have.lengthOf(1);
 
 		// test 2: shadow rendered
-		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
+		expect($('my-element template[shadowroot=open][shadowrootmode=open]')).to.have.lengthOf(1);
 	});
 
 	it('Works with exported tagName', async () => {
@@ -34,7 +34,7 @@ describe('Custom Elements', () => {
 		expect($('my-element')).to.have.lengthOf(1);
 
 		// test 2: shadow rendered
-		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
+		expect($('my-element template[shadowroot=open][shadowrootmode=open]')).to.have.lengthOf(1);
 	});
 
 	it.skip('Hydration works with exported tagName', async () => {
@@ -46,7 +46,7 @@ describe('Custom Elements', () => {
 		expect($('my-element')).to.have.lengthOf(1);
 
 		// test 2: shadow rendered
-		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
+		expect($('my-element template[shadowroot=open][shadowrootmode=open]')).to.have.lengthOf(1);
 
 		// Hydration
 		// test 3: Component and polyfill scripts bundled separately

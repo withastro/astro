@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Tailwind + Astro Integrations",
-  "version": "3.0.0-beta.0",
+  "version": "3.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,16 +30,18 @@
   "dependencies": {
     "@proload/core": "^0.3.2",
     "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14"
+    "postcss": "^8.4.14",
+    "postcss-load-config": "^4.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "tailwindcss": "^3.0.24"
+    "tailwindcss": "^3.0.24",
+    "vite": "^4.0.3"
   },
   "peerDependencies": {
     "tailwindcss": "^3.0.24",
-    "astro": "workspace:^2.0.0-beta.0"
+    "astro": "workspace:^2.0.9"
   },
   "pnpm": {
     "peerDependencyRules": {

@@ -3,29 +3,29 @@ import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath } from 'vite';
+import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
-import { appendForwardSlash, isRelativePath } from '../core/path.js';
-import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
+import { isRelativePath } from '../core/path.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 import {
 	ContentConfig,
 	ContentObservable,
 	ContentPaths,
+	EntryInfo,
 	getContentPaths,
 	getEntryInfo,
+	getEntrySlug,
+	getEntryType,
 	loadContentConfig,
 	NoCollectionError,
+	parseFrontmatter,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
-
-export type GenerateContentTypes = {
-	init(): Promise<void>;
-	queueEvent(event: RawContentEvent): void;
-};
 
 type ContentTypesEntryMetadata = { slug: string };
 type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
@@ -34,6 +34,8 @@ type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
 	logging: LogOptions;
 	settings: AstroSettings;
+	/** This is required for loading the content config */
+	viteServer: ViteDevServer;
 	fs: typeof fsMod;
 };
 
@@ -46,21 +48,25 @@ export async function createContentTypesGenerator({
 	fs,
 	logging,
 	settings,
-}: CreateContentGeneratorParams): Promise<GenerateContentTypes> {
+	viteServer,
+}: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
-	const contentPaths: ContentPaths = getContentPaths({ srcDir: settings.config.srcDir });
+	const contentPaths = getContentPaths(settings.config);
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const contentTypesBase = await fs.promises.readFile(
-		new URL(CONTENT_TYPES_FILE, contentPaths.generatedInputDir),
-		'utf-8'
-	);
+	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	async function init() {
-		await handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' });
-		const globResult = await glob('./**/*.*', {
+	async function init(): Promise<
+		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
+	> {
+		if (!fs.existsSync(contentPaths.contentDir)) {
+			return { typesGenerated: false, reason: 'no-content-dir' };
+		}
+
+		events.push(handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' }));
+		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
@@ -77,6 +83,7 @@ export async function createContentTypesGenerator({
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
 		}
 		await runEvents();
+		return { typesGenerated: true };
 	}
 
 	async function handleEvent(
@@ -106,36 +113,43 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: true };
 		}
 		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths);
-		if (fileType === 'generated-types') {
+		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
 			contentConfigObserver.set({ status: 'loading' });
-			const config = await loadContentConfig({ fs, settings });
-			if (config instanceof Error) {
-				contentConfigObserver.set({ status: 'error', error: config });
-			} else {
-				contentConfigObserver.set({ status: 'loaded', config });
+			try {
+				const config = await loadContentConfig({ fs, settings, viteServer });
+				if (config) {
+					contentConfigObserver.set({ status: 'loaded', config });
+				} else {
+					contentConfigObserver.set({ status: 'does-not-exist' });
+				}
+			} catch (e) {
+				contentConfigObserver.set({
+					status: 'error',
+					error:
+						e instanceof Error ? e : new AstroError(AstroErrorData.UnknownContentCollectionError),
+				});
 			}
 
 			return { shouldGenerateTypes: true };
 		}
-		if (fileType === 'unknown') {
+		if (fileType === 'unsupported') {
+			// Avoid warning if file was deleted.
+			if (event.name === 'unlink') {
+				return { shouldGenerateTypes: false };
+			}
 			const entryInfo = getEntryInfo({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
-				// Allow underscore `_` files outside collection directories
+				// Skip invalid file check. We already know it’s invalid.
 				allowFilesOutsideCollection: true,
 			});
-			if (entryInfo.id.startsWith('_') && (event.name === 'add' || event.name === 'change')) {
-				// Silently ignore `_` files.
-				return { shouldGenerateTypes: false };
-			} else {
-				return {
-					shouldGenerateTypes: false,
-					error: new UnsupportedFileTypeError(entryInfo.id),
-				};
-			}
+			return {
+				shouldGenerateTypes: false,
+				error: new UnsupportedFileTypeError(entryInfo.id),
+			};
 		}
 		const entryInfo = getEntryInfo({
 			entry: event.entry,
@@ -156,17 +170,19 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, slug, collection } = entryInfo;
+		const { id, collection } = entryInfo;
+
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
 
 		switch (event.name) {
 			case 'add':
+				const addedSlug = await parseSlug({ fs, event, entryInfo });
 				if (!(collectionKey in contentTypes)) {
 					addCollection(contentTypes, collectionKey);
 				}
 				if (!(entryKey in contentTypes[collectionKey])) {
-					addEntry(contentTypes, collectionKey, entryKey, slug);
+					setEntry(contentTypes, collectionKey, entryKey, addedSlug);
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
@@ -175,7 +191,13 @@ export async function createContentTypesGenerator({
 				}
 				return { shouldGenerateTypes: true };
 			case 'change':
-				// noop. Frontmatter types are inferred from collection schema import, so they won't change!
+				// User may modify `slug` in their frontmatter.
+				// Only regen types if this change is detected.
+				const changedSlug = await parseSlug({ fs, event, entryInfo });
+				if (contentTypes[collectionKey]?.[entryKey]?.slug !== changedSlug) {
+					setEntry(contentTypes, collectionKey, entryKey, changedSlug);
+					return { shouldGenerateTypes: true };
+				}
 				return { shouldGenerateTypes: false };
 		}
 	}
@@ -244,7 +266,26 @@ function removeCollection(contentMap: ContentTypes, collectionKey: string) {
 	delete contentMap[collectionKey];
 }
 
-function addEntry(
+async function parseSlug({
+	fs,
+	event,
+	entryInfo,
+}: {
+	fs: typeof fsMod;
+	event: ContentEvent;
+	entryInfo: EntryInfo;
+}) {
+	// `slug` may be present in entry frontmatter.
+	// This should be respected by the generated `slug` type!
+	// Parse frontmatter and retrieve `slug` value for this.
+	// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
+	// on dev server startup or production build init.
+	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
+	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
+	return getEntrySlug({ ...entryInfo, data: frontmatter });
+}
+
+function setEntry(
 	contentTypes: ContentTypes,
 	collectionKey: string,
 	entryKey: string,
@@ -255,23 +296,6 @@ function addEntry(
 
 function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
 	delete contentTypes[collectionKey][entryKey];
-}
-
-export function getEntryType(
-	entryPath: string,
-	paths: ContentPaths
-): 'content' | 'config' | 'unknown' | 'generated-types' {
-	const { dir: rawDir, ext, name, base } = path.parse(entryPath);
-	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
-	if ((contentFileExts as readonly string[]).includes(ext)) {
-		return 'content';
-	} else if (new URL(name, dir).pathname === paths.config.pathname) {
-		return 'config';
-	} else if (new URL(base, dir).pathname === new URL(CONTENT_TYPES_FILE, paths.cacheDir).pathname) {
-		return 'generated-types';
-	} else {
-		return 'unknown';
-	}
 }
 
 async function writeContentFiles({
@@ -296,14 +320,14 @@ async function writeContentFiles({
 		for (const entryKey of entryKeys) {
 			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			// If user has custom slug function, we can't predict slugs at type compilation.
-			// Would require parsing all data and evaluating ahead-of-time;
-			// We evaluate with lazy imports at dev server runtime
-			// to prevent excessive errors
-			const slugType = collectionConfig?.slug ? 'string' : JSON.stringify(entryMetadata.slug);
+			const slugType = JSON.stringify(entryMetadata.slug);
 			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
 		}
 		contentTypesStr += `},\n`;
+	}
+
+	if (!fs.existsSync(contentPaths.cacheDir)) {
+		fs.mkdirSync(contentPaths.cacheDir, { recursive: true });
 	}
 
 	let configPathRelativeToCacheDir = normalizePath(
@@ -311,6 +335,11 @@ async function writeContentFiles({
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
+
+	// Remove `.ts` from import path
+	if (configPathRelativeToCacheDir.endsWith('.ts')) {
+		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
+	}
 
 	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
 	contentTypesBase = contentTypesBase.replace(

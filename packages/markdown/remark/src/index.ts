@@ -53,7 +53,6 @@ export async function renderMarkdown(
 		remarkRehype = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
-		isExperimentalContentCollections = false,
 		contentDir,
 		frontmatter: userFrontmatter = {},
 	} = opts;
@@ -91,9 +90,7 @@ export async function renderMarkdown(
 	}
 
 	// Apply later in case user plugins resolve relative image paths
-	if (isExperimentalContentCollections) {
-		parser.use([toRemarkContentRelImageError({ contentDir })]);
-	}
+	parser.use([toRemarkContentRelImageError({ contentDir })]);
 
 	parser.use([
 		[

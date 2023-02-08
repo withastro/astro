@@ -18,15 +18,15 @@ yarn create astro
 
 ```bash
 # npm 6.x
-npm create astro@latest my-astro-project --template starter
+npm create astro@latest my-astro-project --template minimal
 
 # npm 7+, extra double-dash is needed:
-npm create astro@latest my-astro-project -- --template starter
+npm create astro@latest my-astro-project -- --template minimal
 
 # yarn
-yarn create astro my-astro-project --template starter
+yarn create astro my-astro-project --template minimal
 ```
-[Check out the full list][examples] of example starter templates, available on GitHub.
+[Check out the full list][examples] of example templates, available on GitHub.
 
 You can also use any GitHub repo as a template:
 
@@ -40,23 +40,13 @@ May be provided in place of prompts
 
 | Name         | Description                                         |
 |:-------------|:----------------------------------------------------|
-| `--template` | Specify the template name ([list][examples])        |
-| `--commit`   | Specify a specific Git commit or branch to use from this repo (by default, `main` branch of this repo will be used) |
-| `--fancy`    | For Windows users, `--fancy` will enable full unicode support |
-
-### Debugging
-
-To debug `create-astro`, you can use the `--verbose` flag which will log the output of degit and some more information about the command, this can be useful when you encounter an error and want to report it.
-
-```bash
-# npm 6.x
-npm create astro@latest my-astro-project --verbose
-
-# npm 7+, extra double-dash is needed:
-npm create astro@latest my-astro-project -- --verbose
-
-# yarn
-yarn create astro my-astro-project --verbose
-```
+| `--template <name> | Specify your template. |
+| `--install / --no-install | Install dependencies (or not). |
+| `--git / --no-git | Initialize git repo (or not). |
+| `--yes (-y) | Skip all prompt by accepting defaults. |
+| `--no (-n) | Skip all prompt by declining defaults. |
+| `--dry-run | Walk through steps without executing. |
+| `--skip-houston | Skip Houston animation. |
 
 [examples]: https://github.com/withastro/astro/tree/main/examples
+[typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs

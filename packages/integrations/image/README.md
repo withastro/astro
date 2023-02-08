@@ -63,13 +63,14 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "image()"
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [image()],
-}
+});
 ```
 
 ### Installing `sharp` (optional)
@@ -82,16 +83,18 @@ npm install sharp
 
 Then, update the integration in your `astro.config.*` file to use the built-in `sharp` image transformer.
 
-```js ins={2,7}
-// astro.config.mjs
+__`astro.config.mjs`__
+
+```js ins={3,8}
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [image({
     serviceEntryPoint: '@astrojs/image/sharp'
   })],
-}
+})
 ```
 
 ### Update `env.d.ts`
@@ -172,8 +175,7 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
-This property is required for remote images only, because the original format cannot be inferred.
-
+This property is required for remote images when using the default image transformer Squoosh, this is because the original format cannot be inferred.
 #### quality
 
 <p>
@@ -256,7 +258,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 How the image should be resized to fit both `height` and `width`.
 
@@ -268,7 +270,7 @@ How the image should be resized to fit both `height` and `width`.
 **Default:** `'centre'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 Position of the crop when fit is `cover` or `contain`.
 
@@ -330,7 +332,7 @@ The list of sizes that should be built for responsive images. This is combined w
 
 ```astro
 // Builds three images: 400x400, 800x800, and 1200x1200
-<Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" />
+<Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" alt="descriptive text" />
 ```
 
 #### aspectRatio
@@ -389,7 +391,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 How the image should be resized to fit both `height` and `width`.
 
@@ -403,7 +405,7 @@ How the image should be resized to fit both `height` and `width`.
 **Default:** `'centre'`
 </p>
 
-> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
 
 Position of the crop when fit is `cover` or `contain`.
 
@@ -419,7 +421,10 @@ This can be helpful if you need to add preload links to a page's `<head>`.
 ---
 import { getImage } from '@astrojs/image';
 
-const { src } = await getImage({src: '../assets/hero.png'});
+const { src } = await getImage({
+    src: import('../assets/hero.png'),
+    alt: "My hero image"
+  });
 ---
 
 <html>
@@ -446,33 +451,37 @@ The integration can be configured to run with a different image service, either 
 
 The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/squoosh`, which resolves to the entry point exported from this integration's `package.json`.
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   integrations: [image({
     // Example: The entrypoint for a third-party image service installed from NPM
     serviceEntryPoint: 'my-image-service/astro.js'
   })],
-}
+});
 ```
 
 ### config.logLevel
 
 The `logLevel` controls can be used to control how much detail is logged by the integration during builds. This may be useful to track down a specific image or transformation that is taking a long time to build.
 
+__`astro.config.mjs`__
+
 ```js
-// astro.config.mjs
+import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
-export default {
+export default defineConfig({
   integrations: [image({
     // supported levels: 'debug' | 'info' | 'warn' | 'error' | 'silent'
     // default: 'info'
     logLevel: 'debug'
   })],
-}
+});
 ```
 
 ### config.cacheDir
@@ -483,7 +492,12 @@ Local images will be cached for 1 year and invalidated when the original image f
 
 By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
 
+__`astro.config.mjs`__
+
 ```js
+import { defineConfig } from 'astro/config';
+import image from '@astrojs/image';
+
 export default defineConfig({
 	integrations: [image({
     // may be useful if your hosting provider allows caching between CI builds
@@ -518,7 +532,7 @@ import heroImage from '../assets/hero.png';
 <Image src={heroImage} width={300} height={600} alt="descriptive text" />
 
 // cropping to a specific aspect ratio and converting to an avif format
-<Image src={heroImage} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={heroImage} width={300} aspectRatio="16:9" format="avif" alt="descriptive text" />
 
 // image imports can also be inlined directly
 <Image src={import('../assets/hero.png')} alt="descriptive text" />
@@ -550,17 +564,14 @@ Remote images can be transformed with the `<Image />` component. The `<Image />`
 ---
 import { Image } from '@astrojs/image/components';
 
-const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const imageUrl = 'https://astro.build/assets/press/full-logo-dark.png';
 ---
 
 // cropping to a specific width and height
-<Image src={imageUrl} width={544} height={184} alt="descriptive text" />
+<Image src={imageUrl} width={750} height={250} format="avif" alt="descriptive text" />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={300} aspectRatio={16/9} alt="descriptive text" />
-
-// cropping to a specific height and aspect ratio and converting to an avif format
-<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={imageUrl} width={750} aspectRatio={16/9} format="avif" alt="descriptive text" />
 ```
 
 ### Responsive pictures

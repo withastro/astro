@@ -1,18 +1,25 @@
 ---
 import {MyElement} from '../components/my-element.js';
+import {NonDeferredCounter} from '../components/non-deferred-element.js';
 ---
 
 <html>
 <head>
-  <title>LitElements</title>
+	<title>LitElements</title>
 </head>
 <body>
-  <MyElement
-      foo="bar"
-      str-attr={'initialized'}
-      bool={false}
-      obj={{data: 1}}
-      reflectedStrProp={'initialized reflected'}>
-  </MyElement>
+	<MyElement
+			id="default"
+			foo="bar"
+			str-attr={'initialized'}
+			bool={false}
+			obj={{data: 1}}
+			reflectedStrProp={'initialized reflected'}>
+	</MyElement>
+	<NonDeferredCounter
+			id="non-deferred"
+			count={10}
+			foo="bar">
+	</NonDeferredCounter>
 </body>
 </html>

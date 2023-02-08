@@ -70,8 +70,8 @@ const remarkShiki = async (
 
 			// Replace "shiki" class naming with "astro" and add "is:raw".
 			html = html.replace(
-				'<pre class="shiki"',
-				`<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`
+				/<pre class="(.*?)shiki(.*?)"/,
+				`<pre is:raw class="$1astro-code$2${scopedClassName ? ' ' + scopedClassName : ''}"`
 			);
 			// Add "user-select: none;" for "+"/"-" diff symbols
 			if (node.lang === 'diff') {

@@ -1,16 +1,12 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
-import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
 import { OutgoingHttpHeaders } from 'http';
-import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
-import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
-import { isObject } from '../util.js';
 
 const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	root: '.',
@@ -38,9 +34,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
-	experimental: {
-		contentCollections: false,
-	},
 };
 
 export const AstroConfigSchema = z.object({
@@ -64,11 +57,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
-	site: z
-		.string()
-		.url()
-		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val)),
+	site: z.string().url().optional(),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
@@ -171,46 +160,9 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	experimental: z
-		.object({
-			contentCollections: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollections),
-		})
-		.optional()
-		.default({}),
+	experimental: z.object({}).optional().default({}),
 	legacy: z.object({}).optional().default({}),
 });
-
-interface PostCSSConfigResult {
-	options: Postcss.ProcessOptions;
-	plugins: Postcss.Plugin[];
-}
-
-async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
-	if (isObject(inlineOptions)) {
-		const options = { ...inlineOptions };
-		delete options.plugins;
-		return {
-			options,
-			plugins: inlineOptions.plugins || [],
-		};
-	}
-	const searchPath = typeof inlineOptions === 'string' ? inlineOptions : fileURLToPath(root);
-	try {
-		// @ts-ignore
-		return await postcssrc({}, searchPath);
-	} catch (err: any) {
-		if (!/No PostCSS Config found/.test(err.message)) {
-			throw err;
-		}
-		return {
-			options: {},
-			plugins: [],
-		};
-	}
-}
 
 export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 	// We need to extend the global schema to add transforms that are relative to root.
