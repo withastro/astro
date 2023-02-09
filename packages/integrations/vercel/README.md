@@ -91,6 +91,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 
 **Type:** `boolean`<br>
 **Available for:** Serverless, Edge, Static<br>
+**Added in:** `@astrojs/vercel@3.1.0`
 
 You can enable [Vercel Analytics](https://vercel.com/analytics) (including Web Vitals and Audiences) by setting `analytics: true`. This will inject Vercel’s tracking scripts into all your pages.
 
