@@ -2,5 +2,5 @@
 'astro': patch
 ---
 
-Fix `border` and `frame` attributes in `TableHTMLAttributes` interface
+Fix `border` and `frame` attribute types on `TableHTMLAttributes` interface
 
