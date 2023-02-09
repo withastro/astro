@@ -1,15 +1,13 @@
 import type { AstroIntegration } from 'astro';
 import type { InlineConfig } from 'vite';
 import _Markdoc from '@markdoc/markdoc';
-import fs from 'node:fs';
 import { parseFrontmatter } from './utils.js';
 import { fileURLToPath } from 'node:url';
 
 const contentEntryType = {
 	extensions: ['.mdoc'],
-	async getEntryInfo({ fileUrl }: { fileUrl: URL }) {
-		const rawContents = await fs.promises.readFile(fileUrl, 'utf-8');
-		const parsed = parseFrontmatter(rawContents, fileURLToPath(fileUrl));
+	async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+		const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
 		return {
 			data: parsed.data,
 			body: parsed.content,

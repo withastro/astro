@@ -79,7 +79,10 @@ export function astroContentImportPlugin({
 					unvalidatedSlug: string,
 					rawData: string;
 				if (contentEntryType) {
-					const info = await contentEntryType.getEntryInfo({ fileUrl: pathToFileURL(fileId) });
+					const info = await contentEntryType.getEntryInfo({
+						fileUrl: pathToFileURL(fileId),
+						contents: rawContents,
+					});
 					body = info.body;
 					unvalidatedData = info.data;
 					unvalidatedSlug = info.slug;
