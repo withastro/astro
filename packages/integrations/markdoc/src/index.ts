@@ -45,7 +45,7 @@ if (!config) {
 		config = {};
 	}
 }
-return Markdoc.transform(getParsed(), config) }\nexport async function Content ({ transformConfig, components }) { return h(Renderer, { content: await getTransformed(transformConfig), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
+return Markdoc.transform(getParsed(), config) }\nexport async function Content ({ config, components }) { return h(Renderer, { content: await getTransformed(config), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
 							},
 						},
 					],
