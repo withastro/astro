@@ -38,7 +38,7 @@ export class NodeApp extends App {
 			let body = Buffer.from([]);
 			let reqBodyComplete = null;
 			// @ts-ignore
-      if (req.body) {
+      if ((typeof(req.body) === 'object') && Object.keys(req.body).length > 0) {
         reqBodyComplete = new Promise((resolve, reject) => {
 					// @ts-ignore
 					body = Buffer.from(JSON.stringify(req.body));
