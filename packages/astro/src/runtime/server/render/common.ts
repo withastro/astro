@@ -9,7 +9,7 @@ import {
 	PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
-import { ScopeFlags } from './scope.js';
+import { hasScopeFlag, ScopeFlags } from './scope.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -63,7 +63,14 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 						return '';
 					}
 
-					// Astro.slots.render('default') should never render head content.
+					// If the current scope is with Astro.slots.render()
+					case ScopeFlags.Slot: {
+						if(hasScopeFlag(result, ScopeFlags.RenderSlot)) {
+							return '';
+						}
+					}
+
+					// Astro.slots.render() should never render head content.
 					case ScopeFlags.RenderSlot | ScopeFlags.Astro:
 					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
 					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {

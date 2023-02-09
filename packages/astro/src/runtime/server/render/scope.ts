@@ -18,6 +18,10 @@ export function removeScopeFlag(result: SSRResult, flag: ScopeFlagValues) {
 	result.scope &= ~flag;
 }
 
+export function hasScopeFlag(result: SSRResult, flag: ScopeFlagValues) {
+	return (result.scope & flag) === flag;
+}
+
 export function createScopedResult(result: SSRResult, flag?: ScopeFlagValues): SSRResult {
 	const scopedResult = Object.create(result, {
 		scope: {
