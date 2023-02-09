@@ -979,7 +979,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 
 export interface ContentEntryType {
 	extensions: string[];
-	getEntryInfo(params: { fileUrl: URL }): Promise<{
+	getEntryInfo(params: { fileUrl: URL; contents: string }): Promise<{
 		data: Record<string, unknown>;
 		/**
 		 * Used for error hints to point to correct line and location

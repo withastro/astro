@@ -25,9 +25,8 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 
 const contentEntryType = {
 	extensions: ['.mdx'],
-	async getEntryInfo({ fileUrl }: { fileUrl: URL }) {
-		const rawContents = await fs.readFile(fileUrl, 'utf-8');
-		const parsed = parseFrontmatter(rawContents, fileURLToPath(fileUrl));
+	async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+		const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
 		return {
 			data: parsed.data,
 			body: parsed.content,
