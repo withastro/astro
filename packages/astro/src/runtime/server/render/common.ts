@@ -63,6 +63,14 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 						return '';
 					}
 
+					// Astro rendered within JSX, head will be injected by the page itself.
+					case ScopeFlags.JSX | ScopeFlags.Astro: {
+						if(hasScopeFlag(result, ScopeFlags.JSX)) {
+							return '';
+						}
+						break;
+					}
+
 					// If the current scope is with Astro.slots.render()
 					case ScopeFlags.Slot: {
 						if(hasScopeFlag(result, ScopeFlags.RenderSlot)) {
