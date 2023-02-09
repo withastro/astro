@@ -936,10 +936,10 @@ declare namespace astroHTML.JSX {
 	interface TableHTMLAttributes extends HTMLAttributes {
 		align?: 'left' | 'center' | 'right' | undefined | null;
 		bgcolor?: string | undefined | null;
-		border?: number | undefined | null;
+		border?: string | number | undefined | null;
 		cellpadding?: number | string | undefined | null;
 		cellspacing?: number | string | undefined | null;
-		frame?: boolean | undefined | null;
+		frame?: boolean | 'false' | 'true' | undefined | null;
 		rules?: 'none' | 'groups' | 'rows' | 'columns' | 'all' | undefined | null;
 		summary?: string | undefined | null;
 		width?: number | string | undefined | null;
