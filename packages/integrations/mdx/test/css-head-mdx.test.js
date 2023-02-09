@@ -3,6 +3,7 @@ import mdx from '@astrojs/mdx';
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
+import * as cheerio from 'cheerio';
 
 describe('Head injection w/ MDX', () => {
 	let fixture;
@@ -55,6 +56,18 @@ describe('Head injection w/ MDX', () => {
 
 			const links = document.querySelectorAll('head link[rel=stylesheet]');
 			expect(links).to.have.a.lengthOf(1);
+		});
+
+		it('Using component but no layout', async () => {
+			const html = await fixture.readFile('/noLayoutWithComponent/index.html');
+			// Using cheerio here because linkedom doesn't support head tag injection
+			const $ = cheerio.load(html);
+
+			const headLinks = $('head link[rel=stylesheet]');
+			expect(headLinks).to.have.a.lengthOf(1);
+			
+			const bodyLinks = $('body link[rel=stylesheet]');
+			expect(bodyLinks).to.have.a.lengthOf(0);
 		});
 	});
 });

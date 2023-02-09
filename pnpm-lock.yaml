@@ -1849,7 +1849,7 @@ importers:
     dependencies:
       astro: link:../../..
 
-  packages/astro/test/fixtures/head-injection-md:
+  packages/astro/test/fixtures/head-injection:
     specifiers:
       astro: workspace:*
     dependencies:
