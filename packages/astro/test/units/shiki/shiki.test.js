@@ -16,13 +16,13 @@ describe('<Code />', () => {
 
 		after(async () => {
 			await container.close();
-		})
+		});
 
 		it('uses the bundles themes for built-in themes', async () => {
 			const { resolveHighlighterOptions } = mod;
 			const opts = await resolveHighlighterOptions({ theme: 'css-variables' });
 			const themes = opts.themes;
-			
+
 			expect(themes).to.have.a.lengthOf(1);
 			expect(themes[0]).to.be.an('object');
 		});
@@ -31,10 +31,10 @@ describe('<Code />', () => {
 			const { resolveHighlighterOptions } = mod;
 			const opts = await resolveHighlighterOptions({ theme: 'some-custom-theme' });
 			const themes = opts.themes;
-			
+
 			expect(themes).to.have.a.lengthOf(1);
 			expect(themes[0]).to.be.an('string');
 			expect(themes[0]).to.equal('some-custom-theme');
-		})
+		});
 	});
 });
