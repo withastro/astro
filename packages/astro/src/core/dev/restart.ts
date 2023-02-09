@@ -1,10 +1,8 @@
-import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import type { AstroSettings } from '../../@types/astro';
 import { createSettings, openConfig } from '../config/index.js';
 import { createSafeError } from '../errors/index.js';
 import { info } from '../logger/core.js';
-import { prependForwardSlash, appendForwardSlash } from '../path.js';
 import type { Container, CreateContainerParams } from './container';
 import { createContainer, isStarted, startContainer } from './container.js';
 
@@ -79,8 +77,6 @@ export async function restartContainer({
 }: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
 	const { logging, close, resolvedRoot, settings: existingSettings } = container;
 	container.restartInFlight = true;
-	// Resolve `flags.root` relative to `resolvedRoot`
-	const root = flags.root ? fileURLToPath(new URL('.' + prependForwardSlash(appendForwardSlash(flags.root)), pathToFileURL(resolvedRoot))) : resolvedRoot;
 
 	if (beforeRestart) {
 		beforeRestart();
@@ -88,7 +84,7 @@ export async function restartContainer({
 	const needsStart = isStarted(container);
 	try {
 		const newConfig = await openConfig({
-			cwd: root,
+			cwd: resolvedRoot,
 			flags,
 			cmd: 'dev',
 			logging,
@@ -97,7 +93,7 @@ export async function restartContainer({
 		});
 		info(logging, 'astro', logMsg + '\n');
 		let astroConfig = newConfig.astroConfig;
-		const settings = createSettings(astroConfig, root);
+		const settings = createSettings(astroConfig, resolvedRoot);
 		await close();
 		return {
 			container: await createRestartedContainer(container, settings, needsStart),
