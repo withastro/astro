@@ -21,7 +21,7 @@ describe('Head injection', () => {
 			it('only injects head content once', async () => {
 				const html = await fixture.readFile(`/index.html`);
 				const $ = cheerio.load(html);
-	
+
 				expect($('head link[rel=stylesheet]')).to.have.a.lengthOf(1);
 			});
 		});

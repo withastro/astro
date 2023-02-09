@@ -4,7 +4,7 @@ import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { createScopedResult, hasScopeFlag, ScopeFlags } from './scope.js';
+import { createScopedResult, ScopeFlags } from './scope.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;

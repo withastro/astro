@@ -65,7 +65,7 @@ describe('Head injection w/ MDX', () => {
 
 			const headLinks = $('head link[rel=stylesheet]');
 			expect(headLinks).to.have.a.lengthOf(1);
-			
+
 			const bodyLinks = $('body link[rel=stylesheet]');
 			expect(bodyLinks).to.have.a.lengthOf(0);
 		});
