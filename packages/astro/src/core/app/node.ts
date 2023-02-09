@@ -23,6 +23,8 @@ function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): 
 		headers: new Headers(entries),
 		body: ['HEAD', 'GET'].includes(method) ? null : body,
 	});
+	// @ts-ignore
+	request.req = req;
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 	}
@@ -36,18 +38,27 @@ export class NodeApp extends App {
 	render(req: IncomingMessage | Request, routeData?: RouteData) {
 		if ('on' in req) {
 			let body = Buffer.from([]);
-			let reqBodyComplete = new Promise((resolve, reject) => {
-				req.on('data', (d) => {
-					body = Buffer.concat([body, d]);
+			let reqBodyComplete = null;
+			// @ts-ignore
+      if (req.body) {
+        reqBodyComplete = new Promise((resolve, reject) => {
+					// @ts-ignore
+					body = Buffer.from(JSON.stringify(req.body));
+          resolve(body);
+        });
+      } else {
+				reqBodyComplete = new Promise((resolve, reject) => {
+					req.on('data', (d) => {
+						body = Buffer.concat([body, d]);
+					});
+					req.on('end', () => {
+						resolve(body);
+					});
+					req.on('error', (err) => {
+						reject(err);
+					});
 				});
-				req.on('end', () => {
-					resolve(body);
-				});
-				req.on('error', (err) => {
-					reject(err);
-				});
-			});
-
+			}
 			return reqBodyComplete.then(() => {
 				return super.render(
 					req instanceof Request ? req : createRequestFromNodeRequest(req, body),
