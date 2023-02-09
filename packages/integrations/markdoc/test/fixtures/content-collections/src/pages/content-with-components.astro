@@ -1,0 +1,50 @@
+---
+import { getEntryBySlug } from "astro:content";
+import { Code } from 'astro/components';
+import CustomMarquee from '../components/CustomMarquee.astro';
+import Markdoc from '@markdoc/markdoc';
+
+const post = await getEntryBySlug('blog', 'with-components');
+const { Content } = await post.render();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Content - with components</title>
+</head>
+<body>
+	<Content
+		config={{
+			tags: {
+				mq: {
+					render: 'marquee',
+					attributes: {
+						direction: {
+							type: String,
+							default: 'left',
+							matches: ['left', 'right', 'up', 'down'],
+							errorLevel: 'critical',
+						},
+					},
+				},
+			}
+		}}
+		components={{
+			marquee: CustomMarquee,
+			pre: {
+				component: Code,
+				props({ attributes, getTreeNode }) {
+					return {
+						lang: attributes['data-language'],
+						code: Markdoc.renderers.html(getTreeNode().children),
+					};
+				},
+			},
+		}}
+	/>
+</body>
+</html>
