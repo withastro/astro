@@ -1,8 +1,9 @@
 import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
+import { extname } from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import { AstroSettings } from '../@types/astro.js';
+import { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
@@ -33,6 +34,13 @@ export function astroContentImportPlugin({
 }): Plugin {
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryExts = getContentEntryExts(settings);
+
+	const contentEntryExtToParser: Map<string, ContentEntryType> = new Map();
+	for (const entryType of settings.contentEntryTypes) {
+		for (const ext of entryType.extensions) {
+			contentEntryExtToParser.set(ext, entryType);
+		}
+	}
 
 	return {
 		name: 'astro:content-imports',
@@ -71,55 +79,48 @@ export function astroContentImportPlugin({
 					});
 				}
 				const rawContents = await fs.promises.readFile(fileId, 'utf-8');
-				const contentEntryType = settings.contentEntryTypes.find((entryType) =>
-					entryType.extensions.some((ext) => fileId.endsWith(ext))
-				);
-				let body: string,
-					unvalidatedData: Record<string, unknown>,
-					unvalidatedSlug: string,
-					rawData: string;
-				if (contentEntryType) {
-					const info = await contentEntryType.getEntryInfo({
-						fileUrl: pathToFileURL(fileId),
-						contents: rawContents,
+				const fileExt = extname(fileId);
+				if (!contentEntryExtToParser.has(fileExt)) {
+					throw new AstroError({
+						...AstroErrorData.UnknownContentCollectionError,
+						message: `No parser found for content entry ${JSON.stringify(
+							fileId
+						)}. Did you apply an integration for this file type?`,
 					});
-					body = info.body;
-					unvalidatedData = info.data;
-					unvalidatedSlug = info.slug;
-					rawData = info.rawData;
-				} else {
-					const parsed = parseFrontmatter(rawContents, fileId);
-					body = parsed.content;
-					unvalidatedData = parsed.data;
-					unvalidatedSlug = parsed.data.slug;
-					rawData = parsed.matter;
 				}
-
-				const entryInfo = getEntryInfo({
+				const contentEntryParser = contentEntryExtToParser.get(fileExt)!;
+				const info = await contentEntryParser.getEntryInfo({
+					fileUrl: pathToFileURL(fileId),
+					contents: rawContents,
+				});
+				const generatedInfo = getEntryInfo({
 					entry: pathToFileURL(fileId),
 					contentDir: contentPaths.contentDir,
 				});
-				if (entryInfo instanceof Error) return;
+				if (generatedInfo instanceof Error) return;
 
-				const _internal = { filePath: fileId, rawData };
+				const _internal = { filePath: fileId, rawData: info.rawData };
 				// TODO: move slug calculation to the start of the build
 				// to generate a performant lookup map for `getEntryBySlug`
-				const slug = getEntrySlug({ ...entryInfo, unvalidatedSlug });
+				const slug = getEntrySlug({ ...generatedInfo, unvalidatedSlug: info.slug });
 
-				const collectionConfig = contentConfig?.collections[entryInfo.collection];
+				const collectionConfig = contentConfig?.collections[generatedInfo.collection];
 				const data = collectionConfig
-					? await getEntryData({ ...entryInfo, _internal, unvalidatedData }, collectionConfig)
-					: unvalidatedData;
+					? await getEntryData(
+							{ ...generatedInfo, _internal, unvalidatedData: info.data },
+							collectionConfig
+					  )
+					: info.data;
 
 				const code = escapeViteEnvReferences(`
-export const id = ${JSON.stringify(entryInfo.id)};
-export const collection = ${JSON.stringify(entryInfo.collection)};
+export const id = ${JSON.stringify(generatedInfo.id)};
+export const collection = ${JSON.stringify(generatedInfo.collection)};
 export const slug = ${JSON.stringify(slug)};
-export const body = ${JSON.stringify(body)};
+export const body = ${JSON.stringify(info.body)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
-	filePath: ${JSON.stringify(fileId)},
-	rawData: ${JSON.stringify(unvalidatedData)},
+	filePath: ${JSON.stringify(_internal.filePath)},
+	rawData: ${JSON.stringify(_internal.rawData)},
 };
 `);
 				return { code };
