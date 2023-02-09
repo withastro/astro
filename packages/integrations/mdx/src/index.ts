@@ -25,16 +25,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 
 const contentEntryType = {
 	extensions: ['.mdx'],
-	async getEntryInfo({ fileUrl }: { fileUrl: URL }) {
-		const rawContents = await fs.readFile(fileUrl, 'utf-8');
-		const parsed = parseFrontmatter(rawContents, fileURLToPath(fileUrl));
-		return {
-			data: parsed.data,
-			body: parsed.content,
-			slug: parsed.data.slug,
-			rawData: parsed.matter,
-		};
-	},
+	parser: '@astrojs/mdx/content-type-parser',
 };
 
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {

@@ -977,19 +977,23 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
-export interface ContentEntryType {
-	extensions: string[];
-	getEntryInfo(params: { fileUrl: URL }): Promise<{
+export interface ContentEntryParser {
+	getEntryInfo(params: { contents: string; fileUrl: URL }): Promise<{
 		data: Record<string, unknown>;
+		body: string;
+		slug: string;
 		/**
 		 * Used for error hints to point to correct line and location
 		 * Should be the untouched data as read from the file,
 		 * including newlines
 		 */
 		rawData: string;
-		body: string;
-		slug: string;
 	}>;
+}
+
+export interface ContentEntryType {
+	extensions: string[];
+	parser: string;
 }
 
 export interface AstroSettings {

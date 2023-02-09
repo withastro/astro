@@ -1,5 +1,6 @@
 import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
+import { extname } from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
@@ -16,6 +17,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
+	loadContentEntryParsers,
 	parseFrontmatter,
 } from './utils.js';
 
@@ -65,16 +67,26 @@ export function astroContentImportPlugin({
 						});
 					});
 				}
+
+				const contentEntryParsers = await loadContentEntryParsers({ settings });
 				const rawContents = await fs.promises.readFile(fileId, 'utf-8');
-				const contentEntryType = settings.contentEntryTypes.find((entryType) =>
-					entryType.extensions.some((ext) => fileId.endsWith(ext))
-				);
+				const fileExt = extname(fileId);
+				const contentEntryParser = contentEntryParsers.get(fileExt);
+				// if (!contentEntryParser) {
+				// 	throw new AstroError({
+				// 		...AstroErrorData.UnknownContentCollectionError,
+				// 		message: `No content parser found for file extension "${fileExt}".`,
+				// 	});
+				// }
 				let body: string,
 					unvalidatedData: Record<string, unknown>,
 					unvalidatedSlug: string,
 					rawData: string;
-				if (contentEntryType) {
-					const info = await contentEntryType.getEntryInfo({ fileUrl: pathToFileURL(fileId) });
+				if (contentEntryParser) {
+					const info = await contentEntryParser.getEntryInfo({
+						fileUrl: pathToFileURL(fileId),
+						contents: rawContents,
+					});
 					body = info.body;
 					unvalidatedData = info.data;
 					unvalidatedSlug = info.slug;

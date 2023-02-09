@@ -20,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/markdoc/",
   "exports": {
     ".": "./dist/index.js",
+    "./content-type-parser": "./dist/content-type-parser.js",
     "./components": "./components/index.ts",
     "./content-types": "./content-types.d.ts",
     "./package.json": "./package.json"

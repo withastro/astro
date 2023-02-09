@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
-import { AstroConfig, AstroSettings } from '../@types/astro.js';
+import { AstroConfig, AstroSettings, ContentEntryParser } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { appendForwardSlash } from '../core/path.js';
 import { CONTENT_TYPES_FILE, defaultContentEntryExts } from './consts.js';
@@ -242,6 +242,28 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 			throw e;
 		}
 	}
+}
+
+// NOTE: Will require dev server restart to debug parser changes
+const contentEntryExtToParserCache = new Map<string, ContentEntryParser>();
+
+export async function loadContentEntryParsers({
+	settings,
+}: {
+	settings: Pick<AstroSettings, 'contentEntryTypes'>;
+}): Promise<Map<string, ContentEntryParser>> {
+	if (contentEntryExtToParserCache.size > 0) return contentEntryExtToParserCache;
+
+	for (const contentEntryType of settings.contentEntryTypes) {
+		for (const extension of contentEntryType.extensions) {
+			// TODO: explore SSR loading strategy if Content Collections processing
+			// is moved from build to SSR
+			const parser = await import(contentEntryType.parser);
+			// TODO: Zod check that parser is a valid parser
+			contentEntryExtToParserCache.set(extension, parser as ContentEntryParser);
+		}
+	}
+	return contentEntryExtToParserCache;
 }
 
 /**
