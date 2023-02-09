@@ -1,4 +1,3 @@
-export const defaultContentEntryExts = ['.md'] as const;
 export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
 export const CONTENT_FLAG = 'astroContent';
 export const VIRTUAL_MODULE_ID = 'astro:content';
