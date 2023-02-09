@@ -194,7 +194,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 
 function findSuggestedImportPaths(failedImportString: string, currentFilePath: string): string[] {
 	const suggestedPaths: string[] = [];
-	const prefixes = ["../../", "../", "./", "/", "~/"]
+	const prefixes = ["../../", "../", "./", "/"]
 	const importPrefix = prefixes.find(prefix => failedImportString.startsWith(prefix))
 	const prefixesToTry = prefixes.filter(prefix => prefix !== importPrefix)
 	prefixesToTry.forEach(newPrefix => {
