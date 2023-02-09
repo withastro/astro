@@ -1,0 +1,14 @@
+---
+title: Post with config
+---
+
+## Post with config
+
+This uses a shortcode to render a marquee element,
+with a variable to show and hide:
+
+{% if $showMarquee %}
+{% mq direction="down" %}
+Im a marquee!
+{% /mq %}
+{% /if %}

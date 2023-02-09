@@ -1,0 +1,38 @@
+---
+import { getEntryBySlug } from "astro:content";
+
+const post = await getEntryBySlug('blog', 'with-config');
+const { Content } = await post.render();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Content - with config</title>
+</head>
+<body>
+	<Content
+		config={{
+			variables: {
+				showMarquee: true,
+			},
+			tags: {
+				mq: {
+					render: 'marquee',
+					attributes: {
+						direction: {
+							type: String,
+							default: 'left',
+							matches: ['left', 'right', 'up', 'down'],
+							errorLevel: 'critical',
+						},
+					},
+				},
+			}
+		}}
+	/>
+</body>
+</html>
