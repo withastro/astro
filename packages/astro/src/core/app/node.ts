@@ -23,8 +23,6 @@ function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): 
 		headers: new Headers(entries),
 		body: ['HEAD', 'GET'].includes(method) ? null : body,
 	});
-	// @ts-ignore
-	request.req = req;
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 	}
