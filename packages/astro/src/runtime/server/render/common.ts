@@ -76,6 +76,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 						if(hasScopeFlag(result, ScopeFlags.RenderSlot)) {
 							return '';
 						}
+						break;
 					}
 
 					// Astro.slots.render() should never render head content.
