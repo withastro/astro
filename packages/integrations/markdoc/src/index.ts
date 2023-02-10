@@ -18,7 +18,7 @@ const contentEntryType = {
 	},
 };
 
-export default function markdoc(partialOptions: {} = {}): AstroIntegration {
+export default function markdoc(): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
