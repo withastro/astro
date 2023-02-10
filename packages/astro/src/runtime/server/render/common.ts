@@ -136,5 +136,9 @@ export function chunkToByteArray(
 	}
 	// stringify chunk might return a HTMLString
 	let stringified = stringifyChunk(result, chunk);
-	return encoder.encode(stringified.toString());
+	if (stringified) {
+		return encoder.encode(stringified.toString());
+	}
+
+	return new Uint8Array();
 }
