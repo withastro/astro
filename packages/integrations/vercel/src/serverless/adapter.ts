@@ -19,11 +19,13 @@ function getAdapter(): AstroAdapter {
 export interface VercelServerlessConfig {
 	includeFiles?: string[];
 	excludeFiles?: string[];
+	analytics?: boolean;
 }
 
 export default function vercelServerless({
 	includeFiles,
 	excludeFiles,
+	analytics,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -33,7 +35,10 @@ export default function vercelServerless({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig }) => {
+			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
+				if (analytics) {
+					injectScript('page', 'import "@astrojs/vercel/analytics"');
+				}
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,

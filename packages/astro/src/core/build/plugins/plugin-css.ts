@@ -2,7 +2,7 @@ import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
-import { isCSSRequest } from '../../render/util.js';
+import { isBuildableCSSRequest } from '../../render/dev/util.js';
 import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
 import type { PageBuildData, StaticBuildOptions } from '../types';
@@ -66,7 +66,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					after(id, meta) {
 						// For CSS, create a hash of all of the pages that use it.
 						// This causes CSS to be built into shared chunks when used by multiple pages.
-						if (isCSSRequest(id)) {
+						if (isBuildableCSSRequest(id)) {
 							for (const [pageInfo] of walkParentInfos(id, {
 								getModuleInfo: meta.getModuleInfo,
 							})) {
@@ -176,8 +176,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 													if (pageData) {
 														for (const css of meta.importedCss) {
 															const existingCss =
-																pageData.contentCollectionCss.get(pageInfo.id) ?? new Set();
-															pageData.contentCollectionCss.set(
+																pageData.propagatedStyles.get(pageInfo.id) ?? new Set();
+															pageData.propagatedStyles.set(
 																pageInfo.id,
 																new Set([...existingCss, css])
 															);

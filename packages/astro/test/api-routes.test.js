@@ -41,4 +41,12 @@ describe('API routes', () => {
 			});
 		});
 	});
+
+	describe('Binary data', () => {
+		it('can be returned from a response', async () => {
+			const dat = await fixture.readFile('/binary.dat', null);
+			expect(dat.length).to.equal(1);
+			expect(dat[0]).to.equal(0xff);
+		});
+	});
 });

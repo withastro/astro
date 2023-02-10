@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -14,44 +14,36 @@
   "exports": {
     ".": "./create-astro.mjs"
   },
+  "main": "./create-astro.mjs",
   "bin": {
     "create-astro": "./create-astro.mjs"
   },
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "build": "astro-scripts build \"src/index.ts\" --bundle && tsc",
+    "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000"
+    "test": "mocha --exit --timeout 20000 --parallel"
   },
   "files": [
     "dist",
-    "create-astro.js",
-    "tsconfigs"
+    "create-astro.js"
   ],
+  "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
+  "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
-    "@astrojs/cli-kit": "^0.1.6",
-    "chalk": "^5.0.1",
-    "comment-json": "^4.2.3",
+    "@astrojs/cli-kit": "^0.2.2",
+    "chai": "^4.3.6",
     "execa": "^6.1.0",
     "giget": "^1.0.0",
-    "kleur": "^4.1.4",
-    "ora": "^6.1.0",
-    "prompts": "^2.4.2",
-    "strip-ansi": "^7.0.1",
-    "which-pm-runs": "^1.1.0",
-    "yargs-parser": "^21.0.1"
+    "mocha": "^9.2.2"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/degit": "^2.8.3",
-    "@types/mocha": "^9.1.1",
-    "@types/prompts": "^2.0.14",
     "@types/which-pm-runs": "^1.0.0",
-    "@types/yargs-parser": "^21.0.0",
+    "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.6",
-    "mocha": "^9.2.2",
-    "uvu": "^0.5.3"
+    "strip-ansi": "^7.0.1",
+    "strip-json-comments": "^5.0.0",
+    "which-pm-runs": "^1.1.0"
   },
   "engines": {
     "node": ">=16.12.0"

@@ -275,8 +275,9 @@ export async function loadContentConfig({
 type ContentCtx =
 	| { status: 'init' }
 	| { status: 'loading' }
-	| { status: 'error' }
-	| { status: 'loaded'; config: ContentConfig };
+	| { status: 'does-not-exist' }
+	| { status: 'loaded'; config: ContentConfig }
+	| { status: 'error'; error: Error };
 
 type Observable<C> = {
 	get: () => C;

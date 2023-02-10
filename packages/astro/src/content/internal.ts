@@ -4,6 +4,7 @@ import { prependForwardSlash } from '../core/path.js';
 import {
 	createComponent,
 	createHeadAndContent,
+	createScopedResult,
 	renderComponent,
 	renderScriptElement,
 	renderStyleElement,
@@ -169,7 +170,13 @@ async function render({
 
 			return createHeadAndContent(
 				unescapeHTML(styles + links + scripts) as any,
-				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
+				renderTemplate`${renderComponent(
+					createScopedResult(result),
+					'Content',
+					mod.Content,
+					props,
+					slots
+				)}`
 			);
 		},
 		propagation: 'self',

@@ -9,6 +9,7 @@ import {
 	PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
+import { hasScopeFlag, ScopeFlags } from './scope.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -46,6 +47,46 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				if (result._metadata.hasRenderedHead) {
 					return '';
 				}
+				return renderAllHeadContent(result);
+			}
+			case 'maybe-head': {
+				if (result._metadata.hasRenderedHead) {
+					return '';
+				}
+
+				const scope = instruction.scope;
+				switch (scope) {
+					// JSX with an Astro slot
+					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
+					case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
+					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
+						return '';
+					}
+
+					// Astro rendered within JSX, head will be injected by the page itself.
+					case ScopeFlags.JSX | ScopeFlags.Astro: {
+						if (hasScopeFlag(result, ScopeFlags.JSX)) {
+							return '';
+						}
+						break;
+					}
+
+					// If the current scope is with Astro.slots.render()
+					case ScopeFlags.Slot: {
+						if (hasScopeFlag(result, ScopeFlags.RenderSlot)) {
+							return '';
+						}
+						break;
+					}
+
+					// Astro.slots.render() should never render head content.
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro:
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
+					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {
+						return '';
+					}
+				}
+
 				return renderAllHeadContent(result);
 			}
 		}
