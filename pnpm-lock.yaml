@@ -291,10 +291,12 @@ importers:
       '@astrojs/mdx': ^0.16.0
       '@markdoc/markdoc': ^0.2.2
       astro: ^2.0.6
+      shiki: ^0.11.1
     dependencies:
       '@astrojs/markdoc': link:../../packages/integrations/markdoc
       '@astrojs/mdx': link:../../packages/integrations/mdx
       astro: link:../../packages/astro
+      shiki: 0.11.1
     devDependencies:
       '@markdoc/markdoc': 0.2.2
 
