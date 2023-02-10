@@ -35,6 +35,45 @@ describe('Markdoc - Content Collections', () => {
 			expect(posts).to.not.be.null;
 			expect(posts.sort()).to.deep.equal([simplePostEntry, withComponentsEntry, withConfigEntry]);
 		});
+
+		it('renders content - simple', async () => {
+			const res = await fixture.fetch('/content-simple');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+			const h2 = document.querySelector('h2');
+			expect(h2.textContent).to.equal('Simple post');
+			const p = document.querySelector('p');
+			expect(p.textContent).to.equal('This is a simple Markdoc post.');
+		});
+
+		it('renders content - with config', async () => {
+			const res = await fixture.fetch('/content-with-config');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+			const h2 = document.querySelector('h2');
+			expect(h2.textContent).to.equal('Post with config');
+			const marquee = document.querySelector('marquee');
+			expect(marquee).to.not.be.null;
+			expect(marquee.textContent).to.equal('Im a marquee!');
+		});
+
+		it('renders content - with components', async () => {
+			const res = await fixture.fetch('/content-with-components');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+			const h2 = document.querySelector('h2');
+			expect(h2.textContent).to.equal('Post with components');
+
+			// Renders custom shortcode component
+			const marquee = document.querySelector('marquee');
+			expect(marquee).to.not.be.null;
+			expect(marquee.hasAttribute('data-custom-marquee')).to.equal(true);
+
+			// Renders Astro Code component
+			const pre = document.querySelector('pre');
+			expect(pre).to.not.be.null;
+			expect(pre.className).to.equal('astro-code');
+		});
 	});
 
 	describe('build', () => {
@@ -53,6 +92,42 @@ describe('Markdoc - Content Collections', () => {
 			const posts = parseDevalue(res);
 			expect(posts).to.not.be.null;
 			expect(posts.sort()).to.deep.equal([simplePostEntry, withComponentsEntry, withConfigEntry]);
+		});
+
+		it('renders content - simple', async () => {
+			const html = await fixture.readFile('/content-simple/index.html');
+			const { document } = parseHTML(html);
+			const h2 = document.querySelector('h2');
+			expect(h2.textContent).to.equal('Simple post');
+			const p = document.querySelector('p');
+			expect(p.textContent).to.equal('This is a simple Markdoc post.');
+		});
+
+		it('renders content - with config', async () => {
+			const html = await fixture.readFile('/content-with-config/index.html');
+			const { document } = parseHTML(html);
+			const h2 = document.querySelector('h2');
+			expect(h2.textContent).to.equal('Post with config');
+			const marquee = document.querySelector('marquee');
+			expect(marquee).to.not.be.null;
+			expect(marquee.textContent).to.equal('Im a marquee!');
+		});
+
+		it('renders content - with components', async () => {
+			const html = await fixture.readFile('/content-with-components/index.html');
+			const { document } = parseHTML(html);
+			const h2 = document.querySelector('h2');
+			expect(h2.textContent).to.equal('Post with components');
+
+			// Renders custom shortcode component
+			const marquee = document.querySelector('marquee');
+			expect(marquee).to.not.be.null;
+			expect(marquee.hasAttribute('data-custom-marquee')).to.equal(true);
+
+			// Renders Astro Code component
+			const pre = document.querySelector('pre');
+			expect(pre).to.not.be.null;
+			expect(pre.className).to.equal('astro-code');
 		});
 	});
 });
