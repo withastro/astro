@@ -1,0 +1,162 @@
+---
+import { getCollection } from 'astro:content';
+import Aside from '../components/Aside.astro';
+import Since from '../components/Since.astro';
+
+const docs = await getCollection('docs');
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Docs</title>
+	</head>
+	<body>
+		<main>
+			{
+				docs.map(async (entry) => {
+					const { Content } = await entry.render();
+					return (
+						<Content
+							config={{
+								tags: {
+									aside: {
+										render: 'Aside',
+										attributes: {
+											type: { type: String },
+											title: { type: String },
+										},
+									},
+									since: {
+										render: 'Since',
+										attributes: {
+											v: { type: String },
+											pkg: { type: String },
+										},
+									},
+								},
+							}}
+							components={{ Aside, Since }}
+						/>
+					);
+				})
+			}
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	html {
+		font-family: system-ui, sans-serif;
+		background-color: #f6f6f6;
+	}
+	code {
+		font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+			Bitstream Vera Sans Mono, Courier New, monospace;
+	}
+	main {
+		margin: auto;
+		max-width: 60ch;
+	}
+
+	/*Copied from docs.astro*/
+
+	:root {
+		/*
+		Variables with --color-base prefix define
+		the hue, and saturation values to be used for
+		hsla colors.
+
+		Example:
+		--color-base-{color}: {hue}, {saturation};
+	*/
+
+		--color-base-white: 0, 0%;
+		--color-base-black: 240, 100%;
+		--color-base-gray: 250, 14%;
+		--color-base-blue: 212, 100%;
+		--color-base-blue-dark: 212, 72%;
+		--color-base-teal: 180, 80%;
+		--color-base-green: 158, 79%;
+		--color-base-orange: 22, 100%;
+		--color-base-purple: 269, 79%;
+		--color-base-red: 351, 100%;
+		--color-base-yellow: 41, 100%;
+
+		/*
+		Color palettes are made using --color-base 
+		variables, along with a lightness value to
+		define different variants.
+	*/
+
+		--color-gray-5: var(--color-base-gray), 5%;
+		--color-gray-10: var(--color-base-gray), 10%;
+		--color-gray-20: var(--color-base-gray), 20%;
+		--color-gray-30: var(--color-base-gray), 30%;
+		--color-gray-40: var(--color-base-gray), 40%;
+		--color-gray-50: var(--color-base-gray), 50%;
+		--color-gray-60: var(--color-base-gray), 60%;
+		--color-gray-70: var(--color-base-gray), 70%;
+		--color-gray-80: var(--color-base-gray), 80%;
+		--color-gray-90: var(--color-base-gray), 90%;
+		--color-gray-95: var(--color-base-gray), 95%;
+
+		--color-blue: var(--color-base-blue), 61%;
+		--color-blue-dark: var(--color-base-blue-dark), 39%;
+		--color-green: var(--color-base-green), 42%;
+		--color-orange: var(--color-base-orange), 50%;
+		--color-purple: var(--color-base-purple), 54%;
+		--color-red: var(--color-base-red), 54%;
+		--color-yellow: var(--color-base-yellow), 59%;
+
+		color-scheme: light;
+		--theme-accent: hsla(var(--color-orange), 1);
+		--theme-accent-secondary: hsl(324, 75%, 38%);
+		--theme-dim: hsla(var(--color-gray-70), 1);
+		--theme-dim-light: hsla(var(--color-gray-80), 1);
+		--theme-dim-lighter: hsla(var(--color-gray-90), 1);
+		--theme-accent-opacity: 0.1;
+		--theme-divider: hsla(var(--color-purple), 0.1);
+		--theme-shade-subtle: hsla(var(--color-purple), 0.3);
+		--theme-text: hsla(var(--color-gray-10), 1);
+		--theme-text-light: hsla(var(--color-gray-30), 1);
+		--theme-text-lighter: hsla(var(--color-gray-40), 1);
+		--theme-bg: hsl(273, 37%, 93%);
+		--theme-bg-gradient-top: var(--theme-bg);
+		--theme-bg-gradient-bottom: #fdfeff;
+		--theme-bg-hover: hsla(var(--color-purple), 0.075);
+		--theme-bg-offset: hsla(var(--color-purple), 0.1);
+		--theme-bg-accent: hsla(var(--color-purple), var(--theme-accent-opacity));
+		--theme-code-inline-bg: hsla(var(--color-purple), 0.1);
+		--theme-code-inline-text: var(--theme-text);
+		--theme-code-bg: hsla(257, 31%, 22%, 1);
+		--theme-code-tabs: hsla(257, 38%, 32%, 1);
+		--theme-code-text: hsla(var(--color-gray-95), 1);
+		--theme-navbar-bg: var(--theme-bg);
+		--theme-selection-color: hsla(var(--color-purple), 1);
+		--theme-selection-bg: hsla(var(--color-purple), var(--theme-accent-opacity));
+		--theme-code-selection-bg: hsla(var(--color-purple), 0.4);
+		--theme-code-mark-bg: hsl(226, 50%, 33%);
+		--theme-code-mark-border: hsl(224, 50%, 54%);
+		--theme-code-ins-bg: hsl(122, 22%, 23%);
+		--theme-code-ins-border: hsl(128, 42%, 38%);
+		--theme-code-ins-text: hsl(128, 31%, 65%);
+		--theme-code-del-bg: hsl(338, 40%, 26%);
+		--theme-code-del-border: hsl(338, 46%, 53%);
+		--theme-code-del-text: hsl(338, 36%, 70%);
+
+		--theme-bg-gradient: linear-gradient(
+			180deg,
+			var(--theme-bg-gradient-top),
+			var(--theme-bg-gradient-top) calc(var(--theme-navbar-height) + var(--theme-mobile-toc-height)),
+			var(--theme-bg-gradient-bottom)
+		);
+
+		--theme-glow-highlight: transparent;
+		--theme-glow-diffuse: hsla(var(--color-base-purple), 65%, 0.5);
+		--theme-glow-blur: 10px;
+	}
+</style>
