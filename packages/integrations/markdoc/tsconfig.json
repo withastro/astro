@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src", "content-types.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
     "allowJs": true,
     "module": "ES2020",
