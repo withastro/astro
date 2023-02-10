@@ -1,5 +1,5 @@
-import type { ContentEntryType } from 'astro';
 import { fileURLToPath } from 'node:url';
+import { ContentEntryType } from '../@types/astro.js';
 import { parseFrontmatter } from '../content/utils.js';
 
 export const markdownContentEntryType: ContentEntryType = {
