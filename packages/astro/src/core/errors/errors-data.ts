@@ -435,6 +435,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: 'The alt property is required.',
 		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
 	},
+	InvalidImageService: {
+		title: 'Error while loading image service',
+		code: 3022,
+		message:
+			'There was an error loading the configured image service. Please see the stack trace for more information',
+	},
+	MissingImageDimension: {
+		title: 'Missing image dimensions',
+		code: 3023,
+		message: (missingDimension: 'width' | 'height' | 'both') =>
+			`For remote images, ${
+				missingDimension === 'both' ? 'width and height are ' : `${missingDimension} is `
+			} required.`,
+	},
 	// Vite Errors - 4xxx
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',

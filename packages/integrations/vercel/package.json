@@ -22,7 +22,8 @@
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/static/adapter.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./image": "./dist/image.js"
   },
   "typesVersions": {
     "*": {

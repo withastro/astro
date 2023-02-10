@@ -1,7 +1,8 @@
 ---
-import { getImage, Image } from 'astro:assets';
+import { Image } from 'astro:assets';
+import elsaAnna from '../assets/elsa-and-anna.jpg';
 
-console.log(getImage());
+elsaAnna;
 ---
 
 <html lang="en">
@@ -14,6 +15,7 @@ console.log(getImage());
 	</head>
 	<body>
 		<h1>Astro</h1>
-		<Image src />
+		<Image src={elsaAnna} alt="" width={400} height={200} />
+		{JSON.stringify(elsaAnna)}
 	</body>
 </html>

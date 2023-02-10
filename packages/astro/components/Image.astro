@@ -11,7 +11,7 @@ if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
 }
 
-const attrs = await getImage();
+const attrs = await getImage(props);
 ---
 
-<img {...attrs} {loading} {decoding} />
+<img {...attrs} {loading} {decoding} alt={props.alt} />

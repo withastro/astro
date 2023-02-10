@@ -115,6 +115,15 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
+	image: z
+		.object({
+			loader: z.string().optional(),
+			service: z.string().default('astro/assets/services/sharp'),
+		})
+		.default({
+			loader: undefined,
+			service: 'astro/assets/services/sharp',
+		}),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
@@ -256,7 +265,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			config.base = sitePathname;
 			/* eslint-disable no-console */
 			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
-			
+
 A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
 		}
 

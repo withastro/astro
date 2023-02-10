@@ -30,6 +30,8 @@ export type {
 } from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
+export type { ExternalImageService, LocalImageService } from '../image/services/service';
+export type { ImageTransform } from '../image/types';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;

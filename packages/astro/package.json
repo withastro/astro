@@ -48,6 +48,7 @@
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./assets": "./dist/assets/index.js",
+    "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./content/internal": "./dist/content/internal.js",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
@@ -129,6 +130,7 @@
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "html-escaper": "^3.0.3",
+    "image-size": "^1.0.2",
     "kleur": "^4.1.4",
     "magic-string": "^0.27.0",
     "mime": "^3.0.0",
@@ -174,6 +176,7 @@
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
+    "@types/sharp": "^0.31.1",
     "@types/unist": "^2.0.6",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
@@ -188,9 +191,18 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^3.9.0",
     "sass": "^1.52.2",
+    "sharp": "^0.31.3",
     "srcset-parse": "^1.1.0",
     "undici": "^5.14.0",
     "unified": "^10.1.2"
+  },
+  "peerDependencies": {
+    "sharp": "^0.31.3"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=16.12.0",

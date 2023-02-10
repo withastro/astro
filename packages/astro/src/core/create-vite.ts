@@ -10,7 +10,7 @@ import {
 	astroContentServerPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
-import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
+import astroAssetsPlugin from '../image/vite-plugin-assets.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';

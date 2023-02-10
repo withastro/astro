@@ -1,10 +1,3 @@
-export interface ImageMetadata {
-	src: string;
-	width: number;
-	height: number;
-	format: InputFormat;
-}
-
 type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max';
 export type ImageQuality = ImageQualityPreset | number | `${number}`;
 
@@ -21,8 +14,24 @@ export type InputFormat =
 
 export type OutputFormat = 'avif' | 'png' | 'webp' | 'jpeg' | 'jpg' | 'gif';
 
-type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+/**
+ * Type returned by ESM imports of images and direct calls to imageMetadata
+ */
+export interface ImageMetadata {
+	src: string;
+	width: number;
+	height: number;
+	format: InputFormat;
+}
 
+/**
+ * Type expected by getImage
+ */
+export type ImageTransform =
+	| LocalImageProps<Record<string, never>>
+	| RemoteImageProps<Record<string, never>>;
+
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type ImageSharedProps<T> = T & {
 	/**
 	 * Width of the image, the value of this property will be used to assign the `width` property on the final `img` element.

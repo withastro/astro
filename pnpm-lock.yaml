@@ -245,9 +245,13 @@ importers:
 
   examples/images:
     specifiers:
+      '@astrojs/vercel': ^3.0.1
       astro: ^2.0.4
+      sharp: ^0.31.0
     dependencies:
+      '@astrojs/vercel': link:../../packages/integrations/vercel
       astro: link:../../packages/astro
+      sharp: 0.31.3
 
   examples/integration:
     specifiers:
@@ -413,6 +417,7 @@ importers:
       '@types/rimraf': ^3.0.2
       '@types/send': ^0.17.1
       '@types/server-destroy': ^1.0.1
+      '@types/sharp': ^0.31.1
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.1
@@ -435,6 +440,7 @@ importers:
       github-slugger: ^2.0.0
       gray-matter: ^4.0.3
       html-escaper: ^3.0.3
+      image-size: ^1.0.2
       kleur: ^4.1.4
       magic-string: ^0.27.0
       memfs: ^3.4.7
@@ -454,6 +460,7 @@ importers:
       sass: ^1.52.2
       semver: ^7.3.8
       server-destroy: ^1.0.1
+      sharp: ^0.31.3
       shiki: ^0.11.1
       slash: ^4.0.0
       srcset-parse: ^1.1.0
@@ -500,6 +507,7 @@ importers:
       github-slugger: 2.0.0
       gray-matter: 4.0.3
       html-escaper: 3.0.3
+      image-size: 1.0.2
       kleur: 4.1.5
       magic-string: 0.27.0
       mime: 3.0.0
@@ -544,6 +552,7 @@ importers:
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
       '@types/server-destroy': 1.0.1
+      '@types/sharp': 0.31.1
       '@types/unist': 2.0.6
       astro-scripts: link:../../scripts
       chai: 4.3.7
@@ -558,6 +567,7 @@ importers:
       remark-code-titles: 0.1.2
       rollup: 3.12.1
       sass: 1.58.0
+      sharp: 0.31.3
       srcset-parse: 1.1.0
       undici: 5.16.0
       unified: 10.1.2
@@ -7144,6 +7154,12 @@ packages:
 
   /@types/sharp/0.30.5:
     resolution: {integrity: sha512-EhO29617AIBqxoVtpd1qdBanWpspk/kD2B6qTFRJ31Q23Rdf+DNU1xlHSwtqvwq1vgOqBwq1i38SX+HGCymIQg==}
+    dependencies:
+      '@types/node': 18.11.18
+    dev: true
+
+  /@types/sharp/0.31.1:
+    resolution: {integrity: sha512-5nWwamN9ZFHXaYEincMSuza8nNfOof8nmO+mcI+Agx1uMUk4/pQnNIcix+9rLPXzKrm1pS34+6WRDbDV0Jn7ag==}
     dependencies:
       '@types/node': 18.11.18
     dev: true
