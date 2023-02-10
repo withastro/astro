@@ -1,4 +1,4 @@
-import { RenderableTreeNode, Tag, renderers, NodeType } from '@markdoc/markdoc';
+import type { RenderableTreeNode, Tag } from '@markdoc/markdoc';
 import { escape } from 'html-escaper';
 
 // TODO: expose `AstroComponentFactory` type from core
@@ -6,11 +6,22 @@ type AstroComponentFactory = (props: Record<string, any>) => any & {
 	isAstroComponentFactory: true;
 };
 
+/**
+ * Copied from Markdoc Tag.isTag implementation
+ * to avoid dragging the whole 40kb Markdoc bundle into your build!
+ */
+function isTag(tag: any): tag is Tag {
+	return !!(tag?.$$mdtype === 'Tag');
+}
+
 export type ComponentRenderer =
 	| AstroComponentFactory
 	| {
 			component: AstroComponentFactory;
-			props?(params: { attributes: Record<string, any>; getTreeNode(): Tag }): Record<string, any>;
+			props?(params: {
+				attributes: Record<string, any>;
+				getTreeNode(): import('@markdoc/markdoc').Tag;
+			}): Record<string, any>;
 	  };
 
 export type AstroNode =
@@ -32,7 +43,7 @@ export function createAstroNode(
 ): AstroNode {
 	if (typeof node === 'string' || typeof node === 'number') {
 		return escape(String(node));
-	} else if (node === null || typeof node !== 'object' || !Tag.isTag(node)) {
+	} else if (node === null || typeof node !== 'object' || !isTag(node)) {
 		return '';
 	}
 
