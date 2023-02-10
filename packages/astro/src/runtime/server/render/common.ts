@@ -72,7 +72,8 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 					}
 
 					// If the current scope is with Astro.slots.render()
-					case ScopeFlags.Slot: {
+					case ScopeFlags.Slot:
+					case ScopeFlags.Slot | ScopeFlags.HeadBuffer: {
 						if (hasScopeFlag(result, ScopeFlags.RenderSlot)) {
 							return '';
 						}
