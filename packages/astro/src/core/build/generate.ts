@@ -382,7 +382,7 @@ async function generatePath(
 		route: pageData.route,
 	});
 
-	let body: string;
+	let body: string | Uint8Array;
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
@@ -392,7 +392,8 @@ async function generatePath(
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
 			// If there's no body, do nothing
 			if (!result.response.body) return;
-			body = await result.response.text();
+			const ab = await result.response.arrayBuffer();
+			body = new Uint8Array(ab);
 		} else {
 			body = result.body;
 			encoding = result.encoding;

@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.1.1
+
+### Patch Changes
+
+- [#6191](https://github.com/withastro/astro/pull/6191) [`11e1fa988`](https://github.com/withastro/astro/commit/11e1fa9883ff94e81865e0db631efa1a2b18688c) Thanks [@delucis](https://github.com/delucis)! - Fix and improve Vercel adapter README
+
+- Updated dependencies [[`436bd0934`](https://github.com/withastro/astro/commit/436bd09341693fc705f2a55d460eed3afa413432), [`a9bdd9cc4`](https://github.com/withastro/astro/commit/a9bdd9cc4e41512fbe723620c995e6a110032ebf), [`938ad514c`](https://github.com/withastro/astro/commit/938ad514cd75c09756cd24223346159172f5fd60), [`c75d319ee`](https://github.com/withastro/astro/commit/c75d319ee6b657402b902b1b46b9d3f2d0e5370b), [`6fa6025b3`](https://github.com/withastro/astro/commit/6fa6025b34b9447e142c4788c0cdc2dfe03f334f), [`3390cb844`](https://github.com/withastro/astro/commit/3390cb84443a43eb997f3efeb5ca298a8477aaf0)]:
+  - astro@2.0.10
+
 ## 3.1.0
 
 ### Minor Changes

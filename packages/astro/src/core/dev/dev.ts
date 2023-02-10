@@ -44,6 +44,7 @@ export default async function dev(
 		beforeRestart: () => console.clear(),
 		params: {
 			settings,
+			root: options.flags?.root,
 			logging: options.logging,
 			isRestart: options.isRestart,
 		},
