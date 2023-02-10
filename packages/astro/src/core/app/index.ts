@@ -38,8 +38,8 @@ export interface MatchOptions {
 export class App {
 	#env: Environment;
 	#manifest: Manifest;
-	#manifestData: ManifestData;
-	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
+	#manifestData: ManifestData = { routes: [] };
+	#routeDataToRouteInfo: Map<RouteData, RouteInfo> = new Map();
 	#encoder = new TextEncoder();
 	#logging: LogOptions = {
 		dest: consoleLogDestination,
@@ -50,10 +50,7 @@ export class App {
 
 	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
-		this.#manifestData = {
-			routes: manifest.routes.map((route) => route.routeData),
-		};
-		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
+		this.updateRoutes(manifest.routes);
 		this.#env = createEnvironment({
 			adapterName: manifest.adapterName,
 			logging: this.#logging,
@@ -84,6 +81,12 @@ export class App {
 		this.#base = this.#manifest.base || '/';
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
 	}
+	updateRoutes(routes: RouteInfo[]) {
+		this.#manifestData = {
+			routes: routes.map((route) => route.routeData),
+		};
+		this.#routeDataToRouteInfo = new Map(routes.map((route) => [route.routeData, route]));
+	}
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
@@ -96,7 +99,13 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) {
 			return undefined;
 		}
-		let pathname = '/' + this.removeBase(url.pathname);
+		let noBase = this.removeBase(url.pathname);
+		let pathname: string;
+		if(this.#manifest.trailingSlash === 'never' && noBase === '') {
+			pathname = noBase;
+		} else {
+			pathname = prependForwardSlash(noBase);
+		}
 		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
