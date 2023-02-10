@@ -1,0 +1,43 @@
+---
+title: Content Collections
+description: >-
+  Content collections help organize your Markdown and type-check your
+  frontmatter with schemas.
+i18nReady: false
+---
+
+**Content collections** are the best way to work with Markdown and MDX in any Astro project. Content collections are a feature of Astro that help manage your content files in a project. Collections help to organize your content, validate your frontmatter, and provide automatic TypeScript type-safety for all of your content.
+
+## What are Content Collections?
+
+{% tabs client="load" /%}
+
+{% since v="2.0.0" /%}
+
+A **content collection** is any directory inside the reserved `src/content` project directory, such as `src/content/newsletter` and `src/content/blog`. Only content collections are allowed inside the `src/content` directory. This directory cannot be used for anything else.
+
+A **content entry** is any piece of content stored inside of your content collection directory. Content entries are stored as either Markdown (`.md`) or MDX (`.mdx`) files. You can use any filename you want, but we recommend using a consistent naming scheme (lower-case, dashes instead of spaces) to make it easier to find and organize your content.
+
+```sh
+- src/content/
+  - **newsletter/** the "newsletter" collection
+    - week-1.md a collection entry
+    - week-2.md a collection entry
+    - week-3.md a collection entry
+```
+
+Once you have a collection, you can start [querying your content](#querying-collections) using Astro's built-in content APIs.
+
+### The .astro Directory
+
+Astro stores important metadata for content collections in an `.astro` directory in your project. No action is needed on your part to maintain or update this directory. You are encouraged to ignore it entirely while working in your project.
+
+The `.astro` directory will be updated for you automatically anytime you run the [`astro dev`](/en/reference/cli-reference/#astro-dev), [`astro build`](/en/reference/cli-reference/#astro-build) commands. You can run [`astro sync`](/en/reference/cli-reference/#astro-sync) at any time to update the `.astro` directory manually.
+
+{% aside type="tip" %}
+If you're using Git for version control, we recommend ignoring the `.astro` directory by adding `.astro` to your `.gitignore`. This tells Git to ignore this directory and any files inside of it.
+
+```bash
+echo "\n.astro" >> .gitignore
+```
+{% /aside %}
