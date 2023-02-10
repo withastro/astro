@@ -2,14 +2,10 @@
 import { Markdoc } from '@astrojs/markdoc';
 import { Code } from 'astro/components';
 import Marquee from '../components/Marquee.astro';
-import { getEntryBySlug } from 'astro:content';
+import { getCollection } from 'astro:content';
 import RedP from '../components/RedP.astro';
 
-const mdocEntry = await getEntryBySlug('blog', 'test');
-const mdxEntry = await getEntryBySlug('blog', 'with-mdx');
-console.log(mdocEntry);
-const { Content } = await mdocEntry.render();
-const { Content: MDXContent } = await mdxEntry.render();
+const entries = await getCollection('blog');
 ---
 
 <html lang="en">
@@ -23,23 +19,42 @@ const { Content: MDXContent } = await mdxEntry.render();
 	<body>
 		<h1>Astro</h1>
 		<article>
-			<MDXContent />
-			<Content
-				components={{
-					marquee: Marquee,
-					p: RedP,
-					pre: {
-						component: Code,
-						props({ attributes, getTreeNode }) {
-							return {
-								...attributes,
-								lang: attributes.lang ?? attributes['data-language'],
-								code: attributes.code ?? Markdoc.renderers.html(getTreeNode().children),
-							};
-						},
-					},
-				}}
-			/>
+			{
+				entries.map(async (entry) => {
+					const { Content } = await entry.render();
+					if (entry.id.endsWith('mdoc')) {
+						return (
+							<Fragment>
+								<h1>{entry.data.title}</h1>
+								<Content
+									components={{
+										marquee: Marquee,
+										p: RedP,
+										pre: {
+											component: Code,
+											props({ attributes, getTreeNode }) {
+												return {
+													...attributes,
+													lang: attributes.lang ?? attributes['data-language'],
+													code: attributes.code ?? Markdoc.renderers.html(getTreeNode().children),
+												};
+											},
+										},
+									}}
+								/>
+								<hr />
+							</Fragment>
+						);
+					}
+					return (
+						<>
+							<h1>{entry.data.title}</h1>
+							<Content />
+							<hr />
+						</>
+					);
+				})
+			}
 		</article>
 	</body>
 </html>
