@@ -24,7 +24,7 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addContentEntryType, command }: any) => {
 				addContentEntryType(contentEntryType);
-				console.log('Markdoc working!');
+
 				const markdocConfigUrl = new URL('./markdoc.config', config.srcDir);
 				const configFileLoad = `if (!config) {
 				try {
