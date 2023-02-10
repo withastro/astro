@@ -3,6 +3,7 @@ import type { InlineConfig } from 'vite';
 import _Markdoc from '@markdoc/markdoc';
 import { parseFrontmatter } from './utils.js';
 import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 
 const contentEntryType = {
 	extensions: ['.mdoc'],
@@ -25,6 +26,15 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 				addContentEntryType(contentEntryType);
 				console.log('Markdoc working!');
 				const markdocConfigUrl = new URL('./markdoc.config', config.srcDir);
+				const configFileLoad = `if (!config) {
+				try {
+					const importedConfig = await import(${JSON.stringify(markdocConfigUrl.pathname)});
+					console.log({importedConfig})
+					config = importedConfig.default.transform;
+				} catch {
+					config = {};
+				}
+			}`;
 
 				const viteConfig: InlineConfig = {
 					plugins: [
@@ -35,17 +45,9 @@ export default function markdoc(partialOptions: {} = {}): AstroIntegration {
 								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Markdoc } from '@astrojs/markdoc';\nimport { Renderer } from '@astrojs/markdoc/components';\nexport const body = ${JSON.stringify(
 									code
 								)};\nexport function getParsed() { return Markdoc.parse(body); }\nexport async function getTransformed(inlineConfig) {
-let config = inlineConfig;
-if (!config) {
-	try {
-		const importedConfig = await import(${JSON.stringify(markdocConfigUrl.pathname)});
-		console.log({importedConfig})
-		config = importedConfig.default.transform;
-	} catch {
-		config = {};
-	}
-}
-return Markdoc.transform(getParsed(), config) }\nexport async function Content ({ config, components }) { return h(Renderer, { content: await getTransformed(config), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
+let config = inlineConfig;\n${
+									fs.existsSync(markdocConfigUrl) ? configFileLoad : ''
+								}\nreturn Markdoc.transform(getParsed(), config) }\nexport async function Content ({ config, components }) { return h(Renderer, { content: await getTransformed(config), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
 							},
 						},
 					],
