@@ -1,0 +1,46 @@
+---
+import Badge from './Badge.astro';
+
+export interface Props {
+	pkg?: string;
+	v: string;
+}
+
+const { v, pkg = 'astro' } = Astro.props as Props;
+
+/**
+ * Split a semantic version string like `0.23.3` into a tuple of `[major, minor, patch]`.
+ */
+const parseSemVer = (semver: string) =>
+	semver.split('.').map((part) => parseInt(part.replace(/[^0-9]/g, ''), 10));
+
+/**
+ * Decide a feature is “new” if it was added in the latest minor version.
+ * For example, `@version 0.24.0` will be new as long as `astro@latest` is 0.24.x
+ */
+const getFeatureStatus = async (sinceVersion: string): Promise<'beta' | 'new' | 'current'> => {
+	const astroInfo = await fetch(`https://registry.npmjs.org/${pkg}/latest`).then((res) =>
+		res.json()
+	);
+	const latestAstroVersion = astroInfo.version;
+	const [sinceMajor, sinceMinor] = parseSemVer(sinceVersion);
+	const [latestMajor, latestMinor] = parseSemVer(latestAstroVersion);
+	if (sinceMajor > latestMajor) {
+		return 'beta';
+	}
+	if (sinceMajor === latestMajor) {
+		if (sinceMinor > latestMinor) return 'beta';
+		if (sinceMinor === latestMinor) return 'new';
+	}
+	return 'current';
+};
+
+const featureStatus = await getFeatureStatus(v);
+---
+
+<span>
+	<strong>Added in</strong>
+	<code>{pkg}@{v}</code>
+	{featureStatus === 'new' && <Badge variant="accent">New</Badge>}
+	{featureStatus === 'beta' && <Badge variant="accent">Beta</Badge>}
+</span>
