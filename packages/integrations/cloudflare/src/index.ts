@@ -207,7 +207,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
 
 					const directoryUrl = new URL('functions/[[path]].js', _config.root);
-					await fs.promises.rename(finalBuildUrl, directoryUrl.pathname);
+					await fs.promises.rename(finalBuildUrl, directoryUrl);
 				}
 			},
 		},
