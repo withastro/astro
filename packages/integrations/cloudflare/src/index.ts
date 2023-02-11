@@ -1,5 +1,4 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
-import { ViteUserConfig } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
