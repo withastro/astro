@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import { ViteUserConfig } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -39,6 +40,7 @@ const SERVER_BUILD_FOLDER = '/$server_build/';
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
+  let _viteConfig: ViteUserConfig;
 	const isModeDirectory = args?.mode === 'directory';
 
 	return {
@@ -71,6 +73,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
+        _viteConfig = vite;
 				if (target === 'server') {
 					vite.resolve = vite.resolve || {};
 					vite.resolve.alias = vite.resolve.alias || {};
@@ -103,7 +106,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					minify: true,
+					minify: !!_viteConfig.build?.minify,
 					banner: {
 						js: SHIM,
 					},
