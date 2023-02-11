@@ -40,7 +40,6 @@ const SERVER_BUILD_FOLDER = '/$server_build/';
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
-  let _viteConfig: ViteUserConfig;
 	const isModeDirectory = args?.mode === 'directory';
 
 	return {
@@ -73,7 +72,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
-        _viteConfig = vite;
 				if (target === 'server') {
 					vite.resolve = vite.resolve || {};
 					vite.resolve.alias = vite.resolve.alias || {};
@@ -98,7 +96,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// A URL for the final build path after renaming
 				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
-				await esbuild.build({
+        await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
 					entryPoints: [entryPath],
@@ -106,7 +104,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					minify: !!_viteConfig.build?.minify,
+					minify: _config.vite?.build?.minify !== false,
 					banner: {
 						js: SHIM,
 					},
