@@ -1,5 +1,5 @@
 import { polyfill } from '@astrojs/webapi';
-import { builder, Handler } from '@netlify/functions';
+import { builder, Handler, HandlerEvent } from '@netlify/functions';
 import { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
@@ -8,7 +8,11 @@ polyfill(globalThis, {
 });
 
 export interface Args {
-	builders?: boolean;
+	builders?:
+		| boolean
+		| {
+				ttl?: number | ((event: HandlerEvent) => number | undefined);
+		  };
 	binaryMediaTypes?: string[];
 }
 
@@ -129,6 +133,15 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 						'set-cookie': Array.isArray(cookies) ? cookies : splitCookiesString(cookies),
 					};
 				}
+			}
+		}
+
+		if (typeof builders === 'object' && 'ttl' in builders) {
+			const ttlSetting = builders.ttl;
+			if (typeof ttlSetting === 'number') {
+				fnResponse.ttl = ttlSetting;
+			} else if (typeof ttlSetting === 'function') {
+				fnResponse.ttl = ttlSetting(event);
 			}
 		}
 

@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { HandlerEvent } from '@netlify/functions';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';
 
@@ -13,7 +14,11 @@ export function getAdapter(args: Args = {}): AstroAdapter {
 
 interface NetlifyFunctionsOptions {
 	dist?: URL;
-	builders?: boolean;
+	builders?:
+		| boolean
+		| {
+				ttl?: number | ((event: HandlerEvent) => number | undefined);
+		  };
 	binaryMediaTypes?: string[];
 }
 
