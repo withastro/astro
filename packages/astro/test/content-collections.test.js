@@ -199,6 +199,20 @@ describe('Content Collections', () => {
 			expect(error).to.be.null;
 		});
 	});
+	describe('With config.js', () => {
+		it("Errors when frontmatter doesn't match schema", async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-with-config-js/',
+			});
+			let error = null;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include('frontmatter does not match collection schema');
+		});
+	});
 
 	describe('SSR integration', () => {
 		let app;
