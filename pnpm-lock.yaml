@@ -373,6 +373,22 @@ importers:
       astro: link:../../packages/astro
       vitest: 0.20.3
 
+  examples/with-windicss:
+    specifiers:
+      '@astrojs/mdx': ^0.16.0
+      '@astrojs/windi': ^0.0.1
+      '@types/canvas-confetti': ^1.4.3
+      astro: ^2.0.10
+      canvas-confetti: ^1.5.1
+      windicss: ^3.5.6
+    dependencies:
+      '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/windi': link:../../packages/integrations/windi
+      '@types/canvas-confetti': 1.6.0
+      astro: link:../../packages/astro
+      canvas-confetti: 1.6.0
+      windicss: 3.5.6
+
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^1.1.0
@@ -3417,6 +3433,21 @@ importers:
       '@astrojs/vue': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/windi:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      vite: ^4.0.3
+      vite-plugin-windicss: ^1.8.10
+      windicss: ^3.5.6
+    dependencies:
+      vite-plugin-windicss: 1.8.10_vite@4.1.1
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      vite: 4.1.1
+      windicss: 3.5.6
+
   packages/markdown/component:
     specifiers:
       '@types/mocha': ^9.1.1
@@ -3829,6 +3860,10 @@ packages:
 
   /@antfu/utils/0.5.2:
     resolution: {integrity: sha512-CQkeV+oJxUazwjlHD0/3ZD08QWKuGQkhnrKo3e6ly5pd48VUpXbb77q0xMU4+vc2CkJnDS02Eq/M9ugyX20XZA==}
+    dev: false
+
+  /@antfu/utils/0.7.2:
+    resolution: {integrity: sha512-vy9fM3pIxZmX07dL+VX1aZe7ynZ+YyB0jY+jE6r3hOK6GNY2t6W8rzpFC4tgpbXUYABkFQwgJq2XYXlxbXAI0g==}
     dev: false
 
   /@apideck/better-ajv-errors/0.3.6_ajv@8.12.0:
@@ -7845,6 +7880,30 @@ packages:
 
   /@webcomponents/template-shadowroot/0.1.0:
     resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
+    dev: false
+
+  /@windicss/config/1.8.10:
+    resolution: {integrity: sha512-O9SsC110b1Ik3YYa4Ck/0TWuCo7YFfA9KDrwD5sAeqscT5COIGK1HszdCT3oh0MJFej2wNrvpfyW9h6yQaW6PA==}
+    dependencies:
+      debug: 4.3.4
+      jiti: 1.17.0
+      windicss: 3.5.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@windicss/plugin-utils/1.8.10:
+    resolution: {integrity: sha512-Phqk5OW1w+Mv+ry6t7BzAeDq3aMhbI94gR49j9vQCufFfDGCHndhhjtMK0sBv+NPJUsIAIh6qayb1iwBCXUGrw==}
+    dependencies:
+      '@antfu/utils': 0.7.2
+      '@windicss/config': 1.8.10
+      debug: 4.3.4
+      fast-glob: 3.2.12
+      magic-string: 0.27.0
+      micromatch: 4.0.5
+      windicss: 3.5.6
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /abbrev/1.1.1:
@@ -15135,6 +15194,23 @@ packages:
       - supports-color
     dev: false
 
+  /vite-plugin-windicss/1.8.10_vite@4.1.1:
+    resolution: {integrity: sha512-scywsuzo46lcTBohspmF0WiwhWEte6p+OUVrX4yr7VMRvLHMHVfLtJReyD5pppjijG7YOwVsZn7XBWWZtF658Q==}
+    peerDependencies:
+      vite: ^2.0.1 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      vite:
+        optional: true
+    dependencies:
+      '@windicss/plugin-utils': 1.8.10
+      debug: 4.3.4
+      kolorist: 1.7.0
+      vite: 4.1.1
+      windicss: 3.5.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /vite/3.2.5_@types+node@18.13.0:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -15519,6 +15595,11 @@ packages:
     dependencies:
       string-width: 5.1.2
     dev: false
+
+  /windicss/3.5.6:
+    resolution: {integrity: sha512-P1mzPEjgFMZLX0ZqfFht4fhV/FX8DTG7ERG1fBLiWvd34pTLVReS5CVsewKn9PApSgXnVfPWwvq+qUsRwpnwFA==}
+    engines: {node: '>= 12'}
+    hasBin: true
 
   /word-wrap/1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}
