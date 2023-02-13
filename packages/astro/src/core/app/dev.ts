@@ -1,5 +1,6 @@
-import type { ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
+import type { ComponentInstance, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest } from './types';
+import type http from 'http';
 import { posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createContainer, type CreateContainerParams } from '../dev/index.js';
@@ -24,10 +25,12 @@ export type DevAppParams = Partial<CreateContainerParams> & {
 export class DevApp extends App {
 	#createContainerParams: CreateContainerParams;
 	#manifest: Manifest;
-	#container: Awaited<ReturnType<typeof createContainer>> | null = null;
 	#env: DevelopmentEnvironment | null = null;
 	#root: URL;
 	#modToRoute = new Map<ComponentInstance, RouteData>();
+
+	// TODO don't expose this entire API
+	container: Awaited<ReturnType<typeof createContainer>> | null = null;
 	constructor(params: DevAppParams) {
 		const { root, userConfig } = params;
 		const manifest: Manifest = {
@@ -51,25 +54,25 @@ export class DevApp extends App {
 	}
 	
 	get loaded() {
-		return !!this.#container;
+		return !!this.container;
 	}
 
 	url(pathname: string): string | undefined {
 		if(!this.loaded) {
 			return undefined;
 		}
-		const { host, port } = this.#container!.settings.config.server
+		const { host, port } = this.container!.settings.config.server
 		return new URL(pathname, `http://${host}:${port}`).toString();
 	}
 
 	async load() {
 		if(this.loaded) {
 			await this.close();
-			this.#container = null;
+			this.container = null;
 			this.#env = null;
 		}
 
-		const container = this.#container = await createContainer(this.#createContainerParams);
+		const container = this.container = await createContainer(this.#createContainerParams);
 		this.#manifest.trailingSlash = container.settings.config.trailingSlash;
 
 		const loader = createViteLoader(container.viteServer);
@@ -92,11 +95,11 @@ export class DevApp extends App {
 	}
 
 	async close() {
-		await this.#container?.close();	
+		await this.container?.close();	
 	}
 
 	fileChanged(path: string) {
-		const container = this.#container!;
+		const container = this.container!;
 		const fs = this.#createContainerParams.fs!;
 		const root = fileURLToPath(this.#root);
 		const fullPath = posix.join(root, path);
@@ -106,6 +109,10 @@ export class DevApp extends App {
 			const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
 			container.viteServer.watcher.emit('change', drive + fullPath);
 		}
+	}
+
+	handle(req: http.IncomingMessage, res: http.ServerResponse) {
+		this.container!.handle(req, res);
 	}
 
 	async render(request: Request, route?: RouteData | undefined): Promise<Response> {
