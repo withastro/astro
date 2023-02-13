@@ -17,5 +17,6 @@ describe('mode: "directory"', () => {
 
 	it('generates functions folder inside the project root', async () => {
 		expect(await fixture.pathExists('../functions')).to.be.true;
+		expect(await fixture.pathExists('../functions/[[path]].js')).to.be.true;
 	});
 });
