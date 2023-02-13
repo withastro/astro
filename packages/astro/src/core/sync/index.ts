@@ -5,10 +5,10 @@ import { createServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
-import { getTimeStat } from '../../core/build/util.js';
-import { createVite } from '../../core/create-vite.js';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { info, LogOptions } from '../../core/logger/core.js';
+import { getTimeStat } from '../build/util.js';
+import { createVite } from '../create-vite.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import { info, LogOptions } from '../logger/core.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 
 export async function sync(

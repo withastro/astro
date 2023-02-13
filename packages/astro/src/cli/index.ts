@@ -212,7 +212,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'sync': {
-			const { sync } = await import('./sync/index.js');
+			const { sync } = await import('../core/sync/index.js');
 
 			const ret = await sync(settings, { logging, fs });
 			return process.exit(ret);
