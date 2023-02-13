@@ -1,60 +1,22 @@
 ---
-import { Markdoc } from '@astrojs/markdoc';
-import { Code } from 'astro/components';
-import Marquee from '../components/Marquee.astro';
-import { getCollection } from 'astro:content';
-import RedP from '../components/RedP.astro';
+import { getEntryBySlug } from 'astro:content';
+import DocsContent from '../components/DocsContent.astro';
+import Layout from '../layouts/Layout.astro';
 
-const entries = await getCollection('blog');
+const intro = await getEntryBySlug('docs', 'intro');
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-		<article>
-			{
-				entries.map(async (entry) => {
-					const { Content } = await entry.render();
-					if (entry.id.endsWith('mdoc')) {
-						return (
-							<Fragment>
-								<h1>{entry.data.title}</h1>
-								<Content
-									components={{
-										marquee: Marquee,
-										p: RedP,
-										pre: {
-											component: Code,
-											props({ attributes, getTreeNode }) {
-												return {
-													...attributes,
-													lang: attributes.lang ?? attributes['data-language'],
-													code: attributes.code ?? Markdoc.renderers.html(getTreeNode().children),
-												};
-											},
-										},
-									}}
-								/>
-								<hr />
-							</Fragment>
-						);
-					}
-					return (
-						<>
-							<h1>{entry.data.title}</h1>
-							<Content />
-							<hr />
-						</>
-					);
-				})
-			}
-		</article>
-	</body>
-</html>
+<Layout title={intro.data.title}>
+	<main>
+		<h1>{intro.data.title}</h1>
+		<!-- `DocsContent` is a thin wrapper around -->
+		<!-- the `Content` component provided by Content Collections, -->
+		<!-- with added Markdoc configuration and component mapping. -->
+		<!-- This allows you to share config wherever you render your Markdoc files. -->
+		<DocsContent entry={intro} />
+	</main>
+</Layout>
+
+<style is:global>
+	/*Copied from docs.astro*/
+</style>
