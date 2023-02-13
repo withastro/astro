@@ -1,4 +1,4 @@
-import { h, render } from 'preact';
+import { h, type JSX, render } from 'preact';
 import StaticHtml from './static-html.js';
 import type { SignalLike } from './types';
 
@@ -26,8 +26,18 @@ export default (element: HTMLElement) =>
 				props[propName] = sharedSignalMap.get(signalId);
 			}
 		}
+
+		// eslint-disable-next-line @typescript-eslint/no-shadow
+		function Wrapper({ children }: { children:  JSX.Element }) {
+			let attrs = Object.fromEntries(Array.from(element.attributes).map(attr => [attr.name, attr.value]));
+			return h(element.localName, attrs, children);
+		}
+	
 		render(
-			h(Component, props, children != null ? h(StaticHtml, { value: children }) : children),
+			h(Wrapper, null,
+				h(Component, props, children != null ? h(StaticHtml, { value: children }) : children)
+			),
+			element.parentNode!,
 			element
 		);
 	};
