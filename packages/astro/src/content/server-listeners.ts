@@ -1,4 +1,4 @@
-import { cyan } from 'kleur/colors';
+import { bold, cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { ViteDevServer } from 'vite';
@@ -8,6 +8,7 @@ import { appendForwardSlash } from '../core/path.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
 import { loadTSConfig } from '../core/config/tsconfig.js';
+import path from 'node:path';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;
@@ -89,20 +90,25 @@ function warnDisabledAllowJs({
 	settings: AstroSettings;
 }) {
 	const inputConfig = loadTSConfig(fileURLToPath(settings.config.root), false);
-	const TSConfigFileName = inputConfig.exists && inputConfig.path.split('/').pop();
+	const tsConfigFileName = inputConfig.exists && inputConfig.path.split(path.sep).pop();
+	if (!tsConfigFileName) return;
 
-	if (!TSConfigFileName) return;
-
-	const contentConfigFileName = contentPaths.config.url.pathname.split('/').pop();
+	const contentConfigFileName = contentPaths.config.url.pathname.split(path.sep).pop()!;
 	const allowJSOption = inputConfig?.config?.compilerOptions?.allowJs;
 	const hasAllowJs =
-		allowJSOption === true || (TSConfigFileName === 'jsconfig.json' && allowJSOption !== false);
+		allowJSOption === true || (tsConfigFileName === 'jsconfig.json' && allowJSOption !== false);
 
 	if (!hasAllowJs) {
 		warn(
 			logging,
 			'content',
-			`You need to have allowJs enabled in your ${TSConfigFileName} to use have autocompletion in your \`${contentConfigFileName}\` file.`
+			`Make sure you have the ${bold('allowJs')} compiler option set to ${bold(
+				'true'
+			)} in your ${bold(tsConfigFileName)} file to have autocompletion in your ${bold(
+				contentConfigFileName
+			)} file.
+See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more information..
+			`
 		);
 	}
 }
