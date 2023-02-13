@@ -149,6 +149,16 @@ importers:
       astro: link:../../packages/astro
       lit: 2.6.1
 
+  examples/framework-mithril:
+    specifiers:
+      '@astrojs/mithril': ^0.0.1
+      astro: ^2.0.10
+      mithril: ^2.2.2
+    dependencies:
+      '@astrojs/mithril': link:../../packages/integrations/mithril
+      astro: link:../../packages/astro
+      mithril: 2.2.2
+
   examples/framework-multiple:
     specifiers:
       '@astrojs/preact': ^2.0.2
