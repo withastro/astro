@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 
-import { runInContainer } from '../../../dist/core/dev/index.js';
 import { DevApp } from '../../../dist/core/app/dev.js';
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import { createFs } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -26,13 +25,17 @@ describe('base configuration', () => {
 					},
 				});
 
-				const request = new Request(`http://localhost:8080/docs/`);
-				const response = await app.render(request);
-
-				expect(response.status).to.equal(404);
+				try {
+					const request = new Request(`http://localhost:8080/docs/`);
+					const response = await app.render(request);
+	
+					expect(response.status).to.equal(404);
+				} finally {
+					await app.close();
+				}
 			});
 
-			it.only('Requests that exclude a trailing slash 200', async () => {
+			it('Requests that exclude a trailing slash 200', async () => {
 				const fs = createFs(
 					{
 						'/src/pages/index.astro': `<h1>testing</h1>`,
@@ -69,25 +72,23 @@ describe('base configuration', () => {
 					root
 				);
 
-				await runInContainer(
-					{
-						fs,
-						root,
-						userConfig: {
-							base: '/docs',
-							trailingSlash: 'never',
-						},
+				const app = new DevApp({
+					fs,
+					root,
+					userConfig: {
+						base: '/docs',
+						trailingSlash: 'never',
 					},
-					async (container) => {
-						const { req, res, done } = createRequestAndResponse({
-							method: 'GET',
-							url: '/docs/sub/',
-						});
-						container.handle(req, res);
-						await done;
-						expect(res.statusCode).to.equal(404);
-					}
-				);
+				});
+
+				try {
+					const request = new Request(`http://localhost:8080/docs/sub/`);
+
+					const response = await app.render(request);
+					expect(response.status).to.equal(404);
+				} finally {
+					await app.close();
+				}
 			});
 
 			it('Requests that exclude a trailing slash 200', async () => {
@@ -98,25 +99,23 @@ describe('base configuration', () => {
 					root
 				);
 
-				await runInContainer(
-					{
-						fs,
-						root,
-						userConfig: {
-							base: '/docs',
-							trailingSlash: 'never',
-						},
+				const app = new DevApp({
+					fs,
+					root,
+					userConfig: {
+						base: '/docs',
+						trailingSlash: 'never',
 					},
-					async (container) => {
-						const { req, res, done } = createRequestAndResponse({
-							method: 'GET',
-							url: '/docs/sub',
-						});
-						container.handle(req, res);
-						await done;
-						expect(res.statusCode).to.equal(200);
-					}
-				);
+				});
+
+				try {
+					const request = new Request(`http://localhost:8080/docs/sub`);
+
+					const response = await app.render(request);
+					expect(response.status).to.equal(200);
+				} finally {
+					await app.close();
+				}
 			});
 		});
 	});

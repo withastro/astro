@@ -104,9 +104,10 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) {
 			return undefined;
 		}
+		let hasTrailingSlash = url.pathname.endsWith('/');
 		let noBase = this.removeBase(url.pathname);
 		let pathname: string;
-		if(this.#manifest.trailingSlash === 'never' && noBase === '') {
+		if(this.#manifest.trailingSlash === 'never' && noBase === '' && !hasTrailingSlash) {
 			pathname = noBase;
 		} else {
 			pathname = prependForwardSlash(noBase);
