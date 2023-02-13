@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 2.0.3
+
+### Patch Changes
+
+- [#6215](https://github.com/withastro/astro/pull/6215) [`a7f18051b`](https://github.com/withastro/astro/commit/a7f18051b118b4f263ed9093ab17ed7eec0e4fd5) Thanks [@matthewp](https://github.com/matthewp)! - Prevent hydration mismatches in Preact
+
 ## 2.0.2
 
 ### Patch Changes
