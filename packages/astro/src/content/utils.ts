@@ -7,7 +7,6 @@ import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from '
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
@@ -163,11 +162,10 @@ export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config'>
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
-	const { dir: rawDir, ext, base } = path.parse(entryPath);
-	const dir = appendForwardSlash(pathToFileURL(rawDir).href);
-	const fileUrl = new URL(base, dir);
+	const { ext, base } = path.parse(entryPath);
+	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(fileUrl)) {
+	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(base)) {
 		return 'ignored';
 	} else if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
@@ -178,9 +176,8 @@ export function getEntryType(
 	}
 }
 
-function isOnIgnoreList(fileUrl: URL) {
-	const { base } = path.parse(fileURLToPath(fileUrl));
-	return ['.DS_Store'].includes(base);
+function isOnIgnoreList(fileName: string) {
+	return ['.DS_Store'].includes(fileName);
 }
 
 function hasUnderscoreInPath(fileUrl: URL): boolean {

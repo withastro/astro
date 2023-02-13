@@ -203,8 +203,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory) {
-					const functionsUrl = new URL('functions', _config.root);
+					const functionsUrl = new URL('functions/', _config.root);
 					await fs.promises.mkdir(functionsUrl, { recursive: true });
+
 					const directoryUrl = new URL('[[path]].js', functionsUrl);
 					await fs.promises.rename(finalBuildUrl, directoryUrl);
 				}

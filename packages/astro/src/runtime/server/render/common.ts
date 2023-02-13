@@ -72,8 +72,17 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 					}
 
 					// If the current scope is with Astro.slots.render()
-					case ScopeFlags.Slot: {
+					case ScopeFlags.Slot:
+					case ScopeFlags.Slot | ScopeFlags.HeadBuffer: {
 						if (hasScopeFlag(result, ScopeFlags.RenderSlot)) {
+							return '';
+						}
+						break;
+					}
+
+					// Nested element inside of JSX during head buffering phase
+					case ScopeFlags.HeadBuffer: {
+						if (hasScopeFlag(result, ScopeFlags.JSX | ScopeFlags.HeadBuffer)) {
 							return '';
 						}
 						break;
