@@ -1,4 +1,4 @@
-# @astrojs/markdoc 📝
+# @astrojs/markdoc (experimental) 📝
 
 This **[Astro integration][astro-integration]** enables the usage of [Markdoc](https://markdoc.dev/) to create components, pages, and content collection entries.
 
@@ -13,7 +13,7 @@ This **[Astro integration][astro-integration]** enables the usage of [Markdoc](h
 
 ## Why Markdoc?
 
-Markdoc allows you to enhance your Markdown with [UI components][astro-ui-frameworks]. If you have existing content authored in Markdoc, this integration allows you to bring those files to your Astro project.
+Markdoc allows you to enhance your Markdown with [UI components][astro-ui-frameworks]. If you have existing content authored in Markdoc, this integration allows you to bring those files to your Astro project using content collections.
 
 ## Installation
 
