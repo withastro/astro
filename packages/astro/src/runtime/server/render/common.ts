@@ -82,11 +82,11 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 
 					// Nested element inside of JSX during head buffering phase
 					case ScopeFlags.HeadBuffer: {
-            if(hasScopeFlag(result, ScopeFlags.JSX | ScopeFlags.HeadBuffer)) {
-              return "";
-            }
+						if (hasScopeFlag(result, ScopeFlags.JSX | ScopeFlags.HeadBuffer)) {
+							return '';
+						}
 						break;
-          }
+					}
 
 					// Astro.slots.render() should never render head content.
 					case ScopeFlags.RenderSlot | ScopeFlags.Astro:
