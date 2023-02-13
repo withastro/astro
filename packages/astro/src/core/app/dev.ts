@@ -50,11 +50,15 @@ export class DevApp extends App {
 			},
 			pageMap: new Map(),
 			renderers: [],
-			entryModules: new Proxy({}, {
-				get(target, key) {
-					return key;
-				}
-			}),
+			// Temporary hack
+      entryModules: new Proxy({}, {
+        has() {
+          return true;
+        },
+        get(target, key) {
+          return key;
+        }
+      }),
 			assets: new Set(),
 			propagation: new Map(),
 			trailingSlash: userConfig?.trailingSlash ?? 'ignore'
