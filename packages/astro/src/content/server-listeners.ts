@@ -25,8 +25,8 @@ export async function attachContentServerListeners({
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
 
-	const tsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
-	if (tsConfigStats) warnAllowJsIsFalse({ ...tsConfigStats, logging });
+	const maybeTsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
+	if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logging });
 
 	if (fs.existsSync(contentPaths.contentDir)) {
 		info(
