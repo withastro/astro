@@ -199,18 +199,18 @@ describe('Content Collections', () => {
 			expect(error).to.be.null;
 		});
 	});
-	describe('With config.js', () => {
+	describe('With config.mjs', () => {
 		it("Errors when frontmatter doesn't match schema", async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
 			});
-			let error = null;
+			let error;
 			try {
 				await fixture.build();
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include('frontmatter does not match collection schema');
+			expect(error).to.include('"title" should be string, not number.');
 		});
 	});
 
