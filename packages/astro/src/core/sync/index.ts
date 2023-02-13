@@ -7,14 +7,29 @@ import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
+import { runHookConfigSetup } from '../../integrations/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 
+type ProcessExit = 0 | 1;
+
+export async function syncCli(
+	settings: AstroSettings,
+	{ logging, fs }: { logging: LogOptions; fs: typeof fsMod }
+): Promise<ProcessExit> {
+	const resolvedSettings = await runHookConfigSetup({
+		settings,
+		logging,
+		command: 'build',
+	});
+	return sync(resolvedSettings, { logging, fs });
+}
+
 export async function sync(
 	settings: AstroSettings,
 	{ logging, fs }: { logging: LogOptions; fs: typeof fsMod }
-): Promise<0 | 1> {
+): Promise<ProcessExit> {
 	const timerStart = performance.now();
 	// Needed to load content config
 	const tempViteServer = await createServer(
