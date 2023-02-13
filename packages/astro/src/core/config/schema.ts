@@ -117,12 +117,14 @@ export const AstroConfigSchema = z.object({
 	),
 	image: z
 		.object({
-			loader: z.string().optional(),
-			service: z.string().default('astro/assets/services/sharp'),
+			service: z.union([
+				z.literal('astro/image/services/sharp'),
+				z.literal('astro/image/services/squoosh'),
+				z.string().and(z.object({})),
+			]),
 		})
 		.default({
-			loader: undefined,
-			service: 'astro/assets/services/sharp',
+			service: 'astro/image/services/sharp',
 		}),
 	markdown: z
 		.object({

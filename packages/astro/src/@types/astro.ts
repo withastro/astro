@@ -701,6 +701,16 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Image options
+	 */
+	image?: {
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		service: 'astro/image/services/sharp' | 'astro/image/services/squoosh' | (string & {});
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
