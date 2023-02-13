@@ -23,19 +23,6 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
-const contentEntryType = {
-	extensions: ['.mdx'],
-	async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-		const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
-		return {
-			data: parsed.data,
-			body: parsed.content,
-			slug: parsed.data.slug,
-			rawData: parsed.matter,
-		};
-	},
-};
-
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
@@ -47,6 +34,23 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				addContentEntryType,
 				command,
 			}: any) => {
+				const contentEntryType = {
+					extensions: ['.mdx'],
+					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						return {
+							data: parsed.data,
+							body: parsed.content,
+							slug: parsed.data.slug,
+							rawData: parsed.matter,
+						};
+					},
+					contentModuleTypes: await fs.readFile(
+						new URL('../template/content-module-types.d.ts', import.meta.url),
+						'utf-8'
+					),
+				};
+
 				addPageExtension('.mdx');
 				addContentEntryType(contentEntryType);
 
