@@ -25,11 +25,8 @@ export async function attachContentServerListeners({
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
 
-	const isContentConfigJsFile = ['.js', '.mjs'].some((ext) =>
-		contentPaths.config.url.pathname.endsWith(ext)
-	);
-	if (isContentConfigJsFile && ['info', 'warn'].includes(logging.level))
-		warnDisabledAllowJs({ contentPaths, logging, settings });
+	const tsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
+	if (tsConfigStats) warnAllowJsIsFalse({ ...tsConfigStats, logging });
 
 	if (fs.existsSync(contentPaths.contentDir)) {
 		info(
@@ -80,25 +77,16 @@ export async function attachContentServerListeners({
 	}
 }
 
-function warnDisabledAllowJs({
-	contentPaths,
+function warnAllowJsIsFalse({
 	logging,
-	settings,
+	tsConfigFileName,
+	contentConfigFileName,
 }: {
-	contentPaths: ContentPaths;
 	logging: LogOptions;
-	settings: AstroSettings;
+	tsConfigFileName: string;
+	contentConfigFileName: string;
 }) {
-	const inputConfig = loadTSConfig(fileURLToPath(settings.config.root), false);
-	const tsConfigFileName = inputConfig.exists && inputConfig.path.split(path.sep).pop();
-	if (!tsConfigFileName) return;
-
-	const contentConfigFileName = contentPaths.config.url.pathname.split(path.sep).pop()!;
-	const allowJSOption = inputConfig?.config?.compilerOptions?.allowJs;
-	const hasAllowJs =
-		allowJSOption === true || (tsConfigFileName === 'jsconfig.json' && allowJSOption !== false);
-
-	if (!hasAllowJs) {
+	if (!['info', 'warn'].includes(logging.level))
 		warn(
 			logging,
 			'content',
@@ -110,5 +98,29 @@ function warnDisabledAllowJs({
 See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more information..
 			`
 		);
-	}
+}
+
+function getTSConfigStatsWhenAllowJsFalse({
+	contentPaths,
+	settings,
+}: {
+	contentPaths: ContentPaths;
+	settings: AstroSettings;
+}) {
+	const isContentConfigJsFile = ['.js', '.mjs'].some((ext) =>
+		contentPaths.config.url.pathname.endsWith(ext)
+	);
+	if (!isContentConfigJsFile) return;
+
+	const inputConfig = loadTSConfig(fileURLToPath(settings.config.root), false);
+	const tsConfigFileName = inputConfig.exists && inputConfig.path.split(path.sep).pop();
+	if (!tsConfigFileName) return;
+
+	const contentConfigFileName = contentPaths.config.url.pathname.split(path.sep).pop()!;
+	const allowJSOption = inputConfig?.config?.compilerOptions?.allowJs;
+	const hasAllowJs =
+		allowJSOption === true || (tsConfigFileName === 'jsconfig.json' && allowJSOption !== false);
+	if (hasAllowJs) return;
+
+	return { tsConfigFileName, contentConfigFileName };
 }
