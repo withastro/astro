@@ -1,4 +1,4 @@
-import { h, type JSX, render } from 'preact';
+import { h, render, type JSX } from 'preact';
 import StaticHtml from './static-html.js';
 import type { SignalLike } from './types';
 
@@ -28,13 +28,17 @@ export default (element: HTMLElement) =>
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-shadow
-		function Wrapper({ children }: { children:  JSX.Element }) {
-			let attrs = Object.fromEntries(Array.from(element.attributes).map(attr => [attr.name, attr.value]));
+		function Wrapper({ children }: { children: JSX.Element }) {
+			let attrs = Object.fromEntries(
+				Array.from(element.attributes).map((attr) => [attr.name, attr.value])
+			);
 			return h(element.localName, attrs, children);
 		}
-	
+
 		render(
-			h(Wrapper, null,
+			h(
+				Wrapper,
+				null,
 				h(Component, props, children != null ? h(StaticHtml, { value: children }) : children)
 			),
 			element.parentNode!,
