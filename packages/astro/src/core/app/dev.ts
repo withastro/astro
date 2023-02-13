@@ -1,10 +1,20 @@
-import type { ManifestData, RouteData } from '../../@types/astro';
+import type { ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest } from './types';
 import { createContainer, type CreateContainerParams } from '../dev/index.js';
 import { createViteLoader } from '../module-loader/index.js';
 import { createRouteManifest } from '../routing/index.js';
-import { createDevelopmentEnvironment, preload, type DevelopmentEnvironment } from '../render/dev/index.js';
+import {
+	createDevelopmentEnvironment,
+	getScriptsAndStyles,
+	preload,
+	type DevelopmentEnvironment
+} from '../render/dev/index.js';
+import {
+	createRenderContext,
+	renderPage as coreRenderPage
+} from '../render/index.js';
 import { App, MatchOptions } from './index.js';
+import { RenderContext, Environment } from '../render';
 
 export type DevAppParams = Partial<CreateContainerParams> & {
 	root: URL;
@@ -16,6 +26,7 @@ export class DevApp extends App {
 	#container: Awaited<ReturnType<typeof createContainer>> | null = null;
 	#env: DevelopmentEnvironment | null = null;
 	#root: URL;
+	#modToRoute = new Map<ComponentInstance, RouteData>();
 	constructor(params: DevAppParams) {
 		const { root, userConfig } = params;
 		const manifest: Manifest = {
@@ -98,7 +109,24 @@ export class DevApp extends App {
 
 			// Save this module in the pageMap, so that super.render() finds it.
 			this.#manifest.pageMap.set(route.component, mod);
+			this.#modToRoute.set(mod, route);
 		}
 		return super.render(request, route);
 	}
+
+	renderPage = async (mod: ComponentInstance, ctx: RenderContext, env: Environment) => {
+		const route = this.#modToRoute.get(mod)!;
+
+		const { scripts, links, styles, propagationMap } = await getScriptsAndStyles({
+			env: this.#env!,
+			filePath: new URL(route.component, this.#root),
+		});
+
+		ctx.scripts = scripts;
+		ctx.links = links;
+		ctx.styles = styles;
+		ctx.propagation = propagationMap;
+
+		return coreRenderPage(mod, ctx, env);
+	};
 }

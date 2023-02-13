@@ -47,6 +47,7 @@ export class App {
 	};
 	#base: string;
 	#baseWithoutTrailingSlash: string;
+	renderPage: typeof renderPage;
 
 	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
@@ -80,6 +81,7 @@ export class App {
 
 		this.#base = this.#manifest.base || '/';
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
+		this.renderPage = renderPage;
 	}
 	updateRoutes(routes: RouteInfo[]) {
 		this.#manifestData = {
@@ -212,7 +214,7 @@ export class App {
 				status,
 			});
 
-			const response = await renderPage(mod, ctx, this.#env);
+			const response = await this.renderPage(mod, ctx, this.#env);
 			return response;
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));

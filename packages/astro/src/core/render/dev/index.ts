@@ -74,7 +74,7 @@ interface GetScriptsAndStylesParams {
 	filePath: URL;
 }
 
-async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
+export async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
 	// Add hoisted script tags
 	const scripts = await getScriptsForURL(filePath, env.loader);
 

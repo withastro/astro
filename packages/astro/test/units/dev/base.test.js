@@ -52,40 +52,11 @@ describe('base configuration', () => {
 				try {
 					const request = new Request(`http://localhost:8080/docs`);
 
-					debugger;
 					const response = await app.render(request);
-	
 					expect(response.status).to.equal(200);
-					console.log(await response.text());
 				} finally {
 					await app.close();
 				}
-
-
-				
-				/*
-
-				await runInContainer(
-					{
-						fs,
-						root,
-						userConfig: {
-							base: '/docs',
-							trailingSlash: 'never',
-						},
-					},
-					async (container) => {
-						const { req, res, done, text } = createRequestAndResponse({
-							method: 'GET',
-							url: '/docs',
-						});
-						container.handle(req, res);
-						await done;
-						expect(res.statusCode).to.equal(200);
-					}
-				);
-					*/
-				
 			});
 		});
 
