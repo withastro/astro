@@ -50,7 +50,11 @@ export class DevApp extends App {
 			},
 			pageMap: new Map(),
 			renderers: [],
-			entryModules: {},
+			entryModules: new Proxy({}, {
+				get(target, key) {
+					return key;
+				}
+			}),
 			assets: new Set(),
 			propagation: new Map(),
 			trailingSlash: userConfig?.trailingSlash ?? 'ignore'
@@ -80,15 +84,17 @@ export class DevApp extends App {
 			this.#env = null;
 		}
 
-		const configResult = await openConfig({
-			cmd: 'dev',
-			logging,
-		});
-
 		const params: CreateContainerParams = {
 			...this.#createContainerParams,
-			settings: createSettings(configResult.astroConfig),
 		};
+
+		if(!this.#createContainerParams.userConfig) {
+			const configResult = await openConfig({
+				cmd: 'dev',
+				logging,
+			});
+			params.settings = createSettings(configResult.astroConfig);
+		}
 
 		const container = this.container = await createContainer(params);
 		this.#manifest.trailingSlash = container.settings.config.trailingSlash;
