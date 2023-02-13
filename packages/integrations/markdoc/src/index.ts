@@ -5,24 +5,27 @@ import { parseFrontmatter } from './utils.js';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 
-const contentEntryType = {
-	extensions: ['.mdoc'],
-	async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-		const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
-		return {
-			data: parsed.data,
-			body: parsed.content,
-			slug: parsed.data.slug,
-			rawData: parsed.matter,
-		};
-	},
-};
-
 export default function markdoc(): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addContentEntryType, command }: any) => {
+				const contentEntryType = {
+					extensions: ['.mdoc'],
+					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						return {
+							data: parsed.data,
+							body: parsed.content,
+							slug: parsed.data.slug,
+							rawData: parsed.matter,
+						};
+					},
+					contentModuleTypes: await fs.promises.readFile(
+						new URL('../template/content-module-types.d.ts', import.meta.url),
+						'utf-8'
+					),
+				};
 				addContentEntryType(contentEntryType);
 
 				const markdocConfigUrl = new URL('./markdoc.config', config.srcDir);
