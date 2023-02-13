@@ -69,5 +69,17 @@ describe('Head injection w/ MDX', () => {
 			const bodyLinks = $('body link[rel=stylesheet]');
 			expect(bodyLinks).to.have.a.lengthOf(0);
 		});
+
+		it('JSX component rendering Astro children within head buffering phase', async () => {
+			const html = await fixture.readFile('/posts/using-component/index.html');
+			// Using cheerio here because linkedom doesn't support head tag injection
+			const $ = cheerio.load(html);
+
+			const headLinks = $('head link[rel=stylesheet]');
+			expect(headLinks).to.have.a.lengthOf(1);
+
+			const bodyLinks = $('body link[rel=stylesheet]');
+			expect(bodyLinks).to.have.a.lengthOf(0);
+		});
 	});
 });
