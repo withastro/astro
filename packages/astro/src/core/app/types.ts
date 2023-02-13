@@ -1,5 +1,6 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
+	AstroConfig,
 	ComponentInstance,
 	PropagationHint,
 	RouteData,
@@ -37,6 +38,7 @@ export interface SSRManifest {
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	propagation: SSRResult['propagation'];
+	trailingSlash: AstroConfig['trailingSlash'];
 }
 
 export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'propagation'> & {

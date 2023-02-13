@@ -37,8 +37,18 @@ export class DevApp extends App {
 		this.#root = root;
 		this.#createContainerParams = params;
 	}
+	
+	get loaded() {
+		return !!this.#container;
+	}
 
 	async load() {
+		if(this.loaded) {
+			await this.close();
+			this.#container = null;
+			this.#env = null;
+		}
+
 		const container = this.#container = await createContainer(this.#createContainerParams);
 		this.#manifest.trailingSlash = container.settings.config.trailingSlash;
 
@@ -66,7 +76,7 @@ export class DevApp extends App {
 	}
 
 	async render(request: Request, route?: RouteData | undefined): Promise<Response> {
-		if(!this.#env) {
+		if(!this.loaded) {
 			await this.load();
 		}
 		if(!route) {
@@ -74,13 +84,19 @@ export class DevApp extends App {
 		}
 		if(route) {
 			const filePath = new URL(route.component, this.#root);
-			debugger;
+
+			// Always run preload so that if there has been a change in the file, the new
+			// version will run.
 			const [renderers, mod] = await preload({
 				env: this.#env!,
 				filePath
 			});
+
+			// Always reset the renderers as they might have changed.
 			this.#manifest.renderers.length = 0;
 			this.#manifest.renderers.push(...renderers);
+
+			// Save this module in the pageMap, so that super.render() finds it.
 			this.#manifest.pageMap.set(route.component, mod);
 		}
 		return super.render(request, route);

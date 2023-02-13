@@ -87,6 +87,9 @@ export class App {
 		};
 		this.#routeDataToRouteInfo = new Map(routes.map((route) => [route.routeData, route]));
 	}
+	get routes() {
+		return this.#manifestData.routes;
+	}
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
