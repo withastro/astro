@@ -56,15 +56,88 @@ export default defineConfig({
 
 ## Usage
 
-TODO
+Markdoc files can be used within content collections. Add entries to any content collection using the `.mdoc` extension:
+
+```sh
+src/content/docs/
+  why-markdoc.mdoc
+  quick-start.mdoc
+```
+
+Then, query for these files using the [Content Collection APIs](https://docs.astro.build/en/guides/content-collections/#querying-collections):
+
+```astro
+---
+import { getEntryBySlug } from 'astro:content';
+
+const entry = await getEntryBySlug('docs', 'why-markdoc');
+const { Content } = await entry.render();
+---
+
+<!--Access frontmatter properties with `data`-->
+<h1>{entry.data.title}</h1>
+<!--Render Markdoc contents with the Content component-->
+<Content />
+```
+
+📚 See the [Astro Content Collection docs][astro-content-collections] for more information.
 
 ## Configuration
 
-TODO
+You can configure how your Markdoc content is rendered using props via the `Content` component. This component is returned by [a content collection `render()` result](https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html).
+
+### `config` prop
+
+The `config` prop accepts all [Markdoc configuration options](https://markdoc.dev/docs/config#full-example), including tags and variables.
+
+This example defines a `version` variable to use within a `why-markdoc.mdoc` entry:
+
+```astro
+---
+import { getEntryBySlug } from 'astro:content';
+
+const entry = await getEntryBySlug('docs', 'why-markdoc');
+const { Content } = await entry.render();
+---
+
+<Content
+  config={{
+    variables: {
+      version: '0.0.1',
+    }
+  }}
+/>
+```
+
+### `components` prop
+
+The `components` prop defines mappings from an HTML element name to an Astro or UI framework component (React, Vue, Svelte, etc).
+
+:::note
+`components` does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
+:::
+
+This example renders all `h1` headings using a `Title` component:
+
+```astro
+---
+import { getEntryBySlug } from 'astro:content';
+import Title from '../components/Title.astro';
+
+const entry = await getEntryBySlug('docs', 'why-markdoc');
+const { Content } = await entry.render();
+---
+
+<Content
+  components={{
+    h1: Title,
+  }}
+/>
+```
 
 ## Examples
 
-TODO
+*   The [Astro Markdoc starter template](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use Markdoc files in your Astro project.
 
 ## Troubleshooting
 
@@ -83,3 +156,5 @@ See [CHANGELOG.md](https://github.com/withastro/astro/tree/main/packages/integra
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
+
+[astro-content-collections]: https://docs.astro.build/en/guides/content-collections/
