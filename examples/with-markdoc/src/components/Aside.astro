@@ -4,10 +4,14 @@ export interface Props {
 	title?: string;
 }
 
-const t = {
-	'aside.tip': 'Tip',
+const labelByType = {
+	note: 'Note',
+	tip: 'Tip',
+	caution: 'Caution',
+	danger: 'Danger',
 };
-const { type = 'note', title = t[`aside.${type}`] } = Astro.props as Props;
+const { type = 'note' } = Astro.props as Props;
+const title = Astro.props.title ?? labelByType[type] ?? '';
 
 // SVG icon paths based on GitHub Octicons
 const icons: Record<NonNullable<Props['type']>, { viewBox: string; d: string }> = {
@@ -49,6 +53,9 @@ const { viewBox, d } = icons[type];
 	aside {
 		--color-base-purple: 269, 79%;
 		--color-base-teal: 180, 80%;
+		--color-base-red: 351, 100%;
+		--color-base-yellow: 41, 100%;
+
 		--aside-color-base: var(--color-base-purple);
 		--aside-color-lightness: 54%;
 		--aside-accent-color: hsl(var(--aside-color-base), var(--aside-color-lightness));
@@ -57,17 +64,9 @@ const { viewBox, d } = icons[type];
 
 		border-inline-start: 4px solid var(--aside-accent-color);
 		padding: 1rem;
-		background-color: hsla(
-			var(--aside-color-base),
-			var(--aside-color-lightness),
-			var(--theme-accent-opacity)
-		);
+		background-color: hsla(var(--aside-color-base), var(--aside-color-lightness), 0.1);
 		/* Indicates the aside boundaries for forced colors users, transparent is changed to a solid color */
 		outline: 1px solid transparent;
-	}
-
-	:global(.theme-dark) aside {
-		--aside-text-lightness: 85%;
 	}
 
 	.title {
@@ -90,15 +89,6 @@ const { viewBox, d } = icons[type];
 	aside :global(a),
 	aside :global(a > code:not([class*='language'])) {
 		color: var(--aside-text-accent-color);
-	}
-
-	aside :global(p),
-	aside.content :global(ul) {
-		color: var(--theme-text);
-	}
-
-	:global(.theme-dark) aside :global(code:not([class*='language'])) {
-		color: var(--theme-code-text);
 	}
 
 	aside :global(pre) {
