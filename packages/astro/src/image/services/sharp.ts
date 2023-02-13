@@ -14,7 +14,7 @@ const sharpService: LocalImageService = {
 	},
 	async transform(inputBuffer, transform) {
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
-		// In the future, hopefully we can replace this with `avif`, alas, Edge.
+		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
 		if (!transform.format) {
 			transform.format = 'webp';
 		}

@@ -28,8 +28,8 @@ export interface ImageMetadata {
  * Type expected by getImage
  */
 export type ImageTransform =
-	| LocalImageProps<Record<string, never>>
-	| RemoteImageProps<Record<string, never>>;
+	| LocalImageProps<{ [key: string]: any }>
+	| RemoteImageProps<{ [key: string]: any }>;
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type ImageSharedProps<T> = T & {
