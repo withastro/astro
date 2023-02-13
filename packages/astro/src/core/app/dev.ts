@@ -1,9 +1,11 @@
 import type { ComponentInstance, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest } from './types';
+import type { LogOptions } from '../logger/core';
 import type http from 'http';
 import { posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createContainer, type CreateContainerParams } from '../dev/index.js';
+import { openConfig, createSettings } from '../config/index.js';
 import { createViteLoader } from '../module-loader/index.js';
 import { createRouteManifest } from '../routing/index.js';
 import {
@@ -17,6 +19,12 @@ import {
 } from '../render/index.js';
 import { App } from './index.js';
 import { RenderContext, Environment } from '../render';
+import { nodeLogDestination } from '../logger/node.js';
+
+export const logging: LogOptions = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
 
 export type DevAppParams = Partial<CreateContainerParams> & {
 	root: URL;
@@ -72,7 +80,17 @@ export class DevApp extends App {
 			this.#env = null;
 		}
 
-		const container = this.container = await createContainer(this.#createContainerParams);
+		const configResult = await openConfig({
+			cmd: 'dev',
+			logging,
+		});
+
+		const params: CreateContainerParams = {
+			...this.#createContainerParams,
+			settings: createSettings(configResult.astroConfig),
+		};
+
+		const container = this.container = await createContainer(params);
 		this.#manifest.trailingSlash = container.settings.config.trailingSlash;
 
 		const loader = createViteLoader(container.viteServer);
