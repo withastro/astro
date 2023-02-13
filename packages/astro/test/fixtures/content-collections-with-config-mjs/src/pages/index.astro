@@ -1,12 +1,5 @@
 ---
-import {getCollection} from "astro:content"
-
-const blogEntries = await getCollection("blog");
+import {getEntryBySlug} from "astro:content"
+const blogEntry = await getEntryBySlug("blog", "introduction");
 ---
-<ul>
-  {blogEntries.map(blogPostEntry => (
-    <li>
-     {blogPostEntry.data.title}
-    </li>
-  ))}
-</ul>
+{blogEntry.data.title}
