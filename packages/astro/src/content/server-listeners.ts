@@ -21,7 +21,7 @@ export async function attachContentServerListeners({
 	logging,
 	settings,
 }: ContentServerListenerParams) {
-	const contentPaths = getContentPaths(settings.config);
+	const contentPaths = getContentPaths(settings.config, fs);
 
 	if (fs.existsSync(contentPaths.contentDir)) {
 		info(

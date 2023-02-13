@@ -1,6 +1,6 @@
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
-import type fsMod from 'node:fs';
+import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
@@ -171,7 +171,7 @@ export function getEntryType(
 		return 'ignored';
 	} else if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
-	} else if (fileUrl.href === paths.config.href) {
+	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
 	} else {
 		return 'unsupported';
@@ -253,13 +253,13 @@ export async function loadContentConfig({
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
-	const contentPaths = getContentPaths(settings.config);
+	const contentPaths = getContentPaths(settings.config, fs);
 	let unparsedConfig;
-	if (!fs.existsSync(contentPaths.config)) {
+	if (!contentPaths.config.exists) {
 		return undefined;
 	}
 	try {
-		const configPathname = fileURLToPath(contentPaths.config);
+		const configPathname = fileURLToPath(contentPaths.config.url);
 		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 	} catch (e) {
 		throw e;
@@ -316,19 +316,34 @@ export type ContentPaths = {
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
-	config: URL;
+	config: {
+		exists: boolean;
+		url: URL;
+	};
 };
 
-export function getContentPaths({
-	srcDir,
-	root,
-}: Pick<AstroConfig, 'root' | 'srcDir'>): ContentPaths {
+export function getContentPaths(
+	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	fs: typeof fsMod = fsMod
+): ContentPaths {
+	const configStats = search(fs, srcDir);
 	const templateDir = new URL('../../src/content/template/', import.meta.url);
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
-		config: new URL('./content/config.ts', srcDir),
+		config: configStats,
 	};
+}
+function search(fs: typeof fsMod, srcDir: URL) {
+	const paths = ['config.mjs', 'config.js', 'config.ts'].map(
+		(p) => new URL(`./content/${p}`, srcDir)
+	);
+	for (const file of paths) {
+		if (fs.existsSync(file)) {
+			return { exists: true, url: file };
+		}
+	}
+	return { exists: false, url: paths[0] };
 }
