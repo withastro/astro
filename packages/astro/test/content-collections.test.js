@@ -202,7 +202,7 @@ describe('Content Collections', () => {
 	describe('With config.js', () => {
 		it("Errors when frontmatter doesn't match schema", async () => {
 			const fixture = await loadFixture({
-				root: './fixtures/content-collections-with-config-js/',
+				root: './fixtures/content-collections-with-config-mjs/',
 			});
 			let error = null;
 			try {

@@ -5,7 +5,10 @@ import { fileURLToPath } from 'node:url';
 describe('Content Collections - getEntryType', () => {
 	const contentDir = new URL('src/content/', import.meta.url);
 	const contentPaths = {
-		config: new URL('src/content/config.ts', import.meta.url),
+		config: {
+			url: new URL('src/content/config.ts', import.meta.url),
+			exists: true,
+		},
 	};
 
 	it('Returns "content" for Markdown files', () => {
@@ -25,7 +28,7 @@ describe('Content Collections - getEntryType', () => {
 	});
 
 	it('Returns "config" for config files', () => {
-		const entry = fileURLToPath(contentPaths.config);
+		const entry = fileURLToPath(contentPaths.config.url);
 		const type = getEntryType(entry, contentPaths);
 		expect(type).to.equal('config');
 	});

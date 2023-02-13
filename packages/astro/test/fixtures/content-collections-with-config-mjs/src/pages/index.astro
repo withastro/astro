@@ -6,7 +6,7 @@ const blogEntries = await getCollection("blog");
 <ul>
   {blogEntries.map(blogPostEntry => (
     <li>
-      <a href={`/my-blog-url/${blogPostEntry.slug}`}>{blogPostEntry.data.title}</a>
+     {blogPostEntry.data.title}
     </li>
   ))}
 </ul>
