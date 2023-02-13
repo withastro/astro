@@ -49,7 +49,7 @@ Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode 
 
 For most projects the adaptor default of `advanced` will be sufficient; the `dist` folder will contain your compiled project. Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
 
-In directory mode the adaptor will compile the client side part of your app the same way, but moves the worker script into a `functions` folder in the project root. The adaptor will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control. Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
+In directory mode the adapter will compile the client side part of your app the same way, but moves the worker script into a `functions` folder in the project root. The adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control. Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
 
 ```ts
 // directory mode
