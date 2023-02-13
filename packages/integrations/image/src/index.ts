@@ -135,7 +135,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 
 				// Helpers for building static images should only be available for SSG
-				if (_config.output === 'static') {
+				if (_config.output === 'static' || _config.output === 'server') {
 					globalThis.astroImage.addStaticImage = addStaticImage;
 				}
 			},
