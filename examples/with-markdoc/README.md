@@ -1,11 +1,13 @@
-# Astro Starter Kit: Minimal
+# Astro Starter Kit: Markdoc (experimental)
+
+This starter showcases the experimental Markdoc integration.
 
 ```
-npm create astro@latest -- --template minimal
+npm create astro@latest -- --template with-markdoc
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/with-markdoc)
+[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/with-markdoc)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
@@ -17,16 +19,18 @@ Inside of your Astro project, you'll see the following folders and files:
 /
 ├── public/
 ├── src/
+│   └── content/docs/
+│       └── intro.mdoc
+│   └── components/
+│       └── DocsContent.astro
 │   └── pages/
 │       └── index.astro
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Markdoc can be used within content collection using the `.mdoc` extension. See `content/docs/` for an example.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
+You can also apply Astro components and server-rendered UI components (React, Vue, Svelte, etc) to your Markdoc files. See `src/content/DocsContent.astro` for an example configuration.
 
 ## 🧞 Commands
 
