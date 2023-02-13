@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
+import { DevApp } from '../../../dist/core/app/dev.js';
 import { runInContainer } from '../../../dist/core/dev/index.js';
 import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
@@ -25,17 +26,21 @@ describe('dev container', () => {
 			root
 		);
 
-		await runInContainer({ fs, root }, async (container) => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(req, res);
-			const html = await text();
+		const app = new DevApp({ fs, root });
+		try {
+			await app.load();
+			const request = new Request(app.url('/'));
+
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+
+			const html = await response.text();
 			const $ = cheerio.load(html);
-			expect(res.statusCode).to.equal(200);
+			
 			expect($('h1')).to.have.a.lengthOf(1);
-		});
+		} finally {
+			await app.close();
+		}
 	});
 
 	it('HMR only short circuits on previously cached modules', async () => {
@@ -60,13 +65,14 @@ describe('dev container', () => {
 			root
 		);
 
-		await runInContainer({ fs, root }, async (container) => {
-			let r = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(r.req, r.res);
-			let html = await r.text();
+		const app = new DevApp({ fs, root });
+		try {
+			await app.load();
+
+			let request = new Request(app.url('/'));
+			let response = await app.render(request);
+
+			let html = await response.text();
 			let $ = cheerio.load(html);
 			expect($('body.one')).to.have.a.lengthOf(1);
 
@@ -76,7 +82,7 @@ describe('dev container', () => {
 				<h1>{Astro.props.title}</h1>
 			`
 			);
-			triggerFSEvent(container, fs, '/src/components/Header.astro', 'change');
+			app.fileChanged('/src/components/Header.astro');
 
 			fs.writeFileFromRootSync(
 				'/src/pages/index.astro',
@@ -93,18 +99,18 @@ describe('dev container', () => {
 				</html>
 			`
 			);
-			triggerFSEvent(container, fs, '/src/pages/index.astro', 'change');
+			app.fileChanged('/src/pages/index.astro');
 
-			r = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(r.req, r.res);
-			html = await r.text();
+			request = new Request(app.url('/'));
+			response = await app.render(request);
+			html = await response.text();
 			$ = cheerio.load(html);
 			expect($('body.one')).to.have.a.lengthOf(0);
 			expect($('body.two')).to.have.a.lengthOf(1);
-		});
+
+		} finally {
+			await app.close();
+		}
 	});
 
 	it('Allows dynamic segments in injected routes', async () => {

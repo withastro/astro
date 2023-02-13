@@ -1,5 +1,7 @@
 import type { ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest } from './types';
+import { posix } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createContainer, type CreateContainerParams } from '../dev/index.js';
 import { createViteLoader } from '../module-loader/index.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -10,10 +12,9 @@ import {
 	type DevelopmentEnvironment
 } from '../render/dev/index.js';
 import {
-	createRenderContext,
 	renderPage as coreRenderPage
 } from '../render/index.js';
-import { App, MatchOptions } from './index.js';
+import { App } from './index.js';
 import { RenderContext, Environment } from '../render';
 
 export type DevAppParams = Partial<CreateContainerParams> & {
@@ -53,6 +54,14 @@ export class DevApp extends App {
 		return !!this.#container;
 	}
 
+	url(pathname: string): string | undefined {
+		if(!this.loaded) {
+			return undefined;
+		}
+		const { host, port } = this.#container!.settings.config.server
+		return new URL(pathname, `http://${host}:${port}`).toString();
+	}
+
 	async load() {
 		if(this.loaded) {
 			await this.close();
@@ -84,6 +93,19 @@ export class DevApp extends App {
 
 	async close() {
 		await this.#container?.close();	
+	}
+
+	fileChanged(path: string) {
+		const container = this.#container!;
+		const fs = this.#createContainerParams.fs!;
+		const root = fileURLToPath(this.#root);
+		const fullPath = posix.join(root, path);
+		container.viteServer.watcher.emit('change', fullPath);
+
+		if (!fileURLToPath(container.settings.config.root).startsWith('/')) {
+			const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
+			container.viteServer.watcher.emit('change', drive + fullPath);
+		}
 	}
 
 	async render(request: Request, route?: RouteData | undefined): Promise<Response> {
