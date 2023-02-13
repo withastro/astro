@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, ViteDevServer } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
@@ -58,7 +58,7 @@ export async function createContentTypesGenerator({
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
+	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
 	async function init(): Promise<
 		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
@@ -245,8 +245,9 @@ export async function createContentTypesGenerator({
 				fs,
 				contentTypes,
 				contentPaths,
-				contentTypesBase,
+				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
+				contentEntryTypes: settings.contentEntryTypes,
 			});
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 				warnNonexistentCollections({
@@ -304,13 +305,15 @@ async function writeContentFiles({
 	fs,
 	contentPaths,
 	contentTypes,
-	contentTypesBase,
+	typeTemplateContent,
+	contentEntryTypes,
 	contentConfig,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
 	contentTypes: ContentTypes;
-	contentTypesBase: string;
+	typeTemplateContent: string;
+	contentEntryTypes: ContentEntryType[];
 	contentConfig?: ContentConfig;
 }) {
 	let contentTypesStr = '';
@@ -322,8 +325,11 @@ async function writeContentFiles({
 		for (const entryKey of entryKeys) {
 			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+			const renderType = `{ render(): Render[${JSON.stringify(
+				path.extname(JSON.parse(entryKey))
+			)}] }`;
 			const slugType = JSON.stringify(entryMetadata.slug);
-			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
+			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n} & ${renderType},\n`;
 		}
 		contentTypesStr += `},\n`;
 	}
@@ -343,13 +349,21 @@ async function writeContentFiles({
 		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
 	}
 
-	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
-	contentTypesBase = contentTypesBase.replace(
+	for (const contentEntryType of contentEntryTypes) {
+		if (contentEntryType.contentModuleTypes) {
+			typeTemplateContent = contentEntryType.contentModuleTypes + '\n' + typeTemplateContent;
+		}
+	}
+	typeTemplateContent = typeTemplateContent.replace('// @@ENTRY_MAP@@', contentTypesStr);
+	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
 		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
 	);
 
-	await fs.promises.writeFile(new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir), contentTypesBase);
+	await fs.promises.writeFile(
+		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
+		typeTemplateContent
+	);
 }
 
 function warnNonexistentCollections({

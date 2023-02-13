@@ -990,6 +990,7 @@ export interface ContentEntryType {
 		body: string;
 		slug: string;
 	}>;
+	contentModuleTypes?: string;
 }
 
 export interface AstroSettings {
