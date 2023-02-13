@@ -310,17 +310,10 @@ importers:
   examples/with-markdoc:
     specifiers:
       '@astrojs/markdoc': ^0.0.1
-      '@astrojs/mdx': ^0.16.0
-      '@markdoc/markdoc': ^0.2.2
       astro: ^2.0.6
-      shiki: ^0.11.1
     dependencies:
       '@astrojs/markdoc': link:../../packages/integrations/markdoc
-      '@astrojs/mdx': link:../../packages/integrations/mdx
       astro: link:../../packages/astro
-      shiki: 0.11.1
-    devDependencies:
-      '@markdoc/markdoc': 0.2.2
 
   examples/with-markdown-plugins:
     specifiers:
@@ -6535,6 +6528,7 @@ packages:
         optional: true
     optionalDependencies:
       '@types/markdown-it': 12.2.3
+    dev: false
 
   /@mdx-js/mdx/2.3.0:
     resolution: {integrity: sha512-jLuwRlz8DQfQNiUCJR50Y09CGPq3fLtmtUQfVrj79E0JWu3dvsVcxVIcfhR5h0iXu+/z++zDrYeiJqifRynJkA==}
@@ -7342,6 +7336,7 @@ packages:
 
   /@types/linkify-it/3.0.2:
     resolution: {integrity: sha512-HZQYqbiFVWufzCwexrvh694SOim8z2d+xJl5UNamcvQFejLY/2YUtzXHYi3cHdI7PMlS8ejH2slRAOJQ32aNbA==}
+    dev: false
     optional: true
 
   /@types/markdown-it/12.2.3:
@@ -7350,6 +7345,7 @@ packages:
     dependencies:
       '@types/linkify-it': 3.0.2
       '@types/mdurl': 1.0.2
+    dev: false
     optional: true
 
   /@types/mdast/3.0.10:
@@ -7359,6 +7355,7 @@ packages:
 
   /@types/mdurl/1.0.2:
     resolution: {integrity: sha512-eC4U9MlIcu2q0KQmXszyn5Akca/0jrQmwDRgpAMJai7qBWq4amIQhZyNau4VYGtCeALvW1/NtjzJJ567aZxfKA==}
+    dev: false
     optional: true
 
   /@types/mdx/2.0.3:
