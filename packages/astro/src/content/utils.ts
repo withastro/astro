@@ -7,7 +7,6 @@ import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from '
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { appendForwardSlash } from '../core/path.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
