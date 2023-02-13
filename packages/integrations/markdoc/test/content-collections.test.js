@@ -1,7 +1,14 @@
 import { parseHTML } from 'linkedom';
 import { parse as parseDevalue } from 'devalue';
 import { expect } from 'chai';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, fixLineEndings } from '../../../astro/test/test-utils.js';
+
+function formatPost(post) {
+	return {
+		...post,
+		body: fixLineEndings(post.body),
+	};
+}
 
 describe('Markdoc - Content Collections', () => {
 	let fixture;
@@ -26,14 +33,18 @@ describe('Markdoc - Content Collections', () => {
 		it('loads entry', async () => {
 			const res = await fixture.fetch('/entry.json');
 			const post = parseDevalue(await res.text());
-			expect(post).to.deep.equal(simplePostEntry);
+			expect(formatPost(post)).to.deep.equal(simplePostEntry);
 		});
 
 		it('loads collection', async () => {
 			const res = await fixture.fetch('/collection.json');
 			const posts = parseDevalue(await res.text());
 			expect(posts).to.not.be.null;
-			expect(posts.sort()).to.deep.equal([simplePostEntry, withComponentsEntry, withConfigEntry]);
+			expect(posts.sort().map((post) => formatPost(post))).to.deep.equal([
+				simplePostEntry,
+				withComponentsEntry,
+				withConfigEntry,
+			]);
 		});
 
 		it('renders content - simple', async () => {
@@ -84,14 +95,18 @@ describe('Markdoc - Content Collections', () => {
 		it('loads entry', async () => {
 			const res = await fixture.readFile('/entry.json');
 			const post = parseDevalue(res);
-			expect(post).to.deep.equal(simplePostEntry);
+			expect(formatPost(post)).to.deep.equal(simplePostEntry);
 		});
 
 		it('loads collection', async () => {
 			const res = await fixture.readFile('/collection.json');
 			const posts = parseDevalue(res);
 			expect(posts).to.not.be.null;
-			expect(posts.sort()).to.deep.equal([simplePostEntry, withComponentsEntry, withConfigEntry]);
+			expect(posts.sort().map((post) => formatPost(post))).to.deep.equal([
+				simplePostEntry,
+				withComponentsEntry,
+				withConfigEntry,
+			]);
 		});
 
 		it('renders content - simple', async () => {
