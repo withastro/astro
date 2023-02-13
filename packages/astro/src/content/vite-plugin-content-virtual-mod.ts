@@ -24,7 +24,12 @@ export function astroContentVirtualModPlugin({
 	);
 	const contentEntryExts = getContentEntryExts(settings);
 
-	const entryGlob = `${relContentDir}**/*{${contentEntryExts.join(',')}}`;
+	const extGlob =
+		contentEntryExts.length === 1
+			? // Wrapping {...} breaks when there is only one extension
+			  contentEntryExts[0]
+			: `{${contentEntryExts.join(',')}}`;
+	const entryGlob = `${relContentDir}**/*${extGlob}`;
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
