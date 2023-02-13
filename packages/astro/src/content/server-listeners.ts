@@ -95,7 +95,7 @@ function warnAllowJsIsFalse({
 			)} in your ${bold(tsConfigFileName)} file to have autocompletion in your ${bold(
 				contentConfigFileName
 			)} file.
-See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more information..
+See ${bold('https://www.typescriptlang.org/tsconfig#allowJs')} for more information.
 			`
 		);
 }
