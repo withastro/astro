@@ -287,7 +287,7 @@ importers:
 
   examples/with-markdoc:
     specifiers:
-      '@astrojs/markdoc': ^0.0.1
+      '@astrojs/markdoc': ^0.0.0
       astro: ^2.0.6
     dependencies:
       '@astrojs/markdoc': link:../../packages/integrations/markdoc
