@@ -1,6 +1,6 @@
 import type { ComponentInstance } from 'astro';
-import Markdoc from '@markdoc/markdoc';
 import type { RenderableTreeNode, Tag } from '@markdoc/markdoc';
+import Markdoc from '@markdoc/markdoc';
 import { escape } from 'html-escaper';
 
 export type ComponentRenderer =
