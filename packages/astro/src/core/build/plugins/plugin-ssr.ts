@@ -36,7 +36,7 @@ export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter):
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
-				return `import * as adapter from '${adapter.serverEntrypoint}';
+				return `import * as _adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
@@ -47,7 +47,7 @@ const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 export * from '${pagesVirtualModuleId}';
 ${
 	adapter.exports
-		? `const _exports = adapter.createExports(_manifest, _args);
+		? `const _exports = _adapter.createExports(_manifest, _args);
 ${adapter.exports
 	.map((name) => {
 		if (name === 'default') {
