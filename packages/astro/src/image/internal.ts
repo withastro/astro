@@ -8,16 +8,21 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 }
 
 async function getConfiguredService(): Promise<ImageService> {
-	const { default: service }: { default: ImageService } = await import(
-		// @ts-ignore
-		'virtual:image-service'
-	).catch((e) => {
-		const error = new AstroError(AstroErrorData.InvalidImageService);
-		(error as any).cause = e;
-		throw error;
-	});
+	if (!globalThis.astroImageService) {
+		const { default: service }: { default: ImageService } = await import(
+			// @ts-ignore
+			'virtual:image-service'
+		).catch((e) => {
+			const error = new AstroError(AstroErrorData.InvalidImageService);
+			(error as any).cause = e;
+			throw error;
+		});
 
-	return service;
+		globalThis.astroImageService = service;
+		return service;
+	}
+
+	return globalThis.astroImageService;
 }
 
 function validateOptions(options: ImageTransform) {
@@ -61,8 +66,7 @@ export async function getImage(options: ImageTransform) {
 	}
 
 	return {
+		...options,
 		src: service.getURL(options),
-		width: options.width,
-		height: options.height,
 	};
 }

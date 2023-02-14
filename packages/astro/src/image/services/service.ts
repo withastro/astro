@@ -1,6 +1,11 @@
 import { isESMImportedImage } from '../internal.js';
 import { ImageTransform, OutputFormat } from '../types.js';
 
+declare global {
+	// eslint-disable-next-line no-var
+	var astroImageService: ImageService;
+}
+
 export type ImageService = LocalImageService | ExternalImageService;
 
 export function isLocalService(service: ImageService): service is LocalImageService {
@@ -14,7 +19,7 @@ interface SharedServiceProps {
 
 export type ExternalImageService = SharedServiceProps;
 export interface LocalImageService extends SharedServiceProps {
-	parseParams: (params: URLSearchParams) => Record<string, any>;
+	parseParams: (params: URLSearchParams) => Partial<ImageTransform> | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
@@ -24,7 +29,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 */
 	transform: (
 		inputBuffer: Buffer,
-		transform: ImageTransform
+		transform: Partial<ImageTransform>
 	) => Promise<{ data: Buffer; format: OutputFormat }>;
 }
 
