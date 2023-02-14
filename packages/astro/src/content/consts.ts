@@ -6,3 +6,4 @@ export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
 export const SCRIPTS_PLACEHOLDER = '@@ASTRO-SCRIPTS@@';
 
 export const CONTENT_TYPES_FILE = 'types.d.ts';
+export const MARKDOWN_CONTENT_ENTRY_TYPE_NAME = 'astro:markdown';

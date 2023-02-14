@@ -12,10 +12,12 @@ import {
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
+import { hasMdContentEntryTypeOverride } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
 import { info, LogOptions } from '../core/logger/core.js';
+import { getMarkdownContentEntryType } from '../content/index.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -126,6 +128,12 @@ export async function runHookConfigSetup({
 	}
 
 	updatedSettings.config = updatedConfig;
+	if (!hasMdContentEntryTypeOverride(updatedSettings)) {
+		updatedSettings.contentEntryTypes.push(
+			await getMarkdownContentEntryType(updatedSettings.config, fs)
+		);
+	}
+
 	return updatedSettings;
 }
 

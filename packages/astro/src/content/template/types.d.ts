@@ -1,14 +1,4 @@
 declare module 'astro:content' {
-	interface Render {
-		'.md': Promise<{
-			Content: import('astro').MarkdownInstance<{}>['Content'];
-			headings: import('astro').MarkdownHeading[];
-			remarkPluginFrontmatter: Record<string, any>;
-		}>;
-	}
-}
-
-declare module 'astro:content' {
 	export { z } from 'astro/zod';
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]];
