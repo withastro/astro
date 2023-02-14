@@ -79,7 +79,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const entryUrl = new URL(_buildConfig.serverEntry, _buildConfig.server);
 				const pth = fileURLToPath(entryUrl);
 				const content = await fs.readFileSync(pth, 'utf8')
-				await fs.writeFileSync(pth, `${CONSTANT.DEFAULTIMPORT}\n${content}\n${CONSTANT.DEFAULTSTART}`);
+				await fs.writeFileSync(pth, `${CONSTANT.DEFAULTIMPORT}${content}${CONSTANT.DEFAULTSTART}`);
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
