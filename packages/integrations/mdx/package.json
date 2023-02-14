@@ -32,8 +32,8 @@
   "dependencies": {
     "@astrojs/markdown-remark": "^2.0.1",
     "@astrojs/prism": "^2.0.0",
-    "@mdx-js/mdx": "^2.1.2",
-    "@mdx-js/rollup": "^2.1.1",
+    "@mdx-js/mdx": "^2.3.0",
+    "@mdx-js/rollup": "^2.3.0",
     "acorn": "^8.8.0",
     "es-module-lexer": "^0.10.5",
     "estree-util-visit": "^1.2.0",
