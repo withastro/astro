@@ -7,6 +7,7 @@ import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from '
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { MARKDOWN_CONTENT_ENTRY_TYPE_NAME } from '../vite-plugin-markdown/content-entry-type.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
@@ -346,4 +347,12 @@ function search(fs: typeof fsMod, srcDir: URL) {
 		}
 	}
 	return { exists: false, url: paths[0] };
+}
+
+export function hasMdContentEntryTypeOverride(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+	return settings.contentEntryTypes.some(
+		(contentEntryType) =>
+			contentEntryType.name !== MARKDOWN_CONTENT_ENTRY_TYPE_NAME &&
+			contentEntryType.extensions.includes('.md')
+	);
 }

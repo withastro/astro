@@ -10,6 +10,7 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { getContentPaths } from '../content/index.js';
+import { hasMdContentEntryTypeOverride } from '../content/index.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -66,6 +67,15 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 		async load(id) {
 			if (isMarkdownFile(id)) {
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
+				if (
+					// Integrations can override the Markdown parser for content collections.
+					// If an override is present, skip this file.
+					fileId.startsWith(getContentPaths(settings.config).contentDir.pathname) &&
+					hasMdContentEntryTypeOverride(settings)
+				) {
+					return;
+				}
+
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 				const renderResult = await renderMarkdown(raw.content, {

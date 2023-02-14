@@ -35,6 +35,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				command,
 			}: any) => {
 				const contentEntryType = {
+					name: 'astro:mdx',
 					extensions: ['.mdx'],
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
