@@ -231,7 +231,7 @@ function rehypeSvgPlugin() {
 				{
 					type: 'element',
 					tagName: 'use',
-					properties: { 'xlink:href': '#icon' }
+					properties: { 'xLinkHref': '#icon' }
 				}
 			]
 		});
