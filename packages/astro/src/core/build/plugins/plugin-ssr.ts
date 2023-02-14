@@ -61,11 +61,13 @@ export { _default as default };`;
 `
 		: ''
 }
+export const adapter = _adapter
+${adapter.name !== '@astrojs/deno' ? `
 const _start = 'start';
-if(_start in adapter) {
-	adapter[_start](_manifest, _args);
-}`;
-			}
+if(_start in _adapter) {
+	_adapter[_start](_manifest, _args);
+}`: ''}`;
+		}
 			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
