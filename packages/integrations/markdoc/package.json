@@ -33,7 +33,6 @@
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",
     "gray-matter": "^4.0.3",
-    "html-escaper": "^3.0.3",
     "stringify-attributes": "^3.0.0"
   },
   "devDependencies": {
