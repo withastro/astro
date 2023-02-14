@@ -36,7 +36,7 @@ export default function markdoc(): AstroIntegration {
 								if (!id.endsWith('.mdoc')) return;
 								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Markdoc } from '@astrojs/markdoc';\nimport { Renderer } from '@astrojs/markdoc/components';\nexport const body = ${JSON.stringify(
 									code
-								)};\nexport function getParsed() { return Markdoc.parse(body); }\nexport async function getTransformed(inlineConfig) { return Markdoc.transform(getParsed(), inlineConfig) }\nexport async function Content ({ config, components }) { return h(Renderer, { content: await getTransformed(config), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
+								)};\nexport function getParsed() { return Markdoc.parse(body); }\nexport function getTransformed(inlineConfig) { return Markdoc.transform(getParsed(), inlineConfig) }\nexport async function Content ({ config, components }) { return h(Renderer, { content: getTransformed(config), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
 							},
 						},
 					],
