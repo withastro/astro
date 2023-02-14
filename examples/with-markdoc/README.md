@@ -28,7 +28,7 @@ Inside of your Astro project, you'll see the following folders and files:
 └── package.json
 ```
 
-Markdoc can be used within content collection using the `.mdoc` extension. See `content/docs/` for an example.
+Markdoc can be used in content collections with the `.mdoc` extension. See `content/docs/` for an example.
 
 You can also apply Astro components and server-rendered UI components (React, Vue, Svelte, etc) to your Markdoc files. See `src/content/DocsContent.astro` for an example configuration.
 
