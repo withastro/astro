@@ -2,13 +2,13 @@
 title: Welcome to Markdoc 👋
 ---
 
-This simple starter showcases Markdoc with Content Collections. All Markdoc features are supported, including this nifty built-in `{% table %}` tag:
+This simple starter showcases Markdoc's features with Content Collections. All Markdoc features are supported, including this nifty built-in `{% table %}` tag:
 
 {% table %}
 * Feature
 * Supported
 ---
-* `.mdoc` in Content Collections
+* `.mdoc` + `.md` in Content Collections
 * ✅
 ---
 * Markdoc transform configuration
