@@ -3,9 +3,11 @@ import type { LocalImageProps, RemoteImageProps } from 'astro:assets';
 import { getImage } from 'astro:assets';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 
-type Props = LocalImageProps | RemoteImageProps;
+// The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it's
+// better for the LocalImageProps to be last since it's the more common use case.
+type Props = RemoteImageProps | LocalImageProps;
 
-const { loading = 'lazy', decoding = 'async', ...props } = Astro.props;
+const { loading = 'lazy', decoding = 'async', alt, ...props } = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
@@ -14,4 +16,4 @@ if (props.alt === undefined || props.alt === null) {
 const attrs = await getImage(props);
 ---
 
-<img {...attrs} {loading} {decoding} alt={props.alt} />
+<img {...attrs} loading={loading} decoding={decoding} {alt} />
