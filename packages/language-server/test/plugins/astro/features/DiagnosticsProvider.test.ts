@@ -26,8 +26,8 @@ describe('Astro Plugin#DiagnosticsProvider', () => {
 			{
 				code: 1002,
 				message:
-					'Unable to assign attributes when using <> Fragment shorthand syntax!\n\nTo fix this, please change < class="hello"> to use the longhand Fragment syntax: <Fragment class="hello">',
-				range: Range.create(0, 0, 1, 16),
+					'Unable to assign attributes when using <> Fragment shorthand syntax!\n\nTo fix this, please change < data-test="hello"> to use the longhand Fragment syntax: <Fragment data-test="hello">',
+				range: Range.create(5, 4, 6, 20),
 				severity: DiagnosticSeverity.Error,
 				source: 'astro',
 			},

@@ -6,6 +6,6 @@ const convertToTSXSync = createSyncFn(require.resolve('./TSXWorker'));
 /**
  * Parse code by `@astrojs/compiler`
  */
-export function convertToTSX(source: string, options: { sourcefile: string }): TSXResult {
+export function convertToTSX(source: string, options: { filename: string }): TSXResult {
 	return convertToTSXSync(source, options);
 }

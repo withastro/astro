@@ -20,7 +20,7 @@
     "test:match": "pnpm run test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.31.3",
+    "@astrojs/compiler": "^1.1.1",
     "@jridgewell/trace-mapping": "^0.3.14",
     "@vscode/emmet-helper": "^2.8.4",
     "events": "^3.3.0",
