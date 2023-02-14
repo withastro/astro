@@ -5,7 +5,6 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { createDefaultDevConfig } from './config.js';
 import { loadTSConfig } from './tsconfig.js';
-import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -16,7 +15,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		adapter: undefined,
 		injectedRoutes: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
-		contentEntryTypes: [markdownContentEntryType],
+		contentEntryTypes: [],
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: [],

@@ -7,8 +7,7 @@ import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from '
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { MARKDOWN_CONTENT_ENTRY_TYPE_NAME } from '../vite-plugin-markdown/content-entry-type.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE, MARKDOWN_CONTENT_ENTRY_TYPE_NAME } from './consts.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -313,6 +312,7 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 }
 
 export type ContentPaths = {
+	templateDir: URL;
 	contentDir: URL;
 	cacheDir: URL;
 	typesTemplate: URL;
@@ -330,6 +330,7 @@ export function getContentPaths(
 	const configStats = search(fs, srcDir);
 	const templateDir = new URL('../../src/content/template/', import.meta.url);
 	return {
+		templateDir,
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
