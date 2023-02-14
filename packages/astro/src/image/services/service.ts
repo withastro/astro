@@ -19,7 +19,9 @@ interface SharedServiceProps {
 
 export type ExternalImageService = SharedServiceProps;
 export interface LocalImageService extends SharedServiceProps {
-	parseParams: (params: URLSearchParams) => Partial<ImageTransform> | undefined;
+	parseParams: (
+		params: URLSearchParams
+	) => Partial<ImageTransform> | Promise<Partial<ImageTransform>> | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
@@ -33,7 +35,10 @@ export interface LocalImageService extends SharedServiceProps {
 	) => Promise<{ data: Buffer; format: OutputFormat }>;
 }
 
-export const baseService = {
+/**
+ * Basic local service to inherit from
+ */
+export const baseService: Omit<LocalImageService, 'transform'> = {
 	getURL(options: ImageTransform) {
 		const searchParams = new URLSearchParams();
 		searchParams.append('href', isESMImportedImage(options.src) ? options.src.src : options.src);
@@ -44,5 +49,22 @@ export const baseService = {
 		options.format && searchParams.append('f', options.format);
 
 		return '/_image?' + searchParams;
+	},
+	parseParams(params) {
+		if (!params.has('href')) {
+			return undefined;
+		}
+
+		let transform: Partial<ImageTransform> = { src: params.get('href')! };
+
+		if (params.has('w')) {
+			transform.width = parseInt(params.get('w')!);
+		}
+
+		if (params.has('h')) {
+			transform.height = parseInt(params.get('h')!);
+		}
+
+		return transform;
 	},
 };
