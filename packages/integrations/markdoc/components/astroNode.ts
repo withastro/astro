@@ -1,7 +1,6 @@
 import type { ComponentInstance } from 'astro';
 import type { RenderableTreeNode, Tag } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import { escape } from 'html-escaper';
 
 export type ComponentRenderer =
 	| ComponentInstance['default']
@@ -28,7 +27,7 @@ export function createAstroNode(
 	components: Record<string, ComponentRenderer> = {}
 ): AstroNode {
 	if (typeof node === 'string' || typeof node === 'number') {
-		return escape(String(node));
+		return String(node);
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return '';
 	}
