@@ -3,8 +3,9 @@ import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
-import type { AstroPluginOptions, LocalImageService } from '../@types/astro';
+import type { AstroPluginOptions } from '../@types/astro';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { isLocalService } from './services/service.js';
 import { imageMetadata } from './utils/metadata.js';
 import { getOrigQueryParams } from './utils/queryParams.js';
 
@@ -60,6 +61,12 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 			configureServer(server) {
 				server.middlewares.use(async (req, res, next) => {
 					if (req.url?.startsWith('/_image')) {
+						// If the currently configured service isn't a local service, we don't need to do anything here.
+						// TODO: Support setting a specific service through a prop on Image / a parameter in getImage
+						if (!isLocalService(globalThis.astroImageService)) {
+							return next();
+						}
+
 						const url = new URL(req.url.slice('/_image'.length), 'file:');
 						const filePath = url.searchParams.get('href');
 
@@ -77,19 +84,14 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 							return next();
 						}
 
-						const transform = await (globalThis.astroImageService as LocalImageService).parseParams(
-							url.searchParams
-						);
+						const transform = await globalThis.astroImageService.parseParams(url.searchParams);
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;
 						let format = meta.format;
 
 						if (transform) {
-							const result = await (globalThis.astroImageService as LocalImageService).transform(
-								file,
-								transform
-							);
+							const result = await globalThis.astroImageService.transform(file, transform);
 							data = result.data;
 							format = result.format;
 						}
