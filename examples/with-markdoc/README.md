@@ -1,4 +1,4 @@
-# Astro Starter Kit: Markdoc (experimental)
+# Astro Example: Markdoc (experimental)
 
 This starter showcases the experimental Markdoc integration.
 
