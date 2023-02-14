@@ -5,12 +5,12 @@ import { createServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
+import { runHookConfigSetup } from '../../integrations/index.js';
+import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
-import { runHookConfigSetup } from '../../integrations/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
-import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 
 type ProcessExit = 0 | 1;
 
