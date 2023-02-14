@@ -51,7 +51,7 @@ export async function createContentTypesGenerator({
 	viteServer,
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
-	const contentPaths = getContentPaths(settings.config);
+	const contentPaths = getContentPaths(settings.config, fs);
 
 	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -65,7 +65,7 @@ export async function createContentTypesGenerator({
 			return { typesGenerated: false, reason: 'no-content-dir' };
 		}
 
-		events.push(handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' }));
+		events.push(handleEvent({ name: 'add', entry: contentPaths.config.url }, { logLevel: 'warn' }));
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
@@ -77,7 +77,7 @@ export async function createContentTypesGenerator({
 			.map((e) => new URL(e, contentPaths.contentDir))
 			.filter(
 				// Config loading handled first. Avoid running twice.
-				(e) => !e.href.startsWith(contentPaths.config.href)
+				(e) => !e.href.startsWith(contentPaths.config.url.href)
 			);
 		for (const entry of entries) {
 			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
@@ -331,7 +331,7 @@ async function writeContentFiles({
 	}
 
 	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
+		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;
