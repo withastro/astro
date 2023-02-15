@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
 
 const { test, createTests } = prepareTestFactory({ root: './fixtures/svelte-component/' });
@@ -21,5 +22,16 @@ test.describe('Svelte components in MDX files', () => {
 		...config,
 		pageUrl: '/mdx/',
 		pageSourceFilePath: './src/pages/mdx.mdx',
+	});
+});
+
+test.describe('Svelte components lifecycle', () => {
+	test('slot should unmount properly', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const toggle = page.locator('#toggle');
+		expect((await toggle.textContent()).trim()).toBe('close');
+		await toggle.click()
+		expect((await toggle.textContent()).trim()).toBe('open');
 	});
 });
