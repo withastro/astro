@@ -40,15 +40,16 @@ export function start(manifest: SSRManifest, options: Options) {
 		const stringLocalPath = localPath.toString();
 		// @ts-ignore
 		const extendName = fileExtension(stringLocalPath);
-		console.log(!extendName
-			? `${stringLocalPath}index.html`
-			: stringLocalPath)
 		const fileResp = await fetch(
 			!extendName
-				? `${stringLocalPath}index.html`
+				? `${
+						stringLocalPath.endsWith('/')
+							? `${stringLocalPath}index.html`
+							: `${stringLocalPath}/index.html`
+				  }`
 				: stringLocalPath
 		);
-			
+		
 		// If the static file can't be found
 		if (fileResp.status == 404) {
 			// Render the astro custom 404 page
