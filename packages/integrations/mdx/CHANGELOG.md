@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.16.1
+
+### Patch Changes
+
+- [#6243](https://github.com/withastro/astro/pull/6243) [`4f6ecba4c`](https://github.com/withastro/astro/commit/4f6ecba4c1b35bacbbc0097854ee2b7b8c878e71) Thanks [@bluwy](https://github.com/bluwy)! - Support rehype plugins that inject namespaced attributes
+
 ## 0.16.0
 
 ### Minor Changes

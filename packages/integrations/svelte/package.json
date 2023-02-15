@@ -44,7 +44,7 @@
   },
   "peerDependencies": {
     "svelte": "^3.54.0",
-    "astro": "workspace:^2.0.11"
+    "astro": "workspace:^2.0.12"
   },
   "engines": {
     "node": ">=16.12.0"
