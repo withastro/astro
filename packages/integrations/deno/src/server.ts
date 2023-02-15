@@ -2,6 +2,7 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
+
 interface Options {
 	port?: number;
 	hostname?: string;
@@ -36,12 +37,18 @@ export function start(manifest: SSRManifest, options: Options) {
 		// try to fetch a static file instead
 		const url = new URL(request.url);
 		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
+		const stringLocalPath = localPath.toString();
+		// @ts-ignore
+		const extendName = fileExtension(stringLocalPath);
+		console.log(!extendName
+			? `${stringLocalPath}index.html`
+			: stringLocalPath)
 		const fileResp = await fetch(
-			localPath.toString().endsWith('client/')
-				? `${localPath.toString()}index.html`
-				: localPath.toString()
+			!extendName
+				? `${stringLocalPath}index.html`
+				: stringLocalPath
 		);
-
+			
 		// If the static file can't be found
 		if (fileResp.status == 404) {
 			// Render the astro custom 404 page

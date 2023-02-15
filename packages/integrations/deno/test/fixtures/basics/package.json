@@ -9,5 +9,8 @@
     "@astrojs/mdx": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
+  },
+  "scripts": {
+    "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs"
   }
 }
