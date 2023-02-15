@@ -23,10 +23,12 @@ export default (target) => {
 };
 
 function createSlotDefinition(key, children) {
+	let parent;
 	return [
 		() => ({
 			// mount
 			m(target) {
+				parent = target;
 				target.insertAdjacentHTML(
 					'beforeend',
 					`<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${children}</astro-slot>`
@@ -37,7 +39,13 @@ function createSlotDefinition(key, children) {
 			// hydrate
 			l: noop,
 			// destroy
-			d: noop,
+			d() {
+				if (!parent) return;
+				const slot = parent.querySelector(
+					`astro-slot${key === 'default' ? ':not([name])' : `[name="${key}"]`}`
+				);
+				if (slot) slot.remove();
+			},
 		}),
 		noop,
 		noop,
