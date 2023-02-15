@@ -1,5 +1,16 @@
 # @astrojs/image
 
+## 0.15.0
+
+### Minor Changes
+
+- [#6118](https://github.com/withastro/astro/pull/6118) [`ac3649bb5`](https://github.com/withastro/astro/commit/ac3649bb589a3ee1deab4ba73c06a36a45e2cee5) Thanks [@ggounot](https://github.com/ggounot)! - Add support for SVG images
+
+### Patch Changes
+
+- Updated dependencies [[`deacd5443`](https://github.com/withastro/astro/commit/deacd5443aae8d0ee6508e2c442783dcc2e9a014), [`1c678f7eb`](https://github.com/withastro/astro/commit/1c678f7ebff6b8ea843bf4b49ab73ca942a2a755), [`c397be324`](https://github.com/withastro/astro/commit/c397be324f97bb9700da8cd6d845470530b7d18c)]:
+  - astro@2.0.12
+
 ## 0.14.1
 
 ### Patch Changes
