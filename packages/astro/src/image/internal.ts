@@ -3,6 +3,10 @@ import { AstroError } from '../core/errors/errors.js';
 import { ImageService, isLocalService } from './services/service.js';
 import type { ImageMetadata, ImageTransform } from './types.js';
 
+export function isRemoteImage(src: string) {
+	return /^(https?:)?\/\//.test(src);
+}
+
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
 }

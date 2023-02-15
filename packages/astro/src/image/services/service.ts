@@ -1,4 +1,4 @@
-import { isESMImportedImage } from '../internal.js';
+import { isESMImportedImage, isRemoteImage } from '../internal.js';
 import { ImageTransform, OutputFormat } from '../types.js';
 
 declare global {
@@ -40,6 +40,11 @@ export interface LocalImageService extends SharedServiceProps {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	getURL(options: ImageTransform) {
+		// Both our currently available local services don't handle remote images, so for them we can just return as is
+		if (!isESMImportedImage(options.src) && isRemoteImage(options.src)) {
+			return options.src;
+		}
+
 		const searchParams = new URLSearchParams();
 		searchParams.append('href', isESMImportedImage(options.src) ? options.src.src : options.src);
 

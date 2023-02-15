@@ -13,6 +13,7 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
 	return [
+		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
 			name: 'astro:assets',
 			async resolveId(id) {
@@ -29,32 +30,6 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 					export { getImage } from "astro/image";
 					export { Image } from "astro/components";
 				`;
-				}
-			},
-		},
-		{
-			name: 'astro:assets:esm',
-			enforce: 'pre',
-			async load(id) {
-				if (/\.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id)) {
-					const url = pathToFileURL(id);
-					const meta = await imageMetadata(url);
-
-					if (!meta) {
-						return;
-					}
-
-					if (!this.meta.watchMode) {
-					} else {
-						// Pass the original file information through query params so we don't have to load the file twice
-						url.searchParams.append('origWidth', meta.width.toString());
-						url.searchParams.append('origHeight', meta.height.toString());
-						url.searchParams.append('origFormat', meta.format);
-
-						meta.src = url.toString();
-					}
-
-					return `export default ${JSON.stringify(meta)}`;
 				}
 			},
 			// Handle serving images during development
@@ -105,6 +80,33 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 
 					return next();
 				});
+			},
+		},
+		// Return a more advanced shape for images imported in ESM
+		{
+			name: 'astro:assets:esm',
+			enforce: 'pre',
+			async load(id) {
+				if (/\.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id)) {
+					const url = pathToFileURL(id);
+					const meta = await imageMetadata(url);
+
+					if (!meta) {
+						return;
+					}
+
+					if (!this.meta.watchMode) {
+					} else {
+						// Pass the original file information through query params so we don't have to load the file twice
+						url.searchParams.append('origWidth', meta.width.toString());
+						url.searchParams.append('origHeight', meta.height.toString());
+						url.searchParams.append('origFormat', meta.format);
+
+						meta.src = url.toString();
+					}
+
+					return `export default ${JSON.stringify(meta)}`;
+				}
 			},
 		},
 	];

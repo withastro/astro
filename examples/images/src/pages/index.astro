@@ -1,10 +1,8 @@
 ---
-import { getImage, Image } from 'astro:assets';
+import { Image } from 'astro:assets';
 import elsaAnna from '../assets/elsa-and-anna.jpg';
 
-elsaAnna;
-
-const imageProgrammatic = await getImage({ src: elsaAnna, width: 500 });
+// const imageProgrammatic = await getImage({ src: elsaAnna, width: 500 });
 ---
 
 <html lang="en">
@@ -16,7 +14,12 @@ const imageProgrammatic = await getImage({ src: elsaAnna, width: 500 });
 		<title>Astro</title>
 	</head>
 	<body>
-		<Image src={elsaAnna} w />
+		<Image src={elsaAnna} />
+
+		<Image
+			src="https://static.wikia.nocookie.net/disney/images/9/95/Profile_-_Elsa.jpeg"
+			alt="fdsfs"
+		/>
 
 		<div>ESM shape: {JSON.stringify(elsaAnna)}</div>
 	</body>

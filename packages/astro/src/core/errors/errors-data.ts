@@ -446,7 +446,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 3023,
 		message: (missingDimension: 'width' | 'height' | 'both') =>
 			`For remote images, ${
-				missingDimension === 'both' ? 'width and height are ' : `${missingDimension} is `
+				missingDimension === 'both' ? 'width and height are' : `${missingDimension} is`
 			} required.`,
 	},
 	// Vite Errors - 4xxx
