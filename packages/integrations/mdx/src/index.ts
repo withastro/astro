@@ -74,7 +74,6 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
 										...mdxPluginOpts,
-										elementAttributeNameCase: 'html',
 										remarkPlugins: [
 											// Ensure `data.astro` is available to all remark plugins
 											toRemarkInitializeAstroData({ userFrontmatter: frontmatter }),
