@@ -1014,6 +1014,17 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
+  packages/astro/e2e/fixtures/solid-circular:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+      solid-js: ^1.4.3
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+    devDependencies:
+      solid-js: 1.6.10
+
   packages/astro/e2e/fixtures/solid-component:
     specifiers:
       '@astrojs/mdx': workspace:*
