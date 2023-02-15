@@ -226,14 +226,14 @@ function rehypeSvgPlugin() {
 		tree.children.push({
 			type: 'element',
 			tagName: 'svg',
-			properties: { xmlns:"http://www.w3.org/2000/svg" },
+			properties: { xmlns: 'http://www.w3.org/2000/svg' },
 			children: [
 				{
 					type: 'element',
 					tagName: 'use',
-					properties: { 'xLinkHref': '#icon' }
-				}
-			]
+					properties: { xLinkHref: '#icon' },
+				},
+			],
 		});
 	};
 }
