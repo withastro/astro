@@ -29,6 +29,12 @@ describe('SSR images - build', async function () {
 			query: { f: 'webp', w: '768', h: '414', href: /^\/_astro\/introducing astro.\w{8}.jpg/ },
 		},
 		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			url: '/_image',
+			query: { f: 'svg', w: '192', h: '256', href: /^\/_astro\/logo.\w{8}.svg/ },
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
@@ -143,6 +149,12 @@ describe('SSR images with subpath - build', function () {
 				h: '414',
 				href: /^\/docs\/_astro\/introducing astro.\w{8}.jpg/,
 			},
+		},
+		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			url: '/_image',
+			query: { f: 'svg', w: '192', h: '256', href: /^\/docs\/_astro\/logo.\w{8}.svg/ },
 		},
 		{
 			title: 'Inline imports',
