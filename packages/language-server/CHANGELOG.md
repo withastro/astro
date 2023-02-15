@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.29.6
+
+### Patch Changes
+
+- c04adf3: Upgrade compiler version to 1.1.1
+
 ## 0.29.5
 
 ### Patch Changes

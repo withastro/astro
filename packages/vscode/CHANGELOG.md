@@ -1,5 +1,14 @@
 # astro-vscode
 
+## 0.29.6
+
+### Patch Changes
+
+- edccff6: Support workspace-local language server versions in the Visual Studio Code plugin
+- c04adf3: Upgrade compiler version to 1.1.1
+- Updated dependencies [c04adf3]
+  - @astrojs/ts-plugin@0.4.4
+
 ## 0.29.5
 
 ### Patch Changes

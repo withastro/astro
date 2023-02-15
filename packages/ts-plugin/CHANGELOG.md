@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.4.4
+
+### Patch Changes
+
+- c04adf3: Upgrade compiler version to 1.1.1
+
 ## 0.4.3
 
 ### Patch Changes
