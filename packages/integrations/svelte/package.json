@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",

@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 2.0.2
+
+### Patch Changes
+
+- [#6250](https://github.com/withastro/astro/pull/6250) [`5c7c7e463`](https://github.com/withastro/astro/commit/5c7c7e463dbffc9a573e3fec80a4daaf4621cd83) Thanks [@bluwy](https://github.com/bluwy)! - Fix unmounting slots passed to Svelte components
+
 ## 2.0.1
 
 ### Patch Changes

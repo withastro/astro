@@ -21,7 +21,7 @@
     "@astrojs/preact": "^2.0.3",
     "@astrojs/react": "^2.0.2",
     "@astrojs/solid-js": "^2.0.2",
-    "@astrojs/svelte": "^2.0.1",
+    "@astrojs/svelte": "^2.0.2",
     "@astrojs/vue": "^2.0.1"
   }
 }
