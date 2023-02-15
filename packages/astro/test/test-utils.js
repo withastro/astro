@@ -5,7 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
-import { sync } from '../dist/cli/sync/index.js';
+import { sync } from '../dist/core/sync/index.js';
 import build from '../dist/core/build/index.js';
 import { openConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
