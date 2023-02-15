@@ -14,7 +14,7 @@
   "dependencies": {
     "astro": "^2.0.12",
     "svelte": "^3.48.0",
-    "@astrojs/svelte": "^2.0.1",
+    "@astrojs/svelte": "^2.0.2",
     "@astrojs/node": "^5.0.3",
     "concurrently": "^7.2.1",
     "unocss": "^0.15.6",

@@ -69,7 +69,7 @@ importers:
 
   examples/blog:
     specifiers:
-      '@astrojs/mdx': ^0.16.1
+      '@astrojs/mdx': ^0.16.2
       '@astrojs/rss': ^2.1.0
       '@astrojs/sitemap': ^1.0.1
       astro: ^2.0.12
@@ -154,7 +154,7 @@ importers:
       '@astrojs/preact': ^2.0.3
       '@astrojs/react': ^2.0.2
       '@astrojs/solid-js': ^2.0.2
-      '@astrojs/svelte': ^2.0.1
+      '@astrojs/svelte': ^2.0.2
       '@astrojs/vue': ^2.0.1
       astro: ^2.0.12
       preact: ^10.7.3
@@ -217,7 +217,7 @@ importers:
 
   examples/framework-svelte:
     specifiers:
-      '@astrojs/svelte': ^2.0.1
+      '@astrojs/svelte': ^2.0.2
       astro: ^2.0.12
       svelte: ^3.48.0
     dependencies:
@@ -270,7 +270,7 @@ importers:
   examples/ssr:
     specifiers:
       '@astrojs/node': ^5.0.3
-      '@astrojs/svelte': ^2.0.1
+      '@astrojs/svelte': ^2.0.2
       astro: ^2.0.12
       concurrently: ^7.2.1
       svelte: ^3.48.0
@@ -311,7 +311,7 @@ importers:
 
   examples/with-mdx:
     specifiers:
-      '@astrojs/mdx': ^0.16.1
+      '@astrojs/mdx': ^0.16.2
       '@astrojs/preact': ^2.0.3
       astro: ^2.0.12
       preact: ^10.6.5
@@ -337,7 +337,7 @@ importers:
 
   examples/with-tailwindcss:
     specifiers:
-      '@astrojs/mdx': ^0.16.1
+      '@astrojs/mdx': ^0.16.2
       '@astrojs/tailwind': ^3.0.1
       '@types/canvas-confetti': ^1.4.3
       astro: ^2.0.12
