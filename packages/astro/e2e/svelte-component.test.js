@@ -31,7 +31,7 @@ test.describe('Svelte components lifecycle', () => {
 
 		const toggle = page.locator('#toggle');
 		expect((await toggle.textContent()).trim()).toBe('close');
-		await toggle.click()
+		await toggle.click();
 		expect((await toggle.textContent()).trim()).toBe('open');
 	});
 });
