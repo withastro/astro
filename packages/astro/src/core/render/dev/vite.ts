@@ -60,7 +60,16 @@ export async function* crawlGraph(
 					if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
 						continue;
 					}
-					if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
+					if (
+						fileExtensionsToSSR.has(
+							npath.extname(
+								// Use `id` instead of `pathname` to preserve query params.
+								// Should not SSR a module with an unexpected query param,
+								// like "?astroPropagatedAssets"
+								importedModule.id
+							)
+						)
+					) {
 						const mod = loader.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
 							try {
