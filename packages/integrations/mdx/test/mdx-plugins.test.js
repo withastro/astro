@@ -63,6 +63,20 @@ describe('MDX plugins', () => {
 		expect(selectRehypeExample(document)).to.not.be.null;
 	});
 
+	it('supports custom rehype plugins with namespaced attributes', async () => {
+		const fixture = await buildFixture({
+			integrations: [
+				mdx({
+					rehypePlugins: [rehypeSvgPlugin],
+				}),
+			],
+		});
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		expect(selectRehypeSvg(document)).to.not.be.null;
+	});
+
 	it('extends markdown config by default', async () => {
 		const fixture = await buildFixture({
 			markdown: {
@@ -207,6 +221,23 @@ function rehypeExamplePlugin() {
 	};
 }
 
+function rehypeSvgPlugin() {
+	return (tree) => {
+		tree.children.push({
+			type: 'element',
+			tagName: 'svg',
+			properties: { xmlns:"http://www.w3.org/2000/svg" },
+			children: [
+				{
+					type: 'element',
+					tagName: 'use',
+					properties: { 'xLinkHref': '#icon' }
+				}
+			]
+		});
+	};
+}
+
 function recmaExamplePlugin() {
 	return (tree) => {
 		estreeVisit(tree, (node) => {
@@ -243,6 +274,10 @@ function selectRemarkExample(document) {
 
 function selectRehypeExample(document) {
 	return document.querySelector('div[data-rehype-plugin-works]');
+}
+
+function selectRehypeSvg(document) {
+	return document.querySelector('svg > use[xlink\\:href]');
 }
 
 function selectRecmaExample(document) {
