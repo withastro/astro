@@ -40,8 +40,8 @@ export default function vercelEdge({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
-				if (analytics) {
+			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
+				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
