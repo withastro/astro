@@ -177,7 +177,7 @@ The output format to be used in the optimized image. The original image format w
 
 This property is required for remote images when using the default image transformer Squoosh, this is because the original format cannot be inferred.
 
-Note that when using the `svg` option, it's expected for the original image to already be in this format, as raster images (like `.png` or `.jpg`) cannot be converted into vectors. The image itself won't be transformed, but the final `<img />` element will get the optimization attributes.
+Added in v0.15.0: You can use the `<Image />` component when working with SVG images, but the `svg` option can only be used when the original image is a `.svg` file. Other image formats (like `.png` or `.jpg`) cannot be converted into vector images. The `.svg` image itself will not be transformed, but the final `<img />` will be properly optimized by the integration.
 
 #### quality
 
