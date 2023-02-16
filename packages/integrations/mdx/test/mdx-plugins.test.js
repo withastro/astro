@@ -63,7 +63,7 @@ describe('MDX plugins', () => {
 		expect(selectRehypeExample(document)).to.not.be.null;
 	});
 
-	it.skip('supports custom rehype plugins with namespaced attributes', async () => {
+	it('supports custom rehype plugins with namespaced attributes', async () => {
 		const fixture = await buildFixture({
 			integrations: [
 				mdx({

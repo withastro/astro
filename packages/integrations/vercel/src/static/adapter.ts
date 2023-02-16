@@ -19,8 +19,8 @@ export default function vercelStatic({ analytics }: VercelStaticConfig = {}): As
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
-			'astro:config:setup': ({ config, injectScript }) => {
-				if (analytics) {
+			'astro:config:setup': ({ command, config, injectScript }) => {
+				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				config.outDir = new URL('./static/', getVercelOutput(config.root));
