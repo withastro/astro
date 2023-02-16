@@ -94,7 +94,7 @@ describe('API routes in SSR', () => {
 			expect(response.headers.get('Content-Type')).to.equal('application/json;charset=utf-8');
 		});
 
-		it('Can set multiple headers of the same type', async () => {
+		it('Can set multiple headers of the same type fsdds', async () => {
 			const response = await fixture.fetch('/login', {
 				method: 'POST',
 			});
