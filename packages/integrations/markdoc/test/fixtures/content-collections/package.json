@@ -1,0 +1,13 @@
+{
+  "name": "@test/markdoc-content-collections",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/markdoc": "workspace:*",
+    "@markdoc/markdoc": "^0.2.2",
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "shiki": "^0.11.1"
+  }
+}

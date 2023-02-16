@@ -1,6 +1,7 @@
 import npath from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
+import { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import { AstroBuildPlugin } from '../core/build/plugin.js';
@@ -11,23 +12,30 @@ import { prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
-	contentFileExts,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
+import { getContentEntryExts } from './utils.js';
 
-function isPropagatedAsset(viteId: string): boolean {
+function isPropagatedAsset(viteId: string, contentEntryExts: string[]): boolean {
 	const url = new URL(viteId, 'file://');
 	return (
 		url.searchParams.has(PROPAGATED_ASSET_FLAG) &&
-		contentFileExts.some((ext) => url.pathname.endsWith(ext))
+		contentEntryExts.some((ext) => url.pathname.endsWith(ext))
 	);
 }
 
-export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): Plugin {
+export function astroContentAssetPropagationPlugin({
+	mode,
+	settings,
+}: {
+	mode: string;
+	settings: AstroSettings;
+}): Plugin {
 	let devModuleLoader: ModuleLoader;
+	const contentEntryExts = getContentEntryExts(settings);
 	return {
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
@@ -37,7 +45,7 @@ export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): 
 			}
 		},
 		load(id) {
-			if (isPropagatedAsset(id)) {
+			if (isPropagatedAsset(id, contentEntryExts)) {
 				const basePath = id.split('?')[0];
 				const code = `
 					export async function getMod() {
@@ -52,7 +60,7 @@ export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): 
 		},
 		async transform(code, id, options) {
 			if (!options?.ssr) return;
-			if (devModuleLoader && isPropagatedAsset(id)) {
+			if (devModuleLoader && isPropagatedAsset(id, contentEntryExts)) {
 				const basePath = id.split('?')[0];
 				if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
 					await devModuleLoader.import(basePath);
