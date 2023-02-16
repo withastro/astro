@@ -1,7 +1,7 @@
 import type { Context } from './context';
 
 import { execa } from 'execa';
-import { info, spinner, title } from '../messages.js';
+import { info, error, spinner, title } from '../messages.js';
 
 export async function dependencies(
 	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'pkgManager' | 'cwd' | 'dryRun'>
@@ -25,7 +25,12 @@ export async function dependencies(
 		await spinner({
 			start: `Dependencies installing with ${ctx.pkgManager}...`,
 			end: 'Dependencies installed',
-			while: () => install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }),
+			while: () =>
+				install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
+					// eslint-disable-next-line no-console
+					error('error', e);
+					process.exit(1);
+				}),
 		});
 	} else {
 		await info(
@@ -38,7 +43,8 @@ export async function dependencies(
 async function install({ pkgManager, cwd }: { pkgManager: string; cwd: string }) {
 	const installExec = execa(pkgManager, ['install'], { cwd });
 	return new Promise<void>((resolve, reject) => {
-		installExec.on('error', (error) => reject(error));
+		setTimeout(() => reject(`Request timed out after one minute`), 60_000);
+		installExec.on('error', (e) => reject(e));
 		installExec.on('close', () => resolve());
 	});
 }

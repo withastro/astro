@@ -4,7 +4,7 @@ import type { Context } from './context';
 
 import { color } from '@astrojs/cli-kit';
 import { execa } from 'execa';
-import { info, spinner, title } from '../messages.js';
+import { info, spinner, error, title } from '../messages.js';
 
 export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun'>) {
 	if (fs.existsSync(path.join(ctx.cwd, '.git'))) {
@@ -29,7 +29,11 @@ export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 
 		await spinner({
 			start: 'Git initializing...',
 			end: 'Git initialized',
-			while: () => init({ cwd: ctx.cwd }),
+			while: () => init({ cwd: ctx.cwd }).catch((e) => {
+					// eslint-disable-next-line no-console
+					error('error', e);
+					process.exit(1);
+				}),
 		});
 	} else {
 		await info(
