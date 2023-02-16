@@ -124,7 +124,7 @@ export const AstroConfigSchema = z.object({
 			]),
 		})
 		.default({
-			service: 'astro/image/services/sharp',
+			service: 'astro/image/services/squoosh',
 		}),
 	markdown: z
 		.object({
