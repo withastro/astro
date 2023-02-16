@@ -61,7 +61,8 @@ export async function typescript(
 		await spinner({
 			start: 'TypeScript customizing...',
 			end: 'TypeScript customized',
-			while: () => setupTypeScript(ts!, { cwd: ctx.cwd }).catch((e) => {
+			while: () =>
+				setupTypeScript(ts!, { cwd: ctx.cwd }).catch((e) => {
 					// eslint-disable-next-line no-console
 					error('error', e);
 					process.exit(1);

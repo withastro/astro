@@ -34,11 +34,12 @@ export async function template(
 		await spinner({
 			start: 'Template copying...',
 			end: 'Template copied',
-			while: () => copyTemplate(ctx.template!, ctx as Context).catch((e) => {
-				// eslint-disable-next-line no-console
-				error('error', e);
-				process.exit(1);
-			}),
+			while: () =>
+				copyTemplate(ctx.template!, ctx as Context).catch((e) => {
+					// eslint-disable-next-line no-console
+					error('error', e);
+					process.exit(1);
+				}),
 		});
 	} else {
 		ctx.exit(1);

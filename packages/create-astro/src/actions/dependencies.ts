@@ -1,7 +1,7 @@
 import type { Context } from './context';
 
 import { execa } from 'execa';
-import { info, error, spinner, title } from '../messages.js';
+import { error, info, spinner, title } from '../messages.js';
 
 export async function dependencies(
 	ctx: Pick<Context, 'install' | 'yes' | 'prompt' | 'pkgManager' | 'cwd' | 'dryRun'>
