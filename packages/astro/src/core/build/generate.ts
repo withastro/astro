@@ -350,6 +350,7 @@ async function generatePath(
 		markdown: {
 			...settings.config.markdown,
 			contentDir: getContentPaths(settings.config).contentDir,
+			performanceRun: settings.performanceRun,
 		},
 		mode: opts.mode,
 		renderers,

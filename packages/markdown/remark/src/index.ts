@@ -55,6 +55,7 @@ export async function renderMarkdown(
 		smartypants = markdownConfigDefaults.smartypants,
 		contentDir,
 		frontmatter: userFrontmatter = {},
+		performanceRun = false,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
@@ -64,8 +65,10 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use([]);
 
-	if (gfm) {
-		parser.use(remarkGfm);
+	if (!performanceRun) {
+		if (gfm) {
+			parser.use(remarkGfm);
+		}
 	}
 
 	if (smartypants) {
@@ -79,18 +82,20 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	if (scopedClassName) {
-		parser.use([scopedStyles(scopedClassName)]);
-	}
+	if (!performanceRun) {
+		if (scopedClassName) {
+			parser.use([scopedStyles(scopedClassName)]);
+		}
 
-	if (syntaxHighlight === 'shiki') {
-		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
-	} else if (syntaxHighlight === 'prism') {
-		parser.use([remarkPrism(scopedClassName)]);
-	}
+		if (syntaxHighlight === 'shiki') {
+			parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
+		} else if (syntaxHighlight === 'prism') {
+			parser.use([remarkPrism(scopedClassName)]);
+		}
 
-	// Apply later in case user plugins resolve relative image paths
-	parser.use([toRemarkContentRelImageError({ contentDir })]);
+		// Apply later in case user plugins resolve relative image paths
+		parser.use([toRemarkContentRelImageError({ contentDir })]);
+	}
 
 	parser.use([
 		[
@@ -107,7 +112,11 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
+	if (!performanceRun) {
+		parser.use([rehypeHeadingIds]);
+	}
+
+	parser.use([rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 
 	let vfile: MarkdownVFile;
 	try {

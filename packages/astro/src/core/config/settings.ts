@@ -25,6 +25,9 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 }
 
 export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
+	// TODO: hoisted to flags handler
+	const performanceRun = process.argv.some((arg) => arg === '--perf');
+
 	const tsconfig = loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
 
@@ -37,6 +40,7 @@ export function createSettings(config: AstroConfig, cwd?: string): AstroSettings
 	settings.tsConfig = tsconfig?.config;
 	settings.tsConfigPath = tsconfig?.path;
 	settings.watchFiles = watchFiles;
+	settings.performanceRun = performanceRun;
 	return settings;
 }
 
