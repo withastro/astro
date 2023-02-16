@@ -10,7 +10,7 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 	return typeof src === 'object';
 }
 
-async function getConfiguredService(): Promise<ImageService> {
+export async function getConfiguredService(): Promise<ImageService> {
 	if (!globalThis.astroImageService) {
 		const { default: service }: { default: ImageService } = await import(
 			// @ts-ignore

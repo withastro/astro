@@ -3,11 +3,28 @@ import { visit } from 'unist-util-visit';
 import { pathToFileURL } from 'url';
 import type { VFile } from 'vfile';
 
+export default function toRemarkCollectRelativeimages() {
+	return () =>
+		function (tree: any, vfile: VFile) {
+			if (typeof vfile?.path !== 'string') return;
+
+			const relImagePaths = new Set<string>();
+			visit(tree, 'image', function raiseError(node: Image) {
+				if (isRelativePath(node.url)) {
+					relImagePaths.add(node.url);
+				}
+			});
+			if (relImagePaths.size === 0) return;
+
+			vfile.data.relImagePaths = Array.from(relImagePaths);
+		};
+}
+
 /**
  * `src/content/` does not support relative image paths.
  * This plugin throws an error if any are found
  */
-export default function toRemarkContentRelImageError({ contentDir }: { contentDir: URL }) {
+export function toRemarkContentRelImageError({ contentDir }: { contentDir: URL }) {
 	return function remarkContentRelImageError() {
 		return (tree: any, vfile: VFile) => {
 			if (typeof vfile?.path !== 'string') return;

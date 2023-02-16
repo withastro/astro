@@ -148,7 +148,7 @@ export async function getRemarkPlugins(
 	}
 
 	// Apply last in case user plugins resolve relative image paths
-	remarkPlugins.push(toRemarkContentRelImageError(config));
+	// remarkPlugins.push(toRemarkContentRelImageError(config));
 
 	return remarkPlugins;
 }

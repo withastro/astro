@@ -1,7 +1,7 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
-	safelyGetAstroData,
+	safelyGetAstroData
 } from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';
@@ -14,6 +14,7 @@ import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
+import { getConfiguredService as getConfiguredImageService } from '../image/internal.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -68,15 +69,19 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
+
+				const imageService = getConfiguredImageService();
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					contentDir: getContentPaths(settings.config).contentDir,
 					frontmatter: raw.data,
+					imageService,
 				});
 
-				const html = renderResult.code;
+				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
+				const { relImagePaths } = renderResult.vfile.data as { relImagePaths: string[] };
 				const astroData = safelyGetAstroData(renderResult.vfile.data);
 				if (astroData instanceof InvalidAstroDataError) {
 					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
@@ -96,8 +101,23 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
+				import { getImage } from "astro:assets";
 
-				const html = ${JSON.stringify(html)};
+				const images = {
+					${relImagePaths.map(
+						(entry) =>
+							`'${entry}': await getImage({ src: await (await import('${entry}')).default, alt: ''})`
+					)}
+				}
+
+				const html = () => {
+					const rawHTML = ${JSON.stringify(html)}
+				}
+
+				${JSON.stringify(html).replaceAll(
+					/\$AstroImage\$(.*)\$AstroImage\$/gm,
+					'${images["$1"].src}'
+				)}\`;
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
@@ -106,7 +126,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					return ${JSON.stringify(raw.content)};
 				}
 				export function compiledContent() {
-					return html;
+					return html();
 				}
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};

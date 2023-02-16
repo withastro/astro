@@ -8,7 +8,7 @@ import type {
 import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
-import toRemarkContentRelImageError from './remark-content-rel-image-error.js';
+import toRemarkCollectRelativeImages from './remark-collect-rel-images.js';
 import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
@@ -21,6 +21,7 @@ import markdownToHtml from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
+import { rehypeRelativeImages } from './rehype-rel-images.js';
 
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
@@ -90,7 +91,7 @@ export async function renderMarkdown(
 	}
 
 	// Apply later in case user plugins resolve relative image paths
-	parser.use([toRemarkContentRelImageError({ contentDir })]);
+	parser.use([toRemarkCollectRelativeImages()]);
 
 	parser.use([
 		[
@@ -107,6 +108,7 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
+	parser.use(rehypeRelativeImages(await opts.imageService));
 	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 
 	let vfile: MarkdownVFile;
