@@ -1106,6 +1106,12 @@ importers:
       astro: link:../../..
       vue: 3.2.47
 
+  packages/astro/performance/fixtures/md:
+    specifiers:
+      astro: ^2.0.12
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/benchmark/simple:
     specifiers:
       '@astrojs/node': workspace:*
