@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.17.0
+
+### Minor Changes
+
+- [#6253](https://github.com/withastro/astro/pull/6253) [`0049fda62`](https://github.com/withastro/astro/commit/0049fda62fa8650a0d250adb00a2c5d82679aeaf) Thanks [@bluwy](https://github.com/bluwy)! - Support rehype plugins that inject namespaced attributes. This introduces a breaking change if you use [custom components for HTML elements](https://docs.astro.build/en/guides/markdown-content/#assigning-custom-components-to-html-elements), where the prop passed to the component will be normal HTML casing, e.g. `class` instead of `className`, and `xlink:href` instead of `xlinkHref`.
+
 ## 0.16.2
 
 ### Patch Changes
