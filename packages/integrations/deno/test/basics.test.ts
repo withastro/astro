@@ -152,7 +152,6 @@ Deno.test({
 			const resp = await fetch(new URL('perendering', baseUrl));
 			assertEquals(resp.status, 200);
 
-
 			const html = await resp.text();
 			assert(html);
 

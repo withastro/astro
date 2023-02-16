@@ -3,7 +3,7 @@ import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as npath from 'path';
 import { fileURLToPath } from 'url';
-import * as CONSTANT from './code-constant'
+import * as CONSTANT from './code-constant';
 
 interface BuildConfig {
 	server: URL;
@@ -71,7 +71,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:build:done': async () => {
 				const entryUrl = new URL(_buildConfig.serverEntry, _buildConfig.server);
 				const pth = fileURLToPath(entryUrl);
-				const content = await fs.readFileSync(pth, 'utf8')
+				const content = await fs.readFileSync(pth, 'utf8');
 				await fs.writeFileSync(pth, `${CONSTANT.DEFAULTIMPORT}${content}${CONSTANT.DEFAULTSTART}`);
 				await esbuild.build({
 					target: 'es2020',

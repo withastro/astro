@@ -2,7 +2,6 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
-
 interface Options {
 	port?: number;
 	hostname?: string;
@@ -49,7 +48,7 @@ export function start(manifest: SSRManifest, options: Options) {
 				  }`
 				: stringLocalPath
 		);
-		
+
 		// If the static file can't be found
 		if (fileResp.status == 404) {
 			// Render the astro custom 404 page
