@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.1.2
+
+### Patch Changes
+
+- [#6258](https://github.com/withastro/astro/pull/6258) [`0fe74b664`](https://github.com/withastro/astro/commit/0fe74b6648fe79951da5443b73208cdc6742442e) Thanks [@delucis](https://github.com/delucis)! - Don’t inject analytics script in dev
+
+- Updated dependencies [[`ef5cea4dc`](https://github.com/withastro/astro/commit/ef5cea4dc5c4ffa33bd57ea0886e6912afb24fec), [`2fec47848`](https://github.com/withastro/astro/commit/2fec4784871f2b06fd780eb4cb0bb69866c6b065)]:
+  - astro@2.0.13
+
 ## 3.1.1
 
 ### Patch Changes
