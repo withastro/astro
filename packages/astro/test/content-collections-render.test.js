@@ -191,5 +191,24 @@ describe('Content Collections - render()', () => {
 			expect(h2).to.have.a.lengthOf(1);
 			expect(h2.attr('data-components-export-applied')).to.equal('true');
 		});
+
+		it('Supports layout prop with recursive getCollection() call', async () => {
+			const response = await fixture.fetch('/with-layout-prop', { method: 'GET' });
+			expect(response.status).to.equal(200);
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const body = $('body');
+			expect(body.attr('data-layout-prop')).to.equal('true');
+
+			const h1 = $('h1');
+			expect(h1).to.have.a.lengthOf(1);
+			expect(h1.text()).to.equal('With Layout Prop');
+
+			const h2 = $('h2');
+			expect(h2).to.have.a.lengthOf(1);
+			expect(h2.text()).to.equal('Content with a layout prop');
+		});
 	});
 });

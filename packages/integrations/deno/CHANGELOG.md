@@ -1,5 +1,14 @@
 # @astrojs/deno
 
+## 4.0.1
+
+### Patch Changes
+
+- [#6248](https://github.com/withastro/astro/pull/6248) [`ef5cea4dc`](https://github.com/withastro/astro/commit/ef5cea4dc5c4ffa33bd57ea0886e6912afb24fec) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Deno SSR with prerender=true complains about invalid URL scheme
+
+- Updated dependencies [[`ef5cea4dc`](https://github.com/withastro/astro/commit/ef5cea4dc5c4ffa33bd57ea0886e6912afb24fec), [`2fec47848`](https://github.com/withastro/astro/commit/2fec4784871f2b06fd780eb4cb0bb69866c6b065)]:
+  - astro@2.0.13
+
 ## 4.0.0
 
 ### Major Changes

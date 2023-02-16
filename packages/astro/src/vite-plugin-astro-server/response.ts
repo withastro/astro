@@ -55,20 +55,12 @@ export function writeHtmlResponse(res: http.ServerResponse, statusCode: number, 
 export async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
 
-	let _headers = {};
-	if ('raw' in headers) {
-		// Node fetch allows you to get the raw headers, which includes multiples of the same type.
-		// This is needed because Set-Cookie *must* be called for each cookie, and can't be
-		// concatenated together.
-		type HeadersWithRaw = Headers & {
-			raw: () => Record<string, string[]>;
-		};
+	const _headers = Object.fromEntries(headers.entries());
 
-		for (const [key, value] of Object.entries((headers as HeadersWithRaw).raw())) {
-			res.setHeader(key, value);
-		}
-	} else {
-		_headers = Object.fromEntries(headers.entries());
+	// Undici 5.19.1 includes a `getSetCookie` helper that returns an array of all the `set-cookies` headers.
+	// Previously, `headers.entries()` would already have those merged, but it seems like this isn't the case anymore, weird.
+	if ((headers as any)['getSetCookie']) {
+		_headers['set-cookie'] = (headers as any).getSetCookie();
 	}
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
