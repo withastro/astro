@@ -29,7 +29,7 @@ export function createDevelopmentEnvironment(
 		mode,
 		// This will be overridden in the dev server
 		renderers: [],
-		resolve: createResolve(loader),
+		resolve: createResolve(loader, settings.config.root),
 		routeCache: new RouteCache(logging, mode),
 		site: settings.config.site,
 		ssr: settings.config.output === 'server',

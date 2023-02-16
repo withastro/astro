@@ -1,10 +1,6 @@
 // Normal Imports
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-// @ts-ignore
-import { Server } from 'https://deno.land/std@0.167.0/http/server.ts';
-// @ts-ignore
-import { fetch } from 'https://deno.land/x/file_fetch/mod.ts';
 
 interface Options {
 	port?: number;
@@ -12,6 +8,7 @@ interface Options {
 	start?: boolean;
 }
 
+// @ts-ignore
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
 
@@ -39,7 +36,18 @@ export function start(manifest: SSRManifest, options: Options) {
 		// try to fetch a static file instead
 		const url = new URL(request.url);
 		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
-		const fileResp = await fetch(localPath.toString());
+		const stringLocalPath = localPath.toString();
+		// @ts-ignore
+		const extendName = fileExtension(stringLocalPath);
+		const fileResp = await fetch(
+			!extendName
+				? `${
+						stringLocalPath.endsWith('/')
+							? `${stringLocalPath}index.html`
+							: `${stringLocalPath}/index.html`
+				  }`
+				: stringLocalPath
+		);
 
 		// If the static file can't be found
 		if (fileResp.status == 404) {
@@ -60,6 +68,7 @@ export function start(manifest: SSRManifest, options: Options) {
 	};
 
 	const port = options.port ?? 8085;
+	// @ts-ignore
 	_server = new Server({
 		port,
 		hostname: options.hostname ?? '0.0.0.0',

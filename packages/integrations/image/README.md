@@ -169,13 +169,16 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 <p>
 
-**Type:** `'avif' | 'jpeg' | 'png' | 'webp'`<br>
+**Type:** `'avif' | 'jpeg' | 'jpg' | 'png' | 'svg' | 'webp'`<br>
 **Default:** `undefined`
 </p>
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
 This property is required for remote images when using the default image transformer Squoosh, this is because the original format cannot be inferred.
+
+Added in v0.15.0: You can use the `<Image />` component when working with SVG images, but the `svg` option can only be used when the original image is a `.svg` file. Other image formats (like `.png` or `.jpg`) cannot be converted into vector images. The `.svg` image itself will not be transformed, but the final `<img />` will be properly optimized by the integration.
+
 #### quality
 
 <p>
