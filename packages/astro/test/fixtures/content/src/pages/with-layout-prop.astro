@@ -1,0 +1,7 @@
+---
+import { getEntryBySlug } from 'astro:content';
+
+const entry = await getEntryBySlug('blog', 'with-layout-prop');
+const { Content } = await entry.render();
+---
+<Content />
