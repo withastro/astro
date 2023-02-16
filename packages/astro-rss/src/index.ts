@@ -93,11 +93,13 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 		return parsedResult.data;
 	}
 	const formattedError = new Error(
-		[
-			`[RSS] Invalid or missing options:`,
-			...parsedResult.error.errors.map((zodError) => zodError.message),
-		].join('\n')
-	);
+    [
+      `[RSS] Invalid or missing options:`,
+      ...parsedResult.error.errors.map(
+        zodError => `${zodError.message} (${zodError.path.join('.')})`
+      ),
+    ].join('\n')
+  )
 	throw formattedError;
 }
 
