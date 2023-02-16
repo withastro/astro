@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "write:md": "node scripts/write-posts.mjs fixtures/md/src/content/posts 1000 md",
-    "write:mdx": "node scripts/write-posts.mjs fixtures/mdx/src/content/posts 1000 mdx",
-    "write:mdoc": "node scripts/write-posts.mjs fixtures/mdoc/src/content/posts 1000 mdoc"
+    "write:md": "node scripts/write-posts.mjs fixtures/md/src/content/generated 1000 md",
+    "write:mdx": "node scripts/write-posts.mjs fixtures/mdx/src/content/generated 1000 mdx",
+    "write:mdoc": "node scripts/write-posts.mjs fixtures/mdoc/src/content/generated 1000 mdoc"
   },
   "keywords": [],
   "author": "",
