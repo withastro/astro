@@ -1,15 +1,17 @@
 {
-  "name": "md",
+  "name": "@performance/md",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "build": "astro build --perf"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "unlicensed",
   "dependencies": {
+    "@performance/utils": "^0.0.0",
     "astro": "^2.0.12"
   }
 }

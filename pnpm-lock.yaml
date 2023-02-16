@@ -1106,10 +1106,31 @@ importers:
       astro: link:../../..
       vue: 3.2.47
 
+  packages/astro/performance:
+    specifiers: {}
+
   packages/astro/performance/fixtures/md:
     specifiers:
+      '@performance/utils': ^0.0.0
       astro: ^2.0.12
     dependencies:
+      '@performance/utils': link:../utils
+      astro: link:../../..
+
+  packages/astro/performance/fixtures/mdx:
+    specifiers:
+      '@astrojs/mdx': ^0.16.2
+      '@performance/utils': ^0.0.0
+      astro: ^2.0.12
+    dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
+      '@performance/utils': link:../utils
+      astro: link:../../..
+
+  packages/astro/performance/fixtures/utils:
+    specifiers:
+      astro: ^2.0.12
+    devDependencies:
       astro: link:../../..
 
   packages/astro/test/benchmark/simple:
