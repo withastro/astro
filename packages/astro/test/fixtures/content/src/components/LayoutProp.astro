@@ -1,0 +1,38 @@
+---
+import { CollectionEntry, getCollection } from 'astro:content';
+
+// Test for recursive `getCollection()` calls
+const blog = await getCollection('blog');
+
+type Props = {
+	content: CollectionEntry<'blog'>['data'];
+};
+
+const {
+	content: { title },
+} = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>With Layout Prop</title>
+	</head>
+	<body data-layout-prop="true">
+		<h1>{title}</h1>
+		<nav>
+			<ul>
+				{blog.map((post) => (
+					<li>
+						<a href={post.slug}>{post.data.title}</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+		<slot />
+	</body>
+</html>
+
