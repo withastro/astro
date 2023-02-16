@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.0.1
+
+### Patch Changes
+
+- [#6266](https://github.com/withastro/astro/pull/6266) [`066b4b4ef`](https://github.com/withastro/astro/commit/066b4b4efcde2320d29040c5bd385c67f30c701a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve error handling during tasks that display a spinner
+
 ## 3.0.0
 
 ### Major Changes
