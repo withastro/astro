@@ -1,5 +1,5 @@
 type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max';
-export type ImageQuality = ImageQualityPreset | number | `${number}`;
+export type ImageQuality = ImageQualityPreset | number;
 
 export type InputFormat =
 	| 'heic'
@@ -25,11 +25,16 @@ export interface ImageMetadata {
 }
 
 /**
- * Type expected by getImage
+ * All the transformations possible to an image
  */
-export type ImageTransform =
-	| LocalImageProps<{ [key: string]: any }>
-	| RemoteImageProps<{ [key: string]: any }>;
+export type ImageTransform = {
+	src: ImageMetadata | string;
+	width?: number;
+	height?: number;
+	quality?: ImageQuality;
+	format?: OutputFormat;
+	[key: string]: any;
+};
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type ImageSharedProps<T> = T & {
