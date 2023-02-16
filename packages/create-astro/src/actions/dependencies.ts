@@ -43,7 +43,7 @@ export async function dependencies(
 async function install({ pkgManager, cwd }: { pkgManager: string; cwd: string }) {
 	const installExec = execa(pkgManager, ['install'], { cwd });
 	return new Promise<void>((resolve, reject) => {
-		setTimeout(() => reject(`Request timed out after 30s`), 30000);
+		setTimeout(() => reject(`Request timed out after one minute`), 60_000);
 		installExec.on('error', (e) => reject(e));
 		installExec.on('close', () => resolve());
 	});
