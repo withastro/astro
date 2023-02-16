@@ -169,13 +169,16 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 <p>
 
-**Type:** `'avif' | 'jpeg' | 'png' | 'webp'`<br>
+**Type:** `'avif' | 'jpeg' | 'jpg' | 'png' | 'svg' | 'webp'`<br>
 **Default:** `undefined`
 </p>
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
 This property is required for remote images when using the default image transformer Squoosh, this is because the original format cannot be inferred.
+
+> When using the `svg` format, the original image must be in SVG format already (raster images cannot be converted to vector images). The SVG image itself won't be transformed but the final `<img />` element will get the optimization attributes.
+
 #### quality
 
 <p>

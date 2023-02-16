@@ -60,6 +60,13 @@ describe('SSR images - dev', function () {
 			contentType: 'image/png',
 		},
 		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			url: toAstroImage('src/assets/logo.svg'),
+			query: { f: 'svg', w: '192', h: '256' },
+			contentType: 'image/svg+xml',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: toAstroImage('src/assets/social.jpg'),
@@ -180,6 +187,13 @@ describe('SSR images with subpath - dev', function () {
 			url: toAstroImage('social.png'),
 			query: { f: 'png', w: '2024', h: '1012' },
 			contentType: 'image/png',
+		},
+		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			url: toAstroImage('src/assets/logo.svg'),
+			query: { f: 'svg', w: '192', h: '256' },
+			contentType: 'image/svg+xml',
 		},
 		{
 			title: 'Inline imports',
