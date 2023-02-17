@@ -366,7 +366,7 @@ For remote images, including images in `/public`, `aspectRatio` is required to e
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
 
-For remote images, including images in `/public`, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
+For remote images, including images in `public/`, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
 
 #### background
 
