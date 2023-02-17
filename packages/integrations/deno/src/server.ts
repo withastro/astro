@@ -7,7 +7,6 @@ import { Server } from 'https://deno.land/std@0.167.0/http/server.ts';
 // @ts-ignore
 import { fetch } from 'https://deno.land/x/file_fetch/mod.ts';
 
-
 interface Options {
 	port?: number;
 	hostname?: string;
