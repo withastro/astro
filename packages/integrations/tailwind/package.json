@@ -37,11 +37,11 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "tailwindcss": "^3.0.24",
-    "vite": "^4.0.3"
+    "vite": "^4.1.2"
   },
   "peerDependencies": {
-    "tailwindcss": "^3.0.24",
-    "astro": "workspace:^2.0.13"
+    "astro": "workspace:^2.0.13",
+    "tailwindcss": "^3.0.24"
   },
   "pnpm": {
     "peerDependencyRules": {

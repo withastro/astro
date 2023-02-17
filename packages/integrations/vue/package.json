@@ -46,12 +46,12 @@
     "chai": "^4.3.6",
     "linkedom": "^0.14.17",
     "mocha": "^9.2.2",
-    "vite": "^4.0.3",
+    "vite": "^4.1.2",
     "vue": "^3.2.37"
   },
   "peerDependencies": {
-    "vue": "^3.2.30",
-    "astro": "workspace:^2.0.13"
+    "astro": "workspace:^2.0.13",
+    "vue": "^3.2.30"
   },
   "engines": {
     "node": ">=16.12.0"
