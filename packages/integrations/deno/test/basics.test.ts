@@ -68,7 +68,7 @@ Deno.test({
 			resp = await fetch(new URL(href!, baseUrl));
 			assertEquals(resp.status, 200);
 			const ct = resp.headers.get('content-type');
-			assertEquals(ct, 'text/css');
+			assertEquals(ct, 'text/css; charset=UTF-8');
 			await resp.body!.cancel();
 		});
 	},
@@ -138,6 +138,27 @@ Deno.test({
 
 			const headers = resp.headers;
 			assertEquals(headers.get('set-cookie'), 'logged-in=false; Max-Age=77760000; Path=/');
+		});
+	},
+	sanitizeResources: false,
+	sanitizeOps: false,
+});
+
+
+Deno.test({
+	name: 'perendering',
+	permissions: defaultTestPermissions,
+	async fn() {
+		await startApp(async (baseUrl: URL) => {
+			const resp = await fetch(new URL('/prerender', baseUrl));
+			assertEquals(resp.status, 200);
+
+			const html = await resp.text();
+			assert(html);
+
+			const doc = new DOMParser().parseFromString(html, `text/html`);
+			const h1 = doc!.querySelector('h1');
+			assertEquals(h1!.innerText, 'test');
 		});
 	},
 	sanitizeResources: false,

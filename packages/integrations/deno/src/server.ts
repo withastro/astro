@@ -3,9 +3,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 // @ts-ignore
-import { Server } from 'https://deno.land/std@0.167.0/http/server.ts';
-// @ts-ignore
-import { fetch } from 'https://deno.land/x/file_fetch/mod.ts';
+import { Server, serveFile, fromFileUrl } from '@astrojs/deno/__deno_imports.js';
 
 interface Options {
 	port?: number;
@@ -15,6 +13,17 @@ interface Options {
 
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
+
+async function* getPrerenderedFiles(clientRoot: URL): AsyncGenerator<URL> {
+	// @ts-ignore
+	for await (const ent of Deno.readDir(clientRoot)) {
+		if (ent.isDirectory) {
+			yield* getPrerenderedFiles(new URL(`./${ent.name}/`, clientRoot))
+		} else if (ent.name.endsWith('.html')) {
+			yield new URL(`./${ent.name}`, clientRoot)
+		}
+	}
+}
 
 export function start(manifest: SSRManifest, options: Options) {
 	if (options.start === false) {
@@ -40,7 +49,24 @@ export function start(manifest: SSRManifest, options: Options) {
 		// try to fetch a static file instead
 		const url = new URL(request.url);
 		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
-		const fileResp = await fetch(localPath.toString());
+
+		let fileResp = await serveFile(request, fromFileUrl(localPath));
+
+		// Attempt to serve `index.html` if 404
+		if (fileResp.status == 404) {
+			let fallback;
+			for await (const file of getPrerenderedFiles(clientRoot)) {
+				const pathname = file.pathname.replace(/\/(index)?\.html$/, '');
+				if (localPath.pathname.endsWith(pathname)) {
+					fallback = file;
+					break;
+				}
+			}
+			if (fallback) {
+				fileResp = await serveFile(request, fromFileUrl(fallback));
+			}
+		}
+
 
 		// If the static file can't be found
 		if (fileResp.status == 404) {
