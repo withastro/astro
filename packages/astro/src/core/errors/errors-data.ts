@@ -506,8 +506,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	// CSS Errors - 5xxx
 	/**
 	 * @docs
-	 * @message
-	 * Unknown CSS Error.
 	 * @see
 	 * 	- [Styles and CSS](https://docs.astro.build/en/guides/styling/)
 	 * @description
@@ -538,8 +536,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	// Markdown Errors - 6xxx
 	/**
 	 * @docs
-	 * @message
-	 * Unknown Markdown Error.
 	 * @description
 	 * Astro encountered an unknown error while parsing your Markdown. Oftentimes, this is caused by a syntax error and the error message should contain more information.
 	 */
@@ -593,8 +589,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	// Config Errors - 7xxx
 	/**
 	 * @docs
-	 * @message
-	 * Unknown configuration error.
 	 * @see
 	 * - [Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/)
 	 * @description
@@ -641,8 +635,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	// CLI Errors - 8xxx
 	/**
 	 * @docs
-	 * @message
-	 * Unknown CLI Error.
 	 * @description
 	 * Astro encountered an unknown error while starting one of its CLI command. The error message should contain more information.
 	 *
