@@ -216,7 +216,7 @@ The desired height of the output image. Combine with `width` to crop the image t
 
 Dimensions are optional for local images, the original image size will be used if not provided.
 
-For remote images, including images in `/public`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+For remote images, including images in `public/`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### aspectRatio
 
