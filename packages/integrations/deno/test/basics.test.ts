@@ -144,7 +144,6 @@ Deno.test({
 	sanitizeOps: false,
 });
 
-
 Deno.test({
 	name: 'perendering',
 	permissions: defaultTestPermissions,

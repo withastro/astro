@@ -3,7 +3,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 // @ts-ignore
-import { Server, serveFile, fromFileUrl } from '@astrojs/deno/__deno_imports.js';
+import { fromFileUrl, serveFile, Server } from '@astrojs/deno/__deno_imports.js';
 
 interface Options {
 	port?: number;
@@ -18,9 +18,9 @@ async function* getPrerenderedFiles(clientRoot: URL): AsyncGenerator<URL> {
 	// @ts-ignore
 	for await (const ent of Deno.readDir(clientRoot)) {
 		if (ent.isDirectory) {
-			yield* getPrerenderedFiles(new URL(`./${ent.name}/`, clientRoot))
+			yield* getPrerenderedFiles(new URL(`./${ent.name}/`, clientRoot));
 		} else if (ent.name.endsWith('.html')) {
-			yield new URL(`./${ent.name}`, clientRoot)
+			yield new URL(`./${ent.name}`, clientRoot);
 		}
 	}
 }
@@ -66,7 +66,6 @@ export function start(manifest: SSRManifest, options: Options) {
 				fileResp = await serveFile(request, fromFileUrl(fallback));
 			}
 		}
-
 
 		// If the static file can't be found
 		if (fileResp.status == 404) {

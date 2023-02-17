@@ -20,15 +20,15 @@ const SHIM = `globalThis.process = {
 	env: Deno.env.toObject(),
 };`;
 
-const DENO_VERSION = `0.177.0`
+const DENO_VERSION = `0.177.0`;
 
 // We shim deno-specific imports so we can run the code in Node
-// to prerender pages. In the final Deno build, this import is 
+// to prerender pages. In the final Deno build, this import is
 // replaced with the Deno-specific contents listed below.
 const DENO_IMPORTS_SHIM = `@astrojs/deno/__deno_imports.js`;
 const DENO_IMPORTS = `export { Server } from "https://deno.land/std@${DENO_VERSION}/http/server.ts"
 export { serveFile } from 'https://deno.land/std@${DENO_VERSION}/http/file_server.ts';
-export { fromFileUrl } from "https://deno.land/std@${DENO_VERSION}/path/mod.ts";`
+export { fromFileUrl } from "https://deno.land/std@${DENO_VERSION}/path/mod.ts";`;
 
 export function getAdapter(args?: Options): AstroAdapter {
 	return {
@@ -40,16 +40,16 @@ export function getAdapter(args?: Options): AstroAdapter {
 }
 
 const denoImportsShimPlugin = {
-  name: '@astrojs/deno:shim',
-  setup(build: esbuild.PluginBuild) {
-    build.onLoad({ filter: /__deno_imports\.js$/ }, async (args) => {
-      return {
-        contents: DENO_IMPORTS,
-        loader: 'js',
-      }
-    })
-  },
-}
+	name: '@astrojs/deno:shim',
+	setup(build: esbuild.PluginBuild) {
+		build.onLoad({ filter: /__deno_imports\.js$/ }, async (args) => {
+			return {
+				contents: DENO_IMPORTS,
+				loader: 'js',
+			};
+		});
+	},
+};
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _buildConfig: BuildConfig;
@@ -91,9 +91,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 
 					if (Array.isArray(vite.build.rollupOptions.external)) {
-						vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);		
+						vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);
 					} else if (typeof vite.build.rollupOptions.external !== 'function') {
-						vite.build.rollupOptions.external = [vite.build.rollupOptions.external, DENO_IMPORTS_SHIM]
+						vite.build.rollupOptions.external = [
+							vite.build.rollupOptions.external,
+							DENO_IMPORTS_SHIM,
+						];
 					}
 				}
 			},
@@ -110,9 +113,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					external: ['@astrojs/markdown-remark'],
-					plugins: [
-						denoImportsShimPlugin
-					],
+					plugins: [denoImportsShimPlugin],
 					banner: {
 						js: SHIM,
 					},
