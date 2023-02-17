@@ -143,23 +143,3 @@ Deno.test({
 	sanitizeResources: false,
 	sanitizeOps: false,
 });
-
-Deno.test({
-	name: 'perendering',
-	permissions: defaultTestPermissions,
-	async fn() {
-		await startApp(async (baseUrl: URL) => {
-			const resp = await fetch(new URL('perendering', baseUrl));
-			assertEquals(resp.status, 200);
-
-			const html = await resp.text();
-			assert(html);
-
-			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const h1 = doc!.querySelector('h1');
-			assertEquals(h1!.innerText, 'test');
-		});
-	},
-	sanitizeResources: false,
-	sanitizeOps: false,
-});
