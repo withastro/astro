@@ -636,7 +636,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @description
-	 * Astro encountered an unknown error while starting one of its CLI command. The error message should contain more information.
+	 * Astro encountered an unknown error while starting one of its CLI commands. The error message should contain more information.
 	 *
 	 * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
 	 */
