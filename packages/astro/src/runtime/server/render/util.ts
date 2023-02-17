@@ -28,7 +28,7 @@ const kebab = (k: string) =>
 const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
 		.map(([k, v]) => {
-			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`
+			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
 			// TODO: Remove in v3! See #6264
 			// We need to emit --kebab-case AND --camelCase for backwards-compat in v2,
 			// but we should be able to remove this workaround in v3.
