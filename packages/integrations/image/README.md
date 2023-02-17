@@ -201,7 +201,7 @@ The desired width of the output image. Combine with `height` to crop the image t
 
 Dimensions are optional for local images, the original image size will be used if not provided.
 
-For remote images, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+For remote images, including images in `/public`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### height
 
@@ -215,7 +215,7 @@ The desired height of the output image. Combine with `width` to crop the image t
 
 Dimensions are optional for local images, the original image size will be used if not provided.
 
-For remote images, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+For remote images, including images in `/public`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### aspectRatio
 
@@ -230,6 +230,8 @@ The desired aspect ratio of the output image. Combine with either `width` or `he
 A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4`.
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
+
+For remote images, including images in `/public`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### background
 
@@ -352,7 +354,7 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
-For remote images only, `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
+For remote images, including images in `/public`, `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
 
 #### formats
 
@@ -364,7 +366,7 @@ For remote images only, `aspectRatio` is required to ensure the correct `height`
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
 
-For remote images, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
+For remote images, including images in `/public`, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
 
 #### background
 
