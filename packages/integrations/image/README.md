@@ -133,7 +133,7 @@ If the image is merely decorative (i.e. doesn’t contribute to the understandin
 
 ### `<Image />`
 
-The built-in `<Image />` component is used to create an optimized `<img />` for both remote images hosted on other domains as well as local images imported from your project's `src` directory.
+The built-in `<Image />` component is used to create an optimized `<img />` for both remote images accessed by URL as well as local images imported from your project's `src` directory.
 
 In addition to the component-specific properties, any valid HTML attribute for the `<img />` included in the `<Image />` component will be included in the built `<img />`.
 
@@ -279,7 +279,7 @@ Position of the crop when fit is `cover` or `contain`.
 
 ### `<Picture />`
 
-The built-in `<Picture />` component is used to create an optimized `<picture />` for both remote images hosted on other domains as well as local images imported from your project's `src` directory.
+The built-in `<Picture />` component is used to create an optimized `<picture />` for both remote images accessed by URL as well as local images imported from your project's `src` directory.
 
 In addition to the component-specific properties, any valid HTML attribute for the `<img />` included in the `<Picture />` component will be included in the built `<img />`.
 
