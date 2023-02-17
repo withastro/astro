@@ -2606,7 +2606,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       execa: ^6.1.0
-      giget: ^1.0.0
+      giget: 1.0.0
       mocha: ^9.2.2
       strip-ansi: ^7.0.1
       strip-json-comments: ^5.0.0
