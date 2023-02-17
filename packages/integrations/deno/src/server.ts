@@ -15,6 +15,7 @@ let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
 
 async function* getPrerenderedFiles(clientRoot: URL): AsyncGenerator<URL> {
+	// @ts-ignore
 	for await (const ent of Deno.readDir(clientRoot)) {
 		if (ent.isDirectory) {
 			yield* getPrerenderedFiles(new URL(`./${ent.name}/`, clientRoot))
