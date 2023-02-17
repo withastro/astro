@@ -454,6 +454,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
+	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
 	 * @docs
@@ -502,6 +503,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @kind heading
 	 * @name CSS Errors
 	 */
+	// CSS Errors - 5xxx
 	/**
 	 * @docs
 	 * @message
@@ -511,7 +513,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @description
 	 * Astro encountered an unknown error while parsing your CSS. Oftentimes, this is caused by a syntax error and the error message should contain more information.
 	 */
-	// CSS Errors - 5xxx
 	UnknownCSSError: {
 		title: 'Unknown CSS Error.',
 		code: 5000,
