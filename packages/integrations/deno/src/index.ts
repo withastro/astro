@@ -68,8 +68,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
 					_vite = vite;
-					vite.resolve = vite.resolve || {};
-					vite.resolve.alias = vite.resolve.alias || {};
+					vite.resolve = vite.resolve ?? {};
+					vite.resolve.alias = vite.resolve.alias ?? {};
+					vite.build = vite.build ?? {};
+					vite.build.rollupOptions = vite.build.rollupOptions ?? {};
+					vite.build.rollupOptions.external = vite.build.rollupOptions.external ?? [];
 
 					const aliases = [{ find: 'react-dom/server', replacement: 'react-dom/server.browser' }];
 
@@ -83,7 +86,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr = {
 						noExternal: true,
 					};
-					vite.build.rollupOptions.external = [DENO_IMPORTS_SHIM]
+
+					vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);
 				}
 			},
 			'astro:build:done': async () => {
