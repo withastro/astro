@@ -87,7 +87,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						noExternal: true,
 					};
 
-					vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);
+					if (Array.isArray(vite.build.rollupOptions.external)) {
+						vite.build.rollupOptions.external.push(DENO_IMPORTS_SHIM);		
+					} else if (typeof vite.build.rollupOptions.external !== 'function') {
+						vite.build.rollupOptions.external = [vite.build.rollupOptions.external, DENO_IMPORTS_SHIM]
+					}
 				}
 			},
 			'astro:build:done': async () => {
