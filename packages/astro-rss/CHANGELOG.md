@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 2.1.1
+
+### Patch Changes
+
+- [#6259](https://github.com/withastro/astro/pull/6259) [`dbffee4e3`](https://github.com/withastro/astro/commit/dbffee4e381e74882734039783fae312d3893f2a) Thanks [@y-nk](https://github.com/y-nk)! - Improve RSS schema errors with additional property name context
+
 ## 2.1.0
 
 ### Minor Changes
