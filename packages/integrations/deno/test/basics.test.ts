@@ -68,7 +68,7 @@ Deno.test({
 			resp = await fetch(new URL(href!, baseUrl));
 			assertEquals(resp.status, 200);
 			const ct = resp.headers.get('content-type');
-			assertEquals(ct, 'text/css');
+			assertEquals(ct, 'text/css; charset=UTF-8');
 			await resp.body!.cancel();
 		});
 	},
@@ -144,12 +144,13 @@ Deno.test({
 	sanitizeOps: false,
 });
 
+
 Deno.test({
 	name: 'perendering',
 	permissions: defaultTestPermissions,
 	async fn() {
 		await startApp(async (baseUrl: URL) => {
-			const resp = await fetch(new URL('perender', baseUrl));
+			const resp = await fetch(new URL('/prerender', baseUrl));
 			assertEquals(resp.status, 200);
 
 			const html = await resp.text();

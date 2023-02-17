@@ -14,6 +14,16 @@ interface Options {
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
 
+async function* getPrerenderedFiles(clientRoot: URL): AsyncGenerator<URL> {
+	for await (const ent of Deno.readDir(clientRoot)) {
+		if (ent.isDirectory) {
+			yield* getPrerenderedFiles(new URL(`./${ent.name}/`, clientRoot))
+		} else if (ent.name.endsWith('.html')) {
+			yield new URL(`./${ent.name}`, clientRoot)
+		}
+	}
+}
+
 export function start(manifest: SSRManifest, options: Options) {
 	if (options.start === false) {
 		return;
@@ -38,12 +48,22 @@ export function start(manifest: SSRManifest, options: Options) {
 		// try to fetch a static file instead
 		const url = new URL(request.url);
 		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
+
 		let fileResp = await serveFile(request, localPath.pathname);
 
 		// Attempt to serve `index.html` if 404
 		if (fileResp.status == 404) {
-			const fallback = new URL('./index.html', localPath).pathname;
-			fileResp = await serveFile(request, fallback);
+			let fallback;
+			for await (const file of getPrerenderedFiles(clientRoot)) {
+				const pathname = file.pathname.replace(/\/(index)?\.html$/, '');
+				if (localPath.pathname.endsWith(pathname)) {
+					fallback = file;
+					break;
+				}
+			}
+			if (fallback) {
+				fileResp = await serveFile(request, fallback.pathname);
+			}
 		}
 
 
