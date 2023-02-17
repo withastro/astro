@@ -12,10 +12,11 @@ import {
 	isRenderTemplateResult,
 	renderAstroTemplateResult,
 } from './astro/index.js';
-import { chunkToByteArray, encoder, HTMLParts, isRenderInstruction } from './common.js';
+import { chunkToByteArray, encoder, HTMLParts, renderToStringAsync } from './common.js';
 import { renderComponent } from './component.js';
-import { maybeRenderHead, renderScriptsAndStyles } from './head.js';
+import { maybeRenderHead } from './head.js';
 import { createScopedResult, ScopeFlags } from './scope.js';
+import { renderChild } from './any.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 
@@ -64,7 +65,13 @@ async function bufferHeadContent(result: SSRResult) {
 		}
 		const returnValue = await value.init(scoped);
 		if (isHeadAndContent(returnValue)) {
-			result.extraHead.push(returnValue.head);
+			if(typeof returnValue.head === 'string') {
+				result.extraHead.push(returnValue.head);
+			} else {
+				const head = await renderToStringAsync(result, returnValue.head);
+				result.extraHead.push(head);
+			}
+			
 		}
 	}
 }
@@ -149,18 +156,8 @@ export async function renderPage(
 									}
 								}
 
-								if(isRenderInstruction(chunk) && chunk.type === 'head') {
-									debugger;
-									let head = renderScriptsAndStyles(result);
-									for await(const part of result.extraHead) {
-										head += part;
-									}
-									const bytes = encoder.encode(head);
-									controller.enqueue(bytes);
-								} else {
-									const bytes = chunkToByteArray(result, chunk);
-									controller.enqueue(bytes);
-								}
+								const bytes = chunkToByteArray(result, chunk);
+								controller.enqueue(bytes);
 
 								i++;
 							}

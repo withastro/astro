@@ -12,7 +12,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	);
 };
 
-export function renderScriptsAndStyles(result: SSRResult) {
+export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
@@ -30,20 +30,9 @@ export function renderScriptsAndStyles(result: SSRResult) {
 
 	let content = links.join('\n') + styles.join('\n') + scripts.join('\n');
 
-	return markHTMLString(content);
-}
-
-export function renderAllHeadContent(result: SSRResult) {
-	result._metadata.hasRenderedHead = true;
-	let content = renderScriptsAndStyles(result);
-
 	if (result.extraHead.length > 0) {
 		for (const part of result.extraHead) {
-			if(typeof part === 'string') {
-				content += part;
-			} else {
-				throw new Error('We can only stringify string head injection');
-			}
+			content += part;
 		}
 	}
 

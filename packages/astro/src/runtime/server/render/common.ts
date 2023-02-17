@@ -11,6 +11,7 @@ import {
 import { renderAllHeadContent } from './head.js';
 import { hasScopeFlag, ScopeFlags } from './scope.js';
 import { isSlotString, type SlotString } from './slot.js';
+import { renderChild } from './any.js';
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
@@ -151,4 +152,12 @@ export function chunkToByteArray(
 	// stringify chunk might return a HTMLString
 	let stringified = stringifyChunk(result, chunk);
 	return encoder.encode(stringified.toString());
+}
+
+export async function renderToStringAsync(result: SSRResult, part: unknown): Promise<string> {
+	let out = '';
+	for await(const chunk of renderChild(part)) {
+		out += stringifyChunk(result, chunk);
+	}
+	return out;
 }

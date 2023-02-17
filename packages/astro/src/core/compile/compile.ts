@@ -69,8 +69,6 @@ export async function compile({
 
 	handleCompileResultErrors(transformResult, cssTransformErrors);
 
-	console.log(transformResult.code)
-
 	return {
 		...transformResult,
 		cssDeps,
