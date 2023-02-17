@@ -7,3 +7,4 @@ export class Server {
 }
 
 export function serveFile() {}
+export function fromFileUrl() {}

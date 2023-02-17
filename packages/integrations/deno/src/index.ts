@@ -20,12 +20,15 @@ const SHIM = `globalThis.process = {
 	env: Deno.env.toObject(),
 };`;
 
+const DENO_VERSION = `0.177.0`
+
 // We shim deno-specific imports so we can run the code in Node
 // to prerender pages. In the final Deno build, this import is 
 // replaced with the Deno-specific contents listed below.
 const DENO_IMPORTS_SHIM = `@astrojs/deno/__deno_imports.js`;
-const DENO_IMPORTS = `export { Server } from "https://deno.land/std@0.177.0/http/server.ts"
-export { serveFile } from 'https://deno.land/std@0.177.0/http/file_server.ts';`
+const DENO_IMPORTS = `export { Server } from "https://deno.land/std@${DENO_VERSION}/http/server.ts"
+export { serveFile } from 'https://deno.land/std@${DENO_VERSION}/http/file_server.ts';
+export { fromFileUrl } from "https://deno.land/std@${DENO_VERSION}/path/mod.ts";`
 
 export function getAdapter(args?: Options): AstroAdapter {
 	return {

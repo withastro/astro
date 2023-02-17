@@ -3,7 +3,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 // @ts-ignore
-import { Server, serveFile } from '@astrojs/deno/__deno_imports.js';
+import { Server, serveFile, fromFileUrl } from '@astrojs/deno/__deno_imports.js';
 
 interface Options {
 	port?: number;
@@ -50,7 +50,7 @@ export function start(manifest: SSRManifest, options: Options) {
 		const url = new URL(request.url);
 		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
 
-		let fileResp = await serveFile(request, localPath.pathname);
+		let fileResp = await serveFile(request, fromFileUrl(localPath));
 
 		// Attempt to serve `index.html` if 404
 		if (fileResp.status == 404) {
@@ -63,7 +63,7 @@ export function start(manifest: SSRManifest, options: Options) {
 				}
 			}
 			if (fallback) {
-				fileResp = await serveFile(request, fallback.pathname);
+				fileResp = await serveFile(request, fromFileUrl(fallback));
 			}
 		}
 
