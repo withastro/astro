@@ -1,4 +1,6 @@
+import sizeOf from 'image-size';
 import { visit } from 'unist-util-visit';
+import { pathToFileURL } from 'url';
 import type { MarkdownVFile } from './types.js';
 
 export function rehypeRelativeImages(imageService: any) {
@@ -10,14 +12,34 @@ export function rehypeRelativeImages(imageService: any) {
 
 				if (node.properties?.src) {
 					if (isRelativePath(node.properties.src.toString())) {
-						node.properties.$injectURL = node.properties.src;
+						if (file.dirname) {
+							const filePath =
+								file.dirname + node.properties.src.substring(node.properties.src.indexOf('/'));
+							const fileData = sizeOf(filePath);
 
-						if (!node.properties.width) {
-							node.properties.$injectWidth = true;
-						}
+							const fileURL = pathToFileURL(filePath);
+							fileURL.searchParams.append('origWidth', fileData.width!.toString());
+							fileURL.searchParams.append('origHeight', fileData.height!.toString());
+							fileURL.searchParams.append('origFormat', fileData.type!.toString());
 
-						if (!node.properties.height) {
-							node.properties.$injectHeight = true;
+							let options = {
+								src: {
+									src: fileURL,
+									width: fileData.width,
+									height: fileData.height,
+									format: fileData.type,
+								},
+								alt: node.properties.alt,
+							};
+
+							if (imageService.validateTransform) options = imageService.validateTransform(options);
+
+							node.properties = Object.assign(node.properties, {
+								src: imageService.getURL(options),
+								...(imageService.getHTMLAttributes !== undefined
+									? imageService.getHTMLAttributes(options)
+									: {}),
+							});
 						}
 					}
 				}
