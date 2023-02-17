@@ -43,6 +43,7 @@ export async function compile({
 			internalURL: 'astro/server/index.js',
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			resultScopedSlot: true,
+			implicitHeadInjection: false,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
@@ -67,6 +68,8 @@ export async function compile({
 	}
 
 	handleCompileResultErrors(transformResult, cssTransformErrors);
+
+	console.log(transformResult.code)
 
 	return {
 		...transformResult,

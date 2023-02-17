@@ -375,7 +375,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^1.1.0
+      '@astrojs/compiler': 0.0.0-head-bubbling-20230216202235
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^2.0.1
       '@astrojs/telemetry': ^2.0.0
@@ -465,7 +465,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 1.1.0
+      '@astrojs/compiler': 0.0.0-head-bubbling-20230216202235
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -1852,6 +1852,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/glob-pages-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/head-bubbling:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -3902,12 +3908,12 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
+  /@astrojs/compiler/0.0.0-head-bubbling-20230216202235:
+    resolution: {integrity: sha512-3IFx8Y3T16yjlVLSElAOVvLrCFSs9pmLBD9quLM48MyKmJjamPmIctTGJ02ixNCOcZZrZPBjEPefTyrqNQ64Zw==}
+    dev: false
+
   /@astrojs/compiler/0.31.4:
     resolution: {integrity: sha512-6bBFeDTtPOn4jZaiD3p0f05MEGQL9pw2Zbfj546oFETNmjJFWO3nzHz6/m+P53calknCvyVzZ5YhoBLIvzn5iw==}
-
-  /@astrojs/compiler/1.1.0:
-    resolution: {integrity: sha512-C4kTwirys+HafufMqaxCbML2wqkGaXJM+5AekXh/v1IIOnMIdcEON9GBYsG6qa8aAmLhZ58aUZGPhzcA3Dx7Uw==}
-    dev: false
 
   /@astrojs/language-server/0.28.3:
     resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}

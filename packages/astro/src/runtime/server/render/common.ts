@@ -18,12 +18,16 @@ export const Renderer = Symbol.for('astro:renderer');
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
 
+export function isRenderInstruction(chunk: unknown): chunk is RenderInstruction {
+	return typeof chunk != null && typeof (chunk as any).type === 'string';
+}
+
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
 export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
-	if (typeof (chunk as any).type === 'string') {
-		const instruction = chunk as RenderInstruction;
+	if (isRenderInstruction(chunk)) {
+		const instruction = chunk;
 		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
@@ -47,6 +51,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				if (result._metadata.hasRenderedHead) {
 					return '';
 				}
+
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {

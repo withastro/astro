@@ -12,9 +12,9 @@ import {
 	isRenderTemplateResult,
 	renderAstroTemplateResult,
 } from './astro/index.js';
-import { chunkToByteArray, encoder, HTMLParts } from './common.js';
+import { chunkToByteArray, encoder, HTMLParts, isRenderInstruction } from './common.js';
 import { renderComponent } from './component.js';
-import { maybeRenderHead } from './head.js';
+import { maybeRenderHead, renderScriptsAndStyles } from './head.js';
 import { createScopedResult, ScopeFlags } from './scope.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -149,8 +149,19 @@ export async function renderPage(
 									}
 								}
 
-								const bytes = chunkToByteArray(result, chunk);
-								controller.enqueue(bytes);
+								if(isRenderInstruction(chunk) && chunk.type === 'head') {
+									debugger;
+									let head = renderScriptsAndStyles(result);
+									for await(const part of result.extraHead) {
+										head += part;
+									}
+									const bytes = encoder.encode(head);
+									controller.enqueue(bytes);
+								} else {
+									const bytes = chunkToByteArray(result, chunk);
+									controller.enqueue(bytes);
+								}
+
 								i++;
 							}
 							controller.close();
