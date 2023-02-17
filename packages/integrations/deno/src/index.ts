@@ -20,6 +20,13 @@ const SHIM = `globalThis.process = {
 	env: Deno.env.toObject(),
 };`;
 
+// We shim deno-specific imports so we can run the code in Node
+// to prerender pages. In the final Deno build, this import is 
+// replaced with the Deno-specific contents listed below.
+const DENO_IMPORTS_SHIM = `@astrojs/deno/__deno_imports.js`;
+const DENO_IMPORTS = `export { Server } from "https://deno.land/std@0.177.0/http/server.ts"
+export { serveFile } from 'https://deno.land/std@0.177.0/http/file_server.ts';`
+
 export function getAdapter(args?: Options): AstroAdapter {
 	return {
 		name: '@astrojs/deno',
@@ -27,6 +34,18 @@ export function getAdapter(args?: Options): AstroAdapter {
 		args: args ?? {},
 		exports: ['stop', 'handle', 'start', 'running'],
 	};
+}
+
+const denoImportsShimPlugin = {
+  name: '@astrojs/deno:shim',
+  setup(build: esbuild.PluginBuild) {
+    build.onLoad({ filter: /__deno_imports\.js$/ }, async (args) => {
+      return {
+        contents: DENO_IMPORTS,
+        loader: 'js',
+      }
+    })
+  },
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -61,10 +80,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
 						}
 					}
-
 					vite.ssr = {
 						noExternal: true,
 					};
+					vite.build.rollupOptions.external = [DENO_IMPORTS_SHIM]
 				}
 			},
 			'astro:build:done': async () => {
@@ -80,6 +99,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					external: ['@astrojs/markdown-remark'],
+					plugins: [
+						denoImportsShimPlugin
+					],
 					banner: {
 						js: SHIM,
 					},

@@ -3,9 +3,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 // @ts-ignore
-import { Server } from 'https://deno.land/std@0.167.0/http/server.ts';
-// @ts-ignore
-import { fetch } from 'https://deno.land/x/file_fetch/mod.ts';
+import { Server, serveFile } from '@astrojs/deno/__deno_imports.js';
 
 interface Options {
 	port?: number;
@@ -40,7 +38,14 @@ export function start(manifest: SSRManifest, options: Options) {
 		// try to fetch a static file instead
 		const url = new URL(request.url);
 		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
-		const fileResp = await fetch(localPath.toString());
+		let fileResp = await serveFile(request, localPath.pathname);
+
+		// Attempt to serve `index.html` if 404
+		if (fileResp.status == 404) {
+			const fallback = new URL('./index.html', localPath).pathname;
+			fileResp = await serveFile(request, fallback);
+		}
+
 
 		// If the static file can't be found
 		if (fileResp.status == 404) {

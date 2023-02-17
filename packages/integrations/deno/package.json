@@ -20,6 +20,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./server.js": "./dist/server.js",
+    "./__deno_imports.js": "./dist/__deno_imports.js",
     "./package.json": "./package.json"
   },
   "scripts": {
