@@ -45,7 +45,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^2.0.0",
+    "@astrojs/webapi": "^2.0.1",
     "@vercel/analytics": "^0.1.8",
     "@vercel/nft": "^0.22.1",
     "fast-glob": "^3.2.11",
@@ -53,7 +53,7 @@
     "web-vitals": "^3.1.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.13"
+    "astro": "workspace:^2.0.14"
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.2",
