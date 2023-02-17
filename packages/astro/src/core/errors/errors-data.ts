@@ -734,7 +734,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
-	// Generic catch-all
+	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',
 		code: 99999,
