@@ -147,11 +147,12 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
-
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
-For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
+For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
+
+
+For images located in your `public/` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
 
 #### alt
 
@@ -295,11 +296,12 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
-
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
-For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
+For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
+
+
+For images located in your `public/` directory: use the URL path relative to the `public/` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
 
 #### alt
 
