@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 2.0.1
+
+### Patch Changes
+
+- [#6282](https://github.com/withastro/astro/pull/6282) [`bb1801013`](https://github.com/withastro/astro/commit/bb1801013708d9efdbbcebc53a564ac375bf4b26) Thanks [@matthewp](https://github.com/matthewp)! - Temporarily pin undici to fix Header regression
+
 ## 2.0.0
 
 ### Major Changes

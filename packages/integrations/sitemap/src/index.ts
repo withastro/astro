@@ -12,7 +12,7 @@ import { generateSitemap } from './generate-sitemap.js';
 import { Logger } from './utils/logger.js';
 import { validateOptions } from './validate-options.js';
 
-export type ChangeFreq = EnumChangefreq;
+export type ChangeFreq = `${EnumChangefreq}`;
 export type SitemapItem = Pick<
 	SitemapItemLoose,
 	'url' | 'lastmod' | 'changefreq' | 'priority' | 'links'
