@@ -1,5 +1,9 @@
 # @astrojs/mdx
 
+## 0.17.1
+
+- Updated to es-module-lexer@1.1.1
+
 ## 0.17.0
 
 ### Minor Changes
