@@ -101,7 +101,7 @@ export class App {
 
 		if (routeData) {
 			const asset = matchAssets(routeData, this.#manifest.assets);
-			if (asset) return undefined;
+			if (!/\[.+\]/.test(routeData.route) && asset) return undefined;
 			return routeData;
 		} else if (matchNotFound) {
 			return matchRoute('/404', this.#manifestData);
