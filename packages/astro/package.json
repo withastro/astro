@@ -96,6 +96,7 @@
     "test": "pnpm run test:unit && mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g",
     "test:e2e": "playwright test",
+    "test:2": "mocha --exit --timeout 30000 ./test/ssr-prerender.test.js",
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
