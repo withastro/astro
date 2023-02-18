@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-create-astro help info add --typescript flag
+`create-astro` help info add `--typescript` flag
