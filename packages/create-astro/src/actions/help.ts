@@ -14,6 +14,7 @@ export function help() {
 				['--no (-n)', 'Skip all prompt by declining defaults.'],
 				['--dry-run', 'Walk through steps without executing.'],
 				['--skip-houston', 'Skip Houston animation.'],
+				['--typescript <option>', 'TypeScript option: strict | strictest | relaxed.'],
 			],
 		},
 	});
