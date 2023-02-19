@@ -23,7 +23,8 @@ export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: 
 }
 
 export const contentConfigParser = z.object({
-	collections: z.record(collectionConfigParser),
+  collections: z.record(collectionConfigParser),
+  slug: z.function(),
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;

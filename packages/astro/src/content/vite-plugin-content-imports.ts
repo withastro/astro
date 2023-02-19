@@ -80,13 +80,19 @@ export function astroContentImportPlugin({
 				});
 				if (entryInfo instanceof Error) return;
 
+				const collectionConfig =
+          contentConfig?.collections[entryInfo.collection]
+
 				const _internal = { filePath: fileId, rawData };
 				const partialEntry = { data: unparsedData, body, _internal, ...entryInfo };
+				partialEntry.defaultSlug = getEntrySlug(partialEntry)
 				// TODO: move slug calculation to the start of the build
 				// to generate a performant lookup map for `getEntryBySlug`
-				const slug = getEntrySlug(partialEntry);
 
-				const collectionConfig = contentConfig?.collections[entryInfo.collection];
+        const slug = collectionConfig?.slug
+          ? await collectionConfig.slug(partialEntry)
+          : partialEntry.defaultSlug
+
 				const data = collectionConfig
 					? await getEntryData(partialEntry, collectionConfig)
 					: unparsedData;

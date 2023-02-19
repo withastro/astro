@@ -172,6 +172,15 @@ export async function createContentTypesGenerator({
 
 		const { id, collection } = entryInfo;
 
+		// not sure this is the best way
+		const { collections = {} } = await loadContentConfig({
+			fs,
+			settings,
+			viteServer,
+		})
+		const collectionConfig = collections[collection] ?? {}
+		if (collectionConfig.slug) entryInfo.slug = collectionConfig.slug(entryInfo)
+
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
 
