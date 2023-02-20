@@ -56,14 +56,16 @@ export function formatList(values: string[]): string {
 }
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string, shouldEscape = true) {
+export function addAttribute(value: any, key: string, shouldEscape = true, shouldAddSpace = true) {
 	if (value == null) {
 		return '';
 	}
 
+	const maybeSpace = shouldAddSpace ? ' ' : '';
+
 	if (value === false) {
 		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
-			return markHTMLString(` ${key}="false"`);
+			return markHTMLString(`${maybeSpace}${key}="false"`);
 		}
 		return '';
 	}
@@ -83,24 +85,26 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		if (listValue === '') {
 			return '';
 		}
-		return markHTMLString(` ${key.slice(0, -5)}="${listValue}"`);
+		return markHTMLString(`${maybeSpace}${key.slice(0, -5)}="${listValue}"`);
 	}
 
 	// support object styles for better JSX compat
 	if (key === 'style' && !(value instanceof HTMLString) && typeof value === 'object') {
-		return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
+		return markHTMLString(
+			`${maybeSpace}${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`
+		);
 	}
 
 	// support `className` for better JSX compat
 	if (key === 'className') {
-		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
+		return markHTMLString(`${maybeSpace}class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
 	// Boolean values only need the key
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
-		return markHTMLString(` ${key}`);
+		return markHTMLString(`${maybeSpace}${key}`);
 	} else {
-		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+		return markHTMLString(`${maybeSpace}${key}="${toAttributeString(value, shouldEscape)}"`);
 	}
 }
 
