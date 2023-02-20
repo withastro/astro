@@ -56,12 +56,17 @@ export function formatList(values: string[]): string {
 }
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string, shouldEscape = true, shouldAddSpace = true) {
+export function addAttribute(
+	value: any,
+	key: string,
+	shouldEscape = true,
+	shouldPreprendSpace = true
+) {
 	if (value == null) {
 		return '';
 	}
 
-	const maybeSpace = shouldAddSpace ? ' ' : '';
+	const maybeSpace = shouldPreprendSpace ? ' ' : '';
 
 	if (value === false) {
 		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
