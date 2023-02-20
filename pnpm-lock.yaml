@@ -3096,6 +3096,14 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
+  packages/integrations/netlify/test/edge-functions/fixtures/prerender:
+    specifiers:
+      '@astrojs/netlify': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/netlify': link:../../../..
+      astro: link:../../../../../../astro
+
   packages/integrations/netlify/test/edge-functions/fixtures/root-dynamic:
     specifiers:
       '@astrojs/netlify': workspace:*
@@ -3392,6 +3400,14 @@ importers:
       mocha: 9.2.2
 
   packages/integrations/vercel/test/fixtures/no-output:
+    specifiers:
+      '@astrojs/vercel': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vercel': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/serverless-prerender:
     specifiers:
       '@astrojs/vercel': workspace:*
       astro: workspace:*
