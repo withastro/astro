@@ -55,6 +55,13 @@ describe('Attributes', async () => {
 		expect($('img').attr('happy:smile')).to.equal('sweet');
 	});
 
+	it('Passes namespaced expression attributes as expected', async () => {
+		const html = await fixture.readFile('/namespaced-with-expression/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('use').attr('xlink:href')).to.deep.equal('#test');
+	});
+
 	it('Passes namespaced attributes to components as expected', async () => {
 		const html = await fixture.readFile('/namespaced-component/index.html');
 		const $ = cheerio.load(html);
