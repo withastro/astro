@@ -29,7 +29,17 @@ export async function main() {
 		return;
 	}
 
-	const steps = [intro, projectName, template, dependencies, git, typescript, next];
+	const steps = [
+		intro,
+		projectName,
+		template,
+		dependencies,
+		typescript,
+
+		// Steps which write to files need to go above git
+ 		git,
+		next
+	];
 
 	for (const step of steps) {
 		await step(ctx);
