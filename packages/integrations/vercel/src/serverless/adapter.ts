@@ -43,7 +43,7 @@ export default function vercelServerless({
 				updateConfig({
 					outDir,
 					build: {
-						serverEntry: 'entry.js',
+						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
 					},
