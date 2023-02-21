@@ -68,7 +68,7 @@
     "remark-rehype": "^10.1.0",
     "remark-shiki-twoslash": "^3.1.0",
     "remark-toc": "^8.0.1",
-    "vite": "^4.0.3"
+    "vite": "^4.1.2"
   },
   "engines": {
     "node": ">=16.12.0"

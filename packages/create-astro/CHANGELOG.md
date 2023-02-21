@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.0.2
+
+### Patch Changes
+
+- [#6278](https://github.com/withastro/astro/pull/6278) [`0f5d122cd`](https://github.com/withastro/astro/commit/0f5d122cd538b65ec7208ddae5e60cfaddaf4b2c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Revert to giget 1.0.0 until upstream issue is fixed
+
 ## 3.0.1
 
 ### Patch Changes

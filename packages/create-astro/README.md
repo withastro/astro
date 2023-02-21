@@ -40,13 +40,13 @@ May be provided in place of prompts
 
 | Name         | Description                                         |
 |:-------------|:----------------------------------------------------|
-| `--template <name> | Specify your template. |
-| `--install / --no-install | Install dependencies (or not). |
-| `--git / --no-git | Initialize git repo (or not). |
-| `--yes (-y) | Skip all prompt by accepting defaults. |
-| `--no (-n) | Skip all prompt by declining defaults. |
-| `--dry-run | Walk through steps without executing. |
-| `--skip-houston | Skip Houston animation. |
+| `--template <name>` | Specify your template. |
+| `--install` / `--no-install` | Install dependencies (or not). |
+| `--git` / `--no-git` | Initialize git repo (or not). |
+| `--yes` (`-y`) | Skip all prompt by accepting defaults. |
+| `--no` (`-n`) | Skip all prompt by declining defaults. |
+| `--dry-run` | Walk through steps without executing. |
+| `--skip-houston` | Skip Houston animation. |
 
 [examples]: https://github.com/withastro/astro/tree/main/examples
 [typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs
