@@ -37,8 +37,8 @@ export async function main() {
 		typescript,
 
 		// Steps which write to files need to go above git
- 		git,
-		next
+		git,
+		next,
 	];
 
 	for (const step of steps) {
