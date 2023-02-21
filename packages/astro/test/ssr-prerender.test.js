@@ -49,4 +49,18 @@ describe('SSR: prerender', () => {
 			expect($('.user').text()).to.equal('houston');
 		});
 	});
+
+	describe('New prerender option breaks catch-all route on root when using preview', () => {
+		// bug id #6020
+		it('fix bug id #6020', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/some');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.include('not give 404')
+
+		});
+	})
 });

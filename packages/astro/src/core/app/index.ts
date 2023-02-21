@@ -25,7 +25,7 @@ import {
 	createLinkStylesheetElementSet,
 	createModuleScriptElement,
 } from '../render/ssr-element.js';
-import { matchAssets, matchRoute } from '../routing/match.js';
+import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
@@ -100,8 +100,7 @@ export class App {
 		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
-			const asset = matchAssets(routeData, this.#manifest.assets);
-			if (asset) return undefined;
+			if (routeData.prerender) return undefined;
 			return routeData;
 		} else if (matchNotFound) {
 			return matchRoute('/404', this.#manifestData);
