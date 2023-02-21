@@ -188,7 +188,7 @@
     "rollup": "^3.9.0",
     "sass": "^1.52.2",
     "srcset-parse": "^1.1.0",
-    "undici": "^5.14.0",
+    "undici": "^5.20.0",
     "unified": "^10.1.2"
   },
   "engines": {
