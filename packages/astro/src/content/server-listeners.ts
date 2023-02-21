@@ -25,9 +25,6 @@ export async function attachContentServerListeners({
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
 
-	const maybeTsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
-	if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logging });
-
 	if (fs.existsSync(contentPaths.contentDir)) {
 		info(
 			logging,
@@ -36,6 +33,8 @@ export async function attachContentServerListeners({
 				contentPaths.contentDir.href.replace(settings.config.root.href, '')
 			)} for changes`
 		);
+		const maybeTsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
+		if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logging });
 		await attachListeners();
 	} else {
 		viteServer.watcher.on('addDir', contentDirListener);
