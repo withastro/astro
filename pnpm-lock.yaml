@@ -456,7 +456,7 @@ importers:
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
       typescript: '*'
-      undici: ^5.14.0
+      undici: ^5.20.0
       unified: ^10.1.2
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
@@ -553,7 +553,7 @@ importers:
       rollup: 3.14.0
       sass: 1.58.0
       srcset-parse: 1.1.0
-      undici: 5.18.0
+      undici: 5.20.0
       unified: 10.1.2
 
   packages/astro-prism:
@@ -3117,7 +3117,7 @@ importers:
       node-mocks-http: ^1.11.0
       send: ^0.18.0
       server-destroy: ^1.0.1
-      undici: ^5.14.0
+      undici: ^5.20.0
     dependencies:
       '@astrojs/webapi': link:../../webapi
       send: 0.18.0
@@ -3131,7 +3131,7 @@ importers:
       cheerio: 1.0.0-rc.12
       mocha: 9.2.2
       node-mocks-http: 1.12.1
-      undici: 5.18.0
+      undici: 5.20.0
 
   packages/integrations/node/test/fixtures/api-route:
     specifiers:
@@ -3624,7 +3624,7 @@ importers:
       is-docker: ^3.0.0
       is-wsl: ^2.2.0
       mocha: ^9.2.2
-      undici: ^5.14.0
+      undici: ^5.20.0
       which-pm-runs: ^1.1.0
     dependencies:
       ci-info: 3.7.1
@@ -3633,7 +3633,7 @@ importers:
       dset: 3.1.2
       is-docker: 3.0.0
       is-wsl: 2.2.0
-      undici: 5.18.0
+      undici: 5.20.0
       which-pm-runs: 1.1.0
     devDependencies:
       '@types/debug': 4.1.7
@@ -14861,6 +14861,13 @@ packages:
 
   /undici/5.18.0:
     resolution: {integrity: sha512-1iVwbhonhFytNdg0P4PqyIAXbdlVZVebtPDvuM36m66mRw4OGrCm2MYynJv/UENFLdP13J1nPVQzVE2zTs1OeA==}
+    engines: {node: '>=12.18'}
+    dependencies:
+      busboy: 1.6.0
+    dev: false
+
+  /undici/5.20.0:
+    resolution: {integrity: sha512-J3j60dYzuo6Eevbawwp1sdg16k5Tf768bxYK4TUJRH7cBM4kFCbf3mOnM/0E3vQYXvpxITbbWmBafaDbxLDz3g==}
     engines: {node: '>=12.18'}
     dependencies:
       busboy: 1.6.0
