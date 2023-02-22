@@ -6,5 +6,6 @@ export {
 	RateLimitCache
 } from './layers/ratelimit.js';
 export {
+	createFetch,
 	fetch
 } from './fetch.js';
