@@ -332,6 +332,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
+					prerender: false
 				});
 			}
 		});
@@ -407,6 +408,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
+				prerender: false
 			});
 		});
 
