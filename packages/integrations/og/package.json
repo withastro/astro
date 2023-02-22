@@ -1,0 +1,56 @@
+{
+  "name": "@astrojs/og",
+  "type": "module",
+  "version": "0.0.4",
+  "types": "./lib/index.d.ts",
+  "main": "./lib/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.mjs"
+    },
+    "./components": "./lib/components.ts",
+    "./entrypoint": "./lib/entrypoint.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "components.d.ts",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro",
+    "directory": "packages/integrations/og"
+  },
+  "keywords": [
+    "astro-integration",
+    "astro-component",
+    "withastro",
+    "image",
+    "opengraph",
+    "og"
+  ],
+  "bugs": {
+    "url": "https://github.com/withastro/astro/issues"
+  },
+  "homepage": "https://github.com/withastro/astro#README",
+  "scripts": {
+    "lint": "prettier \"**/*.{js,ts,md}\"",
+    "build": "echo \"No build step...\""
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@7.6.0",
+  "dependencies": {
+    "@resvg/resvg-wasm": "2.3.1",
+    "satori": "^0.2.1",
+    "satori-html": "^0.3.2",
+    "sharp": "^0.31.3",
+    "ultrahtml": "^1.2.0",
+    "yoga-wasm-web": "0.2.0"
+  },
+  "peerDependencies": {
+    "astro": "^2.0.0"
+  }
+}

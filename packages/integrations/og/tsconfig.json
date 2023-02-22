@@ -1,0 +1,19 @@
+{
+  "include": ["lib"],
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "strict": true,
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "module": "NodeNext",
+    "outDir": "./dist",
+    "declarationDir": "./dist",
+    "target": "ES2020",
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
+  }
+}

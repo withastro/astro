@@ -1,0 +1,84 @@
+---
+import { render } from './render.mjs'
+
+interface Props { 
+  as?: "meta" | "img";
+  alt: string;
+  src?: string;
+  debug?: boolean;
+  width?: number;
+  height?: number;
+  [key: string]: any;
+}
+const {
+  as: tag = "meta",
+  alt,
+  debug,
+  width = 1200,
+  height = 630,
+  ...props
+} = Astro.props;
+
+// @ts-expect-error internal API
+const { scripts, links } = $$result;
+const assets = new Set<string>();
+for (const script of scripts) {
+  if (script.props.src?.endsWith('.css')) {
+    assets.add(script.props.src);
+  }
+}
+for (const link of links) {
+  if (link.props.rel === 'stylesheet') {
+    assets.add(link.props.href);
+  }
+}
+const externalStyles = await Promise.all(Array.from(assets).map(async (asset) => {
+  if (import.meta.env.DEV) {
+    return fetch(new URL(asset, Astro.url).toString(), { headers: { 'accept': 'text/css' }}).then(res => res.text());
+  } else {
+    const { readFileSync } = await import('fs');
+    const contents = readFileSync(`dist/${asset}`, { encoding: 'utf-8' });
+    return contents;
+  }
+})).then(res => res.join(''))
+const content = await Astro.slots.render('default');
+const template = `<html style="width:${width}px;height:${height}px;">
+  <body>
+    <div id="root">
+      ${content}
+    </div>
+    <style>
+      :where(html) {
+        display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;margin:0;padding:0;
+      }
+      :where(body) {
+        display:flex;flex-direction:column;max-width:100%;margin:0;padding:0;
+        flex: 1;
+      }
+      :where(#root) {
+        align-items:flex-start;justify-content:flex-start;
+        flex: 1;
+        margin:0;padding:0;
+      }
+      ${externalStyles}
+  </body>
+</html>`
+const src = await render(template, { ...props, debug, width, height })
+---
+
+{
+  tag === "meta" ? (
+    <meta property="og:image" content={src} />
+    <meta property="og:image:width" content={width.toString()} />
+    <meta property="og:image:height" content={height.toString()} />
+    <meta property="og:image:alt" content={alt} />
+  ) : (
+    <img
+      style={`width:100%;height:auto;`}
+      src={src}
+      loading="lazy"
+      decoding="async"
+      {...{ width, height }}
+    />
+  )
+}
