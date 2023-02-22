@@ -24,6 +24,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		generate: getRouteGenerator(rawRouteData.segments, rawRouteData._meta.trailingSlash),
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
-		prerender: rawRouteData.prerender
+		prerender: rawRouteData.prerender,
 	};
 }
