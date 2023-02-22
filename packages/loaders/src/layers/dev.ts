@@ -3,7 +3,7 @@ import type { Layer } from '../layer';
 const env = (import.meta as any).env || {};
 const isDev = !!env.DEV;
 
-export class ForeverInBuildCache<K = string | null> implements Layer<K> {
+export class ForeverInBuildCache<K extends string | null = string | null> implements Layer<K> {
 	#cache = new Map<string, Response>();
 	get(url: K) {
 		if(isDev || url == null) {
