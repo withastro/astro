@@ -93,7 +93,8 @@ async function enhanceCompileError({
 	source,
 	config,
 	logging,
-}: EnhanceCompilerErrorOptions): Promise<never> {
+}: EnhanceCompilerErrorOptions): Promise<void> {
+	const lineText = (err as any).loc?.lineText;
 	// Verify frontmatter: a common reason that this plugin fails is that
 	// the user provided invalid JS/TS in the component frontmatter.
 	// If the frontmatter is invalid, the `err` object may be a compiler
@@ -104,8 +105,14 @@ async function enhanceCompileError({
 	// If frontmatter is valid or cannot be parsed, then continue.
 	const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
 	if (scannedFrontmatter) {
+		// Top-level return is not supported, so replace `return` with throw
+		const frontmatter = scannedFrontmatter[1].replace(/\breturn\b/g, 'throw');
+
+		// If frontmatter does not actually include the offending line, skip
+		if (lineText && !frontmatter.includes(lineText)) throw err;
+
 		try {
-			await transformWithEsbuild(scannedFrontmatter[1], id, {
+			await transformWithEsbuild(frontmatter, id, {
 				loader: 'ts',
 				target: 'esnext',
 				sourcemap: false,

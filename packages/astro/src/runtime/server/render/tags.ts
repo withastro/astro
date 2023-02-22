@@ -1,4 +1,4 @@
-import { SSRResult } from '../../../@types/astro';
+import { SSRElement, SSRResult } from '../../../@types/astro';
 import { renderElement } from './util.js';
 
 const stylesheetRel = 'stylesheet';
@@ -6,6 +6,13 @@ const stylesheetRel = 'stylesheet';
 export function renderStyleElement(children: string) {
 	return renderElement('style', {
 		props: {},
+		children,
+	});
+}
+
+export function renderScriptElement({ props, children }: SSRElement) {
+	return renderElement('script', {
+		props,
 		children,
 	});
 }

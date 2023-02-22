@@ -11,7 +11,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^14.18.0 || >=16.12.0"
-pnpm: "^7.5.0"
+pnpm: "^7.9.5"
 # otherwise, your build will fail
 ```
 
@@ -151,6 +151,21 @@ There are 3 contexts in which code executes:
 - **In the browser**: this code lives in `src/runtime/client/`.
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
+
+## Branches
+
+### `main`
+
+Active Astro development happens on the [`main`](https://github.com/withastro/astro/tree/main) branch. `main` always reflects the latest code.
+
+> **Note:**
+> During certain periods, we put `main` into a [**prerelease**](https://github.com/changesets/changesets/blob/main/docs/prereleases.md#prereleases) state. Read more about [Releasing Astro](#releasing-astro).
+
+### `latest`
+
+The **stable** release of Astro can always be found on the [`latest`](https://github.com/withastro/astro/tree/latest) branch. `latest` is automatically updated every time we publish a stable (not prerelease) version of Astro.
+
+By default, `create-astro` and [astro.new](https://astro.new) point to this branch.
 
 ## Releasing Astro
 

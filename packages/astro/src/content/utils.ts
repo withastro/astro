@@ -1,14 +1,13 @@
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
-import type fsMod from 'node:fs';
+import fsMod from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createServer, ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
-import { astroContentVirtualModPlugin } from './vite-plugin-content-virtual-mod.js';
+import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -159,6 +158,36 @@ export function getEntryInfo({
 	return res;
 }
 
+export function getEntryType(
+	entryPath: string,
+	paths: Pick<ContentPaths, 'config'>
+): 'content' | 'config' | 'ignored' | 'unsupported' {
+	const { ext, base } = path.parse(entryPath);
+	const fileUrl = pathToFileURL(entryPath);
+
+	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(base)) {
+		return 'ignored';
+	} else if ((contentFileExts as readonly string[]).includes(ext)) {
+		return 'content';
+	} else if (fileUrl.href === paths.config.url.href) {
+		return 'config';
+	} else {
+		return 'unsupported';
+	}
+}
+
+function isOnIgnoreList(fileName: string) {
+	return ['.DS_Store'].includes(fileName);
+}
+
+function hasUnderscoreInPath(fileUrl: URL): boolean {
+	const parts = fileUrl.pathname.split('/');
+	for (const part of parts) {
+		if (part.startsWith('_')) return true;
+	}
+	return false;
+}
+
 const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
 
 const errorMap: z.ZodErrorMap = (error, ctx) => {
@@ -205,34 +234,32 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 	}
 }
 
+/**
+ * The content config is loaded separately from other `src/` files.
+ * This global observable lets dependent plugins (like the content flag plugin)
+ * subscribe to changes during dev server updates.
+ */
+export const globalContentConfigObserver = contentObservable({ status: 'init' });
+
 export async function loadContentConfig({
 	fs,
 	settings,
+	viteServer,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
+	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
-	const contentPaths = getContentPaths(settings.config);
-	const tempConfigServer: ViteDevServer = await createServer({
-		root: fileURLToPath(settings.config.root),
-		server: { middlewareMode: true, hmr: false },
-		optimizeDeps: { entries: [] },
-		clearScreen: false,
-		appType: 'custom',
-		logLevel: 'silent',
-		plugins: [astroContentVirtualModPlugin({ settings })],
-	});
+	const contentPaths = getContentPaths(settings.config, fs);
 	let unparsedConfig;
-	if (!fs.existsSync(contentPaths.config)) {
+	if (!contentPaths.config.exists) {
 		return undefined;
 	}
 	try {
-		const configPathname = fileURLToPath(contentPaths.config);
-		unparsedConfig = await tempConfigServer.ssrLoadModule(configPathname);
+		const configPathname = fileURLToPath(contentPaths.config.url);
+		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
 	} catch (e) {
 		throw e;
-	} finally {
-		await tempConfigServer.close();
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
@@ -243,9 +270,11 @@ export async function loadContentConfig({
 }
 
 type ContentCtx =
+	| { status: 'init' }
 	| { status: 'loading' }
-	| { status: 'error' }
-	| { status: 'loaded'; config: ContentConfig };
+	| { status: 'does-not-exist' }
+	| { status: 'loaded'; config: ContentConfig }
+	| { status: 'error'; error: Error };
 
 type Observable<C> = {
 	get: () => C;
@@ -284,19 +313,34 @@ export type ContentPaths = {
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
-	config: URL;
+	config: {
+		exists: boolean;
+		url: URL;
+	};
 };
 
-export function getContentPaths({
-	srcDir,
-	root,
-}: Pick<AstroConfig, 'root' | 'srcDir'>): ContentPaths {
+export function getContentPaths(
+	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
+	fs: typeof fsMod = fsMod
+): ContentPaths {
+	const configStats = search(fs, srcDir);
 	const templateDir = new URL('../../src/content/template/', import.meta.url);
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
-		config: new URL('./content/config.ts', srcDir),
+		config: configStats,
 	};
+}
+function search(fs: typeof fsMod, srcDir: URL) {
+	const paths = ['config.mjs', 'config.js', 'config.ts'].map(
+		(p) => new URL(`./content/${p}`, srcDir)
+	);
+	for (const file of paths) {
+		if (fs.existsSync(file)) {
+			return { exists: true, url: file };
+		}
+	}
+	return { exists: false, url: paths[0] };
 }

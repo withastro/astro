@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
+import FormattedDate from '../../components/FormattedDate.astro';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
@@ -22,7 +23,7 @@ const posts = (await getCollection('blog')).sort(
 			ul li {
 				display: flex;
 			}
-			ul li time {
+			ul li :global(time) {
 				flex: 0 0 130px;
 				font-style: italic;
 				color: #595959;
@@ -40,13 +41,7 @@ const posts = (await getCollection('blog')).sort(
 					{
 						posts.map((post) => (
 							<li>
-								<time datetime={post.data.pubDate.toISOString()}>
-									{post.data.pubDate.toLocaleDateString('en-us', {
-										year: 'numeric',
-										month: 'short',
-										day: 'numeric',
-									})}
-								</time>
+								<FormattedDate date={post.data.pubDate} />
 								<a href={`/blog/${post.slug}/`}>{post.data.title}</a>
 							</li>
 						))

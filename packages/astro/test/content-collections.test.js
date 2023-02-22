@@ -199,6 +199,20 @@ describe('Content Collections', () => {
 			expect(error).to.be.null;
 		});
 	});
+	describe('With config.mjs', () => {
+		it("Errors when frontmatter doesn't match schema", async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-with-config-mjs/',
+			});
+			let error;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include('"title" should be string, not number.');
+		});
+	});
 
 	describe('SSR integration', () => {
 		let app;
@@ -241,6 +255,29 @@ describe('Content Collections', () => {
 					blogSlugToContents[slug].content
 				);
 			}
+		});
+	});
+
+	describe('Base configuration', () => {
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/content-collections-base/',
+			});
+			await fixture.build();
+		});
+
+		it('Includes base in links', async () => {
+			const html = await fixture.readFile('/docs/index.html');
+			const $ = cheerio.load(html);
+			expect($('link').attr('href')).to.satisfies((a) => a.startsWith('/docs'));
+		});
+
+		it('Includes base in hoisted scripts', async () => {
+			const html = await fixture.readFile('/docs/index.html');
+			const $ = cheerio.load(html);
+			expect($('script').attr('src')).to.satisfies((a) => a.startsWith('/docs'));
 		});
 	});
 });

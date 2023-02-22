@@ -18,7 +18,7 @@ function renderToStaticMarkup(component, props, innerHTML) {
   const Component = getConstructor(component);
   const el = new Component();
   el.connectedCallback();
-  const html = `<${el.localName}><template shadowroot="open">${el.shadowRoot.innerHTML}</template>${el.innerHTML}</${el.localName}>`
+  const html = `<${el.localName}><template shadowroot="open" shadowrootmode="open">${el.shadowRoot.innerHTML}</template>${el.innerHTML}</${el.localName}>`
   return {
     html
   };

@@ -1,5 +1,47 @@
 # @astrojs/cloudflare
 
+## 6.1.3
+
+### Patch Changes
+
+- [#6208](https://github.com/withastro/astro/pull/6208) [`79f49acbe`](https://github.com/withastro/astro/commit/79f49acbe13673bfc27e794bcfae518f38c4a4fe) Thanks [@mfrachet](https://github.com/mfrachet)! - Fix path file that was generated outside the functions folder
+
+- Updated dependencies [[`79783fc01`](https://github.com/withastro/astro/commit/79783fc0181153a8e379d3f023422510a7467ead), [`baa2dbb3b`](https://github.com/withastro/astro/commit/baa2dbb3b5678b2bd56fb80df99d386f32e274b7), [`8b7cb64da`](https://github.com/withastro/astro/commit/8b7cb64dadfca93c65d62df54754633d398cb2ed)]:
+  - astro@2.0.11
+
+## 6.1.2
+
+### Patch Changes
+
+- [#6075](https://github.com/withastro/astro/pull/6075) [`45b41d98f`](https://github.com/withastro/astro/commit/45b41d98f50dc9f76a5004a8b3346f393f1a6cb6) Thanks [@NachoVazquez](https://github.com/NachoVazquez)! - Uses config root path as location for Cloudflare Pages Functions
+
+- Updated dependencies [[`f6fc662c3`](https://github.com/withastro/astro/commit/f6fc662c3c59d164584c6287a930fcd1c9086ee6), [`592386b75`](https://github.com/withastro/astro/commit/592386b75541f3b7f7d95c631f86024b7e2d314d), [`1b591a143`](https://github.com/withastro/astro/commit/1b591a1431b44eacd239ed8f76809916cabca1db), [`bf8d7366a`](https://github.com/withastro/astro/commit/bf8d7366acb57e1b21181cc40fff55a821d8119e), [`ec38a8921`](https://github.com/withastro/astro/commit/ec38a8921f02a275949abcababe1b8afdf8184a2), [`f20a85b64`](https://github.com/withastro/astro/commit/f20a85b642994f240d8c94260fc55ffa1fd14294), [`9f22ac3d0`](https://github.com/withastro/astro/commit/9f22ac3d097ef2cb3b2bbe5343b8a8a49d83425d), [`cee70f5c6`](https://github.com/withastro/astro/commit/cee70f5c6ac9b0d2edc1f8a6f8f5043605576026), [`ac7fb04d6`](https://github.com/withastro/astro/commit/ac7fb04d6b162f28a337918138d5737e2c0fffad), [`d1f5611fe`](https://github.com/withastro/astro/commit/d1f5611febfd020cca4078c71bafe599015edd16), [`2189170be`](https://github.com/withastro/astro/commit/2189170be523f74f244e84ccab22c655219773ce), [`32abe49bd`](https://github.com/withastro/astro/commit/32abe49bd073417b480b1b990f432a837c12eb6f)]:
+  - astro@2.0.7
+
+## 6.1.1
+
+### Patch Changes
+
+- [#6046](https://github.com/withastro/astro/pull/6046) [`df3201165`](https://github.com/withastro/astro/commit/df320116528e00ab082396531b4deffbb0707b78) Thanks [@matthewp](https://github.com/matthewp)! - Cloudflare fix for building to directory mode
+
+- Updated dependencies [[`41e97158b`](https://github.com/withastro/astro/commit/41e97158ba90d23d346b6e3ff6c7c14b5ecbe903), [`e779c6242`](https://github.com/withastro/astro/commit/e779c6242418d1d4102e683ca5b851b764c89688)]:
+  - astro@2.0.4
+
+## 6.1.0
+
+### Minor Changes
+
+- [#5914](https://github.com/withastro/astro/pull/5914) [`088f5194c`](https://github.com/withastro/astro/commit/088f5194c55a6ec15b2eaf2cfb97f9ef45a24a33) Thanks [@AngusMorton](https://github.com/AngusMorton)! - Re-enable streaming in Cloudflare Pages.
+
+### Patch Changes
+
+- [#5993](https://github.com/withastro/astro/pull/5993) [`9855db676`](https://github.com/withastro/astro/commit/9855db676e61ad616c64382adeaa8c74de05f7e1) Thanks [@matthewp](https://github.com/matthewp)! - Support for prerendering in the Cloudflare integration
+
+  This fixes prerendering in the Cloudflare adapter. Now any prerendered routes are added to the `_routes.json` config so that the worker script is skipped for those routes.
+
+- Updated dependencies [[`b53e0717b`](https://github.com/withastro/astro/commit/b53e0717b7f6b042baaeec7f87999e99c76c031c), [`60b32d585`](https://github.com/withastro/astro/commit/60b32d58565d87e87573eb268408293fc28ec657), [`883e0cc29`](https://github.com/withastro/astro/commit/883e0cc29968d51ed6c7515be035a40b28bafdad), [`dabce6b8c`](https://github.com/withastro/astro/commit/dabce6b8c684f851c3535f8acead06cbef6dce2a), [`aedf23f85`](https://github.com/withastro/astro/commit/aedf23f8582e32a6b94b81ddba9b323831f2b22a)]:
+  - astro@2.0.2
+
 ## 6.0.0
 
 ### Major Changes

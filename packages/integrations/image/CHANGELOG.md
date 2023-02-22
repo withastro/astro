@@ -1,5 +1,53 @@
 # @astrojs/image
 
+## 0.15.0
+
+### Minor Changes
+
+- [#6118](https://github.com/withastro/astro/pull/6118) [`ac3649bb5`](https://github.com/withastro/astro/commit/ac3649bb589a3ee1deab4ba73c06a36a45e2cee5) Thanks [@ggounot](https://github.com/ggounot)! - Add support for SVG images
+
+### Patch Changes
+
+- Updated dependencies [[`deacd5443`](https://github.com/withastro/astro/commit/deacd5443aae8d0ee6508e2c442783dcc2e9a014), [`1c678f7eb`](https://github.com/withastro/astro/commit/1c678f7ebff6b8ea843bf4b49ab73ca942a2a755), [`c397be324`](https://github.com/withastro/astro/commit/c397be324f97bb9700da8cd6d845470530b7d18c)]:
+  - astro@2.0.12
+
+## 0.14.1
+
+### Patch Changes
+
+- [#6142](https://github.com/withastro/astro/pull/6142) [`9fdecb560`](https://github.com/withastro/astro/commit/9fdecb5606f14d277f56b58f3d06d7ad6c0c515c) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Improve type definitions (`background` should be optional)
+
+- [#6157](https://github.com/withastro/astro/pull/6157) [`460f9e732`](https://github.com/withastro/astro/commit/460f9e7329482429172883e99dcee95a3a9fb1a5) Thanks [@chasm](https://github.com/chasm)! - Fix duplicate `alt` attribute on Picture component.
+
+- Updated dependencies [[`f6fc662c3`](https://github.com/withastro/astro/commit/f6fc662c3c59d164584c6287a930fcd1c9086ee6), [`592386b75`](https://github.com/withastro/astro/commit/592386b75541f3b7f7d95c631f86024b7e2d314d), [`1b591a143`](https://github.com/withastro/astro/commit/1b591a1431b44eacd239ed8f76809916cabca1db), [`bf8d7366a`](https://github.com/withastro/astro/commit/bf8d7366acb57e1b21181cc40fff55a821d8119e), [`ec38a8921`](https://github.com/withastro/astro/commit/ec38a8921f02a275949abcababe1b8afdf8184a2), [`f20a85b64`](https://github.com/withastro/astro/commit/f20a85b642994f240d8c94260fc55ffa1fd14294), [`9f22ac3d0`](https://github.com/withastro/astro/commit/9f22ac3d097ef2cb3b2bbe5343b8a8a49d83425d), [`cee70f5c6`](https://github.com/withastro/astro/commit/cee70f5c6ac9b0d2edc1f8a6f8f5043605576026), [`ac7fb04d6`](https://github.com/withastro/astro/commit/ac7fb04d6b162f28a337918138d5737e2c0fffad), [`d1f5611fe`](https://github.com/withastro/astro/commit/d1f5611febfd020cca4078c71bafe599015edd16), [`2189170be`](https://github.com/withastro/astro/commit/2189170be523f74f244e84ccab22c655219773ce), [`32abe49bd`](https://github.com/withastro/astro/commit/32abe49bd073417b480b1b990f432a837c12eb6f)]:
+  - astro@2.0.7
+
+## 0.14.0
+
+### Minor Changes
+
+- [#5932](https://github.com/withastro/astro/pull/5932) [`b3e65991f`](https://github.com/withastro/astro/commit/b3e65991f731f5320ba5826c731934a8e8482493) Thanks [@rasendubi](https://github.com/rasendubi)! - Allow images from outside srcDir
+
+### Patch Changes
+
+- [#5894](https://github.com/withastro/astro/pull/5894) [`ca91976ed`](https://github.com/withastro/astro/commit/ca91976edbfd34adbb31096516a266f31d8f6216) Thanks [@ralacerda](https://github.com/ralacerda)! - `getPicture()` return object with the correct image type
+
+- Updated dependencies [[`9793f19ec`](https://github.com/withastro/astro/commit/9793f19ecd4e64cbf3140454fe52aeee2c22c8c9), [`f91615f5c`](https://github.com/withastro/astro/commit/f91615f5c04fde36f115dad9110dd75254efd61d), [`2fb72c887`](https://github.com/withastro/astro/commit/2fb72c887f71c0a69ab512870d65b8c867774766)]:
+  - astro@2.0.5
+
+## 0.13.1
+
+### Patch Changes
+
+- [#5478](https://github.com/withastro/astro/pull/5478) [`1c7eef308`](https://github.com/withastro/astro/commit/1c7eef308e808aa5ed4662b53e67ec8d1b814d1f) Thanks [@nemo0](https://github.com/nemo0)! - Update READMEs for consistency
+
+- [#6008](https://github.com/withastro/astro/pull/6008) [`9c298aa5a`](https://github.com/withastro/astro/commit/9c298aa5ae235e8b2555f26b1f19394aaab55da8) Thanks [@jasikpark](https://github.com/jasikpark)! - Updated error message for missing `widths` prop to provide an example
+
+- [#6008](https://github.com/withastro/astro/pull/6008) [`9c298aa5a`](https://github.com/withastro/astro/commit/9c298aa5ae235e8b2555f26b1f19394aaab55da8) Thanks [@jasikpark](https://github.com/jasikpark)! - Allow passing `undefined` to TransformOptions, this is a types fix for users with `exactOptionalTypes` enabled in their tsconfig
+
+- Updated dependencies [[`b4432cd6b`](https://github.com/withastro/astro/commit/b4432cd6b65bad685a99fe15867710b0663c13b2), [`98a4a914b`](https://github.com/withastro/astro/commit/98a4a914bc47f3da2764b3bdc01577d25fe2e261), [`071e1dee7`](https://github.com/withastro/astro/commit/071e1dee7e1943be67d1ded39a9af1b7a2aafd02), [`322e059d0`](https://github.com/withastro/astro/commit/322e059d0da9ab0d6a546a111fabda755bd5f1b6), [`b994f6f35`](https://github.com/withastro/astro/commit/b994f6f35e29b2d93ff8ddc281a69c0af3cc3edf), [`12c68343c`](https://github.com/withastro/astro/commit/12c68343c0aa891037d39d3c9b9378b004be6642)]:
+  - astro@2.0.3
+
 ## 0.13.0
 
 ### Minor Changes

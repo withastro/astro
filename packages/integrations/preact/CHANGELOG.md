@@ -1,5 +1,23 @@
 # @astrojs/preact
 
+## 2.0.3
+
+### Patch Changes
+
+- [#6215](https://github.com/withastro/astro/pull/6215) [`a7f18051b`](https://github.com/withastro/astro/commit/a7f18051b118b4f263ed9093ab17ed7eec0e4fd5) Thanks [@matthewp](https://github.com/matthewp)! - Prevent hydration mismatches in Preact
+
+## 2.0.2
+
+### Patch Changes
+
+- [#6108](https://github.com/withastro/astro/pull/6108) [`f9babc38b`](https://github.com/withastro/astro/commit/f9babc38b48049f73a3a282f48d8cb26969cb0a0) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade babel dependency to fix security vuln
+
+## 2.0.1
+
+### Patch Changes
+
+- [#5478](https://github.com/withastro/astro/pull/5478) [`1c7eef308`](https://github.com/withastro/astro/commit/1c7eef308e808aa5ed4662b53e67ec8d1b814d1f) Thanks [@nemo0](https://github.com/nemo0)! - Update READMEs for consistency
+
 ## 2.0.0
 
 ### Major Changes

@@ -98,6 +98,27 @@ app.use(ssrHandler);
 app.listen(8080);
 ```
 
+Or, with Fastify (>4):
+
+```js
+import Fastify from 'fastify';
+import fastifyMiddie from '@fastify/middie';
+import fastifyStatic from '@fastify/static';
+import { fileURLToPath } from 'url';
+import { handler as ssrHandler } from './dist/server/entry.mjs';
+
+const app = Fastify({ logger: true });
+
+await app
+  .register(fastifyStatic, {
+    root: fileURLToPath(new URL('./dist/client', import.meta.url)),
+  })
+  .register(fastifyMiddie);
+app.use(ssrHandler);
+
+app.listen({ port: 8080 });
+```
+
 Note that middleware mode does not do file serving. You'll need to configure your HTTP framework to do that for you. By default the client assets are written to `./dist/client/`.
 
 ### Standalone

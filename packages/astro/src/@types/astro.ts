@@ -28,6 +28,7 @@ export type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
+export type { AstroCookies } from '../core/cookies';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -1394,6 +1395,7 @@ export interface RouteData {
 	pattern: RegExp;
 	segments: RoutePart[][];
 	type: RouteType;
+	prerender: boolean;
 }
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
@@ -1439,7 +1441,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	propagation: Map<string, PropagationHint>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<any>;
+	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
@@ -1448,6 +1450,10 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
+	// Bits 1 = astro, 2 = jsx, 4 = slot
+	// As rendering occurs these bits are manipulated to determine where content
+	// is within a slot. This is used for head injection.
+	scope: number;
 	_metadata: SSRMetadata;
 }
 

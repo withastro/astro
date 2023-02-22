@@ -1,5 +1,26 @@
 # @astrojs/node
 
+## 5.0.3
+
+### Patch Changes
+
+- [#6110](https://github.com/withastro/astro/pull/6110) [`67ccec9e1`](https://github.com/withastro/astro/commit/67ccec9e168f241318d9dac40096016982d89b7b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes support for prerendering and query params
+
+## 5.0.2
+
+### Patch Changes
+
+- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrent encoded when path has other language characters
+
+## 5.0.1
+
+### Patch Changes
+
+- [#5992](https://github.com/withastro/astro/pull/5992) [`60b32d585`](https://github.com/withastro/astro/commit/60b32d58565d87e87573eb268408293fc28ec657) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fix `Astro.url.protocol` when using the @astrojs/node SSR adapter with HTTPS
+
+- Updated dependencies [[`b53e0717b`](https://github.com/withastro/astro/commit/b53e0717b7f6b042baaeec7f87999e99c76c031c), [`60b32d585`](https://github.com/withastro/astro/commit/60b32d58565d87e87573eb268408293fc28ec657), [`883e0cc29`](https://github.com/withastro/astro/commit/883e0cc29968d51ed6c7515be035a40b28bafdad), [`dabce6b8c`](https://github.com/withastro/astro/commit/dabce6b8c684f851c3535f8acead06cbef6dce2a), [`aedf23f85`](https://github.com/withastro/astro/commit/aedf23f8582e32a6b94b81ddba9b323831f2b22a)]:
+  - astro@2.0.2
+
 ## 5.0.0
 
 ### Major Changes

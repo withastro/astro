@@ -17,7 +17,7 @@ type Props = CollectionEntry<'docs'>['data'] & {
 const { headings, ...data } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPage = Astro.url.pathname;
-const currentFile = `src/pages${currentPage.replace(/\/$/, '')}.md`;
+const currentFile = `src/content/docs${currentPage.replace(/\/$/, '')}.md`;
 const githubEditUrl = `${GITHUB_EDIT_URL}/${currentFile}`;
 ---
 

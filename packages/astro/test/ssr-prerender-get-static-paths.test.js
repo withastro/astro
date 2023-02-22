@@ -72,7 +72,9 @@ describe('prerender getStaticPaths - 404 behavior', () => {
 
 	it('resolves 404 on pattern match without static path - named params', async () => {
 		const res = await fixture.fetch('/pizza/provolone-pineapple');
+		const html = await res.text();
 		expect(res.status).to.equal(404);
+		expect(html).to.match(/404/);
 	});
 
 	it('resolves 200 on matching static path - rest params', async () => {
@@ -82,7 +84,9 @@ describe('prerender getStaticPaths - 404 behavior', () => {
 
 	it('resolves 404 on pattern match without static path - rest params', async () => {
 		const res = await fixture.fetch('/pizza/pizza-hut');
+		const html = await res.text();
 		expect(res.status).to.equal(404);
+		expect(html).to.match(/404/);
 	});
 });
 

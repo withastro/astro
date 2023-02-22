@@ -42,11 +42,16 @@ describe('React Components', () => {
 			expect($('#pure')).to.have.lengthOf(1);
 
 			// test 8: Check number of islands
-			expect($('astro-island[uid]')).to.have.lengthOf(5);
+			expect($('astro-island[uid]')).to.have.lengthOf(7);
 
 			// test 9: Check island deduplication
 			const uniqueRootUIDs = new Set($('astro-island').map((i, el) => $(el).attr('uid')));
-			expect(uniqueRootUIDs.size).to.equal(4);
+			expect(uniqueRootUIDs.size).to.equal(6);
+
+			// test 10: Should properly render children passed as props
+			const islandsWithChildren = $('.with-children');
+			expect(islandsWithChildren).to.have.lengthOf(2);
+			expect($(islandsWithChildren[0]).html()).to.equal($(islandsWithChildren[1]).html());
 		});
 
 		it('Can load Vue', async () => {

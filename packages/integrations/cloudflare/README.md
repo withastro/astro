@@ -47,9 +47,9 @@ default `"advanced"`
 
 Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode which picks up the `_worker.js` in `dist`, or a directory mode where pages will compile the worker out of a functions folder in the project root.
 
-For most projects the adaptor default of `advanced` will be sufficient; the `dist` folder will contain your compiled project. Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
+For most projects the adapter default of `advanced` will be sufficient; the `dist` folder will contain your compiled project. Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
 
-In directory mode the adaptor will compile the client side part of you app the same way, but moves the worker script into a `functions` folder in the project root. The adaptor will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control. Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
+In directory mode the adapter will compile the client side part of your app the same way, but moves the worker script into a `functions` folder in the project root. The adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control. Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
 
 ```ts
 // directory mode
@@ -67,7 +67,7 @@ In order for preview to work you must install `wrangler`
 $ pnpm install wrangler --save-dev
 ```
 
-It's then possible to update the preview script in your `package.json` to `"preview": "wrangler pages dev ./dist"`. This will allow you run your entire application locally with [Wrangler](https://github.com/cloudflare/wrangler2), which supports secrets, environment variables, KV namespaces, Durable Objects and [all other supported Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/#adding-bindings).
+It's then possible to update the preview script in your `package.json` to `"preview": "wrangler pages dev ./dist"`. This will allow you to run your entire application locally with [Wrangler](https://github.com/cloudflare/wrangler2), which supports secrets, environment variables, KV namespaces, Durable Objects and [all other supported Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/#adding-bindings).
 
 ## Access to the Cloudflare runtime
 

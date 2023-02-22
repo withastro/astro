@@ -118,6 +118,7 @@ export interface AstroErrorPayload {
 			line?: number;
 			column?: number;
 		};
+		cause?: unknown;
 	};
 }
 
@@ -174,6 +175,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 			},
 			plugin,
 			stack: err.stack,
+			cause: err.cause,
 		},
 	};
 

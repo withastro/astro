@@ -122,7 +122,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 					build: {
 						client: outDir,
 						server: new URL('./.netlify/edge-functions/', config.root),
-						serverEntry: 'entry.js',
+						serverEntry: 'entry.mjs',
 					},
 				});
 			},
@@ -163,7 +163,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			'astro:build:done': async ({ routes, dir }) => {
 				await bundleServerEntry(_buildConfig, _vite);
 				await createEdgeManifest(routes, entryFile, _config.root);
-				await createRedirects(_config, routes, dir, entryFile, true);
+				await createRedirects(_config, routes, dir, entryFile, 'edge-functions');
 			},
 		},
 	};

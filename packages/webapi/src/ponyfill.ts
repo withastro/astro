@@ -15,7 +15,7 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'node:stream/web'
-import * as undici from 'undici'
+import { fetch, File, Headers, Request, Response } from 'undici'
 import { URLPattern } from 'urlpattern-polyfill'
 import {
 	cancelAnimationFrame,
@@ -70,12 +70,6 @@ import { CSSStyleSheet, StyleSheet } from './lib/StyleSheet'
 import { initWindow, Window } from './lib/Window'
 
 import { alert } from './lib/Alert'
-
-const fetch = undici.fetch
-const Headers = undici.Headers
-const Response = undici.Response
-const Request = undici.Request
-const File = undici.File
 
 export {
 	ByteLengthQueuingStrategy,

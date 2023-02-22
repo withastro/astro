@@ -55,7 +55,7 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "preact()"
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 
@@ -86,8 +86,9 @@ You can enable `preact/compat`, Preact’s compatibility layer for rendering Rea
 
 To do so, pass an object to the Preact integration and set `compat: true`.
 
-```js
-// astro.config.mjs
+__`astro.config.mjs`__
+
+```js "compat: true"
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 

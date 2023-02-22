@@ -1,11 +1,13 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-import { getProcessEnvProxy } from './util.js';
+import { getProcessEnvProxy, isNode } from './util.js';
 
-process.env = getProcessEnvProxy();
+if (!isNode) {
+	process.env = getProcessEnvProxy();
+}
 
 export function createExports(manifest: SSRManifest) {
-	const app = new App(manifest, false);
+	const app = new App(manifest);
 
 	const onRequest = async ({
 		request,

@@ -43,13 +43,14 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "vue()"
+import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [vue()],
-}
+});
 ```
 
 ## Getting started
@@ -79,9 +80,10 @@ This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compil
 __`astro.config.mjs`__
 
 ```js
+import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [vue({
     template: {
@@ -92,7 +94,7 @@ export default {
     }
     // ...
   })],
-}
+});
 ```
 
 ### appEntrypoint

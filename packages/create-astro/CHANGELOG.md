@@ -1,5 +1,29 @@
 # create-astro
 
+## 3.0.2
+
+### Patch Changes
+
+- [#6278](https://github.com/withastro/astro/pull/6278) [`0f5d122cd`](https://github.com/withastro/astro/commit/0f5d122cd538b65ec7208ddae5e60cfaddaf4b2c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Revert to giget 1.0.0 until upstream issue is fixed
+
+## 3.0.1
+
+### Patch Changes
+
+- [#6266](https://github.com/withastro/astro/pull/6266) [`066b4b4ef`](https://github.com/withastro/astro/commit/066b4b4efcde2320d29040c5bd385c67f30c701a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve error handling during tasks that display a spinner
+
+## 3.0.0
+
+### Major Changes
+
+- [#6082](https://github.com/withastro/astro/pull/6082) [`8d2187d8b`](https://github.com/withastro/astro/commit/8d2187d8b8587b2a3a0207d9ffa8667c43686436) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Redesigned `create-astro` experience
+
+## 2.0.2
+
+### Patch Changes
+
+- [#5953](https://github.com/withastro/astro/pull/5953) [`5c64324c0`](https://github.com/withastro/astro/commit/5c64324c0a1b06e836c3d53668940faca4cb517d) Thanks [@ZermattChris](https://github.com/ZermattChris)! - Check for a pre-existing .git directory and if found, skip trying to create a new one.
+
 ## 2.0.1
 
 ### Patch Changes

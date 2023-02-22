@@ -1,6 +1,16 @@
 /// <reference types="astro/client-base" />
 
-type InputFormat = 'avif' | 'gif' | 'heic' | 'heif' | 'jpeg' | 'jpg' | 'png' | 'tiff' | 'webp';
+type InputFormat =
+	| 'avif'
+	| 'gif'
+	| 'heic'
+	| 'heif'
+	| 'jpeg'
+	| 'jpg'
+	| 'png'
+	| 'tiff'
+	| 'webp'
+	| 'svg';
 
 interface ImageMetadata {
 	src: string;
@@ -43,6 +53,10 @@ declare module '*.tiff' {
 	export default metadata;
 }
 declare module '*.webp' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
+declare module '*.svg' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }

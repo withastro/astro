@@ -457,7 +457,21 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 				return false;
 			}) as t.ObjectProperty | undefined;
 
-			const adapterCall = t.callExpression(adapterId, []);
+			let adapterCall;
+			switch (adapter.id) {
+				// the node adapter requires a mode
+				case 'node': {
+					adapterCall = t.callExpression(adapterId, [
+						t.objectExpression([
+							t.objectProperty(t.identifier('mode'), t.stringLiteral('standalone')),
+						]),
+					]);
+					break;
+				}
+				default: {
+					adapterCall = t.callExpression(adapterId, []);
+				}
+			}
 
 			if (!adapterProp) {
 				configObject.properties.push(t.objectProperty(t.identifier('adapter'), adapterCall));

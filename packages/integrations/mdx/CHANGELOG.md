@@ -1,5 +1,48 @@
 # @astrojs/mdx
 
+## 0.17.0
+
+### Minor Changes
+
+- [#6253](https://github.com/withastro/astro/pull/6253) [`0049fda62`](https://github.com/withastro/astro/commit/0049fda62fa8650a0d250adb00a2c5d82679aeaf) Thanks [@bluwy](https://github.com/bluwy)! - Support rehype plugins that inject namespaced attributes. This introduces a breaking change if you use [custom components for HTML elements](https://docs.astro.build/en/guides/markdown-content/#assigning-custom-components-to-html-elements), where the prop passed to the component will be normal HTML casing, e.g. `class` instead of `className`, and `xlink:href` instead of `xlinkHref`.
+
+## 0.16.2
+
+### Patch Changes
+
+- [#6252](https://github.com/withastro/astro/pull/6252) [`0fbcf838a`](https://github.com/withastro/astro/commit/0fbcf838a775d3b07e7c2372888a8aa6c190278e) Thanks [@bluwy](https://github.com/bluwy)! - Revert previous breaking change
+
+## 0.16.1
+
+### Patch Changes
+
+- [#6243](https://github.com/withastro/astro/pull/6243) [`4f6ecba4c`](https://github.com/withastro/astro/commit/4f6ecba4c1b35bacbbc0097854ee2b7b8c878e71) Thanks [@bluwy](https://github.com/bluwy)! - Support rehype plugins that inject namespaced attributes
+
+## 0.16.0
+
+### Minor Changes
+
+- [#6050](https://github.com/withastro/astro/pull/6050) [`2ab32b59e`](https://github.com/withastro/astro/commit/2ab32b59ef0a28d34757f2c2adb9cf2baa86855e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: load syntax highlighters after MDX remark plugins. This keeps MDX consistent with Astro's markdown behavior.
+
+### Patch Changes
+
+- [#6062](https://github.com/withastro/astro/pull/6062) [`c6cf847bd`](https://github.com/withastro/astro/commit/c6cf847bd0b6bef3c51a5710fba5ca43b11e46f9) Thanks [@delucis](https://github.com/delucis)! - Update MDX README
+
+## 0.15.2
+
+### Patch Changes
+
+- [#5478](https://github.com/withastro/astro/pull/5478) [`1c7eef308`](https://github.com/withastro/astro/commit/1c7eef308e808aa5ed4662b53e67ec8d1b814d1f) Thanks [@nemo0](https://github.com/nemo0)! - Update READMEs for consistency
+
+## 0.15.1
+
+### Patch Changes
+
+- [#5978](https://github.com/withastro/astro/pull/5978) [`7abb1e905`](https://github.com/withastro/astro/commit/7abb1e9056c4b4fd0abfced347df32a41cdfbf28) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fix MDX heading IDs generation when using a frontmatter reference
+
+- Updated dependencies [[`7abb1e905`](https://github.com/withastro/astro/commit/7abb1e9056c4b4fd0abfced347df32a41cdfbf28)]:
+  - @astrojs/markdown-remark@2.0.1
+
 ## 0.15.0
 
 ### Minor Changes

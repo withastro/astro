@@ -1,3 +1,4 @@
+import { EnumChangefreq } from 'sitemap';
 import type { SitemapItem, SitemapOptions } from './index.js';
 import { parseUrl } from './utils/parse-url.js';
 
@@ -44,7 +45,7 @@ export function generateSitemap(pages: string[], finalSiteUrl: string, opts: Sit
 			links,
 			lastmod,
 			priority,
-			changefreq,
+			changefreq: changefreq as EnumChangefreq,
 		};
 	});
 

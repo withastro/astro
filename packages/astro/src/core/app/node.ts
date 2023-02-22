@@ -3,13 +3,18 @@ import type { SerializedSSRManifest, SSRManifest } from './types';
 
 import * as fs from 'fs';
 import { IncomingMessage } from 'http';
+import { TLSSocket } from 'tls';
 import { deserializeManifest } from './common.js';
 import { App, MatchOptions } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): Request {
-	let url = `http://${req.headers.host}${req.url}`;
+	const protocol =
+		req.socket instanceof TLSSocket || req.headers['x-forwarded-proto'] === 'https'
+			? 'https'
+			: 'http';
+	let url = `${protocol}://${req.headers.host}${req.url}`;
 	let rawHeaders = req.headers as Record<string, any>;
 	const entries = Object.entries(rawHeaders);
 	const method = req.method || 'GET';

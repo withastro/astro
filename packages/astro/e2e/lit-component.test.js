@@ -32,12 +32,25 @@ test.describe('Lit components', () => {
 			await expect(counter).toHaveCount(1);
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
+		});
+
+		t('non-deferred attribute serialization', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+
+			const counter = page.locator('#non-deferred');
+			const count = counter.locator('p');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
+
+			const inc = counter.locator('button');
+			await inc.click();
+
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t('client:load', async ({ page, astro }) => {
@@ -47,12 +60,12 @@ test.describe('Lit components', () => {
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t('client:visible', async ({ page, astro }) => {
@@ -64,12 +77,12 @@ test.describe('Lit components', () => {
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
 		t('client:media', async ({ page, astro }) => {
@@ -79,18 +92,50 @@ test.describe('Lit components', () => {
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('p');
-			await expect(count, 'initial count is 0').toHaveText('Count: 0');
+			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
 			await inc.click();
 
-			await expect(count, 'component not hydrated yet').toHaveText('Count: 0');
+			await expect(count, 'component not hydrated yet').toHaveText('Count: 10');
 
 			// Reset the viewport to hydrate the component (max-width: 50rem)
 			await page.setViewportSize({ width: 414, height: 1124 });
 
 			await inc.click();
-			await expect(count, 'count incremented by 1').toHaveText('Count: 1');
+			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
+		});
+
+		test('client:only', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+
+			const label = page.locator('#client-only');
+			await expect(label, 'component is visible').toBeVisible();
+
+			// Light DOM reconstructed correctly (slots are rendered alphabetically) and shadow dom content rendered
+			await expect(label, 'slotted text is in DOM').toHaveText(
+				'Framework client:only component Should not be visible Shadow dom default content should not be visible'
+			);
+
+			// Projected content should be visible
+			await expect(
+				page.locator('#client-only .default'),
+				'slotted element is visible'
+			).toBeVisible();
+			await expect(page.locator('#client-only .foo1'), 'slotted element is visible').toBeVisible();
+			await expect(page.locator('#client-only .foo2'), 'slotted element is visible').toBeVisible();
+
+			// Non-projected content should not be visible
+			await expect(
+				page.locator('#client-only [slot="quux"]'),
+				'element without slot is not visible'
+			).toBeHidden();
+
+			// Default slot content should not be visible
+			await expect(
+				page.locator('#client-only .defaultContent'),
+				'element without slot is not visible'
+			).toBeHidden();
 		});
 
 		t.skip('HMR', async ({ page, astro }) => {

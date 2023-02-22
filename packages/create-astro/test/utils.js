@@ -1,52 +1,31 @@
-import { execa } from 'execa';
-import { dirname } from 'path';
+import { setStdout } from '../dist/index.js';
 import stripAnsi from 'strip-ansi';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-export const testDir = dirname(__filename);
-export const timeout = 25000;
-
-const timeoutError = function (details) {
-	let errorMsg = 'Timed out waiting for create-astro to respond with expected output.';
-	if (details) {
-		errorMsg += '\nLast output: "' + details + '"';
-	}
-	return new Error(errorMsg);
-};
-
-export function promiseWithTimeout(testFn) {
-	return new Promise((resolve, reject) => {
-		let lastStdout;
-		function onStdout(chunk) {
-			lastStdout = stripAnsi(chunk.toString()).trim() || lastStdout;
-		}
-
-		const timeoutEvent = setTimeout(() => {
-			reject(timeoutError(lastStdout));
-		}, timeout);
-		function resolver() {
-			clearTimeout(timeoutEvent);
-			resolve();
-		}
-
-		testFn(resolver, onStdout);
+export function setup() {
+	const ctx = { messages: [] };
+	before(() => {
+		setStdout(
+			Object.assign({}, process.stdout, {
+				write(buf) {
+					ctx.messages.push(stripAnsi(String(buf)).trim());
+					return true;
+				},
+			})
+		);
 	});
-}
-
-export const PROMPT_MESSAGES = {
-	directory: 'Where would you like to create your new project?',
-	template: 'How would you like to setup your new project?',
-	typescript: 'How would you like to setup TypeScript?',
-	typescriptSucceed: 'next',
-};
-
-export function setup(args = []) {
-	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--skip-houston', '--dry-run'], {
-		cwd: testDir,
+	beforeEach(() => {
+		ctx.messages = [];
 	});
+
 	return {
-		stdin,
-		stdout,
+		messages() {
+			return ctx.messages;
+		},
+		length() {
+			return ctx.messages.length;
+		},
+		hasMessage(content) {
+			return !!ctx.messages.find((msg) => msg.includes(content));
+		},
 	};
 }

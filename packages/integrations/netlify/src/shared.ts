@@ -14,10 +14,10 @@ export async function createRedirects(
 	routes: RouteData[],
 	dir: URL,
 	entryFile: string,
-	edge: boolean
+	type: 'functions' | 'edge-functions' | 'builders'
 ) {
 	const _redirectsURL = new URL('./_redirects', dir);
-	const kind = edge ? 'edge-functions' : 'functions';
+	const kind = type ?? 'functions';
 
 	const definitions: RedirectDefinition[] = [];
 

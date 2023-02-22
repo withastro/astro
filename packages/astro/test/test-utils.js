@@ -5,7 +5,7 @@ import fs from 'fs';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
-import { sync } from '../dist/cli/sync/index.js';
+import { sync } from '../dist/core/sync/index.js';
 import build from '../dist/core/build/index.js';
 import { openConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
@@ -167,7 +167,10 @@ export async function loadFixture(inlineConfig) {
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
 		readFile: (filePath, encoding) =>
-			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), encoding ?? 'utf8'),
+			fs.promises.readFile(
+				new URL(filePath.replace(/^\//, ''), config.outDir),
+				encoding === undefined ? 'utf8' : encoding
+			),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>
 			fastGlob(p, {

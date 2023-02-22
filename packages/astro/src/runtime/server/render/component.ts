@@ -17,7 +17,7 @@ import {
 } from './astro/index.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
-import { renderSlot, renderSlots } from './slot.js';
+import { ComponentSlots, renderSlot, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -31,14 +31,15 @@ function guessRenderers(componentUrl?: string): string[] {
 			return ['@astrojs/vue'];
 		case 'jsx':
 		case 'tsx':
-			return ['@astrojs/react', '@astrojs/preact', '@astrojs/solid', '@astrojs/vue (jsx)'];
+			return ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js', '@astrojs/vue (jsx)'];
 		default:
 			return [
 				'@astrojs/react',
 				'@astrojs/preact',
-				'@astrojs/solid',
+				'@astrojs/solid-js',
 				'@astrojs/vue',
 				'@astrojs/svelte',
+				'@astrojs/lit',
 			];
 	}
 }
@@ -261,8 +262,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
-			} else {
+			} else if (html && html.length > 0) {
 				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+			} else {
+				yield '';
 			}
 		})();
 	}
@@ -328,7 +331,7 @@ function sanitizeElementName(tag: string) {
 	return tag.trim().split(unsafe)[0].trim();
 }
 
-async function renderFragmentComponent(result: SSRResult, slots: any = {}) {
+async function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}) {
 	const children = await renderSlot(result, slots?.default);
 	if (children == null) {
 		return children;

@@ -6,9 +6,9 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import {
-	astroContentServerPlugin,
+	astroContentAssetPropagationPlugin,
+	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
-	astroDelayedAssetPlugin,
 } from '../content/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -55,6 +55,12 @@ export async function createVite(
 		isBuild: mode === 'build',
 		viteUserConfig: settings.config.vite,
 		isFrameworkPkgByJson(pkgJson) {
+			// Certain packages will trigger the checks below, but need to be external. A common example are SSR adapters
+			// for node-based platforms, as we need to control the order of the import paths to make sure polyfills are applied in time.
+			if (pkgJson?.astro?.external === true) {
+				return false;
+			}
+
 			return (
 				// Attempt: package relies on `astro`. ✅ Definitely an Astro package
 				pkgJson.peerDependencies?.astro ||
@@ -105,8 +111,8 @@ export async function createVite(
 			astroScannerPlugin({ settings }),
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
-			astroContentServerPlugin({ fs, settings, logging, mode }),
-			astroDelayedAssetPlugin({ mode }),
+			astroContentImportPlugin({ fs, settings }),
+			astroContentAssetPropagationPlugin({ mode }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

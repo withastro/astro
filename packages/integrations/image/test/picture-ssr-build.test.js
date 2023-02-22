@@ -31,6 +31,13 @@ describe('SSR pictures - build', function () {
 			alt: 'spaces',
 		},
 		{
+			title: 'File outside src',
+			id: '#outside-src',
+			url: '/_image',
+			query: { w: '768', h: '414', f: 'png', href: /^\/_astro\/social.\w{8}.png/ },
+			alt: 'outside-src',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
@@ -140,6 +147,13 @@ describe('SSR pictures with subpath - build', function () {
 			url: '/_image',
 			query: { w: '768', h: '414', f: 'jpg', href: /^\/docs\/_astro\/introducing astro.\w{8}.jpg/ },
 			alt: 'spaces',
+		},
+		{
+			title: 'File outside src',
+			id: '#outside-src',
+			url: '/_image',
+			query: { w: '768', h: '414', f: 'png', href: /^\/docs\/_astro\/social.\w{8}.png/ },
+			alt: 'outside-src',
 		},
 		{
 			title: 'Inline imports',

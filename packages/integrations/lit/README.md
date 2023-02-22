@@ -43,13 +43,14 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 
 __`astro.config.mjs`__
 
-```js
+```js ins={2} "lit()"
+import { defineConfig } from 'astro/config';
 import lit from '@astrojs/lit';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [lit()],
-}
+});
 ```
 
 ## Getting started

@@ -29,6 +29,7 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
 			return {
 				code,
+				map: null,
 				meta: {
 					...meta,
 					astro: {

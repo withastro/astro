@@ -5,6 +5,7 @@ function getViteConfiguration() {
 	return {
 		optimizeDeps: {
 			include: [
+				'@astrojs/lit/dist/client.js',
 				'@astrojs/lit/client-shim.js',
 				'@astrojs/lit/hydration-support.js',
 				'@webcomponents/template-shadowroot/template-shadowroot.js',
@@ -34,6 +35,7 @@ export default function (): AstroIntegration {
 				addRenderer({
 					name: '@astrojs/lit',
 					serverEntrypoint: '@astrojs/lit/server.js',
+					clientEntrypoint: '@astrojs/lit/dist/client.js',
 				});
 				// Update the vite configuration.
 				updateConfig({

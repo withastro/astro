@@ -1,10 +1,10 @@
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
+import mime from 'mime';
 import fs from 'node:fs/promises';
-import path, { basename, extname, join } from 'node:path';
+import { basename, extname } from 'node:path';
 import { Readable } from 'node:stream';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import slash from 'slash';
+import { pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
 import type { InputFormat } from './loaders/index.js';
@@ -19,7 +19,7 @@ export interface ImageMetadata {
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
-		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
+		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id);
 
 	const virtualModuleId = 'virtual:image-loader';
 
@@ -65,12 +65,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 				meta.src = `__ASTRO_IMAGE_ASSET__${handle}__`;
 			} else {
-				const relId = path.relative(fileURLToPath(config.srcDir), id);
-
-				meta.src = join('/@astroimage', relId);
-
-				// Windows compat
-				meta.src = slash(meta.src);
+				meta.src = '/@astroimage' + url.pathname;
 			}
 
 			return `export default ${JSON.stringify(meta)}`;
@@ -78,9 +73,9 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 		configureServer(server) {
 			server.middlewares.use(async (req, res, next) => {
 				if (req.url?.startsWith('/@astroimage/')) {
-					const [, id] = req.url.split('/@astroimage/');
+					// Reconstructing URL to get rid of query parameters in path
+					const url = new URL(req.url.slice('/@astroimage'.length), 'file:');
 
-					const url = new URL(id, config.srcDir);
 					const file = await fs.readFile(url);
 
 					const meta = await metadata(url);
@@ -103,7 +98,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 						format = result.format;
 					}
 
-					res.setHeader('Content-Type', `image/${format}`);
+					res.setHeader('Content-Type', mime.getType(format) || '');
 					res.setHeader('Cache-Control', 'max-age=360000');
 
 					const stream = Readable.from(data);
