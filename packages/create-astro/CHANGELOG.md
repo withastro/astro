@@ -1,5 +1,13 @@
 # create-astro
 
+## 3.0.3
+
+### Patch Changes
+
+- [#6314](https://github.com/withastro/astro/pull/6314) [`7f61e8fe3`](https://github.com/withastro/astro/commit/7f61e8fe36b62a1833180c18b6f4304e9a01fce4) Thanks [@MilesPernicious](https://github.com/MilesPernicious)! - Prompt for git initialization last, so all configurations can get added to the initial commit
+
+- [#6294](https://github.com/withastro/astro/pull/6294) [`d0dbee872`](https://github.com/withastro/astro/commit/d0dbee872fd09800fba644ccbf4011ce01149706) Thanks [@liruifengv](https://github.com/liruifengv)! - `create-astro` help info add `--typescript` flag
+
 ## 3.0.2
 
 ### Patch Changes
