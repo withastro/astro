@@ -59,7 +59,7 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 							return next();
 						}
 
-						const transform = await globalThis.astroImageService.parseParams(url.searchParams);
+						const transform = await globalThis.astroImageService.parseURL(url);
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;

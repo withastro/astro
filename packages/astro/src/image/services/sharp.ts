@@ -11,7 +11,7 @@ try {
 const sharpService: LocalImageService = {
 	validateTransform: baseService.validateTransform,
 	getURL: baseService.getURL,
-	parseParams: baseService.parseParams,
+	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	async transform(inputBuffer, transform) {
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality

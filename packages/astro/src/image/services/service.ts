@@ -45,9 +45,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 *
 	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return that.
 	 */
-	parseParams: (
-		params: URLSearchParams
-	) => Partial<ImageTransform> | Promise<Partial<ImageTransform>> | undefined;
+	parseURL: (url: URL) => Partial<ImageTransform> | Promise<Partial<ImageTransform>> | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
@@ -66,10 +64,6 @@ export interface LocalImageService extends SharedServiceProps {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	validateTransform(options) {
-		if (options.alt === undefined || options.alt === null) {
-			throw new AstroError(AstroErrorData.ImageMissingAlt);
-		}
-
 		if (!isESMImportedImage(options.src)) {
 			// For non-ESM imported images, width and height are required to avoid CLS, as we can't infer them from the file
 			let missingDimension: 'width' | 'height' | 'both' | undefined;
@@ -131,7 +125,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		return '/_image?' + searchParams;
 	},
-	parseParams(params) {
+	parseURL(url) {
+		const params = url.searchParams;
+
 		if (!params.has('href')) {
 			return undefined;
 		}

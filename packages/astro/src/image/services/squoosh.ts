@@ -5,7 +5,7 @@ import type { Operation } from './vendor/squoosh/image.js';
 const service: LocalImageService = {
 	validateTransform: baseService.validateTransform,
 	getURL: baseService.getURL,
-	parseParams: baseService.parseParams,
+	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	async transform(inputBuffer, transform) {
 		let format = transform.format;
