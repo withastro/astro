@@ -5,10 +5,13 @@ export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from 
 export { renderJSX } from './jsx.js';
 export {
 	addAttribute,
+	addScopeFlag,
 	createHeadAndContent,
+	createScopedResult,
 	defineScriptVars,
 	Fragment,
 	maybeRenderHead,
+	removeScopeFlag,
 	renderAstroTemplateResult as renderAstroComponent,
 	renderComponent,
 	renderComponentToIterable,
@@ -23,14 +26,14 @@ export {
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
+	ScopeFlags,
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
-	AstroComponentSlots,
-	AstroComponentSlotsWithValues,
+	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
 

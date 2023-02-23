@@ -61,7 +61,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	emptyDir(settings.config.outDir, new Set('.git'));
+	if (settings.config?.vite?.build?.emptyOutDir !== false) {
+		emptyDir(settings.config.outDir, new Set('.git'));
+	}
 
 	// Register plugins
 	const container = createPluginContainer(opts, internals);
@@ -245,9 +247,15 @@ async function runPostBuildHooks(
 	clientReturn: Awaited<ReturnType<typeof clientBuild>>
 ) {
 	const mutations = await container.runPostHook(ssrReturn, clientReturn);
+	const config = container.options.settings.config;
 	const buildConfig = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
-		const root = mutation.build === 'server' ? buildConfig.server : buildConfig.client;
+		const root =
+			config.output === 'server'
+				? mutation.build === 'server'
+					? buildConfig.server
+					: buildConfig.client
+				: config.outDir;
 		const fileURL = new URL(fileName, root);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
 		await fs.promises.writeFile(fileURL, mutation.code, 'utf-8');

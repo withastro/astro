@@ -12,7 +12,7 @@ import {
 } from './index.js';
 import { HTMLParts } from './render/common.js';
 import type { ComponentIterable } from './render/component';
-import { ScopeFlags } from './render/util.js';
+import { createScopedResult, ScopeFlags } from './render/scope.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -95,8 +95,9 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				result.scope |= ScopeFlags.JSX;
-				return markHTMLString(await renderToString(result, vnode.type as any, props, slots));
+				const scoped = createScopedResult(result, ScopeFlags.JSX);
+				const html = markHTMLString(await renderToString(scoped, vnode.type as any, props, slots));
+				return html;
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
 				return '';

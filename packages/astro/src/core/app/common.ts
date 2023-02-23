@@ -14,10 +14,12 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 	}
 
 	const assets = new Set<string>(serializedManifest.assets);
+	const propagation = new Map(serializedManifest.propagation);
 
 	return {
 		...serializedManifest,
 		assets,
+		propagation,
 		routes,
 	};
 }

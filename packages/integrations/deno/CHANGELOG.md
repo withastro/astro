@@ -1,5 +1,25 @@
 # @astrojs/deno
 
+## 4.0.2
+
+### Patch Changes
+
+- [#6281](https://github.com/withastro/astro/pull/6281) [`609b249c8`](https://github.com/withastro/astro/commit/609b249c8de936fcf263effa83a95a45747d6610) Thanks [@matthewp](https://github.com/matthewp)! - Revert prerender fix
+
+- [#6284](https://github.com/withastro/astro/pull/6284) [`61113dd73`](https://github.com/withastro/astro/commit/61113dd731f2db39ebecb8f2f473823b56d3160b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix prerendered page behavior
+
+- Updated dependencies [[`d9474d467`](https://github.com/withastro/astro/commit/d9474d467e9c24bedf9cdb6100de9190ab0274d0), [`933c651fb`](https://github.com/withastro/astro/commit/933c651fb1126b7ad1ff369cd11307c47949d0b6)]:
+  - astro@2.0.14
+
+## 4.0.1
+
+### Patch Changes
+
+- [#6248](https://github.com/withastro/astro/pull/6248) [`ef5cea4dc`](https://github.com/withastro/astro/commit/ef5cea4dc5c4ffa33bd57ea0886e6912afb24fec) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Deno SSR with prerender=true complains about invalid URL scheme
+
+- Updated dependencies [[`ef5cea4dc`](https://github.com/withastro/astro/commit/ef5cea4dc5c4ffa33bd57ea0886e6912afb24fec), [`2fec47848`](https://github.com/withastro/astro/commit/2fec4784871f2b06fd780eb4cb0bb69866c6b065)]:
+  - astro@2.0.13
+
 ## 4.0.0
 
 ### Major Changes

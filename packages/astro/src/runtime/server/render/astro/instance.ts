@@ -1,17 +1,15 @@
 import type { SSRResult } from '../../../../@types/astro';
+import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
-import type { renderTemplate } from './render-template.js';
 
 import { HydrationDirectiveProps } from '../../hydration.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
+import { createScopedResult, ScopeFlags } from '../scope.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 
 type ComponentProps = Record<string | number, any>;
-type ComponentSlotValue = () => ReturnType<typeof renderTemplate>;
-export type ComponentSlots = Record<string, ComponentSlotValue>;
-export type ComponentSlotsWithValues = Record<string, ReturnType<ComponentSlotValue>>;
 
 const astroComponentInstanceSym = Symbol.for('astro.componentInstance');
 
@@ -20,7 +18,7 @@ export class AstroComponentInstance {
 
 	private readonly result: SSRResult;
 	private readonly props: ComponentProps;
-	private readonly slotValues: ComponentSlotsWithValues;
+	private readonly slotValues: ComponentSlots;
 	private readonly factory: AstroComponentFactory;
 	private returnValue: ReturnType<AstroComponentFactory> | undefined;
 	constructor(
@@ -33,19 +31,21 @@ export class AstroComponentInstance {
 		this.props = props;
 		this.factory = factory;
 		this.slotValues = {};
+		const scoped = createScopedResult(result, ScopeFlags.Slot);
 		for (const name in slots) {
-			this.slotValues[name] = slots[name]();
+			const value = slots[name](scoped);
+			this.slotValues[name] = () => value;
 		}
 	}
 
-	async init() {
-		this.returnValue = this.factory(this.result, this.props, this.slotValues);
+	async init(result: SSRResult) {
+		this.returnValue = this.factory(result, this.props, this.slotValues);
 		return this.returnValue;
 	}
 
 	async *render() {
 		if (this.returnValue === undefined) {
-			await this.init();
+			await this.init(this.result);
 		}
 
 		let value: AstroFactoryReturnValue | undefined = this.returnValue;

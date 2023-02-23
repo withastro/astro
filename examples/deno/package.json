@@ -6,13 +6,13 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "deno run --allow-net --allow-read ./dist/server/entry.mjs",
+    "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.0.6"
+    "astro": "^2.0.14"
   },
   "devDependencies": {
-    "@astrojs/deno": "^4.0.0"
+    "@astrojs/deno": "^4.0.2"
   }
 }

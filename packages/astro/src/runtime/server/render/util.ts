@@ -27,7 +27,14 @@ const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 const toStyleString = (obj: Record<string, any>) =>
 	Object.entries(obj)
-		.map(([k, v]) => `${kebab(k)}:${v}`)
+		.map(([k, v]) => {
+			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
+			// TODO: Remove in v3! See #6264
+			// We need to emit --kebab-case AND --camelCase for backwards-compat in v2,
+			// but we should be able to remove this workaround in v3.
+			if (kebab(k) !== k) return `${kebab(k)}:var(${k});${k}:${v}`;
+			return `${k}:${v}`;
+		})
 		.join(';');
 
 // Adds variables to an inline script.
@@ -128,9 +135,3 @@ export function renderElement(
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
-
-export const ScopeFlags = {
-	Astro: 1 << 0,
-	JSX: 1 << 1,
-	Slot: 1 << 2,
-};

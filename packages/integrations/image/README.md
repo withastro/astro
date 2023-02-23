@@ -133,7 +133,7 @@ If the image is merely decorative (i.e. doesn’t contribute to the understandin
 
 ### `<Image />`
 
-The built-in `<Image />` component is used to create an optimized `<img />` for both remote images hosted on other domains as well as local images imported from your project's `src` directory.
+The built-in `<Image />` component is used to create an optimized `<img />` for both remote images accessed by URL as well as local images imported from your project's `src/` directory.
 
 In addition to the component-specific properties, any valid HTML attribute for the `<img />` included in the `<Image />` component will be included in the built `<img />`.
 
@@ -147,11 +147,12 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
-
-For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
-
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
+
+For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
+
+
+For images located in your `public/` directory: use the URL path relative to the `public/` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
 
 #### alt
 
@@ -169,13 +170,15 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 <p>
 
-**Type:** `'avif' | 'jpeg' | 'png' | 'webp'`<br>
+**Type:** `'avif' | 'jpeg' | 'jpg' | 'png' | 'svg' | 'webp'`<br>
 **Default:** `undefined`
 </p>
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
-This property is required for remote images only, because the original format cannot be inferred.
+This property is required for remote images when using the default image transformer Squoosh, this is because the original format cannot be inferred.
+
+Added in v0.15.0: You can use the `<Image />` component when working with SVG images, but the `svg` option can only be used when the original image is a `.svg` file. Other image formats (like `.png` or `.jpg`) cannot be converted into vector images. The `.svg` image itself will not be transformed, but the final `<img />` will be properly optimized by the integration.
 
 #### quality
 
@@ -199,7 +202,7 @@ The desired width of the output image. Combine with `height` to crop the image t
 
 Dimensions are optional for local images, the original image size will be used if not provided.
 
-For remote images, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+For remote images, including images in `public/`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### height
 
@@ -213,7 +216,7 @@ The desired height of the output image. Combine with `width` to crop the image t
 
 Dimensions are optional for local images, the original image size will be used if not provided.
 
-For remote images, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+For remote images, including images in `public/`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### aspectRatio
 
@@ -228,6 +231,8 @@ The desired aspect ratio of the output image. Combine with either `width` or `he
 A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4`.
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
+
+For remote images, including images in `public/`, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
 
 #### background
 
@@ -277,7 +282,7 @@ Position of the crop when fit is `cover` or `contain`.
 
 ### `<Picture />`
 
-The built-in `<Picture />` component is used to create an optimized `<picture />` for both remote images hosted on other domains as well as local images imported from your project's `src` directory.
+The built-in `<Picture />` component is used to create an optimized `<picture />` for both remote images accessed by URL as well as local images imported from your project's `src/` directory.
 
 In addition to the component-specific properties, any valid HTML attribute for the `<img />` included in the `<Picture />` component will be included in the built `<img />`.
 
@@ -291,11 +296,12 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
-
-For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
-
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
+
+For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
+
+
+For images located in your `public/` directory: use the URL path relative to the `public/` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
 
 #### alt
 
@@ -350,7 +356,7 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
-For remote images only, `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
+For remote images, including images in `public/`, `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
 
 #### formats
 
@@ -362,7 +368,7 @@ For remote images only, `aspectRatio` is required to ensure the correct `height`
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
 
-For remote images, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
+For remote images, including images in `public/`, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
 
 #### background
 
@@ -565,17 +571,14 @@ Remote images can be transformed with the `<Image />` component. The `<Image />`
 ---
 import { Image } from '@astrojs/image/components';
 
-const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const imageUrl = 'https://astro.build/assets/press/full-logo-dark.png';
 ---
 
 // cropping to a specific width and height
-<Image src={imageUrl} width={544} height={184} alt="descriptive text" />
+<Image src={imageUrl} width={750} height={250} format="avif" alt="descriptive text" />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={300} aspectRatio={16/9} alt="descriptive text" />
-
-// cropping to a specific height and aspect ratio and converting to an avif format
-<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt="descriptive text" />
+<Image src={imageUrl} width={750} aspectRatio={16/9} format="avif" alt="descriptive text" />
 ```
 
 ### Responsive pictures

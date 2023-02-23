@@ -5,6 +5,14 @@ import type { OutputFormat, TransformOptions } from './index.js';
 
 class SharpService extends BaseSSRService {
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
+		if (transform.format === 'svg') {
+			// sharp can't output SVG so we return the input image
+			return {
+				data: inputBuffer,
+				format: transform.format,
+			};
+		}
+
 		const sharpImage = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
 		// always call rotate to adjust for EXIF data orientation

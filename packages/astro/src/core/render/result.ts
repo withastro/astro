@@ -9,7 +9,13 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { renderSlot, stringifyChunk } from '../../runtime/server/index.js';
+import {
+	ComponentSlots,
+	createScopedResult,
+	renderSlot,
+	ScopeFlags,
+	stringifyChunk,
+} from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -55,10 +61,10 @@ function getFunctionExpression(slot: any) {
 
 class Slots {
 	#result: SSRResult;
-	#slots: Record<string, any> | null;
+	#slots: ComponentSlots | null;
 	#loggingOpts: LogOptions;
 
-	constructor(result: SSRResult, slots: Record<string, any> | null, logging: LogOptions) {
+	constructor(result: SSRResult, slots: ComponentSlots | null, logging: LogOptions) {
 		this.#result = result;
 		this.#slots = slots;
 		this.#loggingOpts = logging;
@@ -89,6 +95,7 @@ class Slots {
 	public async render(name: string, args: any[] = []) {
 		if (!this.#slots || !this.has(name)) return;
 
+		const scoped = createScopedResult(this.#result, ScopeFlags.RenderSlot);
 		if (!Array.isArray(args)) {
 			warn(
 				this.#loggingOpts,
@@ -97,26 +104,24 @@ class Slots {
 			);
 		} else if (args.length > 0) {
 			const slotValue = this.#slots[name];
-			const component = typeof slotValue === 'function' ? await slotValue() : await slotValue;
+			const component = typeof slotValue === 'function' ? await slotValue(scoped) : await slotValue;
 
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
-				const slot = expression(...args);
-				return await renderSlot(this.#result, slot).then((res) =>
-					res != null ? String(res) : res
-				);
+				const slot = () => expression(...args);
+				return await renderSlot(scoped, slot).then((res) => (res != null ? String(res) : res));
 			}
 			// JSX
 			if (typeof component === 'function') {
-				return await renderJSX(this.#result, component(...args)).then((res) =>
+				return await renderJSX(scoped, (component as any)(...args)).then((res) =>
 					res != null ? String(res) : res
 				);
 			}
 		}
 
-		const content = await renderSlot(this.#result, this.#slots[name]);
-		const outHTML = stringifyChunk(this.#result, content);
+		const content = await renderSlot(scoped, this.#slots[name]);
+		const outHTML = stringifyChunk(scoped, content);
 
 		return outHTML;
 	}

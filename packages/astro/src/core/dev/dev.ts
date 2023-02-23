@@ -5,6 +5,7 @@ import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
+import { attachContentServerListeners } from '../../content/index.js';
 import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
@@ -43,6 +44,7 @@ export default async function dev(
 		beforeRestart: () => console.clear(),
 		params: {
 			settings,
+			root: options.flags?.root,
 			logging: options.logging,
 			isRestart: options.isRestart,
 		},
@@ -70,6 +72,8 @@ export default async function dev(
 	if (restart.container.viteConfig.server?.fs?.strict === false) {
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
+
+	await attachContentServerListeners(restart.container);
 
 	return {
 		address: devServerAddressInfo,
