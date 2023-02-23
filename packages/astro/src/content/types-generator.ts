@@ -71,7 +71,7 @@ export async function createContentTypesGenerator({
 		}
 
 		events.push({
-			event: { name: 'add', entry: contentPaths.config.url },
+			type: { name: 'add', entry: contentPaths.config.url },
 			opts: { logLevel: 'warn' },
 		});
 
