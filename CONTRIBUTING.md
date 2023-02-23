@@ -40,7 +40,7 @@ pnpx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-mer
 
 ### Using GitHub Codespaces for development
 
-To get started, create a codespace for this repository by clicking this 👇 
+To get started, create a codespace for this repository by clicking this 👇
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro)
 

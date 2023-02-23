@@ -18,16 +18,10 @@
 
   "customizations": {
     "codespaces": {
-      "openFiles": [
-        "README.md",
-        "CONTRIBUTING.md"
-      ]
+      "openFiles": ["README.md", "CONTRIBUTING.md"]
     },
     "vscode": {
-      "extensions": [
-        "astro-build.astro-vscode",
-        "esbenp.prettier-vscode"
-      ]
+      "extensions": ["astro-build.astro-vscode", "esbenp.prettier-vscode"]
     }
   }
 }
