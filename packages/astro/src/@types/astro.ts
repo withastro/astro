@@ -87,6 +87,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	experimentalImages?: boolean;
 }
 
 export interface BuildConfig {
@@ -930,7 +931,27 @@ export interface AstroUserConfig {
 	 * Astro offers experimental flags to give users early access to new features.
 	 * These flags are not guaranteed to be stable.
 	 */
-	experimental?: object;
+	experimental?: {
+		/**
+		 * @docs
+		 * @name experimental.images
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.1.0
+		 * @description
+		 * Enable experimental support for enhanced images support and ability to optimize and resize images directly in Astro. With this enabled, a new `astro:assets` module will be exposed 
+		 *
+		 * To enable this feature, set `experimental.images` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		images: true,
+		 * 	},
+		 * }
+		 */
+		images?: boolean;
+	};
 
 	// Legacy options to be removed
 

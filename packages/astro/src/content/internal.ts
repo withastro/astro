@@ -194,14 +194,19 @@ async function render({
 }
 
 export function createAsset(options: { assetsDir: string }) {
-	return (imageOption: { format: string; width: number; height: number }) =>
-		z
+	return (imageOption: { format: string; width: number; height: number }) => {
+		if (options.assetsDir === 'undefined') {
+			throw new Error('Enable `experimental.images` in your Astro config to use asset()');
+		}
+
+		return z
 			.string()
 			.transform(
 				async (imagePath) =>
 					await getImageMetadata(pathToFileURL(path.join(options.assetsDir, imagePath)))
 			)
 			.superRefine((val, ctx) => checkImageAsset(val, imageOption, ctx));
+	};
 }
 
 async function getImageMetadata(

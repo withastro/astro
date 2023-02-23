@@ -68,17 +68,25 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 
-				const imageService = (await import(settings.config.image.service)).default;
+				let imageService = undefined;
+				if (settings.config.experimental.images) {
+					imageService = (await import(settings.config.image.service)).default;
+				}
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					frontmatter: raw.data,
+					experimentalImages: settings.config.experimental.images,
 					imageService,
 				});
 
 				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				const { relImagePaths } = renderResult.vfile.data as { relImagePaths: string[] };
+				let relImagePaths: string[] = [];
+				if (settings.config.experimental.images) {
+					relImagePaths = renderResult.vfile.data.relImagePaths as string[];
+				}
+
 				const astroData = safelyGetAstroData(renderResult.vfile.data);
 				if (astroData instanceof InvalidAstroDataError) {
 					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
@@ -98,9 +106,12 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-				import { getConfiguredService } from "astro:assets";
+				${
+					settings.config.experimental.images
+						? 'import { getConfiguredService } from "astro:assets";\ngetConfiguredService();'
+						: ''
+				}
 
-				getConfiguredService();
 				const images = {
 					${relImagePaths.map((entry) => `'${entry}': await import('${entry}'),`)}
 				}

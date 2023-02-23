@@ -22,9 +22,9 @@ export function astroContentVirtualModPlugin({
 			)
 		)
 	);
-	const assetsDir = normalizePath(
-		path.resolve(settings.config.root.pathname, contentPaths.assetsDir.pathname)
-	);
+	const assetsDir = settings.config.experimental.images
+		? normalizePath(path.resolve(settings.config.root.pathname, contentPaths.assetsDir.pathname))
+		: 'undefined';
 	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')

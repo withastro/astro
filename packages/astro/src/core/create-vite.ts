@@ -114,7 +114,7 @@ export async function createVite(
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode }),
-			astroAssetsPlugin({ settings, logging }),
+			settings.config.experimental.images ? [astroAssetsPlugin({ settings, logging })] : [],
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

@@ -89,8 +89,10 @@ export async function renderMarkdown(
 		parser.use([remarkPrism(scopedClassName)]);
 	}
 
-	// Apply later in case user plugins resolve relative image paths
-	parser.use([toRemarkCollectRelativeImages()]);
+	if (opts.experimentalImages) {
+		// Apply later in case user plugins resolve relative image paths
+		parser.use([toRemarkCollectRelativeImages()]);
+	}
 
 	parser.use([
 		[
@@ -107,7 +109,9 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	parser.use(rehypeRelativeImages(await opts.imageService));
+	if (opts.experimentalImages) {
+		parser.use(rehypeRelativeImages(await opts.imageService));
+	}
 	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 
 	let vfile: MarkdownVFile;
