@@ -31,7 +31,7 @@ async function loadLocalImage(src: string | URL) {
 
 function webToCachePolicyRequest({ url, method, headers: _headers }: Request): CachePolicy.Request {
 	const headers: CachePolicy.Headers = {};
-	for (const [key, value] of _headers) {
+	for (const [key, value] of _headers.entries()) {
 		headers[key] = value;
 	}
 	return {
