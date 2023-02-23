@@ -219,7 +219,7 @@ export async function createContentTypesGenerator({
 			},
 			opts,
 		};
-		if (!event.event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
 
 		events.push(event);
 
