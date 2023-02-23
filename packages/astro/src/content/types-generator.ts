@@ -42,7 +42,7 @@ type CreateContentGeneratorParams = {
 type EventOpts = { logLevel: 'info' | 'warn' };
 
 type EventWithOptions = {
-	event: ContentEvent;
+	type: ContentEvent;
 	opts: EventOpts | undefined;
 };
 
