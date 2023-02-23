@@ -22,10 +22,14 @@ export function astroContentVirtualModPlugin({
 			)
 		)
 	);
+	const assetsDir = normalizePath(
+		path.resolve(settings.config.root.pathname, contentPaths.assetsDir.pathname)
+	);
 	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
+		.replace('@@ASSETS_DIR@@', assetsDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
 

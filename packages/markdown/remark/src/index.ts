@@ -54,7 +54,6 @@ export async function renderMarkdown(
 		remarkRehype = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
-		contentDir,
 		frontmatter: userFrontmatter = {},
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });

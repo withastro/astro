@@ -1,9 +1,11 @@
-import sizeOf from 'image-size';
+import { createRequire } from 'module';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { ImageMetadata, InputFormat } from '../types.js';
+const require = createRequire(import.meta.url);
+const sizeOf = require('image-size');
 
-interface Metadata extends ImageMetadata {
+export interface Metadata extends ImageMetadata {
 	orientation?: number;
 }
 
@@ -11,7 +13,14 @@ export async function imageMetadata(
 	src: URL | string,
 	data?: Buffer
 ): Promise<Metadata | undefined> {
-	const file = data || (await fs.readFile(src));
+	let file = data;
+	if (!file) {
+		try {
+			file = await fs.readFile(src);
+		} catch (e) {
+			return undefined;
+		}
+	}
 
 	const { width, height, type, orientation } = await sizeOf(file);
 	const isPortrait = (orientation || 0) >= 5;

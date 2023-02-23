@@ -13,7 +13,6 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import { getContentPaths } from '../../content/index.js';
 import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -347,10 +346,7 @@ async function generatePath(
 	const env = createEnvironment({
 		adapterName: undefined,
 		logging,
-		markdown: {
-			...settings.config.markdown,
-			contentDir: getContentPaths(settings.config).contentDir,
-		},
+		markdown: settings.config.markdown,
 		mode: opts.mode,
 		renderers,
 		async resolve(specifier: string) {

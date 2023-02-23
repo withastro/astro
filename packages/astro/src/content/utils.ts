@@ -281,6 +281,7 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 
 export type ContentPaths = {
 	contentDir: URL;
+	assetsDir: URL;
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
@@ -295,6 +296,7 @@ export function getContentPaths({
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
+		assetsDir: new URL('./assets', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
 		config: new URL('./content/config.ts', srcDir),

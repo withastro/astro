@@ -1,5 +1,4 @@
 import type { AstroSettings, RuntimeMode } from '../../../@types/astro';
-import { getContentPaths } from '../../../content/index.js';
 import type { LogOptions } from '../../logger/core.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import type { Environment } from '../index';
@@ -22,10 +21,7 @@ export function createDevelopmentEnvironment(
 	let env = createEnvironment({
 		adapterName: settings.adapter?.name,
 		logging,
-		markdown: {
-			...settings.config.markdown,
-			contentDir: getContentPaths(settings.config).contentDir,
-		},
+		markdown: settings.config.markdown,
 		mode,
 		// This will be overridden in the dev server
 		renderers: [],
