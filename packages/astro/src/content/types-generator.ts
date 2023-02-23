@@ -235,7 +235,7 @@ export async function createContentTypesGenerator({
 		const eventResponses = [];
 
 		for (const event of events) {
-			const response = await handleEvent(event.event, event.opts);
+			const response = await handleEvent(event.type, event.opts);
 			eventResponses.push(response);
 		}
 
