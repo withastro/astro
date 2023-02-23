@@ -112,13 +112,13 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									}
 
 									const { fileUrl, fileId } = getFileInfo(id, config);
-									if (!moduleExports.includes('url')) {
+									if (!moduleExports.find(({n}) => n === 'url')) {
 										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
 									}
-									if (!moduleExports.includes('file')) {
+									if (!moduleExports.find(({n}) => n === 'file')) {
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
 									}
-									if (!moduleExports.includes('Content')) {
+									if (!moduleExports.find(({n}) => n === 'Content')) {
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
