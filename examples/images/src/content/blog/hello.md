@@ -1,3 +1,8 @@
+---
+title: 'dsfsf'
+image: 'elsa-and-anna.jpg'
+---
+
 # Hello
 
 This is my website! This is a Markdown page with a relative image!
