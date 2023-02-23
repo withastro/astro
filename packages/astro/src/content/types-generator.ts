@@ -213,7 +213,7 @@ export async function createContentTypesGenerator({
 
 	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
 		const event = {
-			event: {
+			type: {
 				entry: pathToFileURL(rawEvent.entry),
 				name: rawEvent.name,
 			},
