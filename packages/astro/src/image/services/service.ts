@@ -30,12 +30,6 @@ interface SharedServiceProps {
 	 * In most cases, you'll want to return directly what your user supplied you, minus the attributes that were used to generate the image.
 	 */
 	getHTMLAttributes?: (options: ImageTransform) => Record<string, any>;
-	/**
-	 * Validate the parameters the user supplied to your service and return them.
-	 *
-	 * This is helpful if you want to, for instance, ensure that your user supplied both `width` and `height`.
-	 */
-	validateTransform?: (options: ImageTransform) => ImageTransform;
 }
 
 export type ExternalImageService = SharedServiceProps;
@@ -63,28 +57,6 @@ export interface LocalImageService extends SharedServiceProps {
  * Basic local service to take things from
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
-	validateTransform(options) {
-		if (!isESMImportedImage(options.src)) {
-			// For non-ESM imported images, width and height are required to avoid CLS, as we can't infer them from the file
-			let missingDimension: 'width' | 'height' | 'both' | undefined;
-			if (!options.width && !options.height) {
-				missingDimension = 'both';
-			} else if (!options.width && options.height) {
-				missingDimension = 'width';
-			} else if (options.width && !options.height) {
-				missingDimension = 'height';
-			}
-
-			if (missingDimension) {
-				throw new AstroError({
-					...AstroErrorData.MissingImageDimension,
-					message: AstroErrorData.MissingImageDimension.message(missingDimension),
-				});
-			}
-		}
-
-		return options;
-	},
 	getHTMLAttributes(options) {
 		let targetWidth = options.width;
 		let targetHeight = options.height;
@@ -110,6 +82,25 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getURL(options: ImageTransform) {
+		if (!isESMImportedImage(options.src)) {
+			// For non-ESM imported images, width and height are required to avoid CLS, as we can't infer them from the file
+			let missingDimension: 'width' | 'height' | 'both' | undefined;
+			if (!options.width && !options.height) {
+				missingDimension = 'both';
+			} else if (!options.width && options.height) {
+				missingDimension = 'width';
+			} else if (options.width && !options.height) {
+				missingDimension = 'height';
+			}
+
+			if (missingDimension) {
+				throw new AstroError({
+					...AstroErrorData.MissingImageDimension,
+					message: AstroErrorData.MissingImageDimension.message(missingDimension),
+				});
+			}
+		}
+
 		// Both our currently available local services don't handle remote images, so for them we can just return as is
 		if (!isESMImportedImage(options.src) && isRemoteImage(options.src)) {
 			return options.src;

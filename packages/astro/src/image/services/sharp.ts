@@ -9,7 +9,6 @@ try {
 }
 
 const sharpService: LocalImageService = {
-	validateTransform: baseService.validateTransform,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,

@@ -36,11 +36,11 @@ interface getImageResult {
 
 export async function getImage(options: ImageTransform): Promise<getImageResult> {
 	const service = await getConfiguredService();
-	if (service.validateTransform) options = service.validateTransform(options);
+	const imageURL = service.getURL(options);
 
 	return {
 		options,
-		src: service.getURL(options),
+		src: imageURL,
 		attributes: service.getHTMLAttributes !== undefined ? service.getHTMLAttributes(options) : {},
 	};
 }

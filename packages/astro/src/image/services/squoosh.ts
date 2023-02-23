@@ -3,7 +3,6 @@ import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
 
 const service: LocalImageService = {
-	validateTransform: baseService.validateTransform,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,

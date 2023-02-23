@@ -32,10 +32,9 @@ export function rehypeRelativeImages(imageService: any) {
 								alt: node.properties.alt,
 							};
 
-							if (imageService.validateTransform) options = imageService.validateTransform(options);
-
+							const imageURL = imageService.getURL(options);
 							node.properties = Object.assign(node.properties, {
-								src: imageService.getURL(options),
+								src: imageURL,
 								...(imageService.getHTMLAttributes !== undefined
 									? imageService.getHTMLAttributes(options)
 									: {}),
