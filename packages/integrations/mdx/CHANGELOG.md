@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.17.2
+
+### Patch Changes
+
+- [#6296](https://github.com/withastro/astro/pull/6296) [`075b87e8b`](https://github.com/withastro/astro/commit/075b87e8b72a69a608cd2ff1196dc0989e2cf1e1) Thanks [@RaphaelBossek](https://github.com/RaphaelBossek)! - Update to `es-module-lexer@1.1.1`
+
 ## 0.17.1
 
 - Updated to es-module-lexer@1.1.1
