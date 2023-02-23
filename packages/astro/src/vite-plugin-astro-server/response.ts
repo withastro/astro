@@ -57,12 +57,6 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 
 	const _headers = Object.fromEntries(headers.entries());
 
-	// Undici 5.19.1 includes a `getSetCookie` helper that returns an array of all the `set-cookies` headers.
-	// Previously, `headers.entries()` would already have those merged, but it seems like this isn't the case anymore, weird.
-	if ((headers as any)['getSetCookie']) {
-		_headers['set-cookie'] = (headers as any).getSetCookie();
-	}
-
 	// Attach any set-cookie headers added via Astro.cookies.set()
 	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
 	if (setCookieHeaders.length) {

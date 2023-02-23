@@ -25,6 +25,7 @@ const gradientId = 'icon-gradient-' + Math.round(Math.random() * 10e12).toString
 	viewBox="0 0 256 256"
 	aria-hidden="true"
 	stroke={gradient ? `url(#${gradientId})` : color}
+	fill={gradient ? `url(#${gradientId})` : color}
 	{...attrs}
 >
 	<g set:html={iconPath} />

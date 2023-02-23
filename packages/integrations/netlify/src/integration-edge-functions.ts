@@ -122,7 +122,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 					build: {
 						client: outDir,
 						server: new URL('./.netlify/edge-functions/', config.root),
-						serverEntry: 'entry.js',
+						serverEntry: 'entry.mjs',
 					},
 				});
 			},

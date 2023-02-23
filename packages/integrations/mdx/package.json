@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -35,7 +35,7 @@
     "@mdx-js/mdx": "^2.3.0",
     "@mdx-js/rollup": "^2.3.0",
     "acorn": "^8.8.0",
-    "es-module-lexer": "^0.10.5",
+    "es-module-lexer": "^1.1.1",
     "estree-util-visit": "^1.2.0",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
