@@ -1,8 +1,8 @@
 ---
 import { Image } from 'astro:assets';
-import elsaAnna from '../assets/elsa-and-anna.jpg';
+import astroImage from '../assets/astro.jpeg';
 
-// const imageProgrammatic = await getImage({ src: elsaAnna, width: 500 });
+// const imageProgrammatic = await getImage({ src: astroImage, width: 500 });
 ---
 
 <html lang="en">
@@ -14,8 +14,8 @@ import elsaAnna from '../assets/elsa-and-anna.jpg';
 		<title>Astro</title>
 	</head>
 	<body>
-		<Image src={elsaAnna} height={200} alt="gdsgdf" format="avif" class="Hey" />
+		<Image src={astroImage} height={200} alt="gdsgdf" format="avif" class="Hey" />
 
-		<div>ESM shape: {JSON.stringify(elsaAnna)}</div>
+		<div>ESM shape: {JSON.stringify(astroImage)}</div>
 	</body>
 </html>

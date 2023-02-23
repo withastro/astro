@@ -42,21 +42,26 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 							return next();
 						}
 
-						const url = new URL(req.url.slice('/_image'.length), 'file:');
+						const url = new URL(req.url, 'file:');
 						const filePath = url.searchParams.get('href');
 
 						if (!filePath) {
 							return next();
 						}
 
-						const filePathURL = new URL(filePath);
+						const filePathURL = new URL(filePath, 'file:');
 						const file = await fs.readFile(filePathURL.pathname);
 
 						// Get the file's metadata from the URL
-						const meta = getOrigQueryParams(filePathURL.searchParams);
+						let meta = getOrigQueryParams(filePathURL.searchParams);
 
+						// If we don't have them (ex: the image came from Markdown, let's calculate them again)
 						if (!meta) {
-							return next();
+							meta = await imageMetadata(filePathURL, file);
+
+							if (!meta) {
+								return next();
+							}
 						}
 
 						const transform = await globalThis.astroImageService.parseURL(url);

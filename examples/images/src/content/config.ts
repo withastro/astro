@@ -4,7 +4,7 @@ import { asset, defineCollection, z } from 'astro:content';
 const blogCollection = defineCollection({
 	schema: z.object({
 		title: z.string(),
-		image: asset({ width: 1920, height: 1120 }),
+		image: asset({ width: 1200, height: 600 }),
 	}),
 });
 // 3. Export a single `collections` object to register your collection(s)

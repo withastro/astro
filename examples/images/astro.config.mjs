@@ -3,6 +3,6 @@ import { defineConfig } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
 	image: {
-		service: 'astro/image/services/squoosh',
+		service: 'astro/assets/services/squoosh',
 	},
 });
