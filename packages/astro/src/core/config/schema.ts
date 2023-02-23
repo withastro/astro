@@ -118,13 +118,13 @@ export const AstroConfigSchema = z.object({
 	image: z
 		.object({
 			service: z.union([
-				z.literal('astro/image/services/sharp'),
-				z.literal('astro/image/services/squoosh'),
+				z.literal('astro/assets/services/sharp'),
+				z.literal('astro/assets/services/squoosh'),
 				z.string().and(z.object({})),
 			]),
 		})
 		.default({
-			service: 'astro/image/services/squoosh',
+			service: 'astro/assets/services/squoosh',
 		}),
 	markdown: z
 		.object({

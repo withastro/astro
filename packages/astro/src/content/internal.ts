@@ -190,10 +190,24 @@ export function createAsset(options: { assetsDir: string }) {
 	return (imageOption: { format: string; width: number; height: number }) =>
 		z
 			.string()
-			.transform((imagePath) =>
-				imageMetadata(pathToFileURL(path.join(options.assetsDir, imagePath)))
+			.transform(
+				async (imagePath) =>
+					await getImageMetadata(pathToFileURL(path.join(options.assetsDir, imagePath)))
 			)
 			.superRefine((val, ctx) => checkImageAsset(val, imageOption, ctx));
+}
+
+async function getImageMetadata(
+	imagePath: URL
+): Promise<(Metadata & { __astro_image: true }) | undefined> {
+	const meta = await imageMetadata(imagePath);
+
+	if (!meta) {
+		return undefined;
+	}
+
+	delete meta.orientation;
+	return { ...meta, __astro_image: true };
 }
 
 function checkImageAsset(

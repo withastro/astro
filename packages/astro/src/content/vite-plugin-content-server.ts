@@ -12,6 +12,7 @@ import { createContentTypesGenerator, getEntryType } from './types-generator.js'
 import {
 	ContentConfig,
 	contentObservable,
+	extractFrontmatterImages,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
@@ -146,12 +147,17 @@ export function astroContentServerPlugin({
 						? await getEntryData(partialEntry, collectionConfig)
 						: unparsedData;
 
+					const images = extractFrontmatterImages(data);
+
 					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};
 export const collection = ${JSON.stringify(entryInfo.collection)};
 export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(body)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+const images = {
+	${images.map((entry) => `'${entry}': await import('${entry}'),`)}
+}
 export const _internal = {
 	filePath: ${JSON.stringify(fileId)},
 	rawData: ${JSON.stringify(rawData)},

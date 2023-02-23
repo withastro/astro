@@ -50,6 +50,14 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
+export function extractFrontmatterImages(data: Record<string, any>): string[] {
+	const images = Object.values(data).filter(
+		(value) => typeof value === 'object' && value['__astro_image'] == true
+	);
+
+	return images.map((image) => image.src);
+}
+
 export function getEntrySlug({
 	id,
 	collection,

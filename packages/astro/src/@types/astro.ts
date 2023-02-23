@@ -705,7 +705,7 @@ export interface AstroUserConfig {
 	 */
 	image?: {
 		// eslint-disable-next-line @typescript-eslint/ban-types
-		service: 'astro/image/services/sharp' | 'astro/image/services/squoosh' | (string & {});
+		service: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
 	};
 
 	/**
