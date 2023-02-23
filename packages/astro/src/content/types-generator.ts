@@ -89,7 +89,7 @@ export async function createContentTypesGenerator({
 				(e) => !e.href.startsWith(contentPaths.config.url.href)
 			);
 		for (const entry of entries) {
-			events.push({ event: { name: 'add', entry }, opts: { logLevel: 'warn' } });
+			events.push({ type: { name: 'add', entry }, opts: { logLevel: 'warn' } });
 		}
 		await runEvents();
 		return { typesGenerated: true };
