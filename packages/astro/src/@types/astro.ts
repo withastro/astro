@@ -28,10 +28,10 @@ export type {
 	RemarkPlugins,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
+export type { ExternalImageService, LocalImageService } from '../assets/services/service';
+export type { ImageTransform } from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
-export type { ExternalImageService, LocalImageService } from '../image/services/service';
-export type { ImageTransform } from '../image/types';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;

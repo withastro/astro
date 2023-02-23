@@ -1,9 +1,9 @@
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { z } from 'zod';
+import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { imageMetadata, type Metadata } from '../image/utils/metadata.js';
 
 import {
 	createComponent,
