@@ -52,17 +52,20 @@ const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) =>
 		fs.promises
 			.readFile(file, 'utf-8')
-			.then((value) =>
+			.then((value) => {
+				const FIRST_VAR = value.toString().split('\n')[1]
+				const COUNT_SPACES = FIRST_VAR.substring(0, FIRST_VAR.indexOf('"')).length
 				fs.promises.writeFile(
 					file,
 					JSON.stringify(
 						Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
 						null,
-						'\t'
+						COUNT_SPACES
 					),
 					'utf-8'
 				)
-			),
+			}
+		),
 };
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {
