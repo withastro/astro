@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 1.1.0
+
+### Minor Changes
+
+- [#6262](https://github.com/withastro/astro/pull/6262) [`4fcefa34f`](https://github.com/withastro/astro/commit/4fcefa34f979e23b8c48940b5a5da57fdabc32a4) Thanks [@vic1707](https://github.com/vic1707)! - update `ChangeFreq` to support typescript configurations with string literal or predefined value.
+
 ## 1.0.1
 
 ### Patch Changes
