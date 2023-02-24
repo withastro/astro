@@ -11,7 +11,7 @@ import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error, warn, type LogOptions } from '../logger/core.js';
+import { error, type LogOptions } from '../logger/core.js';
 import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
@@ -227,7 +227,7 @@ export class App {
 			status,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
@@ -239,22 +239,6 @@ export class App {
 			}
 			return result.response;
 		} else {
-			if (result.hasOwnProperty('headers')) {
-				warn(
-					this.#logging,
-					'ssr',
-					'Setting headers is not supported when returning an object. Please return an instance of Response.'
-				);
-			}
-
-			if (result.encoding) {
-				warn(
-					this.#logging,
-					'ssr',
-					'`encoding` is ignored in SSR. To return a charset other than utf-8, please return an instance of Response.'
-				);
-			}
-
 			const body = result.body;
 			const headers = new Headers();
 			const mimeType = mime.getType(url.pathname);
