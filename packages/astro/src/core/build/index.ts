@@ -94,7 +94,7 @@ class AstroBuilder {
 			logging,
 		});
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
-
+		await runHookConfigDone({ settings: this.settings, logging });
 		const viteConfig = await createVite(
 			{
 				mode: this.mode,
@@ -105,10 +105,9 @@ class AstroBuilder {
 			},
 			{ settings: this.settings, logging, mode: 'build', command: 'build' }
 		);
-		await runHookConfigDone({ settings: this.settings, logging });
-
+		const viteServer = await createServer(viteConfig);
 		const { sync } = await import('../sync/index.js');
-		const syncRet = await sync(this.settings, { logging, fs });
+		const syncRet = await sync({ settings: this.settings, logging, fs, viteServer });
 		if (syncRet !== 0) {
 			return process.exit(syncRet);
 		}

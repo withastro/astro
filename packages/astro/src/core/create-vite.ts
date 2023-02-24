@@ -133,10 +133,6 @@ export async function createVite(
 			proxy: {
 				// add proxies here
 			},
-			watch: {
-				// Prevent watching during the build to speed it up
-				ignored: mode === 'build' ? ['**'] : undefined,
-			},
 		},
 		resolve: {
 			alias: [
@@ -164,6 +160,10 @@ export async function createVite(
 			external: [...(mode === 'dev' ? ['shiki'] : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
+
+	if (mode === 'build' && commonConfig?.server?.watch) {
+		commonConfig.server.watch.ignored = ['**'];
+	}
 
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.
