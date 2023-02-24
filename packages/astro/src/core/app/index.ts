@@ -5,14 +5,13 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
-import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error } from '../logger/core.js';
+import { error, warn, type LogOptions } from '../logger/core.js';
 import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
@@ -240,6 +239,22 @@ export class App {
 			}
 			return result.response;
 		} else {
+			if (result.hasOwnProperty('headers')) {
+				warn(
+					this.#logging,
+					'ssr',
+					'Setting headers is not supported when returning an object. Please return an instance of Response.'
+				);
+			}
+
+			if (result.encoding) {
+				warn(
+					this.#logging,
+					'ssr',
+					'`encoding` is ignored in SSR. To return a charset other than utf-8, please return an instance of Response.'
+				);
+			}
+
 			const body = result.body;
 			const headers = new Headers();
 			const mimeType = mime.getType(url.pathname);
