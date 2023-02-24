@@ -30,10 +30,11 @@ async function loadLocalImage(src: string | URL) {
 }
 
 function webToCachePolicyRequest({ url, method, headers: _headers }: Request): CachePolicy.Request {
-	const headers: CachePolicy.Headers = {};
-	for (const [key, value] of _headers) {
-		headers[key] = value;
-	}
+	let headers: CachePolicy.Headers = {};
+	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
+	try {
+		headers = Object.fromEntries(_headers.entries());
+	} catch {}
 	return {
 		method,
 		url,
@@ -42,10 +43,11 @@ function webToCachePolicyRequest({ url, method, headers: _headers }: Request): C
 }
 
 function webToCachePolicyResponse({ status, headers: _headers }: Response): CachePolicy.Response {
-	const headers: CachePolicy.Headers = {};
-	for (const [key, value] of _headers) {
-		headers[key] = value;
-	}
+	let headers: CachePolicy.Headers = {};
+	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
+	try {
+		headers = Object.fromEntries(_headers.entries());
+	} catch {}
 	return {
 		status,
 		headers,
