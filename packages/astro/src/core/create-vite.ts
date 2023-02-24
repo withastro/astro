@@ -31,6 +31,7 @@ interface CreateViteOptions {
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
 	fs?: typeof nodeFs;
+	allowUserPlugins?: boolean;
 }
 
 const ALWAYS_NOEXTERNAL = [
@@ -48,7 +49,7 @@ const ALWAYS_NOEXTERNAL = [
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode, fs = nodeFs }: CreateViteOptions
+	{ settings, logging, mode, fs = nodeFs, allowUserPlugins = true }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -170,7 +171,9 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	result = vite.mergeConfig(result, settings.config.vite || {});
+	if (allowUserPlugins) {
+		result = vite.mergeConfig(result, settings.config.vite || {});
+	}
 	result = vite.mergeConfig(result, commandConfig);
 	if (result.plugins) {
 		sortPlugins(result.plugins);

@@ -39,7 +39,8 @@ export async function sync(
 				optimizeDeps: { entries: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logging, mode: 'build', fs }
+			// Important to disallow user-provided Vite plugins that might be stateful!
+			{ settings, logging, mode: 'build', fs, allowUserPlugins: false }
 		)
 	);
 
