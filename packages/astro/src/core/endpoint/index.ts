@@ -118,7 +118,7 @@ export async function call(
 			warn(
 				logging,
 				'ssr',
-				'Setting headers is not supported when returning an object. Please return an instance of Response.'
+				'Setting headers is not supported when returning an object. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}
 
@@ -126,7 +126,7 @@ export async function call(
 			warn(
 				logging,
 				'ssr',
-				'`encoding` is ignored in SSR. To return a charset other than utf-8, please return an instance of Response.'
+				'`encoding` is ignored in SSR. To return a charset other than utf-8, please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
 		}
 	}
