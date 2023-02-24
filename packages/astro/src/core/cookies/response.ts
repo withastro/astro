@@ -15,12 +15,14 @@ function getFromResponse(response: Response): AstroCookies | undefined {
 	}
 }
 
-export function* getSetCookiesFromResponse(response: Response): Generator<string, void, unknown> {
+export function* getSetCookiesFromResponse(response: Response): Generator<string, string[]> {
 	const cookies = getFromResponse(response);
 	if (!cookies) {
-		return;
+		return [];
 	}
 	for (const headerValue of cookies.headers()) {
 		yield headerValue;
 	}
+
+	return [];
 }

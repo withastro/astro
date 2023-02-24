@@ -83,4 +83,15 @@ describe('renderToStaticMarkup', () => {
 		expect($(tagName).attr('attr1')).to.equal(attr1);
 		expect($(`${tagName} template`).text()).to.contain(`Hello ${prop1}`);
 	});
+
+	it('should render DSD attributes based on shadowRootOptions', async () => {
+		const tagName = 'lit-component';
+		customElements.define(tagName, class extends LitElement {
+			static shadowRootOptions = {...LitElement.shadowRootOptions, delegatesFocus: true};
+		});
+		const render = await renderToStaticMarkup(tagName);
+		expect(render).to.deep.equal({
+			html: `<${tagName}><template shadowroot=\"open\" shadowrootmode=\"open\" shadowrootdelegatesfocus><!--lit-part--><!--/lit-part--></template></${tagName}>`,
+		});
+	});
 });
