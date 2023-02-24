@@ -3,8 +3,8 @@
 declare module 'astro:assets' {
 	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
 	type AstroAssets = {
-		getImage: typeof import('./dist/image/index.js').getImage;
-		Image: typeof import('./components/index').Image;
+		getImage: typeof import('./dist/assets/index.js').getImage;
+		Image: typeof import('./components/Image.astro').default;
 	};
 
 	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
@@ -15,10 +15,10 @@ declare module 'astro:assets' {
 	>;
 
 	export type LocalImageProps = Simplify<
-		import('./dist/image/types.js').LocalImageProps<ImgAttributes>
+		import('./dist/assets/types.js').LocalImageProps<ImgAttributes>
 	>;
 	export type RemoteImageProps = Simplify<
-		import('./dist/image/types.js').RemoteImageProps<ImgAttributes>
+		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
 	export const { getImage, Image }: AstroAssets;
 }

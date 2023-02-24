@@ -28,7 +28,7 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 				if (id === resolvedVirtualModuleId) {
 					return `
 					export { getImage, getConfiguredService } from "astro/assets";
-					export { Image } from "astro/components";
+					export { default as Image } from "astro/components/Image.astro";
 				`;
 				}
 			},
