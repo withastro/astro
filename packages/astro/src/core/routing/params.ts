@@ -11,7 +11,8 @@ export function getParams(array: string[]) {
 		const params: Params = {};
 		array.forEach((key, i) => {
 			if (key.startsWith('...')) {
-				params[key.slice(3)] = match[i + 1] ? decodeURIComponent(match[i + 1]) : undefined;
+				// default to 'index' if the param is empty in the dev environment 
+				params[key.slice(3)] = match[i + 1] ? decodeURIComponent(match[i + 1]) : 'index';
 			} else {
 				params[key] = decodeURIComponent(match[i + 1]);
 			}
