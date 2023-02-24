@@ -1,4 +1,5 @@
 import { registerSW } from 'virtual:pwa-register';
+import { pwaInfo } from 'virtual:pwa-info';
 
 const updateSW = registerSW({
 	onNeedRefresh() {},
@@ -8,3 +9,6 @@ const updateSW = registerSW({
 });
 
 updateSW();
+
+console.log(pwaInfo)
+

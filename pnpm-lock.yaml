@@ -357,12 +357,14 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
+      '@vite-pwa/astro': ^0.0.3
       astro: ^2.0.15
-      vite-plugin-pwa: 0.11.11
-      workbox-window: ^6.5.3
+      vite-plugin-pwa: ^0.14.4
+      workbox-window: ^6.5.4
     dependencies:
+      '@vite-pwa/astro': 0.0.3_bzox4xfzuixmygwuhpuqzjnrzi
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.11.11_workbox-window@6.5.4
+      vite-plugin-pwa: 0.14.4_workbox-window@6.5.4
       workbox-window: 6.5.4
 
   examples/with-vitest:
@@ -3886,7 +3888,7 @@ packages:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-vimeo': 0.1.2_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.2.2_astro@packages+astro
-      astro: link:packages/astro
+      astro: link:packages\astro
       unist-util-select: 4.0.3
     dev: false
 
@@ -3896,7 +3898,7 @@ packages:
       astro: '*'
     dependencies:
       '@astro-community/astro-embed-utils': 0.0.3
-      astro: link:packages/astro
+      astro: link:packages\astro
     dev: false
 
   /@astro-community/astro-embed-utils/0.0.3:
@@ -3908,7 +3910,7 @@ packages:
     peerDependencies:
       astro: '*'
     dependencies:
-      astro: link:packages/astro
+      astro: link:packages\astro
       lite-vimeo-embed: 0.1.0
     dev: false
 
@@ -3917,7 +3919,7 @@ packages:
     peerDependencies:
       astro: '*'
     dependencies:
-      astro: link:packages/astro
+      astro: link:packages\astro
       lite-youtube-embed: 0.2.0
     dev: false
 
@@ -6963,6 +6965,20 @@ packages:
       rollup: 2.79.1
     dev: false
 
+  /@rollup/plugin-replace/5.0.2_rollup@3.14.0:
+    resolution: {integrity: sha512-M9YXNekv/C/iHHK+cvORzfRYfPbq0RDD8r0G+bMiTXjNGKulPnCT9O3Ss46WfhI6ZOCgApOP7xAdmCQJ+U2LAA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2_rollup@3.14.0
+      magic-string: 0.27.0
+      rollup: 3.14.0
+    dev: false
+
   /@rollup/plugin-typescript/8.5.0_zg3dbtkqnuqypg3tuw3rnargrq:
     resolution: {integrity: sha512-wMv1/scv0m/rXx21wD2IsBbJFba8wGF3ErJIr6IKRfRj49S85Lszbxb4DCo8iILpluTjk2GAAu9CoZt4G3ppgQ==}
     engines: {node: '>=8.0.0'}
@@ -7017,6 +7033,21 @@ packages:
       '@types/estree': 1.0.0
       estree-walker: 2.0.2
       picomatch: 2.3.1
+    dev: false
+
+  /@rollup/pluginutils/5.0.2_rollup@3.14.0:
+    resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@types/estree': 1.0.0
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+      rollup: 3.14.0
     dev: false
 
   /@solidjs/router/0.5.1_solid-js@1.6.10:
@@ -7710,6 +7741,16 @@ packages:
       - supports-color
     dev: false
 
+  /@vite-pwa/astro/0.0.3_bzox4xfzuixmygwuhpuqzjnrzi:
+    resolution: {integrity: sha512-erBJ4XQbW+zF58JUe6qG3q11aoE4VKbJrrGAikVIhwlQVpOiHVI69Gy+SX+QVlISDRO9Rn5pS9tVobxjfRYMRg==}
+    peerDependencies:
+      astro: '*'
+      vite-plugin-pwa: ^0.14.0
+    dependencies:
+      astro: link:packages\astro
+      vite-plugin-pwa: 0.14.4_workbox-window@6.5.4
+    dev: false
+
   /@vitejs/plugin-vue-jsx/3.0.0_vite@4.1.2+vue@3.2.47:
     resolution: {integrity: sha512-vurkuzgac5SYuxd2HUZqAFAWGTF10diKBwJNbCvnWijNZfXd+7jMtqjPFbGt7idOJUn584fP1Ar9j/GN2jQ3Ew==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -8120,7 +8161,7 @@ packages:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-vimeo': 0.1.2_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.2.2_astro@packages+astro
-      astro: link:packages/astro
+      astro: link:packages\astro
     dev: false
 
   /astro-remote/0.2.3:
@@ -13216,7 +13257,6 @@ packages:
   /pretty-bytes/6.1.0:
     resolution: {integrity: sha512-Rk753HI8f4uivXi4ZCIYdhmG1V+WKzvRMg/X+M42a6t7D07RcmopXJMDNk6N++7Bl75URRGsb40ruvg7Hcp2wQ==}
     engines: {node: ^14.13.1 || >=16.0.0}
-    dev: true
 
   /pretty-format/3.8.0:
     resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
@@ -15146,19 +15186,20 @@ packages:
       - rollup
     dev: false
 
-  /vite-plugin-pwa/0.11.11_workbox-window@6.5.4:
-    resolution: {integrity: sha512-/nSLS7VfGN5UrL4a1ALGEQAyga/H0hYZjEkwPehiEFW1PM1DTi1A8GkPCsmevKwR6vt10P+5wS1wrvSgwQemzw==}
+  /vite-plugin-pwa/0.14.4_workbox-window@6.5.4:
+    resolution: {integrity: sha512-M7Ct0so8OlouMkTWgXnl8W1xU95glITSKIe7qswZf1tniAstO2idElGCnsrTJ5NPNSx1XqfTCOUj8j94S6FD7Q==}
     peerDependencies:
-      vite: ^2.0.0
-      workbox-window: ^6.4.0
+      vite: ^3.1.0 || ^4.0.0
+      workbox-window: ^6.5.4
     peerDependenciesMeta:
       vite:
         optional: true
     dependencies:
+      '@rollup/plugin-replace': 5.0.2_rollup@3.14.0
       debug: 4.3.4
       fast-glob: 3.2.12
-      pretty-bytes: 5.6.0
-      rollup: 2.79.1
+      pretty-bytes: 6.1.0
+      rollup: 3.14.0
       workbox-build: 6.5.4
       workbox-window: 6.5.4
     transitivePeerDependencies:

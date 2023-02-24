@@ -1,0 +1,39 @@
+---
+import { pwaInfo } from 'virtual:pwa-info';
+
+console.log(pwaInfo);
+
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props as Props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="mask-icon" href="/favicon.svg" color="#FFFFFF">
+    <meta name="theme-color" content="#ffffff">
+    <title>{title}</title>
+    <meta name="description" content={title}>
+    <style>
+    main {
+        text-align: center;
+    }
+    </style>
+    { pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} /> }
+  </head>
+  <body>
+    <main>
+        <article>
+            <slot />
+        </article>
+    </main>
+    <footer>
+    <pre>{JSON.stringify(pwaInfo ?? {}, null, 2)}</pre>
+		</footer>		
+  </body>
+</html>
