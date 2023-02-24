@@ -25,12 +25,12 @@ jobs:
           permission: "admin"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Extract the snapshot name from comment body
         id: getSnapshotName
         uses: actions/github-script@v6
         with:
-          script:  |
+          script: |
             const splitComment = context.payload.comment.body.split(' ');
             splitComment.length !== 2 && (github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -46,20 +46,20 @@ jobs:
         uses: eficode/resolve-pr-refs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - uses: actions/checkout@v3
         with:
           ref: ${{ steps.refs.outputs.head_ref }}
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
+          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
