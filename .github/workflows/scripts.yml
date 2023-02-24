@@ -3,9 +3,9 @@ name: Scripts
 on:
   pull_request:
     branches:
-      - 'main'
+      - "main"
     paths:
-      - 'packages/astro/src/runtime/client/**/*'
+      - "packages/astro/src/runtime/client/**/*"
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
@@ -20,7 +20,7 @@ jobs:
   bundle:
     name: Bundle Size
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
@@ -31,17 +31,17 @@ jobs:
           path: main
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Check Bundle Size
         uses: actions/github-script@v6
         with:
