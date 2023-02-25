@@ -41,13 +41,13 @@ describe('Static build: vite plugins included when required', () => {
 										}
 									}, {
 										name: 'prepare-apply-fn-plugin',
-										apply: (_, { command }) => !command || command === 'build',
+										apply: (_, { command }) => command === 'build',
 										configResolved: () => {
 											pluginsCalled.set('prepare-apply-fn-plugin', true);
 										}
 									}, {
 										name: 'prepare-dont-apply-fn-plugin',
-										apply: (_, { command }) => command && command === 'serve',
+										apply: (_, { command }) => command === 'serve',
 										configResolved: () => {
 											pluginsCalled.set('prepare-dont-apply-fn-plugin', true);
 										}
