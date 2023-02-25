@@ -170,7 +170,28 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	result = vite.mergeConfig(result, settings.config.vite || {});
+	if (mode !== 'preview') {
+		let plugins = settings.config.vite?.plugins;
+		if (plugins) {
+			const { plugins: _, ...rest } = settings.config.vite
+			const apply = mode === 'build' ? 'serve' : 'build'
+			// @ts-ignore we know what are doing
+			plugins = plugins.flat(Infinity).filter((p) => {
+				if (p?.apply === apply)
+					return false;
+
+				// TODO: check this
+				// if (typeof p.apply === 'function')
+				// 	return p.apply()
+
+				return true;
+			});
+
+			result = vite.mergeConfig(result, { ...rest, plugins });
+		} else {
+			result = vite.mergeConfig(result, settings.config.vite || {});
+		}
+	}
 	result = vite.mergeConfig(result, commandConfig);
 	if (result.plugins) {
 		sortPlugins(result.plugins);
