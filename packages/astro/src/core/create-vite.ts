@@ -31,7 +31,7 @@ interface CreateViteOptions {
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
 	// will be undefined when using `sync`
-	command?: 'dev' | 'build' | 'preview';
+	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
 }
 
@@ -173,11 +173,11 @@ export async function createVite(
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
 	// command will be undefined when running sync
-	if (command && command !== 'preview') {
+	if (command) {
 		let plugins = settings.config.vite?.plugins;
 		if (plugins) {
 			const { plugins: _, ...rest } = settings.config.vite
-			const applyToFilter = mode === 'build' ? 'serve' : 'build'
+			const applyToFilter = command === 'build' ? 'serve' : 'build'
 			const applyArgs = [{...settings.config.vite, mode}, { command, mode }]
 			// @ts-ignore we know what are doing
 			plugins = plugins.flat(Infinity).filter((p) => {
