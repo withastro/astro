@@ -30,6 +30,8 @@ interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
+	// will be undefined when using `sync`
+	command?: 'dev' | 'build' | 'preview';
 	fs?: typeof nodeFs;
 }
 
@@ -48,7 +50,7 @@ const ALWAYS_NOEXTERNAL = [
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode, fs = nodeFs }: CreateViteOptions
+	{ settings, logging, mode, command, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -170,19 +172,22 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	if (mode !== 'preview') {
+	// command will be undefined when running sync
+	if (command && command !== 'preview') {
 		let plugins = settings.config.vite?.plugins;
 		if (plugins) {
 			const { plugins: _, ...rest } = settings.config.vite
-			const apply = mode === 'build' ? 'serve' : 'build'
+			const applyToFilter = mode === 'build' ? 'serve' : 'build'
+			const applyArgs = [{...settings.config.vite, mode}, { command, mode }]
 			// @ts-ignore we know what are doing
 			plugins = plugins.flat(Infinity).filter((p) => {
-				if (p?.apply === apply)
+				if (!p || p?.apply === applyToFilter) {
 					return false;
+				}
 
-				// TODO: check this
-				// if (typeof p.apply === 'function')
-				// 	return p.apply()
+				if (typeof p.apply === 'function') {
+					return p.apply(applyArgs[0], applyArgs[1])
+				}
 
 				return true;
 			});
