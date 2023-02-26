@@ -7,9 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
 
-export async function template(
-	ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit'>
-) {
+export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit'>) {
 	if (!ctx.template) {
 		const { template: tmpl } = await ctx.prompt({
 			name: 'template',
