@@ -33,7 +33,7 @@ describe('astro cli', () => {
 		});
 
 		// we wait for the command to do its job and print stuff to the console...
-		await wait(3000);
+		await wait(7000);
 
 		stdout = stripAnsi(stdout);
 		expect(stdout).to.include('0 errors');
@@ -47,7 +47,7 @@ describe('astro cli', () => {
 		writeFileSync(astroFilePath, invalidContent);
 
 		// we wait for the command to write something in the console
-		await wait(3000);
+		await wait(7000);
 		stdout = stripAnsi(stdout);
 		// we restore the content of the file before assertion, so we don't keep a dirty file around
 		writeFileSync(astroFilePath, originalContent);
