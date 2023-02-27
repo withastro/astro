@@ -1,2 +1,2 @@
 .astro/
-**/src/content/generated/
+fixtures/**/src/content/generated/
