@@ -9,6 +9,7 @@ import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
+	extractFrontmatterImages,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
@@ -91,11 +92,18 @@ export function astroContentImportPlugin({
 					? await getEntryData(partialEntry, collectionConfig)
 					: unparsedData;
 
+				const images = extractFrontmatterImages(data).map(
+					(image) => `'${image}': await import('${image}'),`
+				);
+
 				const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(entryInfo.id)};
 export const collection = ${JSON.stringify(entryInfo.collection)};
 export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(body)};
+const frontmatterImages = {
+	${images.join('\n')}
+}
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
 	filePath: ${JSON.stringify(fileId)},

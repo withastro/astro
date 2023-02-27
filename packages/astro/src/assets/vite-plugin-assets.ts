@@ -1,5 +1,7 @@
+import MagicString from 'magic-string';
 import mime from 'mime';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
@@ -12,6 +14,8 @@ import { getOrigQueryParams } from './utils/queryParams.js';
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
+	let resolvedConfig: vite.ResolvedConfig;
+
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
 		{
@@ -86,11 +90,39 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 					return next();
 				});
 			},
+			// In build, rewrite paths to ESM imported images in code to their final location
+			async renderChunk(code) {
+				const assetUrlRE = /__ASTRO_ASSET_IMAGE__([a-z\d]{8})__(?:_(.*?)__)?/g;
+
+				let match;
+				let s;
+				while ((match = assetUrlRE.exec(code))) {
+					s = s || (s = new MagicString(code));
+					const [full, hash, postfix = ''] = match;
+
+					const file = this.getFileName(hash);
+					const outputFilepath = resolvedConfig.base + file + postfix;
+
+					s.overwrite(match.index, match.index + full.length, outputFilepath);
+				}
+
+				if (s) {
+					return {
+						code: s.toString(),
+						map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: true }) : null,
+					};
+				} else {
+					return null;
+				}
+			},
 		},
 		// Return a more advanced shape for images imported in ESM
 		{
 			name: 'astro:assets:esm',
 			enforce: 'pre',
+			configResolved(viteConfig) {
+				resolvedConfig = viteConfig;
+			},
 			async load(id) {
 				if (/\.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id)) {
 					const url = pathToFileURL(id);
@@ -101,6 +133,16 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 					}
 
 					if (!this.meta.watchMode) {
+						const pathname = decodeURI(url.pathname);
+						const filename = path.basename(pathname, path.extname(pathname) + `.${meta.format}`);
+
+						const handle = this.emitFile({
+							name: filename,
+							source: await fs.readFile(url),
+							type: 'asset',
+						});
+
+						meta.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 					} else {
 						// Pass the original file information through query params so we don't have to load the file twice
 						url.searchParams.append('origWidth', meta.width.toString());
