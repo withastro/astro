@@ -1,25 +1,27 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { pathToFileURL } from 'url';
 import mri from 'mri';
 import { makeProject } from './make-project.js';
 
-/**
- * astro-benchmark [command] [options]
- *
- * Options:
- * --project <project-name>
- * --output <output-file>
- * --compare <output-file-a>,<output-file-b>
- *
- * Examples:
- * ```bash
- * # Run all benchmarks
- * astro-benchmark
- * ```
- */
-
 const args = mri(process.argv.slice(2));
+
+if (args.help || args.h) {
+	console.log(`\
+astro-benchmark <command> [options]
+
+Command
+  [empty]         Run all benchmarks
+  memory          Run build memory and speed test
+  server-stress   Run server stress test
+
+Options
+  --project <project-name>       Project to use for benchmark, see make-project.js
+  --output  <output-file>        Output file to write results to
+  --compare <file-a>,<file-b>    Compare two output files
+`);
+	process.exit(0);
+}
 
 const commandName = args._[0];
 const benchmarks = {

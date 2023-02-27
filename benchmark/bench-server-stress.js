@@ -89,6 +89,6 @@ async function benchmarkCannon() {
 				}
 			}
 		);
-		autocannon.track(instance);
+		autocannon.track(instance, { renderResultsTable: false });
 	});
 }

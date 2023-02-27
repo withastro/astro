@@ -7,6 +7,9 @@ export async function makeProject(name) {
 	console.log('Making project:', name);
 	const projectDir = new URL(`./projects/${name}/`, import.meta.url);
 
+	/**
+	 * NOTE: Here are the list of projects supported to generate programmatically
+	 */
 	switch (name) {
 		case 'memory-default':
 			await makeProjectMemoryDefault(projectDir);
