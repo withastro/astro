@@ -128,10 +128,7 @@ export async function setResponse(
 		}
 	}
 
-	// @ts-expect-error
-	headers['set-cookie'] = split;
-
-	res.writeHead(response.status, headers);
+	res.writeHead(response.status, { ...headers, 'set-cookie': cookies });
 
 	if (!response.body) {
 		res.end();
