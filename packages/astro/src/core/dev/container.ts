@@ -92,7 +92,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 					: 'undefined',
 			},
 		},
-		{ settings, logging, mode: 'dev', fs }
+		{ settings, logging, mode: 'dev', command: 'dev', fs }
 	);
 	await runHookConfigDone({ settings, logging });
 	const viteServer = await vite.createServer(viteConfig);
