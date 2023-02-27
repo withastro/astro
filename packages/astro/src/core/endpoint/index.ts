@@ -113,7 +113,7 @@ export async function call(
 		};
 	}
 
-	if (env.ssr) {
+	if (env.ssr && !mod.prerender) {
 		if (response.hasOwnProperty('headers')) {
 			warn(
 				logging,
