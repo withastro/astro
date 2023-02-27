@@ -44,7 +44,7 @@ jobs:
         id: bench-command
         run: |
           benchcmd=$(echo "${{ github.event.comment.body }}" | grep '!bench' | awk -F ' ' '{print $2}')
-          echo "bench=$benchcmd >> $GITHUB_OUTPUT"
+          echo "bench=$benchcmd" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run benchmark
@@ -52,8 +52,7 @@ jobs:
         run: |
           result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }} --title "**PR**")
           processed=$(node ./benchmark/ci-helper.js "$result")
-          echo "BENCH_RESULT=$processed >> $GITHUB_OUTPUT"
-          echo "$processed"
+          echo "BENCH_RESULT=$processed" >> $GITHUB_OUTPUT
         shell: bash
 
       # main benchmark
@@ -74,8 +73,7 @@ jobs:
         run: |
           result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }} --title "**MAIN**")
           processed=$(node ./benchmark/ci-helper.js "$result")
-          echo "BENCH_RESULT=$processed >> $GITHUB_OUTPUT"
-          echo "$processed"
+          echo "BENCH_RESULT=$processed" >> $GITHUB_OUTPUT
         shell: bash
 
   output-benchmark:
