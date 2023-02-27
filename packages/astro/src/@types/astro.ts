@@ -1010,7 +1010,6 @@ export interface AstroSettings {
 	watchFiles: string[];
 	forceDisableTelemetry: boolean;
 	timer: AstroTimer;
-	performanceRun?: boolean;
 }
 
 export type AsyncRendererComponentFn<U> = (

@@ -8,19 +8,16 @@
     "write:md": "node scripts/write-posts.mjs fixtures/md/src/content/generated 1000 md",
     "write:mdx": "node scripts/write-posts.mjs fixtures/mdx/src/content/generated 1000 mdx",
     "write:mdoc": "node scripts/write-posts.mjs fixtures/mdoc/src/content/generated 1000 mdoc",
-    "build": "run-s build:*",
-    "build:perf": "run-s build:perf:*",
+    "build": "cross-env ASTRO_CI_PERFORMANCE_RUN=true run-s build:*",
     "build:md": "cd fixtures/md && run-s build",
     "build:mdx": "cd fixtures/mdx && run-s build",
-    "build:mdoc": "cd fixtures/mdoc && run-s build",
-    "build:perf:md": "cd fixtures/md && run-s build:perf",
-    "build:perf:mdx": "cd fixtures/mdx && run-s build:perf",
-    "build:perf:mdoc": "cd fixtures/mdoc && run-s build:perf"
+    "build:mdoc": "cd fixtures/mdoc && run-s build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "npm-run-all": "^4.1.5"
   }
 }

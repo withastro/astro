@@ -72,7 +72,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					contentDir: getContentPaths(settings.config).contentDir,
-					performanceRun: settings.performanceRun,
 					frontmatter: raw.data,
 				});
 
