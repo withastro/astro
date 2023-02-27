@@ -57,7 +57,7 @@ const FILES_TO_UPDATE = {
 					JSON.stringify(
 						Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
 						null,
-						COUNT_SPACES
+						indent
 					),
 					'utf-8'
 				)
