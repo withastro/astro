@@ -7,9 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { error, info, spinner, title } from '../messages.js';
 
-export async function template(
-	ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit' | 'exit'>
-) {
+export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRun' | 'exit'>) {
 	if (!ctx.template) {
 		const { template: tmpl } = await ctx.prompt({
 			name: 'template',
@@ -50,19 +48,19 @@ export async function template(
 const FILES_TO_REMOVE = ['sandbox.config.json', 'CHANGELOG.md'];
 const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) =>
-		fs.promises
-			.readFile(file, 'utf-8')
-			.then((value) =>
-				fs.promises.writeFile(
-					file,
-					JSON.stringify(
-						Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
-						null,
-						'\t'
-					),
-					'utf-8'
-				)
-			),
+		fs.promises.readFile(file, 'utf-8').then((value) => {
+			// Match first indent in the file or fallback to `\t`
+			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
+			fs.promises.writeFile(
+				file,
+				JSON.stringify(
+					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
+					null,
+					indent
+				),
+				'utf-8'
+			);
+		}),
 };
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {

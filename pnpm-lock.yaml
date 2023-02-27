@@ -63,7 +63,7 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       astro: link:../../packages/astro
 
@@ -72,7 +72,7 @@ importers:
       '@astrojs/mdx': ^0.17.2
       '@astrojs/rss': ^2.1.1
       '@astrojs/sitemap': ^1.1.0
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/rss': link:../../packages/astro-rss
@@ -81,14 +81,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     devDependencies:
       astro: link:../../packages/astro
 
   examples/deno:
     specifiers:
       '@astrojs/deno': ^4.0.2
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       astro: link:../../packages/astro
     devDependencies:
@@ -104,7 +104,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
-      astro: ^2.0.15
+      astro: ^2.0.16
       html-escaper: ^3.0.3
       preact: ^10.7.3
       react: ^18.1.0
@@ -130,7 +130,7 @@ importers:
       '@astrojs/alpinejs': ^0.1.3
       '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       '@astrojs/alpinejs': link:../../packages/integrations/alpinejs
       '@types/alpinejs': 3.7.1
@@ -139,9 +139,9 @@ importers:
 
   examples/framework-lit:
     specifiers:
-      '@astrojs/lit': ^1.2.0
+      '@astrojs/lit': ^1.2.1
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^2.0.15
+      astro: ^2.0.16
       lit: ^2.2.5
     dependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
@@ -156,7 +156,7 @@ importers:
       '@astrojs/solid-js': ^2.0.2
       '@astrojs/svelte': ^2.0.2
       '@astrojs/vue': ^2.0.1
-      astro: ^2.0.15
+      astro: ^2.0.16
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -181,7 +181,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^2.0.3
       '@preact/signals': ^1.1.0
-      astro: ^2.0.15
+      astro: ^2.0.16
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -194,7 +194,7 @@ importers:
       '@astrojs/react': ^2.0.2
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      astro: ^2.0.15
+      astro: ^2.0.16
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -208,7 +208,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/solid-js': ^2.0.2
-      astro: ^2.0.15
+      astro: ^2.0.16
       solid-js: ^1.4.3
     dependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
@@ -218,7 +218,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/svelte': ^2.0.2
-      astro: ^2.0.15
+      astro: ^2.0.16
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
@@ -228,7 +228,7 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/vue': ^2.0.1
-      astro: ^2.0.15
+      astro: ^2.0.16
       vue: ^3.2.37
     dependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
@@ -238,32 +238,32 @@ importers:
   examples/hackernews:
     specifiers:
       '@astrojs/node': ^5.0.4
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       '@astrojs/node': link:../../packages/integrations/node
       astro: link:../../packages/astro
 
   examples/integration:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     devDependencies:
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       astro: link:../../packages/astro
 
@@ -271,7 +271,7 @@ importers:
     specifiers:
       '@astrojs/node': ^5.0.4
       '@astrojs/svelte': ^2.0.2
-      astro: ^2.0.15
+      astro: ^2.0.16
       concurrently: ^7.2.1
       svelte: ^3.48.0
       unocss: ^0.15.6
@@ -288,7 +288,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^2.0.1
-      astro: ^2.0.15
+      astro: ^2.0.16
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -305,7 +305,7 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
     dependencies:
       astro: link:../../packages/astro
 
@@ -313,7 +313,7 @@ importers:
     specifiers:
       '@astrojs/mdx': ^0.17.2
       '@astrojs/preact': ^2.0.3
-      astro: ^2.0.15
+      astro: ^2.0.16
       preact: ^10.6.5
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
@@ -325,7 +325,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^2.0.3
       '@nanostores/preact': ^0.1.3
-      astro: ^2.0.15
+      astro: ^2.0.16
       nanostores: ^0.5.12
       preact: ^10.7.3
     dependencies:
@@ -340,7 +340,7 @@ importers:
       '@astrojs/mdx': ^0.17.2
       '@astrojs/tailwind': ^3.0.1
       '@types/canvas-confetti': ^1.4.3
-      astro: ^2.0.15
+      astro: ^2.0.16
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
@@ -357,19 +357,17 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      '@vite-pwa/astro': ^0.0.3
-      astro: ^2.0.15
-      vite-plugin-pwa: ^0.14.4
-      workbox-window: ^6.5.4
+      astro: ^2.0.16
+      vite-plugin-pwa: 0.11.11
+      workbox-window: ^6.5.3
     dependencies:
-      '@vite-pwa/astro': 0.0.3_bzox4xfzuixmygwuhpuqzjnrzi
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.14.4_workbox-window@6.5.4
+      vite-plugin-pwa: 0.11.11_workbox-window@6.5.4
       workbox-window: 6.5.4
 
   examples/with-vitest:
     specifiers:
-      astro: ^2.0.15
+      astro: ^2.0.16
       vitest: ^0.20.3
     dependencies:
       astro: link:../../packages/astro
@@ -380,8 +378,8 @@ importers:
       '@astrojs/compiler': ^1.1.0
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^2.0.1
-      '@astrojs/telemetry': ^2.0.0
-      '@astrojs/webapi': ^2.0.1
+      '@astrojs/telemetry': ^2.0.1
+      '@astrojs/webapi': ^2.0.2
       '@babel/core': ^7.18.2
       '@babel/generator': ^7.18.2
       '@babel/parser': ^7.18.4
@@ -3051,7 +3049,7 @@ importers:
 
   packages/integrations/netlify:
     specifiers:
-      '@astrojs/webapi': ^2.0.1
+      '@astrojs/webapi': ^2.0.2
       '@netlify/edge-handler-types': ^0.34.1
       '@netlify/functions': ^1.0.0
       '@types/node': ^14.18.20
@@ -3116,7 +3114,7 @@ importers:
 
   packages/integrations/node:
     specifiers:
-      '@astrojs/webapi': ^2.0.1
+      '@astrojs/webapi': ^2.0.2
       '@types/send': ^0.17.1
       '@types/server-destroy': ^1.0.1
       astro: workspace:*
@@ -3376,7 +3374,7 @@ importers:
 
   packages/integrations/vercel:
     specifiers:
-      '@astrojs/webapi': ^2.0.1
+      '@astrojs/webapi': ^2.0.2
       '@types/set-cookie-parser': ^2.4.2
       '@vercel/analytics': ^0.1.8
       '@vercel/nft': ^0.22.1
@@ -3888,7 +3886,7 @@ packages:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-vimeo': 0.1.2_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.2.2_astro@packages+astro
-      astro: link:packages\astro
+      astro: link:packages/astro
       unist-util-select: 4.0.3
     dev: false
 
@@ -3898,7 +3896,7 @@ packages:
       astro: '*'
     dependencies:
       '@astro-community/astro-embed-utils': 0.0.3
-      astro: link:packages\astro
+      astro: link:packages/astro
     dev: false
 
   /@astro-community/astro-embed-utils/0.0.3:
@@ -3910,7 +3908,7 @@ packages:
     peerDependencies:
       astro: '*'
     dependencies:
-      astro: link:packages\astro
+      astro: link:packages/astro
       lite-vimeo-embed: 0.1.0
     dev: false
 
@@ -3919,7 +3917,7 @@ packages:
     peerDependencies:
       astro: '*'
     dependencies:
-      astro: link:packages\astro
+      astro: link:packages/astro
       lite-youtube-embed: 0.2.0
     dev: false
 
@@ -6965,20 +6963,6 @@ packages:
       rollup: 2.79.1
     dev: false
 
-  /@rollup/plugin-replace/5.0.2_rollup@3.14.0:
-    resolution: {integrity: sha512-M9YXNekv/C/iHHK+cvORzfRYfPbq0RDD8r0G+bMiTXjNGKulPnCT9O3Ss46WfhI6ZOCgApOP7xAdmCQJ+U2LAA==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.14.0
-      magic-string: 0.27.0
-      rollup: 3.14.0
-    dev: false
-
   /@rollup/plugin-typescript/8.5.0_zg3dbtkqnuqypg3tuw3rnargrq:
     resolution: {integrity: sha512-wMv1/scv0m/rXx21wD2IsBbJFba8wGF3ErJIr6IKRfRj49S85Lszbxb4DCo8iILpluTjk2GAAu9CoZt4G3ppgQ==}
     engines: {node: '>=8.0.0'}
@@ -7033,21 +7017,6 @@ packages:
       '@types/estree': 1.0.0
       estree-walker: 2.0.2
       picomatch: 2.3.1
-    dev: false
-
-  /@rollup/pluginutils/5.0.2_rollup@3.14.0:
-    resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@types/estree': 1.0.0
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
-      rollup: 3.14.0
     dev: false
 
   /@solidjs/router/0.5.1_solid-js@1.6.10:
@@ -7741,16 +7710,6 @@ packages:
       - supports-color
     dev: false
 
-  /@vite-pwa/astro/0.0.3_bzox4xfzuixmygwuhpuqzjnrzi:
-    resolution: {integrity: sha512-erBJ4XQbW+zF58JUe6qG3q11aoE4VKbJrrGAikVIhwlQVpOiHVI69Gy+SX+QVlISDRO9Rn5pS9tVobxjfRYMRg==}
-    peerDependencies:
-      astro: '*'
-      vite-plugin-pwa: ^0.14.0
-    dependencies:
-      astro: link:packages\astro
-      vite-plugin-pwa: 0.14.4_workbox-window@6.5.4
-    dev: false
-
   /@vitejs/plugin-vue-jsx/3.0.0_vite@4.1.2+vue@3.2.47:
     resolution: {integrity: sha512-vurkuzgac5SYuxd2HUZqAFAWGTF10diKBwJNbCvnWijNZfXd+7jMtqjPFbGt7idOJUn584fP1Ar9j/GN2jQ3Ew==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -8161,7 +8120,7 @@ packages:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-vimeo': 0.1.2_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.2.2_astro@packages+astro
-      astro: link:packages\astro
+      astro: link:packages/astro
     dev: false
 
   /astro-remote/0.2.3:
@@ -13257,6 +13216,7 @@ packages:
   /pretty-bytes/6.1.0:
     resolution: {integrity: sha512-Rk753HI8f4uivXi4ZCIYdhmG1V+WKzvRMg/X+M42a6t7D07RcmopXJMDNk6N++7Bl75URRGsb40ruvg7Hcp2wQ==}
     engines: {node: ^14.13.1 || >=16.0.0}
+    dev: true
 
   /pretty-format/3.8.0:
     resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
@@ -15186,20 +15146,19 @@ packages:
       - rollup
     dev: false
 
-  /vite-plugin-pwa/0.14.4_workbox-window@6.5.4:
-    resolution: {integrity: sha512-M7Ct0so8OlouMkTWgXnl8W1xU95glITSKIe7qswZf1tniAstO2idElGCnsrTJ5NPNSx1XqfTCOUj8j94S6FD7Q==}
+  /vite-plugin-pwa/0.11.11_workbox-window@6.5.4:
+    resolution: {integrity: sha512-/nSLS7VfGN5UrL4a1ALGEQAyga/H0hYZjEkwPehiEFW1PM1DTi1A8GkPCsmevKwR6vt10P+5wS1wrvSgwQemzw==}
     peerDependencies:
-      vite: ^3.1.0 || ^4.0.0
-      workbox-window: ^6.5.4
+      vite: ^2.0.0
+      workbox-window: ^6.4.0
     peerDependenciesMeta:
       vite:
         optional: true
     dependencies:
-      '@rollup/plugin-replace': 5.0.2_rollup@3.14.0
       debug: 4.3.4
       fast-glob: 3.2.12
-      pretty-bytes: 6.1.0
-      rollup: 3.14.0
+      pretty-bytes: 5.6.0
+      rollup: 2.79.1
       workbox-build: 6.5.4
       workbox-window: 6.5.4
     transitivePeerDependencies:

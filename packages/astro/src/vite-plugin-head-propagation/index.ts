@@ -92,11 +92,11 @@ export function astroHeadPropagationBuildPlugin(
 										for (const [info] of walkParentInfos(id, this)) {
 											appendPropagation(info);
 										}
-									}
 
-									const info = this.getModuleInfo(id);
-									if (info) {
-										appendPropagation(info);
+										const info = this.getModuleInfo(id);
+										if (info) {
+											appendPropagation(info);
+										}
 									}
 								}
 							}
