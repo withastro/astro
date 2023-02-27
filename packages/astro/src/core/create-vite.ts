@@ -30,6 +30,8 @@ interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
+	// will be undefined when using `sync`
+	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
 }
 
@@ -48,7 +50,7 @@ const ALWAYS_NOEXTERNAL = [
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode, fs = nodeFs }: CreateViteOptions
+	{ settings, logging, mode, command, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -170,7 +172,38 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	result = vite.mergeConfig(result, settings.config.vite || {});
+	// PR #6238 Calls user integration `astro:config:setup` hooks when running `astro sync`.
+  // Without proper filtering, user integrations may run twice unexpectedly:
+	// - with `command` set to `build/dev` (src/core/build/index.ts L72)
+	// - and again in the `sync` module to generate `Content Collections` (src/core/sync/index.ts L36)
+	// We need to check if the command is `build` or `dev` before merging the user-provided vite config.
+	// We also need to filter out the plugins that are not meant to be applied to the current command:
+	// - If the command is `build`, we filter out the plugins that are meant to be applied for `serve`.
+	// - If the command is `dev`, we filter out the plugins that are meant to be applied for `build`.
+	if (command) {
+		let plugins = settings.config.vite?.plugins;
+		if (plugins) {
+			const { plugins: _, ...rest } = settings.config.vite
+			const applyToFilter = command === 'build' ? 'serve' : 'build'
+			const applyArgs = [{...settings.config.vite, mode}, { command, mode }]
+			// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite. 
+			plugins = plugins.flat(Infinity).filter((p) => {
+				if (!p || p?.apply === applyToFilter) {
+					return false;
+				}
+
+				if (typeof p.apply === 'function') {
+					return p.apply(applyArgs[0], applyArgs[1])
+				}
+
+				return true;
+			});
+
+			result = vite.mergeConfig(result, { ...rest, plugins });
+		} else {
+			result = vite.mergeConfig(result, settings.config.vite || {});
+		}
+	}
 	result = vite.mergeConfig(result, commandConfig);
 	if (result.plugins) {
 		sortPlugins(result.plugins);
