@@ -25,7 +25,7 @@ const EXT = '.md';
 		})
 	);
 
-	console.log(`${numPosts} posts written 🚀`);
+	console.log(`${numPosts} ${ext} posts written to ${JSON.stringify(postsDir)} 🚀`);
 })();
 
 const toMdContents = (idx) => `---
