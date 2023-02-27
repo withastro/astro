@@ -13,8 +13,9 @@ export const defaultProject = 'memory-default';
 /**
  * @param {URL} projectDir
  * @param {URL} outputFile
+ * @param {string} [title]
  */
-export async function run(projectDir, outputFile) {
+export async function run(projectDir, outputFile, title) {
 	const root = fileURLToPath(projectDir);
 	const outputFilePath = fileURLToPath(outputFile);
 
@@ -30,7 +31,10 @@ export async function run(projectDir, outputFile) {
 	console.log('Raw results written to', outputFilePath);
 
 	console.log('Result preview:');
+	console.log('='.repeat(10));
+	if (title) console.log(`#### Server stress (${title})\n`);
 	console.log(printResult(JSON.parse(await fs.readFile(outputFilePath, 'utf-8'))));
+	console.log('='.repeat(10));
 
 	console.log('Done!');
 }

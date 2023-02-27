@@ -12,8 +12,9 @@ export const defaultProject = 'server-stress-default';
 /**
  * @param {URL} projectDir
  * @param {URL} outputFile
+ * @param {string} [title]
  */
-export async function run(projectDir, outputFile) {
+export async function run(projectDir, outputFile, title) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Building...');
@@ -43,28 +44,12 @@ export async function run(projectDir, outputFile) {
 	await fs.writeFile(outputFile, JSON.stringify(result, null, 2));
 
 	console.log('Result preview:');
+	console.log('='.repeat(10));
+	if (title) console.log(`#### Server stress (${title})\n`);
 	console.log(autocannon.printResult(result));
+	console.log('='.repeat(10));
 
 	console.log('Done!');
-}
-
-/**
- * @param {{ name: string, output: import('autocannon').Result}} resultA
- * @param {{ name: string, output: import('autocannon').Result}} resultB
- */
-export async function compare(resultA, resultB) {
-	const resultRegex = /Req\/Bytes.*read/s;
-	const textA = autocannon.printResult(resultA.output).match(resultRegex)?.[0];
-	const textB = autocannon.printResult(resultB.output).match(resultRegex)?.[0];
-
-	return `\
-### ${resultA.name}
-
-${textA}
-
-### ${resultB.name}
-
-${textB}`;
 }
 
 /**
@@ -85,6 +70,9 @@ async function benchmarkCannon() {
 				} else {
 					// @ts-expect-error untyped but documented
 					instance.stop();
+					if (process.env.CI) {
+						result = result.match(/Req\/Bytes.*read/s)?.[0];
+					}
 					resolve(result);
 				}
 			}

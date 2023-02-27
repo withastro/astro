@@ -18,7 +18,6 @@ Command
 Options
   --project <project-name>       Project to use for benchmark, see make-project.js
   --output  <output-file>        Output file to write results to
-  --compare <file-a>,<file-b>    Compare two output files
 `);
 	process.exit(0);
 }
@@ -34,38 +33,13 @@ if (commandName && !(commandName in benchmarks)) {
 	process.exit(1);
 }
 
-// If we're running a compare command, run it and exit
-if (args.compare) {
-	const [outputA, outputB] = args.compare.split(',').map((s) => s.trim());
-	if (!outputA || !outputB) {
-		console.error(
-			`Invalid --compare value: ${args.compare}, must have two files, separated by a comma.`
-		);
-		process.exit(1);
-	}
-	const bench = benchmarks[commandName];
-	const benchMod = await bench();
-	const result = await benchMod.compare(
-		{
-			name: path.basename(outputA, '.json'),
-			output: JSON.parse(await fs.readFile(path.resolve(outputA), 'utf-8')),
-		},
-		{
-			name: path.basename(outputB, '.json'),
-			output: JSON.parse(await fs.readFile(path.resolve(outputB), 'utf-8')),
-		}
-	);
-	console.log(result);
-	process.exit(0);
-}
-
 if (commandName) {
 	// Run single benchmark
 	const bench = benchmarks[commandName];
 	const benchMod = await bench();
 	const projectDir = await makeProject(args.project || benchMod.defaultProject);
 	const outputFile = await getOutputFile(commandName);
-	await benchMod.run(projectDir, outputFile);
+	await benchMod.run(projectDir, outputFile, args.title);
 } else {
 	// Run all benchmarks
 	for (const name in benchmarks) {
@@ -73,7 +47,7 @@ if (commandName) {
 		const benchMod = await bench();
 		const projectDir = await makeProject(args.project || benchMod.defaultProject);
 		const outputFile = await getOutputFile(name);
-		await benchMod.run(projectDir, outputFile);
+		await benchMod.run(projectDir, outputFile, args.title);
 	}
 }
 
