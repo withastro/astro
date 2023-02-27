@@ -4,12 +4,6 @@ export const defaultProject = 'project-name';
 /**
  * @param {URL} projectDir
  * @param {URL} outputFile
+ * @param {string} [title]
  */
-export async function run(projectDir, outputFile) {}
-
-/**
- *
- * @param {any} outputA
- * @param {any} outputB
- */
-export async function compare(outputA, outputB) {}
+export async function run(projectDir, outputFile, title) {}

@@ -40,21 +40,6 @@ export async function run(projectDir, outputFile, title) {
 }
 
 /**
- * @param {{ name: string, output: AstroTimerStat}} resultA
- * @param {{ name: string, output: AstroTimerStat}} resultB
- */
-export async function compare(resultA, resultB) {
-	return `\
-### ${resultA.name}
-
-${printResult(resultA.output)}
-
-### ${resultB.name}
-
-${printResult(resultB.output)}`;
-}
-
-/**
  * @param {AstroTimerStat} output
  */
 function printResult(output) {
