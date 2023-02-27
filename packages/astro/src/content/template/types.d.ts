@@ -7,7 +7,12 @@ declare module 'astro:content' {
 		format?: string;
 		width?: number;
 		height?: number;
-	}) => import('astro/zod').ZodString;
+	}) => import('astro/zod').ZodObject<{
+		src: import('astro/zod').ZodString;
+		width: import('astro/zod').ZodNumber;
+		height: import('astro/zod').ZodNumber;
+		format: import('astro/zod').ZodString;
+	}>;
 
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject

@@ -1,18 +1,12 @@
+import { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
+
 type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max';
 export type ImageQuality = ImageQualityPreset | number;
 
-export type InputFormat =
-	| 'heic'
-	| 'heif'
-	| 'avif'
-	| 'jpeg'
-	| 'jpg'
-	| 'png'
-	| 'tiff'
-	| 'webp'
-	| 'gif';
-
-export type OutputFormat = 'avif' | 'png' | 'webp' | 'jpeg' | 'jpg' | 'gif';
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type InputFormat = (typeof VALID_INPUT_FORMATS)[number] | (string & {});
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type OutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 
 /**
  * Type returned by ESM imports of images and direct calls to imageMetadata
