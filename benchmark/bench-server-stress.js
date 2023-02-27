@@ -46,7 +46,11 @@ export async function run(projectDir, outputFile, title) {
 	console.log('Result preview:');
 	console.log('='.repeat(10));
 	if (title) console.log(`#### Server stress (${title})\n`);
-	console.log(autocannon.printResult(result));
+	let text = autocannon.printResult(result);
+	if (process.env.CI) {
+		text = text.match(/^.*?requests in.*?read$/m)?.[0];
+	}
+	console.log(text);
 	console.log('='.repeat(10));
 
 	console.log('Done!');
@@ -70,9 +74,6 @@ async function benchmarkCannon() {
 				} else {
 					// @ts-expect-error untyped but documented
 					instance.stop();
-					if (process.env.CI) {
-						result = result.match(/^.*?requests in.*?read$/m)?.[0];
-					}
 					resolve(result);
 				}
 			}

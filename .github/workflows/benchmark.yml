@@ -16,8 +16,8 @@ jobs:
     permissions:
       contents: read
     outputs:
-      PR-BENCH: ${{ steps.benchmark-pr.outputs.BENCH_RESULT16 }}
-      MAIN-BENCH: ${{ steps.benchmark-main.outputs.BENCH_RESULT18 }}
+      PR-BENCH: ${{ steps.benchmark-pr.outputs.BENCH_RESULT }}
+      MAIN-BENCH: ${{ steps.benchmark-main.outputs.BENCH_RESULT }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -44,7 +44,7 @@ jobs:
         id: bench-command
         run: |
           benchcmd=$(echo "${{ github.event.comment.body }}" | grep '!bench' | awk -F ' ' '{print $2}')
-          echo "::set-output name=bench::$benchcmd"
+          echo "bench=$benchcmd >> $GITHUB_OUTPUT"
         shell: bash
 
       - name: Run benchmark
@@ -52,7 +52,7 @@ jobs:
         run: |
           result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }} --title "**PR**")
           processed=$(node ./benchmark/ci-helper.js "$result")
-          echo "::set-output name=BENCH_RESULT::$processed"
+          echo "BENCH_RESULT=$processed >> $GITHUB_OUTPUT"
           echo "$processed"
         shell: bash
 
@@ -74,7 +74,7 @@ jobs:
         run: |
           result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }} --title "**MAIN**")
           processed=$(node ./benchmark/ci-helper.js "$result")
-          echo "::set-output name=BENCH_RESULT::$processed"
+          echo "BENCH_RESULT=$processed >> $GITHUB_OUTPUT"
           echo "$processed"
         shell: bash
 
