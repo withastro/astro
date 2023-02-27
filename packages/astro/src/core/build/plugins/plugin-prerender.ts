@@ -23,6 +23,7 @@ export function vitePluginPrerender(
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
 						if (meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
+							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
 						// dynamic pages should all go in their own chunk in the pages/* directory

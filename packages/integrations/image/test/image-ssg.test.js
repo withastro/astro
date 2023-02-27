@@ -53,6 +53,12 @@ describe('SSG images - dev', function () {
 			contentType: 'image/png',
 		},
 		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			url: toAstroImage('src/assets/logo.svg'),
+			query: { f: 'svg', w: '192', h: '256' },
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: toAstroImage('src/assets/social.jpg'),
@@ -156,6 +162,12 @@ describe('SSG images with subpath - dev', function () {
 			url: toAstroImage('social.png'),
 			query: { f: 'png', w: '2024', h: '1012' },
 			contentType: 'image/png',
+		},
+		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			url: toAstroImage('src/assets/logo.svg'),
+			query: { f: 'svg', w: '192', h: '256' },
 		},
 		{
 			title: 'Inline imports',
@@ -264,6 +276,12 @@ describe('SSG images - build', function () {
 			size: { type: 'png', width: 2024, height: 1012 },
 		},
 		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			regex: /^\/_astro\/logo.\w{8}_\w{4,10}.svg/,
+			size: { width: 192, height: 256, type: 'svg' },
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			regex: /^\/_astro\/social.\w{8}_\w{4,10}.jpg/,
@@ -350,6 +368,12 @@ describe('SSG images with subpath - build', function () {
 			id: '#outside-src',
 			regex: /^\/docs\/_astro\/social.\w{8}_\w{4,10}.png/,
 			size: { type: 'png', width: 2024, height: 1012 },
+		},
+		{
+			title: 'SVG image',
+			id: '#logo-svg',
+			regex: /^\/docs\/_astro\/logo.\w{8}_\w{4,10}.svg/,
+			size: { width: 192, height: 256, type: 'svg' },
 		},
 		{
 			title: 'Inline imports',

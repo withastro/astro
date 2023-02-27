@@ -41,6 +41,11 @@ type CreateContentGeneratorParams = {
 
 type EventOpts = { logLevel: 'info' | 'warn' };
 
+type EventWithOptions = {
+	type: ContentEvent;
+	opts: EventOpts | undefined;
+};
+
 class UnsupportedFileTypeError extends Error {}
 
 export async function createContentTypesGenerator({
@@ -51,9 +56,9 @@ export async function createContentTypesGenerator({
 	viteServer,
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
-	const contentPaths = getContentPaths(settings.config);
+	const contentPaths = getContentPaths(settings.config, fs);
 
-	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
+	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
 	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
@@ -65,7 +70,11 @@ export async function createContentTypesGenerator({
 			return { typesGenerated: false, reason: 'no-content-dir' };
 		}
 
-		events.push(handleEvent({ name: 'add', entry: contentPaths.config }, { logLevel: 'warn' }));
+		events.push({
+			type: { name: 'add', entry: contentPaths.config.url },
+			opts: { logLevel: 'warn' },
+		});
+
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
@@ -77,10 +86,10 @@ export async function createContentTypesGenerator({
 			.map((e) => new URL(e, contentPaths.contentDir))
 			.filter(
 				// Config loading handled first. Avoid running twice.
-				(e) => !e.href.startsWith(contentPaths.config.href)
+				(e) => !e.href.startsWith(contentPaths.config.url.href)
 			);
 		for (const entry of entries) {
-			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
+			events.push({ type: { name: 'add', entry }, opts: { logLevel: 'warn' } });
 		}
 		await runEvents();
 		return { typesGenerated: true };
@@ -204,12 +213,15 @@ export async function createContentTypesGenerator({
 
 	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
 		const event = {
-			entry: pathToFileURL(rawEvent.entry),
-			name: rawEvent.name,
+			type: {
+				entry: pathToFileURL(rawEvent.entry),
+				name: rawEvent.name,
+			},
+			opts,
 		};
-		if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
 
-		events.push(handleEvent(event, opts));
+		events.push(event);
 
 		debounceTimeout && clearTimeout(debounceTimeout);
 		debounceTimeout = setTimeout(
@@ -220,7 +232,13 @@ export async function createContentTypesGenerator({
 
 	async function runEvents(opts?: EventOpts) {
 		const logLevel = opts?.logLevel ?? 'info';
-		const eventResponses = await Promise.all(events);
+		const eventResponses = [];
+
+		for (const event of events) {
+			const response = await handleEvent(event.type, event.opts);
+			eventResponses.push(response);
+		}
+
 		events = [];
 		let unsupportedFiles = [];
 		for (const response of eventResponses) {
@@ -331,7 +349,7 @@ async function writeContentFiles({
 	}
 
 	let configPathRelativeToCacheDir = normalizePath(
-		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.pathname)
+		path.relative(contentPaths.cacheDir.pathname, contentPaths.config.url.pathname)
 	);
 	if (!isRelativePath(configPathRelativeToCacheDir))
 		configPathRelativeToCacheDir = './' + configPathRelativeToCacheDir;

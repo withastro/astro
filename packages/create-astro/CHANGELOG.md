@@ -1,5 +1,31 @@
 # create-astro
 
+## 3.0.4
+
+### Patch Changes
+
+- [#6352](https://github.com/withastro/astro/pull/6352) [`c87c16cfa`](https://github.com/withastro/astro/commit/c87c16cfaddea3a05af87c3258d57ef1a31516f7) Thanks [@SerekKiri](https://github.com/SerekKiri)! - Add missing flags to help command
+
+## 3.0.3
+
+### Patch Changes
+
+- [#6314](https://github.com/withastro/astro/pull/6314) [`7f61e8fe3`](https://github.com/withastro/astro/commit/7f61e8fe36b62a1833180c18b6f4304e9a01fce4) Thanks [@MilesPernicious](https://github.com/MilesPernicious)! - Prompt for git initialization last, so all configurations can get added to the initial commit
+
+- [#6294](https://github.com/withastro/astro/pull/6294) [`d0dbee872`](https://github.com/withastro/astro/commit/d0dbee872fd09800fba644ccbf4011ce01149706) Thanks [@liruifengv](https://github.com/liruifengv)! - `create-astro` help info add `--typescript` flag
+
+## 3.0.2
+
+### Patch Changes
+
+- [#6278](https://github.com/withastro/astro/pull/6278) [`0f5d122cd`](https://github.com/withastro/astro/commit/0f5d122cd538b65ec7208ddae5e60cfaddaf4b2c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Revert to giget 1.0.0 until upstream issue is fixed
+
+## 3.0.1
+
+### Patch Changes
+
+- [#6266](https://github.com/withastro/astro/pull/6266) [`066b4b4ef`](https://github.com/withastro/astro/commit/066b4b4efcde2320d29040c5bd385c67f30c701a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve error handling during tasks that display a spinner
+
 ## 3.0.0
 
 ### Major Changes

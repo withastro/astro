@@ -82,6 +82,14 @@ class SquooshService extends BaseSSRService {
 	}
 
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
+		if (transform.format === 'svg') {
+			// squoosh can't output SVG so we return the input image
+			return {
+				data: inputBuffer,
+				format: transform.format,
+			};
+		}
+
 		const operations: Operation[] = [];
 
 		if (!isRemoteImage(transform.src)) {

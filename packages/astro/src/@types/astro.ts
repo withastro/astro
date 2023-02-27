@@ -1395,6 +1395,7 @@ export interface RouteData {
 	pattern: RegExp;
 	segments: RoutePart[][];
 	type: RouteType;
+	prerender: boolean;
 }
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {

@@ -10,10 +10,11 @@ export type InputFormat =
 	| 'png'
 	| 'tiff'
 	| 'webp'
-	| 'gif';
+	| 'gif'
+	| 'svg';
 
 export type OutputFormatSupportsAlpha = 'avif' | 'png' | 'webp';
-export type OutputFormat = OutputFormatSupportsAlpha | 'jpeg' | 'jpg';
+export type OutputFormat = OutputFormatSupportsAlpha | 'jpeg' | 'jpg' | 'svg';
 
 export type ColorDefinition =
 	| NamedColor
@@ -49,7 +50,7 @@ export type CropPosition =
 	| 'attention';
 
 export function isOutputFormat(value: string): value is OutputFormat {
-	return ['avif', 'jpeg', 'jpg', 'png', 'webp'].includes(value);
+	return ['avif', 'jpeg', 'jpg', 'png', 'webp', 'svg'].includes(value);
 }
 
 export function isOutputFormatSupportsAlpha(value: string): value is OutputFormatSupportsAlpha {

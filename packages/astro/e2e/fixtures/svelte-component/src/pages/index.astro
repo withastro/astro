@@ -1,6 +1,7 @@
 ---
 import Counter from '../components/Counter.svelte';
 import SvelteComponent from '../components/SvelteComponent.svelte';
+import ToggleSlots from '../components/ToggleSlots.svelte';
 
 const someProps = {
 	count: 0,
@@ -33,5 +34,14 @@ const someProps = {
 		</Counter>
 
 		<SvelteComponent id="client-only" client:only="svelte" />
+
+		<ToggleSlots client:load>
+			<div slot="open">
+				open
+			</div>
+			<div slot="close">
+				close
+			</div>
+		</ToggleSlots>
 	</body>
 </html>

@@ -30,7 +30,7 @@ export function astroContentImportPlugin({
 	fs: typeof fsMod;
 	settings: AstroSettings;
 }): Plugin {
-	const contentPaths = getContentPaths(settings.config);
+	const contentPaths = getContentPaths(settings.config, fs);
 
 	return {
 		name: 'astro:content-imports',
