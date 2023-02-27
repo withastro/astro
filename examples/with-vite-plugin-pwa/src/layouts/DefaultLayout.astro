@@ -1,8 +1,6 @@
 ---
 import { pwaInfo } from 'virtual:pwa-info';
 
-console.log(pwaInfo);
-
 export interface Props {
 	title: string;
 }
@@ -32,8 +30,5 @@ const { title } = Astro.props as Props;
             <slot />
         </article>
     </main>
-    <footer>
-    <pre>{JSON.stringify(pwaInfo ?? {}, null, 2)}</pre>
-		</footer>		
   </body>
 </html>
