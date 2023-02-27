@@ -47,19 +47,12 @@ if (args.compare) {
 	process.exit(0);
 }
 
-const defaultOutputFile = args.output
-	? path.resolve(args.output)
-	: fileURLToPath(new URL(`./results/bench-${Date.now()}.json`, import.meta.url));
-
-// Prepare output file directory
-await fs.mkdir(path.dirname(defaultOutputFile), { recursive: true });
-
 if (commandName) {
 	// Run single benchmark
 	const bench = benchmarks[commandName];
 	const benchMod = await bench();
 	const projectDir = await makeProject(args.project || benchMod.defaultProject);
-	const outputFile = pathToFileURL(defaultOutputFile);
+	const outputFile = await getOutputFile(commandName);
 	await benchMod.run(projectDir, outputFile);
 } else {
 	// Run all benchmarks
@@ -67,10 +60,21 @@ if (commandName) {
 		const bench = benchmarks[name];
 		const benchMod = await bench();
 		const projectDir = await makeProject(args.project || benchMod.defaultProject);
-		// Prefix output file with benchmark name to avoid conflict
-		const parsed = path.parse(defaultOutputFile);
-		parsed.base = `${name}-${parsed.base}`;
-		const outputFile = pathToFileURL(path.format(parsed));
+		const outputFile = await getOutputFile(name);
 		await benchMod.run(projectDir, outputFile);
 	}
+}
+
+async function getOutputFile(benchmarkName) {
+	let file;
+	if (args.output) {
+		file = pathToFileURL(path.resolve(args.output));
+	} else {
+		file = new URL(`./results/${benchmarkName}-bench-${Date.now()}.json`, import.meta.url);
+	}
+
+	// Prepare output file directory
+	await fs.mkdir(new URL('./', file), { recursive: true });
+
+	return file;
 }

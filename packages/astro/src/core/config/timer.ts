@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 interface Stat {
 	elapsedTime: number;
 	heapUsedChange: number;
@@ -11,7 +13,7 @@ interface OngoingStat {
 
 /**
  * Timer to track certain operations' performance. Used by Astro's scripts only.
- * Set `process.env.ENABLE_ASTRO_TIMER` truthy to enable.
+ * Set `process.env.ASTRO_TIMER_PATH` truthy to enable.
  */
 export class AstroTimer {
 	private enabled: boolean;
@@ -19,7 +21,7 @@ export class AstroTimer {
 	private stats: Record<string, Stat> = {};
 
 	constructor() {
-		this.enabled = !!process.env.ENABLE_ASTRO_TIMER;
+		this.enabled = !!process.env.ASTRO_TIMER_PATH;
 	}
 
 	/**
@@ -50,11 +52,11 @@ export class AstroTimer {
 	}
 
 	/**
-	 * Write stats to `process.env.ENABLE_ASTRO_TIMER`
+	 * Write stats to `process.env.ASTRO_TIMER_PATH`
 	 */
-	finish() {
+	writeStats() {
 		if (!this.enabled) return;
 		// @ts-expect-error
-		process.env.ASTRO_BENCH_STATS = this.stats;
+		fs.writeFileSync(process.env.ASTRO_TIMER_PATH, JSON.stringify(this.stats, null, 2));
 	}
 }
