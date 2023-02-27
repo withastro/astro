@@ -76,7 +76,8 @@
     }
   },
   "dependencies": {
-    "@astrojs/webapi": "workspace:*"
+    "@astrojs/webapi": "workspace:*",
+    "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.4.4",
