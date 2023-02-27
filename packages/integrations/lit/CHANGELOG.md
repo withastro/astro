@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 1.2.1
+
+### Patch Changes
+
+- [#6351](https://github.com/withastro/astro/pull/6351) [`26bf12ef3`](https://github.com/withastro/astro/commit/26bf12ef3c7ab874a23ac753f841f7bb329c9361) Thanks [@hrmcdonald](https://github.com/hrmcdonald)! - Render DSD attributes based on `shadowRootOptions`
+
 ## 1.2.0
 
 ### Minor Changes
