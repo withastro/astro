@@ -51,8 +51,7 @@ const FILES_TO_UPDATE = {
 		fs.promises
 			.readFile(file, 'utf-8')
 			.then((value) => {
-				const FIRST_VAR = value.toString().split('\n')[1]
-				const COUNT_SPACES = FIRST_VAR.substring(0, FIRST_VAR.indexOf('"')).length
+				const indent = (text) => /(^\s+)/m.exec(text)?.[1] ?? '\t';
 				fs.promises.writeFile(
 					file,
 					JSON.stringify(
