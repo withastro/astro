@@ -1,4 +1,4 @@
-name: 'Format Code'
+name: "Format Code"
 
 on:
   push:
@@ -18,12 +18,12 @@ jobs:
           # Needs access to push to main
           token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       - name: Format code
@@ -31,7 +31,7 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: '[ci] format'
+          commit_message: "[ci] format"
           branch: ${{ github.head_ref }}
           commit_user_name: fredkbot
           commit_user_email: fred+astrobot@astro.build
