@@ -48,21 +48,19 @@ export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRu
 const FILES_TO_REMOVE = ['sandbox.config.json', 'CHANGELOG.md'];
 const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) =>
-		fs.promises
-			.readFile(file, 'utf-8')
-			.then((value) => {
-				// Match first indent in the file or fallback to `\t`
-				const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
-				fs.promises.writeFile(
-					file,
-					JSON.stringify(
-						Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
-						null,
-						indent
-					),
-					'utf-8'
-				)
-			}),
+		fs.promises.readFile(file, 'utf-8').then((value) => {
+			// Match first indent in the file or fallback to `\t`
+			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
+			fs.promises.writeFile(
+				file,
+				JSON.stringify(
+					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
+					null,
+					indent
+				),
+				'utf-8'
+			);
+		}),
 };
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {
