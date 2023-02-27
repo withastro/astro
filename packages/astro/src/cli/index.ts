@@ -235,8 +235,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'sync': {
 			const { syncCli } = await import('../core/sync/index.js');
 
-			const ret = await syncCli(settings, { logging, fs, flags });
-			return process.exit(ret);
+			const result = await syncCli(settings, { logging, fs });
+			return process.exit(result);
 		}
 
 		case 'preview': {

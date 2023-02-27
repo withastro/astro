@@ -15,7 +15,7 @@ import type { Arguments as Flags } from 'yargs-parser';
 import { debug, info } from '../../core/logger/core.js';
 import { createServer, ViteDevServer } from 'vite';
 import { createVite } from '../../core/create-vite.js';
-import type { SyncParameters, ProcessExit } from '../../core/sync';
+import type { SyncOptions, ProcessExit } from '../../core/sync';
 import fsMod from 'fs';
 
 type DiagnosticResult = {
@@ -130,7 +130,7 @@ type CheckerConstructor = {
 
 	watch: boolean;
 
-	syncCli: (params: SyncParameters) => Promise<ProcessExit>;
+	syncCli: (settings: AstroSettings, options: SyncOptions) => Promise<ProcessExit>;
 
 	settings: Readonly<AstroSettings>;
 
@@ -149,7 +149,7 @@ class Checker {
 	readonly #server: ViteDevServer;
 	readonly #diagnosticsChecker: AstroCheck;
 	readonly #shouldWatch: boolean;
-	readonly #syncCli: (params: SyncParameters) => Promise<ProcessExit>;
+	readonly #syncCli: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;
 
 	readonly #settings: AstroSettings;
 
@@ -192,11 +192,9 @@ class Checker {
 	}
 
 	async #checkAll(isWatchMode: boolean): Promise<CheckResult> {
-		const processExit = await this.#syncCli({
-			settings: this.#settings,
+		const processExit = await this.#syncCli(this.#settings, {
 			logging: this.#logging,
 			fs: this.#fs,
-			viteServer: this.#server,
 		});
 		// early exit on sync failure
 		if (processExit === 1) return processExit;
