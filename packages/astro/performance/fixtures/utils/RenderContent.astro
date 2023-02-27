@@ -1,9 +1,10 @@
 ---
 type Props = {
 	posts: any[];
+	renderer: any;
 }
 
-const { posts } = Astro.props;
+const { posts, renderer: ContentRenderer } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -16,13 +17,12 @@ const { posts } = Astro.props;
 </head>
 <body>
 	{
-		posts.map(async (entry) => {
-			const { Content } = await entry.render();
+		posts.map((entry) => {
 			return (
 				<div>
 					<h1>{entry.data.title}</h1>
 					<p>{entry.data.description}</p>
-					<Content />
+					<ContentRenderer {entry} />
 				</div>
 			);
 		})

@@ -1,0 +1,26 @@
+---
+import { Title, Aside } from '@performance/utils';
+import type { CollectionEntry } from 'astro:content';
+
+type Props = {
+	entry: CollectionEntry<'generated'>;
+}
+
+const { entry }  = Astro.props as Props;
+const { Content } = await entry.render();
+---
+
+{entry.data.type === 'with-components'
+	? <Content config={{
+		tags: {
+			aside: {
+				render: 'Aside',
+				attributes: {
+					type: { type: String },
+					title: { type: String },
+				},
+			}
+		}
+	}} components={{ h1: Title, Aside }} />
+	: <Content />
+}
