@@ -13,15 +13,17 @@ import { Arguments } from 'yargs-parser';
 import { printHelp } from '../../core/messages.js';
 import type { Arguments as Flags } from 'yargs-parser';
 import { debug, info } from '../../core/logger/core.js';
-import { createServer } from 'vite';
+import { createServer, ViteDevServer } from 'vite';
 import { createVite } from '../../core/create-vite.js';
+import type { SyncParameters, ProcessExit } from '../../core/sync';
+import fsMod from 'fs';
 
-interface Result {
+type DiagnosticResult = {
 	errors: number;
 	// The language server cannot actually return any warnings at the moment, but we'll keep this here for future use
 	warnings: number;
 	hints: number;
-}
+};
 
 type CheckPayload = {
 	/**
@@ -103,126 +105,225 @@ export async function check({ settings, logging, flags }: CheckPayload): Promise
 		)
 	);
 	const { syncCli } = await import('../../core/sync/index.js');
-	const processExit = await syncCli({ settings, logging, fs, viteServer });
-	// early exit on sync failure
-	if (processExit === 1) return processExit;
-
 	const root = settings.config.root;
-
-	let spinner = ora(` Getting diagnostics for Astro files in ${fileURLToPath(root)}…`).start();
-
 	const require = createRequire(import.meta.url);
-	let checker = new AstroCheck(
+	let diagnosticChecker = new AstroCheck(
 		root.toString(),
 		require.resolve('typescript/lib/tsserverlibrary.js', { paths: [root.toString()] })
 	);
-	const filesCount = await openAllDocuments(root, [], checker);
 
-	let diagnostics = await checker.getDiagnostics();
-
-	spinner.succeed();
-
-	let brokenDownDiagnostics = breakDownDiagnostics(logging, diagnostics);
-	logDiagnosticsSeverity(logging, brokenDownDiagnostics, filesCount);
-
-	if (checkFlags.watch) {
-		let checkInProgress = false;
-		viteServer.watcher.on('change', async (file, stats) => {
-			debug('check', `Detected change for file ${file}`);
-			// Vite file watcher seems to watch various files by default.
-			// We use this trick to limit operations only on `.astro` files
-			if (file.endsWith('astro') && !checkInProgress) {
-				console.clear();
-				checkInProgress = true;
-				spinner = ora(` Getting diagnostics for Astro file ${file}`);
-				await syncCli({ settings, logging, fs, viteServer });
-				const text = fs.readFileSync(file, 'utf-8');
-				checker.upsertDocument({
-					uri: pathToFileURL(file).toString(),
-					text,
-				});
-				checker.getDiagnostics().then((thisDiagnostics) => {
-					spinner.succeed();
-					brokenDownDiagnostics = breakDownDiagnostics(logging, thisDiagnostics);
-					logDiagnosticsSeverity(logging, brokenDownDiagnostics, filesCount);
-				});
-				checkInProgress = false;
-			}
-		});
-		return CheckResult.Listen;
-	} else {
-		return brokenDownDiagnostics.errors ? 1 : 0;
-	}
+	const checker = new Checker({
+		syncCli,
+		settings,
+		server: viteServer,
+		fs,
+		logging,
+		diagnosticChecker,
+		watch: checkFlags.watch,
+	});
+	return await checker.run(checkFlags.watch);
 }
 
-type DiagnosticResult = {
-	errors: number;
-	warnings: number;
-	hints: number;
+type CheckerConstructor = {
+	server: ViteDevServer;
+	diagnosticChecker: AstroCheck;
+
+	watch: boolean;
+
+	syncCli: (params: SyncParameters) => Promise<ProcessExit>;
+
+	settings: Readonly<AstroSettings>;
+
+	logging: Readonly<LogOptions>;
+
+	fs: typeof fsMod;
 };
 
 /**
- * It loops through all diagnostics and counts diagnostics that are errors, warnings or hints.
- * @param {Readonly<LogOptions>} logging
- * @param {Readonly<GetDiagnosticsResult[]>} diagnostics
+ * Responsible to check files - classic or watch mode - and report diagnostics.
+ *
+ * When in watch mode, the class does a whole check pass, and then starts watching files.
+ * When a change occurs to an `.astro` file, the checker
  */
-function breakDownDiagnostics(
-	logging: Readonly<LogOptions>,
-	diagnostics: Readonly<GetDiagnosticsResult[]>
-): DiagnosticResult {
-	let result: DiagnosticResult = {
-		errors: 0,
-		warnings: 0,
-		hints: 0,
-	};
+class Checker {
+	readonly #server: ViteDevServer;
+	readonly #diagnosticsChecker: AstroCheck;
+	readonly #shouldWatch: boolean;
+	readonly #syncCli: (params: SyncParameters) => Promise<ProcessExit>;
 
-	diagnostics.forEach((diag) => {
-		diag.diagnostics.forEach((d) => {
-			info(logging, 'diagnostics', `\n ${printDiagnostic(diag.fileUri, diag.text, d)}`);
+	readonly #settings: AstroSettings;
 
-			switch (d.severity) {
-				case DiagnosticSeverity.Error: {
-					result.errors++;
-					break;
-				}
-				case DiagnosticSeverity.Warning: {
-					result.warnings++;
-					break;
-				}
-				case DiagnosticSeverity.Hint: {
-					result.hints++;
-					break;
-				}
+	readonly #logging: LogOptions;
+	readonly #fs: typeof fsMod;
+
+	#filesCount: number;
+	#updateDiagnostics: NodeJS.Timeout | undefined;
+	constructor({
+		server,
+		diagnosticChecker,
+		watch,
+		syncCli,
+		settings,
+		fs,
+		logging,
+	}: CheckerConstructor) {
+		this.#server = server;
+		this.#diagnosticsChecker = diagnosticChecker;
+		this.#shouldWatch = watch;
+		this.#syncCli = syncCli;
+		this.#logging = logging;
+		this.#settings = settings;
+		this.#fs = fs;
+		this.#filesCount = 0;
+	}
+
+	public async run(isWatchMode: boolean): Promise<CheckResult> {
+		if (isWatchMode) {
+			await this.#checkAll(isWatchMode);
+			this.#watch();
+			return CheckResult.Listen;
+		} else {
+			const processExit = await this.#checkAll(isWatchMode);
+			if (processExit === 1) {
+				return processExit;
+			}
+			return CheckResult.ExitWithSuccess;
+		}
+	}
+
+	async #checkAll(isWatchMode: boolean): Promise<CheckResult> {
+		const processExit = await this.#syncCli({
+			settings: this.#settings,
+			logging: this.#logging,
+			fs: this.#fs,
+			viteServer: this.#server,
+		});
+		// early exit on sync failure
+		if (processExit === 1) return processExit;
+
+		let spinner = ora(
+			` Getting diagnostics for Astro files in ${fileURLToPath(this.#settings.config.root)}…`
+		).start();
+
+		this.#filesCount = await openAllDocuments(
+			this.#settings.config.root,
+			[],
+			this.#diagnosticsChecker
+		);
+		let diagnostics = await this.#diagnosticsChecker.getDiagnostics();
+
+		spinner.succeed();
+
+		let brokenDownDiagnostics = this.#breakDownDiagnostics(diagnostics);
+		this.#logDiagnosticsSeverity(brokenDownDiagnostics);
+		if (isWatchMode) {
+			return -1;
+		} else {
+			return brokenDownDiagnostics.errors > 0 ? 1 : 0;
+		}
+	}
+
+	#checkForDiagnostics() {
+		clearTimeout(this.#updateDiagnostics);
+		// @ematipico: I am not sure of `setTimeout`. I would rather use a debounce but let's see if this works.
+		// Inspiration from `svelte-check`.
+		this.#updateDiagnostics = setTimeout(async () => await this.#checkAll(true), 500);
+	}
+
+	/**
+	 * This function is responsible to attach events to the server watcher
+	 * @private
+	 */
+	#watch() {
+		this.#server.watcher.on('add', (file) => {
+			if (file.endsWith('.astro')) {
+				this.#addDocument(file);
+				this.#checkForDiagnostics();
 			}
 		});
-	});
+		this.#server.watcher.on('change', (file) => {
+			if (file.endsWith('.astro')) {
+				this.#addDocument(file);
+				this.#checkForDiagnostics();
+			}
+		});
+		this.#server.watcher.on('unlink', (file) => {
+			if (file.endsWith('.astro')) {
+				this.#diagnosticsChecker.removeDocument(file);
+				this.#filesCount -= 1;
+				this.#checkForDiagnostics();
+			}
+		});
+	}
 
-	return result;
+	/**
+	 * Add a document to the diagnostics checker
+	 * @param file
+	 * @private
+	 */
+	#addDocument(file: string) {
+		const text = fs.readFileSync(file, 'utf-8');
+		this.#diagnosticsChecker.upsertDocument({
+			uri: pathToFileURL(file).toString(),
+			text,
+		});
+		this.#filesCount += 1;
+	}
+
+	/**
+	 * Logs the result of the various diagnostics
+	 *
+	 * @param {Readonly<DiagnosticResult>} result
+	 */
+	#logDiagnosticsSeverity(result: Readonly<DiagnosticResult>) {
+		info(
+			this.#logging,
+			'diagnostics',
+			[
+				bold(`Result (${this.#filesCount} file${this.#filesCount === 1 ? '' : 's'}): `),
+				bold(red(`${result.errors} ${result.errors === 1 ? 'error' : 'errors'}`)),
+				bold(yellow(`${result.warnings} ${result.warnings === 1 ? 'warning' : 'warnings'}`)),
+				dim(`${result.hints} ${result.hints === 1 ? 'hint' : 'hints'}\n`),
+			].join(`\n${dim('-')} `)
+		);
+	}
+
+	/**
+	 * It loops through all diagnostics and break down diagnostics that are errors, warnings or hints.
+	 * @param {Readonly<GetDiagnosticsResult[]>} diagnostics
+	 */
+	#breakDownDiagnostics(diagnostics: Readonly<GetDiagnosticsResult[]>): DiagnosticResult {
+		let result: DiagnosticResult = {
+			errors: 0,
+			warnings: 0,
+			hints: 0,
+		};
+
+		diagnostics.forEach((diag) => {
+			diag.diagnostics.forEach((d) => {
+				info(this.#logging, 'diagnostics', `\n ${printDiagnostic(diag.fileUri, diag.text, d)}`);
+
+				switch (d.severity) {
+					case DiagnosticSeverity.Error: {
+						result.errors++;
+						break;
+					}
+					case DiagnosticSeverity.Warning: {
+						result.warnings++;
+						break;
+					}
+					case DiagnosticSeverity.Hint: {
+						result.hints++;
+						break;
+					}
+				}
+			});
+		});
+
+		return result;
+	}
 }
 
-/**
- * Logs the result of the various diagnostics
- *
- * @param {Readonly<LogOptions>} logging
- * @param {Readonly<DiagnosticResult>} result
- * @param {number} filesCount
- */
-function logDiagnosticsSeverity(
-	logging: Readonly<LogOptions>,
-	result: Readonly<DiagnosticResult>,
-	filesCount: number
-) {
-	info(
-		logging,
-		'diagnostics',
-		[
-			bold(`Result (${filesCount} file${filesCount === 1 ? '' : 's'}): `),
-			bold(red(`${result.errors} ${result.errors === 1 ? 'error' : 'errors'}`)),
-			bold(yellow(`${result.warnings} ${result.warnings === 1 ? 'warning' : 'warnings'}`)),
-			dim(`${result.hints} ${result.hints === 1 ? 'hint' : 'hints'}\n`),
-		].join(`\n${dim('-')} `)
-	);
-}
 /**
  * Open all Astro files in the given directory and return the number of files found.*
  * @param {URL} workspaceUri
@@ -241,6 +342,7 @@ async function openAllDocuments(
 	});
 
 	for (const file of files) {
+		debug('check', `Adding file ${file} to the list of files to check.`);
 		const text = fs.readFileSync(file, 'utf-8');
 		checker.upsertDocument({
 			uri: pathToFileURL(file).toString(),
@@ -259,7 +361,7 @@ async function openAllDocuments(
 function parseFlags(flags: Flags): CheckFlags {
 	return {
 		// TODO: https://github.com/withastro/roadmap/issues/473
-		// Rename to `--watch` when feature is stable
+		// Rename to `--watch` when the feature is stable
 		watch: flags.experimentalWatch ?? false,
 	};
 }

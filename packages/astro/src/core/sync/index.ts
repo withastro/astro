@@ -13,7 +13,7 @@ import { info, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import { Arguments } from 'yargs-parser';
 
-type ProcessExit = 0 | 1;
+export type ProcessExit = 0 | 1;
 
 export async function syncCli(
 	settings: AstroSettings,
