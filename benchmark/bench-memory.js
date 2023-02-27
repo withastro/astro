@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
@@ -15,17 +16,21 @@ export const defaultProject = 'memory-default';
  */
 export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
+	const outputFilePath = fileURLToPath(outputFile);
 
 	console.log('Building and benchmarking...');
 	await execaCommand(`${astro} build`, {
 		cwd: root,
 		stdio: 'inherit',
 		env: {
-			ASTRO_TIMER_PATH: fileURLToPath(outputFile),
+			ASTRO_TIMER_PATH: outputFilePath,
 		},
 	});
 
-	console.log('Results written to', fileURLToPath(outputFile));
+	console.log('Raw results written to', outputFilePath);
+
+	console.log('Result preview:');
+	console.log(printResult(JSON.parse(await fs.readFile(outputFilePath, 'utf-8'))));
 
 	console.log('Done!');
 }
@@ -35,21 +40,6 @@ export async function run(projectDir, outputFile) {
  * @param {{ name: string, output: AstroTimerStat}} resultB
  */
 export async function compare(resultA, resultB) {
-	/**
-	 * @param {AstroTimerStat} output
-	 */
-	const printResult = (output) => {
-		return markdownTable([
-			['', 'Elapsed time (s)', 'Memory used (MB)', 'Final memory (MB)'],
-			...Object.entries(output).map(([name, stat]) => [
-				name,
-				Math.round(stat.elapsedTime),
-				Math.round(stat.heapUsedChange / 1024 / 1024),
-				Math.round(stat.heapUsedTotal / 1024 / 1024),
-			]),
-		]);
-	};
-
 	return `\
 ### ${resultA.name}
 
@@ -58,4 +48,19 @@ ${printResult(resultA.output)}
 ### ${resultB.name}
 
 ${printResult(resultB.output)}`;
+}
+
+/**
+ * @param {AstroTimerStat} output
+ */
+function printResult(output) {
+	return markdownTable([
+		['', 'Elapsed time (s)', 'Memory used (MB)', 'Final memory (MB)'],
+		...Object.entries(output).map(([name, stat]) => [
+			name,
+			Math.round(stat.elapsedTime),
+			Math.round(stat.heapUsedChange / 1024 / 1024),
+			Math.round(stat.heapUsedTotal / 1024 / 1024),
+		]),
+	]);
 }

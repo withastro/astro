@@ -42,6 +42,9 @@ export async function run(projectDir, outputFile) {
 	console.log('Writing results to', fileURLToPath(outputFile));
 	await fs.writeFile(outputFile, JSON.stringify(result, null, 2));
 
+	console.log('Result preview:');
+	console.log(autocannon.printResult(result));
+
 	console.log('Done!');
 }
 
