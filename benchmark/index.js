@@ -43,7 +43,17 @@ if (args.compare) {
 	}
 	const bench = benchmarks[commandName];
 	const benchMod = await bench();
-	await benchMod.compare(path.resolve(outputA), path.resolve(outputB));
+	const result = await benchMod.compare(
+		{
+			name: path.basename(outputA, '.json'),
+			output: JSON.parse(await fs.readFile(path.resolve(outputA), 'utf-8')),
+		},
+		{
+			name: path.basename(outputB, '.json'),
+			output: JSON.parse(await fs.readFile(path.resolve(outputB), 'utf-8')),
+		}
+	);
+	console.log(result);
 	process.exit(0);
 }
 

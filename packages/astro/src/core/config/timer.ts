@@ -1,6 +1,7 @@
 import fs from 'fs';
 
-interface Stat {
+// Type used by `bench-memory.js`
+export interface Stat {
 	elapsedTime: number;
 	heapUsedChange: number;
 	heapUsedTotal: number;

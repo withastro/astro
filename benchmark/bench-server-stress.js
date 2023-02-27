@@ -45,7 +45,24 @@ export async function run(projectDir, outputFile) {
 	console.log('Done!');
 }
 
-export async function compare(outputA, outputB) {}
+/**
+ * @param {{ name: string, output: import('autocannon').Result}} resultA
+ * @param {{ name: string, output: import('autocannon').Result}} resultB
+ */
+export async function compare(resultA, resultB) {
+	const resultRegex = /Req\/Bytes.*read/s;
+	const textA = autocannon.printResult(resultA.output).match(resultRegex)?.[0];
+	const textB = autocannon.printResult(resultB.output).match(resultRegex)?.[0];
+
+	return `\
+### ${resultA.name}
+
+${textA}
+
+### ${resultB.name}
+
+${textB}`;
+}
 
 /**
  * @returns {Promise<import('autocannon').Result>}

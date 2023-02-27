@@ -1,8 +1,10 @@
 import { fileURLToPath } from 'url';
 import { execaCommand } from 'execa';
+import { markdownTable } from 'markdown-table';
+
+/** @typedef {Record<string, import('../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
 
 const astro = fileURLToPath(new URL('../packages/astro/astro.js', import.meta.url));
-const port = 4321;
 
 /** Default project to run for this benchmark if not specified */
 export const defaultProject = 'memory-default';
@@ -29,8 +31,31 @@ export async function run(projectDir, outputFile) {
 }
 
 /**
- *
- * @param {any} outputA
- * @param {any} outputB
+ * @param {{ name: string, output: AstroTimerStat}} resultA
+ * @param {{ name: string, output: AstroTimerStat}} resultB
  */
-export async function compare(outputA, outputB) {}
+export async function compare(resultA, resultB) {
+	/**
+	 * @param {AstroTimerStat} output
+	 */
+	const printResult = (output) => {
+		return markdownTable([
+			['', 'Elapsed time (s)', 'Memory used (MB)', 'Final memory (MB)'],
+			...Object.entries(output).map(([name, stat]) => [
+				name,
+				Math.round(stat.elapsedTime),
+				Math.round(stat.heapUsedChange / 1024 / 1024),
+				Math.round(stat.heapUsedTotal / 1024 / 1024),
+			]),
+		]);
+	};
+
+	return `\
+### ${resultA.name}
+
+${printResult(resultA.output)}
+
+### ${resultB.name}
+
+${printResult(resultB.output)}`;
+}
