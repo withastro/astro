@@ -39,6 +39,9 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 	smartypants: true,
 };
 
+// Skip nonessential plugins during performance benchmark runs
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_CI_PERFORMANCE_RUN);
+
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
@@ -56,7 +59,6 @@ export async function renderMarkdown(
 		contentDir,
 		frontmatter: userFrontmatter = {},
 	} = opts;
-	const performanceRun = Boolean(process.env.ASTRO_CI_PERFORMANCE_RUN);
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
 
@@ -65,7 +67,7 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use([]);
 
-	if (!performanceRun) {
+	if (!isPerformanceBenchmark) {
 		if (gfm) {
 			parser.use(remarkGfm);
 		}
@@ -82,7 +84,7 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	if (!performanceRun) {
+	if (!isPerformanceBenchmark) {
 		if (scopedClassName) {
 			parser.use([scopedStyles(scopedClassName)]);
 		}
@@ -112,7 +114,7 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	if (!performanceRun) {
+	if (!isPerformanceBenchmark) {
 		parser.use([rehypeHeadingIds]);
 	}
 
