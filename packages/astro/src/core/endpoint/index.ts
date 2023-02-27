@@ -122,7 +122,7 @@ export async function call(
 			);
 		}
 
-		if (response.encoding) {
+		if (response.encoding && !mod.prerender) {
 			warn(
 				logging,
 				'ssr',
