@@ -1,8 +1,14 @@
 import { expect } from 'chai';
 import { cli, parseCliDevStart, cliServerLogSetup } from './test-utils.js';
-import { promises as fs } from 'fs';
+import { promises as fs, writeFileSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { isIPv4 } from 'net';
+import { join } from 'path';
+import stripAnsi from 'strip-ansi';
+
+export function wait(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
@@ -14,6 +20,40 @@ describe('astro cli', () => {
 		const proc = await cli();
 		expect(proc.exitCode).to.equal(0);
 	});
+
+	it('astro check --watch', async () => {
+		// used to save data coming from `process.stdout`
+		let stdout = '';
+		const invalidContent = 'foobar';
+		const projectRootURL = new URL('./fixtures/astro-check-watch/', import.meta.url);
+		let process = cli('check', '--root', fileURLToPath(projectRootURL), '--experimental-watch');
+
+		process.stdout.on('data', (chunk) => {
+			stdout += chunk;
+		});
+
+		// we wait for the command to do its job and print stuff to the console...
+		await wait(3000);
+
+		stdout = stripAnsi(stdout);
+		expect(stdout).to.include('0 errors');
+		// we need to clear the former output
+		stdout = '';
+		// we modify the astro file
+		const astroFilePath = join(fileURLToPath(projectRootURL), 'src/pages/index.astro');
+		const originalContent = readFileSync(astroFilePath, 'utf-8');
+
+		// we save some invalid content in the file
+		writeFileSync(astroFilePath, invalidContent);
+
+		// we wait for the command to write something in the console
+		await wait(3000);
+		stdout = stripAnsi(stdout);
+		// we restore the content of the file before assertion, so we don't keep a dirty file around
+		writeFileSync(astroFilePath, originalContent);
+
+		expect(stdout).to.include('1 error');
+	}).timeout(35000);
 
 	it('astro --version', async () => {
 		const pkgURL = new URL('../package.json', import.meta.url);

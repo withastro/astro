@@ -168,9 +168,7 @@ export async function createVite(
 	// let's set the watcher independently
 	if (commonConfig.server) {
 		if (isWatcherEnabled) {
-			commonConfig.server.watch = {
-				cwd: fileURLToPath(settings.config.root),
-			};
+			commonConfig.server.watch = {};
 		} else if (mode === 'build') {
 			commonConfig.server.watch = {
 				ignored: ['**'],
