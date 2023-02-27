@@ -1,38 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-
-const NUM_POSTS = 10;
-const POSTS_DIR = './src/content/posts.generated';
-const EXT = '.md';
-
-(async function writePosts() {
-	const postsDir = process.argv[2] ?? POSTS_DIR;
-	const numPosts = Number(process.argv[3]) ?? NUM_POSTS;
-	const ext = process.argv[4] ?? EXT;
-	if (fs.existsSync(postsDir)) {
-		const files = await fs.promises.readdir(postsDir);
-		await Promise.all(files.map((file) => fs.promises.unlink(path.join(postsDir, file))));
-	} else {
-		await fs.promises.mkdir(postsDir, { recursive: true });
-	}
-
-	await Promise.all(
-		Array.from(Array(numPosts).keys()).map((idx) => {
-			return fs.promises.writeFile(
-				`${postsDir}/post-${idx}${ext.startsWith('.') ? ext : `.${ext}`}`,
-				toMdContents(idx)
-			);
-		})
-	);
-
-	console.log(`${numPosts} ${ext} posts written to ${JSON.stringify(postsDir)} 🚀`);
-})();
-
-const toMdContents = (idx) => `---
-title: Example ${idx}
+---
+title: Simple
 ---
 
-# Post ${idx}
+# Simple post
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur interdum quam vitae est dapibus auctor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vivamus id purus vel ante interdum eleifend non sed magna. Nullam aliquet metus eget nunc pretium, ac malesuada elit ultricies. Quisque fermentum tellus sed risus tristique tincidunt. Interdum et malesuada fames ac ante ipsum primis in faucibus. Maecenas eleifend odio sed tortor rhoncus venenatis. Maecenas dignissim convallis sem et sagittis. Aliquam facilisis auctor consectetur. Morbi vulputate fermentum lobortis. Aenean luctus risus erat, sit amet imperdiet lectus tempor et.
 
@@ -71,4 +41,3 @@ Vestibulum sit amet lorem arcu. Integer sed nisl ut turpis dapibus mollis sit am
 Curabitur quis mi ac massa hendrerit ornare id eget velit. Nulla dui lacus, hendrerit et fringilla sed, eleifend ut erat. Nunc ut fringilla ex, sit amet fringilla libero. Maecenas non ullamcorper orci. Duis posuere erat et urna rhoncus iaculis. Proin pellentesque porttitor nulla, non blandit ante semper vitae. Phasellus ut augue venenatis, tempus purus eu, efficitur massa. Etiam vel egestas tellus, ac pharetra lectus. Aliquam non commodo turpis. Quisque pharetra nunc et mauris bibendum, id vestibulum tellus fringilla. Nullam enim massa, porta id nisi at, accumsan sollicitudin elit. Morbi auctor lectus vitae orci cursus, et hendrerit odio accumsan. Pellentesque quis libero auctor, tempor dolor tempor, finibus arcu. Aliquam non cursus ex. Aliquam quis lacus ut purus pellentesque ultrices in a augue.
 
 Morbi nunc diam, egestas sed condimentum a, interdum suscipit ligula. Morbi interdum dignissim imperdiet. Interdum et malesuada fames ac ante ipsum primis in faucibus. Mauris egestas, nulla nec feugiat porttitor, ex magna sodales nisl, ac volutpat tortor mauris vitae nibh. Cras cursus dignissim pretium. Nunc faucibus dui at lectus pellentesque vehicula. Maecenas tincidunt, libero quis hendrerit aliquet, tortor leo iaculis enim, sit amet ullamcorper tellus risus a orci. Donec dignissim metus in nulla eleifend molestie. Nunc at turpis et sem laoreet rutrum. Nulla facilisi. Sed luctus nisi sed egestas cursus.
-`;
