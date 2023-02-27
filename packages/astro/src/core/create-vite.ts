@@ -172,14 +172,21 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	// command will be undefined when running sync
+	// PR #6238 includes `astro sync` command, which is not a Vite command with an additional vite server.
+	// AstroBuilder::setup: will call createVite twice:
+	// - with `command` set to `build/dev` (src/core/build/index.ts L72)
+	// - and again in the `sync` module to generate `Content Collections` (src/core/sync/index.ts L36)
+	// We need to check if the command is `build` or `dev` before merging the user-provided vite config.
+	// We also need to filter out the plugins that are not meant to be applied to the current command:
+	// - If the command is `build`, we filter out the plugins that are meant to be applied for `serve`.
+	// - If the command is `dev`, we filter out the plugins that are meant to be applied for `build`.
 	if (command) {
 		let plugins = settings.config.vite?.plugins;
 		if (plugins) {
 			const { plugins: _, ...rest } = settings.config.vite
 			const applyToFilter = command === 'build' ? 'serve' : 'build'
 			const applyArgs = [{...settings.config.vite, mode}, { command, mode }]
-			// @ts-ignore we know what are doing
+			// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite. 
 			plugins = plugins.flat(Infinity).filter((p) => {
 				if (!p || p?.apply === applyToFilter) {
 					return false;
