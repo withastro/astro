@@ -28,38 +28,44 @@ describe('Static build: vite plugins included when required', () => {
 							pluginsCalled.set('prepare-build-plugin', false);
 							updateConfig({
 								vite: {
-									plugins: [{
-										name: 'prepare-no-apply-plugin',
-										configResolved: () => {
-											pluginsCalled.set('prepare-no-apply-plugin', true);
-										}
-									}, {
-										name: 'prepare-serve-plugin',
-										apply: 'serve',
-										configResolved: () => {
-											pluginsCalled.set('prepare-serve-plugin', true);
-										}
-									}, {
-										name: 'prepare-apply-fn-plugin',
-										apply: (_, { command }) => command === 'build',
-										configResolved: () => {
-											pluginsCalled.set('prepare-apply-fn-plugin', true);
-										}
-									}, {
-										name: 'prepare-dont-apply-fn-plugin',
-										apply: (_, { command }) => command === 'serve',
-										configResolved: () => {
-											pluginsCalled.set('prepare-dont-apply-fn-plugin', true);
-										}
-									}, {
-										name: 'prepare-build-plugin',
-										apply: 'build',
-										configResolved: () => {
-											pluginsCalled.set('prepare-build-plugin', true);
-										}
-									}]
-								}
-							})
+									plugins: [
+										{
+											name: 'prepare-no-apply-plugin',
+											configResolved: () => {
+												pluginsCalled.set('prepare-no-apply-plugin', true);
+											},
+										},
+										{
+											name: 'prepare-serve-plugin',
+											apply: 'serve',
+											configResolved: () => {
+												pluginsCalled.set('prepare-serve-plugin', true);
+											},
+										},
+										{
+											name: 'prepare-apply-fn-plugin',
+											apply: (_, { command }) => command === 'build',
+											configResolved: () => {
+												pluginsCalled.set('prepare-apply-fn-plugin', true);
+											},
+										},
+										{
+											name: 'prepare-dont-apply-fn-plugin',
+											apply: (_, { command }) => command === 'serve',
+											configResolved: () => {
+												pluginsCalled.set('prepare-dont-apply-fn-plugin', true);
+											},
+										},
+										{
+											name: 'prepare-build-plugin',
+											apply: 'build',
+											configResolved: () => {
+												pluginsCalled.set('prepare-build-plugin', true);
+											},
+										},
+									],
+								},
+							});
 						},
 					},
 				},
@@ -68,9 +74,15 @@ describe('Static build: vite plugins included when required', () => {
 		await fixture.build();
 	});
 	it('Vite Plugins are included/excluded properly', async () => {
-		expect(pluginsCalled.size).to.equal(expectedPluginResult.size, 'Not all plugins were initialized');
+		expect(pluginsCalled.size).to.equal(
+			expectedPluginResult.size,
+			'Not all plugins were initialized'
+		);
 		Array.from(expectedPluginResult.entries()).forEach(([plugin, called]) =>
-			expect(pluginsCalled.get(plugin)).to.equal(called, `${plugin} was ${called ? 'not' : ''} called`)
+			expect(pluginsCalled.get(plugin)).to.equal(
+				called,
+				`${plugin} was ${called ? 'not' : ''} called`
+			)
 		);
 	});
 });

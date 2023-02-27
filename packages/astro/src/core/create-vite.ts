@@ -173,7 +173,7 @@ export async function createVite(
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
 	// PR #6238 Calls user integration `astro:config:setup` hooks when running `astro sync`.
-  // Without proper filtering, user integrations may run twice unexpectedly:
+	// Without proper filtering, user integrations may run twice unexpectedly:
 	// - with `command` set to `build/dev` (src/core/build/index.ts L72)
 	// - and again in the `sync` module to generate `Content Collections` (src/core/sync/index.ts L36)
 	// We need to check if the command is `build` or `dev` before merging the user-provided vite config.
@@ -183,17 +183,20 @@ export async function createVite(
 	if (command) {
 		let plugins = settings.config.vite?.plugins;
 		if (plugins) {
-			const { plugins: _, ...rest } = settings.config.vite
-			const applyToFilter = command === 'build' ? 'serve' : 'build'
-			const applyArgs = [{...settings.config.vite, mode}, { command, mode }]
-			// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite. 
+			const { plugins: _, ...rest } = settings.config.vite;
+			const applyToFilter = command === 'build' ? 'serve' : 'build';
+			const applyArgs = [
+				{ ...settings.config.vite, mode },
+				{ command, mode },
+			];
+			// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
 			plugins = plugins.flat(Infinity).filter((p) => {
 				if (!p || p?.apply === applyToFilter) {
 					return false;
 				}
 
 				if (typeof p.apply === 'function') {
-					return p.apply(applyArgs[0], applyArgs[1])
+					return p.apply(applyArgs[0], applyArgs[1]);
 				}
 
 				return true;
