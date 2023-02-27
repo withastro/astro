@@ -22,9 +22,9 @@ jobs:
       - id: setup
         env:
           MESSAGE: ${{ github.event.commits[0].message }}
-        run:  |
-              TRIMMED=$(echo "$MESSAGE" | sed '1!d;q')
-              echo "::set-output name=COMMIT_MSG::${TRIMMED}"
+        run: |
+          TRIMMED=$(echo "$MESSAGE" | sed '1!d;q')
+          echo "::set-output name=COMMIT_MSG::${TRIMMED}"
       - name: Send a Discord notification when a PR is merged
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
@@ -42,13 +42,13 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
+        uses: pnpm/action-setup@v2
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install

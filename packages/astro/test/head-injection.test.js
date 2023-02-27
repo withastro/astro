@@ -58,6 +58,14 @@ describe('Head injection', () => {
 				expect($('head link[rel=stylesheet]')).to.have.a.lengthOf(2);
 				expect($('body link[rel=stylesheet]')).to.have.a.lengthOf(0);
 			});
+
+			it('Using slots with Astro.slots.render() (layout)', async () => {
+				const html = await fixture.readFile('/with-slot-render2/index.html');
+				const $ = cheerio.load(html);
+
+				expect($('head link[rel=stylesheet]')).to.have.a.lengthOf(1);
+				expect($('body link[rel=stylesheet]')).to.have.a.lengthOf(0);
+			});
 		});
 	});
 });
