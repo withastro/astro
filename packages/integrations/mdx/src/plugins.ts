@@ -24,6 +24,9 @@ import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { isRelativePath, jsToTreeNode } from './utils.js';
 
+// Skip nonessential plugins during performance benchmark runs
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_CI_PERFORMANCE_RUN);
+
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
 }: {
@@ -130,25 +133,28 @@ export async function getRemarkPlugins(
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
 	let remarkPlugins: PluggableList = [];
 
-	if (mdxOptions.gfm) {
-		remarkPlugins.push(remarkGfm);
-	}
-	if (mdxOptions.smartypants) {
-		remarkPlugins.push(remarkSmartypants);
+	if (!isPerformanceBenchmark) {
+		if (mdxOptions.gfm) {
+			remarkPlugins.push(remarkGfm);
+		}
+		if (mdxOptions.smartypants) {
+			remarkPlugins.push(remarkSmartypants);
+		}
 	}
 
 	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
 
-	// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
-	if (mdxOptions.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+	if (!isPerformanceBenchmark) {
+		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
+		if (mdxOptions.syntaxHighlight === 'shiki') {
+			remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+		}
+		if (mdxOptions.syntaxHighlight === 'prism') {
+			remarkPlugins.push(remarkPrism);
+		}
+		// Apply last in case user plugins resolve relative image paths
+		remarkPlugins.push(toRemarkContentRelImageError(config));
 	}
-	if (mdxOptions.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
-	}
-
-	// Apply last in case user plugins resolve relative image paths
-	remarkPlugins.push(toRemarkContentRelImageError(config));
 
 	return remarkPlugins;
 }
@@ -166,8 +172,7 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 		...ignoreStringPlugins(mdxOptions.rehypePlugins),
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		rehypeHeadingIds,
-		rehypeInjectHeadingsExport,
+		...(isPerformanceBenchmark ? [] : [rehypeHeadingIds, rehypeInjectHeadingsExport]),
 		// computed from `astro.data.frontmatter` in VFile data
 		rehypeApplyFrontmatterExport,
 	];
