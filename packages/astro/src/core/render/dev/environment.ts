@@ -25,7 +25,6 @@ export function createDevelopmentEnvironment(
 		markdown: {
 			...settings.config.markdown,
 			contentDir: getContentPaths(settings.config).contentDir,
-			performanceRun: settings.performanceRun,
 		},
 		mode,
 		// This will be overridden in the dev server

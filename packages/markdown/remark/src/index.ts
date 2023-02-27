@@ -55,8 +55,8 @@ export async function renderMarkdown(
 		smartypants = markdownConfigDefaults.smartypants,
 		contentDir,
 		frontmatter: userFrontmatter = {},
-		performanceRun = false,
 	} = opts;
+	const performanceRun = Boolean(process.env.ASTRO_CI_PERFORMANCE_RUN);
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
 

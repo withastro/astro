@@ -62,8 +62,6 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	contentDir: URL;
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
-	/** @internal Used for performance testing */
-	performanceRun?: boolean;
 }
 
 export interface MarkdownHeading {
