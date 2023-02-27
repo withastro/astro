@@ -5,13 +5,14 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build": "astro build --perf"
+    "build:perf": "astro build --internal-ci-perf",
+    "build": "astro build"
   },
   "keywords": [],
   "author": "",
   "license": "unlicensed",
   "dependencies": {
-    "@astrojs/mdx": "^0.16.2",
+    "@astrojs/mdx": "^0.17.2",
     "@performance/utils": "^0.0.0",
     "astro": "^2.0.12"
   }

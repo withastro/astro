@@ -27,8 +27,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 }
 
 export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
-	// TODO: hoisted to flags handler
-	const performanceRun = process.argv.some((arg) => arg === '--perf');
+	// Used to test with the internal performance package
+	// Skips non-essential Markdown and MDX remark plugins for a fair baseline
+	// against other formats (ex. Markdoc).
+	const performanceRun = process.argv.some((arg) => arg === '--internal-ci-perf');
 
 	const tsconfig = loadTSConfig(cwd);
 	const settings = createBaseSettings(config);
