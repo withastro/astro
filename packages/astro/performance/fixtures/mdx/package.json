@@ -5,7 +5,6 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build:perf": "astro build --internal-ci-perf",
     "build": "astro build"
   },
   "keywords": [],
