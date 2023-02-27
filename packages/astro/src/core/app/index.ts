@@ -5,14 +5,13 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
-import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error } from '../logger/core.js';
+import { error, type LogOptions } from '../logger/core.js';
 import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
@@ -228,7 +227,7 @@ export class App {
 			status,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

@@ -172,7 +172,7 @@ export async function handleRoute(
 
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
-		const result = await callEndpoint(options);
+		const result = await callEndpoint(options, logging);
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute('/404', env, manifest);
