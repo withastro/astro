@@ -172,8 +172,8 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	// PR #6238 includes `astro sync` command, which is not a Vite command with an additional vite server.
-	// AstroBuilder::setup: will call createVite twice:
+	// PR #6238 Calls user integration `astro:config:setup` hooks when running `astro sync`.
+  // Without proper filtering, user integrations may run twice unexpectedly:
 	// - with `command` set to `build/dev` (src/core/build/index.ts L72)
 	// - and again in the `sync` module to generate `Content Collections` (src/core/sync/index.ts L36)
 	// We need to check if the command is `build` or `dev` before merging the user-provided vite config.
