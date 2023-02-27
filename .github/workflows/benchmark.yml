@@ -79,7 +79,7 @@ jobs:
         shell: bash
 
   output-benchmark:
-    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
     needs: [benchmark]
     runs-on: ubuntu-latest
     permissions:
