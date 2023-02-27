@@ -71,7 +71,7 @@ async function benchmarkCannon() {
 					// @ts-expect-error untyped but documented
 					instance.stop();
 					if (process.env.CI) {
-						result = result.match(/Req\/Bytes.*read/s)?.[0];
+						result = result.match(/^.*?requests in.*?read$/m)?.[0];
 					}
 					resolve(result);
 				}
