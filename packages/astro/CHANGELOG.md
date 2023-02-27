@@ -1,5 +1,15 @@
 # astro
 
+## 2.0.16
+
+### Patch Changes
+
+- [#6363](https://github.com/withastro/astro/pull/6363) [`d94aae776`](https://github.com/withastro/astro/commit/d94aae77656f14f56898d33c6d3f83c59112212e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes cases where head is injected in body when using Astro.slots.render()
+
+- Updated dependencies [[`5aa6580f7`](https://github.com/withastro/astro/commit/5aa6580f775405a4443835bf7eb81f0c65e5aed6)]:
+  - @astrojs/webapi@2.0.2
+  - @astrojs/telemetry@2.0.1
+
 ## 2.0.15
 
 ### Patch Changes
