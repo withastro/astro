@@ -40,7 +40,7 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 };
 
 // Skip nonessential plugins during performance benchmark runs
-const isPerformanceBenchmark = Boolean(process.env.ASTRO_CI_PERFORMANCE_RUN);
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(

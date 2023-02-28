@@ -6,7 +6,7 @@ import { cyan, bold, dim } from 'kleur/colors';
 
 // Skip nonessential remark / rehype plugins for a fair comparison.
 // This includes heading ID generation, syntax highlighting, GFM, and Smartypants.
-process.env.ASTRO_CI_PERFORMANCE_RUN = true;
+process.env.ASTRO_PERFORMANCE_BENCHMARK = true;
 
 const extByFixture = {
 	md: '.md',
@@ -70,7 +70,7 @@ async function benchmark({ fixtures, templates }) {
 			});
 		}
 	} finally {
-		process.env.ASTRO_CI_PERFORMANCE_RUN = false;
+		process.env.ASTRO_PERFORMANCE_BENCHMARK = false;
 	}
 })();
 

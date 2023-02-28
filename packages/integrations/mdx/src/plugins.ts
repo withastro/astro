@@ -25,7 +25,7 @@ import remarkShiki from './remark-shiki.js';
 import { isRelativePath, jsToTreeNode } from './utils.js';
 
 // Skip nonessential plugins during performance benchmark runs
-const isPerformanceBenchmark = Boolean(process.env.ASTRO_CI_PERFORMANCE_RUN);
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
