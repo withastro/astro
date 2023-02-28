@@ -11,7 +11,7 @@ export type OutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {})
 
 declare global {
 	// eslint-disable-next-line no-var
-	var astroImage: {
+	var astroAsset: {
 		imageService?: ImageService;
 		addStaticImage?: ((options: ImageTransform) => string) | undefined;
 		staticImages?: Map<ImageTransform, string>;

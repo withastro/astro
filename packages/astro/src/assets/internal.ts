@@ -14,7 +14,7 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 }
 
 export async function getConfiguredImageService(): Promise<ImageService> {
-	if (!globalThis.astroImage.imageService) {
+	if (!globalThis.astroAsset.imageService) {
 		const { default: service }: { default: ImageService } = await import(
 			// @ts-ignore
 			'virtual:image-service'
@@ -24,11 +24,11 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			throw error;
 		});
 
-		globalThis.astroImage.imageService = service;
+		globalThis.astroAsset.imageService = service;
 		return service;
 	}
 
-	return globalThis.astroImage.imageService;
+	return globalThis.astroAsset.imageService;
 }
 
 interface getImageResult {
@@ -42,8 +42,8 @@ export async function getImage(options: ImageTransform): Promise<getImageResult>
 	let imageURL = service.getURL(options);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
-	if (isLocalService(service) && globalThis.astroImage.addStaticImage) {
-		imageURL = globalThis.astroImage.addStaticImage(options);
+	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
+		imageURL = globalThis.astroAsset.addStaticImage(options);
 	}
 
 	return {
@@ -54,23 +54,30 @@ export async function getImage(options: ImageTransform): Promise<getImageResult>
 }
 
 export function getStaticImageList() {
-	if (!globalThis.astroImage.staticImages) {
+	if (!globalThis.astroAsset.staticImages) {
 		return [];
 	}
 
-	return globalThis.astroImage.staticImages?.entries();
+	return globalThis.astroAsset.staticImages?.entries();
+}
+
+interface GenerationData {
+	weight: {
+		before: number;
+		after: number;
+	};
 }
 
 export async function generateImage(
 	buildOpts: StaticBuildOptions,
 	options: ImageTransform,
 	filepath: string
-) {
-	const imageService = (await getConfiguredImageService()) as LocalImageService;
-
+): Promise<GenerationData | undefined> {
 	if (!isESMImportedImage(options.src)) {
-		return;
+		return undefined;
 	}
+
+	const imageService = (await getConfiguredImageService()) as LocalImageService;
 
 	const fileData = await fs.promises.readFile(
 		path.join(buildOpts.settings.config.outDir.pathname, options.src.src)
@@ -79,4 +86,11 @@ export async function generateImage(
 
 	const finalFilepath = path.join(buildOpts.settings.config.outDir.pathname, filepath);
 	await fs.promises.writeFile(finalFilepath, resultData.data);
+
+	return {
+		weight: {
+			before: Math.trunc(fileData.byteLength / 1024),
+			after: Math.trunc(resultData.data.byteLength / 1024),
+		},
+	};
 }

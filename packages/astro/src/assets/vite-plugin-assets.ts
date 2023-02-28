@@ -20,8 +20,8 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
-	if (!globalThis.astroImage) {
-		globalThis.astroImage = {};
+	if (!globalThis.astroAsset) {
+		globalThis.astroAsset = {};
 	}
 
 	return [
@@ -50,7 +50,7 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 					if (req.url?.startsWith('/_image')) {
 						// If the currently configured service isn't a local service, we don't need to do anything here.
 						// TODO: Support setting a specific service through a prop on Image / a parameter in getImage
-						if (!isLocalService(globalThis.astroImage.imageService)) {
+						if (!isLocalService(globalThis.astroAsset.imageService)) {
 							return next();
 						}
 
@@ -76,14 +76,14 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 							}
 						}
 
-						const transform = await globalThis.astroImage.imageService.parseURL(url);
+						const transform = await globalThis.astroAsset.imageService.parseURL(url);
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;
 						let format = meta.format;
 
 						if (transform) {
-							const result = await globalThis.astroImage.imageService.transform(file, transform);
+							const result = await globalThis.astroAsset.imageService.transform(file, transform);
 							data = result.data;
 							format = result.format;
 						}
@@ -99,14 +99,14 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 				});
 			},
 			buildStart() {
-				globalThis.astroImage.addStaticImage = (options) => {
-					if (!globalThis.astroImage.staticImages) {
-						globalThis.astroImage.staticImages = new Map<ImageTransform, string>();
+				globalThis.astroAsset.addStaticImage = (options) => {
+					if (!globalThis.astroAsset.staticImages) {
+						globalThis.astroAsset.staticImages = new Map<ImageTransform, string>();
 					}
 
 					let filePath: string;
-					if (globalThis.astroImage.staticImages.has(options)) {
-						filePath = globalThis.astroImage.staticImages.get(options)!;
+					if (globalThis.astroAsset.staticImages.has(options)) {
+						filePath = globalThis.astroAsset.staticImages.get(options)!;
 					} else {
 						// If the image is not imported, we can return the path as-is, since static references
 						// should only point ot valid paths for builds or remote images
@@ -121,7 +121,7 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 								propsToFilename(options)
 							)
 						);
-						globalThis.astroImage.staticImages.set(options, filePath);
+						globalThis.astroAsset.staticImages.set(options, filePath);
 					}
 
 					return filePath;
