@@ -47,10 +47,19 @@ async function benchmark({ fixtures, templates }) {
 			? [flags.test]
 			: ['simple', 'with-astro-components', 'with-react-components'];
 
+		const formats = Array.isArray(flags.format)
+			? flags.format
+			: typeof flags.format === 'string'
+			? [flags.format]
+			: ['md', 'mdx', 'mdoc'];
+
 		if (test.includes('simple')) {
-			console.log(`\n${bold('Simple')} ${dim(`${NUM_POSTS} posts (md, mdx, mdoc)`)}`);
+			const fixtures = formats;
+			console.log(
+				`\n${bold('Simple')} ${dim(`${NUM_POSTS} posts (${formatsToString(fixtures)})`)}`
+			);
 			await benchmark({
-				fixtures: ['md', 'mdx', 'mdoc'],
+				fixtures,
 				templates: {
 					md: 'simple.md',
 					mdx: 'simple.md',
@@ -60,9 +69,14 @@ async function benchmark({ fixtures, templates }) {
 		}
 
 		if (test.includes('with-astro-components')) {
-			console.log(`\n${bold('With Astro components')} ${dim(`${NUM_POSTS} posts (mdx, mdoc)`)}`);
+			const fixtures = formats.filter((format) => format !== 'md');
+			console.log(
+				`\n${bold('With Astro components')} ${dim(
+					`${NUM_POSTS} posts (${formatsToString(fixtures)})`
+				)}`
+			);
 			await benchmark({
-				fixtures: ['mdx', 'mdoc'],
+				fixtures,
 				templates: {
 					mdx: 'with-astro-components.mdx',
 					mdoc: 'with-astro-components.mdoc',
@@ -71,9 +85,14 @@ async function benchmark({ fixtures, templates }) {
 		}
 
 		if (test.includes('with-react-components')) {
-			console.log(`\n${bold('With React components')} ${dim(`${NUM_POSTS} posts (mdx, mdoc)`)}`);
+			const fixtures = formats.filter((format) => format !== 'md');
+			console.log(
+				`\n${bold('With React components')} ${dim(
+					`${NUM_POSTS} posts (${formatsToString(fixtures)})`
+				)}`
+			);
 			await benchmark({
-				fixtures: ['mdx', 'mdoc'],
+				fixtures,
 				templates: {
 					mdx: 'with-react-components.mdx',
 					mdoc: 'with-react-components.mdoc',
@@ -88,4 +107,8 @@ async function benchmark({ fixtures, templates }) {
 function getTimeStat(timeStart, timeEnd) {
 	const buildTime = timeEnd - timeStart;
 	return buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
+}
+
+function formatsToString(formats) {
+	return formats.join(', ');
 }
