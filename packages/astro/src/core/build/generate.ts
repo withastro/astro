@@ -105,9 +105,11 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
-	for (const imageData of getStaticImageList()) {
-		await generateImage(opts, imageData[0], imageData[1]);
+	if (opts.settings.config.experimental.images) {
+		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
+		for (const imageData of getStaticImageList()) {
+			await generateImage(opts, imageData[0], imageData[1]);
+		}
 	}
 
 	await runHookBuildGenerated({
