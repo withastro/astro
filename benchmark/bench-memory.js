@@ -42,13 +42,18 @@ export async function run(projectDir, outputFile) {
  * @param {AstroTimerStat} output
  */
 function printResult(output) {
-	return markdownTable([
-		['', 'Elapsed time (s)', 'Memory used (MB)', 'Final memory (MB)'],
-		...Object.entries(output).map(([name, stat]) => [
-			name,
-			Math.round(stat.elapsedTime),
-			Math.round(stat.heapUsedChange / 1024 / 1024),
-			Math.round(stat.heapUsedTotal / 1024 / 1024),
-		]),
-	]);
+	return markdownTable(
+		[
+			['', 'Elapsed time (s)', 'Memory used (MB)', 'Final memory (MB)'],
+			...Object.entries(output).map(([name, stat]) => [
+				name,
+				(stat.elapsedTime / 1000).toFixed(2),
+				(stat.heapUsedChange / 1024 / 1024).toFixed(2),
+				(stat.heapUsedTotal / 1024 / 1024).toFixed(2),
+			]),
+		],
+		{
+			align: ['l', 'r', 'r', 'r'],
+		}
+	);
 }
