@@ -39,7 +39,7 @@ if (commandName) {
 	const benchMod = await bench();
 	const projectDir = await makeProject(args.project || benchMod.defaultProject);
 	const outputFile = await getOutputFile(commandName);
-	await benchMod.run(projectDir, outputFile, args.title);
+	await benchMod.run(projectDir, outputFile);
 } else {
 	// Run all benchmarks
 	for (const name in benchmarks) {
@@ -47,7 +47,7 @@ if (commandName) {
 		const benchMod = await bench();
 		const projectDir = await makeProject(args.project || benchMod.defaultProject);
 		const outputFile = await getOutputFile(name);
-		await benchMod.run(projectDir, outputFile, args.title);
+		await benchMod.run(projectDir, outputFile);
 	}
 }
 

@@ -12,9 +12,8 @@ export const defaultProject = 'server-stress-default';
 /**
  * @param {URL} projectDir
  * @param {URL} outputFile
- * @param {string} [title]
  */
-export async function run(projectDir, outputFile, title) {
+export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Building...');
@@ -45,7 +44,7 @@ export async function run(projectDir, outputFile, title) {
 
 	console.log('Result preview:');
 	console.log('='.repeat(10));
-	if (title) console.log(`#### Server stress (${title})\n`);
+	console.log(`#### Server stress\n\n`);
 	let text = autocannon.printResult(result);
 	if (process.env.CI) {
 		text = text.match(/^.*?requests in.*?read$/m)?.[0];

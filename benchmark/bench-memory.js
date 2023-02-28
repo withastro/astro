@@ -13,9 +13,8 @@ export const defaultProject = 'memory-default';
 /**
  * @param {URL} projectDir
  * @param {URL} outputFile
- * @param {string} [title]
  */
-export async function run(projectDir, outputFile, title) {
+export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 	const outputFilePath = fileURLToPath(outputFile);
 
@@ -32,7 +31,7 @@ export async function run(projectDir, outputFile, title) {
 
 	console.log('Result preview:');
 	console.log('='.repeat(10));
-	if (title) console.log(`#### Memory (${title})\n`);
+	console.log(`#### Memory\n\n`);
 	console.log(printResult(JSON.parse(await fs.readFile(outputFilePath, 'utf-8'))));
 	console.log('='.repeat(10));
 
