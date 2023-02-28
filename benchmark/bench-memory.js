@@ -32,7 +32,7 @@ export async function run(projectDir, outputFile, title) {
 
 	console.log('Result preview:');
 	console.log('='.repeat(10));
-	if (title) console.log(`#### Memonry (${title})\n`);
+	if (title) console.log(`#### Memory (${title})\n`);
 	console.log(printResult(JSON.parse(await fs.readFile(outputFilePath, 'utf-8'))));
 	console.log('='.repeat(10));
 

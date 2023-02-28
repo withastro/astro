@@ -52,7 +52,9 @@ jobs:
         run: |
           result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }} --title "**PR**")
           processed=$(node ./benchmark/ci-helper.js "$result")
-          echo "BENCH_RESULT=$processed" >> $GITHUB_OUTPUT
+          echo "BENCH_RESULT<<BENCHEOF" >> $GITHUB_OUTPUT
+          echo "$processed" >> $GITHUB_OUTPUT
+          echo "BENCHEOF" >> $GITHUB_OUTPUT
         shell: bash
 
       # main benchmark
@@ -73,7 +75,9 @@ jobs:
         run: |
           result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }} --title "**MAIN**")
           processed=$(node ./benchmark/ci-helper.js "$result")
-          echo "BENCH_RESULT=$processed" >> $GITHUB_OUTPUT
+          echo "BENCH_RESULT<<BENCHEOF" >> $GITHUB_OUTPUT
+          echo "$processed" >> $GITHUB_OUTPUT
+          echo "BENCHEOF" >> $GITHUB_OUTPUT
         shell: bash
 
   output-benchmark:
