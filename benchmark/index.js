@@ -2,7 +2,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import mri from 'mri';
-import { makeProject } from './make-project.js';
 
 const args = mri(process.argv.slice(2));
 
@@ -24,8 +23,8 @@ Options
 
 const commandName = args._[0];
 const benchmarks = {
-	memory: () => import('./bench-memory.js'),
-	'server-stress': () => import('./bench-server-stress.js'),
+	memory: () => import('./bench/memory.js'),
+	'server-stress': () => import('./bench/server-stress.js'),
 };
 
 if (commandName && !(commandName in benchmarks)) {
@@ -51,6 +50,20 @@ if (commandName) {
 	}
 }
 
+async function makeProject(name) {
+	console.log('Making project:', name);
+	const projectDir = new URL(`./projects/${name}/`, import.meta.url);
+
+	const makeProjectMod = await import(`./make-project/${name}.js`);
+	await makeProjectMod.run(projectDir);
+
+	console.log('Finished making project:', name);
+	return projectDir;
+}
+
+/**
+ * @param {string} benchmarkName
+ */
 async function getOutputFile(benchmarkName) {
 	let file;
 	if (args.output) {

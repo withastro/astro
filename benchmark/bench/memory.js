@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
-import { astroBin } from './util.js';
+import { astroBin } from './_util.js';
 
-/** @typedef {Record<string, import('../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
+/** @typedef {Record<string, import('../../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
 
 /** Default project to run for this benchmark if not specified */
 export const defaultProject = 'memory-default';

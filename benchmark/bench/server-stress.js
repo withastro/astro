@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import autocannon from 'autocannon';
 import { execaCommand } from 'execa';
 import { waitUntilBusy } from 'port-authority';
-import { astroBin } from './util.js';
+import { astroBin } from './_util.js';
 
 const port = 4321;
 
