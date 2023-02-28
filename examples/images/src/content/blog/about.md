@@ -1,6 +1,6 @@
 ---
 title: 'dsfsf'
-image: 'astro.jpeg'
+image: 'astroone.jpeg'
 ---
 
 # Hello

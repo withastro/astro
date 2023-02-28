@@ -13,9 +13,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		tsConfigPath: undefined,
 
 		adapter: undefined,
-		injectedRoutes: config.experimental.images
-			? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
-			: [],
+		injectedRoutes:
+			config.experimental.images && config.output === 'server'
+				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
+				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		renderers: [jsxRenderer],
 		scripts: [],
