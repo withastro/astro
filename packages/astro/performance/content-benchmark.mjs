@@ -45,7 +45,7 @@ async function benchmark({ fixtures, templates }) {
 			? flags.test
 			: typeof flags.test === 'string'
 			? [flags.test]
-			: ['simple', 'with-components'];
+			: ['simple', 'with-astro-components', 'with-react-components'];
 
 		if (test.includes('simple')) {
 			console.log(`\n${bold('Simple')} ${dim(`${NUM_POSTS} posts (md, mdx, mdoc)`)}`);
@@ -59,13 +59,24 @@ async function benchmark({ fixtures, templates }) {
 			});
 		}
 
-		if (test.includes('with-components')) {
-			console.log(`\n${bold('With components')} ${dim(`${NUM_POSTS} posts (mdx, mdoc)`)}`);
+		if (test.includes('with-astro-components')) {
+			console.log(`\n${bold('With Astro components')} ${dim(`${NUM_POSTS} posts (mdx, mdoc)`)}`);
 			await benchmark({
 				fixtures: ['mdx', 'mdoc'],
 				templates: {
-					mdx: 'with-components.mdx',
-					mdoc: 'with-components.mdoc',
+					mdx: 'with-astro-components.mdx',
+					mdoc: 'with-astro-components.mdoc',
+				},
+			});
+		}
+
+		if (test.includes('with-react-components')) {
+			console.log(`\n${bold('With React components')} ${dim(`${NUM_POSTS} posts (mdx, mdoc)`)}`);
+			await benchmark({
+				fixtures: ['mdx', 'mdoc'],
+				templates: {
+					mdx: 'with-react-components.mdx',
+					mdoc: 'with-react-components.mdoc',
 				},
 			});
 		}

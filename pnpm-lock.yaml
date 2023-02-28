@@ -1144,37 +1144,71 @@ importers:
 
   packages/astro/performance/fixtures/md:
     specifiers:
+      '@astrojs/react': ^2.0.2
       '@performance/utils': ^0.0.0
+      '@types/react': ^18.0.21
+      '@types/react-dom': ^18.0.6
       astro: ^2.0.12
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
+      '@astrojs/react': link:../../../../integrations/react
       '@performance/utils': link:../utils
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
       astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
 
   packages/astro/performance/fixtures/mdoc:
     specifiers:
       '@astrojs/markdoc': ^0.0.0
+      '@astrojs/react': ^2.0.2
       '@performance/utils': ^0.0.0
+      '@types/react': ^18.0.21
+      '@types/react-dom': ^18.0.6
       astro: ^2.0.12
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
       '@astrojs/markdoc': link:../../../../integrations/markdoc
+      '@astrojs/react': link:../../../../integrations/react
       '@performance/utils': link:../utils
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
       astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
 
   packages/astro/performance/fixtures/mdx:
     specifiers:
       '@astrojs/mdx': ^0.17.2
+      '@astrojs/react': ^2.0.2
       '@performance/utils': ^0.0.0
+      '@types/react': ^18.0.21
+      '@types/react-dom': ^18.0.6
       astro: ^2.0.12
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
       '@astrojs/mdx': link:../../../../integrations/mdx
+      '@astrojs/react': link:../../../../integrations/react
       '@performance/utils': link:../utils
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
       astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
 
   packages/astro/performance/fixtures/utils:
     specifiers:
       astro: ^2.0.12
+      react: ^18.2.0
+      react-dom: ^18.2.0
     devDependencies:
       astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
 
   packages/astro/test/benchmark/simple:
     specifiers:
@@ -7488,7 +7522,7 @@ packages:
   /@types/react-dom/18.0.10:
     resolution: {integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==}
     dependencies:
-      '@types/react': 17.0.53
+      '@types/react': 18.0.27
     dev: false
 
   /@types/react/17.0.53:

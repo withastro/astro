@@ -1,5 +1,5 @@
 ---
-import { Title, Aside } from '@performance/utils';
+import { Title, Aside, LikeButton, HydratedLikeButton } from '@performance/utils';
 import type { CollectionEntry } from 'astro:content';
 
 type Props = {
@@ -10,7 +10,7 @@ const { entry }  = Astro.props as Props;
 const { Content } = await entry.render();
 ---
 
-{entry.data.type === 'with-components'
+{entry.data.type === 'with-astro-components'
 	? <Content config={{
 		tags: {
 			aside: {
@@ -22,5 +22,22 @@ const { Content } = await entry.render();
 			}
 		}
 	}} components={{ h1: Title, Aside }} />
+	: entry.data.type === 'with-react-components'
+	? <Content config={{
+		tags: {
+			'like-button': {
+				render: 'LikeButton',
+				attributes: {
+					liked: { type: Boolean },
+				},
+			},
+			'hydrated-like-button': {
+				render: 'HydratedLikeButton',
+				attributes: {
+					liked: { type: Boolean },
+				},
+			},
+		}
+	}} components={{ LikeButton, HydratedLikeButton }} />
 	: <Content />
 }
