@@ -29,11 +29,14 @@ export function getOutFolder(
 		case 'page':
 			switch (astroConfig.build.format) {
 				case 'directory': {
+					if (pathname.endsWith(PAGEHOMENAME)) {
+						return new URL(
+							'.' + appendForwardSlash(npath.dirname(pathname.slice(0, -PAGEHOMENAME.length + 1))),
+							outRoot
+						);
+					}
 					if (STATUS_CODE_PAGES.has(pathname)) {
-						if(pathname.endsWith(PAGEHOMENAME)){
-							new URL('.' + appendForwardSlash(npath.dirname(pathname.slice(0, -PAGEHOMENAME.length))), outRoot);;
-						}
-						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);;
+						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
 				}
