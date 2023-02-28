@@ -74,7 +74,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
-	settings.timer.end('Client build');
+	settings.timer.start('Client build');
 
 	const rendererClientEntrypoints = settings.renderers
 		.map((r) => r.clientEntrypoint)
