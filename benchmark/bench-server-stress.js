@@ -3,8 +3,8 @@ import { fileURLToPath } from 'url';
 import autocannon from 'autocannon';
 import { execaCommand } from 'execa';
 import { waitUntilBusy } from 'port-authority';
+import { astroBin } from './util.js';
 
-const benchmarkDir = fileURLToPath(new URL('./', import.meta.url));
 const port = 4321;
 
 export const defaultProject = 'server-stress-default';
@@ -17,14 +17,14 @@ export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Building...');
-	await execaCommand(`pnpm astro build --root ${root}`, {
-		cwd: benchmarkDir,
+	await execaCommand(`${astroBin} build`, {
+		cwd: root,
 		stdio: 'inherit',
 	});
 
 	console.log('Previewing...');
-	const previewProcess = execaCommand(`pnpm astro preview --root ${root} --port ${port}`, {
-		cwd: benchmarkDir,
+	const previewProcess = execaCommand(`${astroBin} preview --port ${port}`, {
+		cwd: root,
 		stdio: 'inherit',
 	});
 

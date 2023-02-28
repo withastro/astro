@@ -2,10 +2,9 @@ import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
+import { astroBin } from './util.js';
 
 /** @typedef {Record<string, import('../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
-
-const benchmarkDir = fileURLToPath(new URL('./', import.meta.url));
 
 /** Default project to run for this benchmark if not specified */
 export const defaultProject = 'memory-default';
@@ -19,8 +18,8 @@ export async function run(projectDir, outputFile) {
 	const outputFilePath = fileURLToPath(outputFile);
 
 	console.log('Building and benchmarking...');
-	await execaCommand(`pnpm astro build --root ${root}`, {
-		cwd: benchmarkDir,
+	await execaCommand(`node --expose-gc ${astroBin} build`, {
+		cwd: root,
 		stdio: 'inherit',
 		env: {
 			ASTRO_TIMER_PATH: outputFilePath,

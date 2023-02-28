@@ -30,6 +30,7 @@ export class AstroTimer {
 	 */
 	start(name: string) {
 		if (!this.enabled) return;
+		globalThis.gc?.();
 		this.ongoingTimers.set(name, {
 			startTime: performance.now(),
 			startHeap: process.memoryUsage().heapUsed,
@@ -43,6 +44,7 @@ export class AstroTimer {
 		if (!this.enabled) return;
 		const stat = this.ongoingTimers.get(name);
 		if (!stat) return;
+		globalThis.gc?.();
 		const endHeap = process.memoryUsage().heapUsed;
 		this.stats[name] = {
 			elapsedTime: performance.now() - stat.startTime,
