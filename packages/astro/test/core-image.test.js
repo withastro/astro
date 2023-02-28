@@ -111,7 +111,6 @@ describe('astro:image', () => {
 			before(async() => {
 				let res = await fixture.fetch('/post');
 				let html = await res.text();
-				console.log(html);
 				$ = cheerio.load(html);
 			});
 
