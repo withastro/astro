@@ -49,12 +49,12 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function extractFrontmatterImages(data: Record<string, any>): string[] {
-	const images = Object.values(data).filter(
-		(value) => typeof value === 'object' && value['__astro_image'] == true
+export function extractFrontmatterAssets(data: Record<string, any>): string[] {
+	const assets = Object.values(data).filter(
+		(value) => typeof value === 'object' && value['__astro_asset'] == true
 	);
 
-	return images.map((image) => image.src);
+	return assets.map((asset) => asset.src);
 }
 
 export function getEntrySlug({

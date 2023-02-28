@@ -9,10 +9,15 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
+	ImageTransform,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
+import {
+	generateImage as generateImageInternal,
+	getStaticImageList,
+} from '../../assets/internal.js';
 import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -100,6 +105,11 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
+	info(opts.logging, null, `\n${bgGreen(black(` generating optimized images`))}`);
+	for (const imageData of getStaticImageList()) {
+		await generateImage(opts, imageData[0], imageData[1]);
+	}
+
 	await runHookBuildGenerated({
 		config: opts.settings.config,
 		buildConfig: opts.buildConfig,
@@ -107,6 +117,15 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	});
 
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+}
+
+async function generateImage(opts: StaticBuildOptions, transform: ImageTransform, path: string) {
+	let timeStart = performance.now();
+	await generateImageInternal(opts, transform, path);
+	const timeEnd = performance.now();
+	const timeChange = getTimeStat(timeStart, timeEnd);
+	const timeIncrease = `(+${timeChange})`;
+	info(opts.logging, null, `  ${cyan('>')} ${dim(path)} ${dim(timeIncrease)}`);
 }
 
 async function generatePage(

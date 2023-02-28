@@ -5,16 +5,24 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
-import type { AstroPluginOptions } from '../@types/astro';
+import { AstroPluginOptions, ImageTransform } from '../@types/astro';
+import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
+import { copyWasmFiles } from './services/vendor/squoosh/copy-wasm.js';
 import { imageMetadata } from './utils/metadata.js';
 import { getOrigQueryParams } from './utils/queryParams.js';
+import { propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
+
+	if (!globalThis.astroImage) {
+		globalThis.astroImage = {};
+	}
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
@@ -31,7 +39,7 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
 					return `
-					export { getImage, getConfiguredService } from "astro/assets";
+					export { getImage, getConfiguredImageService } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 				`;
 				}
@@ -42,7 +50,7 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 					if (req.url?.startsWith('/_image')) {
 						// If the currently configured service isn't a local service, we don't need to do anything here.
 						// TODO: Support setting a specific service through a prop on Image / a parameter in getImage
-						if (!isLocalService(globalThis.astroImageService)) {
+						if (!isLocalService(globalThis.astroImage.imageService)) {
 							return next();
 						}
 
@@ -68,14 +76,14 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 							}
 						}
 
-						const transform = await globalThis.astroImageService.parseURL(url);
+						const transform = await globalThis.astroImage.imageService.parseURL(url);
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;
 						let format = meta.format;
 
 						if (transform) {
-							const result = await globalThis.astroImageService.transform(file, transform);
+							const result = await globalThis.astroImage.imageService.transform(file, transform);
 							data = result.data;
 							format = result.format;
 						}
@@ -89,6 +97,43 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 
 					return next();
 				});
+			},
+			buildStart() {
+				globalThis.astroImage.addStaticImage = (options) => {
+					if (!globalThis.astroImage.staticImages) {
+						globalThis.astroImage.staticImages = new Map<ImageTransform, string>();
+					}
+
+					let filePath: string;
+					if (globalThis.astroImage.staticImages.has(options)) {
+						filePath = globalThis.astroImage.staticImages.get(options)!;
+					} else {
+						// If the image is not imported, we can return the path as-is, since static references
+						// should only point ot valid paths for builds or remote images
+						if (!isESMImportedImage(options.src)) {
+							return options.src;
+						}
+
+						filePath = prependForwardSlash(
+							joinPaths(
+								settings.config.base,
+								settings.config.build.assets,
+								propsToFilename(options)
+							)
+						);
+						globalThis.astroImage.staticImages.set(options, filePath);
+					}
+
+					return filePath;
+				};
+			},
+			async buildEnd() {
+				const dir =
+					settings.config.output === 'server'
+						? settings.config.build.client
+						: settings.config.outDir;
+
+				await copyWasmFiles(new URL('./chunks', dir));
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {

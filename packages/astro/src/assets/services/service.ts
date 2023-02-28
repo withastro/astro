@@ -2,14 +2,13 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isESMImportedImage, isRemoteImage } from '../internal.js';
 import { ImageQuality, ImageTransform, OutputFormat } from '../types.js';
 
-declare global {
-	// eslint-disable-next-line no-var
-	var astroImageService: ImageService;
-}
-
 export type ImageService = LocalImageService | ExternalImageService;
 
-export function isLocalService(service: ImageService): service is LocalImageService {
+export function isLocalService(service: ImageService | undefined): service is LocalImageService {
+	if (!service) {
+		return false;
+	}
+
 	return 'transform' in service;
 }
 
@@ -39,7 +38,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 *
 	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return that.
 	 */
-	parseURL: (url: URL) => Partial<ImageTransform> | Promise<Partial<ImageTransform>> | undefined;
+	parseURL: (url: URL) => Record<string, any>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
@@ -49,7 +48,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 */
 	transform: (
 		inputBuffer: Buffer,
-		transform: Partial<ImageTransform>
+		transform: Partial<Omit<ImageTransform, 'src'>> & { src?: string }
 	) => Promise<{ data: Buffer; format: OutputFormat }>;
 }
 
@@ -120,10 +119,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const params = url.searchParams;
 
 		if (!params.has('href')) {
-			return undefined;
+			return {};
 		}
 
-		let transform: ImageTransform = { src: params.get('href')! };
+		let transform: Record<string, any> = { src: params.get('href')! };
 
 		if (params.has('w')) {
 			transform.width = parseInt(params.get('w')!);

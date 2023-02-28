@@ -108,7 +108,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 				${
 					settings.config.experimental.images
-						? 'import { getConfiguredService } from "astro:assets";\ngetConfiguredService();'
+						? 'import { getConfiguredImageService } from "astro:assets";\ngetConfiguredImageService();'
 						: ''
 				}
 
