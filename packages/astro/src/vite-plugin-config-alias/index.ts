@@ -64,14 +64,6 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 		}
 	}
 
-	// compile the baseUrl expression and push it to the list
-	// - `baseUrl` changes the way non-relative specifiers are resolved
-	// - if `baseUrl` exists then all non-relative specifiers are resolved relative to it
-	aliases.push({
-		find: /^(?!\.*\/)(.+)$/,
-		replacement: `${[...baseUrl].map((segment) => (segment === '$' ? '$$' : segment)).join('')}/$1`,
-	});
-
 	return aliases;
 };
 
@@ -81,7 +73,6 @@ export default function configAliasVitePlugin({
 }: {
 	settings: AstroSettings;
 }): vite.PluginOption {
-	const { config } = settings;
 	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
 	const configAlias = getConfigAlias(settings);
 
@@ -91,27 +82,10 @@ export default function configAliasVitePlugin({
 	return {
 		name: 'astro:tsconfig-alias',
 		enforce: 'pre',
-		async resolveId(sourceId: string, importer, options) {
-			/** Resolved ID conditionally handled by any other resolver. (this gives priority to all other resolvers) */
-			const resolvedId = await this.resolve(sourceId, importer, { skipSelf: true, ...options });
-
-			// if any other resolver handles the file, return that resolution
-			if (resolvedId) return resolvedId;
-
-			// conditionally resolve the source ID from any matching alias or baseUrl
-			for (const alias of configAlias) {
-				if (alias.find.test(sourceId)) {
-					/** Processed Source ID with our alias applied. */
-					const aliasedSourceId = sourceId.replace(alias.find, alias.replacement);
-
-					/** Resolved ID conditionally handled by any other resolver. (this also gives priority to all other resolvers) */
-					const resolvedAliasedId = await this.resolve(aliasedSourceId, importer, {
-						skipSelf: true,
-						...options,
-					});
-
-					// if the existing resolvers find the file, return that resolution
-					if (resolvedAliasedId) return resolvedAliasedId;
+		config() {
+			return {
+				resolve: {
+					alias: configAlias
 				}
 			}
 		},
