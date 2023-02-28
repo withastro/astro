@@ -11,7 +11,7 @@ env:
 
 jobs:
   benchmark:
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -83,7 +83,7 @@ jobs:
         shell: bash
 
   output-benchmark:
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
     needs: [benchmark]
     runs-on: ubuntu-latest
     permissions:
