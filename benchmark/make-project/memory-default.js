@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { loremIpsum } from './_util.js';
+import { markdownStressText } from './_util.js';
 
 /**
  * @param {URL} projectDir
@@ -28,7 +28,7 @@ const i = ${i};
 		const content = `\
 # Article ${i}
 
-${loremIpsum}
+${markdownStressText()}
 `;
 		promises.push(
 			fs.writeFile(new URL(`./src/content/blog/article-${i}.md`, projectDir), content, 'utf-8')
@@ -52,6 +52,18 @@ const { Content } = await entry.render();
 <h1>{entry.data.title}</h1>
 <Content />
 `,
+		'utf-8'
+	);
+
+	await fs.writeFile(
+		new URL('./astro.config.js', projectDir),
+		`\
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+	integrations: [mdx()]
+});`,
 		'utf-8'
 	);
 
