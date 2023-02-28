@@ -148,8 +148,7 @@ describe('Routing priority', () => {
 			const isEndpoint = htmlMatch && !h1 && !p;
 
 			it(description, async () => {
-				const htmlFile = isEndpoint ? url : `${appendForwardSlash(url)}index.html`;
-				debugger
+				const htmlFile = isEndpoint ? url : `${appendForwardSlash(url)}index.html`
 				if (fourOhFour) {
 					expect(fixture.pathExists(htmlFile)).to.be.false;
 					return;
