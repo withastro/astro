@@ -19,14 +19,11 @@ jobs:
       PR-BENCH: ${{ steps.benchmark-pr.outputs.BENCH_RESULT }}
       MAIN-BENCH: ${{ steps.benchmark-main.outputs.BENCH_RESULT }}
     steps:
-      - name: Check
-        run: echo "${{github.event.pull_request.head.sha}}"
-
+      # https://github.com/actions/checkout/issues/331#issuecomment-1438220926
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: "${{github.event.pull_request.head.sha}}"
-          repository: ${{github.event.pull_request.head.repo.full_name}}
+          ref: refs/pull/${{ github.event.issue.number }}/head
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
