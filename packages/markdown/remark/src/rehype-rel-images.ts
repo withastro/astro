@@ -2,7 +2,7 @@ import sizeOf from 'image-size';
 import { visit } from 'unist-util-visit';
 import { pathToFileURL } from 'url';
 import type { MarkdownVFile } from './types.js';
-import path from 'node:path';
+import { join as pathJoin } from 'node:path';
 
 export function rehypeRelativeImages(imageService: any) {
 	return () =>
@@ -14,7 +14,7 @@ export function rehypeRelativeImages(imageService: any) {
 				if (node.properties?.src) {
 					if (isRelativePath(node.properties.src.toString())) {
 						if (file.dirname) {
-							const filePath = path.join(file.dirname, node.properties.src);
+							const filePath = pathJoin(file.dirname, node.properties.src);
 							const fileData = sizeOf(filePath);
 
 							const fileURL = pathToFileURL(filePath);
