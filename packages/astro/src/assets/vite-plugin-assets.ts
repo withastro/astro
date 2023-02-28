@@ -17,7 +17,11 @@ import { propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
-export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
+export default function assets({
+	settings,
+	logging,
+	mode,
+}: AstroPluginOptions & { mode: string }): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
 	globalThis.astroAsset = {};
@@ -97,6 +101,10 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 				});
 			},
 			buildStart() {
+				if (mode != 'build') {
+					return;
+				}
+
 				globalThis.astroAsset.addStaticImage = (options) => {
 					if (!globalThis.astroAsset.staticImages) {
 						globalThis.astroAsset.staticImages = new Map<ImageTransform, string>();
@@ -126,6 +134,10 @@ export default function assets({ settings, logging }: AstroPluginOptions): vite.
 				};
 			},
 			async buildEnd() {
+				if (mode != 'build') {
+					return;
+				}
+
 				const dir =
 					settings.config.output === 'server'
 						? settings.config.build.client
