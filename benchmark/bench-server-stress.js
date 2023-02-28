@@ -4,7 +4,7 @@ import autocannon from 'autocannon';
 import { execaCommand } from 'execa';
 import { waitUntilBusy } from 'port-authority';
 
-const astro = fileURLToPath(new URL('../packages/astro/astro.js', import.meta.url));
+const benchmarkDir = fileURLToPath(new URL('./', import.meta.url));
 const port = 4321;
 
 export const defaultProject = 'server-stress-default';
@@ -17,14 +17,14 @@ export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 
 	console.log('Building...');
-	await execaCommand(`${astro} build`, {
-		cwd: root,
+	await execaCommand(`pnpm astro build --root ${root}`, {
+		cwd: benchmarkDir,
 		stdio: 'inherit',
 	});
 
 	console.log('Previewing...');
-	const previewProcess = execaCommand(`${astro} preview --port ${port}`, {
-		cwd: root,
+	const previewProcess = execaCommand(`pnpm astro preview --root ${root} --port ${port}`, {
+		cwd: benchmarkDir,
 		stdio: 'inherit',
 	});
 

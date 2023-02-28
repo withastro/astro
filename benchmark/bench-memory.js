@@ -5,7 +5,7 @@ import { markdownTable } from 'markdown-table';
 
 /** @typedef {Record<string, import('../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */
 
-const astro = fileURLToPath(new URL('../packages/astro/astro.js', import.meta.url));
+const benchmarkDir = fileURLToPath(new URL('./', import.meta.url));
 
 /** Default project to run for this benchmark if not specified */
 export const defaultProject = 'memory-default';
@@ -19,8 +19,8 @@ export async function run(projectDir, outputFile) {
 	const outputFilePath = fileURLToPath(outputFile);
 
 	console.log('Building and benchmarking...');
-	await execaCommand(`${astro} build`, {
-		cwd: root,
+	await execaCommand(`pnpm astro build --root ${root}`, {
+		cwd: benchmarkDir,
 		stdio: 'inherit',
 		env: {
 			ASTRO_TIMER_PATH: outputFilePath,
