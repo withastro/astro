@@ -15,7 +15,7 @@ Command
   server-stress   Run server stress test
 
 Options
-  --project <project-name>       Project to use for benchmark, see make-project.js
+  --project <project-name>       Project to use for benchmark, see benchmark/make-project/ for available names
   --output  <output-file>        Output file to write results to
 `);
 	process.exit(0);
