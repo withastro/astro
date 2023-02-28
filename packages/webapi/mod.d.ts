@@ -10,4 +10,4 @@ interface PolyfillOptions {
     override?: Record<string, {
         (...args: any[]): any;
     }>;
-}
+}

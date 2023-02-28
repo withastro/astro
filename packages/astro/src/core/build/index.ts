@@ -77,7 +77,7 @@ class AstroBuilder {
 					middlewareMode: true,
 				},
 			},
-			{ settings: this.settings, logging, mode: 'build' }
+			{ settings: this.settings, logging, mode: 'build', command: 'build' }
 		);
 		await runHookConfigDone({ settings: this.settings, logging });
 
