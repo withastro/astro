@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.0.4
+
+### Patch Changes
+
+- [#6352](https://github.com/withastro/astro/pull/6352) [`c87c16cfa`](https://github.com/withastro/astro/commit/c87c16cfaddea3a05af87c3258d57ef1a31516f7) Thanks [@SerekKiri](https://github.com/SerekKiri)! - Add missing flags to help command
+
 ## 3.0.3
 
 ### Patch Changes

@@ -2,7 +2,7 @@
 
 Documentation for "Non-HTML Pages":
 
-https://docs.astro.build/en/core-concepts/astro-pages/#non-html-pages
+https://docs.astro.build/en/core-concepts/endpoints/#static-file-endpoints
 
 ```
 npm create astro@latest -- --template non-html-pages
@@ -28,7 +28,7 @@ Inside of your Astro project, you'll see the following folders and files:
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Astro looks for `.astro`, `.js` or `.ts` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
 There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
 
