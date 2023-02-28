@@ -121,11 +121,22 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 async function generateImage(opts: StaticBuildOptions, transform: ImageTransform, path: string) {
 	let timeStart = performance.now();
-	await generateImageInternal(opts, transform, path);
+	const generationData = await generateImageInternal(opts, transform, path);
+
+	if (!generationData) {
+		return;
+	}
+
 	const timeEnd = performance.now();
 	const timeChange = getTimeStat(timeStart, timeEnd);
 	const timeIncrease = `(+${timeChange})`;
-	info(opts.logging, null, `  ${cyan('>')} ${dim(path)} ${dim(timeIncrease)}`);
+	info(
+		opts.logging,
+		null,
+		`  ${green('▶')} ${path} ${dim(
+			`(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`
+		)} ${dim(timeIncrease)}`
+	);
 }
 
 async function generatePage(
