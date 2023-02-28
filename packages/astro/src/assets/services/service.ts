@@ -48,7 +48,7 @@ export interface LocalImageService extends SharedServiceProps {
 	 */
 	transform: (
 		inputBuffer: Buffer,
-		transform: Partial<Omit<ImageTransform, 'src'>> & { src?: string }
+		transform: Record<string, any>
 	) => Promise<{ data: Buffer; format: OutputFormat }>;
 }
 
