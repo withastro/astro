@@ -54,7 +54,7 @@ export async function getImage(options: ImageTransform): Promise<getImageResult>
 }
 
 export function getStaticImageList() {
-	if (!globalThis.astroAsset.staticImages) {
+	if (!globalThis?.astroAsset?.staticImages) {
 		return [];
 	}
 

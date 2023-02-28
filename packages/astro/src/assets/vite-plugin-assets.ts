@@ -20,9 +20,7 @@ const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 export default function assets({ settings, logging }: AstroPluginOptions): vite.Plugin[] {
 	let resolvedConfig: vite.ResolvedConfig;
 
-	if (!globalThis.astroAsset) {
-		globalThis.astroAsset = {};
-	}
+	globalThis.astroAsset = {};
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
