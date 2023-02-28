@@ -9,7 +9,7 @@ import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
-	extractFrontmatterImages,
+	extractFrontmatterAssets,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
@@ -92,7 +92,7 @@ export function astroContentImportPlugin({
 					? await getEntryData(partialEntry, collectionConfig)
 					: unparsedData;
 
-				const images = extractFrontmatterImages(data).map(
+				const images = extractFrontmatterAssets(data).map(
 					(image) => `'${image}': await import('${image}'),`
 				);
 

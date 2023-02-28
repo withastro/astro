@@ -211,7 +211,7 @@ export function createAsset(options: { assetsDir: string }) {
 
 async function getImageMetadata(
 	imagePath: URL
-): Promise<(Metadata & { __astro_image: true }) | undefined> {
+): Promise<(Metadata & { __astro_asset: true }) | undefined> {
 	const meta = await imageMetadata(imagePath);
 
 	if (!meta) {
@@ -219,7 +219,7 @@ async function getImageMetadata(
 	}
 
 	delete meta.orientation;
-	return { ...meta, __astro_image: true };
+	return { ...meta, __astro_asset: true };
 }
 
 function checkImageAsset(
