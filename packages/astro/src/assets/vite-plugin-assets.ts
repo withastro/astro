@@ -140,7 +140,7 @@ export default function assets({
 
 				const dir =
 					settings.config.output === 'server'
-						? settings.config.build.client
+						? settings.config.build.server
 						: settings.config.outDir;
 
 				await copyWasmFiles(new URL('./chunks', dir));

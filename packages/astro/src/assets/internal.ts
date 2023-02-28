@@ -79,13 +79,24 @@ export async function generateImage(
 
 	const imageService = (await getConfiguredImageService()) as LocalImageService;
 
-	const fileData = await fs.promises.readFile(
-		path.join(buildOpts.settings.config.outDir.pathname, options.src.src)
-	);
+	let serverRoot: URL, clientRoot: URL;
+	if(buildOpts.settings.config.output === 'server') {
+		serverRoot = buildOpts.settings.config.build.server;
+		clientRoot = buildOpts.settings.config.build.client;
+	} else {
+		serverRoot = buildOpts.settings.config.outDir;
+		clientRoot = buildOpts.settings.config.outDir
+	}
+
+	const fileData = await fs.promises.readFile(new URL('.' + options.src.src, serverRoot));
 	const resultData = await imageService.transform(fileData, options);
 
-	const finalFilepath = path.join(buildOpts.settings.config.outDir.pathname, filepath);
-	await fs.promises.writeFile(finalFilepath, resultData.data);
+	
+	const finalFileURL = new URL('.' + filepath, clientRoot);
+	const finalFolderURL = new URL('./', finalFileURL);
+
+	await fs.promises.mkdir(finalFolderURL, { recursive: true });
+	await fs.promises.writeFile(finalFileURL, resultData.data);
 
 	return {
 		weight: {

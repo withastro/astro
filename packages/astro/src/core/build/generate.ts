@@ -110,6 +110,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		for (const imageData of getStaticImageList()) {
 			await generateImage(opts, imageData[0], imageData[1]);
 		}
+		delete globalThis.astroAsset.addStaticImage;
 	}
 
 	await runHookBuildGenerated({
