@@ -9,7 +9,9 @@
   "author": "",
   "license": "unlicensed",
   "devDependencies": {
-    "astro": "^2.0.12"
+    "astro": "^2.0.12",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "exports": {
     ".": "./index.ts"
