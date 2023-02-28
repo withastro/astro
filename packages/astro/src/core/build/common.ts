@@ -29,7 +29,7 @@ export function getOutFolder(
 		case 'page':
 			switch (astroConfig.build.format) {
 				case 'directory': {
-					if (pathname.endsWith(PAGEHOMENAME)) {
+					if (npath.basename(pathname) === PAGEHOMENAME) {
 						return new URL(
 							'.' + appendForwardSlash(npath.dirname(pathname.slice(0, -PAGEHOMENAME.length + 1))),
 							outRoot
