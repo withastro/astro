@@ -12,6 +12,7 @@ import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
+import { check } from '../dist/cli/check/index.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {
@@ -39,6 +40,7 @@ polyfill(globalThis, {
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<void>} onNextChange
+ * @property {() => Promise<>} check
  */
 
 /** @type {import('../src/core/logger/core').LogOptions} */
@@ -141,6 +143,7 @@ export async function loadFixture(inlineConfig) {
 
 	let fixtureId = new Date().valueOf();
 	let devServer;
+	let checkServer;
 
 	return {
 		build: (opts = {}) => {
@@ -148,6 +151,37 @@ export async function loadFixture(inlineConfig) {
 			return build(settings, { logging, telemetry, ...opts });
 		},
 		sync: (opts) => sync(settings, { logging, fs, ...opts }),
+		/**
+		 * This function runs the `check` command.
+		 * It injects the test dev server.
+		 *
+		 * @example
+		 * When used in a test suite:
+		 * ```js
+		 * 		let fixture = await loadFixture({
+		 * 			root: './fixtures/astro-check-watch/',
+		 * 		});
+		 * 		let { check, stop, watch } = fixture.check({
+		 * 			flags: { watch: true },
+		 * 		});
+		 * ```
+		 * @param opts {any} Override options sent to the check command
+		 */
+		check: async (opts) => {
+			checkServer = await check(settings, { logging, viteServer: devServer, ...opts });
+			return {
+				async check() {
+					return await checkServer.check();
+				},
+				async stop() {
+					return await checkServer.stop();
+				},
+
+				async watch() {
+					return await checkServer.watch();
+				},
+			};
+		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
 			devServer = await dev(settings, { logging, telemetry, ...opts });
@@ -160,7 +194,11 @@ export async function loadFixture(inlineConfig) {
 		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(settings, { logging, telemetry, ...opts });
+			const previewServer = await preview(settings, {
+				logging,
+				telemetry,
+				...opts,
+			});
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;
@@ -177,7 +215,11 @@ export async function loadFixture(inlineConfig) {
 				cwd: fileURLToPath(config.outDir),
 			}),
 		clean: async () => {
-			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
+			await fs.promises.rm(config.outDir, {
+				maxRetries: 10,
+				recursive: true,
+				force: true,
+			});
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
@@ -250,7 +292,9 @@ const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
-	const spawned = execa('node', [cliPath, ...args], { env: { ASTRO_TELEMETRY_DISABLED: true } });
+	const spawned = execa('node', [cliPath, ...args], {
+		env: { ASTRO_TELEMETRY_DISABLED: true },
+	});
 
 	spawned.stdout.setEncoding('utf8');
 

@@ -222,10 +222,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'check': {
-			const checkResult = await check({ settings, flags, logging, flags });
-			if (checkResult == 2) {
+			// We create a server to start doing our operations
+			const checkServer = await check(settings, { flags, logging, flags });
+			if (checkServer.isWatchMode) {
+				await checkServer.watch();
 				return await new Promise(() => {}); // lives forever
 			} else {
+				let checkResult = await checkServer.check();
 				return process.exit(checkResult);
 			}
 		}

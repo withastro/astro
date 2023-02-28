@@ -1,10 +1,11 @@
 import { expect } from 'chai';
-import { cli, parseCliDevStart, cliServerLogSetup } from './test-utils.js';
-import { promises as fs, writeFileSync, readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { isIPv4 } from 'net';
-import { join } from 'path';
+import { cli, parseCliDevStart, cliServerLogSetup, loadFixture } from './test-utils.js';
 import stripAnsi from 'strip-ansi';
+import { promises as fs, writeFileSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { isIPv4 } from 'node:net';
+import { join } from 'node:path';
+import { Writable } from 'node:stream';
 
 export function wait(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -21,38 +22,46 @@ describe('astro cli', () => {
 		expect(proc.exitCode).to.equal(0);
 	});
 
-	it('astro check --watch', async () => {
-		// used to save data coming from `process.stdout`
-		let stdout = '';
-		const invalidContent = 'foobar';
-		const projectRootURL = new URL('./fixtures/astro-check-watch/', import.meta.url);
-		let process = cli('check', '--root', fileURLToPath(projectRootURL), '--experimental-watch');
-
-		process.stdout.on('data', (chunk) => {
-			stdout += chunk;
+	it('astro check --watch reports errors on modified files', async () => {
+		let messageResolve;
+		const messagePromise = new Promise((resolve) => {
+			messageResolve = resolve;
 		});
+		const oneErrorContent = 'foobar';
 
-		// we wait for the command to do its job and print stuff to the console...
-		await wait(7000);
-
-		stdout = stripAnsi(stdout);
-		expect(stdout).to.include('0 errors');
-		// we need to clear the former output
-		stdout = '';
-		// we modify the astro file
-		const astroFilePath = join(fileURLToPath(projectRootURL), 'src/pages/index.astro');
-		const originalContent = readFileSync(astroFilePath, 'utf-8');
-
-		// we save some invalid content in the file
-		writeFileSync(astroFilePath, invalidContent);
-
-		// we wait for the command to write something in the console
-		await wait(7000);
-		stdout = stripAnsi(stdout);
-		// we restore the content of the file before assertion, so we don't keep a dirty file around
-		writeFileSync(astroFilePath, originalContent);
-
-		expect(stdout).to.include('1 error');
+		/** @type {import('./test-utils').Fixture} */
+		const fixture = await loadFixture({
+			root: './fixtures/astro-check-watch/',
+		});
+		const logs = [];
+		const { watch, stop } = await fixture.check({
+			flags: { watch: true },
+			logging: {
+				level: 'info',
+				dest: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push({ ...event, message: stripAnsi(event.message) });
+						if (event.message.includes('1 error')) {
+							messageResolve(logs);
+						}
+						callback();
+					},
+				}),
+			},
+		});
+		await watch();
+		const pagePath = join(fileURLToPath(fixture.config.root), 'src/pages/index.astro');
+		const pageContent = readFileSync(pagePath, 'utf-8');
+		await fs.writeFile(pagePath, oneErrorContent);
+		const messages = await messagePromise;
+		await fs.writeFile(pagePath, pageContent);
+		await stop();
+		const diagnostics = messages.filter(
+			(m) => m.type === 'diagnostics' && m.message.includes('Result')
+		);
+		expect(diagnostics[0].message).to.include('0 errors');
+		expect(diagnostics[1].message).to.include('1 error');
 	}).timeout(35000);
 
 	it('astro --version', async () => {
