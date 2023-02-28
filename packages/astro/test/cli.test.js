@@ -1,15 +1,11 @@
 import { expect } from 'chai';
 import { cli, parseCliDevStart, cliServerLogSetup, loadFixture } from './test-utils.js';
 import stripAnsi from 'strip-ansi';
-import { promises as fs, writeFileSync, readFileSync } from 'node:fs';
+import { promises as fs, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
-
-export function wait(ms) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
@@ -34,7 +30,7 @@ describe('astro cli', () => {
 			root: './fixtures/astro-check-watch/',
 		});
 		const logs = [];
-		const { watch, stop } = await fixture.check({
+		const checkServer = await fixture.check({
 			flags: { watch: true },
 			logging: {
 				level: 'info',
@@ -50,13 +46,13 @@ describe('astro cli', () => {
 				}),
 			},
 		});
-		await watch();
+		await checkServer.watch();
 		const pagePath = join(fileURLToPath(fixture.config.root), 'src/pages/index.astro');
 		const pageContent = readFileSync(pagePath, 'utf-8');
 		await fs.writeFile(pagePath, oneErrorContent);
 		const messages = await messagePromise;
 		await fs.writeFile(pagePath, pageContent);
-		await stop();
+		await checkServer.stop();
 		const diagnostics = messages.filter(
 			(m) => m.type === 'diagnostics' && m.message.includes('Result')
 		);

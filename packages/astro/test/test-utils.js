@@ -168,19 +168,7 @@ export async function loadFixture(inlineConfig) {
 		 * @param opts {any} Override options sent to the check command
 		 */
 		check: async (opts) => {
-			checkServer = await check(settings, { logging, viteServer: devServer, ...opts });
-			return {
-				async check() {
-					return await checkServer.check();
-				},
-				async stop() {
-					return await checkServer.stop();
-				},
-
-				async watch() {
-					return await checkServer.watch();
-				},
-			};
+			return await check(settings, { logging, viteServer: devServer, ...opts });
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
