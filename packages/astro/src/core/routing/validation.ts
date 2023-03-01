@@ -83,12 +83,13 @@ export function validateGetStaticPathsResult(
 		}
 
 		// TODO: Replace those with errors? They technically don't crash the build, but users might miss the warning. - erika, 2022-11-07
+		// Deleting the undefined judgment is for users who have used undefined before 2023-3-1
 		for (const [key, val] of Object.entries(pathObject.params)) {
-			if (!(typeof val === 'undefined' || typeof val === 'string' || typeof val === 'number')) {
+			if (!(typeof val === 'string' || typeof val === 'number')) {
 				warn(
 					logging,
 					'getStaticPaths',
-					`invalid path param: ${key}. A string, number or undefined value was expected, but got \`${JSON.stringify(
+					`invalid path param: ${key}. A string, number value was expected, but got \`${JSON.stringify(
 						val
 					)}\`.`
 				);
