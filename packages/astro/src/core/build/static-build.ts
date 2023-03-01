@@ -99,9 +99,11 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 	settings.timer.end('Client build');
 
-	// Free up memory
-	internals.ssrEntryChunk = undefined;
-	teardown();
+	// Free up memory, skip if running in tests
+	if (!process.env.TEST) {
+		internals.ssrEntryChunk = undefined;
+		teardown();
+	}
 
 	return { internals };
 }
