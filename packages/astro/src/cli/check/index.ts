@@ -2,7 +2,6 @@
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../../core/logger/core.js';
-
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
@@ -10,6 +9,8 @@ import { createRequire } from 'module';
 import ora from 'ora';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { printDiagnostic } from './print.js';
+import { Arguments } from 'yargs-parser';
+import { printHelp } from '../../core/messages.js';
 
 interface Result {
 	errors: number;
@@ -18,11 +19,25 @@ interface Result {
 	hints: number;
 }
 
-export async function check(settings: AstroSettings, { logging }: { logging: LogOptions }) {
+export async function check(
+	settings: AstroSettings,
+	{ logging, flags }: { logging: LogOptions; flags: Arguments }
+) {
+	if (flags.help || flags.h) {
+		printHelp({
+			commandName: 'astro check',
+			usage: '[...flags]',
+			tables: {
+				Flags: [['--help (-h)', 'See all available flags.']],
+			},
+			description: `Runs diagnostics against your project and reports errors to the console.`,
+		});
+		return;
+	}
 	console.log(bold('astro check'));
 
 	const { syncCli } = await import('../../core/sync/index.js');
-	const syncRet = await syncCli(settings, { logging, fs });
+	const syncRet = await syncCli(settings, { logging, fs, flags });
 	// early exit on sync failure
 	if (syncRet === 1) return syncRet;
 

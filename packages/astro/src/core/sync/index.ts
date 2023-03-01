@@ -11,13 +11,27 @@ import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
+import { printHelp } from '../messages.js';
+import { Arguments } from 'yargs-parser';
 
 type ProcessExit = 0 | 1;
 
 export async function syncCli(
 	settings: AstroSettings,
-	{ logging, fs }: { logging: LogOptions; fs: typeof fsMod }
+	{ logging, fs, flags }: { logging: LogOptions; fs: typeof fsMod; flags: Arguments }
 ): Promise<ProcessExit> {
+	if (flags.help || flags.h) {
+		printHelp({
+			commandName: 'astro sync',
+			usage: '[...flags]',
+			tables: {
+				Flags: [['--help (-h)', 'See all available flags.']],
+			},
+			description: `Generates TypeScript types for all Astro modules.`,
+		});
+		return 0;
+	}
+
 	const resolvedSettings = await runHookConfigSetup({
 		settings,
 		logging,
