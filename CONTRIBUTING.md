@@ -124,19 +124,16 @@ pnpm exec changeset
 We have benchmarks to keep performance under control. You can run these by running (from the project root):
 
 ```shell
-pnpm run benchmark --filter astro
+pnpm run benchmark
 ```
 
-Which will fail if the performance has regressed by **10%** or more.
-
-To update the times cd into the `packages/astro` folder and run the following:
+This will run all available benchmarks sequentially. To run a specific benchmark, you can run (for example):
 
 ```shell
-node test/benchmark/build.bench.js --save
-node test/benchmark/dev.bench.js --save
+pnpm run benchmark memory
 ```
 
-Which will update the build and dev benchmarks.
+Use `pnpm run benchmark --help` to see all available options.
 
 ## Code Structure
 
