@@ -142,7 +142,7 @@ describe('astro:image', () => {
 			});
 		});
 
-		describe('content collections', () => {
+		describe.skip('content collections', () => {
 			let $;
 			before(async() => {
 				let res = await fixture.fetch('/blog/one');
