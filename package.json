@@ -23,7 +23,7 @@
     "test:vite-ci": "turbo run test --filter=astro --output-logs=new-only --no-deps --concurrency=1",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
-    "benchmark": "pnpm --filter @benchmark/simple run build && pnpm dlx concurrently -k -s first --raw \"node packages/astro/test/benchmark/simple/server.mjs\" \"pnpm dlx autocannon -c 100 -d 30 -p 10 localhost:3002/\"",
+    "benchmark": "astro-benchmark",
     "lint": "eslint --cache .",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
@@ -76,7 +76,8 @@
     }
   },
   "dependencies": {
-    "@astrojs/webapi": "workspace:*"
+    "@astrojs/webapi": "workspace:*",
+    "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.4.4",

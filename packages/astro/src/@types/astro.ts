@@ -16,6 +16,7 @@ import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
+import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
@@ -1026,6 +1027,7 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	forceDisableTelemetry: boolean;
+	timer: AstroTimer;
 }
 
 export type AsyncRendererComponentFn<U> = (

@@ -16,19 +16,14 @@ jobs:
     permissions:
       contents: read
     outputs:
-      PR-BENCH-16: ${{ steps.benchmark-pr.outputs.BENCH_RESULT16 }}
-      PR-BENCH-18: ${{ steps.benchmark-pr.outputs.BENCH_RESULT18 }}
-      MAIN-BENCH-16: ${{ steps.benchmark-main.outputs.BENCH_RESULT16 }}
-      MAIN-BENCH-18: ${{ steps.benchmark-main.outputs.BENCH_RESULT18 }}
-    strategy:
-      matrix:
-        node-version: [16, 18]
+      PR-BENCH: ${{ steps.benchmark-pr.outputs.BENCH_RESULT }}
+      MAIN-BENCH: ${{ steps.benchmark-main.outputs.BENCH_RESULT }}
     steps:
+      # https://github.com/actions/checkout/issues/331#issuecomment-1438220926
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${{github.event.pull_request.head.sha}}
-          repository: ${{github.event.pull_request.head.repo.full_name}}
+          ref: refs/pull/${{ github.event.issue.number }}/head
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
@@ -45,13 +40,22 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
+      - name: Get bench command
+        id: bench-command
+        run: |
+          benchcmd=$(echo "${{ github.event.comment.body }}" | grep '!bench' | awk -F ' ' '{print $2}')
+          echo "bench=$benchcmd" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Run benchmark
         id: benchmark-pr
         run: |
-          pnpm run --silent benchmark 2> ./bench-result.md
-          result=$(awk '/requests in/' ./bench-result.md)
-          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
-          echo "$result"
+          result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }})
+          processed=$(node ./benchmark/ci-helper.js "$result")
+          echo "BENCH_RESULT<<BENCHEOF" >> $GITHUB_OUTPUT
+          echo "### PR Benchmark" >> $GITHUB_OUTPUT
+          echo "$processed" >> $GITHUB_OUTPUT
+          echo "BENCHEOF" >> $GITHUB_OUTPUT
         shell: bash
 
       # main benchmark
@@ -70,10 +74,12 @@ jobs:
       - name: Run benchmark
         id: benchmark-main
         run: |
-          pnpm run --silent benchmark 2> ./bench-result.md
-          result=$(awk '/requests in/' ./bench-result.md)
-          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
-          echo "$result"
+          result=$(pnpm run --silent benchmark ${{ steps.bench-command.outputs.bench }})
+          processed=$(node ./benchmark/ci-helper.js "$result")
+          echo "BENCH_RESULT<<BENCHEOF" >> $GITHUB_OUTPUT
+          echo "### Main Benchmark" >> $GITHUB_OUTPUT
+          echo "$processed" >> $GITHUB_OUTPUT
+          echo "BENCHEOF" >> $GITHUB_OUTPUT
         shell: bash
 
   output-benchmark:
@@ -89,12 +95,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           pr_number: ${{ github.event.issue.number }}
           message: |
-            **Node**: 16
-            **PR**: ${{ needs.benchmark.outputs.PR-BENCH-16 }}
-            **MAIN**: ${{ needs.benchmark.outputs.MAIN-BENCH-16 }}
+            ${{ needs.benchmark.outputs.PR-BENCH }}
 
-            ---
-
-            **Node**: 18
-            **PR**: ${{ needs.benchmark.outputs.PR-BENCH-18 }}
-            **MAIN**: ${{ needs.benchmark.outputs.MAIN-BENCH-18 }}
+            ${{ needs.benchmark.outputs.MAIN-BENCH }}

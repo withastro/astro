@@ -167,6 +167,9 @@ class AstroBuilder {
 				buildMode: this.settings.config.output,
 			});
 		}
+
+		// Benchmark results
+		this.settings.timer.writeStats();
 	}
 
 	/** Build the given Astro project.  */

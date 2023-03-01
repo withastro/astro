@@ -38,5 +38,11 @@ module.exports = {
         'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
       },
     },
+    {
+      files: ['benchmark/**/*.js'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
   ],
 };
