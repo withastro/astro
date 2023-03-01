@@ -1,20 +1,22 @@
 import type { AstroIntegration } from 'astro';
 import type { InlineConfig } from 'vite';
-import type { Config as _MarkdocConfig } from '@markdoc/markdoc';
+import type { Config, Config as _MarkdocConfig } from '@markdoc/markdoc';
 import _Markdoc from '@markdoc/markdoc';
 import { parseFrontmatter } from './utils.js';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 
-export default function markdoc(): AstroIntegration {
+export default function markdoc(markdocConfig: Config): AstroIntegration {
+	const entryBodyByFileIdCache = new Map<string, string>();
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, addContentEntryType, command }: any) => {
+			'astro:config:setup': async ({ updateConfig, config, addContentEntryType }: any) => {
 				const contentEntryType = {
 					extensions: ['.mdoc'],
-					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+					getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						entryBodyByFileIdCache.set(fileUrl.pathname, parsed.content);
 						return {
 							data: parsed.data,
 							body: parsed.content,
@@ -35,9 +37,24 @@ export default function markdoc(): AstroIntegration {
 							name: '@astrojs/markdoc',
 							async transform(code, id) {
 								if (!id.endsWith('.mdoc')) return;
-								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Markdoc } from '@astrojs/markdoc';\nimport { Renderer } from '@astrojs/markdoc/components';\nexport const body = ${JSON.stringify(
-									code
-								)};\nexport function getParsed() { return Markdoc.parse(body); }\nexport function getTransformed(inlineConfig) { return Markdoc.transform(getParsed(), inlineConfig) }\nexport async function Content ({ config, components }) { return h(Renderer, { content: getTransformed(config), components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
+
+								const body = entryBodyByFileIdCache.get(id);
+								if (!body) {
+									// Cache entry should exist if `getCollection()` was called
+									// (see `getEntryInfo()` above)
+									// If not, the user probably tried to import directly.
+									throw new Error(
+										`Unable to render ${JSON.stringify(
+											id.replace(config.root.pathname, '')
+										)}. If you tried to import this file directly, please use a Content Collection query instead. See https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html for more information.`
+									);
+								}
+								const rawAst = Markdoc.parse(body);
+								const ast = Markdoc.transform(rawAst, markdocConfig);
+
+								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Markdoc } from '@astrojs/markdoc';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst ast = ${JSON.stringify(
+									ast
+								)};\nexport async function Content ({ components }) { return h(Renderer, { content: ast, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
 							},
 						},
 					],
