@@ -1,7 +1,7 @@
 import type { AstroIntegration } from 'astro';
 import type { InlineConfig } from 'vite';
-import type { Config, Config as _MarkdocConfig } from '@markdoc/markdoc';
-import _Markdoc from '@markdoc/markdoc';
+import type { Config } from '@markdoc/markdoc';
+import Markdoc from '@markdoc/markdoc';
 import { parseFrontmatter } from './utils.js';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -64,6 +64,3 @@ export default function markdoc(markdocConfig: Config): AstroIntegration {
 		},
 	};
 }
-
-export const Markdoc = _Markdoc;
-export type MarkdocConfig = _MarkdocConfig;
