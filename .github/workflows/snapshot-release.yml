@@ -1,6 +1,7 @@
 name: Create a Snapshot Release
 
 on:
+  workflow_dispatch:
   issue_comment:
     types: [created]
 

@@ -30,7 +30,7 @@ interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
-	// will be undefined when using `sync`
+	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
 }
@@ -180,32 +180,28 @@ export async function createVite(
 	// We also need to filter out the plugins that are not meant to be applied to the current command:
 	// - If the command is `build`, we filter out the plugins that are meant to be applied for `serve`.
 	// - If the command is `dev`, we filter out the plugins that are meant to be applied for `build`.
-	if (command) {
-		let plugins = settings.config.vite?.plugins;
-		if (plugins) {
-			const { plugins: _, ...rest } = settings.config.vite;
-			const applyToFilter = command === 'build' ? 'serve' : 'build';
-			const applyArgs = [
-				{ ...settings.config.vite, mode },
-				{ command, mode },
-			];
-			// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
-			plugins = plugins.flat(Infinity).filter((p) => {
-				if (!p || p?.apply === applyToFilter) {
-					return false;
-				}
+	if (command && settings.config.vite?.plugins) {
+		let { plugins, ...rest } = settings.config.vite;
+		const applyToFilter = command === 'build' ? 'serve' : 'build';
+		const applyArgs = [
+			{ ...settings.config.vite, mode },
+			{ command, mode },
+		];
+		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
+		plugins = plugins.flat(Infinity).filter((p) => {
+			if (!p || p?.apply === applyToFilter) {
+				return false;
+			}
 
-				if (typeof p.apply === 'function') {
-					return p.apply(applyArgs[0], applyArgs[1]);
-				}
+			if (typeof p.apply === 'function') {
+				return p.apply(applyArgs[0], applyArgs[1]);
+			}
 
-				return true;
-			});
-
-			result = vite.mergeConfig(result, { ...rest, plugins });
-		} else {
-			result = vite.mergeConfig(result, settings.config.vite || {});
-		}
+			return true;
+		});
+		result = vite.mergeConfig(result, { ...rest, plugins });
+	} else {
+		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
 	if (result.plugins) {
