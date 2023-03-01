@@ -84,40 +84,49 @@ const { Content } = await entry.render();
 
 ## Configuration
 
-You can configure how your Markdoc content is rendered using props via the `Content` component. This component is returned by [a content collection `render()` result](https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html).
+Once the Markdoc integration is installed, no configuration is necessary to use `.mdoc` files in your Content Collections.
 
-### `config` prop
+### Markdoc config
 
-The `config` prop accepts all [Markdoc configuration options](https://markdoc.dev/docs/config#full-example), including tags and variables.
+The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [variables](https://markdoc.dev/docs/variables).
 
-This example defines a `version` variable to use within a `why-markdoc.mdoc` entry:
+You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `version` variable and an `aside` tag for use across all Markdoc Content Collection entries:
 
-```astro
----
-import { getEntryBySlug } from 'astro:content';
+```ts
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import markdoc from '@astrojs/markdoc';
 
-const entry = await getEntryBySlug('docs', 'why-markdoc');
-const { Content } = await entry.render();
----
-
-<Content
-  config={{
-    variables: {
-      version: '0.0.1',
-    }
-  }}
-/>
+// https://astro.build/config
+export default defineConfig({
+	integrations: [
+		markdoc({
+			variables: {
+        version: '0.0.1',
+      }
+			tags: {
+				aside: {
+					render: 'aside',
+					attributes: {
+						type: { type: String },
+						title: { type: String },
+					},
+				},
+			},
+		}),
+	],
+});
 ```
 
-### `components` prop
-
-The `components` prop defines mappings from an HTML element name to an Astro or UI framework component (React, Vue, Svelte, etc).
-
 :::note
-`components` does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
-:::
+These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects.
+::
 
-This example renders all `h1` headings using a `Title` component:
+### Content `components` prop
+
+The `Content` component accepts a `components` prop, which defines mappings from an HTML element name to an Astro or UI framework component (React, Vue, Svelte, etc).
+
+This example renders all `h1` headings using a `Title` component when rendering `src/docs/why-markdoc.mdoc`:
 
 ```astro
 ---
@@ -134,6 +143,10 @@ const { Content } = await entry.render();
   }}
 />
 ```
+
+:::tip
+`components` does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
+:::
 
 ## Examples
 
