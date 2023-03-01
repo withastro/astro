@@ -46,6 +46,9 @@ export async function run(projectDir, outputFile) {
 	console.log('='.repeat(10));
 	console.log(`#### Server stress\n\n`);
 	let text = autocannon.printResult(result);
+	// Truncate the logs in CI so that the generated comment from the `!bench` command
+	// is shortened. Also we only need this information when comparing runs.
+	// Full log example: https://github.com/mcollina/autocannon#command-line
 	if (process.env.CI) {
 		text = text.match(/^.*?requests in.*?read$/m)?.[0];
 	}
