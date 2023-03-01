@@ -143,8 +143,6 @@ export default function assets({
 						? settings.config.build.server
 						: settings.config.outDir;
 
-				console.log('dir', dir);
-
 				await copyWasmFiles(new URL('./chunks', dir));
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
