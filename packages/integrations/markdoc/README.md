@@ -106,7 +106,9 @@ export default defineConfig({
       }
 			tags: {
 				aside: {
-					render: 'aside',
+          // See "Content `components` prop section
+          // for more on rendering components via tags
+					render: 'Aside',
 					attributes: {
 						type: { type: String },
 						title: { type: String },
@@ -124,9 +126,11 @@ These options will be applied during [the Markdoc "transform" phase](https://mar
 
 ### Content `components` prop
 
-The `Content` component accepts a `components` prop, which defines mappings from an HTML element name to an Astro or UI framework component (React, Vue, Svelte, etc).
+The `Content` component accepts a `components` prop, which defines mappings from Markdoc tags and HTML element names to Astro or UI framework components (React, Vue, Svelte, etc).
 
-This example renders all `h1` headings using a `Title` component when rendering `src/docs/why-markdoc.mdoc`:
+#### Render HTML elements as Astro components
+
+You may want to map standard HTML elements like headings and paragraphs to components. This example renders all `h1` headings using a `Title` component:
 
 ```astro
 ---
@@ -144,7 +148,50 @@ const { Content } = await entry.render();
 />
 ```
 
-#### Using client-side UI components
+#### Render Markdoc tags as Astro components
+
+You may also configure [Markdoc tags](https://markdoc.dev/docs/tags) that map to components. You can configure a new tag from your `astro.config` like so, passiing the uppercase component name as the `render` prop:
+
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import markdoc from '@astrojs/markdoc';
+
+// https://astro.build/config
+export default defineConfig({
+	integrations: [
+		markdoc({
+			tags: {
+				aside: {
+					render: 'Aside',
+				},
+			},
+		}),
+	],
+});
+```
+
+Then, you can wire this render name (`'Aside'`) to a component from the `components` prop:
+
+
+```astro
+---
+import { getEntryBySlug } from 'astro:content';
+import Aside from '../components/Aside.astro';
+
+const entry = await getEntryBySlug('docs', 'why-markdoc');
+const { Content } = await entry.render();
+---
+
+<Content
+  components={{
+    Aside: Aside,
+  }}
+/>
+```
+
+#### Use client-side UI components
 
 Today, the `components` prop does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
 
@@ -159,7 +206,7 @@ import Aside from './Aside';
 <Aside client:load />
 ```
 
-This component can be applied via the `components` prop as demonstrated above:
+This component [can be applied via the `components` prop](#render-html-elements-as-astro-components):
 
 ```astro
 ---
