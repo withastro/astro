@@ -3745,6 +3745,7 @@ importers:
       adm-zip: ^0.5.9
       arg: ^5.0.2
       esbuild: ^0.15.18
+      esbuild-plugin-copy: ^2.0.2
       globby: ^12.2.0
       kleur: ^4.1.4
       svelte: ^3.48.0
@@ -3760,6 +3761,7 @@ importers:
       svelte: 3.55.1
       tar: 6.1.13
     devDependencies:
+      esbuild-plugin-copy: 2.0.2_esbuild@0.15.18
       tsconfig-resolver: 3.0.1
 
 packages:
@@ -9499,6 +9501,17 @@ packages:
     requiresBuild: true
     optional: true
 
+  /esbuild-plugin-copy/2.0.2_esbuild@0.15.18:
+    resolution: {integrity: sha512-HlDgkHXagBCwaoB8tlQFeH08/i5a2ey6Pc26annV1YcG5CkAHzzRzmCwp3wdi5KHI//HVUgipS+Zsy2tQmn9gQ==}
+    peerDependencies:
+      esbuild: '>= 0.14.0'
+    dependencies:
+      chalk: 4.1.2
+      esbuild: 0.15.18
+      fs-extra: 10.1.0
+      globby: 11.1.0
+    dev: true
+
   /esbuild-sunos-64/0.15.18:
     resolution: {integrity: sha512-On22LLFlBeLNj/YF3FT+cXcyKPEI263nflYlAhz5crxtp3yRG1Ugfr7ITyxmCmjm4vbN/dGrb/B7w7U8yJR9yw==}
     engines: {node: '>=12'}
@@ -10095,6 +10108,15 @@ packages:
 
   /fs-constants/1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
+
+  /fs-extra/10.1.0:
+    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: true
 
   /fs-extra/7.0.1:
     resolution: {integrity: sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==}
@@ -11188,7 +11210,6 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.10
-    dev: false
 
   /jsonpointer/5.0.1:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
@@ -15079,7 +15100,6 @@ packages:
   /universalify/2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
     engines: {node: '>= 10.0.0'}
-    dev: false
 
   /unocss/0.15.6:
     resolution: {integrity: sha512-Cq2CQCA2ISHnNgv2ben1nQP8/3w8O1D5geoK6ZZY8F5wvIvw/mZ9+qcgVx2ZuX5lLZMRP8MG9jL2WW0ocVgjNg==}

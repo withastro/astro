@@ -18,6 +18,7 @@
     "tar": "^6.1.11"
   },
   "devDependencies": {
+    "esbuild-plugin-copy": "^2.0.2",
     "tsconfig-resolver": "^3.0.1"
   }
 }
