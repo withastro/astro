@@ -18,9 +18,9 @@ type ProcessExit = 0 | 1;
 
 export async function syncCli(
 	settings: AstroSettings,
-	{ logging, fs, flags }: { logging: LogOptions; fs: typeof fsMod; flags: Arguments }
+	{ logging, fs, flags }: { logging: LogOptions; fs: typeof fsMod; flags?: Arguments }
 ): Promise<ProcessExit> {
-	if (flags.help || flags.h) {
+	if (flags?.help) {
 		printHelp({
 			commandName: 'astro sync',
 			usage: '[...flags]',

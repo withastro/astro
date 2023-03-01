@@ -13,7 +13,7 @@ import { cyan } from 'kleur/colors';
 interface PreviewOptions {
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
-	flags: Arguments;
+	flags?: Arguments;
 }
 
 /** The primary dev action */
@@ -21,7 +21,7 @@ export default async function preview(
 	_settings: AstroSettings,
 	{ logging, flags }: PreviewOptions
 ): Promise<PreviewServer | undefined> {
-	if (flags.help || flags.h) {
+	if (flags?.help) {
 		printHelp({
 			commandName: 'astro preview',
 			usage: '[...flags]',

@@ -16,7 +16,7 @@ import { cyan } from 'kleur/colors';
 export interface DevOptions {
 	configFlag: string | undefined;
 	configFlagPath: string | undefined;
-	flags: yargs.Arguments;
+	flags?: yargs.Arguments;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 	handleConfigError: (error: Error) => void;
@@ -35,7 +35,7 @@ export default async function dev(
 	settings: AstroSettings,
 	options: DevOptions
 ): Promise<DevServer | undefined> {
-	if (options.flags.help || options.flags.h) {
+	if (options.flags?.help || options.flags?.h) {
 		printHelp({
 			commandName: 'astro dev',
 			usage: '[...flags]',

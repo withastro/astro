@@ -23,7 +23,7 @@ export async function check(
 	settings: AstroSettings,
 	{ logging, flags }: { logging: LogOptions; flags: Arguments }
 ) {
-	if (flags.help || flags.h) {
+	if (flags.help) {
 		printHelp({
 			commandName: 'astro check',
 			usage: '[...flags]',
