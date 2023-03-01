@@ -99,15 +99,15 @@ import markdoc from '@astrojs/markdoc';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [
+  integrations: [
     markdoc({
       variables: {
         version: '0.0.1',
       },
       tags: {
         aside: {
-					// See "Content `components` prop section
-					// for more on rendering components via tags
+          // See "Content `components` prop section
+          // for more on rendering components via tags
           render: 'Aside',
           attributes: {
             type: { type: String },
@@ -116,7 +116,7 @@ export default defineConfig({
         },
       },
     }),
-	],
+  ],
 });
 ```
 
