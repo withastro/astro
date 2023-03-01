@@ -13,7 +13,7 @@ This **[Astro integration][astro-integration]** enables the usage of [Markdoc](h
 
 ## Why Markdoc?
 
-Markdoc allows you to enhance your Markdown with [UI components][astro-ui-frameworks]. If you have existing content authored in Markdoc, this integration allows you to bring those files to your Astro project using content collections.
+Markdoc allows you to enhance your Markdown with [Astro components][astro-components]. If you have existing content authored in Markdoc, this integration allows you to bring those files to your Astro project using content collections.
 
 ## Installation
 
@@ -168,6 +168,6 @@ See [CHANGELOG.md](https://github.com/withastro/astro/tree/main/packages/integra
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 
-[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
+[astro-components]: https://docs.astro.build/en/core-concepts/astro-components/
 
 [astro-content-collections]: https://docs.astro.build/en/guides/content-collections/
