@@ -92,7 +92,7 @@ The Markdoc integration accepts [all Markdoc configuration options](https://mark
 
 You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `version` variable and an `aside` tag for use across all Markdoc Content Collection entries:
 
-```ts
+```js
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import markdoc from '@astrojs/markdoc';
@@ -144,9 +144,40 @@ const { Content } = await entry.render();
 />
 ```
 
-:::tip
-`components` does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
-:::
+#### Using client-side UI components
+
+The `components` prop does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
+
+This example wraps a `Aside.tsx` component with a `ClientAside.astro` wrapper:
+
+```astro
+---
+// src/components/ClientAside.astro
+import Aside from './Aside';
+---
+
+<Aside client:load />
+```
+
+This component can be applied via the `components` prop as demonstrated above:
+
+```astro
+---
+// src/pages/why-markdoc.astro
+import { getEntryBySlug } from 'astro:content';
+import ClientAside from '../components/ClientAside.astro';
+
+const entry = await getEntryBySlug('docs', 'why-markdoc');
+const { Content } = await entry.render();
+---
+
+<Content
+  components={{
+    aside: ClientAside,
+  }}
+/>
+```
+
 
 ## Examples
 
