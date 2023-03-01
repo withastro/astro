@@ -12,7 +12,6 @@ declare module 'astro:content' {
 	interface Render {
 		'.mdoc': Promise<{
 			Content(props: {
-				config?: import('@astrojs/markdoc').MarkdocConfig;
 				components?: Record<string, ComponentRenderer>;
 			}): import('astro').MarkdownInstance<{}>['Content'];
 		}>;
