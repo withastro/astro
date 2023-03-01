@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isESMImportedImage, isRemoteImage } from '../internal.js';
-import { ImageQuality, ImageTransform, OutputFormat } from '../types.js';
+import { ImageTransform, OutputFormat } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -10,6 +10,15 @@ export function isLocalService(service: ImageService | undefined): service is Lo
 	}
 
 	return 'transform' in service;
+}
+
+export function parseQuality(quality: string): string | number {
+	let result = parseInt(quality);
+	if (Number.isNaN(result)) {
+		return quality;
+	}
+
+	return result;
 }
 
 interface SharedServiceProps {
@@ -133,11 +142,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 
 		if (params.has('f')) {
-			transform.format = params.get('f') as OutputFormat;
+			transform.format = params.get('f');
 		}
 
 		if (params.has('q')) {
-			transform.quality = params.get('q')! as ImageQuality;
+			transform.quality = parseQuality(params.get('q')!);
 		}
 
 		return transform;

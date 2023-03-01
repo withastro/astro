@@ -11,4 +11,4 @@ export const VALID_INPUT_FORMATS = [
 	'webp',
 	'gif',
 ] as const;
-export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg', 'gif'] as const;
+export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg'] as const;

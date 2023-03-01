@@ -1,7 +1,14 @@
-import { OutputFormat } from '../types.js';
-import { baseService, LocalImageService } from './service.js';
+import type { ImageQualityPreset, OutputFormat } from '../types.js';
+import { baseService, LocalImageService, parseQuality } from './service.js';
 
 let sharp: typeof import('sharp');
+
+const qualityTable: Record<ImageQualityPreset, number> = {
+	low: 25,
+	mid: 50,
+	high: 80,
+	max: 100,
+};
 
 async function loadSharp() {
 	let sharpImport: typeof import('sharp');
@@ -34,6 +41,20 @@ const sharpService: LocalImageService = {
 			result.resize({ height: transform.height });
 		} else if (transform.width) {
 			result.resize({ width: transform.width });
+		}
+
+		if (transform.format) {
+			let quality: number | string | undefined = undefined;
+			if (transform.quality) {
+				const parsedQuality = parseQuality(transform.quality);
+				if (typeof parsedQuality === 'number') {
+					quality = parsedQuality;
+				} else {
+					quality = transform.quality in qualityTable ? qualityTable[transform.quality] : undefined;
+				}
+			}
+
+			result.toFormat(transform.format, { quality: quality });
 		}
 
 		const { data, info } = await result.toBuffer({ resolveWithObject: true });

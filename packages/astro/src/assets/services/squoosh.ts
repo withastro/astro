@@ -1,6 +1,22 @@
-import { baseService, LocalImageService } from './service.js';
+import type { ImageQualityPreset, OutputFormat } from '../types.js';
+import { baseService, LocalImageService, parseQuality } from './service.js';
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
+
+const baseQuality = { low: 25, mid: 50, high: 80, max: 100 };
+const qualityTable: Record<Exclude<OutputFormat, 'png'>, Record<ImageQualityPreset, number>> = {
+	avif: {
+		// Squoosh's AVIF encoder has a bit of a weird behavior where `62` is technically the maximum, and anything over is overkill
+		max: 100,
+		high: 62,
+		mid: 45,
+		low: 20,
+	},
+	jpeg: baseQuality,
+	jpg: baseQuality,
+	webp: baseQuality,
+	// Squoosh's PNG encoder does not support a quality setting, so we can skip that here
+};
 
 const service: LocalImageService = {
 	getURL: baseService.getURL,
@@ -27,7 +43,20 @@ const service: LocalImageService = {
 			});
 		}
 
-		const data = await processBuffer(inputBuffer, operations, format, transform.quality as any);
+		let quality: number | string | undefined = undefined;
+		if (transform.quality) {
+			const parsedQuality = parseQuality(transform.quality);
+			if (typeof parsedQuality === 'number') {
+				quality = parsedQuality;
+			} else {
+				quality =
+					transform.quality in qualityTable[transform.format]
+						? qualityTable[transform.format][transform.quality]
+						: undefined;
+			}
+		}
+
+		const data = await processBuffer(inputBuffer, operations, format, quality);
 
 		return {
 			data: Buffer.from(data),
