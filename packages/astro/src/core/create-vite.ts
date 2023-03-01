@@ -30,7 +30,8 @@ interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
-	command: 'dev' | 'build';
+	// will be undefined when using `getViteConfig`
+	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
 }
 
@@ -179,7 +180,7 @@ export async function createVite(
 	// We also need to filter out the plugins that are not meant to be applied to the current command:
 	// - If the command is `build`, we filter out the plugins that are meant to be applied for `serve`.
 	// - If the command is `dev`, we filter out the plugins that are meant to be applied for `build`.
-	if (settings.config.vite?.plugins) {
+	if (command && settings.config.vite?.plugins) {
 		let { plugins, ...rest } = settings.config.vite;
 		const applyToFilter = command === 'build' ? 'serve' : 'build';
 		const applyArgs = [
