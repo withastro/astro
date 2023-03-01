@@ -56,7 +56,7 @@ export default defineConfig({
 
 ## Usage
 
-Markdoc files can be used within content collections. Add entries to any content collection using the `.mdoc` extension:
+Markdoc files can only be used within content collections. Add entries to any content collection using the `.mdoc` extension:
 
 ```sh
 src/content/docs/
