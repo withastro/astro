@@ -14,25 +14,6 @@ const { Content } = await post.render();
 	<title>Content - with config</title>
 </head>
 <body>
-	<Content
-		config={{
-			variables: {
-				showMarquee: true,
-			},
-			tags: {
-				mq: {
-					render: 'marquee',
-					attributes: {
-						direction: {
-							type: String,
-							default: 'left',
-							matches: ['left', 'right', 'up', 'down'],
-							errorLevel: 'critical',
-						},
-					},
-				},
-			}
-		}}
-	/>
+	<Content />
 </body>
 </html>
