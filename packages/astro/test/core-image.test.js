@@ -122,7 +122,7 @@ describe('astro:image', () => {
 		});
 	});
 
-	describe.skip('build ssg', () => {
+	describe('build ssg', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssg/',
@@ -143,7 +143,7 @@ describe('astro:image', () => {
 		});
 	});
 
-	describe.skip('prod ssr', () => {
+	describe('prod ssr', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
