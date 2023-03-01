@@ -18,8 +18,9 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
-import { staticBuild } from './static-build.js';
+import { staticBuild, viteBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
+import { StaticBuildOptions } from './types.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
@@ -126,7 +127,7 @@ class AstroBuilder {
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		await staticBuild({
+		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
 			logging: this.logging,
@@ -137,7 +138,10 @@ class AstroBuilder {
 			routeCache: this.routeCache,
 			viteConfig,
 			buildConfig,
-		});
+		};
+
+		const { internals } = await viteBuild(opts);
+		await staticBuild(opts, internals);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
