@@ -22,7 +22,14 @@ const service: LocalImageService = {
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
-	async transform(inputBuffer, transform) {
+	async transform(inputBuffer, transformOptions) {
+		const transform: {
+			format?: string;
+			height?: number;
+			width?: number;
+			quality?: string;
+		} = transformOptions;
+
 		let format = transform.format;
 		if (!format) {
 			format = 'webp';
@@ -50,8 +57,8 @@ const service: LocalImageService = {
 				quality = parsedQuality;
 			} else {
 				quality =
-					transform.quality in qualityTable[transform.format]
-						? qualityTable[transform.format][transform.quality]
+					transform.quality in qualityTable[format]
+						? qualityTable[format][transform.quality]
 						: undefined;
 			}
 		}

@@ -192,6 +192,18 @@ describe('astro:image', () => {
 			const data = await fixture.readFile(src, null);
 			expect(data).to.be.an.instanceOf(Buffer);
 		});
+
+		it('quality attribute produces a different file', async () => {
+			const html = await fixture.readFile('/quality/index.html');
+			const $ = cheerio.load(html);
+			expect($('#no-quality img').attr('src')).to.not.equal($('#quality-low img').attr('src'));
+		});
+
+		it('quality can be a number between 0-100', async () => {
+			const html = await fixture.readFile('/quality/index.html');
+			const $ = cheerio.load(html);
+			expect($('#no-quality img').attr('src')).to.not.equal($('#quality-num img').attr('src'));
+		});
 	});
 
 	describe('prod ssr', () => {
