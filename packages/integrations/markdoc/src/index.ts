@@ -49,12 +49,12 @@ export default function markdoc(markdocConfig: Config): AstroIntegration {
 										)}. If you tried to import this file directly, please use a Content Collection query instead. See https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html for more information.`
 									);
 								}
-								const rawAst = Markdoc.parse(body);
-								const ast = Markdoc.transform(rawAst, markdocConfig);
+								const ast = Markdoc.parse(body);
+								const content = Markdoc.transform(ast, markdocConfig);
 
-								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Markdoc } from '@astrojs/markdoc';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst ast = ${JSON.stringify(
-									ast
-								)};\nexport async function Content ({ components }) { return h(Renderer, { content: ast, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
+								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
+									content
+								)};\nexport async function Content ({ components }) { return h(Renderer, { content: transformedContent, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
 							},
 						},
 					],
