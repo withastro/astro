@@ -1,8 +1,9 @@
-import { expect, assert } from 'chai';
+import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
 import testAdapter from './test-adapter.js';
+import { fileURLToPath } from 'node:url';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -214,6 +215,31 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			expect(imgData).to.be.an.instanceOf(Buffer);
+		});
+	});
+
+	describe('custom service', () => {
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+				experimental: {
+					images: true,
+				},
+				image: {
+					service: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)),
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		it('custom service implements getHTMLAttributes', async () => {
+			const response = await fixture.fetch('/');
+			const html = await response.text();
+
+			const $ = cheerio.load(html);
+			expect($('#local img').attr('data-service')).to.equal('my-custom-service');
 		});
 	});
 });
