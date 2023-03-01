@@ -140,7 +140,22 @@ describe('astro:image', () => {
 				let $img = $('img');
 				expect($img.attr('alt')).to.equal('a penguin');
 			});
-		})
+		});
+
+		describe('content collections', () => {
+			let $;
+			before(async() => {
+				let res = await fixture.fetch('/blog/one');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('Adds the <img> tag', () => {
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
+		});
 	});
 
 	describe('build ssg', () => {

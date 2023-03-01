@@ -84,7 +84,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { headings } = renderResult.metadata;
 				let relImagePaths: string[] = [];
 				if (settings.config.experimental.images) {
-					relImagePaths = renderResult.vfile.data.relImagePaths as string[];
+					relImagePaths = renderResult.vfile.data.relImagePaths as string[] ?? [];
 				}
 
 				const astroData = safelyGetAstroData(renderResult.vfile.data);
