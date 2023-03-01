@@ -1,18 +1,11 @@
-import type { ComponentInstance } from 'astro';
-import type { RenderableTreeNode, Tag } from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
+import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-
-export type ComponentRenderer =
-	| ComponentInstance['default']
-	| {
-			component: ComponentInstance['default'];
-			props?(params: { attributes: Record<string, any>; getTreeNode(): Tag }): Record<string, any>;
-	  };
 
 export type AstroNode =
 	| string
 	| {
-			component: ComponentInstance['default'];
+			component: AstroInstance['default'];
 			props: Record<string, any>;
 			children: AstroNode[];
 	  }
@@ -24,7 +17,7 @@ export type AstroNode =
 
 export function createAstroNode(
 	node: RenderableTreeNode,
-	components: Record<string, ComponentRenderer> = {}
+	components: Record<string, AstroInstance['default']> = {}
 ): AstroNode {
 	if (typeof node === 'string' || typeof node === 'number') {
 		return String(node);
@@ -33,18 +26,10 @@ export function createAstroNode(
 	}
 
 	if (node.name in components) {
-		const componentRenderer = components[node.name];
-		const component =
-			'component' in componentRenderer ? componentRenderer.component : componentRenderer;
-		const props =
-			'props' in componentRenderer && typeof componentRenderer.props === 'function'
-				? componentRenderer.props({
-						attributes: node.attributes,
-						getTreeNode() {
-							return node;
-						},
-				  })
-				: node.attributes;
+		const component = components[node.name];
+		const props = node.attributes;
+
+		console.log({ node, component, props, components });
 
 		const children = node.children.map((child) => createAstroNode(child, components));
 

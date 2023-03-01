@@ -1,18 +1,8 @@
 declare module 'astro:content' {
-	type ComponentRenderer =
-		| import('astro').ComponentInstance['default']
-		| {
-				component: import('astro').ComponentInstance['default'];
-				props?(params: {
-					attributes: Record<string, any>;
-					getTreeNode(): typeof import('@astrojs/markdoc').Markdoc.Tag;
-				}): Record<string, any>;
-		  };
-
 	interface Render {
 		'.mdoc': Promise<{
 			Content(props: {
-				components?: Record<string, ComponentRenderer>;
+				components?: Record<string, import('astro').AstroInstance['default']>;
 			}): import('astro').MarkdownInstance<{}>['Content'];
 		}>;
 	}
