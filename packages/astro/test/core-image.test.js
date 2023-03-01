@@ -120,6 +120,26 @@ describe('astro:image', () => {
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
 			});
 		});
+
+		describe('getImage', () => {
+			let $;
+			before(async() => {
+				let res = await fixture.fetch('/get-image');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('Adds the <img> tag', () => {
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
+
+			it('includes the provided alt', () => {
+				let $img = $('img');
+				expect($img.attr('alt')).to.equal('a penguin');
+			});
+		})
 	});
 
 	describe('build ssg', () => {
@@ -138,6 +158,21 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			const src = $('#local img').attr('src');
 			expect(src.length).to.be.greaterThan(0);
+			const data = await fixture.readFile(src, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('getImage() usage also written', async () => {
+			const html = await fixture.readFile('/get-image/index.html');
+			const $ = cheerio.load(html);
+			let $img = $('img');
+
+			// <img> tag
+			expect($img).to.have.a.lengthOf(1);
+			expect($img.attr('alt')).to.equal('a penguin');
+
+			// image itself
+			const src = $img.attr('src');
 			const data = await fixture.readFile(src, null);
 			expect(data).to.be.an.instanceOf(Buffer);
 		});
