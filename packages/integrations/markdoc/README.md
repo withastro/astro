@@ -146,7 +146,7 @@ const { Content } = await entry.render();
 
 #### Using client-side UI components
 
-The `components` prop does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
+Today, the `components` prop does not support the `client:` directive for hydrating components. To embed client-side components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
 
 This example wraps a `Aside.tsx` component with a `ClientAside.astro` wrapper:
 
