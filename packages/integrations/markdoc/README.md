@@ -64,7 +64,7 @@ src/content/docs/
   quick-start.mdoc
 ```
 
-Then, query for these files using the [Content Collection APIs](https://docs.astro.build/en/guides/content-collections/#querying-collections):
+Then, query your collection using the [Content Collection APIs](https://docs.astro.build/en/guides/content-collections/#querying-collections):
 
 ```astro
 ---
