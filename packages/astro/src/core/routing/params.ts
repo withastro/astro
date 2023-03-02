@@ -32,8 +32,7 @@ export function stringifyParams(params: GetStaticPathsItem['params'], routeCompo
 	const validatedParams = Object.entries(params).reduce((acc, next) => {
 		validateGetStaticPathsParameter(next, routeComponent);
 		const [key, value] = next;
-		// default to 'index' if the param is empty in the dev environment 
-		acc[key] =  !value ? 'index' : value?.toString();
+		acc[key] = value?.toString();
 		return acc;
 	}, {} as Params);
 

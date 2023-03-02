@@ -5,7 +5,6 @@ import { appendForwardSlash } from '../../core/path.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
-const PAGEHOMENAME = 'index';
 
 function getOutRoot(astroConfig: AstroConfig): URL {
 	if (astroConfig.output === 'static') {
@@ -29,12 +28,6 @@ export function getOutFolder(
 		case 'page':
 			switch (astroConfig.build.format) {
 				case 'directory': {
-					if (npath.basename(pathname) === PAGEHOMENAME) {
-						return new URL(
-							'.' + appendForwardSlash(npath.dirname(pathname.slice(0, -PAGEHOMENAME.length + 1))),
-							outRoot
-						);
-					}
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 					}
