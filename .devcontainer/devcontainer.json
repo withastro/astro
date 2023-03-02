@@ -1,5 +1,5 @@
 {
-  "name": "Contribute to Astro CodeSpaces",
+  "name": "Contribute to Astro",
   "build": {
     "dockerfile": "Dockerfile"
   },
