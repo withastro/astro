@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
-import testAdapter from './test-adapter.js';
 import { fileURLToPath } from 'node:url';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -20,9 +20,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image/',
 				experimental: {
 					images: true,
-				}
+				},
 			});
-	
+
 			devServer = await fixture.startDevServer({
 				logging: {
 					level: 'error',
@@ -31,19 +31,19 @@ describe('astro:image', () => {
 						write(event, _, callback) {
 							logs.push(event);
 							callback();
-						}
-					})
-				}
+						},
+					}),
+				},
 			});
 		});
-	
+
 		after(async () => {
 			await devServer.stop();
 		});
 
 		describe('basics', () => {
 			let $;
-			before(async() => {
+			before(async () => {
 				let res = await fixture.fetch('/');
 				let html = await res.text();
 				$ = cheerio.load(html);
@@ -105,11 +105,21 @@ describe('astro:image', () => {
 				expect(logs).to.have.a.lengthOf(1);
 				expect(logs[0].message).to.contain('For remote images, height is required.');
 			});
+
+			it('supports aliases', async () => {
+				let res = await fixture.fetch('/alias');
+				let html = await res.text();
+				let $ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+				expect($img.attr('src').includes('penguin1.jpg')).to.equal(true);
+			});
 		});
 
 		describe('markdown', () => {
 			let $;
-			before(async() => {
+			before(async () => {
 				let res = await fixture.fetch('/post');
 				let html = await res.text();
 				$ = cheerio.load(html);
@@ -120,11 +130,20 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(1);
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
 			});
+
+			it('Supports aliased paths', async () => {
+				let res = await fixture.fetch('/aliasMarkdown');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
 		});
 
 		describe('getImage', () => {
 			let $;
-			before(async() => {
+			before(async () => {
 				let res = await fixture.fetch('/get-image');
 				let html = await res.text();
 				$ = cheerio.load(html);
@@ -144,7 +163,7 @@ describe('astro:image', () => {
 
 		describe.skip('content collections', () => {
 			let $;
-			before(async() => {
+			before(async () => {
 				let res = await fixture.fetch('/blog/one');
 				let html = await res.text();
 				$ = cheerio.load(html);
@@ -164,7 +183,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				experimental: {
 					images: true,
-				}
+				},
 			});
 			await fixture.build();
 		});
@@ -214,7 +233,7 @@ describe('astro:image', () => {
 				adapter: testAdapter(),
 				experimental: {
 					images: true,
-				}
+				},
 			});
 			await fixture.build();
 		});
