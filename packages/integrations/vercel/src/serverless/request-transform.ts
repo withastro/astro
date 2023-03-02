@@ -2,11 +2,9 @@ import type { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { splitCookiesString } from 'set-cookie-parser';
 
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
-
 /*
   Credits to the SvelteKit team
-	https://github.com/sveltejs/kit/blob/dd380b38c322272b414a7ec3ac2911f2db353f5c/packages/kit/src/exports/node/index.js
+	https://github.com/sveltejs/kit/blob/8d1ba04825a540324bc003e85f36559a594aadc2/packages/kit/src/exports/node/index.js
 */
 
 function get_raw_body(req: IncomingMessage, body_size_limit?: number): ReadableStream | null {
@@ -32,7 +30,8 @@ function get_raw_body(req: IncomingMessage, body_size_limit?: number): ReadableS
 		if (!length) {
 			length = body_size_limit;
 		} else if (length > body_size_limit) {
-			throw new Error(
+			throw new HTTPError(
+				413,
 				`Received content-length of ${length}, but only accept up to ${body_size_limit} bytes.`
 			);
 		}
@@ -66,7 +65,8 @@ function get_raw_body(req: IncomingMessage, body_size_limit?: number): ReadableS
 				if (size > length) {
 					cancelled = true;
 					controller.error(
-						new Error(
+						new HTTPError(
+							413,
 							`request body size exceeded ${
 								content_length ? "'content-length'" : 'BODY_SIZE_LIMIT'
 							} of ${length}`
@@ -99,26 +99,20 @@ export async function getRequest(
 	req: IncomingMessage,
 	bodySizeLimit?: number
 ): Promise<Request> {
-	let headers = req.headers as Record<string, string>;
-	if (req.httpVersionMajor === 2) {
-		// we need to strip out the HTTP/2 pseudo-headers because node-fetch's
-		// Request implementation doesn't like them
-		headers = Object.assign({}, headers);
-		delete headers[':method'];
-		delete headers[':path'];
-		delete headers[':authority'];
-		delete headers[':scheme'];
-	}
-	const request = new Request(base + req.url, {
+	return new Request(base + req.url, {
+		// @ts-expect-error
+		duplex: 'half',
 		method: req.method,
-		headers,
+		headers: req.headers as Record<string, string>,
 		body: get_raw_body(req, bodySizeLimit),
 	});
-	Reflect.set(request, clientAddressSymbol, headers['x-forwarded-for']);
-	return request;
 }
 
-export async function setResponse(app: App, res: ServerResponse, response: Response) {
+export async function setResponse(
+	app: App,
+	res: ServerResponse,
+	response: Response
+): Promise<void> {
 	const headers = Object.fromEntries(response.headers);
 	let cookies: string[] = [];
 
@@ -129,8 +123,9 @@ export async function setResponse(app: App, res: ServerResponse, response: Respo
 	}
 
 	if (app.setCookieHeaders) {
-		const setCookieHeaders = Array.from(app.setCookieHeaders(response));
-		cookies.push(...setCookieHeaders);
+		for (const setCookieHeader of app.setCookieHeaders(response)) {
+			cookies.push(setCookieHeader);
+		}
 	}
 
 	res.writeHead(response.status, { ...headers, 'set-cookie': cookies });
@@ -186,5 +181,18 @@ export async function setResponse(app: App, res: ServerResponse, response: Respo
 		} catch (error) {
 			cancel(error instanceof Error ? error : new Error(String(error)));
 		}
+	}
+}
+
+class HTTPError extends Error {
+	status: number;
+
+	constructor(status: number, reason: string) {
+		super(reason);
+		this.status = status;
+	}
+
+	get reason() {
+		return super.message;
 	}
 }
