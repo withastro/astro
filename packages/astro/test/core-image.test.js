@@ -212,6 +212,39 @@ describe('astro:image', () => {
 			expect(data).to.be.an.instanceOf(Buffer);
 		});
 
+		it('aliased images are written', async () => {
+			const html = await fixture.readFile('/alias/index.html');
+
+			const $ = cheerio.load(html);
+			let $img = $('img');
+
+			// <img> tag
+			expect($img).to.have.a.lengthOf(1);
+			expect($img.attr('alt')).to.equal('A penguin!');
+
+			// image itself
+			const src = $img.attr('src');
+			const data = await fixture.readFile(src, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		// TODO: Images in Markdown are currently not being build. Need to fix!
+		it.skip('aliased images in Markdown are written', async () => {
+			const html = await fixture.readFile('/aliasMarkdown/index.html');
+
+			const $ = cheerio.load(html);
+			let $img = $('img');
+
+			// <img> tag
+			expect($img).to.have.a.lengthOf(1);
+			expect($img.attr('alt')).to.equal('A penguin');
+
+			// image itself
+			const src = $img.attr('src');
+			const data = await fixture.readFile(src, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
 		it('quality attribute produces a different file', async () => {
 			const html = await fixture.readFile('/quality/index.html');
 			const $ = cheerio.load(html);
