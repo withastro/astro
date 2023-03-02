@@ -150,9 +150,15 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		: undefined;
 
 	const highlighter = await getHighlighter({ theme: 'css-variables' });
+	let highlighterLang = err.loc?.file?.split('.').pop();
+	if (['cjs', 'mjs'].includes(highlighterLang ?? '')) {
+		// Shiki does not support `mjs` or `cjs` aliases by default.
+		// Map these to `js` instead.
+		highlighterLang = 'js';
+	}
 	const highlightedCode = err.fullCode
 		? highlighter.codeToHtml(err.fullCode, {
-				lang: err.loc?.file?.split('.').pop(),
+				lang: highlighterLang,
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 		  })
 		: undefined;
