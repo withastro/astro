@@ -19,8 +19,8 @@ import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
-import { getTimeStat } from './util.js';
 import { StaticBuildOptions } from './types.js';
+import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
