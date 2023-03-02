@@ -14,7 +14,7 @@
     "@astrojs/mdx": "^0.17.2",
     "@astrojs/tailwind": "^3.0.1",
     "@types/canvas-confetti": "^1.4.3",
-    "astro": "^2.0.16",
+    "astro": "^2.0.17",
     "autoprefixer": "^10.4.7",
     "canvas-confetti": "^1.5.1",
     "postcss": "^8.4.14",
