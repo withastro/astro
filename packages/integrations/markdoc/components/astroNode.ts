@@ -32,7 +32,6 @@ export function createAstroNode(
 	if (isCapitalized(node.name) && node.name in components) {
 		const component = components[node.name];
 		const props = node.attributes;
-
 		const children = node.children.map((child) => createAstroNode(child, components));
 
 		return {
@@ -41,11 +40,10 @@ export function createAstroNode(
 			children,
 		};
 	} else if (isCapitalized(node.name)) {
-		throw new Error(
-			`[Markdoc] Unable to render ${JSON.stringify(
-				node.name
-			)}. Did you add this to the "components" prop on your <Content /> component?`
-		);
+		throw new MarkdocError({
+			message: `Unable to render ${JSON.stringify(node.name)}.`,
+			hint: 'Did you add this to the "components" prop on your <Content /> component?',
+		});
 	} else {
 		return {
 			tag: node.name,
