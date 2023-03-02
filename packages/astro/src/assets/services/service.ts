@@ -1,5 +1,6 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { isESMImportedImage, isRemoteImage } from '../internal.js';
+import { isRemotePath } from '../../core/path.js';
+import { isESMImportedImage } from '../internal.js';
 import { ImageTransform, OutputFormat } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
@@ -110,7 +111,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 
 		// Both our currently available local services don't handle remote images, so for them we can just return as is
-		if (!isESMImportedImage(options.src) && isRemoteImage(options.src)) {
+		if (!isESMImportedImage(options.src) && isRemotePath(options.src)) {
 			return options.src;
 		}
 

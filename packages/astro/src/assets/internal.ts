@@ -1,13 +1,8 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { ImageService, isLocalService, LocalImageService } from './services/service.js';
 import type { ImageMetadata, ImageTransform } from './types.js';
-
-export function isRemoteImage(src: string) {
-	return /^(https?:)?\/\//.test(src);
-}
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
@@ -80,18 +75,17 @@ export async function generateImage(
 	const imageService = (await getConfiguredImageService()) as LocalImageService;
 
 	let serverRoot: URL, clientRoot: URL;
-	if(buildOpts.settings.config.output === 'server') {
+	if (buildOpts.settings.config.output === 'server') {
 		serverRoot = buildOpts.settings.config.build.server;
 		clientRoot = buildOpts.settings.config.build.client;
 	} else {
 		serverRoot = buildOpts.settings.config.outDir;
-		clientRoot = buildOpts.settings.config.outDir
+		clientRoot = buildOpts.settings.config.outDir;
 	}
 
 	const fileData = await fs.promises.readFile(new URL('.' + options.src.src, serverRoot));
 	const resultData = await imageService.transform(fileData, options);
 
-	
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
 

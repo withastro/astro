@@ -1,6 +1,7 @@
 import mime from 'mime';
 import type { APIRoute } from '../@types/astro.js';
-import { getConfiguredImageService, isRemoteImage } from './internal.js';
+import { isRemotePath } from '../core/path.js';
+import { getConfiguredImageService } from './internal.js';
 import { isLocalService } from './services/service.js';
 import { etag } from './utils/etag.js';
 
@@ -39,7 +40,7 @@ export const get: APIRoute = async ({ request }) => {
 		let inputBuffer: Buffer | undefined = undefined;
 
 		// TODO: handle config subpaths?
-		const sourceUrl = isRemoteImage(transform.src)
+		const sourceUrl = isRemotePath(transform.src)
 			? new URL(transform.src)
 			: new URL(transform.src, url.origin);
 		inputBuffer = await loadRemoteImage(sourceUrl);

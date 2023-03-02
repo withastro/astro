@@ -8,7 +8,7 @@ import type {
 import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
-import toRemarkCollectRelativeImages from './remark-collect-rel-images.js';
+import toRemarkCollectImages from './remark-collect-images.js';
 import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
@@ -21,7 +21,7 @@ import markdownToHtml from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
-import { rehypeRelativeImages } from './rehype-rel-images.js';
+import { rehypeImages } from './rehype-images.js';
 
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export * from './types.js';
@@ -91,7 +91,7 @@ export async function renderMarkdown(
 
 	if (opts.experimentalImages) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use([toRemarkCollectRelativeImages()]);
+		parser.use([toRemarkCollectImages()]);
 	}
 
 	parser.use([
@@ -110,7 +110,7 @@ export async function renderMarkdown(
 	});
 
 	if (opts.experimentalImages) {
-		parser.use(rehypeRelativeImages(await opts.imageService));
+		parser.use(rehypeImages(await opts.imageService, opts.assetsDir));
 	}
 	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 

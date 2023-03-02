@@ -62,6 +62,7 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	frontmatter?: Record<string, any>;
 	experimentalImages?: boolean;
 	imageService?: any;
+	assetsDir?: URL;
 }
 
 export interface MarkdownHeading {
