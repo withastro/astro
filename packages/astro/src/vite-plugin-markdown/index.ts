@@ -17,6 +17,8 @@ import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
+import { imageMetadata } from '../assets/index.js';
+import { pathToFileURL } from 'url';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -62,17 +64,17 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 	async function resolveImage(this: PluginContext, fileId: string, path: string) {
 		const resolved = await this.resolve(path, fileId);
 		if(!resolved) return path;
-		const rel = npath.relative(normalizePath(fileURLToPath(settings.config.root)), resolved.id);
-		if(markdownAssetMap.has(rel)) {
-			return `ASTRO_ASSET_${markdownAssetMap.get(rel)!}`
+		if(markdownAssetMap.has(resolved.id)) {
+			return `ASTRO_ASSET_${markdownAssetMap.get(resolved.id)!}`
 		}
+		const rel = npath.relative(normalizePath(fileURLToPath(settings.config.root)), resolved.id);
 		const buffer = await fs.promises.readFile(resolved.id);
 		const file = this.emitFile({
 			type: 'asset',
 			name: rel,
 			source: buffer
 		});
-		markdownAssetMap.set(rel, file);
+		markdownAssetMap.set(resolved.id, file);
 		return `ASTRO_ASSET_${file}`;
 	}
 
@@ -113,7 +115,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					imagePaths = await Promise.all(
 						(paths).map(async (imagePath) => {
 							return (await this.resolve(imagePath))?.id ?? imagePath;
-						})
+						}) 
 					);
 				}
 
@@ -205,10 +207,23 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 		async generateBundle(_opts, bundle) {
 			for(const [,output] of Object.entries(bundle)) {
 				if(output.type === 'asset') continue;
-				output.code = output.code.replace(/ASTRO_ASSET_([0-9a-z]{8})/, (_str, hash) => {
-					const fileName = this.getFileName(hash);
-					return npath.posix.join(settings.config.base, fileName);
-				});
+				
+				if(markdownAssetMap.size) {
+					const optimizedPaths = new Map<string, string>();
+
+					for(const [filename, hash] of markdownAssetMap) {
+						const image = await imageMetadata(pathToFileURL(filename));
+						if(!image) continue;
+						const fileName = this.getFileName(hash);
+						image.src = npath.join(settings.config.base, fileName);
+						const optimized = globalThis.astroAsset.addStaticImage!({ src: image });
+						optimizedPaths.set(hash, optimized);
+					}
+					output.code = output.code.replace(/ASTRO_ASSET_([0-9a-z]{8})/, (_str, hash) => {
+						const optimizedName = optimizedPaths.get(hash)!;
+						return optimizedName;
+					});
+				}
 			}
 		}
 	};
