@@ -12,18 +12,19 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addContentEntryType }: any) => {
+				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+					entryBodyByFileIdCache.set(fileUrl.pathname, parsed.content);
+					return {
+						data: parsed.data,
+						body: parsed.content,
+						slug: parsed.data.slug,
+						rawData: parsed.matter,
+					};
+				}
 				const contentEntryType = {
 					extensions: ['.mdoc'],
-					getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
-						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
-						entryBodyByFileIdCache.set(fileUrl.pathname, parsed.content);
-						return {
-							data: parsed.data,
-							body: parsed.content,
-							slug: parsed.data.slug,
-							rawData: parsed.matter,
-						};
-					},
+					getEntryInfo,
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
@@ -39,17 +40,10 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 								if (!id.endsWith('.mdoc')) return;
 
 								validateRenderProperties(markdocConfig, config);
-								const body = entryBodyByFileIdCache.get(id);
-								if (!body) {
-									// Cache entry should exist if `getCollection()` was called
-									// (see `getEntryInfo()` above)
-									// If not, the user probably tried to import directly.
-									throw new Error(
-										`Unable to render ${JSON.stringify(
-											id.replace(config.root.pathname, '')
-										)}. If you tried to import this file directly, please use a Content Collection query instead. See https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html for more information.`
-									);
-								}
+								const body =
+									entryBodyByFileIdCache.get(id) ??
+									// It's possible for Vite to attempt to transform a file before `getEntryInfo()` has run
+									getEntryInfo({ fileUrl: new URL(id, 'file://'), contents: code }).body;
 								const ast = Markdoc.parse(body);
 								const content = Markdoc.transform(ast, markdocConfig);
 
@@ -101,7 +95,8 @@ function validateRenderProperty({
 		throw new MarkdocError({
 			message: `Invalid ${type} configuration: ${JSON.stringify(
 				name
-			)}. The "render" property must reference a capitalized component name. If you want to render to an HTML element, see our docs on rendering Markdoc manually [TODO docs link].`,
+			)}. The "render" property must reference a capitalized component name.`,
+			hint: 'If you want to render to an HTML element, see our docs on rendering Markdoc manually [TODO docs link].',
 			location: astroConfigPath
 				? {
 						file: astroConfigPath,
