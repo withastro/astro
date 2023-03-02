@@ -13,11 +13,10 @@ import { Arguments } from 'yargs-parser';
 import { printHelp } from '../../core/messages.js';
 import type { Arguments as Flags } from 'yargs-parser';
 import { debug, info } from '../../core/logger/core.js';
-import { createServer, ViteDevServer } from 'vite';
-import { createVite } from '../../core/create-vite.js';
-import type { CreateViteOptions } from '../../core/create-vite';
 import type { SyncOptions, ProcessExit } from '../../core/sync';
 import fsMod from 'fs';
+import type { FSWatcher } from 'chokidar';
+import { join } from 'node:path';
 
 type DiagnosticResult = {
 	errors: number;
@@ -100,24 +99,11 @@ export async function check(
 	{ logging, flags }: CheckPayload
 ): Promise<CheckServer> {
 	let checkFlags = parseFlags(flags);
-	let options: CreateViteOptions = { settings, logging, mode: 'build', fs };
 	if (checkFlags.watch) {
 		info(logging, 'check', 'Checking files in watch mode');
-		options.isWatcherEnabled = true;
 	} else {
 		info(logging, 'check', 'Checking files');
 	}
-	// We create a server to start doing our operations
-	const viteServer = await createServer(
-		await createVite(
-			{
-				server: { middlewareMode: true, hmr: false },
-				optimizeDeps: { entries: [] },
-				logLevel: 'silent',
-			},
-			options
-		)
-	);
 
 	const { syncCli } = await import('../../core/sync/index.js');
 	const root = settings.config.root;
@@ -130,7 +116,6 @@ export async function check(
 	return new CheckServer({
 		syncCli,
 		settings,
-		server: viteServer,
 		fileSystem: fs,
 		logging,
 		diagnosticChecker,
@@ -139,7 +124,6 @@ export async function check(
 }
 
 type CheckerConstructor = {
-	server: ViteDevServer;
 	diagnosticChecker: AstroCheck;
 
 	isWatchMode: boolean;
@@ -160,7 +144,6 @@ type CheckerConstructor = {
  * When a change occurs to an `.astro` file, the checker builds content collections again and lint all the `.astro` files.
  */
 class CheckServer {
-	readonly #server: ViteDevServer;
 	readonly #diagnosticsChecker: AstroCheck;
 	readonly #shouldWatch: boolean;
 	readonly #syncCli: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;
@@ -169,11 +152,11 @@ class CheckServer {
 
 	readonly #logging: LogOptions;
 	readonly #fs: typeof fsMod;
+	#watcher?: FSWatcher;
 
 	#filesCount: number;
 	#updateDiagnostics: NodeJS.Timeout | undefined;
 	constructor({
-		server,
 		diagnosticChecker,
 		isWatchMode,
 		syncCli,
@@ -181,7 +164,6 @@ class CheckServer {
 		fileSystem,
 		logging,
 	}: CheckerConstructor) {
-		this.#server = server;
 		this.#diagnosticsChecker = diagnosticChecker;
 		this.#shouldWatch = isWatchMode;
 		this.#syncCli = syncCli;
@@ -201,19 +183,20 @@ class CheckServer {
 
 	/**
 	 * Check all `.astro` files and then start watching for changes.
-	 * @returns {Promise<CheckResult.Listen>}
+	 * @returns {Promise<CheckResult>}
 	 */
-	public async watch(): Promise<CheckResult.Listen> {
-		await this.#checkAllFiles(true);
-		this.#watch();
-		return CheckResult.Listen;
+	public async watch(): Promise<CheckResult> {
+		await this.#checkAllFiles();
+		return this.#watch()
+			.then(() => CheckResult.Listen)
+			.catch(() => CheckResult.ExitWithError);
 	}
 
 	/**
 	 * Stops the watch. It terminates the inner server.
 	 */
 	public async stop() {
-		await this.#server.close();
+		await this.#watcher?.close();
 	}
 
 	/**
@@ -279,26 +262,29 @@ class CheckServer {
 	 * This function is responsible to attach events to the server watcher
 	 * @private
 	 */
-	#watch() {
-		this.#server.watcher.on('add', (file) => {
-			if (file.endsWith('.astro')) {
-				this.#addDocument(file);
-				this.#filesCount += 1;
-				this.#checkForDiagnostics();
+	async #watch() {
+		const { default: chokidar } = await import('chokidar');
+		this.#watcher = chokidar.watch(
+			join(fileURLToPath(this.#settings.config.root), ASTRO_GLOB_PATTERN),
+			{
+				ignored: ['**/node_modules/**'],
+				ignoreInitial: true,
 			}
+		);
+
+		this.#watcher.on('add', (file) => {
+			this.#addDocument(file);
+			this.#filesCount += 1;
+			this.#checkForDiagnostics();
 		});
-		this.#server.watcher.on('change', (file) => {
-			if (file.endsWith('.astro')) {
-				this.#addDocument(file);
-				this.#checkForDiagnostics();
-			}
+		this.#watcher.on('change', (file) => {
+			this.#addDocument(file);
+			this.#checkForDiagnostics();
 		});
-		this.#server.watcher.on('unlink', (file) => {
-			if (file.endsWith('.astro')) {
-				this.#diagnosticsChecker.removeDocument(file);
-				this.#filesCount -= 1;
-				this.#checkForDiagnostics();
-			}
+		this.#watcher.on('unlink', (file) => {
+			this.#diagnosticsChecker.removeDocument(file);
+			this.#filesCount -= 1;
+			this.#checkForDiagnostics();
 		});
 	}
 

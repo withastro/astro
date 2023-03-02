@@ -26,17 +26,13 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 
-export interface CreateViteOptions {
+interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;
-	/**
-	 * Instruct the vite server to enable the file system watcher
-	 */
-	isWatcherEnabled?: boolean;
 }
 
 const ALWAYS_NOEXTERNAL = [
@@ -54,7 +50,7 @@ const ALWAYS_NOEXTERNAL = [
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode, command, fs = nodeFs, isWatcherEnabled = false }: CreateViteOptions
+	{ settings, logging, mode, command, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -137,6 +133,10 @@ export async function createVite(
 			proxy: {
 				// add proxies here
 			},
+			watch: {
+				// Prevent watching during the build to speed it up
+				ignored: mode === 'build' ? ['**'] : undefined,
+			},
 		},
 		resolve: {
 			alias: [
@@ -165,20 +165,6 @@ export async function createVite(
 		},
 	};
 
-	// let's set the watcher independently
-	if (commonConfig.server) {
-		if (isWatcherEnabled) {
-			commonConfig.server.watch = {};
-		} else if (mode === 'build') {
-			commonConfig.server.watch = {
-				ignored: ['**'],
-			};
-		} else {
-			commonConfig.server.watch = {
-				ignored: undefined,
-			};
-		}
-	}
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.
 	// 	 1. common vite config

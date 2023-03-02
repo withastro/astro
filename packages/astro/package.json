@@ -113,6 +113,7 @@
     "@types/yargs-parser": "^21.0.0",
     "acorn": "^8.8.1",
     "boxen": "^6.2.1",
+    "chokidar": "^3.5.3",
     "ci-info": "^3.3.1",
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
