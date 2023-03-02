@@ -1,6 +1,7 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
+import z from 'zod';
 
 export type AstroNode =
 	| string
@@ -19,17 +20,17 @@ export function createAstroNode(
 	node: RenderableTreeNode,
 	components: Record<string, AstroInstance['default']> = {}
 ): AstroNode {
+	components = validateComponents(components);
+
 	if (typeof node === 'string' || typeof node === 'number') {
 		return String(node);
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return '';
 	}
 
-	if (node.name in components) {
+	if (isCapitalized(node.name) && node.name in components) {
 		const component = components[node.name];
 		const props = node.attributes;
-
-		console.log({ node, component, props, components });
 
 		const children = node.children.map((child) => createAstroNode(child, components));
 
@@ -45,4 +46,33 @@ export function createAstroNode(
 			children: node.children.map((child) => createAstroNode(child, components)),
 		};
 	}
+}
+
+function validateComponents(components: Record<string, AstroInstance['default']>) {
+	return z
+		.record(
+			z
+				.string()
+				.min(1, toComponentsKeyErrorMsg('Component name cannot be empty.'))
+				.refine(
+					(value) => isCapitalized(value),
+					(value) => ({
+						message: toComponentsKeyErrorMsg(
+							`Component name must be capitalized (received ${JSON.stringify(
+								value
+							)}). If you want to render HTML elements as components, try using a Markdoc node [TODO: DOCS LINK]`
+						),
+					})
+				),
+			z.any()
+		)
+		.parse(components);
+}
+
+function toComponentsKeyErrorMsg(msg: string) {
+	return '[Markdoc] Invalid "components" prop: ' + msg;
+}
+
+function isCapitalized(str: string) {
+	return str.length > 0 && str[0] === str[0].toUpperCase();
 }
