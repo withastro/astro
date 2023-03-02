@@ -121,19 +121,23 @@ pnpm exec changeset
 
 ### Running benchmarks
 
-We have benchmarks to keep performance under control. You can run these by running (from the project root):
+We have benchmarks to keep performance under control. They are located in the `benchmarks` directory, and it exposes a CLI you can use to run them.
+
+You can run all available benchmarks sequentially by running (from the project root):
 
 ```shell
 pnpm run benchmark
 ```
 
-This will run all available benchmarks sequentially. To run a specific benchmark, you can run (for example):
+To run a specific benchmark only, you can add the name of the benchmark after the command:
 
 ```shell
 pnpm run benchmark memory
 ```
 
 Use `pnpm run benchmark --help` to see all available options.
+
+In a PR on GitHub, you can also comment `!bench`, `!bench memory`, etc, to run the benchmarks on CI. The benchmark will run on both the PR branch and the `main` branch, and the results will be posted as a comment.
 
 ## Code Structure
 
