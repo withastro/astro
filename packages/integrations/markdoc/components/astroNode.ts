@@ -39,6 +39,12 @@ export function createAstroNode(
 			props,
 			children,
 		};
+	} else if (isCapitalized(node.name)) {
+		throw new Error(
+			`[Markdoc] Unable to render ${JSON.stringify(
+				node.name
+			)}. Did you add this to the "components" prop on your <Content /> component?`
+		);
 	} else {
 		return {
 			tag: node.name,
