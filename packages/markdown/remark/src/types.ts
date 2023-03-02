@@ -63,6 +63,7 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	experimentalImages?: boolean;
 	imageService?: any;
 	assetsDir?: URL;
+	resolveImage?: (path: string) => Promise<string>;
 }
 
 export interface MarkdownHeading {

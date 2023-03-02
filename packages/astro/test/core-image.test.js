@@ -228,8 +228,7 @@ describe('astro:image', () => {
 			expect(data).to.be.an.instanceOf(Buffer);
 		});
 
-		// TODO: Images in Markdown are currently not being build. Need to fix!
-		it.skip('aliased images in Markdown are written', async () => {
+		it('aliased images in Markdown are written', async () => {
 			const html = await fixture.readFile('/aliasMarkdown/index.html');
 
 			const $ = cheerio.load(html);

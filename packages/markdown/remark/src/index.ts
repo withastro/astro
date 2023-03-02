@@ -91,7 +91,7 @@ export async function renderMarkdown(
 
 	if (opts.experimentalImages) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use([toRemarkCollectImages()]);
+		parser.use([toRemarkCollectImages(opts.resolveImage)]);
 	}
 
 	parser.use([
