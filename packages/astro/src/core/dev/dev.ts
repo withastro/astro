@@ -41,9 +41,9 @@ export default async function dev(
 			usage: '[...flags]',
 			tables: {
 				Flags: [
-					['--port', `Specifies which port to run on. Defaults to 3000.`],
-					['--host', `listen on all addresses, including LAN and public addresses.`],
-					['--host <custom-address>', `expose on a network IP address at <custom-address>`],
+					['--port', `Specify which port to run on. Defaults to 3000.`],
+					['--host', `Listen on all addresses, including LAN and public addresses.`],
+					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},

@@ -45,7 +45,7 @@ export default async function build(settings: AstroSettings, options: BuildOptio
 			usage: '[...flags]',
 			tables: {
 				Flags: [
-					['--drafts', `Includes Markdown draft pages in the build.`],
+					['--drafts', `Include Markdown draft pages in the build.`],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
