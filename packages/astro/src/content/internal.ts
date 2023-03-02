@@ -202,8 +202,10 @@ export function createAsset(options: { assetsDir: string }) {
 		return z
 			.string()
 			.transform(
-				async (imagePath) =>
-					await getImageMetadata(pathToFileURL(path.join(options.assetsDir, imagePath)))
+				async (imagePath) => {
+					const fullPath = new URL(imagePath, options.assetsDir);
+					return await getImageMetadata(fullPath);
+				}
 			)
 			.superRefine((val, ctx) => checkImageAsset(val, imageOption, ctx));
 	};

@@ -2,6 +2,7 @@ import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
+import { normalizePath } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
@@ -93,7 +94,7 @@ export function astroContentImportPlugin({
 					: unparsedData;
 
 				const images = extractFrontmatterAssets(data).map(
-					(image) => `'${image}': await import('${image}'),`
+					(image) => `'${image}': await import('${normalizePath(image)}'),`
 				);
 
 				const code = escapeViteEnvReferences(`

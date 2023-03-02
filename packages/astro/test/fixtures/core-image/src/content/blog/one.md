@@ -1,6 +1,6 @@
 ---
 title: One
-image: ../assets/penguin2.jpg
+image: penguin2.jpg
 ---
 
 # A post
