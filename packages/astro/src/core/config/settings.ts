@@ -4,8 +4,8 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { createDefaultDevConfig } from './config.js';
-import { loadTSConfig } from './tsconfig.js';
 import { AstroTimer } from './timer.js';
+import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
