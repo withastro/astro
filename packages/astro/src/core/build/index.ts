@@ -18,13 +18,19 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
-import { staticBuild } from './static-build.js';
+import { staticBuild, viteBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
+import { StaticBuildOptions } from './types.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
+	/**
+	 * Teardown the compiler WASM instance after build. This can improve performance when
+	 * building once, but may cause a performance hit if building multiple times in a row.
+	 */
+	teardownCompiler?: boolean;
 }
 
 /** `astro build` */
@@ -42,6 +48,7 @@ class AstroBuilder {
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
+	private teardownCompiler: boolean;
 
 	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
@@ -49,6 +56,7 @@ class AstroBuilder {
 		}
 		this.settings = settings;
 		this.logging = options.logging;
+		this.teardownCompiler = options.teardownCompiler ?? false;
 		this.routeCache = new RouteCache(this.logging);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
@@ -126,7 +134,7 @@ class AstroBuilder {
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		await staticBuild({
+		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
 			logging: this.logging,
@@ -135,9 +143,13 @@ class AstroBuilder {
 			origin: this.origin,
 			pageNames,
 			routeCache: this.routeCache,
+			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 			buildConfig,
-		});
+		};
+
+		const { internals } = await viteBuild(opts);
+		await staticBuild(opts, internals);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

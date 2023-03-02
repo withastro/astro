@@ -39,6 +39,7 @@ export interface StaticBuildOptions {
 	pageNames: string[];
 	routeCache: RouteCache;
 	viteConfig: InlineConfig;
+	teardownCompiler: boolean;
 }
 
 export interface SingleFileBuiltModule {
