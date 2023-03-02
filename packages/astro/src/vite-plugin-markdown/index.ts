@@ -207,7 +207,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				if(output.type === 'asset') continue;
 				output.code = output.code.replace(/ASTRO_ASSET_([0-9a-z]{8})/, (_str, hash) => {
 					const fileName = this.getFileName(hash);
-					return npath.join(settings.config.base, fileName);
+					return npath.posix.join(settings.config.base, fileName);
 				});
 			}
 		}
