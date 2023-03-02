@@ -35,7 +35,7 @@ export async function getParamsAndProps(
 			const paramsMatch = route.pattern.exec(pathname);
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
-				const [key, val] = Object.entries(params);
+				const [[key, val]] = Object.entries(params);
 
 				// fix bug: https://github.com/withastro/astro/pull/6353
 				// [...slug].astro (with undefined) and index.astro has conflict behavior
