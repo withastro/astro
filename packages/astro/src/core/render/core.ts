@@ -35,6 +35,19 @@ export async function getParamsAndProps(
 			const paramsMatch = route.pattern.exec(pathname);
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
+				const [key, val] = Object.entries(params);
+
+				// fix bug: https://github.com/withastro/astro/pull/6353
+				// [...slug].astro (with undefined) and index.astro has conflict behavior
+				if (route.type === 'endpoint' && typeof val === 'undefined') {
+					throw new AstroError({
+						...AstroErrorData.InvalidGetEndpointsPathParam,
+						message: AstroErrorData.InvalidGetEndpointsPathParam.message(key, typeof val),
+						location: {
+							file: route.component,
+						},
+					});
+				}
 			}
 		}
 		let routeCacheEntry = routeCache.get(route);

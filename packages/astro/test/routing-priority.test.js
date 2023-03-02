@@ -112,16 +112,6 @@ const routes = [
 		htmlMatch: JSON.stringify({ path: 'a' }),
 	},
 	{
-		description: 'matches /api/example/index',
-		url: '/api/example/index',
-		fourOhFour: true
-	},
-	{
-		description: 'matches /api/example/one',
-		url: '/api/example/one',
-		fourOhFour: true
-	},
-	{
 		description: 'matches /api/catch/b/c.json to api/catch/[...slug].json.ts',
 		url: '/api/catch/b/c.json',
 		htmlMatch: JSON.stringify({ path: 'b/c' }),
@@ -152,7 +142,8 @@ describe('Routing priority', () => {
 			const isEndpoint = htmlMatch && !h1 && !p;
 
 			it(description, async () => {
-				const htmlFile = isEndpoint ? url : `${appendForwardSlash(url)}index.html`
+				const htmlFile = isEndpoint ? url : `${appendForwardSlash(url)}index.html`;
+
 				if (fourOhFour) {
 					expect(fixture.pathExists(htmlFile)).to.be.false;
 					return;
