@@ -1,5 +1,5 @@
 {
-  "name": "Astro Examples",
+  "name": "Vite PWA",
   "build": {
     "dockerfile": "../examples.Dockerfile"
   },
