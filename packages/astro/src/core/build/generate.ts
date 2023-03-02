@@ -386,7 +386,7 @@ async function generatePath(
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
-		const result = await callEndpoint(endpointHandler, env, ctx);
+		const result = await callEndpoint(endpointHandler, env, ctx, logging);
 
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
