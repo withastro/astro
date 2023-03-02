@@ -3,3 +3,4 @@ packages:
   - 'examples/**/*'
   - 'smoke/**/*'
   - 'scripts'
+  - 'benchmark'

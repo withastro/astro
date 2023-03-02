@@ -1,5 +1,62 @@
 # astro
 
+## 2.0.16
+
+### Patch Changes
+
+- [#6363](https://github.com/withastro/astro/pull/6363) [`d94aae776`](https://github.com/withastro/astro/commit/d94aae77656f14f56898d33c6d3f83c59112212e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes cases where head is injected in body when using Astro.slots.render()
+
+- Updated dependencies [[`5aa6580f7`](https://github.com/withastro/astro/commit/5aa6580f775405a4443835bf7eb81f0c65e5aed6)]:
+  - @astrojs/webapi@2.0.2
+  - @astrojs/telemetry@2.0.1
+
+## 2.0.15
+
+### Patch Changes
+
+- [#6323](https://github.com/withastro/astro/pull/6323) [`5e26bc891`](https://github.com/withastro/astro/commit/5e26bc891cbebb3598acfa760c135a25c548d624) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated Undici to 5.20.0. This fixes a security issue and handling of cookies in certain cases in dev
+
+- [#6293](https://github.com/withastro/astro/pull/6293) [`a156ecbb7`](https://github.com/withastro/astro/commit/a156ecbb7f4df6a46124a9a12eb712f9163db2ed) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Warn about setting the `allowJs` compiler option only when the `content` directory exists.
+
+- [#6320](https://github.com/withastro/astro/pull/6320) [`ccd72e6bb`](https://github.com/withastro/astro/commit/ccd72e6bb41e570d42b1b158e8124c8e04a1943d) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - fix #6020
+
+- [#6347](https://github.com/withastro/astro/pull/6347) [`504c7bacb`](https://github.com/withastro/astro/commit/504c7bacb8c1f2308a31e6c412825ba34983ba33) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix internal `getSetCookie` usage for `undici@5.20.x`
+
+- [#6333](https://github.com/withastro/astro/pull/6333) [`63dda6ded`](https://github.com/withastro/astro/commit/63dda6dedd4c6ea1d5ce72e9cf3fe5f88339a927) Thanks [@ematipico](https://github.com/ematipico)! - Correctly emit mode when passing `node` to the command `astro add`
+
+- [#6330](https://github.com/withastro/astro/pull/6330) [`f91a7f376`](https://github.com/withastro/astro/commit/f91a7f376c223f18b4d8fbed81f95f6bea1cef8d) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Ensure prefixed underscore ignores only child paths of the content directory.
+
+## 2.0.14
+
+### Patch Changes
+
+- [#6277](https://github.com/withastro/astro/pull/6277) [`d9474d467`](https://github.com/withastro/astro/commit/d9474d467e9c24bedf9cdb6100de9190ab0274d0) Thanks [@bluwy](https://github.com/bluwy)! - Bump Vite to 4.1
+
+- [#6268](https://github.com/withastro/astro/pull/6268) [`933c651fb`](https://github.com/withastro/astro/commit/933c651fb1126b7ad1ff369cd11307c47949d0b6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Do not transform `--camelCase` custom properties to `--camel-case` when they're in a `style` attribute.
+
+  This bug fix is backwards-compatible because we will emit both `--camelCase` and `--camel-case` temporarily. This behavior will be removed in a future version of Astro.
+
+- Updated dependencies [[`bb1801013`](https://github.com/withastro/astro/commit/bb1801013708d9efdbbcebc53a564ac375bf4b26)]:
+  - @astrojs/webapi@2.0.1
+
+## 2.0.13
+
+### Patch Changes
+
+- [#6248](https://github.com/withastro/astro/pull/6248) [`ef5cea4dc`](https://github.com/withastro/astro/commit/ef5cea4dc5c4ffa33bd57ea0886e6912afb24fec) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Deno SSR with prerender=true complains about invalid URL scheme
+
+- [#6257](https://github.com/withastro/astro/pull/6257) [`2fec47848`](https://github.com/withastro/astro/commit/2fec4784871f2b06fd780eb4cb0bb69866c6b065) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: prevent dev server hanging for `getCollection()` calls within a layout when using the `layout` prop
+
+## 2.0.12
+
+### Patch Changes
+
+- [#6238](https://github.com/withastro/astro/pull/6238) [`deacd5443`](https://github.com/withastro/astro/commit/deacd5443aae8d0ee6508e2c442783dcc2e9a014) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: run integration setup hooks during `astro sync`
+
+- [#6244](https://github.com/withastro/astro/pull/6244) [`1c678f7eb`](https://github.com/withastro/astro/commit/1c678f7ebff6b8ea843bf4b49ab73ca942a2a755) Thanks [@bluwy](https://github.com/bluwy)! - Fix hydrate loading path to prevent multiple instance loaded for circular imports
+
+- [#6229](https://github.com/withastro/astro/pull/6229) [`c397be324`](https://github.com/withastro/astro/commit/c397be324f97bb9700da8cd6d845470530b7d18c) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Add support for `.js/.mjs` file extensions for Content Collections configuration file.
+
 ## 2.0.11
 
 ### Patch Changes

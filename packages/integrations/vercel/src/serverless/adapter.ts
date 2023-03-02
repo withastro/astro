@@ -35,15 +35,15 @@ export default function vercelServerless({
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, updateConfig, injectScript }) => {
-				if (analytics) {
+			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
+				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
 					build: {
-						serverEntry: 'entry.js',
+						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
 					},

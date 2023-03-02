@@ -160,12 +160,12 @@ export function getEntryInfo({
 
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config'>
+	paths: Pick<ContentPaths, 'config' | 'contentDir'>
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(base)) {
+	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) || isOnIgnoreList(base)) {
 		return 'ignored';
 	} else if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
@@ -180,8 +180,11 @@ function isOnIgnoreList(fileName: string) {
 	return ['.DS_Store'].includes(fileName);
 }
 
-function hasUnderscoreInPath(fileUrl: URL): boolean {
-	const parts = fileUrl.pathname.split('/');
+function hasUnderscoreBelowContentDirectoryPath(
+	fileUrl: URL,
+	contentDir: ContentPaths['contentDir']
+): boolean {
+	const parts = fileUrl.pathname.replace(contentDir.pathname, '').split('/');
 	for (const part of parts) {
 		if (part.startsWith('_')) return true;
 	}

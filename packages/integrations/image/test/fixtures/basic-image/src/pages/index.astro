@@ -1,5 +1,6 @@
 ---
 import socialJpg from '../assets/social.jpg';
+import logoSvg from '../assets/logo.svg';
 import introJpg from '../assets/blog/introducing astro.jpg';
 import outsideSrc from '../../social.png';
 import { Image } from '@astrojs/image/components';
@@ -20,6 +21,8 @@ const publicImage = new URL('./hero.jpg', Astro.url);
 		<Image id="no-transforms" src={socialJpg} alt="no-transforms" />
 		<br />
 		<Image id="outside-src" src={outsideSrc} alt="outside-src" />
+		<br />
+		<Image id="logo-svg" src={logoSvg} alt="logo-svg" />
 		<br />
 		<Image id="google" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" width={544} height={184} format="webp" alt="Google" />
 		<br />

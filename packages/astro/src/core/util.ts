@@ -161,7 +161,7 @@ export function emoji(char: string, fallback: string) {
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
 // TODO: Export a helper util from Vite
-export async function resolveIdToUrl(loader: ModuleLoader, id: string) {
+export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: URL) {
 	let resultId = await loader.resolveId(id, undefined);
 	// Try resolve jsx to tsx
 	if (!resultId && id.endsWith('.jsx')) {
@@ -171,7 +171,13 @@ export async function resolveIdToUrl(loader: ModuleLoader, id: string) {
 		return VALID_ID_PREFIX + id;
 	}
 	if (path.isAbsolute(resultId)) {
-		return '/@fs' + prependForwardSlash(resultId);
+		const normalizedRoot = root && normalizePath(fileURLToPath(root));
+		// Convert to root-relative path if path is inside root
+		if (normalizedRoot && resultId.startsWith(normalizedRoot)) {
+			return resultId.slice(normalizedRoot.length - 1);
+		} else {
+			return '/@fs' + prependForwardSlash(resultId);
+		}
 	}
 	return VALID_ID_PREFIX + resultId;
 }

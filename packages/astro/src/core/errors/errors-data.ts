@@ -14,17 +14,28 @@ export interface ErrorData {
 // TODO: Replace with `satisfies` once TS 4.9 is out
 const defineErrors = <T extends Record<string, ErrorData>>(errs: T) => errs;
 export const AstroErrorData = defineErrors({
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Astro Errors
+	 */
+	/**
+	 * @docs
+	 * @message
+	 * Unknown compiler error.
+	 * @see
+	 * - [withastro/compiler issues list](https://astro.build/issues/compiler)
+	 * @description
+	 * Astro encountered an unknown error while compiling your files. In most cases, this is not your fault, but an issue in our compiler.
+	 *
+	 * If there isn't one already, please [create an issue](https://astro.build/issues/compiler).
+	 */
 	UnknownCompilerError: {
 		title: 'Unknown compiler error.',
 		code: 1000,
 		hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues/compiler.',
 	},
 	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
-	/**
-	 * @docs
-	 * @kind heading
-	 * @name Astro Errors
-	 */
 	/**
 	 * @docs
 	 * @see
@@ -443,7 +454,17 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
+	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
+	/**
+	 * @docs
+	 * @see
+	 * - [Vite troubleshooting guide](https://vitejs.dev/guide/troubleshooting.html)
+	 * @description
+	 * Vite encountered an unknown error while rendering your project. We unfortunately do not know what happened (or we would tell you!)
+	 *
+	 * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
+	 */
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',
 		code: 4000,
@@ -483,6 +504,13 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @name CSS Errors
 	 */
 	// CSS Errors - 5xxx
+	/**
+	 * @docs
+	 * @see
+	 * 	- [Styles and CSS](https://docs.astro.build/en/guides/styling/)
+	 * @description
+	 * Astro encountered an unknown error while parsing your CSS. Oftentimes, this is caused by a syntax error and the error message should contain more information.
+	 */
 	UnknownCSSError: {
 		title: 'Unknown CSS Error.',
 		code: 5000,
@@ -494,7 +522,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * CSSSyntaxError: Missed semicolon<br/>
 	 * CSSSyntaxError: Unclosed string<br/>
 	 * @description
-	 * Astro encountered an error while parsing your CSS, due to a syntax error. This is often caused by a missing semicolon
+	 * Astro encountered an error while parsing your CSS, due to a syntax error. This is often caused by a missing semicolon.
 	 */
 	CSSSyntaxError: {
 		title: 'CSS Syntax Error.',
@@ -506,6 +534,11 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @name Markdown Errors
 	 */
 	// Markdown Errors - 6xxx
+	/**
+	 * @docs
+	 * @description
+	 * Astro encountered an unknown error while parsing your Markdown. Oftentimes, this is caused by a syntax error and the error message should contain more information.
+	 */
 	UnknownMarkdownError: {
 		title: 'Unknown Markdown Error.',
 		code: 6000,
@@ -554,6 +587,16 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See the MDX integration docs for installation and usage instructions: https://docs.astro.build/en/guides/integrations-guide/mdx/',
 	},
 	// Config Errors - 7xxx
+	/**
+	 * @docs
+	 * @see
+	 * - [Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/)
+	 * @description
+	 * Astro encountered an unknown error loading your Astro configuration file.
+	 * This is often caused by a syntax error in your config and the message should offer more information.
+	 *
+	 * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
+	 */
 	UnknownConfigError: {
 		title: 'Unknown configuration error.',
 		code: 7000,
@@ -590,6 +633,13 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @name CLI Errors
 	 */
 	// CLI Errors - 8xxx
+	/**
+	 * @docs
+	 * @description
+	 * Astro encountered an unknown error while starting one of its CLI commands. The error message should contain more information.
+	 *
+	 * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
+	 */
 	UnknownCLIError: {
 		title: 'Unknown CLI Error.',
 		code: 8000,
@@ -613,6 +663,14 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @name Content Collection Errors
 	 */
 	// Content Collection Errors - 9xxx
+	/**
+	 * @docs
+	 * @description
+	 * Astro encountered an unknown error loading your content collections.
+	 * This can be caused by certain errors inside your `src/content/config.ts` file or some internal errors.
+	 *
+	 * If you can reliably cause this error to happen, we'd appreciate if you could [open an issue](https://astro.build/issues/)
+	 */
 	UnknownContentCollectionError: {
 		title: 'Unknown Content Collection Error.',
 		code: 9000,
@@ -676,7 +734,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
-	// Generic catch-all
+	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',
 		code: 99999,

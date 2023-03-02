@@ -11,7 +11,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^14.18.0 || >=16.12.0"
-pnpm: "^7.5.0"
+pnpm: "^7.9.5"
 # otherwise, your build will fail
 ```
 
@@ -37,6 +37,16 @@ To automatically handle merge conflicts in `pnpm-lock.yaml`, you should run the 
 pnpm add -g @pnpm/merge-driver
 pnpx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-merge-driver %A %O %B %P" --files pnpm-lock.yaml
 ```
+
+### Using GitHub Codespaces for development
+
+To get started, create a codespace for this repository by clicking this 👇
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro)
+
+Your new codespace will open in a web-based version of Visual Studio Code. All development dependcies will be preinstalled and the tests will run automatically ensuring you've got a green base from which to start working.
+
+**Note**: Dev containers is now an open spec which is supported by [GitHub Codespaces](https://github.com/codespaces) and [other supporting tools](https://containers.dev/supporting).
 
 ### Development
 

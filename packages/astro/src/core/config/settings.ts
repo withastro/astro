@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { createDefaultDevConfig } from './config.js';
 import { loadTSConfig } from './tsconfig.js';
+import { AstroTimer } from './timer.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -19,6 +20,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		scripts: [],
 		watchFiles: [],
 		forceDisableTelemetry: false,
+		timer: new AstroTimer(),
 	};
 }
 
