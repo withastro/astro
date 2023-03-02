@@ -99,5 +99,4 @@ jobs:
             ${{ needs.benchmark.outputs.PR-BENCH }}
 
             ${{ needs.benchmark.outputs.MAIN-BENCH }}
-            - name: Send PR review
           edit-mode: replace
