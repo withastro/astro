@@ -2,11 +2,11 @@
 import { Code } from 'astro/components';
 
 type Props = {
-	'data-language'?: string;
+	content: string;
+	language: string;
 }
 
-const { 'data-language': lang } = Astro.props as Props;
-const code = await Astro.slots.render('default');
+const { content, language } = Astro.props as Props;
 ---
 
-<Code {code} {lang} />
+<Code lang={language} code={content} />

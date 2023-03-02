@@ -2,6 +2,7 @@ import { parseHTML } from 'linkedom';
 import { parse as parseDevalue } from 'devalue';
 import { expect } from 'chai';
 import { loadFixture, fixLineEndings } from '../../../astro/test/test-utils.js';
+import markdoc from '../dist/index.js';
 
 function formatPost(post) {
 	return {
@@ -10,12 +11,15 @@ function formatPost(post) {
 	};
 }
 
+const root = new URL('./fixtures/content-collections/', import.meta.url);
+
 describe('Markdoc - Content Collections', () => {
-	let fixture;
+	let baseFixture;
 
 	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('./fixtures/content-collections/', import.meta.url),
+		baseFixture = await loadFixture({
+			root,
+			integrations: [markdoc()],
 		});
 	});
 
@@ -23,7 +27,7 @@ describe('Markdoc - Content Collections', () => {
 		let devServer;
 
 		before(async () => {
-			devServer = await fixture.startDevServer();
+			devServer = await baseFixture.startDevServer();
 		});
 
 		after(async () => {
@@ -31,13 +35,13 @@ describe('Markdoc - Content Collections', () => {
 		});
 
 		it('loads entry', async () => {
-			const res = await fixture.fetch('/entry.json');
+			const res = await baseFixture.fetch('/entry.json');
 			const post = parseDevalue(await res.text());
 			expect(formatPost(post)).to.deep.equal(simplePostEntry);
 		});
 
 		it('loads collection', async () => {
-			const res = await fixture.fetch('/collection.json');
+			const res = await baseFixture.fetch('/collection.json');
 			const posts = parseDevalue(await res.text());
 			expect(posts).to.not.be.null;
 			expect(posts.sort().map((post) => formatPost(post))).to.deep.equal([
@@ -48,7 +52,7 @@ describe('Markdoc - Content Collections', () => {
 		});
 
 		it('renders content - simple', async () => {
-			const res = await fixture.fetch('/content-simple');
+			const res = await baseFixture.fetch('/content-simple');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 			const h2 = document.querySelector('h2');
@@ -58,17 +62,27 @@ describe('Markdoc - Content Collections', () => {
 		});
 
 		it('renders content - with config', async () => {
+			const fixture = await getFixtureWithConfig();
+			const server = await fixture.startDevServer();
+
 			const res = await fixture.fetch('/content-with-config');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 			const h2 = document.querySelector('h2');
 			expect(h2.textContent).to.equal('Post with config');
-			const marquee = document.querySelector('marquee');
-			expect(marquee).to.not.be.null;
-			expect(marquee.textContent).to.equal('Im a marquee!');
+			const textContent = html;
+
+			expect(textContent).to.not.include('Hello');
+			expect(textContent).to.include('Hola');
+			expect(textContent).to.include(`Konnichiwa`);
+
+			await server.stop();
 		});
 
 		it('renders content - with components', async () => {
+			const fixture = await getFixtureWithComponents();
+			const server = await fixture.startDevServer();
+
 			const res = await fixture.fetch('/content-with-components');
 			const html = await res.text();
 			const { document } = parseHTML(html);
@@ -84,22 +98,24 @@ describe('Markdoc - Content Collections', () => {
 			const pre = document.querySelector('pre');
 			expect(pre).to.not.be.null;
 			expect(pre.className).to.equal('astro-code');
+
+			await server.stop();
 		});
 	});
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await baseFixture.build();
 		});
 
 		it('loads entry', async () => {
-			const res = await fixture.readFile('/entry.json');
+			const res = await baseFixture.readFile('/entry.json');
 			const post = parseDevalue(res);
 			expect(formatPost(post)).to.deep.equal(simplePostEntry);
 		});
 
 		it('loads collection', async () => {
-			const res = await fixture.readFile('/collection.json');
+			const res = await baseFixture.readFile('/collection.json');
 			const posts = parseDevalue(res);
 			expect(posts).to.not.be.null;
 			expect(posts.sort().map((post) => formatPost(post))).to.deep.equal([
@@ -110,7 +126,7 @@ describe('Markdoc - Content Collections', () => {
 		});
 
 		it('renders content - simple', async () => {
-			const html = await fixture.readFile('/content-simple/index.html');
+			const html = await baseFixture.readFile('/content-simple/index.html');
 			const { document } = parseHTML(html);
 			const h2 = document.querySelector('h2');
 			expect(h2.textContent).to.equal('Simple post');
@@ -119,16 +135,24 @@ describe('Markdoc - Content Collections', () => {
 		});
 
 		it('renders content - with config', async () => {
+			const fixture = await getFixtureWithConfig();
+			await fixture.build();
+
 			const html = await fixture.readFile('/content-with-config/index.html');
 			const { document } = parseHTML(html);
 			const h2 = document.querySelector('h2');
 			expect(h2.textContent).to.equal('Post with config');
-			const marquee = document.querySelector('marquee');
-			expect(marquee).to.not.be.null;
-			expect(marquee.textContent).to.equal('Im a marquee!');
+			const textContent = html;
+
+			expect(textContent).to.not.include('Hello');
+			expect(textContent).to.include('Hola');
+			expect(textContent).to.include(`Konnichiwa`);
 		});
 
 		it('renders content - with components', async () => {
+			const fixture = await getFixtureWithComponents();
+			await fixture.build();
+
 			const html = await fixture.readFile('/content-with-components/index.html');
 			const { document } = parseHTML(html);
 			const h2 = document.querySelector('h2');
@@ -146,6 +170,59 @@ describe('Markdoc - Content Collections', () => {
 		});
 	});
 });
+
+function getFixtureWithConfig() {
+	return loadFixture({
+		root,
+		integrations: [
+			markdoc({
+				variables: {
+					countries: ['ES', 'JP'],
+				},
+				functions: {
+					includes: {
+						transform(parameters) {
+							const [array, value] = Object.values(parameters);
+							return Array.isArray(array) ? array.includes(value) : false;
+						},
+					},
+				},
+			}),
+		],
+	});
+}
+
+function getFixtureWithComponents() {
+	return loadFixture({
+		root,
+		integrations: [
+			markdoc({
+				nodes: {
+					fence: {
+						render: 'Code',
+						attributes: {
+							language: { type: String },
+							content: { type: String },
+						},
+					},
+				},
+				tags: {
+					mq: {
+						render: 'CustomMarquee',
+						attributes: {
+							direction: {
+								type: String,
+								default: 'left',
+								matches: ['left', 'right', 'up', 'down'],
+								errorLevel: 'critical',
+							},
+						},
+					},
+				},
+			}),
+		],
+	});
+}
 
 const simplePostEntry = {
 	id: 'simple.mdoc',
@@ -177,5 +254,5 @@ const withConfigEntry = {
 		schemaWorks: true,
 		title: 'Post with config',
 	},
-	body: '\n## Post with config\n\nThis uses a shortcode to render a marquee element,\nwith a variable to show and hide:\n\n{% if $showMarquee %}\n{% mq direction="down" %}\nIm a marquee!\n{% /mq %}\n{% /if %}\n',
+	body: '\n## Post with config\n\n{% if includes($countries, "EN") %} Hello {% /if %}\n{% if includes($countries, "ES") %} Hola {% /if %}\n{% if includes($countries, "JP") %} Konnichiwa {% /if %}\n',
 };
