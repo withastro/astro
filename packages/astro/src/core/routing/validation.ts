@@ -103,3 +103,21 @@ export function validateGetStaticPathsResult(
 		}
 	});
 }
+
+// fix bug: https://github.com/withastro/astro/pull/6353
+// [...slug].astro (with undefined) and index.astro has conflict behavior
+export function validateUndefineWhenEndpoints(result: GetStaticPathsResult, route: RouteData) {
+	result.forEach((pathObject) => {
+		for (const [key, val] of Object.entries(pathObject.params)) {
+			if (typeof val === 'undefined') {
+				throw new AstroError({
+					...AstroErrorData.InvalidGetEndpointsPathParam,
+					message: AstroErrorData.InvalidGetEndpointsPathParam.message(key, typeof val),
+					location: {
+						file: route.component,
+					},
+				});
+			}
+		}
+	});
+}

@@ -454,6 +454,31 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
+		/**
+	 * @docs
+	 * @see
+	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+	 * @description
+	 * endpoints `getStaticPaths`'s return value must be an array of objects that can't include `undefined` .
+	 *
+	 * ```ts title="api/[...slug].ts"
+	 * export async function getStaticPaths() {
+	 *	return [ // <-- Array
+	 *		{ params: { slug: undefined } } error here,
+	 * 		{ params: { slug: "about" } } 
+	 * 	];
+	 *}
+	 * ```
+	 */
+	InvalidGetEndpointsPathParam: {
+		title: 'invalid path param when the endponits',
+		code: 3022,
+		message: (paramkey, paramVal) =>
+			`invalid path param: ${paramkey} path. A string, number value was expected, got \`${paramVal}\``,
+		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
+	},
+
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**

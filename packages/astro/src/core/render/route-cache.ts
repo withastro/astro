@@ -11,7 +11,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, LogOptions, warn } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
-import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
+import { validateDynamicRouteModule, validateGetStaticPathsResult, validateUndefineWhenEndpoints } from '../routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
@@ -48,6 +48,12 @@ export async function callGetStaticPaths({
 			throw new AstroError(AstroErrorData.GetStaticPathsRemovedRSSHelper);
 		},
 	});
+
+	// fix bug: https://github.com/withastro/astro/pull/6353 
+	// [...slug].astro (with undefined) and index.astro has conflict behavior
+	if(route.type === 'endpoint'){
+		validateUndefineWhenEndpoints(staticPaths, route)
+	}
 
 	// Flatten the array before validating the content, otherwise users using `.map` will run into errors
 	if (Array.isArray(staticPaths)) {

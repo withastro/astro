@@ -96,12 +96,6 @@ const routes = [
 		p: 'injected-2',
 	},
 	{
-		description: 'matches /slug-index to slug-index/[...slug].astro',
-		url: '/slug-index',
-		h1: 'slug-index/[...slug].astro',
-		p: 'slug: index',
-	},
-	{
 		description: 'matches /empty-slug to empty-slug/[...slug].astro',
 		url: '/empty-slug',
 		h1: 'empty-slug/[...slug].astro',
