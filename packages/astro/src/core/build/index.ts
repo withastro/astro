@@ -26,6 +26,11 @@ export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
+	/**
+	 * Teardown the compiler WASM instance after build. This can improve performance when
+	 * building once, but may cause a performance hit if building multiple times in a row.
+	 */
+	teardownCompiler?: boolean;
 }
 
 /** `astro build` */
@@ -43,6 +48,7 @@ class AstroBuilder {
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
+	private teardownCompiler: boolean;
 
 	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
@@ -50,6 +56,7 @@ class AstroBuilder {
 		}
 		this.settings = settings;
 		this.logging = options.logging;
+		this.teardownCompiler = options.teardownCompiler ?? false;
 		this.routeCache = new RouteCache(this.logging);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
@@ -136,6 +143,7 @@ class AstroBuilder {
 			origin: this.origin,
 			pageNames,
 			routeCache: this.routeCache,
+			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 			buildConfig,
 		};

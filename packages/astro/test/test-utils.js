@@ -144,8 +144,6 @@ export async function loadFixture(inlineConfig) {
 
 	return {
 		build: (opts = {}) => {
-			// Set TEST env var true to prevent compiler teardown
-			process.env.TEST = true;
 			process.env.NODE_ENV = 'production';
 			return build(settings, { logging, telemetry, ...opts });
 		},
