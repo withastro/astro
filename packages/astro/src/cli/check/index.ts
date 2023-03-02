@@ -187,9 +187,8 @@ class CheckServer {
 	 */
 	public async watch(): Promise<CheckResult> {
 		await this.#checkAllFiles();
-		return this.#watch()
-			.then(() => CheckResult.Listen)
-			.catch(() => CheckResult.ExitWithError);
+		this.#watch();
+		return CheckResult.Listen;
 	}
 
 	/**
