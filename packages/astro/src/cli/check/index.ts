@@ -186,8 +186,8 @@ class CheckServer {
 	 * @returns {Promise<CheckResult>}
 	 */
 	public async watch(): Promise<CheckResult> {
-		await this.#checkAllFiles();
-		this.#watch();
+		await this.#checkAllFiles(true);
+		await this.#watch();
 		return CheckResult.Listen;
 	}
 
@@ -220,10 +220,10 @@ class CheckServer {
 	 * 2. Optionally, traverse the file system for `.astro` files and saves their paths.
 	 * 3. Get diagnostics for said files and print the result in console.
 	 *
-	 * @param {boolean} [openDocuments=false] Whether the operation should open all `.astro` files
+	 * @param {boolean} [openDocuments] Whether the operation should open all `.astro` files
 	 * @private
 	 */
-	async #checkAllFiles(openDocuments = false): Promise<CheckResult> {
+	async #checkAllFiles(openDocuments: boolean): Promise<CheckResult> {
 		const processExit = await this.#syncCli(this.#settings, {
 			logging: this.#logging,
 			fs: this.#fs,
