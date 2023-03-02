@@ -64,18 +64,19 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 	async function resolveImage(this: PluginContext, fileId: string, path: string) {
 		const resolved = await this.resolve(path, fileId);
 		if(!resolved) return path;
-		if(markdownAssetMap.has(resolved.id)) {
-			return `ASTRO_ASSET_${markdownAssetMap.get(resolved.id)!}`
-		}
 		const rel = npath.relative(normalizePath(fileURLToPath(settings.config.root)), resolved.id);
 		const buffer = await fs.promises.readFile(resolved.id);
+		// This conditional has to be here, to prevent race conditions on setting the map
+		if(markdownAssetMap.has(resolved.id)) {
+			return `ASTRO_ASSET_MD_${markdownAssetMap.get(resolved.id)!}`
+		}
 		const file = this.emitFile({
 			type: 'asset',
 			name: rel,
 			source: buffer
 		});
 		markdownAssetMap.set(resolved.id, file);
-		return `ASTRO_ASSET_${file}`;
+		return `ASTRO_ASSET_MD_${file}`;
 	}
 
 	return {
@@ -213,15 +214,17 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 					for(const [filename, hash] of markdownAssetMap) {
 						const image = await imageMetadata(pathToFileURL(filename));
-						if(!image) continue;
+						if(!image) {
+							continue;
+						}
 						const fileName = this.getFileName(hash);
 						image.src = npath.join(settings.config.base, fileName);
 						const optimized = globalThis.astroAsset.addStaticImage!({ src: image });
 						optimizedPaths.set(hash, optimized);
 					}
-					output.code = output.code.replace(/ASTRO_ASSET_([0-9a-z]{8})/, (_str, hash) => {
-						const optimizedName = optimizedPaths.get(hash)!;
-						return optimizedName;
+					output.code = output.code.replace(/ASTRO_ASSET_MD_([0-9a-z]{8})/, (_str, hash) => {
+						const optimizedName = optimizedPaths.get(hash);
+						return optimizedName || this.getFileName(hash);
 					});
 				}
 			}
