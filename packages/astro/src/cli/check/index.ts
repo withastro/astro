@@ -21,7 +21,6 @@ import fsMod from 'fs';
 
 type DiagnosticResult = {
 	errors: number;
-	// The language server cannot actually return any warnings at the moment, but we'll keep this here for future use
 	warnings: number;
 	hints: number;
 };
@@ -46,9 +45,22 @@ type CheckFlags = {
 	watch: boolean;
 };
 
+/**
+ *
+ * Types of response emitted by the checker
+ */
 export enum CheckResult {
+	/**
+	 * Operation finished without errors
+	 */
 	ExitWithSuccess,
+	/**
+	 * Operation finished with errors
+	 */
 	ExitWithError,
+	/**
+	 * The consumer should not terminate the operation
+	 */
 	Listen,
 }
 export async function check(
@@ -145,7 +157,7 @@ type CheckerConstructor = {
  * Responsible to check files - classic or watch mode - and report diagnostics.
  *
  * When in watch mode, the class does a whole check pass, and then starts watching files.
- * When a change occurs to an `.astro` file, the checker
+ * When a change occurs to an `.astro` file, the checker builds content collections again and lint all the `.astro` files.
  */
 class CheckServer {
 	readonly #server: ViteDevServer;
@@ -179,20 +191,35 @@ class CheckServer {
 		this.#filesCount = 0;
 	}
 
+	/**
+	 * Check all `.astro` files once and then finishes the operation.
+	 * @returns {Promise<CheckResult>}
+	 */
 	public async check(): Promise<CheckResult> {
-		return await this.#checkAll(true);
+		return await this.#checkAllFiles(true);
 	}
 
+	/**
+	 * Check all `.astro` files and then start watching for changes.
+	 * @returns {Promise<CheckResult.Listen>}
+	 */
 	public async watch(): Promise<CheckResult.Listen> {
-		await this.#checkAll(true);
+		await this.#checkAllFiles(true);
 		this.#watch();
 		return CheckResult.Listen;
 	}
 
+	/**
+	 * Stops the watch. It terminates the inner server.
+	 */
 	public async stop() {
 		await this.#server.close();
 	}
 
+	/**
+	 * Weather the checker should run in watch mode
+	 * @returns {boolean}
+	 */
 	public get isWatchMode(): boolean {
 		return this.#shouldWatch;
 	}
@@ -205,7 +232,16 @@ class CheckServer {
 		);
 	}
 
-	async #checkAll(openDocuments = false): Promise<CheckResult> {
+	/**
+	 * Lint all `.astro` files, and report the result in console. Operations executed, in order:
+	 * 1. Compile content collections.
+	 * 2. Optionally, traverse the file system for `.astro` files and saves their paths.
+	 * 3. Get diagnostics for said files and print the result in console.
+	 *
+	 * @param {boolean} [openDocuments=false] Whether the operation should open all `.astro` files
+	 * @private
+	 */
+	async #checkAllFiles(openDocuments = false): Promise<CheckResult> {
 		const processExit = await this.#syncCli(this.#settings, {
 			logging: this.#logging,
 			fs: this.#fs,
@@ -236,7 +272,7 @@ class CheckServer {
 		clearTimeout(this.#updateDiagnostics);
 		// @ematipico: I am not sure of `setTimeout`. I would rather use a debounce but let's see if this works.
 		// Inspiration from `svelte-check`.
-		this.#updateDiagnostics = setTimeout(async () => await this.#checkAll(false), 500);
+		this.#updateDiagnostics = setTimeout(async () => await this.#checkAllFiles(false), 500);
 	}
 
 	/**
