@@ -114,12 +114,12 @@ const routes = [
 	{
 		description: 'matches /api/example/index',
 		url: '/api/example/index',
-		htmlMatch: JSON.stringify({slug:"index" }),
+		fourOhFour: true
 	},
 	{
 		description: 'matches /api/example/one',
 		url: '/api/example/one',
-		htmlMatch: JSON.stringify({slug:"one" }),
+		fourOhFour: true
 	},
 	{
 		description: 'matches /api/catch/b/c.json to api/catch/[...slug].json.ts',

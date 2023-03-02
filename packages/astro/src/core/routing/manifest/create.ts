@@ -203,6 +203,12 @@ function injectedRouteToItem(
 	};
 }
 
+// https://github.com/withastro/astro/pull/6353
+// Suggesting for don't create a file when endpoint mode.
+function vaildateEndpointExtention(segments: RoutePart[][]) {
+	return segments.some((item) => item.some((v) => v.content === '.json'));
+}
+
 export interface CreateRouteManifestParams {
 	/** Astro Settings object */
 	settings: AstroSettings;
@@ -226,7 +232,8 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
-
+	// https://github.com/withastro/astro/pull/6353
+	// Suggesting for don't create a file when endpoint mode.
 	function walk(
 		fs: typeof nodeFs,
 		dir: string,
@@ -322,6 +329,13 @@ export function createRouteManifest(
 				const route = `/${segments
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
+
+				// https://github.com/withastro/astro/pull/6353
+				// Suggesting for don't create a file when endpoint mode.
+				if (!vaildateEndpointExtention(segments) && !item.isPage) {
+					warn(logging, 'endpoint', `Please write the correct name, your ${item.file} file name is missing in ‘json’`)
+					return;
+				}
 
 				routes.push({
 					route,
