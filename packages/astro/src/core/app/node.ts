@@ -34,29 +34,38 @@ export class NodeApp extends App {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req), opts);
 	}
 	render(req: IncomingMessage | Request, routeData?: RouteData) {
+		// @ts-ignore
+    if (typeof (req.body) === 'string' && req.body.length > 0) {
+      return super.render(
+				// @ts-ignore
+				req instanceof Request ? req : createRequestFromNodeRequest(req, req.body),
+        routeData
+      );
+    }
+    
+		// @ts-ignore
+    if ((typeof (req.body) === 'object') && (Object.keys(req.body).length > 0)) {
+      return super.render(
+				// @ts-ignore
+				req instanceof Request ? req : createRequestFromNodeRequest(req, JSON.stringify(req.body)),
+        routeData
+      );
+    }
+
 		if ('on' in req) {
 			let body = Buffer.from([]);
-			let reqBodyComplete = null;
-			// @ts-ignore
-      if ((typeof(req.body) === 'object') && (Object.keys(req.body).length > 0)) {
-        reqBodyComplete = new Promise((resolve, reject) => {
-					// @ts-ignore
-					body = Buffer.from(JSON.stringify(req.body));
-          resolve(body);
-        });
-      } else {
-				reqBodyComplete = new Promise((resolve, reject) => {
-					req.on('data', (d) => {
-						body = Buffer.concat([body, d]);
-					});
-					req.on('end', () => {
-						resolve(body);
-					});
-					req.on('error', (err) => {
-						reject(err);
-					});
+			let reqBodyComplete = new Promise((resolve, reject) => {
+				req.on('data', (d) => {
+					body = Buffer.concat([body, d]);
 				});
-			}
+				req.on('end', () => {
+					resolve(body);
+				});
+				req.on('error', (err) => {
+					reject(err);
+				});
+			});
+
 			return reqBodyComplete.then(() => {
 				return super.render(
 					req instanceof Request ? req : createRequestFromNodeRequest(req, body),
