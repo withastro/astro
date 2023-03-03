@@ -12,11 +12,9 @@ const port = 4322;
 
 export const defaultProject = 'render-default';
 
+/** @typedef {{ avg: number, stdev: number, max: number }} Stat */
+
 /**
- * Run benchmark on `projectDir` and write results to `outputFile`.
- * Use `console.log` to report the results too. Logs that start with 10 `=`
- * and end with 10 `=` will be extracted by CI to display in the PR comment.
- * Usually after the first 10 `=` you'll want to add a title like `#### Test`.
  * @param {URL} projectDir
  * @param {URL} outputFile
  */
@@ -59,6 +57,7 @@ export async function run(projectDir, outputFile) {
 }
 
 async function benchmarkRenderTime() {
+	/** @type {Record<string, number[]>} */
 	const result = {};
 	for (const fileName of Object.keys(renderFiles)) {
 		for (let i = 0; i < 100; i++) {
@@ -68,6 +67,7 @@ async function benchmarkRenderTime() {
 			result[pathname].push(renderTime);
 		}
 	}
+	/** @type {Record<string, Stat>} */
 	const processedResult = {};
 	for (const [pathname, times] of Object.entries(result)) {
 		// Calculate average, stdev, max
@@ -81,6 +81,9 @@ async function benchmarkRenderTime() {
 	return processedResult;
 }
 
+/**
+ * @param {Record<string, Stat>} result
+ */
 function printResult(result) {
 	return markdownTable(
 		[
