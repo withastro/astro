@@ -1,0 +1,13 @@
+---
+export const prerender = true;
+
+export function getStaticPaths() {
+  const slugs = ["one", undefined];
+
+  return slugs.map((u) => ({ params: { slug: u } }));
+}
+
+const { slug } = Astro.params;
+---
+
+<h1>{slug || "index"}</h1>
