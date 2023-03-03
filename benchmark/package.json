@@ -13,6 +13,7 @@
     "execa": "^6.1.0",
     "markdown-table": "^3.0.3",
     "mri": "^1.2.0",
-    "port-authority": "^2.0.1"
+    "port-authority": "^2.0.1",
+    "pretty-bytes": "^6.0.0"
   }
 }

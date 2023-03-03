@@ -72,6 +72,7 @@ importers:
       markdown-table: ^3.0.3
       mri: ^1.2.0
       port-authority: ^2.0.1
+      pretty-bytes: ^6.0.0
     dependencies:
       '@astrojs/node': link:../packages/integrations/node
       astro: link:../packages/astro
@@ -80,6 +81,7 @@ importers:
       markdown-table: 3.0.3
       mri: 1.2.0
       port-authority: 2.0.1
+      pretty-bytes: 6.1.0
 
   examples/basics:
     specifiers:
@@ -13377,7 +13379,6 @@ packages:
   /pretty-bytes/6.1.0:
     resolution: {integrity: sha512-Rk753HI8f4uivXi4ZCIYdhmG1V+WKzvRMg/X+M42a6t7D07RcmopXJMDNk6N++7Bl75URRGsb40ruvg7Hcp2wQ==}
     engines: {node: ^14.13.1 || >=16.0.0}
-    dev: true
 
   /pretty-format/3.8.0:
     resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
