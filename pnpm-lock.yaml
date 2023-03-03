@@ -3694,7 +3694,6 @@ importers:
       '@ungap/structured-clone': ^0.3.4
       chai: ^4.3.6
       event-target-shim: ^6.0.2
-      formdata-polyfill: ^4.0.10
       magic-string: ^0.27.0
       mocha: ^9.2.2
       rollup: ^2.79.1
@@ -3715,7 +3714,6 @@ importers:
       '@ungap/structured-clone': 0.3.4
       chai: 4.3.7
       event-target-shim: 6.0.2
-      formdata-polyfill: 4.0.10
       magic-string: 0.27.0
       mocha: 9.2.2
       rollup: 2.79.1
@@ -10032,6 +10030,7 @@ packages:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.2.1
+    dev: false
 
   /file-entry-cache/6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
@@ -10144,6 +10143,7 @@ packages:
     engines: {node: '>=12.20.0'}
     dependencies:
       fetch-blob: 3.2.0
+    dev: false
 
   /fraction.js/4.2.0:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
@@ -12380,6 +12380,7 @@ packages:
   /node-domexception/1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    dev: false
 
   /node-fetch-native/1.0.1:
     resolution: {integrity: sha512-VzW+TAk2wE4X9maiKMlT+GsPU4OMmR1U9CrHSmd3DFLn2IcZ9VJ6M6BBugGfYUnPCLSYxXdZy17M0BEJyhUTwg==}

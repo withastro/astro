@@ -155,5 +155,3 @@ polyfill(globalThis, {
 Thank you to Jon Neal for his work on the original [webapi](https://github.com/astro-community/webapi) project that this package is forked from. Licensed under the CC0-1.0 License.
 
 Code from [event-target-shim](https://www.npmjs.com/package/event-target-shim) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
-
-Code from [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.
