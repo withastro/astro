@@ -472,7 +472,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	InvalidGetEndpointsPathParam: {
-		title: 'invalid path param when the endponits',
+		title: 'There can not use \'undefined\' in the getStaticPaths when the endpoint' ,
 		code: 3022,
 		message: (paramkey, paramVal) =>
 			`invalid path param: ${paramkey} path. A string, number value was expected, got \`${paramVal}\``,

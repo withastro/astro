@@ -39,7 +39,9 @@ export async function getParamsAndProps(
 
 				// fix bug: https://github.com/withastro/astro/pull/6353
 				// [...slug].astro (with undefined) and index.astro has conflict behavior
-				if ((route.type === 'endpoint' || mod.prerender) && typeof val === 'undefined') {
+				// The [...slug].astro under the folder 'index' has set 'undefine' in getStaticPaths that 
+				// it will replace the index.html outside when the build and format is file.
+				if ((route.type === 'endpoint' || route.route.endsWith('/index')) && typeof val === 'undefined') {
 					throw new AstroError({
 						...AstroErrorData.InvalidGetEndpointsPathParam,
 						message: AstroErrorData.InvalidGetEndpointsPathParam.message(key, typeof val),
