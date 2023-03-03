@@ -25,6 +25,8 @@ polyfill(globalThis, {
  * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
+ * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
+ * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
  *
  *
  * @typedef {Object} Fixture
@@ -40,7 +42,24 @@ polyfill(globalThis, {
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<void>} onNextChange
- * @property {() => Promise<>} check
+ * @property {(opts: CheckPayload) => Promise<AstroChecker>} check
+ *
+ * This function returns an instance of the Check
+ *
+ *
+ * When used in a test suite:
+ * ```js
+ * let fixture = await loadFixture({
+ *   root: './fixtures/astro-check-watch/',
+ * });
+ * ```
+ * `opts` will override the options passed to the `AstroChecker`
+ *
+ * ```js
+ * let { check, stop, watch } = fixture.check({
+ *   flags: { watch: true },
+ * });
+ * ```
  */
 
 /** @type {import('../src/core/logger/core').LogOptions} */
@@ -151,24 +170,8 @@ export async function loadFixture(inlineConfig) {
 			return build(settings, { logging, telemetry, ...opts });
 		},
 		sync: (opts) => sync(settings, { logging, fs, ...opts }),
-		/**
-		 * This function runs the `check` command.
-		 * It injects the test dev server.
-		 *
-		 * @example
-		 * When used in a test suite:
-		 * ```js
-		 * 		let fixture = await loadFixture({
-		 * 			root: './fixtures/astro-check-watch/',
-		 * 		});
-		 * 		let { check, stop, watch } = fixture.check({
-		 * 			flags: { watch: true },
-		 * 		});
-		 * ```
-		 * @param opts {any} Override options sent to the check command
-		 */
 		check: async (opts) => {
-			return await check(settings, { logging, viteServer: devServer, ...opts });
+			return await check(settings, { logging, ...opts });
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';

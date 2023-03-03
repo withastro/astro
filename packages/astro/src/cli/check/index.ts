@@ -24,7 +24,7 @@ type DiagnosticResult = {
 	hints: number;
 };
 
-type CheckPayload = {
+export type CheckPayload = {
 	/**
 	 * Flags passed via CLI
 	 */
@@ -97,8 +97,8 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
 export async function check(
 	settings: AstroSettings,
 	{ logging, flags }: CheckPayload
-): Promise<CheckServer> {
-	let checkFlags = parseFlags(flags);
+): Promise<AstroChecker> {
+	const checkFlags = parseFlags(flags);
 	if (checkFlags.watch) {
 		info(logging, 'check', 'Checking files in watch mode');
 	} else {
@@ -108,12 +108,14 @@ export async function check(
 	const { syncCli } = await import('../../core/sync/index.js');
 	const root = settings.config.root;
 	const require = createRequire(import.meta.url);
-	let diagnosticChecker = new AstroCheck(
+	const diagnosticChecker = new AstroCheck(
 		root.toString(),
-		require.resolve('typescript/lib/tsserverlibrary.js', { paths: [root.toString()] })
+		require.resolve('typescript/lib/tsserverlibrary.js', {
+			paths: [root.toString()],
+		})
 	);
 
-	return new CheckServer({
+	return new AstroChecker({
 		syncCli,
 		settings,
 		fileSystem: fs,
@@ -143,7 +145,7 @@ type CheckerConstructor = {
  * When in watch mode, the class does a whole check pass, and then starts watching files.
  * When a change occurs to an `.astro` file, the checker builds content collections again and lint all the `.astro` files.
  */
-class CheckServer {
+export class AstroChecker {
 	readonly #diagnosticsChecker: AstroCheck;
 	readonly #shouldWatch: boolean;
 	readonly #syncCli: (settings: AstroSettings, opts: SyncOptions) => Promise<ProcessExit>;

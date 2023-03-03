@@ -31,6 +31,7 @@ describe('astro cli', () => {
 			root: './fixtures/astro-check-watch/',
 		});
 		const logs = [];
+
 		const checkServer = await fixture.check({
 			flags: { watch: true },
 			logging: {
@@ -190,7 +191,9 @@ describe('astro cli i18n', () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			let error = null;
 			try {
-				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), { env: { LANG: locale } });
+				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), {
+					env: { LANG: locale },
+				});
 				await parseCliDevStart(proc);
 			} catch (e) {
 				console.log(e);
