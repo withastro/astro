@@ -39,7 +39,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 
 								validateRenderProperties(markdocConfig, config);
 								const body =
-									getEntryInfo({ fileUrl: new URL(normalizePath(id), 'file://'), contents: code }).body;
+									getEntryInfo({ fileUrl: new URL('/' + normalizePath(id), 'file://'), contents: code }).body;
 								const ast = Markdoc.parse(body);
 								const content = Markdoc.transform(ast, markdocConfig);
 
