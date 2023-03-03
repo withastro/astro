@@ -90,7 +90,7 @@ Once the Markdoc integration is installed, no configuration is necessary to use 
 
 The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [variables](https://markdoc.dev/docs/variables).
 
-You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `version` variable and an `aside` tag for use across all Markdoc Content Collection entries:
+You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `countries` variable and an `includes` function for use across all Markdoc Content Collection entries:
 
 ```js
 // astro.config.mjs
@@ -102,16 +102,17 @@ export default defineConfig({
   integrations: [
     markdoc({
       variables: {
-        version: '0.0.1',
+        // Declare a global list of countries
+        // Usage in Markdoc: `$countries`
+        countries: ['EN', 'ES', 'JP'],
       },
-      tags: {
-        aside: {
-          // See "Content `components` prop section
-          // for more on rendering components via tags
-          render: 'Aside',
-          attributes: {
-            type: { type: String },
-            title: { type: String },
+      functions: {
+        // Check if array includes value
+        // Usage in Markdoc: `includes(arr, value)`
+        includes: {
+          transform(parameters) {
+            const [array, value] = Object.values(parameters);
+            return array.includes(value);
           },
         },
       },
@@ -119,6 +120,8 @@ export default defineConfig({
   ],
 });
 ```
+
+📚 [See the Markdoc documentation](https://markdoc.dev/docs/functions#creating-a-custom-function) for more on using variables or functions in your content.
 
 :::note
 These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects.
