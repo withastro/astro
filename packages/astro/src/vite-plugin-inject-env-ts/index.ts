@@ -55,10 +55,17 @@ export async function setUpEnvTs({
 				'types="astro/client-image"'
 			);
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+		} else if (typesEnvContents.includes('types="astro/client-image"')) {
+			typesEnvContents = typesEnvContents.replace(
+				'types="astro/client-image"',
+				'types="astro/client"'
+			);
+			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
 		}
 
-		// Add `.astro` types reference if none exists
-		if (!fs.existsSync(dotAstroDir)) return;
+		if (!fs.existsSync(dotAstroDir))
+			// Add `.astro` types reference if none exists
+			return;
 		const expectedTypeReference = getDotAstroTypeReference(settings.config);
 
 		if (!typesEnvContents.includes(expectedTypeReference)) {
