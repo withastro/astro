@@ -265,18 +265,6 @@ importers:
       '@astrojs/node': link:../../packages/integrations/node
       astro: link:../../packages/astro
 
-  examples/images:
-    specifiers:
-      '@astrojs/node': ^5.0.4
-      '@astrojs/vercel': ^3.0.1
-      astro: ^2.0.15
-      sharp: ^0.31.0
-    dependencies:
-      '@astrojs/node': link:../../packages/integrations/node
-      '@astrojs/vercel': link:../../packages/integrations/vercel
-      astro: link:../../packages/astro
-      sharp: 0.31.3
-
   examples/integration:
     specifiers:
       astro: ^2.0.17

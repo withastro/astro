@@ -1,9 +1,0 @@
----
-import { getEntryBySlug } from 'astro:content';
-
-const entry = await getEntryBySlug('blog', 'about');
-const { Content } = await entry.render();
----
-
-<!-- <Image src={entry.data.image} alt="Astro's social image" /> -->
-<Content />
