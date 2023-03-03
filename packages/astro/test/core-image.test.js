@@ -161,7 +161,7 @@ describe('astro:image', () => {
 			});
 		});
 
-		describe.skip('content collections', () => {
+		describe('content collections', () => {
 			let $;
 			before(async () => {
 				let res = await fixture.fetch('/blog/one');

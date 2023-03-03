@@ -5,6 +5,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
+import { normalizePath } from 'vite';
 import { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
@@ -168,7 +169,7 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const outputFilepath = resolvedConfig.base + file + postfix;
+					const outputFilepath = normalizePath(resolvedConfig.base + file + postfix);
 
 					s.overwrite(match.index, match.index + full.length, outputFilepath);
 				}
@@ -199,6 +200,7 @@ export default function assets({
 						return;
 					}
 
+					// Build
 					if (!this.meta.watchMode) {
 						const pathname = decodeURI(url.pathname);
 						const filename = path.basename(pathname, path.extname(pathname) + `.${meta.format}`);
