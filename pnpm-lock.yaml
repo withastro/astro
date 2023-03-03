@@ -3390,6 +3390,7 @@ importers:
   packages/integrations/timer:
     specifiers:
       '@astrojs/webapi': workspace:*
+      '@types/server-destroy': ^1.0.1
       astro: workspace:*
       astro-scripts: workspace:*
       server-destroy: ^1.0.1
@@ -3397,6 +3398,7 @@ importers:
       '@astrojs/webapi': link:../../webapi
       server-destroy: 1.0.1
     devDependencies:
+      '@types/server-destroy': 1.0.1
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 

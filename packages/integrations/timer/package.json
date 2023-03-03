@@ -36,6 +36,7 @@
     "astro": "workspace:^2.0.17"
   },
   "devDependencies": {
+    "@types/server-destroy": "^1.0.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   }
