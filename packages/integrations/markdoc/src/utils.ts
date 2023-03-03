@@ -102,3 +102,10 @@ export function getAstroConfigPath(fs: typeof fsMod, root: string): string | und
 		}
 	}
 }
+
+/**
+ * @see 'astro/src/core/path.ts'
+ */
+export function prependForwardSlash(path: string) {
+	return path[0] === '/' ? path : '/' + path;
+}

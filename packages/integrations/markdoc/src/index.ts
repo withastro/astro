@@ -1,8 +1,8 @@
 import type { AstroIntegration, AstroConfig } from 'astro';
-import { InlineConfig, normalizePath } from 'vite';
+import { InlineConfig } from 'vite';
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
+import { prependForwardSlash, getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 
@@ -39,7 +39,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 
 								validateRenderProperties(markdocConfig, config);
 								const body =
-									getEntryInfo({ fileUrl: new URL('/' + normalizePath(id), 'file://'), contents: code }).body;
+									getEntryInfo({ fileUrl: new URL(prependForwardSlash(id), 'file://'), contents: code }).body;
 								const ast = Markdoc.parse(body);
 								const content = Markdoc.transform(ast, markdocConfig);
 
