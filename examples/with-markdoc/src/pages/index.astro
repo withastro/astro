@@ -11,8 +11,8 @@ const intro = await getEntryBySlug('docs', 'intro');
 		<h1>{intro.data.title}</h1>
 		<!-- `DocsContent` is a thin wrapper around -->
 		<!-- the `Content` component provided by Content Collections, -->
-		<!-- with added Markdoc configuration and component mapping. -->
-		<!-- This allows you to share config wherever you render your Markdoc files. -->
+		<!-- with added configuration for components. -->
+		<!-- This allows you to share global components wherever you render your Markdoc. -->
 		<DocsContent entry={intro} />
 	</main>
 </Layout>
