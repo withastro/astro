@@ -84,7 +84,7 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
 /**
  * Checks `.astro` files for possible errors.
  *
- * If the `--check` flag is provided, the command runs indefinitely and provides diagnostics
+ * If the `--watch` flag is provided, the command runs indefinitely and provides diagnostics
  * when `.astro` files are modified.
  *
  * Every time an astro files is modified, content collections are also generated.
@@ -201,7 +201,7 @@ export class AstroChecker {
 	}
 
 	/**
-	 * Weather the checker should run in watch mode
+	 * Whether the checker should run in watch mode
 	 * @returns {boolean}
 	 */
 	public get isWatchMode(): boolean {
@@ -355,7 +355,7 @@ export class AstroChecker {
 }
 
 /**
- * Open all Astro files in the given directory and return the number of files found.*
+ * Open all Astro files in the given directory and return the number of files found.
  * @param {URL} workspaceUri
  * @param {string[]} filePathsToIgnore
  * @param {AstroCheck} checker
