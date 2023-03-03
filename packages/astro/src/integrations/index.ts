@@ -96,27 +96,31 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 			};
-			// Semi-private `addPageExtension` hook
-			function addPageExtension(...input: (string | string[])[]) {
-				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
-				updatedSettings.pageExtensions.push(...exts);
-			}
 
-			// Semi-private `addContentEntryType` hook
-			function addContentEntryType(contentEntryType: ContentEntryType) {
-				updatedSettings.contentEntryTypes.push(contentEntryType);
-			}
+			// Public, intentionally undocumented hooks - not subject to semver.
+			// Intended for internal integrations (ex. `@astrojs/mdx`),
+			// though accessible to integration authors if discovered.
+			(function applySemiPrivateHooks() {
+				function addPageExtension(...input: (string | string[])[]) {
+					const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
+					updatedSettings.pageExtensions.push(...exts);
+				}
+				function addContentEntryType(contentEntryType: ContentEntryType) {
+					updatedSettings.contentEntryTypes.push(contentEntryType);
+				}
+	
+				Object.defineProperty(hooks, 'addPageExtension', {
+					value: addPageExtension,
+					writable: false,
+					enumerable: false,
+				});
+				Object.defineProperty(hooks, 'addContentEntryType', {
+					value: addContentEntryType,
+					writable: false,
+					enumerable: false,
+				});
+			})();
 
-			Object.defineProperty(hooks, 'addPageExtension', {
-				value: addPageExtension,
-				writable: false,
-				enumerable: false,
-			});
-			Object.defineProperty(hooks, 'addContentEntryType', {
-				value: addContentEntryType,
-				writable: false,
-				enumerable: false,
-			});
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:config:setup'](hooks),
