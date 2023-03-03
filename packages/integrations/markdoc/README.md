@@ -131,14 +131,41 @@ These options will be applied during [the Markdoc "transform" phase](https://mar
 
 The `Content` component accepts a `components` prop, which defines mappings from Markdoc tags and HTML element names to Astro or UI framework components (React, Vue, Svelte, etc).
 
-#### Render HTML elements as Astro components
+#### Render Markdoc nodes / HTML elements as Astro components
 
-You may want to map standard HTML elements like headings and paragraphs to components. This example renders all `h1` headings using a `Title` component:
+You may want to map standard HTML elements like headings and paragraphs to components. For this, you can configure a custom [Markdoc node](https://markdoc.dev/docs/nodes). This example overrides Markdoc's `heading` node to render a `Heading` component, passing the built-in `level` attribute as a prop:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import markdoc from '@astrojs/markdoc';
+
+// https://astro.build/config
+export default defineConfig({
+	integrations: [
+		markdoc({
+			nodes: {
+				heading: {
+					render: 'Heading',
+          // Markdoc requires type defs for each attribute.
+          // These should mirror the `Props` type of the component
+          // you are rendering.
+          attributes: {
+            level: { type: String },
+          }
+				},
+			},
+		}),
+	],
+});
+```
+
+Now, you can map the string passed to render (`'Heading'` in this example) to a component import. This is configured from the `<Content />` component used to render your Markdoc using the `components` prop:
 
 ```astro
 ---
 import { getEntryBySlug } from 'astro:content';
-import Title from '../components/Title.astro';
+import Heading from '../components/Heading.astro';
 
 const entry = await getEntryBySlug('docs', 'why-markdoc');
 const { Content } = await entry.render();
@@ -146,10 +173,12 @@ const { Content } = await entry.render();
 
 <Content
   components={{
-    h1: Title,
+    Heading: Heading,
   }}
 />
 ```
+
+📚 [Find all of Markdoc's built-in nodes and node attributes on their documentation.](https://markdoc.dev/docs/nodes#built-in-nodes)
 
 #### Render Markdoc tags as Astro components
 
