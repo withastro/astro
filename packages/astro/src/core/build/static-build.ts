@@ -1,3 +1,4 @@
+import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
@@ -25,13 +26,15 @@ import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
-export async function staticBuild(opts: StaticBuildOptions) {
+export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
 	// Make sure we have an adapter before building
 	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new AstroError(AstroErrorData.NoAdapterInstalled);
 	}
+
+	settings.timer.start('SSR build');
 
 	// The pages to be built for rendering purposes.
 	const pageInput = new Set<string>();
@@ -42,10 +45,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
-
-	const timer: Record<string, number> = {};
-
-	timer.buildStart = performance.now();
 
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, settings.config.root);
@@ -70,10 +69,13 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	registerAllPlugins(container);
 
 	// Build your project (SSR application code, assets, client JS, etc.)
-	timer.ssr = performance.now();
+	const ssrTime = performance.now();
 	info(opts.logging, 'build', `Building ${settings.config.output} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
-	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
+	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+
+	settings.timer.end('SSR build');
+	settings.timer.start('Client build');
 
 	const rendererClientEntrypoints = settings.renderers
 		.map((r) => r.clientEntrypoint)
@@ -91,23 +93,38 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	}
 
 	// Run client build first, so the assets can be fed into the SSR rendered version.
-	timer.clientBuild = performance.now();
 	const clientOutput = await clientBuild(opts, internals, clientInput, container);
 
-	timer.generate = performance.now();
 	await runPostBuildHooks(container, ssrOutput, clientOutput);
 
+	settings.timer.end('Client build');
+
+	// Free up memory
+	internals.ssrEntryChunk = undefined;
+	if (opts.teardownCompiler) {
+		teardown();
+	}
+
+	return { internals };
+}
+
+export async function staticBuild(opts: StaticBuildOptions, internals: BuildInternals) {
+	const { settings } = opts;
 	switch (settings.config.output) {
 		case 'static': {
+			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
 			await cleanServerOutput(opts);
+			settings.timer.end('Static generate');
 			return;
 		}
 		case 'server': {
+			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
+			settings.timer.end('Server generate');
 			return;
 		}
 	}

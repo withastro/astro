@@ -507,7 +507,7 @@ async function updateAstroConfig({
 	let output = await generate(ast);
 	const comment = '// https://astro.build/config';
 	const defaultExport = 'export default defineConfig';
-	output = output.replace(` ${comment}`, '');
+	output = output.replace(`\n${comment}`, '');
 	output = output.replace(`${defaultExport}`, `\n${comment}\n${defaultExport}`);
 
 	if (input === output) {

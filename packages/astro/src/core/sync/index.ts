@@ -39,7 +39,7 @@ export async function sync(
 				optimizeDeps: { entries: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logging, mode: 'build', fs }
+			{ settings, logging, mode: 'build', command: 'build', fs }
 		)
 	);
 
