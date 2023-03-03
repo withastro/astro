@@ -5,9 +5,6 @@ import markdoc from '@astrojs/markdoc';
 export default defineConfig({
 	integrations: [
 		markdoc({
-			variables: {
-				revealSecret: true,
-			},
 			tags: {
 				aside: {
 					render: 'Aside',
