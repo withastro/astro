@@ -2,7 +2,7 @@ import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { MarkdocError } from '../dist/utils.js';
-import z, { ZodError } from 'zod';
+import z from 'astro/zod';
 
 export type AstroNode =
 	| string
@@ -74,7 +74,7 @@ function validateComponents(components: Record<string, AstroInstance['default']>
 	} catch (e) {
 		throw new MarkdocError({
 			message:
-				e instanceof ZodError
+				e instanceof z.ZodError
 					? e.issues[0].message
 					: 'Invalid `components` prop. Ensure you are passing an object of components to <Content />',
 		});
