@@ -60,6 +60,7 @@ async function benchmarkRenderTime() {
 	/** @type {Record<string, number[]>} */
 	const result = {};
 	for (const fileName of Object.keys(renderFiles)) {
+		// Render each file 100 times and push to an array
 		for (let i = 0; i < 100; i++) {
 			const pathname = '/' + fileName.slice(0, -path.extname(fileName).length);
 			const renderTime = await fetchRenderTime(`http://localhost:${port}${pathname}`);
@@ -69,13 +70,13 @@ async function benchmarkRenderTime() {
 	}
 	/** @type {Record<string, Stat>} */
 	const processedResult = {};
-	for (const [pathname, times] of Object.entries(result)) {
-		// Calculate average, stdev, max
-		const avg = times.reduce((a, b) => a + b, 0) / times.length;
+	for (const [pathname, result] of Object.entries(result)) {
+		// From the 100 results, calculate average, standard deviation, and max value
+		const avg = result.reduce((a, b) => a + b, 0) / result.length;
 		const stdev = Math.sqrt(
-			times.map((x) => Math.pow(x - avg, 2)).reduce((a, b) => a + b, 0) / times.length
+			result.map((x) => Math.pow(x - avg, 2)).reduce((a, b) => a + b, 0) / result.length
 		);
-		const max = Math.max(...times);
+		const max = Math.max(...result);
 		processedResult[pathname] = { avg, stdev, max };
 	}
 	return processedResult;
@@ -102,6 +103,7 @@ function printResult(result) {
 }
 
 /**
+ * Simple fetch utility to get the render time sent by `@astrojs/timer` in plain text
  * @param {string} url
  * @returns {Promise<number>}
  */
