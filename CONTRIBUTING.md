@@ -137,7 +137,9 @@ pnpm run benchmark memory
 
 Use `pnpm run benchmark --help` to see all available options.
 
-In a PR on GitHub, you can also comment `!bench`, `!bench memory`, etc, to run the benchmarks on CI. The benchmark will run on both the PR branch and the `main` branch, and the results will be posted as a comment.
+To run these benchmarks in a PR on GitHub instead of using the CLI, you can comment `!bench`. The benchmarks will run on both the PR branch and the `main` branch, and the results will be posted as a new comment.
+
+To run only a specific benchmark on CI, add its name after the command in your comment, for example, `!bench memory`.
 
 ## Code Structure
 
