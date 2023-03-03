@@ -149,7 +149,9 @@ export default defineConfig({
 					render: 'Heading',
           // Markdoc requires type defs for each attribute.
           // These should mirror the `Props` type of the component
-          // you are rendering.
+          // you are rendering. 
+          // See Markdoc's documentation on defining attributes
+          // https://markdoc.dev/docs/attributes#defining-attributes
           attributes: {
             level: { type: String },
           }
@@ -182,7 +184,7 @@ const { Content } = await entry.render();
 
 #### Render Markdoc tags as Astro components
 
-You may also configure [Markdoc tags](https://markdoc.dev/docs/tags) that map to components. You can configure a new tag from your `astro.config` like so, passiing the uppercase component name as the `render` prop:
+You may also configure [Markdoc tags](https://markdoc.dev/docs/tags) that map to components. You can configure a new tag from your `astro.config` using the `tags` attribute.
 
 
 ```js
@@ -197,6 +199,12 @@ export default defineConfig({
 			tags: {
 				aside: {
 					render: 'Aside',
+          attributes: {
+            // Component props as attribute definitions
+            // See Markdoc's documentation on defining attributes
+            // https://markdoc.dev/docs/attributes#defining-attributes
+            type: { type: String },
+          }
 				},
 			},
 		}),
@@ -204,7 +212,7 @@ export default defineConfig({
 });
 ```
 
-Then, you can wire this render name (`'Aside'`) to a component from the `components` prop:
+Then, you can wire this render name (`'Aside'`) to a component from the `components` prop via the `<Content />` component:
 
 
 ```astro
