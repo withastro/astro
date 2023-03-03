@@ -1,5 +1,5 @@
 import type { AstroIntegration, AstroConfig } from 'astro';
-import type { InlineConfig } from 'vite';
+import { InlineConfig, normalizePath } from 'vite';
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
@@ -7,14 +7,12 @@ import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 
 export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
-	const entryBodyByFileIdCache = new Map<string, string>();
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addContentEntryType }: any) => {
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
-					entryBodyByFileIdCache.set(fileUrl.pathname, parsed.content);
 					return {
 						data: parsed.data,
 						body: parsed.content,
@@ -41,9 +39,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 
 								validateRenderProperties(markdocConfig, config);
 								const body =
-									entryBodyByFileIdCache.get(id) ??
-									// It's possible for Vite to attempt to transform a file before `getEntryInfo()` has run
-									getEntryInfo({ fileUrl: new URL(id, 'file://'), contents: code }).body;
+									getEntryInfo({ fileUrl: new URL(normalizePath(id), 'file://'), contents: code }).body;
 								const ast = Markdoc.parse(body);
 								const content = Markdoc.transform(ast, markdocConfig);
 
