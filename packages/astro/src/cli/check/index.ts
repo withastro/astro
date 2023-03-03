@@ -90,9 +90,9 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
  * Every time an astro files is modified, content collections are also generated.
  *
  * @param {AstroSettings} settings
- * @param {CheckPayload} options
- * @param {Flags} options.flags
- * @param {LogOptions} options.logging
+ * @param {CheckPayload} options Options passed {@link AstroChecker}
+ * @param {Flags} options.flags Flags coming from the CLI
+ * @param {LogOptions} options.logging Logging options
  */
 export async function check(
 	settings: AstroSettings,
@@ -222,7 +222,7 @@ export class AstroChecker {
 	 * 2. Optionally, traverse the file system for `.astro` files and saves their paths.
 	 * 3. Get diagnostics for said files and print the result in console.
 	 *
-	 * @param {boolean} [openDocuments] Whether the operation should open all `.astro` files
+	 * @param openDocuments Whether the operation should open all `.astro` files
 	 * @private
 	 */
 	async #checkAllFiles(openDocuments: boolean): Promise<CheckResult> {
@@ -261,7 +261,6 @@ export class AstroChecker {
 
 	/**
 	 * This function is responsible to attach events to the server watcher
-	 * @private
 	 */
 	async #watch() {
 		const { default: chokidar } = await import('chokidar');
@@ -291,8 +290,7 @@ export class AstroChecker {
 
 	/**
 	 * Add a document to the diagnostics checker
-	 * @param filePath
-	 * @private
+	 * @param filePath Path to the file
 	 */
 	#addDocument(filePath: string) {
 		const text = fs.readFileSync(filePath, 'utf-8');
@@ -305,7 +303,7 @@ export class AstroChecker {
 	/**
 	 * Logs the result of the various diagnostics
 	 *
-	 * @param {Readonly<DiagnosticResult>} result
+	 * @param {Readonly<DiagnosticResult>} result Result emitted by AstroChecker.#breakDownDiagnostics
 	 */
 	#logDiagnosticsSeverity(result: Readonly<DiagnosticResult>) {
 		info(
