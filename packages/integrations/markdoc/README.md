@@ -279,7 +279,7 @@ const { Content } = await entry.render();
 
 ## Examples
 
-*   The [Astro Markdoc starter template](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use Markdoc files in your Astro project.
+*   The [Astro Markdoc starter template](https://github.com/withastro/astro/tree/latest/examples/with-markdoc) shows how to use Markdoc files in your Astro project.
 
 ## Troubleshooting
 
