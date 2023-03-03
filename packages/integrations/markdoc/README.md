@@ -54,6 +54,17 @@ export default defineConfig({
 });
 ```
 
+
+### Editor Integration
+
+[VS Code](https://code.visualstudio.com/) supports Markdown by default. However, for Markdoc editor support, you may wish to add the following setting in your VSCode config. This ensures authoring Markdoc files provides a Markdown-like editor experience.
+
+```json title=".vscode/settings.json"
+"files.associations": {
+    "*.mdoc": "markdown"
+}
+```
+
 ## Usage
 
 Markdoc files can only be used within content collections. Add entries to any content collection using the `.mdoc` extension:
