@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
+import { it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -254,6 +255,12 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/quality/index.html');
 			const $ = cheerio.load(html);
 			expect($('#no-quality img').attr('src')).to.not.equal($('#quality-num img').attr('src'));
+		});
+
+		it('format attribute produces a different file', async () => {
+			const html = await fixture.readFile('/format/index.html');
+			const $ = cheerio.load(html);
+			expect($('#no-format img').attr('src')).to.not.equal($('#format-avif img').attr('src'));
 		});
 	});
 
