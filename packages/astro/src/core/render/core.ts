@@ -41,7 +41,7 @@ export async function getParamsAndProps(
 				// [...slug].astro (with undefined) and index.astro has conflict behavior
 				// The [...slug].astro under the folder 'index' has set 'undefine' in getStaticPaths that 
 				// it will replace the index.html outside when the build and format is file.
-				if ((route.type === 'endpoint' || route.route.endsWith('/index')) && typeof val === 'undefined') {
+				if ((route.type === 'endpoint' || route.route.startsWith('/index')) && typeof val === 'undefined') {
 					throw new AstroError({
 						...AstroErrorData.InvalidGetEndpointsPathParam,
 						message: AstroErrorData.InvalidGetEndpointsPathParam.message(key, typeof val),
