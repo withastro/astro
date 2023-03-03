@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 import autocannon from 'autocannon';
 import { execaCommand } from 'execa';
 import { waitUntilBusy } from 'port-authority';
+import { markdownTable } from 'markdown-table';
+import pb from 'pretty-bytes';
 import { astroBin } from './_util.js';
 
 const port = 4321;
@@ -45,14 +47,7 @@ export async function run(projectDir, outputFile) {
 	console.log('Result preview:');
 	console.log('='.repeat(10));
 	console.log(`#### Server stress\n\n`);
-	let text = autocannon.printResult(result);
-	// Truncate the logs in CI so that the generated comment from the `!bench` command
-	// is shortened. Also we only need this information when comparing runs.
-	// Full log example: https://github.com/mcollina/autocannon#command-line
-	if (process.env.CI) {
-		text = text.match(/^.*?requests in.*?read$/m)?.[0];
-	}
-	console.log(text);
+	console.log(printResult(result));
 	console.log('='.repeat(10));
 
 	console.log('Done!');
@@ -82,4 +77,34 @@ async function benchmarkCannon() {
 		);
 		autocannon.track(instance, { renderResultsTable: false });
 	});
+}
+
+/**
+ * @param {import('autocannon').Result} output
+ */
+function printResult(output) {
+	const { latency: l, requests: r, throughput: t } = output;
+
+	const latencyTable = markdownTable(
+		[
+			['', 'Avg', 'Stdev', 'Max'],
+			['Latency', `${l.average} ms`, `${l.stddev} ms`, `${l.max} ms`],
+		],
+		{
+			align: ['l', 'r', 'r', 'r'],
+		}
+	);
+
+	const reqAndBytesTable = markdownTable(
+		[
+			['', 'Avg', 'Stdev', 'Min', 'Total in 30s'],
+			['Req/Sec', r.average, r.stddev, r.min, `${(r.total / 1000).toFixed(1)}k requests`],
+			['Bytes/Sec', pb(t.average), pb(t.stddev), pb(t.min), `${pb(t.total)} read`],
+		],
+		{
+			align: ['l', 'r', 'r', 'r', 'r'],
+		}
+	);
+
+	return `${latencyTable}\n\n${reqAndBytesTable}`;
 }

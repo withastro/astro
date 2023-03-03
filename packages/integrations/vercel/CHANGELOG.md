@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.1.4
+
+### Patch Changes
+
+- [#6380](https://github.com/withastro/astro/pull/6380) [`0e378c3b8`](https://github.com/withastro/astro/commit/0e378c3b87627ca2764872a426dfba0a1606f991) Thanks [@JuanM04](https://github.com/JuanM04)! - Fixed undici-related bug
+
+- Updated dependencies [[`45501c531`](https://github.com/withastro/astro/commit/45501c531bf75f60063e1f8b7ac50f5d8d93eb6f), [`ee8b2a067`](https://github.com/withastro/astro/commit/ee8b2a067201f94c6b06fbfc094288e068116c60), [`02a7266e3`](https://github.com/withastro/astro/commit/02a7266e3c32c196fe733a5d3480f9e308cb62ee), [`95164bfdd`](https://github.com/withastro/astro/commit/95164bfdd2c1cbe5f1fafeab9e998ee4c85df3e3)]:
+  - astro@2.0.17
+
 ## 3.1.3
 
 ### Patch Changes

@@ -1,3 +1,4 @@
+import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
@@ -25,7 +26,7 @@ import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
-export async function staticBuild(opts: StaticBuildOptions) {
+export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
 	// Make sure we have an adapter before building
@@ -98,6 +99,17 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	settings.timer.end('Client build');
 
+	// Free up memory
+	internals.ssrEntryChunk = undefined;
+	if (opts.teardownCompiler) {
+		teardown();
+	}
+
+	return { internals };
+}
+
+export async function staticBuild(opts: StaticBuildOptions, internals: BuildInternals) {
+	const { settings } = opts;
 	switch (settings.config.output) {
 		case 'static': {
 			settings.timer.start('Static generate');

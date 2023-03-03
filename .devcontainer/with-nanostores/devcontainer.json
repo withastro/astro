@@ -1,5 +1,5 @@
 {
-  "name": "Astro Examples",
+  "name": "Nanostores",
   "build": {
     "dockerfile": "../examples.Dockerfile"
   },
