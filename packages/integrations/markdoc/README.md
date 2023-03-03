@@ -101,7 +101,7 @@ Once the Markdoc integration is installed, no configuration is necessary to use 
 
 The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [variables](https://markdoc.dev/docs/variables).
 
-You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `countries` variable and an `includes` function for use across all Markdoc Content Collection entries:
+You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `countries` variable and an `includes` function for use across all Markdoc content collection entries:
 
 ```js
 // astro.config.mjs
