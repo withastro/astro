@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.0.5
+
+### Patch Changes
+
+- [#6375](https://github.com/withastro/astro/pull/6375) [`754c5ca9a`](https://github.com/withastro/astro/commit/754c5ca9aa93d4e8674059ce79f6b694c147db83) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Respect original `package.json` indentation
+
 ## 3.0.4
 
 ### Patch Changes
