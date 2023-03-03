@@ -35,7 +35,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	vite: {},
 	legacy: {},
 	experimental: {
-		images: false,
+		assets: false,
 	},
 };
 
@@ -176,7 +176,7 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			images: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.images),
+			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
 		})
 		.optional()
 		.default({}),

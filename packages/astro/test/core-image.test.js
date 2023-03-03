@@ -19,7 +19,7 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
 				experimental: {
-					images: true,
+					assets: true,
 				},
 			});
 
@@ -182,7 +182,7 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssg/',
 				experimental: {
-					images: true,
+					assets: true,
 				},
 			});
 			await fixture.build();
@@ -264,7 +264,7 @@ describe('astro:image', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				experimental: {
-					images: true,
+					assets: true,
 				},
 			});
 			await fixture.build();
@@ -303,7 +303,7 @@ describe('astro:image', () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
 				experimental: {
-					images: true,
+					assets: true,
 				},
 				image: {
 					service: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)),

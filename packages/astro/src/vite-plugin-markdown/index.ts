@@ -1,4 +1,3 @@
-import type { PluginContext } from 'rollup';
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
@@ -6,19 +5,20 @@ import {
 } from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';
-import { fileURLToPath } from 'node:url';
 import npath from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { PluginContext } from 'rollup';
+import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
+import { imageMetadata } from '../assets/index.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
-import { imageMetadata } from '../assets/index.js';
-import { pathToFileURL } from 'url';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -63,17 +63,17 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 	async function resolveImage(this: PluginContext, fileId: string, path: string) {
 		const resolved = await this.resolve(path, fileId);
-		if(!resolved) return path;
+		if (!resolved) return path;
 		const rel = npath.relative(normalizePath(fileURLToPath(settings.config.root)), resolved.id);
 		const buffer = await fs.promises.readFile(resolved.id);
 		// This conditional has to be here, to prevent race conditions on setting the map
-		if(markdownAssetMap.has(resolved.id)) {
-			return `ASTRO_ASSET_MD_${markdownAssetMap.get(resolved.id)!}`
+		if (markdownAssetMap.has(resolved.id)) {
+			return `ASTRO_ASSET_MD_${markdownAssetMap.get(resolved.id)!}`;
 		}
 		const file = this.emitFile({
 			type: 'asset',
 			name: rel,
-			source: buffer
+			source: buffer,
 		});
 		markdownAssetMap.set(resolved.id, file);
 		return `ASTRO_ASSET_MD_${file}`;
@@ -93,30 +93,30 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const raw = safeMatter(rawFile, id);
 
 				let imageService = undefined;
-				if (settings.config.experimental.images) {
+				if (settings.config.experimental.assets) {
 					imageService = (await import(settings.config.image.service)).default;
 				}
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					frontmatter: raw.data,
-					experimentalImages: settings.config.experimental.images,
+					experimentalAssets: settings.config.experimental.assets,
 					imageService,
 					assetsDir: new URL('./assets/', settings.config.srcDir),
-					resolveImage: this.meta.watchMode ? undefined : resolveImage.bind(this, fileId)
+					resolveImage: this.meta.watchMode ? undefined : resolveImage.bind(this, fileId),
 				});
 
-				this
+				this;
 
 				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
 				let imagePaths: string[] = [];
-				if (settings.config.experimental.images) {
-					let paths = renderResult.vfile.data.imagePaths as string[] ?? [];
+				if (settings.config.experimental.assets) {
+					let paths = (renderResult.vfile.data.imagePaths as string[]) ?? [];
 					imagePaths = await Promise.all(
-						(paths).map(async (imagePath) => {
+						paths.map(async (imagePath) => {
 							return (await this.resolve(imagePath))?.id ?? imagePath;
-						}) 
+						})
 					);
 				}
 
@@ -140,7 +140,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 				${
-					settings.config.experimental.images
+					settings.config.experimental.assets
 						? 'import { getConfiguredImageService } from "astro:assets";\ngetConfiguredImageService();'
 						: ''
 				}
@@ -206,15 +206,15 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 			}
 		},
 		async generateBundle(_opts, bundle) {
-			for(const [,output] of Object.entries(bundle)) {
-				if(output.type === 'asset') continue;
-				
-				if(markdownAssetMap.size) {
+			for (const [, output] of Object.entries(bundle)) {
+				if (output.type === 'asset') continue;
+
+				if (markdownAssetMap.size) {
 					const optimizedPaths = new Map<string, string>();
 
-					for(const [filename, hash] of markdownAssetMap) {
+					for (const [filename, hash] of markdownAssetMap) {
 						const image = await imageMetadata(pathToFileURL(filename));
-						if(!image) {
+						if (!image) {
 							continue;
 						}
 						const fileName = this.getFileName(hash);
@@ -228,6 +228,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					});
 				}
 			}
-		}
+		},
 	};
 }

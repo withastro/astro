@@ -196,7 +196,7 @@ async function render({
 export function createAsset(options: { assetsDir: string }) {
 	return (imageOption: { format: string; width: number; height: number }) => {
 		if (options.assetsDir === 'undefined') {
-			throw new Error('Enable `experimental.images` in your Astro config to use asset()');
+			throw new Error('Enable `experimental.assets` in your Astro config to use asset()');
 		}
 
 		return z

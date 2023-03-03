@@ -1,6 +1,5 @@
 import fsMod from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
@@ -23,8 +22,8 @@ export function astroContentVirtualModPlugin({
 			)
 		)
 	);
-	
-	const assetsDir = settings.config.experimental.images
+
+	const assetsDir = settings.config.experimental.assets
 		? contentPaths.assetsDir.toString()
 		: 'undefined';
 	const entryGlob = `${relContentDir}**/*{${contentFileExts.join(',')}}`;

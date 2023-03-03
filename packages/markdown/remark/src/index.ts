@@ -89,7 +89,7 @@ export async function renderMarkdown(
 		parser.use([remarkPrism(scopedClassName)]);
 	}
 
-	if (opts.experimentalImages) {
+	if (opts.experimentalAssets) {
 		// Apply later in case user plugins resolve relative image paths
 		parser.use([toRemarkCollectImages(opts.resolveImage)]);
 	}
@@ -109,7 +109,7 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	if (opts.experimentalImages) {
+	if (opts.experimentalAssets) {
 		parser.use(rehypeImages(await opts.imageService, opts.assetsDir));
 	}
 	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });

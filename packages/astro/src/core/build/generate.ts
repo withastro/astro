@@ -105,7 +105,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
-	if (opts.settings.config.experimental.images) {
+	if (opts.settings.config.experimental.assets) {
 		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
 		for (const imageData of getStaticImageList()) {
 			await generateImage(opts, imageData[0], imageData[1]);
