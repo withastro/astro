@@ -1,6 +1,5 @@
 // @ts-check
-import { Event, EventTarget } from 'event-target-shim'
-import { FormData } from 'formdata-polyfill/esm.min.js'
+import { Event, EventTarget } from 'event-target-shim' // Look into removing when Node 18 is dropped for Node 20
 import {
 	ByteLengthQueuingStrategy,
 	CountQueuingStrategy,
@@ -14,18 +13,18 @@ import {
 	WritableStream,
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
-} from 'node:stream/web'
-import { fetch, File, Headers, Request, Response } from 'undici'
+} from 'node:stream/web' // Remove when Node 16 is dropped for Node 18.
+import { fetch, File, FormData, Headers, Request, Response } from 'undici' // Remove when Node 16 is dropped for Node 18.
 import { URLPattern } from 'urlpattern-polyfill'
 import {
 	cancelAnimationFrame,
 	requestAnimationFrame,
 } from './lib/AnimationFrame'
 import { CharacterData, Comment, Text } from './lib/CharacterData'
-import { CustomEvent } from './lib/CustomEvent'
+import { CustomEvent } from './lib/CustomEvent' // Look into removing when Node 18 is dropped for Node 20
 import { DOMException } from './lib/DOMException'
 import { cancelIdleCallback, requestIdleCallback } from './lib/IdleCallback'
-import structuredClone from './lib/structuredClone'
+import structuredClone from './lib/structuredClone' // Remove when Node 16 is dropped for Node 18.
 import { clearTimeout, setTimeout } from './lib/Timeout'
 import { TreeWalker } from './lib/TreeWalker'
 
