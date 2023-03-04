@@ -149,7 +149,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'docs': {
 			telemetry.record(event.eventCliSession(cmd));
-			if (flags.help) {
+			if (flags.help || flags.h) {
 				printHelp({
 					commandName: 'astro docs',
 					tables: {
