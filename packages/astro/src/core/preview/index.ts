@@ -21,7 +21,7 @@ export default async function preview(
 	_settings: AstroSettings,
 	{ logging, flags }: PreviewOptions
 ): Promise<PreviewServer | undefined> {
-	if (flags?.help) {
+	if (flags?.help || flags?.h) {
 		printHelp({
 			commandName: 'astro preview',
 			usage: '[...flags]',
