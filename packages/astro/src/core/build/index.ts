@@ -39,7 +39,7 @@ export interface BuildOptions {
 /** `astro build` */
 export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
 	applyPolyfill();
-	if (options.flags?.help) {
+	if (options.flags?.help || options.flags?.h) {
 		printHelp({
 			commandName: 'astro build',
 			usage: '[...flags]',
