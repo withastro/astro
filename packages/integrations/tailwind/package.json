@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/tailwind",
-  "description": "Astro + Tailwind integration",
+  "description": "Use Tailwind CSS to style your Astro site",
   "version": "3.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
