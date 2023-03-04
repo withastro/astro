@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/turbolinks",
-  "description": "Turbolinks + Astro Integrations",
+  "description": "Turbolinks + Astro integration",
   "version": "0.1.5",
   "type": "module",
   "types": "./dist/index.d.ts",
