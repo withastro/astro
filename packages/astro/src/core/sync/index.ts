@@ -20,7 +20,7 @@ export async function syncCli(
 	settings: AstroSettings,
 	{ logging, fs, flags }: { logging: LogOptions; fs: typeof fsMod; flags?: Arguments }
 ): Promise<ProcessExit> {
-	if (flags?.help) {
+	if (flags?.help || flags?.h) {
 		printHelp({
 			commandName: 'astro sync',
 			usage: '[...flags]',
