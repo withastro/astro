@@ -121,22 +121,25 @@ pnpm exec changeset
 
 ### Running benchmarks
 
-We have benchmarks to keep performance under control. You can run these by running (from the project root):
+We have benchmarks to keep performance under control. They are located in the `benchmarks` directory, and it exposes a CLI you can use to run them.
+
+You can run all available benchmarks sequentially by running (from the project root):
 
 ```shell
-pnpm run benchmark --filter astro
+pnpm run benchmark
 ```
 
-Which will fail if the performance has regressed by **10%** or more.
-
-To update the times cd into the `packages/astro` folder and run the following:
+To run a specific benchmark only, you can add the name of the benchmark after the command:
 
 ```shell
-node test/benchmark/build.bench.js --save
-node test/benchmark/dev.bench.js --save
+pnpm run benchmark memory
 ```
 
-Which will update the build and dev benchmarks.
+Use `pnpm run benchmark --help` to see all available options.
+
+To run these benchmarks in a PR on GitHub instead of using the CLI, you can comment `!bench`. The benchmarks will run on both the PR branch and the `main` branch, and the results will be posted as a new comment.
+
+To run only a specific benchmark on CI, add its name after the command in your comment, for example, `!bench memory`.
 
 ## Code Structure
 
