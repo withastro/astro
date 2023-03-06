@@ -7,13 +7,15 @@ import RenderNode from './RenderNode.astro';
 
 type Props = {
 	content: RenderableTreeNode;
-	components: Record<string, AstroInstance['default']>;
+	components?: Record<string, AstroInstance['default']>;
 };
 
 const { content, components } = Astro.props as Props;
 
 // Will throw if components is invalid
-validateComponentsProp(components);
+if (components) {
+	validateComponentsProp(components);
+}
 ---
 
 <RenderNode node={createAstroNode(content, components)} />
