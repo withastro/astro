@@ -12,6 +12,7 @@ astro-benchmark <command> [options]
 Command
   [empty]         Run all benchmarks
   memory          Run build memory and speed test
+  render          Run rendering speed test
   server-stress   Run server stress test
 
 Options
@@ -24,6 +25,7 @@ Options
 const commandName = args._[0];
 const benchmarks = {
 	memory: () => import('./bench/memory.js'),
+	'render': () => import('./bench/render.js'),
 	'server-stress': () => import('./bench/server-stress.js'),
 };
 

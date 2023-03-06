@@ -95,7 +95,7 @@ jobs:
         continue-on-error: true
         with:
           issue-number: ${{ github.event.issue.number }}
-          message: |
+          body: |
             ${{ needs.benchmark.outputs.PR-BENCH }}
 
             ${{ needs.benchmark.outputs.MAIN-BENCH }}
