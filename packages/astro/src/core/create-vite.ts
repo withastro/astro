@@ -25,6 +25,7 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
+import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -115,6 +116,7 @@ export async function createVite(
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode }),
+			vitePluginSSRManifest(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
