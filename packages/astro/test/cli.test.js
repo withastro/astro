@@ -18,7 +18,7 @@ describe('astro cli', () => {
 		expect(proc.exitCode).to.equal(0);
 	});
 
-	// Flaky test, in CI it exceeds the timeout
+	// Flaky test, in CI it exceeds the timeout most of the times
 	it.skip('astro check --watch reports errors on modified files', async () => {
 		let messageResolve;
 		const messagePromise = new Promise((resolve) => {

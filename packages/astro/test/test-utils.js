@@ -162,7 +162,6 @@ export async function loadFixture(inlineConfig) {
 
 	let fixtureId = new Date().valueOf();
 	let devServer;
-	let checkServer;
 
 	return {
 		build: (opts = {}) => {

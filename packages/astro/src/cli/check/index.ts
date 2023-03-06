@@ -177,7 +177,6 @@ export class AstroChecker {
 
 	/**
 	 * Check all `.astro` files once and then finishes the operation.
-	 * @returns {Promise<CheckResult>}
 	 */
 	public async check(): Promise<CheckResult> {
 		return await this.#checkAllFiles(true);
@@ -185,7 +184,6 @@ export class AstroChecker {
 
 	/**
 	 * Check all `.astro` files and then start watching for changes.
-	 * @returns {Promise<CheckResult>}
 	 */
 	public async watch(): Promise<CheckResult> {
 		await this.#checkAllFiles(true);
@@ -202,7 +200,6 @@ export class AstroChecker {
 
 	/**
 	 * Whether the checker should run in watch mode
-	 * @returns {boolean}
 	 */
 	public get isWatchMode(): boolean {
 		return this.#shouldWatch;
@@ -223,7 +220,6 @@ export class AstroChecker {
 	 * 3. Get diagnostics for said files and print the result in console.
 	 *
 	 * @param openDocuments Whether the operation should open all `.astro` files
-	 * @private
 	 */
 	async #checkAllFiles(openDocuments: boolean): Promise<CheckResult> {
 		const processExit = await this.#syncCli(this.#settings, {
@@ -303,7 +299,7 @@ export class AstroChecker {
 	/**
 	 * Logs the result of the various diagnostics
 	 *
-	 * @param {Readonly<DiagnosticResult>} result Result emitted by AstroChecker.#breakDownDiagnostics
+	 * @param result Result emitted by AstroChecker.#breakDownDiagnostics
 	 */
 	#logDiagnosticsSeverity(result: Readonly<DiagnosticResult>) {
 		info(
@@ -320,7 +316,6 @@ export class AstroChecker {
 
 	/**
 	 * It loops through all diagnostics and break down diagnostics that are errors, warnings or hints.
-	 * @param {Readonly<GetDiagnosticsResult[]>} diagnostics
 	 */
 	#breakDownDiagnostics(diagnostics: Readonly<GetDiagnosticsResult[]>): DiagnosticResult {
 		let result: DiagnosticResult = {
@@ -356,9 +351,6 @@ export class AstroChecker {
 
 /**
  * Open all Astro files in the given directory and return the number of files found.
- * @param {URL} workspaceUri
- * @param {string[]} filePathsToIgnore
- * @param {AstroCheck} checker
  */
 async function openAllDocuments(
 	workspaceUri: URL,
@@ -385,8 +377,6 @@ async function openAllDocuments(
 
 /**
  * Parse flags and sets defaults
- *
- * @param flags {Flags}
  */
 function parseFlags(flags: Flags): CheckFlags {
 	return {
