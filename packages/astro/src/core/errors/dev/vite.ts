@@ -122,6 +122,10 @@ export interface AstroErrorPayload {
 	};
 }
 
+// Shiki does not support `mjs` or `cjs` aliases by default.
+// Map these to `.js` during error highlighting.
+const ALTERNATIVE_JS_EXTS = ['cjs', 'mjs'];
+
 /**
  * Generate a payload for Vite's error overlay
  */
@@ -151,9 +155,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 
 	const highlighter = await getHighlighter({ theme: 'css-variables' });
 	let highlighterLang = err.loc?.file?.split('.').pop();
-	if (['cjs', 'mjs'].includes(highlighterLang ?? '')) {
-		// Shiki does not support `mjs` or `cjs` aliases by default.
-		// Map these to `js` instead.
+	if (ALTERNATIVE_JS_EXTS.includes(highlighterLang ?? '')) {
 		highlighterLang = 'js';
 	}
 	const highlightedCode = err.fullCode
