@@ -99,9 +99,9 @@ Once the Markdoc integration is installed, no configuration is necessary to use 
 
 ### Markdoc config
 
-The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [variables](https://markdoc.dev/docs/variables).
+The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [functions](https://markdoc.dev/docs/functions).
 
-You can pass these options from the `markdoc()` integration in your `astro.config`. This example declares a `countries` variable and an `includes` function for use across all Markdoc content collection entries:
+You can pass these options from the `markdoc()` integration in your `astro.config`. This example adds a global `getCountryEmoji` function:
 
 ```js
 // astro.config.mjs
@@ -112,24 +112,28 @@ import markdoc from '@astrojs/markdoc';
 export default defineConfig({
   integrations: [
     markdoc({
-      variables: {
-        // Declare a global list of countries
-        // Usage in Markdoc: `$countries`
-        countries: ['EN', 'ES', 'JP'],
-      },
       functions: {
-        // Check if array includes value
-        // Usage in Markdoc: `includes(arr, value)`
-        includes: {
+        getCountryEmoji: {
           transform(parameters) {
-            const [array, value] = Object.values(parameters);
-            return array.includes(value);
+            const [country] = Object.values(parameters);
+            const countryToEmojiMap = {
+              japan: '🇯🇵',
+              spain: '🇪🇸',
+              france: '🇫🇷',
+            }
+            return countryToEmojiMap[country] ?? '🏳'
           },
         },
       },
     }),
   ],
 });
+```
+
+Now, you can call this function from any Markdoc content entry:
+
+```md
+¡Hola {% getCountryEmoji("spain") %}!
 ```
 
 :::note
