@@ -1094,6 +1094,60 @@ export type GetStaticPaths = (
 	| GetStaticPathsResult
 	| GetStaticPathsResult[];
 
+/**
+ * Infers the shape of the `params` property returned by `getStaticPaths()`.
+ *
+ * @example
+ * ```ts
+ * export async function getStaticPaths() {
+ *   return results.map((entry) => ({
+ *     params: { slug: entry.slug },
+ *   }));
+ * }
+ *
+ * type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+ * //   ^? { slug: string; }
+ *
+ * const { slug } = Astro.params as Params;
+ * ```
+ */
+export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
+	? R extends Array<infer U>
+		? U extends { params: infer P }
+			? P
+			: never
+		: never
+	: never;
+
+/**
+ * Infers the shape of the `props` property returned by `getStaticPaths()`.
+ *
+ * @example
+ * ```ts
+ * export async function getStaticPaths() {
+ *   return results.map((entry) => ({
+ *     params: { slug: entry.slug },
+ *     props: {
+ *       propA: true,
+ *       propB: 42
+ *     },
+ *   }));
+ * }
+ *
+ * type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+ * //   ^? { propA: boolean; propB: number; }
+ *
+ * const { propA, propB } = Astro.props as Props;
+ * ```
+ */
+export type InferGetStaticPropsType<T> = T extends () => Promise<infer R>
+	? R extends Array<infer U>
+		? U extends { props: infer P }
+			? P
+			: never
+		: never
+	: never;
+
 export interface HydrateOptions {
 	name: string;
 	value?: string;
