@@ -33,7 +33,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				addPageExtension,
 				addContentEntryType,
 				command,
-			}: any) => {
+			}) => {
 				const contentEntryType = {
 					extensions: ['.mdx'],
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
