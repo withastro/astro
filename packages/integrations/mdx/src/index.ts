@@ -3,7 +3,7 @@ import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/inter
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,20 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
-export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
+
+type IntegrationWithPrivateHooks =  {
+	name: string;
+	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
+		'astro:config:setup': (params: HookParameters<'astro:config:setup'> & {
+			// `addPageExtension` and `contentEntryType` are not a public APIs
+			// Add type defs here
+			addPageExtension: (extension: string) => void
+			addContentEntryType: (contentEntryType: ContentEntryType) => void
+		}) => void | Promise<void>;
+	};
+};
+
+export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): IntegrationWithPrivateHooks {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
@@ -34,7 +47,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				addContentEntryType,
 				command,
 			}) => {
-				const contentEntryType = {
+				addPageExtension('.mdx');
+				addContentEntryType({
 					extensions: ['.mdx'],
 					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -49,10 +63,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
-				};
-
-				addPageExtension('.mdx');
-				addContentEntryType(contentEntryType);
+				});
 
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultOptions.extendMarkdownConfig;

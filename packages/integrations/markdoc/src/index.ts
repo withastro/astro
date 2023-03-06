@@ -1,12 +1,23 @@
-import type { AstroIntegration, AstroConfig } from 'astro';
+import type { AstroIntegration, AstroConfig, ContentEntryType, HookParameters } from 'astro';
 import { InlineConfig } from 'vite';
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import { prependForwardSlash, getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
+import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import fs from 'node:fs';
 
-export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
+type IntegrationWithPrivateHooks =  {
+	name: string;
+	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
+		'astro:config:setup': (params: HookParameters<'astro:config:setup'> & {
+			// `contentEntryType` is not a public API
+			// Add type defs here
+			addContentEntryType: (contentEntryType: ContentEntryType) => void
+		}) => void | Promise<void>;
+	};
+};
+
+export default function markdoc(markdocConfig: Config = {}): IntegrationWithPrivateHooks {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
@@ -20,15 +31,14 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 						rawData: parsed.matter,
 					};
 				}
-				const contentEntryType = {
+				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
-				};
-				addContentEntryType(contentEntryType);
+				});
 
 				const viteConfig: InlineConfig = {
 					plugins: [
