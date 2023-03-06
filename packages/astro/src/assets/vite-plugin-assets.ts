@@ -94,7 +94,7 @@ export default function assets({
 
 						const transform = await globalThis.astroAsset.imageService.parseURL(url);
 
-						if (transform === undefined || !transform.src) {
+						if (transform === undefined) {
 							error(logging, 'image', `Failed to parse transform for ${url}`);
 						}
 

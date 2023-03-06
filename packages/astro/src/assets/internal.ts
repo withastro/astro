@@ -100,7 +100,7 @@ export async function generateImage(
 	}
 
 	const fileData = await fs.promises.readFile(new URL('.' + options.src.src, serverRoot));
-	const resultData = await imageService.transform(fileData, options);
+	const resultData = await imageService.transform(fileData, { ...options, src: options.src.src });
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
