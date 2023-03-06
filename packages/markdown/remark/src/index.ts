@@ -68,11 +68,12 @@ export async function renderMarkdown(
 		.use([]);
 
 	if (!isPerformanceBenchmark && gfm) {
-		parser.use(remarkGfm);
-	}
-
-	if (smartypants) {
-		parser.use(remarkSmartypants);
+		if (gfm) {
+			parser.use(remarkGfm);
+		}
+		if (smartypants) {
+			parser.use(remarkSmartypants);
+		}
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
