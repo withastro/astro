@@ -42,25 +42,36 @@ interface SharedServiceProps {
 }
 
 export type ExternalImageService = SharedServiceProps;
+
+type LocalImageTransform = {
+	src: string;
+	[key: string]: any;
+};
+
 export interface LocalImageService extends SharedServiceProps {
 	/**
 	 * Parse the requested parameters passed along the URL from `getURL` back into an object to be used later by `transform`
 	 *
-	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return that.
+	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return those.
 	 */
-	parseURL: (url: URL) => Record<string, any>;
+	parseURL: (url: URL) => LocalImageTransform | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
-	 *
-	 * @param inputBuffer Binary buffer containing the original image.
-	 * @param transform @type {TransformOptions} defining the requested transformations.
 	 */
 	transform: (
 		inputBuffer: Buffer,
-		transform: Record<string, any>
+		transform: LocalImageTransform
 	) => Promise<{ data: Buffer; format: OutputFormat }>;
 }
+
+export type BaseServiceTransform = {
+	src: string;
+	width?: number;
+	height?: number;
+	format?: string | null;
+	quality?: string | null;
+};
 
 /**
  * Basic local service to take things from
@@ -129,26 +140,16 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const params = url.searchParams;
 
 		if (!params.has('href')) {
-			return {};
+			return undefined;
 		}
 
-		let transform: Record<string, any> = { src: params.get('href')! };
-
-		if (params.has('w')) {
-			transform.width = parseInt(params.get('w')!);
-		}
-
-		if (params.has('h')) {
-			transform.height = parseInt(params.get('h')!);
-		}
-
-		if (params.has('f')) {
-			transform.format = params.get('f');
-		}
-
-		if (params.has('q')) {
-			transform.quality = parseQuality(params.get('q')!);
-		}
+		const transform: BaseServiceTransform = {
+			src: params.get('href')!,
+			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
+			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
+			format: params.get('f') as OutputFormat | null,
+			quality: params.get('q'),
+		};
 
 		return transform;
 	},

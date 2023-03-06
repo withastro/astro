@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import { AstroPluginOptions, ImageTransform } from '../@types/astro';
+import { error } from '../core/logger/core.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
@@ -92,6 +93,10 @@ export default function assets({
 						}
 
 						const transform = await globalThis.astroAsset.imageService.parseURL(url);
+
+						if (transform === undefined || !transform.src) {
+							error(logging, 'image', `Failed to parse transform for ${url}`);
+						}
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;

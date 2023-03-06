@@ -1,5 +1,6 @@
+import type { FormatEnum } from 'sharp';
 import type { ImageQualityPreset, OutputFormat } from '../types.js';
-import { baseService, LocalImageService, parseQuality } from './service.js';
+import { baseService, BaseServiceTransform, LocalImageService, parseQuality } from './service.js';
 
 let sharp: typeof import('sharp');
 
@@ -25,8 +26,10 @@ const sharpService: LocalImageService = {
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
-	async transform(inputBuffer, transform) {
+	async transform(inputBuffer, transformOptions) {
 		if (!sharp) sharp = await loadSharp();
+
+		const transform: BaseServiceTransform = transformOptions;
 
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
 		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
@@ -54,7 +57,7 @@ const sharpService: LocalImageService = {
 				}
 			}
 
-			result.toFormat(transform.format, { quality: quality });
+			result.toFormat(transform.format as keyof FormatEnum, { quality: quality });
 		}
 
 		const { data, info } = await result.toBuffer({ resolveWithObject: true });
