@@ -10,7 +10,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, addContentEntryType }: any) => {
+			'astro:config:setup': async ({ updateConfig, config, addContentEntryType }) => {
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
 					return {
