@@ -114,7 +114,7 @@ export function prependForwardSlash(str: string) {
 
 export function validateComponentsProp(components: Record<string, AstroInstance['default']>) {
 	try {
-		return componentsPropValidator.parse(components);
+		componentsPropValidator.parse(components);
 	} catch (e) {
 		throw new MarkdocError({
 			message:
