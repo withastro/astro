@@ -11,7 +11,7 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
-import { getFileInfo, parseFrontmatter } from './utils.js';
+import { getFileInfo, parseFrontmatter, ignoreStringPlugins } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -70,7 +70,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): Integr
 
 				const mdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: withDefaultMdxOptions(extendMarkdownConfig ? config.markdown : markdownConfigDefaults),
+					defaults: markdownConfigToMdxOptions(extendMarkdownConfig ? config.markdown : markdownConfigDefaults),
 				});
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
@@ -188,15 +188,15 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): Integr
 const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
-	remarkPlugins: [],
-	rehypePlugins: [],
-	remarkRehype: {},
 }
 
-function withDefaultMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
+function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
 	return {
-		...markdownConfig,
 		...defaultMdxOptions,
+		...markdownConfig,
+		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
+		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
+		remarkRehype: markdownConfig.remarkRehype as any ?? {},
 	};
 }
 

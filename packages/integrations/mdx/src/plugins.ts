@@ -4,12 +4,11 @@ import {
 	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
+import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
-import { bold, yellow } from 'kleur/colors';
 import type { Image } from 'mdast';
 import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
@@ -142,7 +141,7 @@ export async function getRemarkPlugins(
 		}
 	}
 
-	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
+	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins];
 
 	if (!isPerformanceBenchmark) {
 		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
@@ -169,7 +168,7 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 
 	rehypePlugins = [
 		...rehypePlugins,
-		...ignoreStringPlugins(mdxOptions.rehypePlugins),
+		...mdxOptions.rehypePlugins,
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
 		...(isPerformanceBenchmark ? [] : [rehypeHeadingIds, rehypeInjectHeadingsExport]),
@@ -177,28 +176,6 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 		rehypeApplyFrontmatterExport,
 	];
 	return rehypePlugins;
-}
-
-function ignoreStringPlugins(plugins: any[]): PluggableList {
-	let validPlugins: PluggableList = [];
-	let hasInvalidPlugin = false;
-	for (const plugin of plugins) {
-		if (typeof plugin === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin)} not applied.`));
-			hasInvalidPlugin = true;
-		} else if (Array.isArray(plugin) && typeof plugin[0] === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin[0])} not applied.`));
-			hasInvalidPlugin = true;
-		} else {
-			validPlugins.push(plugin);
-		}
-	}
-	if (hasInvalidPlugin) {
-		console.warn(
-			`To inherit Markdown plugins in MDX, please use explicit imports in your config instead of "strings." See Markdown docs: https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`
-		);
-	}
-	return validPlugins;
 }
 
 /**
