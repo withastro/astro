@@ -60,6 +60,7 @@ async function benchmark({ fixtures, templates }) {
 			console.log(
 				`\n${bold('Simple')} ${dim(`${NUM_POSTS} posts (${formatsToString(fixtures)})`)}`
 			);
+			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'simple';
 			await benchmark({
 				fixtures,
 				templates: {
@@ -77,6 +78,7 @@ async function benchmark({ fixtures, templates }) {
 					`${NUM_POSTS} posts (${formatsToString(fixtures)})`
 				)}`
 			);
+			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'with-astro-components';
 			await benchmark({
 				fixtures,
 				templates: {
@@ -93,6 +95,7 @@ async function benchmark({ fixtures, templates }) {
 					`${NUM_POSTS} posts (${formatsToString(fixtures)})`
 				)}`
 			);
+			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'with-react-components';
 			await benchmark({
 				fixtures,
 				templates: {
