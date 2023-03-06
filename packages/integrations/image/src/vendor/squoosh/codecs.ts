@@ -35,46 +35,37 @@ export interface RotateOptions {
 
 // MozJPEG
 import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc'
-// @ts-ignore
 import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
 const mozEncWasm = new URL('./mozjpeg/mozjpeg_node_enc.wasm', getModuleURL(import.meta.url))
-// @ts-ignore
 import mozDec from './mozjpeg/mozjpeg_node_dec.js'
 const mozDecWasm = new URL('./mozjpeg/mozjpeg_node_dec.wasm', getModuleURL(import.meta.url))
 
 // WebP
 import type { WebPModule as WebPEncodeModule } from './webp/webp_enc'
-// @ts-ignore
 import webpEnc from './webp/webp_node_enc.js'
 const webpEncWasm = new URL('./webp/webp_node_enc.wasm', getModuleURL(import.meta.url))
-// @ts-ignore
 import webpDec from './webp/webp_node_dec.js'
 const webpDecWasm = new URL('./webp/webp_node_dec.wasm', getModuleURL(import.meta.url))
 
 // AVIF
 import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc'
-// @ts-ignore
 import avifEnc from './avif/avif_node_enc.js'
 const avifEncWasm = new URL('./avif/avif_node_enc.wasm', getModuleURL(import.meta.url))
-// @ts-ignore
 import avifDec from './avif/avif_node_dec.js'
 const avifDecWasm = new URL('./avif/avif_node_dec.wasm', getModuleURL(import.meta.url))
 
 // PNG
-// @ts-ignore
 import * as pngEncDec from './png/squoosh_png.js'
 const pngEncDecWasm = new URL('./png/squoosh_png_bg.wasm', getModuleURL(import.meta.url))
 const pngEncDecInit = () =>
   pngEncDec.default(fsp.readFile(pathify(pngEncDecWasm.toString())))
 
 // OxiPNG
-// @ts-ignore
 import * as oxipng from './png/squoosh_oxipng.js'
 const oxipngWasm = new URL('./png/squoosh_oxipng_bg.wasm', getModuleURL(import.meta.url))
 const oxipngInit = () => oxipng.default(fsp.readFile(pathify(oxipngWasm.toString())))
 
 // Resize
-// @ts-ignore
 import * as resize from './resize/squoosh_resize.js'
 const resizeWasm = new URL('./resize/squoosh_resize_bg.wasm', getModuleURL(import.meta.url))
 const resizeInit = () => resize.default(fsp.readFile(pathify(resizeWasm.toString())))

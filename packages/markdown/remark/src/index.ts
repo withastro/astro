@@ -144,7 +144,7 @@ function prefixError(err: any, prefix: string) {
 	const wrappedError = new Error(`${prefix}${err ? `: ${err}` : ''}`);
 	try {
 		wrappedError.stack = err.stack;
-		// @ts-ignore
+		// @ts-expect-error
 		wrappedError.cause = err;
 	} catch (error) {
 		// It's ok if we could not set the stack or cause - the message is the most important part
