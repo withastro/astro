@@ -6,6 +6,7 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
+import yargs from 'yargs-parser';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -14,6 +15,7 @@ import {
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage } from '../logger/core.js';
+import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -21,8 +23,6 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { printHelp } from '../messages.js';
-import yargs from 'yargs-parser';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;

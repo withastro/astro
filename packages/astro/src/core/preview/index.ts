@@ -1,14 +1,14 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import { cyan } from 'kleur/colors';
 import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
+import type { Arguments } from 'yargs-parser';
 import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import type { LogOptions } from '../logger/core';
+import { printHelp } from '../messages.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
-import type { Arguments } from 'yargs-parser';
-import { printHelp } from '../messages.js';
-import { cyan } from 'kleur/colors';
 
 interface PreviewOptions {
 	logging: LogOptions;

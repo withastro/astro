@@ -11,15 +11,14 @@ import { getTimeStat } from '../build/util.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
-import yargs, { Arguments } from 'yargs-parser';
-import {createVite} from "../create-vite.js";
+import type { Arguments } from 'yargs-parser';
+import { createVite } from '../create-vite.js';
 
 export type ProcessExit = 0 | 1;
 
 export type SyncOptions = {
 	logging: LogOptions;
 	fs: typeof fsMod;
-	
 };
 
 export async function syncCli(

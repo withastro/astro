@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
 import { AstroCheck, DiagnosticSeverity, GetDiagnosticsResult } from '@astrojs/language-server';
-import type { AstroSettings } from '../../@types/astro';
-import type { LogOptions } from '../../core/logger/core.js';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
 import ora from 'ora';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { printDiagnostic } from './print.js';
 import { Arguments } from 'yargs-parser';
+import type { AstroSettings } from '../../@types/astro';
+import type { LogOptions } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
+import { printDiagnostic } from './print.js';
 import type { Arguments as Flags } from 'yargs-parser';
 import { debug, info } from '../../core/logger/core.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
