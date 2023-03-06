@@ -2,6 +2,8 @@ import matter from 'gray-matter';
 import path from 'node:path';
 import type fsMod from 'node:fs';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import type { AstroInstance } from 'astro';
+import z from 'astro/zod';
 
 /**
  * Match YAML exception handling from Astro core errors
@@ -108,4 +110,36 @@ export function getAstroConfigPath(fs: typeof fsMod, root: string): string | und
  */
 export function prependForwardSlash(str: string) {
 	return str[0] === '/' ? str : '/' + str;
+}
+
+export function validateComponentsProp(components: Record<string, AstroInstance['default']>) {
+	try {
+		return componentsPropValidator.parse(components);
+	} catch (e) {
+		throw new MarkdocError({
+			message:
+				e instanceof z.ZodError
+					? e.issues[0].message
+					: 'Invalid `components` prop. Ensure you are passing an object of components to <Content />',
+		});
+	}
+}
+
+const componentsPropValidator = z.record(
+	z
+		.string()
+		.min(1, 'Invalid `components` prop. Component names cannot be empty!')
+		.refine(
+			(value) => isCapitalized(value),
+			(value) => ({
+				message: `Invalid \`components\` prop: ${JSON.stringify(
+					value
+				)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node [TODO: DOCS LINK]`,
+			})
+		),
+	z.any()
+);
+
+export function isCapitalized(str: string) {
+	return str.length > 0 && str[0] === str[0].toUpperCase();
 }

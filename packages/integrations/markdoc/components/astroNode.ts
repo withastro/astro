@@ -1,8 +1,7 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import { MarkdocError } from '../dist/utils.js';
-import z from 'astro/zod';
+import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
 export type AstroNode =
 	| string
@@ -21,15 +20,13 @@ export function createAstroNode(
 	node: RenderableTreeNode,
 	components: Record<string, AstroInstance['default']> = {}
 ): AstroNode {
-	components = validateComponentsProp(components);
-
 	if (typeof node === 'string' || typeof node === 'number') {
 		return String(node);
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return '';
 	}
 
-	if (isCapitalized(node.name) && node.name in components) {
+	if (node.name in components) {
 		const component = components[node.name];
 		const props = node.attributes;
 		const children = node.children.map((child) => createAstroNode(child, components));
@@ -51,36 +48,4 @@ export function createAstroNode(
 			children: node.children.map((child) => createAstroNode(child, components)),
 		};
 	}
-}
-
-const componentsPropValidator = z.record(
-	z
-		.string()
-		.min(1, 'Invalid `components` prop. Component names cannot be empty!')
-		.refine(
-			(value) => isCapitalized(value),
-			(value) => ({
-				message: `Invalid \`components\` prop: ${JSON.stringify(
-					value
-				)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node [TODO: DOCS LINK]`,
-			})
-		),
-	z.any()
-);
-
-function validateComponentsProp(components: Record<string, AstroInstance['default']>) {
-	try {
-		return componentsPropValidator.parse(components);
-	} catch (e) {
-		throw new MarkdocError({
-			message:
-				e instanceof z.ZodError
-					? e.issues[0].message
-					: 'Invalid `components` prop. Ensure you are passing an object of components to <Content />',
-		});
-	}
-}
-
-function isCapitalized(str: string) {
-	return str.length > 0 && str[0] === str[0].toUpperCase();
 }

@@ -1,6 +1,7 @@
 ---
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
+import { validateComponentsProp } from '../dist/utils.js';
 import { createAstroNode } from './astroNode';
 import RenderNode from './RenderNode.astro';
 
@@ -10,6 +11,9 @@ type Props = {
 };
 
 const { content, components } = Astro.props as Props;
+
+// Will throw if components is invalid
+validateComponentsProp(components);
 ---
 
 <RenderNode node={createAstroNode(content, components)} />
