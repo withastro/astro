@@ -7,7 +7,7 @@ import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 // Not 100% sure how to fix this, seems to be a TypeScript issue. Unfortunate.
 type Props = LocalImageProps | RemoteImageProps;
 
-const { ...props } = Astro.props;
+const props = Astro.props;
 
 if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
