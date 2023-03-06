@@ -2,6 +2,7 @@ import { dim } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { createServer } from 'vite';
+import { Arguments } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -11,13 +12,26 @@ import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
+import { printHelp } from '../messages.js';
 
 type ProcessExit = 0 | 1;
 
 export async function syncCli(
 	settings: AstroSettings,
-	{ logging, fs }: { logging: LogOptions; fs: typeof fsMod }
+	{ logging, fs, flags }: { logging: LogOptions; fs: typeof fsMod; flags?: Arguments }
 ): Promise<ProcessExit> {
+	if (flags?.help || flags?.h) {
+		printHelp({
+			commandName: 'astro sync',
+			usage: '[...flags]',
+			tables: {
+				Flags: [['--help (-h)', 'See all available flags.']],
+			},
+			description: `Generates TypeScript types for all Astro modules.`,
+		});
+		return 0;
+	}
+
 	const resolvedSettings = await runHookConfigSetup({
 		settings,
 		logging,

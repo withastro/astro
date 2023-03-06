@@ -75,13 +75,18 @@ async function printVersion() {
 /** Determine which command the user requested */
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
-	if (cmd === 'add') return 'add';
-	if (cmd === 'sync') return 'sync';
-	if (cmd === 'telemetry') return 'telemetry';
 	if (flags.version) return 'version';
-	else if (flags.help) return 'help';
 
-	const supportedCommands = new Set(['dev', 'build', 'preview', 'check', 'docs']);
+	const supportedCommands = new Set([
+		'add',
+		'sync',
+		'telemetry',
+		'dev',
+		'build',
+		'preview',
+		'check',
+		'docs',
+	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
 	}
@@ -144,6 +149,16 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'docs': {
 			telemetry.record(event.eventCliSession(cmd));
+			if (flags.help || flags.h) {
+				printHelp({
+					commandName: 'astro docs',
+					tables: {
+						Flags: [['--help (-h)', 'See all available flags.']],
+					},
+					description: `Launches the Astro Docs website directly from the terminal.`,
+				});
+				return;
+			}
 			return await openInBrowser('https://docs.astro.build/');
 		}
 		case 'telemetry': {
@@ -203,26 +218,29 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'build': {
 			const { default: build } = await import('../core/build/index.js');
 
-			return await build(settings, { ...flags, logging, telemetry, teardownCompiler: true });
+			return await build(settings, { flags, logging, telemetry, teardownCompiler: true });
 		}
 
 		case 'check': {
-			const ret = await check(settings, { logging });
+			const ret = await check(settings, { logging, flags });
 			return process.exit(ret);
 		}
 
 		case 'sync': {
 			const { syncCli } = await import('../core/sync/index.js');
 
-			const ret = await syncCli(settings, { logging, fs });
+			const ret = await syncCli(settings, { logging, fs, flags });
 			return process.exit(ret);
 		}
 
 		case 'preview': {
 			const { default: preview } = await import('../core/preview/index.js');
 
-			const server = await preview(settings, { logging, telemetry });
-			return await server.closed(); // keep alive until the server is closed
+			const server = await preview(settings, { logging, telemetry, flags });
+			if (server) {
+				return await server.closed(); // keep alive until the server is closed
+			}
+			return;
 		}
 	}
 

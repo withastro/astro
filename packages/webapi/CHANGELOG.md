@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 2.0.3
+
+### Patch Changes
+
+- [#6413](https://github.com/withastro/astro/pull/6413) [`0abd1d3e4`](https://github.com/withastro/astro/commit/0abd1d3e42cf7bf5efb8c41f37e011b933fb0629) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use undici's FormData instead of a polyfill
+
 ## 2.0.2
 
 ### Patch Changes
