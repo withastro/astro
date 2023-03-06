@@ -21,7 +21,7 @@ export function createAstroNode(
 	node: RenderableTreeNode,
 	components: Record<string, AstroInstance['default']> = {}
 ): AstroNode {
-	components = validateComponents(components);
+	components = validateComponentsProp(components);
 
 	if (typeof node === 'string' || typeof node === 'number') {
 		return String(node);
@@ -53,24 +53,24 @@ export function createAstroNode(
 	}
 }
 
-function validateComponents(components: Record<string, AstroInstance['default']>) {
+const componentsPropValidator = z.record(
+	z
+		.string()
+		.min(1, 'Invalid `components` prop. Component names cannot be empty!')
+		.refine(
+			(value) => isCapitalized(value),
+			(value) => ({
+				message: `Invalid \`components\` prop: ${JSON.stringify(
+					value
+				)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node [TODO: DOCS LINK]`,
+			})
+		),
+	z.any()
+);
+
+function validateComponentsProp(components: Record<string, AstroInstance['default']>) {
 	try {
-		return z
-			.record(
-				z
-					.string()
-					.min(1, 'Invalid `components` prop. Component names cannot be empty!')
-					.refine(
-						(value) => isCapitalized(value),
-						(value) => ({
-							message: `Invalid \`components\` prop: ${JSON.stringify(
-								value
-							)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node [TODO: DOCS LINK]`,
-						})
-					),
-				z.any()
-			)
-			.parse(components);
+		return componentsPropValidator.parse(components);
 	} catch (e) {
 		throw new MarkdocError({
 			message:
