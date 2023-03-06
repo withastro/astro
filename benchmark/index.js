@@ -25,7 +25,7 @@ Options
 const commandName = args._[0];
 const benchmarks = {
 	memory: () => import('./bench/memory.js'),
-	'render': () => import('./bench/render.js'),
+	render: () => import('./bench/render.js'),
 	'server-stress': () => import('./bench/server-stress.js'),
 };
 

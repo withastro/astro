@@ -1,7 +1,7 @@
 import { polyfill } from '@astrojs/webapi';
-import type { IncomingMessage, ServerResponse } from 'http';
 import type { SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 polyfill(globalThis, {
 	exclude: 'window document',
