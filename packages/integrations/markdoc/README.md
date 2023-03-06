@@ -275,7 +275,7 @@ Now, you can call this function from any Markdoc content entry:
 ```
 
 :::note
-These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects. If you need to define configuration at runtime (ex. SSR variables), [see our documentation](#Define-markdoc-configuration-at-runtime).
+These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects. If you need to define configuration at runtime (ex. SSR variables), [see the next section](#Define-markdoc-configuration-at-runtime).
 :::
 
 📚 [See the Markdoc documentation](https://markdoc.dev/docs/functions#creating-a-custom-function) for more on using variables or functions in your content.
