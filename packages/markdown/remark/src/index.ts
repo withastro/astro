@@ -67,10 +67,8 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use([]);
 
-	if (!isPerformanceBenchmark) {
-		if (gfm) {
-			parser.use(remarkGfm);
-		}
+	if (!isPerformanceBenchmark && gfm) {
+		parser.use(remarkGfm);
 	}
 
 	if (smartypants) {
