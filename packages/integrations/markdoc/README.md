@@ -137,7 +137,7 @@ Now, you can call this function from any Markdoc content entry:
 ```
 
 :::note
-These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects.
+These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects. If you need to define configuration at runtime (ex. SSR variables), [see our documentation](#Define-markdoc-configuration-at-runtime).
 :::
 
 📚 [See the Markdoc documentation](https://markdoc.dev/docs/functions#creating-a-custom-function) for more on using variables or functions in your content.
@@ -280,6 +280,38 @@ const { Content } = await entry.render();
 />
 ```
 
+### Define Markdoc configuration at runtime
+
+You may need to define Markdoc configuration at the component level, rather than the `astro.config.mjs` level. This is useful when mapping props and SSR parameters to [Markdoc variables](https://markdoc.dev/docs/variables).
+
+Astro recommends running the Markdoc transform step manually for this. First, install the `@markdoc/markdoc` package into your project:
+
+```sh
+# Using NPM
+npx astro add @markdoc/markdoc
+# Using Yarn
+yarn astro add @markdoc/markdoc
+# Using PNPM
+pnpm astro add @markdoc/markdoc
+```
+
+Then, call Markdoc's rendering functions where you plan to define your configuration. This example defines an `abTestGroup` Markdoc variable based on an SSR param, transforming the raw entry `body` to ignore `astro.config.mjs` configuration. The result is rendered using the `Renderer` component provided by `@astrojs/markdoc`:
+
+```astro
+---
+import Markdoc from '@markdoc/markdoc';
+import { Renderer } from '@astrojs/markdoc/components';
+import { getEntryBySlug } from 'astro:content';
+
+const { body } = await getEntryBySlug('docs', 'with-ab-test');
+const ast = Markdoc.parse(body);
+const content = Markdoc.transform({
+  variables: { abTestGroup: Astro.params.abTestGroup },
+}, ast);
+---
+
+<Renderer {content} components={{ /* same `components` prop used by the `Content` component */ }} />
+```
 
 ## Examples
 
