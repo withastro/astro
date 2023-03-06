@@ -3,8 +3,7 @@ import type fsMod from 'node:fs';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { AstroSettings } from '../@types/astro.js';
-import { AstroErrorData } from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/errors.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { contentFileExts, CONTENT_FLAG } from './consts.js';
 import {
@@ -15,6 +14,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
+	loadContentConfig,
 	parseFrontmatter,
 } from './utils.js';
 
@@ -39,12 +39,28 @@ export function astroContentImportPlugin({
 			if (isContentFlagImport(id)) {
 				const observable = globalContentConfigObserver.get();
 
-				// Content config should be loaded before this plugin is used
+				// Content config is stored globally,
+				// and can get blown away if Node invalidates the module.
+				// This was discovered in CI when using Docker.
+				// Reimport the config in this case.
 				if (observable.status === 'init') {
-					throw new AstroError({
-						...AstroErrorData.UnknownContentCollectionError,
-						message: 'Content config failed to load.',
-					});
+					globalContentConfigObserver.set({ status: 'loading' });
+					try {
+						const config = await loadContentConfig({ fs, settings, viteServer });
+						if (config) {
+							globalContentConfigObserver.set({ status: 'loaded', config });
+						} else {
+							globalContentConfigObserver.set({ status: 'does-not-exist' });
+						}
+					} catch (e) {
+						globalContentConfigObserver.set({
+							status: 'error',
+							error:
+								e instanceof Error
+									? e
+									: new AstroError(AstroErrorData.UnknownContentCollectionError),
+						});
+					}
 				}
 				if (observable.status === 'error') {
 					// Throw here to bubble content config errors
