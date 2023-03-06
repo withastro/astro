@@ -1,22 +1,16 @@
 {
-  "name": "@astrojs/timer",
+  "name": "@benchmark/timer",
   "description": "Preview server for benchmark",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/timer"
-  },
   "keywords": [
     "withastro",
     "astro-adapter"
   ],
-  "bugs": "https://github.com/withastro/astro/issues",
   "exports": {
     ".": "./dist/index.js",
     "./server.js": "./dist/server.js",
