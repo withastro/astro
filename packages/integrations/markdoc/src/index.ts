@@ -2,18 +2,25 @@ import type { AstroIntegration, AstroConfig, ContentEntryType, HookParameters } 
 import { InlineConfig } from 'vite';
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+	prependForwardSlash,
+	getAstroConfigPath,
+	MarkdocError,
+	parseFrontmatter,
+} from './utils.js';
+import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 
-type IntegrationWithPrivateHooks =  {
+type IntegrationWithPrivateHooks = {
 	name: string;
 	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
-		'astro:config:setup': (params: HookParameters<'astro:config:setup'> & {
-			// `contentEntryType` is not a public API
-			// Add type defs here
-			addContentEntryType: (contentEntryType: ContentEntryType) => void
-		}) => void | Promise<void>;
+		'astro:config:setup': (
+			params: HookParameters<'astro:config:setup'> & {
+				// `contentEntryType` is not a public API
+				// Add type defs here
+				addContentEntryType: (contentEntryType: ContentEntryType) => void;
+			}
+		) => void | Promise<void>;
 	};
 };
 
@@ -48,8 +55,11 @@ export default function markdoc(markdocConfig: Config = {}): IntegrationWithPriv
 								if (!id.endsWith('.mdoc')) return;
 
 								validateRenderProperties(markdocConfig, config);
-								const body =
-									getEntryInfo({ fileUrl: pathToFileURL(id), contents: code }).body;
+								const body = getEntryInfo({
+									// Can't use `pathToFileUrl` - Vite IDs are not plain file paths
+									fileUrl: new URL(prependForwardSlash(id), 'file://'),
+									contents: code,
+								}).body;
 								const ast = Markdoc.parse(body);
 								const content = Markdoc.transform(ast, markdocConfig);
 
