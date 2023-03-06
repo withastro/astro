@@ -70,7 +70,7 @@ async function benchmarkRenderTime() {
 	}
 	/** @type {Record<string, Stat>} */
 	const processedResult = {};
-	for (const [pathname, times] of Object.entries(times)) {
+	for (const [pathname, times] of Object.entries(result)) {
 		// From the 100 results, calculate average, standard deviation, and max value
 		const avg = times.reduce((a, b) => a + b, 0) / times.length;
 		const stdev = Math.sqrt(
