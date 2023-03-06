@@ -2,7 +2,7 @@
   "name": "@astrojs/timer",
   "description": "Preview server for benchmark",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -33,7 +33,7 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.17"
+    "astro": "workspace:^2.0.18"
   },
   "devDependencies": {
     "@types/server-destroy": "^1.0.1",
