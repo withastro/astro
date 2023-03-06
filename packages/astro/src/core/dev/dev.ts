@@ -1,5 +1,6 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
 import type http from 'http';
+import { cyan } from 'kleur/colors';
 import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
@@ -8,10 +9,9 @@ import type { AstroSettings } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
 import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
+import { printHelp } from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
-import { printHelp } from '../messages.js';
-import { cyan } from 'kleur/colors';
 
 export interface DevOptions {
 	configFlag: string | undefined;

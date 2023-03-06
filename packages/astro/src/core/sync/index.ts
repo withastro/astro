@@ -2,6 +2,7 @@ import { dim } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { createServer } from 'vite';
+import { Arguments } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -12,7 +13,6 @@ import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
-import { Arguments } from 'yargs-parser';
 
 type ProcessExit = 0 | 1;
 
