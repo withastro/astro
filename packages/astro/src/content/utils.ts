@@ -170,6 +170,7 @@ export function getEntryType(
 	} else if ((contentFileExts as readonly string[]).includes(ext)) {
 		return 'content';
 	} else if (fileUrl.href === paths.config.url.href) {
+		console.log('$$$ASTRO - triggered config load event');
 		return 'config';
 	} else {
 		return 'unsupported';
@@ -328,6 +329,11 @@ export function getContentPaths(
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
 	const templateDir = new URL('../../src/content/template/', import.meta.url);
+	console.log('$$$ASTRO', {
+		srcDir: srcDir.pathname,
+		root: root.pathname,
+		configUrl: configStats.url.pathname,
+	});
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
