@@ -3,7 +3,7 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]] & Render;
 
-	export const asset: (options: {
+	export const image: (options: {
 		format?: string;
 		width?: number;
 		height?: number;
