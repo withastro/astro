@@ -11,9 +11,16 @@ import { getTimeStat } from '../build/util.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
-import { Arguments } from 'yargs-parser';
+import yargs, { Arguments } from 'yargs-parser';
+import {createVite} from "../create-vite.js";
 
 export type ProcessExit = 0 | 1;
+
+export type SyncOptions = {
+	logging: LogOptions;
+	fs: typeof fsMod;
+	
+};
 
 export async function syncCli(
 	settings: AstroSettings,
@@ -30,17 +37,13 @@ export async function syncCli(
 		});
 		return 0;
 	}
-export type SyncOptions = {
-	logging: LogOptions;
-	fs: typeof fsMod;
-};
 
 	const resolvedSettings = await runHookConfigSetup({
 		settings,
 		logging,
 		command: 'build',
 	});
-	return sync(resolvedSettings, { logging, ...restOfParameters });
+	return sync(resolvedSettings, { logging, fs });
 }
 
 /**
@@ -49,7 +52,7 @@ export type SyncOptions = {
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
  * @param {SyncOptions} options
- * @param {AstroSettings} options.settings Astro settings
+ * @param {AstroSettings} settings Astro settings
  * @param {typeof fsMod} options.fs The file system
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}

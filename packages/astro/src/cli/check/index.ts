@@ -13,7 +13,7 @@ import { Arguments } from 'yargs-parser';
 import { printHelp } from '../../core/messages.js';
 import type { Arguments as Flags } from 'yargs-parser';
 import { debug, info } from '../../core/logger/core.js';
-import type { SyncOptions, ProcessExit } from '../../core/sync';
+import type { ProcessExit, SyncOptions } from '../../core/sync';
 import fsMod from 'fs';
 import type { FSWatcher } from 'chokidar';
 import { join } from 'node:path';
@@ -62,22 +62,6 @@ export enum CheckResult {
 	 */
 	Listen,
 }
-export async function check(
-	settings: AstroSettings,
-	{ logging, flags }: { logging: LogOptions; flags: Arguments }
-) {
-	if (flags.help || flags.h) {
-		printHelp({
-			commandName: 'astro check',
-			usage: '[...flags]',
-			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
-			},
-			description: `Runs diagnostics against your project and reports errors to the console.`,
-		});
-		return;
-	}
-	console.log(bold('astro check'));
 
 const ASTRO_GLOB_PATTERN = '**/*.astro';
 
@@ -97,7 +81,18 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
 export async function check(
 	settings: AstroSettings,
 	{ logging, flags }: CheckPayload
-): Promise<AstroChecker> {
+): Promise<AstroChecker | undefined> {
+	if (flags.help || flags.h) {
+		printHelp({
+			commandName: 'astro check',
+			usage: '[...flags]',
+			tables: {
+				Flags: [['--help (-h)', 'See all available flags.']],
+			},
+			description: `Runs diagnostics against your project and reports errors to the console.`,
+		});
+		return;
+	}
 	const checkFlags = parseFlags(flags);
 	if (checkFlags.watch) {
 		info(logging, 'check', 'Checking files in watch mode');
@@ -158,6 +153,7 @@ export class AstroChecker {
 
 	#filesCount: number;
 	#updateDiagnostics: NodeJS.Timeout | undefined;
+
 	constructor({
 		diagnosticChecker,
 		isWatchMode,
