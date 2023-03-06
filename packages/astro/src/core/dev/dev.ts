@@ -10,11 +10,13 @@ import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
+import { printHelp } from '../messages.js';
+import { cyan } from 'kleur/colors';
 
 export interface DevOptions {
 	configFlag: string | undefined;
 	configFlagPath: string | undefined;
-	flags: yargs.Arguments | undefined;
+	flags?: yargs.Arguments;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 	handleConfigError: (error: Error) => void;
@@ -32,7 +34,26 @@ export interface DevServer {
 export default async function dev(
 	settings: AstroSettings,
 	options: DevOptions
-): Promise<DevServer> {
+): Promise<DevServer | undefined> {
+	if (options.flags?.help || options.flags?.h) {
+		printHelp({
+			commandName: 'astro dev',
+			usage: '[...flags]',
+			tables: {
+				Flags: [
+					['--port', `Specify which port to run on. Defaults to 3000.`],
+					['--host', `Listen on all addresses, including LAN and public addresses.`],
+					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
+					['--help (-h)', 'See all available flags.'],
+				],
+			},
+			description: `Check ${cyan(
+				'https://docs.astro.build/en/reference/cli-reference/#astro-dev'
+			)} for more information.`,
+		});
+		return;
+	}
+
 	const devStart = performance.now();
 	await options.telemetry.record([]);
 

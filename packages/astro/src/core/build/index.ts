@@ -21,6 +21,8 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { printHelp } from '../messages.js';
+import yargs from 'yargs-parser';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
@@ -31,11 +33,27 @@ export interface BuildOptions {
 	 * building once, but may cause a performance hit if building multiple times in a row.
 	 */
 	teardownCompiler?: boolean;
+	flags?: yargs.Arguments;
 }
 
 /** `astro build` */
 export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
 	applyPolyfill();
+	if (options.flags?.help || options.flags?.h) {
+		printHelp({
+			commandName: 'astro build',
+			usage: '[...flags]',
+			tables: {
+				Flags: [
+					['--drafts', `Include Markdown draft pages in the build.`],
+					['--help (-h)', 'See all available flags.'],
+				],
+			},
+			description: `Builds your site for deployment.`,
+		});
+		return;
+	}
+
 	const builder = new AstroBuilder(settings, options);
 	await builder.run();
 }
