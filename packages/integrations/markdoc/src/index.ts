@@ -3,7 +3,7 @@ import { InlineConfig } from 'vite';
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { prependForwardSlash, getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import fs from 'node:fs';
 
 export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
@@ -39,7 +39,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 
 								validateRenderProperties(markdocConfig, config);
 								const body =
-									getEntryInfo({ fileUrl: new URL(prependForwardSlash(id), 'file://'), contents: code }).body;
+									getEntryInfo({ fileUrl: pathToFileURL(id), contents: code }).body;
 								const ast = Markdoc.parse(body);
 								const content = Markdoc.transform(ast, markdocConfig);
 
