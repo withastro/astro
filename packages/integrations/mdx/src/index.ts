@@ -66,11 +66,11 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): Integr
 				});
 
 				const extendMarkdownConfig =
-					partialMdxOptions.extendMarkdownConfig ?? defaultOptions.extendMarkdownConfig;
+					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
 				const mdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: extendMarkdownConfig ? config.markdown : defaultOptions,
+					defaults: withDefaultMdxOptions(extendMarkdownConfig ? config.markdown : markdownConfigDefaults),
 				});
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
@@ -185,14 +185,20 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): Integr
 	};
 }
 
-const defaultOptions: MdxOptions = {
-	...markdownConfigDefaults,
+const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
 	remarkPlugins: [],
 	rehypePlugins: [],
 	remarkRehype: {},
-};
+}
+
+function withDefaultMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
+	return {
+		...markdownConfig,
+		...defaultMdxOptions,
+	};
+}
 
 function applyDefaultOptions({
 	options,

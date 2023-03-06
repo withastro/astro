@@ -179,7 +179,7 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 	return rehypePlugins;
 }
 
-function ignoreStringPlugins(plugins: any[]) {
+function ignoreStringPlugins(plugins: any[]): PluggableList {
 	let validPlugins: PluggableList = [];
 	let hasInvalidPlugin = false;
 	for (const plugin of plugins) {
