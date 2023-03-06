@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
-import { it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';

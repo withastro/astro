@@ -1,5 +1,3 @@
-import path from 'path';
-import { pathToFileURL } from 'url';
 import { z } from 'zod';
 import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -193,21 +191,16 @@ async function render({
 	};
 }
 
-export function createAsset(options: { assetsDir: string }) {
-	return (imageOption: { format: string; width: number; height: number }) => {
+export function createImage(options: { assetsDir: string }) {
+	return () => {
 		if (options.assetsDir === 'undefined') {
-			throw new Error('Enable `experimental.assets` in your Astro config to use asset()');
+			throw new Error('Enable `experimental.assets` in your Astro config to use image()');
 		}
 
-		return z
-			.string()
-			.transform(
-				async (imagePath) => {
-					const fullPath = new URL(imagePath, options.assetsDir);
-					return await getImageMetadata(fullPath);
-				}
-			)
-			.superRefine((val, ctx) => checkImageAsset(val, imageOption, ctx));
+		return z.string().transform(async (imagePath) => {
+			const fullPath = new URL(imagePath, options.assetsDir);
+			return await getImageMetadata(fullPath);
+		});
 	};
 }
 
@@ -222,54 +215,4 @@ async function getImageMetadata(
 
 	delete meta.orientation;
 	return { ...meta, __astro_asset: true };
-}
-
-function checkImageAsset(
-	metadata: Metadata | undefined,
-	imageOptions: { format: string; width: number; height: number } | undefined,
-	ctx: z.RefinementCtx
-) {
-	if (!metadata) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: 'Specified asset does not exists',
-			fatal: true,
-		});
-
-		return z.NEVER;
-	}
-
-	if (!imageOptions) {
-		return;
-	}
-
-	if (imageOptions.format && metadata.format !== imageOptions.format) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: `Specified asset does not match expected parameters. Expected a ${imageOptions.format}, got ${metadata.format}`,
-			fatal: true,
-		});
-
-		return z.NEVER;
-	}
-
-	if (imageOptions.width && metadata.width !== imageOptions.width) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: `Specified asset does not match expected parameters. Expected an image with a width of ${imageOptions.width}, got ${metadata.width}`,
-			fatal: true,
-		});
-
-		return z.NEVER;
-	}
-
-	if (imageOptions.height && metadata.height !== imageOptions.height) {
-		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
-			message: `Specified asset does not match expected parameters. Expected an image with a height of ${imageOptions.height}, got ${metadata.height}`,
-			fatal: true,
-		});
-
-		return z.NEVER;
-	}
 }

@@ -1,9 +1,9 @@
 // astro-head-inject
 import {
-	createAsset,
 	createCollectionToGlobResultMap,
 	createGetCollection,
 	createGetEntryBySlug,
+	createImage,
 } from 'astro/content/internal';
 
 export { z } from 'astro/zod';
@@ -41,6 +41,6 @@ export const getEntryBySlug = createGetEntryBySlug({
 	collectionToRenderEntryMap,
 });
 
-export const asset = createAsset({
+export const image = createImage({
 	assetsDir,
 });
