@@ -1189,7 +1189,7 @@ importers:
 
   packages/astro/performance/fixtures/mdoc:
     specifiers:
-      '@astrojs/markdoc': ^0.0.0
+      '@astrojs/markdoc': ^0.0.0-markdoc-20230302210326
       '@astrojs/react': ^2.0.2
       '@performance/utils': ^0.0.0
       '@types/react': ^18.0.21
