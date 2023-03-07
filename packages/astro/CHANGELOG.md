@@ -1,5 +1,47 @@
 # astro
 
+## 2.1.0
+
+### Minor Changes
+
+- [#6150](https://github.com/withastro/astro/pull/6150) [`b087b83fe`](https://github.com/withastro/astro/commit/b087b83fe266c431fe34a07d5c2293cc4ab011c6) Thanks [@morellodev](https://github.com/morellodev)! - Add getStaticPaths type helpers to infer params and props
+
+- [#6344](https://github.com/withastro/astro/pull/6344) [`694918a56`](https://github.com/withastro/astro/commit/694918a56b01104831296be0c25456135a63c784) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new experimental flag (`experimental.assets`) to enable our new core Assets story.
+
+  This unlocks a few features:
+
+  - A new built-in image component and JavaScript API to transform and optimize images.
+  - Relative images with automatic optimization in Markdown.
+  - Support for validating assets using content collections.
+  - and more!
+
+  See [Assets (Experimental)](https://docs.astro.build/en/guides/assets/) on our docs site for more information on how to use this feature!
+
+- [#6435](https://github.com/withastro/astro/pull/6435) [`a20610609`](https://github.com/withastro/astro/commit/a20610609863ae3b48afe96819b8f11ae4f414d5) Thanks [@matthewp](https://github.com/matthewp)! - Expose the manifest to plugins via the astro:ssr-manifest virtual module
+
+- [#6394](https://github.com/withastro/astro/pull/6394) [`a4a74ab70`](https://github.com/withastro/astro/commit/a4a74ab70cd2aa0d812a1f6b202c4e240a8913bf) Thanks [@ematipico](https://github.com/ematipico)! - Add `--help` to various commands: `check`, `sync`, `dev`, `preview`, and `build`
+
+- [#6356](https://github.com/withastro/astro/pull/6356) [`75921b3cd`](https://github.com/withastro/astro/commit/75921b3cd916d439f6392c487c21532fde35ed13) Thanks [@ematipico](https://github.com/ematipico)! - Added a new `--watch` flag to the command `astro check`
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
+### Patch Changes
+
+- [#6209](https://github.com/withastro/astro/pull/6209) [`fec583909`](https://github.com/withastro/astro/commit/fec583909ab62829dc0c1600e2387979365f2b94) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce the (experimental) `@astrojs/markdoc` integration. This unlocks Markdoc inside your Content Collections, bringing support for Astro and UI components in your content. This also improves Astro core internals to make Content Collections extensible to more file types in the future.
+
+  You can install this integration using the `astro add` command:
+
+  ```
+  astro add markdoc
+  ```
+
+  [Read the `@astrojs/markdoc` documentation](https://docs.astro.build/en/guides/integrations-guide/markdoc/) for usage instructions, and browse the [new `with-markdoc` starter](https://astro.new/with-markdoc) to try for yourself.
+
+- Updated dependencies [[`694918a56`](https://github.com/withastro/astro/commit/694918a56b01104831296be0c25456135a63c784), [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808)]:
+  - @astrojs/markdown-remark@2.1.0
+  - @astrojs/telemetry@2.1.0
+  - @astrojs/webapi@2.1.0
+
 ## 2.0.18
 
 ### Patch Changes
