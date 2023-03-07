@@ -1835,6 +1835,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/dynamic-endpoint-collision:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/dynamic-route-build-file:
     specifiers:
       astro: workspace:*
@@ -1974,12 +1980,6 @@ importers:
       react-dom: 18.2.0_react@18.2.0
 
   packages/astro/test/fixtures/integration-add-page-extension:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
-  packages/astro/test/fixtures/invail-extension:
     specifiers:
       astro: workspace:*
     dependencies:
