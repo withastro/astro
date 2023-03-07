@@ -112,7 +112,7 @@ function validateRenderProperty({
 			message: `Invalid ${type} configuration: ${JSON.stringify(
 				name
 			)}. The "render" property must reference a capitalized component name.`,
-			hint: 'If you want to render to an HTML element, see our docs on rendering Markdoc manually [TODO docs link].',
+			hint: 'If you want to render to an HTML element, see our docs on rendering Markdoc manually: https://docs.astro.build/en/guides/integrations-guide/markdoc/#render-markdoc-nodes--html-elements-as-astro-components',
 			location: astroConfigPath
 				? {
 						file: astroConfigPath,

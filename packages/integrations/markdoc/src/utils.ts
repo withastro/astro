@@ -134,7 +134,7 @@ const componentsPropValidator = z.record(
 			(value) => ({
 				message: `Invalid \`components\` prop: ${JSON.stringify(
 					value
-				)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node [TODO: DOCS LINK]`,
+				)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node (https://docs.astro.build/en/guides/integrations-guide/markdoc/#render-markdoc-nodes--html-elements-as-astro-components)`,
 			})
 		),
 	z.any()
