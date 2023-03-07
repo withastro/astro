@@ -1,5 +1,5 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
-import { LogOptions, warn } from '../logger/core.js';
+import type { LogOptions } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 
@@ -9,7 +9,6 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
-import { validateEndpointFileExt } from './util.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -36,15 +35,18 @@ export async function getParamsAndProps(
 			const paramsMatch = route.pattern.exec(pathname);
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
-				const [[key, val]] = Object.entries(params);
-				// fix bug: https://github.com/withastro/astro/pull/6353
-				// Verifying the name is legal or is not
-				// if it's only `*.js` and `*.ts` when it's the endpoint, and it has undefined in the `getStaticPaths` returned value.
-				if (validateEndpointFileExt(route.component)) {
+
+				// If we have an endpoint at `src/pages/api/[slug].ts` that's prerendered, and the `slug`
+				// is `undefined`, throw an error as we can't generate the `/api` file and `/api` directory
+				// at the same time. Using something like `[slug].json.ts` instead will work.
+				if (route.type === 'endpoint' && mod.getStaticPaths) {
+					const lastSegment = route.segments[route.segments.length - 1];
+					// Check last segment is solely `[slug]` or `[...slug]` case (dynamic). Make sure it's not
+					// `foo[slug].js` by checking segment length === 1. Also check here if the params are undefined.
 					if (
-						mod.getStaticPaths &&
-						typeof val === 'undefined' &&
-						!route.component.includes('json')
+						lastSegment.length === 1 &&
+						lastSegment[0].dynamic &&
+						Object.values(params).some((v) => v === undefined)
 					) {
 						throw new AstroError({
 							...AstroErrorData.InvalidExtension,
@@ -54,20 +56,6 @@ export async function getParamsAndProps(
 							},
 						});
 					}
-				}
-				// fix bug: https://github.com/withastro/astro/pull/6353
-				// [...slug].astro (with undefined) and index.astro has conflict behavior
-				// The [...slug].astro under the folder 'index' has set 'undefine' in getStaticPaths that
-				// it will replace the index.html outside when the build and format is file.
-				if (
-					(route.type === 'endpoint' || route.component.endsWith('astro')) &&
-					mod.getStaticPaths
-				) {
-					warn(
-						logging,
-						'getStaticPaths',
-						"Under dynamic routing, please pay attention to the use of 'undefine'"
-					);
 				}
 			}
 		}
