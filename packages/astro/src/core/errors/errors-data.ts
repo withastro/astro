@@ -75,7 +75,7 @@ export const AstroErrorData = defineErrors({
 	 * @description
 	 * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/) is enabled.
 	 *
-	 * To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
+	 * To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/guides/client-side-scripts/) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
 	 */
 	StaticClientAddressNotAvailable: {
 		title: '`Astro.clientAddress` is not available in static mode.',
@@ -453,6 +453,26 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (paramName: string) =>
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
+	},
+	ImageMissingAlt: {
+		title: 'Missing alt property',
+		code: 3022,
+		message: 'The alt property is required.',
+		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	},
+	InvalidImageService: {
+		title: 'Error while loading image service',
+		code: 3023,
+		message:
+			'There was an error loading the configured image service. Please see the stack trace for more information',
+	},
+	MissingImageDimension: {
+		title: 'Missing image dimensions',
+		code: 3024,
+		message: (missingDimension: 'width' | 'height' | 'both') =>
+			`For remote images, ${
+				missingDimension === 'both' ? 'width and height are' : `${missingDimension} is`
+			} required.`,
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx

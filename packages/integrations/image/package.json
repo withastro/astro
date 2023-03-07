@@ -63,7 +63,7 @@
     "vite": "^4.1.2"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.0.17",
+    "astro": "workspace:^2.0.18",
     "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {

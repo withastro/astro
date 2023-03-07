@@ -50,7 +50,8 @@ export default function createVitePluginAstroServer({
 						handle: baseMiddleware(settings, logging),
 					});
 				}
-				viteServer.middlewares.use(async (req, res) => {
+				// Note that this function has a name so other middleware can find it.
+				viteServer.middlewares.use(async function astroDevHandler(req, res) {
 					if (req.url === undefined || !req.method) {
 						res.writeHead(500, 'Incomplete request');
 						res.end();

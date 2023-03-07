@@ -4,8 +4,8 @@
   "compilerOptions": {
     "allowJs": true,
     "declarationDir": "./dist",
-    "module": "ES2020",
+    "module": "ES2022",
     "outDir": "./dist",
-    "target": "ES2020"
+    "target": "ES2021"
   }
 }
