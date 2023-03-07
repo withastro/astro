@@ -1,9 +1,9 @@
-// @ts-ignore
+// @ts-expect-error
 import { runBuild } from './test-utils.ts';
-// @ts-ignore
+// @ts-expect-error
 import { assertEquals } from './deps.ts';
 
-// @ts-ignore
+// @ts-expect-error
 Deno.test({
 	name: 'Prerender',
 	async fn() {
