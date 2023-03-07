@@ -45,6 +45,8 @@ export class MarkdocError extends Error {
 		super(...params);
 
 		const {
+			// Use default code for unknown errors in Astro core
+			// We don't have a best practice for integration error codes yet
 			code = 99999,
 			name,
 			title = 'MarkdocError',
