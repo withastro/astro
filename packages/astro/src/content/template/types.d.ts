@@ -1,7 +1,17 @@
 declare module 'astro:content' {
+	interface Render {
+		'.md': Promise<{
+			Content: import('astro').MarkdownInstance<{}>['Content'];
+			headings: import('astro').MarkdownHeading[];
+			remarkPluginFrontmatter: Record<string, any>;
+		}>;
+	}
+}
+
+declare module 'astro:content' {
 	export { z } from 'astro/zod';
 	export type CollectionEntry<C extends keyof typeof entryMap> =
-		(typeof entryMap)[C][keyof (typeof entryMap)[C]] & Render;
+		(typeof entryMap)[C][keyof (typeof entryMap)[C]];
 
 	export const image: () => import('astro/zod').ZodObject<{
 		src: import('astro/zod').ZodString;
@@ -63,14 +73,6 @@ declare module 'astro:content' {
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
 		Required<ContentConfig['collections'][C]>['schema']
 	>;
-
-	type Render = {
-		render(): Promise<{
-			Content: import('astro').MarkdownInstance<{}>['Content'];
-			headings: import('astro').MarkdownHeading[];
-			remarkPluginFrontmatter: Record<string, any>;
-		}>;
-	};
 
 	const entryMap: {
 		// @@ENTRY_MAP@@

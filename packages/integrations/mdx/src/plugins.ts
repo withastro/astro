@@ -4,12 +4,12 @@ import {
 	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
+import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
-import { bold, yellow } from 'kleur/colors';
+import type { Image } from 'mdast';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
@@ -20,6 +20,9 @@ import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
+
+// Skip nonessential plugins during performance benchmark runs
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -99,21 +102,25 @@ export async function getRemarkPlugins(
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
 	let remarkPlugins: PluggableList = [];
 
-	if (mdxOptions.gfm) {
-		remarkPlugins.push(remarkGfm);
-	}
-	if (mdxOptions.smartypants) {
-		remarkPlugins.push(remarkSmartypants);
+	if (!isPerformanceBenchmark) {
+		if (mdxOptions.gfm) {
+			remarkPlugins.push(remarkGfm);
+		}
+		if (mdxOptions.smartypants) {
+			remarkPlugins.push(remarkSmartypants);
+		}
 	}
 
-	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
+	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins];
 
-	// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
-	if (mdxOptions.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
-	}
-	if (mdxOptions.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
+	if (!isPerformanceBenchmark) {
+		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
+		if (mdxOptions.syntaxHighlight === 'shiki') {
+			remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+		}
+		if (mdxOptions.syntaxHighlight === 'prism') {
+			remarkPlugins.push(remarkPrism);
+		}
 	}
 
 	return remarkPlugins;
@@ -129,37 +136,14 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 
 	rehypePlugins = [
 		...rehypePlugins,
-		...ignoreStringPlugins(mdxOptions.rehypePlugins),
+		...mdxOptions.rehypePlugins,
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		rehypeHeadingIds,
-		rehypeInjectHeadingsExport,
+		...(isPerformanceBenchmark ? [] : [rehypeHeadingIds, rehypeInjectHeadingsExport]),
 		// computed from `astro.data.frontmatter` in VFile data
 		rehypeApplyFrontmatterExport,
 	];
 	return rehypePlugins;
-}
-
-function ignoreStringPlugins(plugins: any[]) {
-	let validPlugins: PluggableList = [];
-	let hasInvalidPlugin = false;
-	for (const plugin of plugins) {
-		if (typeof plugin === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin)} not applied.`));
-			hasInvalidPlugin = true;
-		} else if (Array.isArray(plugin) && typeof plugin[0] === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin[0])} not applied.`));
-			hasInvalidPlugin = true;
-		} else {
-			validPlugins.push(plugin);
-		}
-	}
-	if (hasInvalidPlugin) {
-		console.warn(
-			`To inherit Markdown plugins in MDX, please use explicit imports in your config instead of "strings." See Markdown docs: https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`
-		);
-	}
-	return validPlugins;
 }
 
 /**

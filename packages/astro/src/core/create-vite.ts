@@ -116,7 +116,7 @@ export async function createVite(
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
-			astroContentAssetPropagationPlugin({ mode }),
+			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
 			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
 		],

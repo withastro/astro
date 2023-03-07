@@ -40,6 +40,9 @@ export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'draft
 	smartypants: true,
 };
 
+// Skip nonessential plugins during performance benchmark runs
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
+
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
@@ -64,12 +67,13 @@ export async function renderMarkdown(
 		.use(toRemarkInitializeAstroData({ userFrontmatter }))
 		.use([]);
 
-	if (gfm) {
-		parser.use(remarkGfm);
-	}
-
-	if (smartypants) {
-		parser.use(remarkSmartypants);
+	if (!isPerformanceBenchmark && gfm) {
+		if (gfm) {
+			parser.use(remarkGfm);
+		}
+		if (smartypants) {
+			parser.use(remarkSmartypants);
+		}
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -79,19 +83,21 @@ export async function renderMarkdown(
 		parser.use([[plugin, pluginOpts]]);
 	});
 
-	if (scopedClassName) {
-		parser.use([scopedStyles(scopedClassName)]);
-	}
+	if (!isPerformanceBenchmark) {
+		if (scopedClassName) {
+			parser.use([scopedStyles(scopedClassName)]);
+		}
 
-	if (syntaxHighlight === 'shiki') {
-		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
-	} else if (syntaxHighlight === 'prism') {
-		parser.use([remarkPrism(scopedClassName)]);
-	}
-
-	if (opts.experimentalAssets) {
-		// Apply later in case user plugins resolve relative image paths
-		parser.use([toRemarkCollectImages(opts.resolveImage)]);
+		if (syntaxHighlight === 'shiki') {
+			parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
+		} else if (syntaxHighlight === 'prism') {
+			parser.use([remarkPrism(scopedClassName)]);
+		}
+		
+		if (opts.experimentalAssets) {
+			// Apply later in case user plugins resolve relative image paths
+			parser.use([toRemarkCollectImages(opts.resolveImage)]);
+		}
 	}
 
 	parser.use([
@@ -112,7 +118,11 @@ export async function renderMarkdown(
 	if (opts.experimentalAssets) {
 		parser.use(rehypeImages(await opts.imageService, opts.assetsDir));
 	}
-	parser.use([rehypeHeadingIds, rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
+	if (!isPerformanceBenchmark) {
+		parser.use([rehypeHeadingIds]);
+	}
+
+	parser.use([rehypeRaw]).use(rehypeStringify, { allowDangerousHtml: true });
 
 	let vfile: MarkdownVFile;
 	try {

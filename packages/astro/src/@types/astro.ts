@@ -1012,12 +1012,33 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
+export interface ContentEntryType {
+	extensions: string[];
+	getEntryInfo(params: {
+			fileUrl: URL;
+			contents: string;
+	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	contentModuleTypes?: string;
+}
+
+type GetEntryInfoReturnType = {
+	data: Record<string, unknown>;
+	/**
+	 * Used for error hints to point to correct line and location
+	 * Should be the untouched data as read from the file,
+	 * including newlines
+	 */
+	rawData: string;
+	body: string;
+	slug: string;
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
-
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
 	pageExtensions: string[];
+	contentEntryTypes: ContentEntryType[];
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;

@@ -6,6 +6,7 @@ import jsxRenderer from '../../jsx/renderer.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -19,6 +20,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
 				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
+		contentEntryTypes: [markdownContentEntryType],
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: [],
