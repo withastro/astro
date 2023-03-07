@@ -61,6 +61,12 @@ describe('astro:image', () => {
 				expect(!!$img.attr('decoding')).to.equal(true);
 			});
 
+			it('has width and height', () => {
+				let $img = $('#local img');
+				expect($img.attr('width')).to.equal('207');
+				expect($img.attr('height')).to.equal('243');
+			});
+
 			it('includes the provided alt', () => {
 				let $img = $('#local img');
 				expect($img.attr('alt')).to.equal('a penguin');
@@ -85,6 +91,12 @@ describe('astro:image', () => {
 					let $img = $('#remote img');
 					expect(!!$img.attr('loading')).to.equal(true);
 					expect(!!$img.attr('decoding')).to.equal(true);
+				});
+
+				it('includes width and height attributes', () => {
+					let $img = $('#remote img');
+					expect(!!$img.attr('width')).to.equal(true);
+					expect(!!$img.attr('height')).to.equal(true);
 				});
 			});
 
@@ -129,6 +141,12 @@ describe('astro:image', () => {
 				let $img = $('img');
 				expect($img).to.have.a.lengthOf(1);
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
+
+			it('has width and height attributes', () => {
+				let $img = $('img');
+				expect(!!$img.attr('width')).to.equal(true);
+				expect(!!$img.attr('height')).to.equal(true);
 			});
 
 			it('Supports aliased paths', async () => {

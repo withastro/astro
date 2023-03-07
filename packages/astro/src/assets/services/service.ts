@@ -74,7 +74,22 @@ export type BaseServiceTransform = {
 };
 
 /**
- * Basic local service to take things from
+ * Basic local service using the included `_image` endpoint.
+ * This service intentionally does not implement `transform`.
+ *
+ * Example usage:
+ * ```ts
+ * const service = {
+ *  getURL: baseService.getURL,
+ *  parseURL: baseService.parseURL,
+ *  getHTMLAttributes: baseService.getHTMLAttributes,
+ *  async transform(inputBuffer, transformOptions) {...}
+ * }
+ * ```
+ *
+ * This service only supports the following properties: `width`, `height`, `format` and `quality`.
+ * Additionally, remote URLs are passed as-is.
+ *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	getHTMLAttributes(options) {
@@ -88,6 +103,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				targetWidth = Math.round(targetHeight * aspectRatio);
 			} else if (targetWidth && !targetHeight) {
 				targetHeight = Math.round(targetWidth / aspectRatio);
+			} else {
+				targetWidth = options.src.width;
+				targetHeight = options.src.height;
 			}
 		}
 
