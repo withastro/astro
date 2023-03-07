@@ -1,4 +1,3 @@
-
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
@@ -25,6 +24,5 @@ describe('astro:ssr-manifest', () => {
 
 		const $ = cheerio.load(html);
 		expect($('#assets').text()).to.equal('["/_astro/index.1bad7273.css"]');
-
 	});
 });

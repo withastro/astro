@@ -1,4 +1,3 @@
-
 import type { Plugin as VitePlugin } from 'vite';
 
 const manifestVirtualModuleId = 'astro:ssr-manifest';
@@ -9,7 +8,7 @@ export function vitePluginSSRManifest(): VitePlugin {
 		name: '@astrojs/vite-plugin-astro-ssr-manifest',
 		enforce: 'post',
 		resolveId(id, parent) {
-			if(id === manifestVirtualModuleId) {
+			if (id === manifestVirtualModuleId) {
 				return resolvedManifestVirtualModuleId;
 			}
 		},
