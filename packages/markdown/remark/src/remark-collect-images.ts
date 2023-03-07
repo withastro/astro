@@ -16,9 +16,9 @@ export default function toRemarkCollectImages(resolveImage: OptionalResolveImage
 			if (imagePaths.size === 0) {
 				vfile.data.imagePaths = [];
 				return;
-			} else if(resolveImage) {
+			} else if (resolveImage) {
 				const mapping = new Map<string, string>();
-				for(const path of Array.from(imagePaths)) {
+				for (const path of Array.from(imagePaths)) {
 					const id = await resolveImage(path);
 					mapping.set(path, id);
 				}

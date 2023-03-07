@@ -2,11 +2,11 @@ import { isMainThread } from 'node:worker_threads';
 import { cpus } from 'os';
 import { fileURLToPath } from 'url';
 import type { OutputFormat } from '../../../types.js';
-import execOnce from './utils/execOnce.js';
-import WorkerPool from './utils/workerPool.js';
 import { getModuleURL } from './emscripten-utils.js';
 import type { Operation } from './image.js';
 import * as impl from './impl.js';
+import execOnce from './utils/execOnce.js';
+import WorkerPool from './utils/workerPool.js';
 
 const getWorker = execOnce(() => {
 	return new WorkerPool(
