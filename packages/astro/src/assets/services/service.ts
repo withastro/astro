@@ -50,7 +50,7 @@ type LocalImageTransform = {
 
 export interface LocalImageService extends SharedServiceProps {
 	/**
-	 * Parse the requested parameters passed along the URL from `getURL` back into an object to be used later by `transform`
+	 * Parse the requested parameters passed in the URL from `getURL` back into an object to be used later by `transform`
 	 *
 	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return those.
 	 */
