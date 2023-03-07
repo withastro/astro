@@ -2410,6 +2410,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/ssr-manifest:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/ssr-markdown:
     specifiers:
       astro: workspace:*

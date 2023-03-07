@@ -140,6 +140,10 @@ declare module '*.mdx' {
 	export default load;
 }
 
+declare module 'astro:ssr-manifest' {
+	export const manifest: import('./dist/@types/astro').SSRManifest;
+}
+
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
 
 // CSS modules

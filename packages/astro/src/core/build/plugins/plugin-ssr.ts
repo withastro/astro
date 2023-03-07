@@ -38,10 +38,12 @@ export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter):
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
+import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
 	renderers: _main.renderers
 });
+_privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 export * from '${pagesVirtualModuleId}';
 ${
