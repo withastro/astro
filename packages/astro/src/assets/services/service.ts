@@ -33,9 +33,9 @@ interface SharedServiceProps {
 	 */
 	getURL: (options: ImageTransform) => string;
 	/**
-	 * Return any additional HTML attributes separate from `src` your service require to show the image properly.
+	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
-	 * For example, you might want to return the result `width` and `height` to avoid CLS, or a particular `class` or `style`.
+	 * For example, you might want to return the `width` and `height` to avoid CLS, or a particular `class` or `style`.
 	 * In most cases, you'll want to return directly what your user supplied you, minus the attributes that were used to generate the image.
 	 */
 	getHTMLAttributes?: (options: ImageTransform) => Record<string, any>;
