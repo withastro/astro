@@ -205,9 +205,9 @@ export function resolvePath(specifier: string, importer: string) {
 }
 
 /**
- * Verify that the endpoint is a legal name when it has getStaticPaths 
- * *.js or *.js aren't legal when getStaticPaths will return undefine
+ * Verify that the endpoint is a legal name when it has getStaticPaths
+ *
  */
-export function validateEndpointFileExt(pathname: string){
-	return (path.basename(pathname) === 'js' || path.basename(pathname) === 'ts') && pathname.includes('json')
+export function validateEndpointFileExt(pathname: string) {
+	return pathname.endsWith('js') || pathname.endsWith('ts');
 }

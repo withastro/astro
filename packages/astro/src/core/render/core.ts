@@ -9,7 +9,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
-import { validateEndpointFileExt } from '../util';
+import { validateEndpointFileExt } from '../util.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -36,18 +36,24 @@ export async function getParamsAndProps(
 			const paramsMatch = route.pattern.exec(pathname);
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
-				const [[key, val]] = Object.entries(params)
+				const [[key, val]] = Object.entries(params);
 				// fix bug: https://github.com/withastro/astro/pull/6353
-				// Verifying the name is legal or is not 
+				// Verifying the name is legal or is not
 				// if it's only `*.js` and `*.ts` when it's the endpoint, and it has undefined in the `getStaticPaths` returned value.
-				if(!validateEndpointFileExt(route.component) && mod.getStaticPaths && typeof val === 'undefined' ){
-					throw new AstroError({
-						...AstroErrorData.InvalidGetEndpointsPathParam,
-						message: AstroErrorData.InvalidGetEndpointsPathParam.message(key, typeof val),
-						location: {
-							file: route.component,
-						},
-					});
+				if (validateEndpointFileExt(route.component)) {
+					if (
+						mod.getStaticPaths &&
+						typeof val === 'undefined' &&
+						!route.component.includes('json')
+					) {
+						throw new AstroError({
+							...AstroErrorData.InvalidExtension,
+							message: AstroErrorData.InvalidExtension.message(),
+							location: {
+								file: route.component,
+							},
+						});
+					}
 				}
 				// fix bug: https://github.com/withastro/astro/pull/6353
 				// [...slug].astro (with undefined) and index.astro has conflict behavior
@@ -63,7 +69,6 @@ export async function getParamsAndProps(
 						"Under dynamic routing, please pay attention to the use of 'undefine'"
 					);
 				}
-				
 			}
 		}
 		let routeCacheEntry = routeCache.get(route);

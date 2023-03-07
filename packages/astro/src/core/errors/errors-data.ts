@@ -471,11 +471,11 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 *}
 	 * ```
 	 */
-	InvalidGetEndpointsPathParam: {
-		title: 'There can not use \'undefined\' in the getStaticPaths when the endpoint' ,
+	InvalidExtension: {
+		title: 'invalid extension' ,
 		code: 3022,
-		message: (paramkey, paramVal) =>
-			`invalid path param: ${paramkey} path. A string, number value was expected, got \`${paramVal}\``,
+		message: () =>
+			`Your extension is wrong, please enter the correct extension, like \'*.json.ts\' or \'*.json.js\'`,
 		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
 	},
 
