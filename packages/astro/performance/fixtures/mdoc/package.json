@@ -14,7 +14,7 @@
   "author": "",
   "license": "unlicensed",
   "dependencies": {
-    "@astrojs/markdoc": "^0.0.0",
+    "@astrojs/markdoc": "^0.0.1",
     "@astrojs/react": "^2.0.2",
     "@performance/utils": "^0.0.0",
     "@types/react": "^18.0.21",

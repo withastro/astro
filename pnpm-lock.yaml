@@ -328,7 +328,7 @@ importers:
 
   examples/with-markdoc:
     specifiers:
-      '@astrojs/markdoc': ^0.0.0
+      '@astrojs/markdoc': ^0.0.1
       astro: ^2.0.6
     dependencies:
       '@astrojs/markdoc': link:../../packages/integrations/markdoc
@@ -1189,7 +1189,7 @@ importers:
 
   packages/astro/performance/fixtures/mdoc:
     specifiers:
-      '@astrojs/markdoc': ^0.0.0
+      '@astrojs/markdoc': ^0.0.1
       '@astrojs/react': ^2.0.2
       '@performance/utils': ^0.0.0
       '@types/react': ^18.0.21
