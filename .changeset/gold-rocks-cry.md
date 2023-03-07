@@ -12,4 +12,4 @@ This unlocks a few features:
 - Support for validating assets using Content Collections.
 - and more!
 
-See [Assets (Experimental)](https://docs.astro.build/en/guides/assets/) on our docs for more information on how to use this feature!
+See [Assets (Experimental)](https://docs.astro.build/en/guides/assets/) on our docs site for more information on how to use this feature!
