@@ -35,23 +35,23 @@ export interface RotateOptions {
 
 // MozJPEG
 import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc'
+import mozDec from './mozjpeg/mozjpeg_node_dec.js'
 import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
 const mozEncWasm = new URL('./mozjpeg/mozjpeg_node_enc.wasm', getModuleURL(import.meta.url))
-import mozDec from './mozjpeg/mozjpeg_node_dec.js'
 const mozDecWasm = new URL('./mozjpeg/mozjpeg_node_dec.wasm', getModuleURL(import.meta.url))
 
 // WebP
 import type { WebPModule as WebPEncodeModule } from './webp/webp_enc'
+import webpDec from './webp/webp_node_dec.js'
 import webpEnc from './webp/webp_node_enc.js'
 const webpEncWasm = new URL('./webp/webp_node_enc.wasm', getModuleURL(import.meta.url))
-import webpDec from './webp/webp_node_dec.js'
 const webpDecWasm = new URL('./webp/webp_node_dec.wasm', getModuleURL(import.meta.url))
 
 // AVIF
 import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc'
+import avifDec from './avif/avif_node_dec.js'
 import avifEnc from './avif/avif_node_enc.js'
 const avifEncWasm = new URL('./avif/avif_node_enc.wasm', getModuleURL(import.meta.url))
-import avifDec from './avif/avif_node_dec.js'
 const avifDecWasm = new URL('./avif/avif_node_dec.wasm', getModuleURL(import.meta.url))
 
 // PNG
