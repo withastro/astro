@@ -18,7 +18,7 @@ import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
-import { check } from './check/index.js';
+import { check, CheckResult } from './check/index.js';
 import { openInBrowser } from './open.js';
 
 type Arguments = yargs.Arguments;
@@ -222,15 +222,24 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'check': {
-			const ret = await check(settings, { logging, flags });
-			return process.exit(ret);
+			// We create a server to start doing our operations
+			const checkServer = await check(settings, { flags, logging });
+			if (checkServer) {
+				if (checkServer.isWatchMode) {
+					await checkServer.watch();
+					return await new Promise(() => {}); // lives forever
+				} else {
+					let checkResult = await checkServer.check();
+					return process.exit(checkResult);
+				}
+			}
 		}
 
 		case 'sync': {
 			const { syncCli } = await import('../core/sync/index.js');
 
-			const ret = await syncCli(settings, { logging, fs, flags });
-			return process.exit(ret);
+			const result = await syncCli(settings, { logging, fs, flags });
+			return process.exit(result);
 		}
 
 		case 'preview': {
