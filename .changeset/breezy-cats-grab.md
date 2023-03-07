@@ -1,7 +1,7 @@
 ---
-'astro': patch
+'astro': minor
 '@astrojs/markdoc': patch
-'@astrojs/mdx': patch
+'@astrojs/mdx': minor
 ---
 
 Introduce the (experimental) `@astrojs/markdoc` integration. This unlocks Markdoc inside your Content Collections, bringing support for Astro and UI components in your content. This also improves Astro core internals to make Content Collections extensible to more file types in the future.
