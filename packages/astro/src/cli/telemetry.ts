@@ -10,7 +10,7 @@ export interface TelemetryOptions {
 export async function update(subcommand: string, { flags, telemetry }: TelemetryOptions) {
 	const isValid = ['enable', 'disable', 'reset'].includes(subcommand);
 
-	if (flags.help || !isValid) {
+	if (flags.help || flags.h || !isValid) {
 		msg.printHelp({
 			commandName: 'astro telemetry',
 			usage: '[command]',

@@ -1,9 +1,9 @@
-import esbuild from 'esbuild';
-import svelte from '../utils/svelte-plugin.js';
 import { deleteAsync } from 'del';
+import esbuild from 'esbuild';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
+import svelte from '../utils/svelte-plugin.js';
 import prebuild from './prebuild.js';
 
 /** @type {import('esbuild').BuildOptions} */
@@ -11,7 +11,7 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node14',
+	target: 'node16',
 	sourcemap: false,
 	sourcesContent: false,
 };
