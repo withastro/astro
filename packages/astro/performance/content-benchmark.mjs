@@ -57,9 +57,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 
 		if (test.includes('simple')) {
 			const fixtures = formats;
-			console.log(
-				`\n${bold('Simple')} ${dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`
-			);
+			console.log(`\n${bold('Simple')} ${dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'simple';
 			await benchmark({
 				fixtures,

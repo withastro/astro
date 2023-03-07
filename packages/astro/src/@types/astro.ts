@@ -1015,8 +1015,8 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
-			fileUrl: URL;
-			contents: string;
+		fileUrl: URL;
+		contents: string;
 	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
 	contentModuleTypes?: string;
 }
@@ -1031,7 +1031,7 @@ type GetEntryInfoReturnType = {
 	rawData: string;
 	body: string;
 	slug: string;
-}
+};
 
 export interface AstroSettings {
 	config: AstroConfig;

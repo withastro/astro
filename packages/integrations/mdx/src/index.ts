@@ -11,7 +11,7 @@ import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
-import { getFileInfo, parseFrontmatter, ignoreStringPlugins } from './utils.js';
+import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -23,20 +23,23 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
-
-type IntegrationWithPrivateHooks =  {
+type IntegrationWithPrivateHooks = {
 	name: string;
 	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
-		'astro:config:setup': (params: HookParameters<'astro:config:setup'> & {
-			// `addPageExtension` and `contentEntryType` are not a public APIs
-			// Add type defs here
-			addPageExtension: (extension: string) => void
-			addContentEntryType: (contentEntryType: ContentEntryType) => void
-		}) => void | Promise<void>;
+		'astro:config:setup': (
+			params: HookParameters<'astro:config:setup'> & {
+				// `addPageExtension` and `contentEntryType` are not a public APIs
+				// Add type defs here
+				addPageExtension: (extension: string) => void;
+				addContentEntryType: (contentEntryType: ContentEntryType) => void;
+			}
+		) => void | Promise<void>;
 	};
 };
 
-export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): IntegrationWithPrivateHooks {
+export default function mdx(
+	partialMdxOptions: Partial<MdxOptions> = {}
+): IntegrationWithPrivateHooks {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
@@ -70,7 +73,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): Integr
 
 				const mdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: markdownConfigToMdxOptions(extendMarkdownConfig ? config.markdown : markdownConfigDefaults),
+					defaults: markdownConfigToMdxOptions(
+						extendMarkdownConfig ? config.markdown : markdownConfigDefaults
+					),
 				});
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
@@ -188,7 +193,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): Integr
 const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
-}
+};
 
 function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
 	return {
@@ -196,7 +201,7 @@ function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefault
 		...markdownConfig,
 		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
 		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
-		remarkRehype: markdownConfig.remarkRehype as any ?? {},
+		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
 	};
 }
 

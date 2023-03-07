@@ -1,9 +1,9 @@
+import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
 import type { AstroConfig, SSRError } from 'astro';
-import { bold, yellow } from 'kleur/colors';
 import matter from 'gray-matter';
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
+import { bold, yellow } from 'kleur/colors';
 import type { MdxjsEsm } from 'mdast-util-mdx';
 
 function appendForwardSlash(path: string) {

@@ -1,15 +1,15 @@
-import type { AstroIntegration, AstroConfig, ContentEntryType, HookParameters } from 'astro';
-import { InlineConfig } from 'vite';
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
+import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { InlineConfig } from 'vite';
 import {
-	prependForwardSlash,
 	getAstroConfigPath,
 	MarkdocError,
 	parseFrontmatter,
+	prependForwardSlash,
 } from './utils.js';
-import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
 
 type IntegrationWithPrivateHooks = {
 	name: string;

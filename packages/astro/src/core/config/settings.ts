@@ -3,10 +3,10 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 
 import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
+import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
-import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {

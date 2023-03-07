@@ -11,15 +11,14 @@ import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index
 import { CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
-	getContentEntryExts,
 	extractFrontmatterAssets,
+	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
 	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
-	parseFrontmatter,
 } from './utils.js';
 
 function isContentFlagImport(viteId: string, contentEntryExts: string[]) {

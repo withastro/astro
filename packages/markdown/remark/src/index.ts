@@ -93,7 +93,7 @@ export async function renderMarkdown(
 		} else if (syntaxHighlight === 'prism') {
 			parser.use([remarkPrism(scopedClassName)]);
 		}
-		
+
 		if (opts.experimentalAssets) {
 			// Apply later in case user plugins resolve relative image paths
 			parser.use([toRemarkCollectImages(opts.resolveImage)]);

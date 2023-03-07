@@ -4,12 +4,11 @@ import {
 	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
-import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
+import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
-import type { Image } from 'mdast';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
