@@ -52,15 +52,16 @@ export const msg = {
 
 export function extractFrontmatterAssets(data: Record<string, any>): string[] {
 	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
-		return Object.values(potentialAssets).map((entry: any) => {
-			if (typeof entry === 'object') {
-				if (entry.__astro === true) {
-					return entry;
+		return Object.values(potentialAssets).reduce((acc, curr) => {
+			if (typeof curr === 'object') {
+				if (curr.__astro === true) {
+					acc.push(curr);
 				} else {
-					return findAssets(entry);
+					acc.push(...findAssets(curr));
 				}
 			}
-		});
+			return acc;
+		}, []);
 	}
 
 	return findAssets(data).map((asset) => asset.src);
