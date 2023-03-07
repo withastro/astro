@@ -82,7 +82,7 @@ Now, [build your site for production](https://docs.astro.build/en/reference/cli-
 > **Warning**
 > If you forget to add a `site`, you'll get a friendly warning when you build, and the `sitemap-index.xml` file won't be generated.
 
-After verifying that the sitemaps are built, you can add them to your site's `<head>` and the `robots.txt` file for crawlers to pick up!
+After verifying that the sitemaps are built, you can add them to your site's `<head>` and the `robots.txt` file for crawlers to pick up.
 
 ```html ins={3}
 // src/layouts/Layout.astro
