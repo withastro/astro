@@ -18,7 +18,7 @@ import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
-import { check, CheckResult } from './check/index.js';
+import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 
 type Arguments = yargs.Arguments;

@@ -1,22 +1,20 @@
 /* eslint-disable no-console */
 import { AstroCheck, DiagnosticSeverity, GetDiagnosticsResult } from '@astrojs/language-server';
+import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
-import * as fs from 'fs';
+import fsMod, * as fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
+import { join } from 'node:path';
 import ora from 'ora';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { Arguments } from 'yargs-parser';
+import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../../core/logger/core.js';
-import { printHelp } from '../../core/messages.js';
-import { printDiagnostic } from './print.js';
-import type { Arguments as Flags } from 'yargs-parser';
 import { debug, info } from '../../core/logger/core.js';
+import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
-import fsMod from 'fs';
-import type { FSWatcher } from 'chokidar';
-import { join } from 'node:path';
+import { printDiagnostic } from './print.js';
 
 type DiagnosticResult = {
 	errors: number;

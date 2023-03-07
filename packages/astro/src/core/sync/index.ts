@@ -2,17 +2,17 @@ import { dim } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { createServer } from 'vite';
+import type { Arguments } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
+import { createVite } from '../create-vite.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
-import type { Arguments } from 'yargs-parser';
-import { createVite } from '../create-vite.js';
 
 export type ProcessExit = 0 | 1;
 
