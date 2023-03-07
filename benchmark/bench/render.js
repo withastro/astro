@@ -103,7 +103,7 @@ function printResult(result) {
 }
 
 /**
- * Simple fetch utility to get the render time sent by `@astrojs/timer` in plain text
+ * Simple fetch utility to get the render time sent by `@benchmark/timer` in plain text
  * @param {string} url
  * @returns {Promise<number>}
  */

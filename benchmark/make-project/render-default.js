@@ -74,7 +74,7 @@ export async function run(projectDir) {
 		new URL('./astro.config.js', projectDir),
 		`\
 import { defineConfig } from 'astro/config';
-import timer from '@astrojs/timer';
+import timer from '@benchmark/timer';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({
