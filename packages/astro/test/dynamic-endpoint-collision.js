@@ -22,7 +22,7 @@ describe('Dynamic endpoint collision', () => {
 		});
 	});
 
-	describe('throw out an error when it isnt right file name in the dev ', () => {
+	describe('dev', () => {
 		let fixture;
 		let devServer;
 
@@ -45,9 +45,8 @@ describe('Dynamic endpoint collision', () => {
 		});
 
 		it("don't throw error when dynamic endpoint doesn't load the colliding path", async () => {
-			const html = await fixture.fetch('/api/catch/one').then((res) => res.text());
-			const $ = cheerioLoad(html);
-			expect($('pre').text()).to.equal('{"slug":"one"}');
+			const res = await fixture.fetch('/api/catch/one').then((res) => res.text());
+			expect(res).to.equal('{"slug":"one"}');
 		});
 	});
 });
