@@ -203,11 +203,3 @@ export function resolvePath(specifier: string, importer: string) {
 		return specifier;
 	}
 }
-
-/**
- * Verify that the endpoint is a legal name when it has getStaticPaths
- *
- */
-export function validateEndpointFileExt(pathname: string) {
-	return pathname.endsWith('js') || pathname.endsWith('ts');
-}

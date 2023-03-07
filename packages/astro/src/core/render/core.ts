@@ -9,7 +9,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
-import { validateEndpointFileExt } from '../util.js';
+import { validateEndpointFileExt } from './util.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
