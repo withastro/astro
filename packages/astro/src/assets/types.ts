@@ -98,7 +98,7 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	/**
 	 * Desired quality for the image. Value can either be a preset such as `low` or `high`, or a numeric value from 0 to 100.
 	 *
-	 * Ultimately, the ending perceivable quality is loader-specific.
+	 * The perceptual quality of the output image is loader-specific.
 	 * For instance, a certain service might decide that `high` results in a very beautiful image, but another could choose for it to be at best passable.
 	 *
 	 * **Example**:
