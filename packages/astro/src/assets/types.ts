@@ -27,7 +27,7 @@ export interface ImageMetadata {
 }
 
 /**
- * All the transformations possible to an image
+ * Options accepted by the image transformation service.
  */
 export type ImageTransform = {
 	src: ImageMetadata | string;
