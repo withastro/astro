@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { ImageMetadata } from '../assets/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
@@ -50,11 +51,19 @@ export const msg = {
 };
 
 export function extractFrontmatterAssets(data: Record<string, any>): string[] {
-	const assets = Object.values(data).filter(
-		(value) => typeof value === 'object' && value['__astro_asset'] == true
-	);
+	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
+		return Object.values(potentialAssets).map((entry: any) => {
+			if (typeof entry === 'object') {
+				if (entry.__astro === true) {
+					return entry;
+				} else {
+					return findAssets(entry);
+				}
+			}
+		});
+	}
 
-	return assets.map((asset) => asset.src);
+	return findAssets(data).map((asset) => asset.src);
 }
 
 export function getEntrySlug({
