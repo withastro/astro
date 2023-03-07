@@ -24,11 +24,11 @@ export function parseQuality(quality: string): string | number {
 
 interface SharedServiceProps {
 	/**
-	 * Return the URL to the endpoint or URL your image are generated from.
+	 * Return the URL to the endpoint or URL your images are generated from.
 	 *
 	 * For a local service, your service should expose an endpoint handling the image requests, or use Astro's at `/_image`.
 	 *
-	 * For external services, this should point to the URL where your images are coming from, for instance, `/_vercel/image`
+	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
 	getURL: (options: ImageTransform) => string;
