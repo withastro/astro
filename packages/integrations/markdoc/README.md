@@ -286,7 +286,9 @@ These options will be applied during [the Markdoc "transform" phase](https://mar
 
 You may need to define Markdoc configuration at the component level, rather than the `astro.config.mjs` level. This is useful when mapping props and SSR parameters to [Markdoc variables](https://markdoc.dev/docs/variables).
 
-Astro recommends running the Markdoc transform step manually for this. First, install the `@markdoc/markdoc` package into your project:
+Astro recommends running the Markdoc transform step manually. This allows you to define your configuration and call Markdoc's rendering functions in a `.astro` file directly, ignoring any Markdoc config in your `astro.config.mjs`.
+
+You will need to install the `@markdoc/markdoc` package into your project first:
 
 ```sh
 # Using NPM
@@ -297,7 +299,9 @@ yarn astro add @markdoc/markdoc
 pnpm astro add @markdoc/markdoc
 ```
 
-Then, call Markdoc's rendering functions where you plan to define your configuration. This example defines an `abTestGroup` Markdoc variable based on an SSR param, transforming the raw entry `body` to ignore `astro.config.mjs` configuration. The result is rendered using the `Renderer` component provided by `@astrojs/markdoc`:
+Now, you can define Markdoc configuration options using `Markdock.transform()`.
+
+This example defines an `abTestGroup` Markdoc variable based on an SSR param, transforming the raw entry `body`. The result is rendered using the `Renderer` component provided by `@astrojs/markdoc`:
 
 ```astro
 ---
