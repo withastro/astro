@@ -111,7 +111,7 @@ export async function getImage(
 	let loader = globalThis.astroImage?.loader;
 
 	if (!loader) {
-		// @ts-expect-error
+		// @ts-ignore
 		const { default: mod } = await import('virtual:image-loader').catch(() => {
 			throw new Error(
 				'[@astrojs/image] Builtin image loader not found. (Did you remember to add the integration to your Astro config?)'
@@ -127,7 +127,7 @@ export async function getImage(
 	const attributes = await loader.getImageAttributes(resolved);
 
 	// `.env` must be optional to support running in environments outside of `vite` (such as `astro.config`)
-	// @ts-expect-error
+	// @ts-ignore
 	const isDev = import.meta.env?.DEV;
 	const isLocalImage = !isRemoteImage(resolved.src);
 

@@ -17,7 +17,7 @@ export const __object_isPrototypeOf = Function.call.bind(
 /** Current high resolution millisecond timestamp. */
 export const __performance_now = performance.now as () => number
 
-// @ts-expect-error
+// @ts-ignore
 export const INTERNALS = new WeakMap<unknown, any>()
 
 export const internalsOf = <T extends object>(

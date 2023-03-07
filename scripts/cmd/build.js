@@ -1,10 +1,9 @@
-import { deleteAsync } from 'del';
 import esbuild from 'esbuild';
-import { copy } from 'esbuild-plugin-copy';
+import svelte from '../utils/svelte-plugin.js';
+import { deleteAsync } from 'del';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
-import svelte from '../utils/svelte-plugin.js';
 import prebuild from './prebuild.js';
 
 /** @type {import('esbuild').BuildOptions} */
@@ -12,7 +11,7 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node16',
+	target: 'node14',
 	sourcemap: false,
 	sourcesContent: false,
 };
@@ -51,7 +50,6 @@ export default async function build(...args) {
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
-	const copyWASM = args.includes('--copy-wasm');
 
 	const {
 		type = 'module',
@@ -104,20 +102,7 @@ export default async function build(...args) {
 		entryPoints,
 		outdir,
 		format,
-		plugins: [
-			svelte({ isDev }),
-			...(copyWASM
-				? [
-						copy({
-							resolveFrom: 'cwd',
-							assets: {
-								from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
-								to: ['./dist/assets/services/vendor/squoosh'],
-							},
-						}),
-				  ]
-				: []),
-		],
+		plugins: [svelte({ isDev })],
 	});
 
 	process.on('beforeExit', () => {

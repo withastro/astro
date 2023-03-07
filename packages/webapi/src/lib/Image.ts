@@ -2,7 +2,7 @@ import { HTMLImageElement } from './HTMLImageElement'
 import * as _ from './utils'
 
 export function Image() {
-	// @ts-expect-error
+	// @ts-ignore
 	_.INTERNALS.set(this, {
 		attributes: {},
 		localName: 'img',

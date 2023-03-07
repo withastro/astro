@@ -1,10 +1,10 @@
 <br/>
 <p align="center">
-  <img src="../../.github/assets/banner.png" alt="Build the web you want">
+  <img src="../../assets/social/banner-minimal.png" alt="Astro logo">
   <br/><br/>
-  <a href="https://astro.build">Astro</a> is the all-in-one web framework designed for speed.
+  <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
   <br/>
-  Pull your content from anywhere and deploy everywhere, all powered by your favorite UI components and libraries.
+  powerful developer experience meets lightweight output.
   <br/><br/>
 </p>
 

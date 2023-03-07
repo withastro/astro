@@ -6,7 +6,6 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
-import yargs from 'yargs-parser';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -15,7 +14,6 @@ import {
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage } from '../logger/core.js';
-import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -33,27 +31,11 @@ export interface BuildOptions {
 	 * building once, but may cause a performance hit if building multiple times in a row.
 	 */
 	teardownCompiler?: boolean;
-	flags?: yargs.Arguments;
 }
 
 /** `astro build` */
 export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
 	applyPolyfill();
-	if (options.flags?.help || options.flags?.h) {
-		printHelp({
-			commandName: 'astro build',
-			usage: '[...flags]',
-			tables: {
-				Flags: [
-					['--drafts', `Include Markdown draft pages in the build.`],
-					['--help (-h)', 'See all available flags.'],
-				],
-			},
-			description: `Builds your site for deployment.`,
-		});
-		return;
-	}
-
 	const builder = new AstroBuilder(settings, options);
 	await builder.run();
 }

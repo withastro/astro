@@ -91,6 +91,7 @@ export async function processBuffer(
 	encoding: OutputFormat,
 	quality?: number
 ): Promise<Uint8Array> {
+	// @ts-ignore
 	const worker = await getWorker();
 
 	let imageData = await worker.dispatchJob({

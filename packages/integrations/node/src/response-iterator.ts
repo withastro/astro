@@ -70,7 +70,7 @@ function readerIterator<T>(reader: ReadableStreamDefaultReader<T>): AsyncIterabl
 
 	if (canUseAsyncIteratorSymbol) {
 		iterator[Symbol.asyncIterator] = function (): AsyncIterator<T> {
-			//@ts-expect-error
+			//@ts-ignore
 			return this;
 		};
 	}

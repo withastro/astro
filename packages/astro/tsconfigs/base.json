@@ -17,11 +17,6 @@
     // Properly support importing CJS modules in ESM
     "esModuleInterop": true,
     // Skip typechecking libraries and .d.ts files
-    "skipLibCheck": true,
-    // Add alias for assets folder for easy reference to assets
-    "baseUrl": ".",
-    "paths": {
-      "~/assets/*": ["src/assets/*"]
-    }
+    "skipLibCheck": true
   }
 }

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import mime from 'mime';
-// @ts-expect-error
+// @ts-ignore
 import loader from 'virtual:image-loader';
 import { etag } from './utils/etag.js';
 import { isRemoteImage } from './utils/paths.js';

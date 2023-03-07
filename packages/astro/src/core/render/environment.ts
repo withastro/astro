@@ -43,6 +43,8 @@ export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Env
 		...options,
 		markdown: {
 			...(options.markdown ?? {}),
+			// Stub out, not important for basic rendering
+			contentDir: new URL('file:///src/content/'),
 		},
 		mode,
 		renderers: options.renderers ?? [],

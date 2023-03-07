@@ -5,7 +5,7 @@ const renderer = {
 	jsxTransformOptions: async () => {
 		const {
 			default: { default: jsx },
-			// @ts-expect-error
+			// @ts-ignore
 		} = await import('@babel/plugin-transform-react-jsx');
 		const { default: astroJSX } = await import('./babel.js');
 		return {

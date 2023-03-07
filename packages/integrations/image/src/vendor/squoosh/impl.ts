@@ -44,6 +44,7 @@ export async function decodeBuffer(
   const encoder = supportedFormats[key]
   const mod = await encoder.dec()
   const rgba = mod.decode(new Uint8Array(buffer))
+	// @ts-ignore
   return rgba
 }
 

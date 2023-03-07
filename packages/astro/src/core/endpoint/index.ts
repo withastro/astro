@@ -51,7 +51,7 @@ function createAPIContext({
 			});
 		},
 		url: new URL(request.url),
-		// @ts-expect-error
+		// @ts-ignore
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {

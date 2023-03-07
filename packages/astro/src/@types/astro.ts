@@ -18,7 +18,6 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
-import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
@@ -29,8 +28,6 @@ export type {
 	RemarkPlugins,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-export type { ExternalImageService, LocalImageService } from '../assets/services/service';
-export type { ImageTransform } from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -88,7 +85,6 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
-	experimentalAssets?: boolean;
 }
 
 export interface BuildConfig {
@@ -703,16 +699,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Image options
-	 */
-	image?: {
-		// eslint-disable-next-line @typescript-eslint/ban-types
-		service: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-	};
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
@@ -932,27 +918,7 @@ export interface AstroUserConfig {
 	 * Astro offers experimental flags to give users early access to new features.
 	 * These flags are not guaranteed to be stable.
 	 */
-	experimental?: {
-		/**
-		 * @docs
-		 * @name experimental.assets
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.1.0
-		 * @description
-		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
-		 *
-		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		assets: true,
-		 * 	},
-		 * }
-		 */
-		assets?: boolean;
-	};
+	experimental?: object;
 
 	// Legacy options to be removed
 
@@ -1148,60 +1114,6 @@ export type GetStaticPaths = (
 	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
 	| GetStaticPathsResult
 	| GetStaticPathsResult[];
-
-/**
- * Infers the shape of the `params` property returned by `getStaticPaths()`.
- *
- * @example
- * ```ts
- * export async function getStaticPaths() {
- *   return results.map((entry) => ({
- *     params: { slug: entry.slug },
- *   }));
- * }
- *
- * type Params = InferGetStaticParamsType<typeof getStaticPaths>;
- * //   ^? { slug: string; }
- *
- * const { slug } = Astro.params as Params;
- * ```
- */
-export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
-	? R extends Array<infer U>
-		? U extends { params: infer P }
-			? P
-			: never
-		: never
-	: never;
-
-/**
- * Infers the shape of the `props` property returned by `getStaticPaths()`.
- *
- * @example
- * ```ts
- * export async function getStaticPaths() {
- *   return results.map((entry) => ({
- *     params: { slug: entry.slug },
- *     props: {
- *       propA: true,
- *       propB: 42
- *     },
- *   }));
- * }
- *
- * type Props = InferGetStaticPropsType<typeof getStaticPaths>;
- * //   ^? { propA: boolean; propB: number; }
- *
- * const { propA, propB } = Astro.props as Props;
- * ```
- */
-export type InferGetStaticPropsType<T> = T extends () => Promise<infer R>
-	? R extends Array<infer U>
-		? U extends { props: infer P }
-			? P
-			: never
-		: never
-	: never;
 
 export interface HydrateOptions {
 	name: string;
@@ -1485,11 +1397,6 @@ export interface AstroIntegration {
 			routes: RouteData[];
 		}) => void | Promise<void>;
 	};
-}
-
-export interface AstroPluginOptions {
-	settings: AstroSettings;
-	logging: LogOptions;
 }
 
 export type RouteType = 'page' | 'endpoint';
