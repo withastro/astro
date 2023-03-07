@@ -455,6 +455,7 @@ importers:
       boxen: ^6.2.1
       chai: ^4.3.6
       cheerio: ^1.0.0-rc.11
+      chokidar: ^3.5.3
       ci-info: ^3.3.1
       common-ancestor-path: ^1.0.1
       cookie: ^0.5.0
@@ -521,6 +522,7 @@ importers:
       '@types/yargs-parser': 21.0.0
       acorn: 8.8.2
       boxen: 6.2.1
+      chokidar: 3.5.3
       ci-info: 3.7.1
       common-ancestor-path: 1.0.1
       cookie: 0.5.0
@@ -1232,6 +1234,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-check-no-errors:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-check-watch:
     specifiers:
       astro: workspace:*
     dependencies:
