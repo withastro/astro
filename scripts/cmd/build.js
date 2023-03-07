@@ -12,7 +12,7 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node14',
+	target: 'node16',
 	sourcemap: false,
 	sourcesContent: false,
 };
