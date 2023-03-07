@@ -66,5 +66,5 @@ export function removeQueryString(path: string) {
 }
 
 export function isRemotePath(src: string) {
-	return /^(https?:)?\/\//.test(src);
+	return /^(http|ftp|https):?\/\//.test(src) || src.startsWith('data:');
 }
