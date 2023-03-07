@@ -454,29 +454,36 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
-		/**
+	/**
 	 * @docs
 	 * @see
 	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
 	 * @description
-	 * endpoints `getStaticPaths`'s return value must be an array of objects that can't include `undefined` .
+	 * A dynamic endpoint with `getStaticPaths()` should not return `params` with `undefined` as prerendering
+	 * the endpoint would cause path collisions. For example:
 	 *
-	 * ```ts title="api/[...slug].ts"
-	 * export async function getStaticPaths() {
-	 *	return [ // <-- Array
-	 *		{ params: { slug: undefined } } error here,
-	 * 		{ params: { slug: "about" } } 
-	 * 	];
-	 *}
+	 * ```ts title="pages/api/[...slug].ts"
+	 * export function getStaticPaths() {
+	 *	 return [
+	 *		 { params: { slug: undefined },
+	 * 		 { params: { slug: "about" } }
+	 * 	 ];
+	 * }
 	 * ```
+	 *
+	 * When prerendering this endpoint, Astro will generate both the `/api` file and `/api/about` file. As `/api`
+	 * is both a file and directory in the filesystem, it will cause a path collision when building.
 	 */
-	InvalidExtension: {
-		title: 'invalid extension' ,
+	PrerenderDynamicEndpointPathCollide: {
+		title: 'Prerendered dynamic endpoint has path collision.',
 		code: 3022,
-		message: () =>
-			`Your extension is wrong, please enter the correct extension, like \'*.json.ts\' or \'*.json.js\'`,
-		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
+		message: (pathname: string) =>
+			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. ` +
+			`Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, ` +
+			`or add an additional extension to the endpoint's filename.`,
+		hint: (filename: string) =>
+			`Rename \`${filename}\` to \`${filename.replace(/\.(js|ts)/, (m) => `.json` + m)}\``,
 	},
 
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.

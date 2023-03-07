@@ -49,8 +49,9 @@ export async function getParamsAndProps(
 						Object.values(params).some((v) => v === undefined)
 					) {
 						throw new AstroError({
-							...AstroErrorData.InvalidExtension,
-							message: AstroErrorData.InvalidExtension.message(),
+							...AstroErrorData.PrerenderDynamicEndpointPathCollide,
+							message: AstroErrorData.PrerenderDynamicEndpointPathCollide.message(route.route),
+							hint: AstroErrorData.PrerenderDynamicEndpointPathCollide.hint(route.component),
 							location: {
 								file: route.component,
 							},
