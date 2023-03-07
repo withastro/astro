@@ -67,7 +67,7 @@ importers:
     specifiers:
       '@astrojs/mdx': workspace:*
       '@astrojs/node': workspace:*
-      '@astrojs/timer': workspace:*
+      '@benchmark/timer': workspace:*
       astro: workspace:*
       autocannon: ^7.10.0
       execa: ^6.1.0
@@ -78,7 +78,7 @@ importers:
     dependencies:
       '@astrojs/mdx': link:../packages/integrations/mdx
       '@astrojs/node': link:../packages/integrations/node
-      '@astrojs/timer': link:../packages/integrations/timer
+      '@benchmark/timer': link:packages/timer
       astro: link:../packages/astro
       autocannon: 7.10.0
       execa: 6.1.0
@@ -86,6 +86,21 @@ importers:
       mri: 1.2.0
       port-authority: 2.0.1
       pretty-bytes: 6.1.0
+
+  benchmark/packages/timer:
+    specifiers:
+      '@astrojs/webapi': workspace:*
+      '@types/server-destroy': ^1.0.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+      server-destroy: ^1.0.1
+    dependencies:
+      '@astrojs/webapi': link:../../../packages/webapi
+      server-destroy: 1.0.1
+    devDependencies:
+      '@types/server-destroy': 1.0.1
+      astro: link:../../../packages/astro
+      astro-scripts: link:../../../scripts
 
   examples/basics:
     specifiers:
@@ -3378,21 +3393,6 @@ importers:
       astro-scripts: link:../../../scripts
       tailwindcss: 3.2.6_postcss@8.4.21
       vite: 4.1.2
-
-  packages/integrations/timer:
-    specifiers:
-      '@astrojs/webapi': workspace:*
-      '@types/server-destroy': ^1.0.1
-      astro: workspace:*
-      astro-scripts: workspace:*
-      server-destroy: ^1.0.1
-    dependencies:
-      '@astrojs/webapi': link:../../webapi
-      server-destroy: 1.0.1
-    devDependencies:
-      '@types/server-destroy': 1.0.1
-      astro: link:../../astro
-      astro-scripts: link:../../../scripts
 
   packages/integrations/turbolinks:
     specifiers:
