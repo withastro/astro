@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Use Markdoc within Astro",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
