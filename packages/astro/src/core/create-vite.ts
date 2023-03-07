@@ -5,6 +5,7 @@ import nodeFs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
@@ -115,6 +116,7 @@ export async function createVite(
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
 			astroContentAssetPropagationPlugin({ mode }),
+			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

@@ -3,6 +3,13 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]] & Render;
 
+	export const image: () => import('astro/zod').ZodObject<{
+		src: import('astro/zod').ZodString;
+		width: import('astro/zod').ZodNumber;
+		height: import('astro/zod').ZodNumber;
+		format: import('astro/zod').ZodString;
+	}>;
+
 	type BaseSchemaWithoutEffects =
 		| import('astro/zod').AnyZodObject
 		| import('astro/zod').ZodUnion<import('astro/zod').AnyZodObject[]>

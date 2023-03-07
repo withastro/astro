@@ -6,7 +6,6 @@ import type { StaticBuildOptions } from '../types';
 
 import glob from 'fast-glob';
 import { fileURLToPath } from 'url';
-import { getContentPaths } from '../../../content/index.js';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
@@ -206,10 +205,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
-		markdown: {
-			...settings.config.markdown,
-			contentDir: getContentPaths(settings.config).contentDir,
-		},
+		markdown: settings.config.markdown,
 		pageMap: null as any,
 		propagation: Array.from(internals.propagation),
 		renderers: [],

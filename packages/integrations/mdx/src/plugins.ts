@@ -10,19 +10,16 @@ import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { bold, yellow } from 'kleur/colors';
-import type { Image } from 'mdast';
-import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
-import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { isRelativePath, jsToTreeNode } from './utils.js';
+import { jsToTreeNode } from './utils.js';
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -96,34 +93,6 @@ export function rehypeApplyFrontmatterExport() {
 	};
 }
 
-/**
- * `src/content/` does not support relative image paths.
- * This plugin throws an error if any are found
- */
-function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
-	const contentDir = new URL('content/', srcDir);
-	return function remarkContentRelImageError() {
-		return (tree: any, vfile: VFile) => {
-			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
-			if (!isContentFile) return;
-
-			const relImagePaths = new Set<string>();
-			visit(tree, 'image', function raiseError(node: Image) {
-				if (isRelativePath(node.url)) {
-					relImagePaths.add(node.url);
-				}
-			});
-			if (relImagePaths.size === 0) return;
-
-			const errorMessage =
-				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files):\n` +
-				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
-
-			throw new Error(errorMessage);
-		};
-	};
-}
-
 export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
@@ -146,9 +115,6 @@ export async function getRemarkPlugins(
 	if (mdxOptions.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
 	}
-
-	// Apply last in case user plugins resolve relative image paths
-	remarkPlugins.push(toRemarkContentRelImageError(config));
 
 	return remarkPlugins;
 }

@@ -3,6 +3,7 @@ import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
 	createGetEntryBySlug,
+	createImage,
 } from 'astro/content/internal';
 
 export { z } from 'astro/zod';
@@ -12,6 +13,7 @@ export function defineCollection(config) {
 }
 
 const contentDir = '@@CONTENT_DIR@@';
+const assetsDir = '@@ASSETS_DIR@@';
 
 const entryGlob = import.meta.glob('@@ENTRY_GLOB_PATH@@', {
 	query: { astroContent: true },
@@ -37,4 +39,8 @@ export const getCollection = createGetCollection({
 export const getEntryBySlug = createGetEntryBySlug({
 	getCollection,
 	collectionToRenderEntryMap,
+});
+
+export const image = createImage({
+	assetsDir,
 });

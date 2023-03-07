@@ -448,6 +448,7 @@ importers:
       '@types/rimraf': ^3.0.2
       '@types/send': ^0.17.1
       '@types/server-destroy': ^1.0.1
+      '@types/sharp': ^0.31.1
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.1
@@ -471,6 +472,7 @@ importers:
       github-slugger: ^2.0.0
       gray-matter: ^4.0.3
       html-escaper: ^3.0.3
+      image-size: ^1.0.2
       kleur: ^4.1.4
       magic-string: ^0.27.0
       memfs: ^3.4.7
@@ -490,6 +492,7 @@ importers:
       sass: ^1.52.2
       semver: ^7.3.8
       server-destroy: ^1.0.1
+      sharp: ^0.31.3
       shiki: ^0.11.1
       slash: ^4.0.0
       srcset-parse: ^1.1.0
@@ -537,6 +540,7 @@ importers:
       github-slugger: 2.0.0
       gray-matter: 4.0.3
       html-escaper: 3.0.3
+      image-size: 1.0.2
       kleur: 4.1.5
       magic-string: 0.27.0
       mime: 3.0.0
@@ -581,6 +585,7 @@ importers:
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
       '@types/server-destroy': 1.0.1
+      '@types/sharp': 0.31.1
       '@types/unist': 2.0.6
       astro-scripts: link:../../scripts
       chai: 4.3.7
@@ -595,6 +600,7 @@ importers:
       remark-code-titles: 0.1.2
       rollup: 3.14.0
       sass: 1.58.0
+      sharp: 0.31.3
       srcset-parse: 1.1.0
       undici: 5.20.0
       unified: 10.1.2
@@ -1751,6 +1757,24 @@ importers:
       astro: workspace:*
     dependencies:
       '@astrojs/mdx': link:../../../../integrations/mdx
+      astro: link:../../..
+
+  packages/astro/test/fixtures/core-image:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/core-image-ssg:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/core-image-ssr:
+    specifiers:
+      astro: workspace:*
+    dependencies:
       astro: link:../../..
 
   packages/astro/test/fixtures/css-assets:
@@ -3626,6 +3650,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       github-slugger: ^1.4.0
+      image-size: ^1.0.2
       import-meta-resolve: ^2.1.0
       mdast-util-mdx-expression: ^1.3.1
       mocha: ^9.2.2
@@ -3642,6 +3667,7 @@ importers:
     dependencies:
       '@astrojs/prism': link:../../astro-prism
       github-slugger: 1.5.0
+      image-size: 1.0.2
       import-meta-resolve: 2.2.1
       rehype-raw: 6.1.1
       rehype-stringify: 9.0.3
@@ -3746,6 +3772,7 @@ importers:
       adm-zip: ^0.5.9
       arg: ^5.0.2
       esbuild: ^0.15.18
+      esbuild-plugin-copy: ^2.0.2
       globby: ^12.2.0
       kleur: ^4.1.4
       svelte: ^3.48.0
@@ -3761,6 +3788,7 @@ importers:
       svelte: 3.55.1
       tar: 6.1.13
     devDependencies:
+      esbuild-plugin-copy: 2.0.2_esbuild@0.15.18
       tsconfig-resolver: 3.0.1
 
 packages:
@@ -7326,6 +7354,7 @@ packages:
 
   /@types/node/14.18.36:
     resolution: {integrity: sha512-FXKWbsJ6a1hIrRxv+FoukuHnGTgEzKYGi7kilfMae96AL9UNkPFNWJEEYWzdRI9ooIkbr4AKldyuSTLql06vLQ==}
+    dev: true
 
   /@types/node/16.18.12:
     resolution: {integrity: sha512-vzLe5NaNMjIE3mcddFVGlAXN1LEWueUsMsOJWaT6wWMJGyljHAWHznqfnKUQWGzu7TLPrGvWdNAsvQYW+C0xtw==}
@@ -7394,7 +7423,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 14.18.36
+      '@types/node': 18.13.0
 
   /@types/resolve/1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -7409,7 +7438,7 @@ packages:
   /@types/sax/1.2.4:
     resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 18.13.0
     dev: false
 
   /@types/scheduler/0.16.2:
@@ -7444,6 +7473,12 @@ packages:
 
   /@types/sharp/0.30.5:
     resolution: {integrity: sha512-EhO29617AIBqxoVtpd1qdBanWpspk/kD2B6qTFRJ31Q23Rdf+DNU1xlHSwtqvwq1vgOqBwq1i38SX+HGCymIQg==}
+    dependencies:
+      '@types/node': 18.13.0
+    dev: true
+
+  /@types/sharp/0.31.1:
+    resolution: {integrity: sha512-5nWwamN9ZFHXaYEincMSuza8nNfOof8nmO+mcI+Agx1uMUk4/pQnNIcix+9rLPXzKrm1pS34+6WRDbDV0Jn7ag==}
     dependencies:
       '@types/node': 18.13.0
     dev: true
@@ -9566,6 +9601,17 @@ packages:
     requiresBuild: true
     optional: true
 
+  /esbuild-plugin-copy/2.0.2_esbuild@0.15.18:
+    resolution: {integrity: sha512-HlDgkHXagBCwaoB8tlQFeH08/i5a2ey6Pc26annV1YcG5CkAHzzRzmCwp3wdi5KHI//HVUgipS+Zsy2tQmn9gQ==}
+    peerDependencies:
+      esbuild: '>= 0.14.0'
+    dependencies:
+      chalk: 4.1.2
+      esbuild: 0.15.18
+      fs-extra: 10.1.0
+      globby: 11.1.0
+    dev: true
+
   /esbuild-sunos-64/0.15.18:
     resolution: {integrity: sha512-On22LLFlBeLNj/YF3FT+cXcyKPEI263nflYlAhz5crxtp3yRG1Ugfr7ITyxmCmjm4vbN/dGrb/B7w7U8yJR9yw==}
     engines: {node: '>=12'}
@@ -10173,6 +10219,15 @@ packages:
 
   /fs-constants/1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
+
+  /fs-extra/10.1.0:
+    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: true
 
   /fs-extra/7.0.1:
     resolution: {integrity: sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==}
@@ -11294,7 +11349,6 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.10
-    dev: false
 
   /jsonpointer/5.0.1:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
@@ -15240,7 +15294,6 @@ packages:
   /universalify/2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
     engines: {node: '>= 10.0.0'}
-    dev: false
 
   /unocss/0.15.6:
     resolution: {integrity: sha512-Cq2CQCA2ISHnNgv2ben1nQP8/3w8O1D5geoK6ZZY8F5wvIvw/mZ9+qcgVx2ZuX5lLZMRP8MG9jL2WW0ocVgjNg==}
