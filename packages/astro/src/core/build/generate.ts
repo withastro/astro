@@ -9,11 +9,15 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
+	ImageTransform,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import { getContentPaths } from '../../content/index.js';
+import {
+	generateImage as generateImageInternal,
+	getStaticImageList,
+} from '../../assets/internal.js';
 import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -101,6 +105,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	}
 
+	if (opts.settings.config.experimental.assets) {
+		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
+		for (const imageData of getStaticImageList()) {
+			await generateImage(opts, imageData[0], imageData[1]);
+		}
+		delete globalThis.astroAsset.addStaticImage;
+	}
+
 	await runHookBuildGenerated({
 		config: opts.settings.config,
 		buildConfig: opts.buildConfig,
@@ -108,6 +120,26 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	});
 
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
+}
+
+async function generateImage(opts: StaticBuildOptions, transform: ImageTransform, path: string) {
+	let timeStart = performance.now();
+	const generationData = await generateImageInternal(opts, transform, path);
+
+	if (!generationData) {
+		return;
+	}
+
+	const timeEnd = performance.now();
+	const timeChange = getTimeStat(timeStart, timeEnd);
+	const timeIncrease = `(+${timeChange})`;
+	info(
+		opts.logging,
+		null,
+		`  ${green('▶')} ${path} ${dim(
+			`(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`
+		)} ${dim(timeIncrease)}`
+	);
 }
 
 async function generatePage(
@@ -347,10 +379,7 @@ async function generatePath(
 	const env = createEnvironment({
 		adapterName: undefined,
 		logging,
-		markdown: {
-			...settings.config.markdown,
-			contentDir: getContentPaths(settings.config).contentDir,
-		},
+		markdown: settings.config.markdown,
 		mode: opts.mode,
 		renderers,
 		async resolve(specifier: string) {

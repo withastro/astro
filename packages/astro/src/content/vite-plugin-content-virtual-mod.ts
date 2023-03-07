@@ -24,6 +24,9 @@ export function astroContentVirtualModPlugin({
 	);
 	const contentEntryExts = getContentEntryExts(settings);
 
+	const assetsDir = settings.config.experimental.assets
+		? contentPaths.assetsDir.toString()
+		: 'undefined';
 	const extGlob =
 		contentEntryExts.length === 1
 			? // Wrapping {...} breaks when there is only one extension
@@ -33,6 +36,7 @@ export function astroContentVirtualModPlugin({
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
+		.replace('@@ASSETS_DIR@@', assetsDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
 

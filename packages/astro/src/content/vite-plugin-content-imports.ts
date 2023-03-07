@@ -3,6 +3,7 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
+import { normalizePath } from 'vite';
 import { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
@@ -11,6 +12,7 @@ import { CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
 	getContentEntryExts,
+	extractFrontmatterAssets,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
@@ -112,11 +114,18 @@ export function astroContentImportPlugin({
 					  )
 					: info.data;
 
+				const images = extractFrontmatterAssets(data).map(
+					(image) => `'${image}': await import('${normalizePath(image)}'),`
+				);
+
 				const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(generatedInfo.id)};
 export const collection = ${JSON.stringify(generatedInfo.collection)};
 export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(info.body)};
+const frontmatterImages = {
+	${images.join('\n')}
+}
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
 	filePath: ${JSON.stringify(_internal.filePath)},
