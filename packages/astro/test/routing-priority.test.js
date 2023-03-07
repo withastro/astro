@@ -112,6 +112,11 @@ const routes = [
 		htmlMatch: JSON.stringify({ path: 'a' }),
 	},
 	{
+		description: 'matches /api/expamle to api/example/[...slug].ts',
+		url: '/api/example/',
+		fourOhFour: true,
+	},
+	{
 		description: 'matches /api/catch/b/c.json to api/catch/[...slug].json.ts',
 		url: '/api/catch/b/c.json',
 		htmlMatch: JSON.stringify({ path: 'b/c' }),
