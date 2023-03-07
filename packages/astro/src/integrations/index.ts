@@ -16,6 +16,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
 import { info, LogOptions } from '../core/logger/core.js';
+import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -127,6 +128,15 @@ export async function runHookConfigSetup({
 				hookResult: integration.hooks['astro:config:setup'](hooks),
 				logging,
 			});
+
+			// Add MDX content entry type to support older `@astrojs/mdx` versions
+			// TODO: remove in next Astro minor release
+			if (
+				integration.name === '@astrojs/mdx' &&
+				!updatedSettings.contentEntryTypes.find((c) => c.extensions.includes('.mdx'))
+			) {
+				addContentEntryType(mdxContentEntryType);
+			}
 		}
 	}
 
