@@ -1279,14 +1279,6 @@ importers:
     dependencies:
       astro: link:../../..
 
-  packages/astro/test/fixtures/astro-conflict-behavior:
-    specifiers:
-      '@astrojs/node': workspace:*
-      astro: workspace:*
-    dependencies:
-      '@astrojs/node': link:../../../../integrations/node
-      astro: link:../../..
-
   packages/astro/test/fixtures/astro-cookies:
     specifiers:
       astro: workspace:*

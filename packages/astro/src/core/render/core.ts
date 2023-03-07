@@ -1,5 +1,5 @@
 import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
-import type { LogOptions } from '../logger/core.js';
+import { LogOptions, warn } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 
@@ -35,20 +35,12 @@ export async function getParamsAndProps(
 			const paramsMatch = route.pattern.exec(pathname);
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
-				const [[key, val]] = Object.entries(params);
-
 				// fix bug: https://github.com/withastro/astro/pull/6353
 				// [...slug].astro (with undefined) and index.astro has conflict behavior
 				// The [...slug].astro under the folder 'index' has set 'undefine' in getStaticPaths that 
 				// it will replace the index.html outside when the build and format is file.
-				if ((route.type === 'endpoint' || route.route.startsWith('/index')) && typeof val === 'undefined') {
-					throw new AstroError({
-						...AstroErrorData.InvalidGetEndpointsPathParam,
-						message: AstroErrorData.InvalidGetEndpointsPathParam.message(key, typeof val),
-						location: {
-							file: route.component,
-						},
-					});
+				if ((route.type === 'endpoint'||route.component.endsWith('astro')) && !mod.getStaticPaths) {
+					warn(logging, 'getStaticPaths', 'Under dynamic routing, please pay attention to the use of \'undefine\'')
 				}
 			}
 		}
