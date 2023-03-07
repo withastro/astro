@@ -131,7 +131,7 @@ export default defineConfig({
 });
 ```
 
-Then, you can wire this render name (`'Aside'`) to a component from the `components` prop via the `<Content />` component:
+Then, you can wire this render name (`'Aside'`) to a component from the `components` prop via the `<Content />` component. Note the object key name (`Aside` in this case) should match the render name:
 
 
 ```astro
@@ -144,9 +144,7 @@ const { Content } = await entry.render();
 ---
 
 <Content
-  components={{
-    Aside: Aside,
-  }}
+  components={{ Aside }}
 />
 ```
 
@@ -193,10 +191,14 @@ const { Content } = await entry.render();
 ---
 
 <Content
-  components={{
-    Heading: Heading,
-  }}
+  components={{ Heading }}
 />
+```
+
+Now, all Markdown headings will render with the `Heading.astro` component. This example uses a level 3 heading, automatically passing `level: 3` as the component prop:
+
+```md
+### I'm a level 3 heading!
 ```
 
 📚 [Find all of Markdoc's built-in nodes and node attributes on their documentation.](https://markdoc.dev/docs/nodes#built-in-nodes)
@@ -230,7 +232,7 @@ const { Content } = await entry.render();
 
 <Content
   components={{
-    aside: ClientAside,
+    Aside: ClientAside,
   }}
 />
 ```
