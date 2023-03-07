@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+
+export async function getStaticPaths() {
+	const blogEntries = await getCollection('blog');
+  return blogEntries.map(entry => ({
+    params: { slug: entry.slug }, props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const myImage = await getImage(entry.data.image);
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<h1>Testing</h1>
+
+		<img src={myImage.src} {...myImage.attributes} />
+
+		<Content />
+	</body>
+</html>

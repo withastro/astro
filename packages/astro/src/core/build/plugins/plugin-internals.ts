@@ -15,7 +15,6 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 				external.push('shiki');
 			}
 
-			// @ts-ignore
 			extra.ssr = {
 				external,
 				noExternal,

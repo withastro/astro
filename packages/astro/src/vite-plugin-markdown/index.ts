@@ -5,11 +5,14 @@ import {
 } from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';
+import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { PluginContext } from 'rollup';
+import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { getContentPaths } from '../content/index.js';
+import { imageMetadata } from '../assets/index.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -56,6 +59,26 @@ const astroJsxRuntimeModulePath = normalizePath(
 );
 
 export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
+	const markdownAssetMap = new Map<string, string>();
+
+	async function resolveImage(this: PluginContext, fileId: string, path: string) {
+		const resolved = await this.resolve(path, fileId);
+		if (!resolved) return path;
+		const rel = npath.relative(normalizePath(fileURLToPath(settings.config.root)), resolved.id);
+		const buffer = await fs.promises.readFile(resolved.id);
+		// This conditional has to be here, to prevent race conditions on setting the map
+		if (markdownAssetMap.has(resolved.id)) {
+			return `ASTRO_ASSET_MD_${markdownAssetMap.get(resolved.id)!}`;
+		}
+		const file = this.emitFile({
+			type: 'asset',
+			name: rel,
+			source: buffer,
+		});
+		markdownAssetMap.set(resolved.id, file);
+		return `ASTRO_ASSET_MD_${file}`;
+	}
+
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -68,15 +91,35 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
+
+				let imageService = undefined;
+				if (settings.config.experimental.assets) {
+					imageService = (await import(settings.config.image.service)).default;
+				}
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
-					contentDir: getContentPaths(settings.config).contentDir,
 					frontmatter: raw.data,
+					experimentalAssets: settings.config.experimental.assets,
+					imageService,
+					assetsDir: new URL('./assets/', settings.config.srcDir),
+					resolveImage: this.meta.watchMode ? undefined : resolveImage.bind(this, fileId),
 				});
 
-				const html = renderResult.code;
+				this;
+
+				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
+				let imagePaths: string[] = [];
+				if (settings.config.experimental.assets) {
+					let paths = (renderResult.vfile.data.imagePaths as string[]) ?? [];
+					imagePaths = await Promise.all(
+						paths.map(async (imagePath) => {
+							return (await this.resolve(imagePath))?.id ?? imagePath;
+						})
+					);
+				}
+
 				const astroData = safelyGetAstroData(renderResult.vfile.data);
 				if (astroData instanceof InvalidAstroDataError) {
 					throw new AstroError(AstroErrorData.InvalidFrontmatterInjectionError);
@@ -96,6 +139,15 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
+				${
+					settings.config.experimental.assets
+						? 'import { getConfiguredImageService } from "astro:assets";\ngetConfiguredImageService();'
+						: ''
+				}
+
+				const images = {
+					${imagePaths.map((entry) => `'${entry}': await import('${entry}')`)}
+				}
 
 				const html = ${JSON.stringify(html)};
 
@@ -151,6 +203,30 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 						},
 					},
 				};
+			}
+		},
+		async generateBundle(_opts, bundle) {
+			for (const [, output] of Object.entries(bundle)) {
+				if (output.type === 'asset') continue;
+
+				if (markdownAssetMap.size) {
+					const optimizedPaths = new Map<string, string>();
+
+					for (const [filename, hash] of markdownAssetMap) {
+						const image = await imageMetadata(pathToFileURL(filename));
+						if (!image) {
+							continue;
+						}
+						const fileName = this.getFileName(hash);
+						image.src = npath.join(settings.config.base, fileName);
+						const optimized = globalThis.astroAsset.addStaticImage!({ src: image });
+						optimizedPaths.set(hash, optimized);
+					}
+					output.code = output.code.replace(/ASTRO_ASSET_MD_([0-9a-z]{8})/, (_str, hash) => {
+						const optimizedName = optimizedPaths.get(hash);
+						return optimizedName || this.getFileName(hash);
+					});
+				}
 			}
 		},
 	};

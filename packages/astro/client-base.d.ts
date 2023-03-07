@@ -1,5 +1,28 @@
 /// <reference path="./import-meta.d.ts" />
 
+declare module 'astro:assets' {
+	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
+	type AstroAssets = {
+		getImage: typeof import('./dist/assets/index.js').getImage;
+		Image: typeof import('./components/Image.astro').default;
+	};
+
+	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+	type Simplify<T> = { [KeyType in keyof T]: T[KeyType] };
+	type ImgAttributes = WithRequired<
+		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
+		'alt'
+	>;
+
+	export type LocalImageProps = Simplify<
+		import('./dist/assets/types.js').LocalImageProps<ImgAttributes>
+	>;
+	export type RemoteImageProps = Simplify<
+		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
+	>;
+	export const { getImage, Image }: AstroAssets;
+}
+
 type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];

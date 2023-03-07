@@ -1,3 +1,5 @@
+import { z } from 'zod';
+import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 
@@ -187,4 +189,30 @@ async function render({
 		headings: mod.getHeadings(),
 		remarkPluginFrontmatter: mod.frontmatter,
 	};
+}
+
+export function createImage(options: { assetsDir: string }) {
+	return () => {
+		if (options.assetsDir === 'undefined') {
+			throw new Error('Enable `experimental.assets` in your Astro config to use image()');
+		}
+
+		return z.string().transform(async (imagePath) => {
+			const fullPath = new URL(imagePath, options.assetsDir);
+			return await getImageMetadata(fullPath);
+		});
+	};
+}
+
+async function getImageMetadata(
+	imagePath: URL
+): Promise<(Metadata & { __astro_asset: true }) | undefined> {
+	const meta = await imageMetadata(imagePath);
+
+	if (!meta) {
+		return undefined;
+	}
+
+	delete meta.orientation;
+	return { ...meta, __astro_asset: true };
 }

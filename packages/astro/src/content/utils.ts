@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { ImageMetadata } from '../assets/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
 
@@ -48,6 +49,23 @@ export const msg = {
 	collectionConfigMissing: (collection: string) =>
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
+
+export function extractFrontmatterAssets(data: Record<string, any>): string[] {
+	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
+		return Object.values(potentialAssets).reduce((acc, curr) => {
+			if (typeof curr === 'object') {
+				if (curr.__astro === true) {
+					acc.push(curr);
+				} else {
+					acc.push(...findAssets(curr));
+				}
+			}
+			return acc;
+		}, []);
+	}
+
+	return findAssets(data).map((asset) => asset.src);
+}
 
 export function getEntrySlug({
 	id,
@@ -313,6 +331,7 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 
 export type ContentPaths = {
 	contentDir: URL;
+	assetsDir: URL;
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
@@ -331,6 +350,7 @@ export function getContentPaths(
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
+		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
 		config: configStats,

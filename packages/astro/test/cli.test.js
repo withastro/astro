@@ -1,8 +1,11 @@
 import { expect } from 'chai';
-import { cli, parseCliDevStart, cliServerLogSetup } from './test-utils.js';
-import { promises as fs } from 'fs';
-import { fileURLToPath } from 'url';
-import { isIPv4 } from 'net';
+import { cli, parseCliDevStart, cliServerLogSetup, loadFixture } from './test-utils.js';
+import stripAnsi from 'strip-ansi';
+import { promises as fs, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { isIPv4 } from 'node:net';
+import { join } from 'node:path';
+import { Writable } from 'node:stream';
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
@@ -14,6 +17,50 @@ describe('astro cli', () => {
 		const proc = await cli();
 		expect(proc.exitCode).to.equal(0);
 	});
+
+	// Flaky test, in CI it exceeds the timeout most of the times
+	it.skip('astro check --watch reports errors on modified files', async () => {
+		let messageResolve;
+		const messagePromise = new Promise((resolve) => {
+			messageResolve = resolve;
+		});
+		const oneErrorContent = 'foobar';
+
+		/** @type {import('./test-utils').Fixture} */
+		const fixture = await loadFixture({
+			root: './fixtures/astro-check-watch/',
+		});
+		const logs = [];
+
+		const checkServer = await fixture.check({
+			flags: { watch: true },
+			logging: {
+				level: 'info',
+				dest: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push({ ...event, message: stripAnsi(event.message) });
+						if (event.message.includes('1 error')) {
+							messageResolve(logs);
+						}
+						callback();
+					},
+				}),
+			},
+		});
+		await checkServer.watch();
+		const pagePath = join(fileURLToPath(fixture.config.root), 'src/pages/index.astro');
+		const pageContent = readFileSync(pagePath, 'utf-8');
+		await fs.writeFile(pagePath, oneErrorContent);
+		const messages = await messagePromise;
+		await fs.writeFile(pagePath, pageContent);
+		await checkServer.stop();
+		const diagnostics = messages.filter(
+			(m) => m.type === 'diagnostics' && m.message.includes('Result')
+		);
+		expect(diagnostics[0].message).to.include('0 errors');
+		expect(diagnostics[1].message).to.include('1 error');
+	}).timeout(35000);
 
 	it('astro --version', async () => {
 		const pkgURL = new URL('../package.json', import.meta.url);
@@ -144,7 +191,9 @@ describe('astro cli i18n', () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			let error = null;
 			try {
-				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), { env: { LANG: locale } });
+				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), {
+					env: { LANG: locale },
+				});
 				await parseCliDevStart(proc);
 			} catch (e) {
 				console.log(e);
