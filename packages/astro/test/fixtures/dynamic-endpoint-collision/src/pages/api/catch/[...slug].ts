@@ -2,8 +2,6 @@ import type { APIRoute } from "astro";
 
 const slugs = ["one", undefined];
 
-export const prerender = true;
-
 export const get: APIRoute = ({ params }) => {
   return {
     body: JSON.stringify({

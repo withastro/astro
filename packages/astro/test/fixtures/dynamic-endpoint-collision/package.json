@@ -1,5 +1,5 @@
 {
-  "name": "@test/invail-extension",
+  "name": "@test/dynamic-endpoint-collision",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
