@@ -9,9 +9,9 @@ const baseQuality = { low: 25, mid: 50, high: 80, max: 100 };
 const qualityTable: Record<Exclude<OutputFormat, 'png'>, Record<ImageQualityPreset, number>> = {
 	avif: {
 		// Squoosh's AVIF encoder has a bit of a weird behavior where `62` is technically the maximum, and anything over is overkill
-		max: 100,
-		high: 62,
-		mid: 45,
+		max: 62,
+		high: 45,
+		mid: 35,
 		low: 20,
 	},
 	jpeg: baseQuality,
