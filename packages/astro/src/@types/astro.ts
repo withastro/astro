@@ -940,7 +940,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 2.1.0
 		 * @description
-		 * Enable experimental support for enhanced images support and ability to optimize and resize images directly in Astro. With this enabled, a new `astro:assets` module will be exposed
+		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
 		 *
 		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
 		 *
