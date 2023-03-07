@@ -16,14 +16,12 @@ const extByFixture = {
 	mdoc: '.mdoc',
 };
 
-const NUM_POSTS = 1000;
-
-async function benchmark({ fixtures, templates }) {
+async function benchmark({ fixtures, templates, numPosts }) {
 	for (const fixture of fixtures) {
 		const root = new URL(`./fixtures/${fixture}/`, import.meta.url);
 		await generatePosts({
 			postsDir: fileURLToPath(new URL('./src/content/generated/', root)),
-			numPosts: NUM_POSTS,
+			numPosts,
 			ext: extByFixture[fixture],
 			template: templates[fixture],
 		});
@@ -55,10 +53,12 @@ async function benchmark({ fixtures, templates }) {
 			? [flags.format]
 			: ['md', 'mdx', 'mdoc'];
 
+		const numPosts = flags.numPosts || 1000;
+
 		if (test.includes('simple')) {
 			const fixtures = formats;
 			console.log(
-				`\n${bold('Simple')} ${dim(`${NUM_POSTS} posts (${formatsToString(fixtures)})`)}`
+				`\n${bold('Simple')} ${dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`
 			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'simple';
 			await benchmark({
@@ -68,6 +68,7 @@ async function benchmark({ fixtures, templates }) {
 					mdx: 'simple.md',
 					mdoc: 'simple.md',
 				},
+				numPosts,
 			});
 		}
 
@@ -75,7 +76,7 @@ async function benchmark({ fixtures, templates }) {
 			const fixtures = formats.filter((format) => format !== 'md');
 			console.log(
 				`\n${bold('With Astro components')} ${dim(
-					`${NUM_POSTS} posts (${formatsToString(fixtures)})`
+					`${numPosts} posts (${formatsToString(fixtures)})`
 				)}`
 			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'with-astro-components';
@@ -85,6 +86,7 @@ async function benchmark({ fixtures, templates }) {
 					mdx: 'with-astro-components.mdx',
 					mdoc: 'with-astro-components.mdoc',
 				},
+				numPosts,
 			});
 		}
 
@@ -92,7 +94,7 @@ async function benchmark({ fixtures, templates }) {
 			const fixtures = formats.filter((format) => format !== 'md');
 			console.log(
 				`\n${bold('With React components')} ${dim(
-					`${NUM_POSTS} posts (${formatsToString(fixtures)})`
+					`${numPosts} posts (${formatsToString(fixtures)})`
 				)}`
 			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'with-react-components';
@@ -102,6 +104,7 @@ async function benchmark({ fixtures, templates }) {
 					mdx: 'with-react-components.mdx',
 					mdoc: 'with-react-components.mdoc',
 				},
+				numPosts,
 			});
 		}
 	} finally {
