@@ -1,3 +1,3 @@
-# vite-plugin-assets
+# assets
 
-This Vite plugin powers the assets story of Astro, allowing users to import helpers from `astro:assets` to generate optimized assets
+This directory powers the Assets story in Astro. Notably, it contains all the code related to optimizing images and serving them in the different modes Astro can run in (SSG, SSR, dev, build etc).

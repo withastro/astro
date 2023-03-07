@@ -55,6 +55,20 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	width?: number | `${number}`;
+	/**
+	 * Height of the image, the value of this property will be used to assign the `height` property on the final `img` element.
+	 *
+	 * For local images, if `width` is not present, this value will additionally be used to resize the image to the desired height, taking into account the original aspect ratio of the image.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} height={300} alt="..." />
+	 * ```
+	 * **Result**:
+	 * ```html
+	 * <img src="..." height="300" width="..." alt="..." />
+	 * ```
+	 */
 	height?: number | `${number}`;
 };
 
