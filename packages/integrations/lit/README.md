@@ -143,7 +143,7 @@ The correct order might be different depending on the underlying cause of the pr
 
 ### Strict package managers
 
-When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like `pnpm`, you may get an error like `ReferenceError: module is not defined` when running your site. To fix this, you can hoist Lit dependencies with an `.npmrc` file:
+When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like `pnpm`, you may get an error such as `ReferenceError: module is not defined` when running your site. To fix this, hoist Lit dependencies with an `.npmrc` file:
 
 ```ini title=".npmrc"
 public-hoist-pattern[]=*lit* 

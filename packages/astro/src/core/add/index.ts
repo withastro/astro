@@ -61,7 +61,7 @@ export default {
 };
 `;
 const LIT_NPMRC_STUB = `\
-# Lit libraries are required to be hoisted for now due to dependency issues
+# Lit libraries are required to be hoisted due to dependency issues.
 public-hoist-pattern[]=*lit* 
 `;
 
