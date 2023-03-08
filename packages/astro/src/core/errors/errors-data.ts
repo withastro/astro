@@ -454,7 +454,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
-
 	ImageMissingAlt: {
 		title: 'Missing alt property',
 		code: 3022,
@@ -505,9 +504,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * When prerendering this endpoint, Astro will generate both the `/api` file and `/api/about` file. As `/api`
 	 * is both a file and directory in the filesystem, it will cause a path collision when building.
 	 */
-	 PrerenderDynamicEndpointPathCollide: {
+	PrerenderDynamicEndpointPathCollide: {
 		title: 'Prerendered dynamic endpoint has path collision.',
-		code: 3025,
+		code: 3026,
 		message: (pathname: string) =>
 			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. ` +
 			`Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, ` +
@@ -515,6 +514,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: (filename: string) =>
 			`Rename \`${filename}\` to \`${filename.replace(/\.(js|ts)/, (m) => `.json` + m)}\``,
 	},
+
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
