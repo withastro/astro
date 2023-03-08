@@ -706,6 +706,27 @@ export interface AstroUserConfig {
 	 * @name Image options
 	 */
 	image?: {
+		/**
+		 * @docs
+		 * @name image.service (Experimental)
+		 * @type {'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string}
+		 * @default `'astro/assets/services/squoosh'`
+		 * @version 2.1.0
+		 * @description
+		 * Set which image service is used for Astro’s experimental assets support.
+		 *
+		 * The value should be a module specifier for the image service to use:
+		 * either one of Astro’s two built-in services, or a third-party implementation.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Enable the Sharp image processor
+		 *     service: 'astro/assets/services/sharp',
+		 *   },
+		 * }
+		 * ```
+		 */
 		// eslint-disable-next-line @typescript-eslint/ban-types
 		service: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
 	};
