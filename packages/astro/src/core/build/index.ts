@@ -6,6 +6,7 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
+import yargs from 'yargs-parser';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -14,22 +15,45 @@ import {
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
 import { debug, info, levels, timerMessage } from '../logger/core.js';
+import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
-import { staticBuild } from './static-build.js';
+import { staticBuild, viteBuild } from './static-build.js';
+import { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
+	/**
+	 * Teardown the compiler WASM instance after build. This can improve performance when
+	 * building once, but may cause a performance hit if building multiple times in a row.
+	 */
+	teardownCompiler?: boolean;
+	flags?: yargs.Arguments;
 }
 
 /** `astro build` */
 export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
 	applyPolyfill();
+	if (options.flags?.help || options.flags?.h) {
+		printHelp({
+			commandName: 'astro build',
+			usage: '[...flags]',
+			tables: {
+				Flags: [
+					['--drafts', `Include Markdown draft pages in the build.`],
+					['--help (-h)', 'See all available flags.'],
+				],
+			},
+			description: `Builds your site for deployment.`,
+		});
+		return;
+	}
+
 	const builder = new AstroBuilder(settings, options);
 	await builder.run();
 }
@@ -42,6 +66,7 @@ class AstroBuilder {
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
+	private teardownCompiler: boolean;
 
 	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
@@ -49,6 +74,7 @@ class AstroBuilder {
 		}
 		this.settings = settings;
 		this.logging = options.logging;
+		this.teardownCompiler = options.teardownCompiler ?? false;
 		this.routeCache = new RouteCache(this.logging);
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
@@ -126,7 +152,7 @@ class AstroBuilder {
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		await staticBuild({
+		const opts: StaticBuildOptions = {
 			allPages,
 			settings: this.settings,
 			logging: this.logging,
@@ -135,9 +161,13 @@ class AstroBuilder {
 			origin: this.origin,
 			pageNames,
 			routeCache: this.routeCache,
+			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 			buildConfig,
-		});
+		};
+
+		const { internals } = await viteBuild(opts);
+		await staticBuild(opts, internals);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

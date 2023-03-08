@@ -1,5 +1,5 @@
 {
-  "name": "Astro Examples",
+  "name": "Kitchen Sink (Multiple Frameworks)",
   "build": {
     "dockerfile": "../examples.Dockerfile"
   },

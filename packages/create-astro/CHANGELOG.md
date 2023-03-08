@@ -1,5 +1,17 @@
 # create-astro
 
+## 3.1.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
+## 3.0.5
+
+### Patch Changes
+
+- [#6375](https://github.com/withastro/astro/pull/6375) [`754c5ca9a`](https://github.com/withastro/astro/commit/754c5ca9aa93d4e8674059ce79f6b694c147db83) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Respect original `package.json` indentation
+
 ## 3.0.4
 
 ### Patch Changes

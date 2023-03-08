@@ -3,9 +3,10 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 
 import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
+import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { createDefaultDevConfig } from './config.js';
-import { loadTSConfig } from './tsconfig.js';
 import { AstroTimer } from './timer.js';
+import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -14,8 +15,12 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		tsConfigPath: undefined,
 
 		adapter: undefined,
-		injectedRoutes: [],
+		injectedRoutes:
+			config.experimental.assets && config.output === 'server'
+				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
+				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
+		contentEntryTypes: [markdownContentEntryType],
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: [],

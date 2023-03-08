@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/webapi",
   "description": "Use Web APIs in Node",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "type": "module",
   "exports": {
     ".": {
@@ -63,7 +63,6 @@
     "@ungap/structured-clone": "^0.3.4",
     "chai": "^4.3.6",
     "event-target-shim": "^6.0.2",
-    "formdata-polyfill": "^4.0.10",
     "magic-string": "^0.27.0",
     "mocha": "^9.2.2",
     "rollup": "^2.79.1",

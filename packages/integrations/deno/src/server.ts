@@ -2,7 +2,7 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
-// @ts-ignore
+// @ts-expect-error
 import { fromFileUrl, serveFile, Server } from '@astrojs/deno/__deno_imports.js';
 
 interface Options {
@@ -15,7 +15,7 @@ let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
 
 async function* getPrerenderedFiles(clientRoot: URL): AsyncGenerator<URL> {
-	// @ts-ignore
+	// @ts-expect-error
 	for await (const ent of Deno.readDir(clientRoot)) {
 		if (ent.isDirectory) {
 			yield* getPrerenderedFiles(new URL(`./${ent.name}/`, clientRoot));

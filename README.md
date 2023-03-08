@@ -1,4 +1,4 @@
-![The Astro logo.](assets/social/banner-minimal.png 'The Astro logo.')
+![Build the web you want](.github/assets/banner.png 'Build the web you want')
 
 <p align="center">
   <br/>
