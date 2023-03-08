@@ -464,7 +464,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Error while loading image service',
 		code: 3023,
 		message:
-			'There was an error loading the configured image service. Please see the stack trace for more information',
+			'There was an error loading the configured image service. Please see the stack trace for more information.',
 	},
 	MissingImageDimension: {
 		title: 'Missing image dimensions',
@@ -473,6 +473,15 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`For remote images, ${
 				missingDimension === 'both' ? 'width and height are' : `${missingDimension} is`
 			} required.`,
+	},
+	UnsupportedImageFormat: {
+		title: 'Unsupported image format',
+		code: 3025,
+		message: (format: string, imagePath: string, supportedFormats: readonly string[]) =>
+			`Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
+				', '
+			)} are supported for optimization.`,
+		hint: "If you do not need optimization, using an `img` tag directly instead of the `Image` component might be what you're looking for.",
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
