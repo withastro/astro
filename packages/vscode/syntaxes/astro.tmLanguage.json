@@ -311,22 +311,18 @@
                 {
                   "match": "(([^\\s\\\"'=<>`/]|/(?!>))+)",
                   "name": "string.unquoted.astro",
-                  "captures": [
-                    {
-                      "0": {
-                        "name": "source.js"
-                      }
+                  "captures": {
+                    "0": {
+                      "name": "source.js"
                     },
-                    {
-                      "1": {
-                        "patterns": [
-                          {
-                            "include": "source.js"
-                          }
-                        ]
-                      }
+                    "1": {
+                      "patterns": [
+                        {
+                          "include": "source.js"
+                        }
+                      ]
                     }
-                  ]
+                  }
                 },
                 {
                   "begin": "(['\"])",

@@ -263,8 +263,8 @@ repository:
               - match: (([^\s\"'=<>`/]|/(?!>))+)
                 name: string.unquoted.astro
                 captures:
-                  - 0: { name: source.js }
-                  - 1: { patterns: [{ include: source.js }] }
+                  0: { name: source.js }
+                  1: { patterns: [{ include: source.js }] }
               - begin: (['"])
                 end: \1
                 beginCaptures: { 0: { name: punctuation.definition.string.begin.astro } }
