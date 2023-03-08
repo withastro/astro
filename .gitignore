@@ -8,7 +8,6 @@ _site/
 package-lock.json
 .turbo/
 .vscode-test/
-packages/vscode/syntaxes/astro.tmLanguage.json
 
 # .vscode files other than at top-level
 **/.vscode
