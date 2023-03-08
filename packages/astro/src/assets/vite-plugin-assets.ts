@@ -78,7 +78,7 @@ export default function assets({
 							return next();
 						}
 
-						const filePathURL = new URL(filePath, 'file:');
+						const filePathURL = new URL('.' + filePath, settings.config.root);
 						const file = await fs.readFile(filePathURL.pathname);
 
 						// Get the file's metadata from the URL
