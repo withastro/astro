@@ -3,7 +3,11 @@ import http from 'http';
 import { fileURLToPath } from 'url';
 import { createServer } from './http-server.js';
 import type { createExports } from './server';
+import { polyfill } from '@astrojs/webapi';
 
+polyfill(globalThis, {
+	exclude: 'window document',
+});
 const preview: CreatePreviewServer = async function ({
 	client,
 	serverEntrypoint,
