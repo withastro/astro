@@ -78,8 +78,8 @@ export default function assets({
 							return next();
 						}
 
-						const filePathURL = new URL(filePath, 'file:');
-						const file = await fs.readFile(filePathURL.pathname);
+						const filePathURL = new URL('.' + filePath, settings.config.root);
+						const file = await fs.readFile(filePathURL);
 
 						// Get the file's metadata from the URL
 						let meta = getOrigQueryParams(filePathURL.searchParams);
@@ -109,7 +109,7 @@ export default function assets({
 							format = result.format;
 						}
 
-						res.setHeader('Content-Type', mime.getType(fileURLToPath(url)) || `image/${format}`);
+						res.setHeader('Content-Type', mime.getType(fileURLToPath(filePathURL)) || `image/${format}`);
 						res.setHeader('Cache-Control', 'max-age=360000');
 
 						const stream = Readable.from(data);
