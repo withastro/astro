@@ -512,7 +512,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @description
-	 * The built-in image services only support optimizing a limited amount of formats at the current time.
+	 * The built-in image services do not currently support optimizing all image formats.
 	 *
 	 * For unsupported formats such as SVGs and gifs, you may be able to use an `img` tag directly:
 	 * ```astro
