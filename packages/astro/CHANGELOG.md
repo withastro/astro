@@ -1,5 +1,11 @@
 # astro
 
+## 2.1.2
+
+### Patch Changes
+
+- [#6466](https://github.com/withastro/astro/pull/6466) [`ec0455352`](https://github.com/withastro/astro/commit/ec0455352568ab3ea3c5ec1625f582aa54d15bb7) Thanks [@matthewp](https://github.com/matthewp)! - In dev, load assets relative to the root
+
 ## 2.1.1
 
 ### Patch Changes
