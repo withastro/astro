@@ -73,8 +73,8 @@ export function get(context) {
     customData: '<language>en-us</language>',
     // (optional) add arbitrary metadata to opening <rss> tag
     xmlns: { h: 'http://www.w3.org/TR/html4/' },
-    // (optional) add or not the trailing slash
-    trailingSlash: "never"
+    // (optional) add trailing slashes to URLs (default: true)
+    trailingSlash: false
   });
 }
 ```
@@ -240,8 +240,7 @@ export async function get(context) {
 Type: `boolean (optional)`
 Default: "always"
 
-By default, the library will add trailing slashes to the emitted URLs. To change this behaviour,
-you use this option, by passing the value `false`.
+By default, the library will add trailing slashes to the emitted URLs. To prevent this behavior, add `trailingSlash: false` to the `rss` function.
 
 ```js
 import rss from '@astrojs/rss';

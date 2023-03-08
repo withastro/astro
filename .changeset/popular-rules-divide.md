@@ -4,7 +4,6 @@
 
 Added `trailingSlash` option, to control whether the emitted URLs should have the trailing slash.
 
-The new option is optional.
 
 ```js
 import rss from '@astrojs/rss';
