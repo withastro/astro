@@ -43,11 +43,7 @@ export async function getParamsAndProps(
 					const lastSegment = route.segments[route.segments.length - 1];
 					// Check last segment is solely `[slug]` or `[...slug]` case (dynamic). Make sure it's not
 					// `foo[slug].js` by checking segment length === 1. Also check here if the params are undefined.
-					if (
-						lastSegment.length === 1 &&
-						lastSegment[0].dynamic &&
-						Object.values(params).some((v) => v === undefined)
-					) {
+					if (lastSegment.length === 1 && Object.values(params).some((v) => v === undefined)) {
 						throw new AstroError({
 							...AstroErrorData.PrerenderDynamicEndpointPathCollide,
 							message: AstroErrorData.PrerenderDynamicEndpointPathCollide.message(route.route),

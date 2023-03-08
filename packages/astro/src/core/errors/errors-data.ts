@@ -454,6 +454,27 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
+
+	ImageMissingAlt: {
+		title: 'Missing alt property',
+		code: 3022,
+		message: 'The alt property is required.',
+		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	},
+	InvalidImageService: {
+		title: 'Error while loading image service',
+		code: 3023,
+		message:
+			'There was an error loading the configured image service. Please see the stack trace for more information',
+	},
+	MissingImageDimension: {
+		title: 'Missing image dimensions',
+		code: 3024,
+		message: (missingDimension: 'width' | 'height' | 'both') =>
+			`For remote images, ${
+				missingDimension === 'both' ? 'width and height are' : `${missingDimension} is`
+			} required.`,
+	},
 	/**
 	 * @docs
 	 * @see
@@ -475,36 +496,15 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * When prerendering this endpoint, Astro will generate both the `/api` file and `/api/about` file. As `/api`
 	 * is both a file and directory in the filesystem, it will cause a path collision when building.
 	 */
-	PrerenderDynamicEndpointPathCollide: {
+	 PrerenderDynamicEndpointPathCollide: {
 		title: 'Prerendered dynamic endpoint has path collision.',
-		code: 3022,
+		code: 3025,
 		message: (pathname: string) =>
 			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. ` +
 			`Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, ` +
 			`or add an additional extension to the endpoint's filename.`,
 		hint: (filename: string) =>
 			`Rename \`${filename}\` to \`${filename.replace(/\.(js|ts)/, (m) => `.json` + m)}\``,
-	},
-
-	ImageMissingAlt: {
-		title: 'Missing alt property',
-		code: 3022,
-		message: 'The alt property is required.',
-		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
-	},
-	InvalidImageService: {
-		title: 'Error while loading image service',
-		code: 3023,
-		message:
-			'There was an error loading the configured image service. Please see the stack trace for more information',
-	},
-	MissingImageDimension: {
-		title: 'Missing image dimensions',
-		code: 3024,
-		message: (missingDimension: 'width' | 'height' | 'both') =>
-			`For remote images, ${
-				missingDimension === 'both' ? 'width and height are' : `${missingDimension} is`
-			} required.`,
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
