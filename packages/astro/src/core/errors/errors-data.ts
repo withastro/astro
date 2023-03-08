@@ -476,7 +476,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Image Service API](https://docs.astro.build/en/reference/image-service-reference/)
 	 * @description
-	 * There was an error while loading the configured image service. This can be caused by various factors, such as your image service not properly exporting a compatible object in its default export or the path being wrong.
+	 * There was an error while loading the configured image service. This can be caused by various factors, such as your image service not properly exporting a compatible object in its default export, or an incorrect path.
 	 *
 	 * If you believe that your service is properly configured and this error is wrong, please [open an issue](https://astro.build/issues/).
 	 */
