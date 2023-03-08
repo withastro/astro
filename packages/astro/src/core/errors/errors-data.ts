@@ -461,7 +461,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * - [Image component](https://docs.astro.build/en/guides/assets/#image--astroassets)
 	 * - [Image component#alt](https://docs.astro.build/en/guides/assets/#alt-required)
 	 * @description
-	 * The `alt` property allow users of screen readers and other assistive technologies to understand what your image is supposed to represent. In order to ensure your websites are accessible, the Image component requires that an `alt` be specified.
+	 * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
 	 *
 	 * If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set `alt=""` so that screen readers know to ignore the image.
 	 */
