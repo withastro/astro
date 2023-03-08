@@ -212,6 +212,24 @@ describe('astro:image', () => {
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
 			});
 		});
+
+		describe('regular img tag', () => {
+			/** @type {ReturnType<import('cheerio')['load']>} */
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/regular-img');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('does not have a file url', async () => {
+				expect($('img').attr('src').startsWith('file://')).to.equal(false);
+			});
+
+			it('includes /src in the path', async () => {
+				expect($('img').attr('src').startsWith('/src')).to.equal(true);
+			});
+		});
 	});
 
 	describe('build ssg', () => {
