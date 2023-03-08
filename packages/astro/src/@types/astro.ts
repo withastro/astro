@@ -721,7 +721,7 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   image: {
-		 *     // Example: Enable the Sharp image processor
+		 *     // Example: Enable the Sharp-based image service
 		 *     service: 'astro/assets/services/sharp',
 		 *   },
 		 * }
