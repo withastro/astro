@@ -947,6 +947,7 @@ export interface AstroUserConfig {
 	legacy?: object;
 
 	/**
+	 * @docs
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
