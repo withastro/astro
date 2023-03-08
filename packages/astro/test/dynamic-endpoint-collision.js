@@ -45,7 +45,7 @@ describe('Dynamic endpoint collision', () => {
 		});
 
 		it("don't throw error when dynamic endpoint doesn't load the colliding path", async () => {
-			const res = await fixture.fetch('/api/catch/one').then((res) => res.text());
+			const res = await fixture.fetch('/api/catch/one').then((r) => r.text());
 			expect(res).to.equal('{"slug":"one"}');
 		});
 	});
