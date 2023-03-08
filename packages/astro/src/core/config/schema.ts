@@ -34,6 +34,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
+	experimental: {
+		assets: false,
+	},
 };
 
 export const AstroConfigSchema = z.object({
@@ -115,6 +118,17 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
+	image: z
+		.object({
+			service: z.union([
+				z.literal('astro/assets/services/sharp'),
+				z.literal('astro/assets/services/squoosh'),
+				z.string().and(z.object({})),
+			]),
+		})
+		.default({
+			service: 'astro/assets/services/squoosh',
+		}),
 	markdown: z
 		.object({
 			drafts: z.boolean().default(false),
@@ -160,7 +174,12 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	experimental: z.object({}).optional().default({}),
+	experimental: z
+		.object({
+			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
+		})
+		.optional()
+		.default({}),
 	legacy: z.object({}).optional().default({}),
 });
 
@@ -256,7 +275,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			config.base = sitePathname;
 			/* eslint-disable no-console */
 			console.warn(`The site configuration value includes a pathname of ${sitePathname} but there is no base configuration.
-			
+
 A future version of Astro will stop using the site pathname when producing <link> and <script> tags. Set your site's base with the base configuration.`);
 		}
 

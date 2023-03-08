@@ -6,8 +6,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { ImageMetadata } from '../assets/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -29,14 +30,7 @@ export const contentConfigParser = z.object({
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
-type Entry = {
-	id: string;
-	collection: string;
-	slug: string;
-	data: any;
-	body: string;
-	_internal: { rawData: string; filePath: string };
-};
+type EntryInternal = { rawData: string; filePath: string };
 
 export type EntryInfo = {
 	id: string;
@@ -49,14 +43,31 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
+export function extractFrontmatterAssets(data: Record<string, any>): string[] {
+	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
+		return Object.values(potentialAssets).reduce((acc, curr) => {
+			if (typeof curr === 'object') {
+				if (curr.__astro === true) {
+					acc.push(curr);
+				} else {
+					acc.push(...findAssets(curr));
+				}
+			}
+			return acc;
+		}, []);
+	}
+
+	return findAssets(data).map((asset) => asset.src);
+}
+
 export function getEntrySlug({
 	id,
 	collection,
 	slug,
-	data: unparsedData,
-}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>) {
+	unvalidatedSlug,
+}: EntryInfo & { unvalidatedSlug?: unknown }) {
 	try {
-		return z.string().default(slug).parse(unparsedData.slug);
+		return z.string().default(slug).parse(unvalidatedSlug);
 	} catch {
 		throw new AstroError({
 			...AstroErrorData.InvalidContentEntrySlugError,
@@ -65,9 +76,12 @@ export function getEntrySlug({
 	}
 }
 
-export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
+export async function getEntryData(
+	entry: EntryInfo & { unvalidatedData: Record<string, unknown>; _internal: EntryInternal },
+	collectionConfig: CollectionConfig
+) {
 	// Remove reserved `slug` field before parsing data
-	let { slug, ...data } = entry.data;
+	let { slug, ...data } = entry.unvalidatedData;
 	if (collectionConfig.schema) {
 		// TODO: remove for 2.0 stable release
 		if (
@@ -94,7 +108,9 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 			});
 		}
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await collectionConfig.schema.safeParseAsync(entry.data, { errorMap });
+		const parsed = await collectionConfig.schema.safeParseAsync(entry.unvalidatedData, {
+			errorMap,
+		});
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
@@ -118,6 +134,10 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 		}
 	}
 	return data;
+}
+
+export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+	return settings.contentEntryTypes.map((t) => t.extensions).flat();
 }
 
 export class NoCollectionError extends Error {}
@@ -160,14 +180,15 @@ export function getEntryInfo({
 
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config' | 'contentDir'>
+	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
+	contentFileExts: string[]
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
 	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) || isOnIgnoreList(base)) {
 		return 'ignored';
-	} else if ((contentFileExts as readonly string[]).includes(ext)) {
+	} else if (contentFileExts.includes(ext)) {
 		return 'content';
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
@@ -313,6 +334,7 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 
 export type ContentPaths = {
 	contentDir: URL;
+	assetsDir: URL;
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
@@ -331,6 +353,7 @@ export function getContentPaths(
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
+		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
 		config: configStats,

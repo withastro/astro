@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/partytown",
   "description": "Astro + Partytown integration",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

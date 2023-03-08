@@ -1,5 +1,6 @@
 import { deleteAsync } from 'del';
 import esbuild from 'esbuild';
+import { copy } from 'esbuild-plugin-copy';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
@@ -50,6 +51,7 @@ export default async function build(...args) {
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
+	const copyWASM = args.includes('--copy-wasm');
 
 	const {
 		type = 'module',
@@ -102,7 +104,20 @@ export default async function build(...args) {
 		entryPoints,
 		outdir,
 		format,
-		plugins: [svelte({ isDev })],
+		plugins: [
+			svelte({ isDev }),
+			...(copyWASM
+				? [
+						copy({
+							resolveFrom: 'cwd',
+							assets: {
+								from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
+								to: ['./dist/assets/services/vendor/squoosh'],
+							},
+						}),
+				  ]
+				: []),
+		],
 	});
 
 	process.on('beforeExit', () => {

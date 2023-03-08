@@ -1,9 +1,9 @@
-// @ts-ignore
+// @ts-expect-error
 import { fromFileUrl, readableStreamFromReader } from './deps.ts';
 const dir = new URL('./', import.meta.url);
 
 export async function runBuild(fixturePath: string) {
-	// @ts-ignore
+	// @ts-expect-error
 	let proc = Deno.run({
 		cmd: ['node', '../../../../../../astro/astro.js', 'build', '--silent'],
 		cwd: fromFileUrl(new URL(fixturePath, dir)),

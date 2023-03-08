@@ -18,6 +18,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
+import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
@@ -28,6 +29,8 @@ export type {
 	RemarkPlugins,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
+export type { ExternalImageService, LocalImageService } from '../assets/services/service';
+export type { ImageTransform } from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -85,6 +88,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	experimentalAssets?: boolean;
 }
 
 export interface BuildConfig {
@@ -699,6 +703,16 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Image options
+	 */
+	image?: {
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		service: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Markdown Options
 	 */
 	markdown?: {
@@ -918,7 +932,27 @@ export interface AstroUserConfig {
 	 * Astro offers experimental flags to give users early access to new features.
 	 * These flags are not guaranteed to be stable.
 	 */
-	experimental?: object;
+	experimental?: {
+		/**
+		 * @docs
+		 * @name experimental.assets
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.1.0
+		 * @description
+		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
+		 *
+		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		assets: true,
+		 * 	},
+		 * }
+		 */
+		assets?: boolean;
+	};
 
 	// Legacy options to be removed
 
@@ -978,12 +1012,33 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
+export interface ContentEntryType {
+	extensions: string[];
+	getEntryInfo(params: {
+		fileUrl: URL;
+		contents: string;
+	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	contentModuleTypes?: string;
+}
+
+type GetEntryInfoReturnType = {
+	data: Record<string, unknown>;
+	/**
+	 * Used for error hints to point to correct line and location
+	 * Should be the untouched data as read from the file,
+	 * including newlines
+	 */
+	rawData: string;
+	body: string;
+	slug: string;
+};
+
 export interface AstroSettings {
 	config: AstroConfig;
-
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
 	pageExtensions: string[];
+	contentEntryTypes: ContentEntryType[];
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;
@@ -1430,6 +1485,11 @@ export interface AstroIntegration {
 			routes: RouteData[];
 		}) => void | Promise<void>;
 	};
+}
+
+export interface AstroPluginOptions {
+	settings: AstroSettings;
+	logging: LogOptions;
 }
 
 export type RouteType = 'page' | 'endpoint';

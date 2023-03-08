@@ -6,7 +6,6 @@ import type { StaticBuildOptions } from '../types';
 
 import glob from 'fast-glob';
 import { fileURLToPath } from 'url';
-import { getContentPaths } from '../../../content/index.js';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
@@ -39,10 +38,12 @@ export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter):
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
+import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
 	renderers: _main.renderers
 });
+_privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 export * from '${pagesVirtualModuleId}';
 ${
@@ -206,10 +207,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
-		markdown: {
-			...settings.config.markdown,
-			contentDir: getContentPaths(settings.config).contentDir,
-		},
+		markdown: settings.config.markdown,
 		pageMap: null as any,
 		propagation: Array.from(internals.propagation),
 		renderers: [],
