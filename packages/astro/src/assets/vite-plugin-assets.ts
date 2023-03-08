@@ -197,7 +197,7 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id) {
-				if (/\.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id)) {
+				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id)) {
 					const url = pathToFileURL(id);
 					const meta = await imageMetadata(url);
 
