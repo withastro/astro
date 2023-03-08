@@ -135,7 +135,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			if (missingDimension) {
 				throw new AstroError({
 					...AstroErrorData.MissingImageDimension,
-					message: AstroErrorData.MissingImageDimension.message(missingDimension),
+					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
 				});
 			}
 		}
