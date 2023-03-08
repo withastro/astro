@@ -1,5 +1,17 @@
 # astro
 
+## 2.1.1
+
+### Patch Changes
+
+- [#6454](https://github.com/withastro/astro/pull/6454) [`05fc7ae54`](https://github.com/withastro/astro/commit/05fc7ae54c19442730971ea22d38f5dbc88050e5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add support for ESM importing SVGs when using `astro:assets`
+
+- [#6455](https://github.com/withastro/astro/pull/6455) [`cf0198316`](https://github.com/withastro/astro/commit/cf0198316db91a5df6750401ea3cbd7ce5330836) Thanks [@delucis](https://github.com/delucis)! - Document `image.service` configuration option
+
+- [#6459](https://github.com/withastro/astro/pull/6459) [`964d55246`](https://github.com/withastro/astro/commit/964d55246b73410b1e09b5716914f709a97cb387) Thanks [@bluwy](https://github.com/bluwy)! - Prevent HTML-escape of raw strings in `<script>` and `<style>` tags of Astro JSX
+
+- [#6465](https://github.com/withastro/astro/pull/6465) [`65c07ce1b`](https://github.com/withastro/astro/commit/65c07ce1b6ab8db50d3866bc36c2e387a9281c6c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes ESM imported assets to be root relative
+
 ## 2.1.0
 
 ### Minor Changes
