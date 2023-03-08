@@ -72,7 +72,7 @@ describe('astro:image', () => {
 				expect($img.attr('alt')).to.equal('a penguin');
 			});
 
-			it('middleware loads the file', async() => {
+			it('middleware loads the file', async () => {
 				let $img = $('#local img');
 				let src = $img.attr('src');
 				let res = await fixture.fetch(src);

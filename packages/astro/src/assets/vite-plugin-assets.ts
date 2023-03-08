@@ -109,7 +109,10 @@ export default function assets({
 							format = result.format;
 						}
 
-						res.setHeader('Content-Type', mime.getType(fileURLToPath(filePathURL)) || `image/${format}`);
+						res.setHeader(
+							'Content-Type',
+							mime.getType(fileURLToPath(filePathURL)) || `image/${format}`
+						);
 						res.setHeader('Cache-Control', 'max-age=360000');
 
 						const stream = Readable.from(data);
