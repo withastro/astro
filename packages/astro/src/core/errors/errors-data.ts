@@ -478,7 +478,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @description
 	 * There was an error while loading the configured image service. This can be caused by various factors, such as your image service not properly exporting a compatible object in its default export or the path being wrong.
 	 *
-	 * If you believe that your service is properly configured and this error is wrong, please [open an issue](https://astro.build/issues/)
+	 * If you believe that your service is properly configured and this error is wrong, please [open an issue](https://astro.build/issues/).
 	 */
 	InvalidImageService: {
 		title: 'Error while loading image service',
