@@ -125,7 +125,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				expect(logs).to.have.a.lengthOf(1);
-				expect(logs[0].message).to.contain('For remote images, width and height are required.');
+				expect(logs[0].message).to.contain('Missing width and height attributes');
 			});
 
 			it('error if no height', async () => {
@@ -134,7 +134,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				expect(logs).to.have.a.lengthOf(1);
-				expect(logs[0].message).to.contain('For remote images, height is required.');
+				expect(logs[0].message).to.contain('Missing height attribute');
 			});
 
 			it('supports aliases', async () => {
