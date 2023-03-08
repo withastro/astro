@@ -514,7 +514,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @description
 	 * The built-in image services do not currently support optimizing all image formats.
 	 *
-	 * For unsupported formats such as SVGs and gifs, you may be able to use an `img` tag directly:
+	 * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
 	 * ```astro
 	 * ---
 	 * import rocket from '../assets/images/rocket.svg'
