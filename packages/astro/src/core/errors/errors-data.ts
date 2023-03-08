@@ -489,7 +489,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @message
-	 * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are always required in order to avoid CLS.
+	 * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are always required in order to avoid cumulative layout shift (CLS).
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * - [Image component#width-and-height](https://docs.astro.build/en/guides/assets/#width-and-height)
