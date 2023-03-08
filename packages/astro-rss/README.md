@@ -187,6 +187,21 @@ The `content` key contains the full content of the post as HTML. This allows you
 
 [See our RSS documentation](https://docs.astro.build/en/guides/rss/#including-full-post-content) for examples using content collections and glob imports.
 
+### `trailingSlash`
+
+Type: `boolean (optional)`
+Default: `true`
+
+By default, the library will add trailing slashes to the emitted URLs. To prevent this behavior, add `trailingSlash: false` to the `rss` function.
+
+```js
+import rss from '@astrojs/rss';
+
+export const get = () => rss({
+  trailingSlash: false
+});
+```
+
 ## `rssSchema`
 
 When using content collections, you can configure your collection schema to enforce expected [`RSSFeedItem`](#items) properties. Import and apply `rssSchema` to ensure that each collection entry produces a valid RSS feed item:
@@ -233,21 +248,6 @@ export async function get(context) {
     ),
   });
 }
-```
-
-### `trailingSlash`
-
-Type: `boolean (optional)`
-Default: "always"
-
-By default, the library will add trailing slashes to the emitted URLs. To prevent this behavior, add `trailingSlash: false` to the `rss` function.
-
-```js
-import rss from '@astrojs/rss';
-
-export const get = () => rss({
-  trailingSlash: false
-});
 ```
 
 ---
