@@ -1,5 +1,6 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath } from '../../core/path.js';
+import { VALID_INPUT_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import { ImageTransform, OutputFormat } from '../types.js';
 
@@ -142,6 +143,20 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// Both our currently available local services don't handle remote images, so for them we can just return as is
 		if (!isESMImportedImage(options.src) && isRemotePath(options.src)) {
 			return options.src;
+		}
+
+		if (
+			isESMImportedImage(options.src) &&
+			!VALID_INPUT_FORMATS.includes(options.src.format as any)
+		) {
+			throw new AstroError({
+				...AstroErrorData.UnsupportedImageFormat,
+				message: AstroErrorData.UnsupportedImageFormat.message(
+					options.src.format,
+					options.src.src,
+					VALID_INPUT_FORMATS
+				),
+			});
 		}
 
 		const searchParams = new URLSearchParams();

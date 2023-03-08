@@ -71,6 +71,16 @@ describe('astro:image', () => {
 				let $img = $('#local img');
 				expect($img.attr('alt')).to.equal('a penguin');
 			});
+
+			it('errors on unsupported formats', async () => {
+				logs.length = 0;
+				let res = await fixture.fetch('/unsupported-format');
+				await res.text();
+
+				expect(logs).to.have.a.lengthOf(1);
+				console.log(logs[0].message);
+				expect(logs[0].message).to.contain('Received unsupported format');
+			});
 		});
 
 		describe('remote', () => {
