@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/prism",
   "version": "2.1.0",
-  "description": "Supports Prism highlighting in Astro projects",
+  "description": "Add Prism syntax highlighting support to your Astro site",
   "author": "withastro",
   "type": "module",
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdoc",
-  "description": "Use Markdoc within Astro",
+  "description": "Add support for Markdoc pages in your Astro site",
   "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",

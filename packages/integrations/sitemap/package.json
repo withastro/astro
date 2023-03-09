@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/sitemap",
-  "description": "Generate a sitemap for Astro",
+  "description": "Generate a sitemap for your Astro site",
   "version": "1.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
