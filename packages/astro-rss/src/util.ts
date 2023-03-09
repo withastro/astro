@@ -1,10 +1,22 @@
 import { z } from 'astro/zod';
+import { RSSOptions } from './index';
 
 /** Normalize URL to its canonical form */
-export function createCanonicalURL(url: string, base?: string): URL {
+export function createCanonicalURL(
+	url: string,
+	trailingSlash?: RSSOptions['trailingSlash'],
+	base?: string
+): URL {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
 	pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
-	if (!getUrlExtension(url)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there’s no extension
+	if (trailingSlash === false) {
+		// remove the trailing slash
+		pathname = pathname.replace(/(\/+)?$/, '');
+	} else if (!getUrlExtension(url)) {
+		// add trailing slash if there’s no extension or `trailingSlash` is true
+		pathname = pathname.replace(/(\/+)?$/, '/');
+	}
+
 	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
 	return new URL(pathname, base);
 }

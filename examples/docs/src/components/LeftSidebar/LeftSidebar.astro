@@ -20,7 +20,7 @@ const sidebar = SIDEBAR[langCode];
 			Object.entries(sidebar).map(([header, children]) => (
 				<li>
 					<div class="nav-group">
-						<h2>{header}</h2>
+						<h2 class="nav-group-title">{header}</h2>
 						<ul>
 							{children.map((child) => {
 								const url = Astro.site?.pathname + child.link;
