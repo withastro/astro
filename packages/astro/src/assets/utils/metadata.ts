@@ -1,7 +1,7 @@
+import sizeOf from 'image-size';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { ImageMetadata, InputFormat } from '../types.js';
-import sizeOf from 'image-size';
 
 export interface Metadata extends ImageMetadata {
 	orientation?: number;
