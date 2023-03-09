@@ -1,10 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../../@types/astro';
-import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import { AstroBuildPlugin } from '../plugin';
 import { StaticBuildOptions } from '../types';
+import File from '../../file/index.js';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
@@ -66,8 +66,8 @@ export function vitePluginHoistedScripts(
 					const facadeId = output.facadeModuleId!;
 					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
 					for (const pathname of pages) {
-						const vid = viteID(new URL('.' + pathname, settings.config.root));
-						const pageInfo = getPageDataByViteID(internals, vid);
+						const file = new File(pathname, settings.config);
+						const pageInfo = getPageDataByViteID(internals, file.toViteID());
 						if (pageInfo) {
 							if (canBeInlined) {
 								pageInfo.hoistedScript = {

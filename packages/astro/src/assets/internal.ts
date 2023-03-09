@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { AstroSettings } from '../@types/astro.js';
 import { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { rootRelativePath } from '../core/util.js';
+import File from '../core/file/index.js';
 import { ImageService, isLocalService, LocalImageService } from './services/service.js';
 import type { ImageMetadata, ImageTransform } from './types.js';
 import { imageMetadata } from './utils/metadata.js';
@@ -127,7 +127,8 @@ export async function emitESMImage(
 	fileEmitter: any,
 	settings: AstroSettings
 ) {
-	const url = pathToFileURL(id);
+	const file = new File(id, settings.config);
+	const url = file.toFileURL();
 	const meta = await imageMetadata(url);
 
 	if (!meta) {
@@ -152,7 +153,7 @@ export async function emitESMImage(
 		url.searchParams.append('origHeight', meta.height.toString());
 		url.searchParams.append('origFormat', meta.format);
 
-		meta.src = rootRelativePath(settings.config, url);
+		meta.src = file.toRootRelativePath();
 	}
 
 	return meta;

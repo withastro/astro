@@ -1,17 +1,18 @@
-import type { SSRElement } from '../../../@types/astro';
+import type { AstroConfig, SSRElement } from '../../../@types/astro';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
 import type { ModuleInfo, ModuleLoader } from '../../module-loader/index';
 
-import { viteID } from '../../util.js';
+import File from '../../file/index.js';
 import { createModuleScriptElementWithSrc } from '../ssr-element.js';
 import { crawlGraph } from './vite.js';
 
 export async function getScriptsForURL(
 	filePath: URL,
-	loader: ModuleLoader
+	loader: ModuleLoader,
+	config: AstroConfig,
 ): Promise<Set<SSRElement>> {
 	const elements = new Set<SSRElement>();
-	const rootID = viteID(filePath);
+	const rootID = new File(filePath, config).toViteID();
 	const modInfo = loader.getModuleInfo(rootID);
 	addHoistedScripts(elements, modInfo);
 	for await (const moduleNode of crawlGraph(loader, rootID, true)) {

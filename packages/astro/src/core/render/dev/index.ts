@@ -76,7 +76,7 @@ interface GetScriptsAndStylesParams {
 
 async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, env.loader);
+	const scripts = await getScriptsForURL(filePath, env.loader, env.settings.config);
 
 	// Inject HMR scripts
 	if (isPage(filePath, env.settings) && env.mode === 'development') {
@@ -109,7 +109,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, env.loader, env.mode);
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, env.loader, env.mode, env.settings.config);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({

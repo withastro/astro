@@ -8,6 +8,7 @@ import { normalizePath } from 'vite';
 import { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
+import File from '../core/file/index.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { emitESMImage, isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
@@ -76,15 +77,16 @@ export default function assets({
 							return next();
 						}
 
-						const filePathURL = new URL('.' + filePath, settings.config.root);
-						const file = await fs.readFile(filePathURL);
+						const file = new File(filePath, settings.config);
+						const filePathURL = file.toFileURL();
+						const buffer = await fs.readFile(file.toFileURL());
 
 						// Get the file's metadata from the URL
 						let meta = getOrigQueryParams(filePathURL.searchParams);
 
 						// If we don't have them (ex: the image came from Markdown, let's calculate them again)
 						if (!meta) {
-							meta = await imageMetadata(filePathURL, file);
+							meta = await imageMetadata(filePathURL, buffer);
 
 							if (!meta) {
 								return next();
@@ -98,11 +100,11 @@ export default function assets({
 						}
 
 						// if no transforms were added, the original file will be returned as-is
-						let data = file;
+						let data = buffer;
 						let format = meta.format;
 
 						if (transform) {
-							const result = await globalThis.astroAsset.imageService.transform(file, transform);
+							const result = await globalThis.astroAsset.imageService.transform(buffer, transform);
 							data = result.data;
 							format = result.format;
 						}
@@ -201,6 +203,7 @@ export default function assets({
 			async load(id) {
 				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);
+
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},

@@ -80,6 +80,13 @@ class File {
 		return '/@fs' + abs;
 	}
 
+	/**
+	 * Converts to an id that is used as the key in Vite's module graph
+	 */
+	toViteID() {
+		return viteID(this.toFileURL());
+	}
+
 	static getPathType(raw: string, root: URL): PathType {
 		if(raw.startsWith('/@fs')) {
 			return 'vite-fs-path';

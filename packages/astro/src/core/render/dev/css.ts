@@ -1,7 +1,7 @@
 import type { ModuleLoader } from '../../module-loader/index';
+import type { AstroConfig, RuntimeMode } from '../../../@types/astro.js';
 
-import { RuntimeMode } from '../../../@types/astro.js';
-import { viteID } from '../../util.js';
+import File from '../../file/index.js';
 import { isBuildableCSSRequest } from './util.js';
 import { crawlGraph } from './vite.js';
 
@@ -9,12 +9,14 @@ import { crawlGraph } from './vite.js';
 export async function getStylesForURL(
 	filePath: URL,
 	loader: ModuleLoader,
-	mode: RuntimeMode
+	mode: RuntimeMode,
+	config: AstroConfig,
 ): Promise<{ urls: Set<string>; stylesMap: Map<string, string> }> {
 	const importedCssUrls = new Set<string>();
 	const importedStylesMap = new Map<string, string>();
 
-	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
+	const file = new File(filePath, config);
+	for await (const importedModule of crawlGraph(loader, file.toViteID(), true)) {
 		if (isBuildableCSSRequest(importedModule.url)) {
 			let ssrModule: Record<string, any>;
 			try {
