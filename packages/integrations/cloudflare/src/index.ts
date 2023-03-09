@@ -150,7 +150,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						.map((file: string) => `/${file}`);
 
 					for (let page of pages) {
-						staticPathList.push(prependForwardSlash(page.pathname));
+						let pagePath = prependForwardSlash(page.pathname);
+						if (config.base !== '/') {
+							pagePath = `${config.base}${pagePath}`;
+						}
+						staticPathList.push(pagePath);
 					}
 
 					const redirectsExists = await fs.promises
