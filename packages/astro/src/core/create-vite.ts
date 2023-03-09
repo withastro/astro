@@ -57,7 +57,6 @@ const ONLY_DEV_EXTERNAL = [
 	'shiki',
 	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
 	'prismjs/components/index.js',
-  'image-size',
 ];
 
 /** Return a common starting point for all Vite actions */
@@ -173,7 +172,7 @@ export async function createVite(
 		},
 		ssr: {
 			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
-			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : ['image-size']), ...astroPkgsConfig.ssr.external],
+			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
 
