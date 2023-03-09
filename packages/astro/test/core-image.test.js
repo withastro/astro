@@ -215,7 +215,7 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(3);
+				expect($img).to.have.a.lengthOf(4);
 			});
 
 			it('has proper source for directly used image', () => {
@@ -236,6 +236,11 @@ describe('astro:image', () => {
 				expect($img.attr('width')).to.equal('207');
 				expect($img.attr('height')).to.equal('243');
 				expect($img.attr('alt')).to.equal('A penguin!');
+			});
+
+			it('properly handles nested images', () => {
+				let $img = $('#nested-image img');
+				expect($img.attr('src').startsWith('/src/')).to.equal(true);
 			});
 		});
 
@@ -330,11 +335,15 @@ describe('astro:image', () => {
 
 			const $ = cheerio.load(html);
 			let $img = $('img');
-			expect($img).to.have.a.lengthOf(1);
+			expect($img).to.have.a.lengthOf(2);
 
-			const src = $img.attr('src');
-			const data = await fixture.readFile(src, null);
-			expect(data).to.be.an.instanceOf(Buffer);
+			const srcdirect = $('#direct-image img').attr('src');
+			const datadirect = await fixture.readFile(srcdirect, null);
+			expect(datadirect).to.be.an.instanceOf(Buffer);
+
+			const srcnested = $('#nested-image img').attr('src');
+			const datanested = await fixture.readFile(srcnested, null);
+			expect(datanested).to.be.an.instanceOf(Buffer);
 		});
 
 		it('quality attribute produces a different file', async () => {

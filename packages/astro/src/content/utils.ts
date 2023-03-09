@@ -3,9 +3,11 @@ import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { EmitFile } from 'rollup';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
+import { emitESMImage } from '../assets/internal.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 
@@ -42,24 +44,29 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function patchFrontmatterAssets(data: Record<string, any>): Record<string, any> {
-	function patchAsset(potentialAssets: Record<string, any>): Record<string, any> {
-		Object.keys(potentialAssets).forEach((entry) => {
-			if (typeof potentialAssets[entry] === 'object' && potentialAssets[entry] !== null) {
-				if (potentialAssets[entry].__astro_asset) {
-					potentialAssets[entry] = `$$ASSET_(await import('${normalizePath(
-						potentialAssets[entry].src
-					)}')).default_ASSET$$`;
-				} else {
-					patchAsset(potentialAssets[entry]);
-				}
+/**
+ * Mutate (arf) the entryData to reroute assets to their final paths
+ */
+export async function patchAssets(
+	frontmatterEntry: Record<string, any>,
+	watchMode: boolean,
+	fileEmitter: EmitFile,
+	astroSettings: AstroSettings
+) {
+	for (const key of Object.keys(frontmatterEntry)) {
+		if (typeof frontmatterEntry[key] === 'object' && frontmatterEntry[key] !== null) {
+			if (frontmatterEntry[key]['__astro_asset']) {
+				frontmatterEntry[key] = await emitESMImage(
+					frontmatterEntry[key].src,
+					watchMode,
+					fileEmitter,
+					astroSettings
+				);
+			} else {
+				await patchAssets(frontmatterEntry[key], watchMode, fileEmitter, astroSettings);
 			}
-		});
-
-		return potentialAssets;
+		}
 	}
-
-	return patchAsset(data);
 }
 
 export function getEntrySlug({

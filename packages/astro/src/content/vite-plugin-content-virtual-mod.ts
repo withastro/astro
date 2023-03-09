@@ -22,13 +22,6 @@ export function astroContentVirtualModPlugin({
 			)
 		)
 	);
-	const relAssetsDir = normalizePath(
-		appendForwardSlash(
-			prependForwardSlash(
-				path.relative(settings.config.root.pathname, contentPaths.assetsDir.pathname)
-			)
-		)
-	);
 	const contentEntryExts = getContentEntryExts(settings);
 
 	const assetsDir = settings.config.experimental.assets
@@ -44,7 +37,6 @@ export function astroContentVirtualModPlugin({
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace('@@ASSETS_DIR@@', assetsDir)
-		.replace('@@REL_ASSETS_DIR', relAssetsDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
 

@@ -17,9 +17,8 @@ import {
 	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
-	patchFrontmatterAssets,
+	patchAssets,
 } from './utils.js';
-
 function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
 	const { searchParams, pathname } = new URL(viteId, 'file://');
 	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
@@ -112,14 +111,14 @@ export function astroContentImportPlugin({
 					  )
 					: info.data;
 
-				data = patchFrontmatterAssets(data);
+				await patchAssets(data, this.meta.watchMode, this.emitFile, settings);
 
 				const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(generatedInfo.id)};
 export const collection = ${JSON.stringify(generatedInfo.collection)};
 export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(info.body)};
-export const data = ${devalue.uneval(data).replaceAll(/("\$\$ASSET_)(.+)(_ASSET\$\$")/gm, '$2')};
+export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
 	filePath: ${JSON.stringify(_internal.filePath)},
 	rawData: ${JSON.stringify(_internal.rawData)},

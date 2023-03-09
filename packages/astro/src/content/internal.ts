@@ -1,4 +1,3 @@
-import path from 'path';
 import { z } from 'zod';
 import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -200,14 +199,13 @@ export function createImage(options: { assetsDir: string; relAssetsDir: string }
 
 		return z.string().transform(async (imagePath) => {
 			const fullPath = new URL(imagePath, options.assetsDir);
-			return await getImageMetadata(fullPath, path.join(options.relAssetsDir, imagePath));
+			return await getImageMetadata(fullPath);
 		});
 	};
 }
 
 async function getImageMetadata(
-	imagePath: URL,
-	rootRelativePath: string
+	imagePath: URL
 ): Promise<(Metadata & { __astro_asset: true }) | undefined> {
 	const meta = await imageMetadata(imagePath);
 
@@ -216,5 +214,5 @@ async function getImageMetadata(
 	}
 
 	delete meta.orientation;
-	return { ...meta, src: rootRelativePath, __astro_asset: true };
+	return { ...meta, __astro_asset: true };
 }
