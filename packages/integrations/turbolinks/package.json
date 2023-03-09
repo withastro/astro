@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/turbolinks",
-  "description": "Turbolinks + Astro Integrations",
+  "description": "Deprecated — Use Turbolinks to speed up page navigation in your Astro site",
   "version": "0.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
