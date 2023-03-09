@@ -141,6 +141,14 @@ export default defineConfig({
 
 The correct order might be different depending on the underlying cause of the problem. This is not guaranteed to fix every issue however, and some libraries cannot be used if you are using the Lit integration because of this.
 
+### Strict package managers
+
+When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like `pnpm`, you may get an error such as `ReferenceError: module is not defined` when running your site. To fix this, hoist Lit dependencies with an `.npmrc` file:
+
+```ini title=".npmrc"
+public-hoist-pattern[]=*lit* 
+```
+
 ### Limitations
 
 The Lit integration is powered by `@lit-labs/ssr` which has some limitations. See their [limitations documentation](https://www.npmjs.com/package/@lit-labs/ssr#user-content-notes-and-limitations) to learn more.
