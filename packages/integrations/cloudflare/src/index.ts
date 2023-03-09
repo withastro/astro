@@ -151,8 +151,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					for (let page of pages) {
 						let pagePath = prependForwardSlash(page.pathname);
-						if (config.base !== '/') {
-							pagePath = `${config.base}${pagePath}`;
+						if (_config.base !== '/') {
+							const base = _config.base.endsWith('/') ? _config.base.substring(0, -1) : _config.base;
+							pagePath = `${base}${pagePath}`;
 						}
 						staticPathList.push(pagePath);
 					}
