@@ -2,6 +2,8 @@ import type { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { splitCookiesString } from 'set-cookie-parser';
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 /*
   Credits to the SvelteKit team
 	https://github.com/sveltejs/kit/blob/8d1ba04825a540324bc003e85f36559a594aadc2/packages/kit/src/exports/node/index.js
@@ -99,13 +101,16 @@ export async function getRequest(
 	req: IncomingMessage,
 	bodySizeLimit?: number
 ): Promise<Request> {
-	return new Request(base + req.url, {
+	let headers = req.headers as Record<string, string>;
+	let request = new Request(base + req.url, {
 		// @ts-expect-error
 		duplex: 'half',
 		method: req.method,
-		headers: req.headers as Record<string, string>,
+		headers,
 		body: get_raw_body(req, bodySizeLimit),
 	});
+	Reflect.set(request, clientAddressSymbol, headers['x-forwarded-for']);
+	return request;
 }
 
 export async function setResponse(
