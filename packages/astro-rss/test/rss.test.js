@@ -107,13 +107,26 @@ describe('rss', () => {
 		const { body } = await rss({
 			title,
 			description,
-			drafts: true,
 			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
 			site,
 			drafts: true,
 		});
 
 		chai.expect(body).xml.to.equal(validXmlResult);
+	});
+
+	it('should not append trailing slash to URLs with the given option', async () => {
+		const { body } = await rss({
+			title,
+			description,
+			items: [phpFeedItem, { ...web1FeedItem, draft: true }],
+			site,
+			drafts: true,
+			trailingSlash: false,
+		});
+
+		chai.expect(body).xml.to.contain('https://example.com/<');
+		chai.expect(body).xml.to.contain('https://example.com/php<');
 	});
 
 	it('Deprecated import.meta.glob mapping still works', async () => {
