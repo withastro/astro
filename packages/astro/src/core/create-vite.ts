@@ -5,6 +5,7 @@ import nodeFs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
@@ -25,6 +26,7 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
+import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -45,6 +47,16 @@ const ALWAYS_NOEXTERNAL = [
 	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
+];
+
+// These specifiers are usually dependencies written in CJS, but loaded through Vite's transform
+// pipeline, which Vite doesn't support in development time. This hardcoded list temporarily
+// fixes things until Vite can properly handle them, or when they support ESM.
+const ONLY_DEV_EXTERNAL = [
+	// Imported by `<Code/>` which is processed by Vite
+	'shiki',
+	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
+	'prismjs/components/index.js',
 ];
 
 /** Return a common starting point for all Vite actions */
@@ -114,7 +126,9 @@ export async function createVite(
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
 			astroContentImportPlugin({ fs, settings }),
-			astroContentAssetPropagationPlugin({ mode }),
+			astroContentAssetPropagationPlugin({ mode, settings }),
+			vitePluginSSRManifest(),
+			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -158,10 +172,7 @@ export async function createVite(
 		},
 		ssr: {
 			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
-			// shiki is imported by Code.astro, which is no-externalized (processed by Vite).
-			// However, shiki's deps are in CJS and trips up Vite's dev SSR transform, externalize
-			// shiki to load it with node instead.
-			external: [...(mode === 'dev' ? ['shiki'] : []), ...astroPkgsConfig.ssr.external],
+			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
 

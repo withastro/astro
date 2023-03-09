@@ -4,3 +4,4 @@ packages:
   - 'smoke/**/*'
   - 'scripts'
   - 'benchmark'
+  - 'benchmark/packages/*'

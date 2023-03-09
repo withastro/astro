@@ -220,9 +220,25 @@ async function renderElement(
 		`<${tag}${spreadAttributes(props)}${markHTMLString(
 			(children == null || children == '') && voidElementNames.test(tag)
 				? `/>`
-				: `>${children == null ? '' : await renderJSX(result, children)}</${tag}>`
+				: `>${
+						children == null ? '' : await renderJSX(result, prerenderElementChildren(tag, children))
+				  }</${tag}>`
 		)}`
 	);
+}
+
+/**
+ * Pre-render the children with the given `tag` information
+ */
+function prerenderElementChildren(tag: string, children: any) {
+	// For content within <style> and <script> tags that are plain strings, e.g. injected
+	// by remark/rehype plugins, or if a user explicitly does `<script>{'...'}</script>`,
+	// we mark it as an HTML string to prevent the content from being HTML-escaped.
+	if (typeof children === 'string' && (tag === 'style' || tag === 'script')) {
+		return markHTMLString(children);
+	} else {
+		return children;
+	}
 }
 
 /**

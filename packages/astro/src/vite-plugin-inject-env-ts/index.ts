@@ -48,10 +48,24 @@ export async function setUpEnvTs({
 	);
 
 	if (fs.existsSync(envTsPath)) {
-		// Add `.astro` types reference if none exists
-		if (!fs.existsSync(dotAstroDir)) return;
-
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
+		if (settings.config.experimental.assets && typesEnvContents.includes('types="astro/client"')) {
+			typesEnvContents = typesEnvContents.replace(
+				'types="astro/client"',
+				'types="astro/client-image"'
+			);
+			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+		} else if (typesEnvContents.includes('types="astro/client-image"')) {
+			typesEnvContents = typesEnvContents.replace(
+				'types="astro/client-image"',
+				'types="astro/client"'
+			);
+			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+		}
+
+		if (!fs.existsSync(dotAstroDir))
+			// Add `.astro` types reference if none exists
+			return;
 		const expectedTypeReference = getDotAstroTypeReference(settings.config);
 
 		if (!typesEnvContents.includes(expectedTypeReference)) {
@@ -62,7 +76,9 @@ export async function setUpEnvTs({
 	} else {
 		// Otherwise, inject the `env.d.ts` file
 		let referenceDefs: string[] = [];
-		if (settings.config.integrations.find((i) => i.name === '@astrojs/image')) {
+		if (settings.config.experimental.assets) {
+			referenceDefs.push('/// <reference types="astro/client-image" />');
+		} else if (settings.config.integrations.find((i) => i.name === '@astrojs/image')) {
 			referenceDefs.push('/// <reference types="@astrojs/image/client" />');
 		} else {
 			referenceDefs.push('/// <reference types="astro/client" />');

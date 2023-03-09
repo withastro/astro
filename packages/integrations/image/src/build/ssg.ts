@@ -138,7 +138,7 @@ export async function ssgBuild({
 		// Vite will prefix a hashed image with the base path, we need to strip this
 		// off to find the actual file relative to /dist
 		if (config.base && src.startsWith(config.base)) {
-			src = src.substring(config.base.length - 1);
+			src = src.substring(config.base.length - +config.base.endsWith('/'));
 		}
 
 		if (isRemoteImage(src)) {

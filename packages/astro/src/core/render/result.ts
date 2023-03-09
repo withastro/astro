@@ -174,7 +174,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			const Astro: AstroGlobal = {
 				// @ts-expect-error
 				__proto__: astroGlobal,
-				// @ts-ignore
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
@@ -221,7 +220,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				writable: false,
 				// TODO: Remove this hole "Deno" logic once our plugin gets Deno support
 				value: async function (content: string, opts: MarkdownRenderingOptions) {
-					// @ts-ignore
+					// @ts-expect-error
 					if (typeof Deno !== 'undefined') {
 						throw new Error('Markdown is not supported in Deno SSR');
 					}

@@ -60,6 +60,10 @@ export default {
 	preprocess: vitePreprocess(),
 };
 `;
+const LIT_NPMRC_STUB = `\
+# Lit libraries are required to be hoisted due to dependency issues.
+public-hoist-pattern[]=*lit* 
+`;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	netlify: '@astrojs/netlify/functions',
@@ -144,6 +148,22 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					possibleConfigFiles: ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'],
 					defaultConfigFile: './svelte.config.js',
 					defaultConfigContent: SVELTE_CONFIG_STUB,
+				});
+			}
+			// Some lit dependencies needs to be hoisted, so for strict package managers like pnpm,
+			// we add an .npmrc to hoist them
+			if (
+				integrations.find((integration) => integration.id === 'lit') &&
+				(await preferredPM(fileURLToPath(root)))?.name === 'pnpm'
+			) {
+				await setupIntegrationConfig({
+					root,
+					logging,
+					flags,
+					integrationName: 'Lit',
+					possibleConfigFiles: ['./.npmrc'],
+					defaultConfigFile: './.npmrc',
+					defaultConfigContent: LIT_NPMRC_STUB,
 				});
 			}
 			break;

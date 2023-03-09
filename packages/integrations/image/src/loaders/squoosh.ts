@@ -1,4 +1,3 @@
-// @ts-ignore
 import { red } from 'kleur/colors';
 import { error } from '../utils/logger.js';
 import { metadata } from '../utils/metadata.js';
