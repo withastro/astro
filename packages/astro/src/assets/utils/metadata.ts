@@ -1,9 +1,7 @@
-import { createRequire } from 'module';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { ImageMetadata, InputFormat } from '../types.js';
-const require = createRequire(import.meta.url);
-const sizeOf = require('image-size');
+import sizeOf from 'image-size';
 
 export interface Metadata extends ImageMetadata {
 	orientation?: number;
