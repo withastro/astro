@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Add fallback for hosts without import.meta.url
+Remove use of createRequire breaking non-Node hosts.
