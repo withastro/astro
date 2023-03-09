@@ -20,7 +20,7 @@
   "icon": "assets/icon.png",
   "type": "commonjs",
   "galleryBanner": {
-    "color": "#FFBE2D",
+    "color": "#17191E",
     "theme": "dark"
   },
   "version": "0.29.6",
@@ -343,8 +343,8 @@
         ],
         "configuration": "./languages/astro-language-configuration.json",
         "icon": {
-          "light": "./assets/lang-icon.svg",
-          "dark": "./assets/lang-icon.svg"
+          "light": "./assets/lang-icon-light.svg",
+          "dark": "./assets/lang-icon-dark.svg"
         }
       }
     ],
