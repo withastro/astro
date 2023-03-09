@@ -47,9 +47,9 @@ export function patchFrontmatterAssets(data: Record<string, any>): Record<string
 		Object.keys(potentialAssets).forEach((entry) => {
 			if (typeof potentialAssets[entry] === 'object' && potentialAssets[entry] !== null) {
 				if (potentialAssets[entry].__astro_asset) {
-					potentialAssets[
-						entry
-					] = `$$ASSET_(await import('${potentialAssets[entry].src}')).default_ASSET$$`;
+					potentialAssets[entry] = `$$ASSET_(await import('${normalizePath(
+						potentialAssets[entry].src
+					)}')).default_ASSET$$`;
 				} else {
 					patchAsset(potentialAssets[entry]);
 				}
