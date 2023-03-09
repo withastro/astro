@@ -1,3 +1,4 @@
+import path from 'path';
 import { z } from 'zod';
 import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -191,7 +192,7 @@ async function render({
 	};
 }
 
-export function createImage(options: { assetsDir: string }) {
+export function createImage(options: { assetsDir: string; relAssetsDir: string }) {
 	return () => {
 		if (options.assetsDir === 'undefined') {
 			throw new Error('Enable `experimental.assets` in your Astro config to use image()');
@@ -199,13 +200,14 @@ export function createImage(options: { assetsDir: string }) {
 
 		return z.string().transform(async (imagePath) => {
 			const fullPath = new URL(imagePath, options.assetsDir);
-			return await getImageMetadata(fullPath);
+			return await getImageMetadata(fullPath, path.join(options.relAssetsDir, imagePath));
 		});
 	};
 }
 
 async function getImageMetadata(
-	imagePath: URL
+	imagePath: URL,
+	rootRelativePath: string
 ): Promise<(Metadata & { __astro_asset: true }) | undefined> {
 	const meta = await imageMetadata(imagePath);
 
@@ -214,5 +216,5 @@ async function getImageMetadata(
 	}
 
 	delete meta.orientation;
-	return { ...meta, __astro_asset: true };
+	return { ...meta, src: rootRelativePath, __astro_asset: true };
 }

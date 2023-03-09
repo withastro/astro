@@ -213,10 +213,29 @@ describe('astro:image', () => {
 				$ = cheerio.load(html);
 			});
 
-			it('Adds the <img> tag', () => {
+			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(1);
+				expect($img).to.have.a.lengthOf(3);
+			});
+
+			it('has proper source for directly used image', () => {
+				let $img = $('#direct-image img');
+				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+			});
+
+			it('has proper attributes for optimized image through getImage', () => {
+				let $img = $('#optimized-image-get-image img');
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+				expect($img.attr('width')).to.equal('207');
+				expect($img.attr('height')).to.equal('243');
+			});
+
+			it('has proper attributes for optimized image through Image component', () => {
+				let $img = $('#optimized-image-component img');
+				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+				expect($img.attr('width')).to.equal('207');
+				expect($img.attr('height')).to.equal('243');
+				expect($img.attr('alt')).to.equal('A penguin!');
 			});
 		});
 
@@ -301,6 +320,18 @@ describe('astro:image', () => {
 			expect($img.attr('alt')).to.equal('A penguin');
 
 			// image itself
+			const src = $img.attr('src');
+			const data = await fixture.readFile(src, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('output files for content collections images', async () => {
+			const html = await fixture.readFile('/blog/one/index.html');
+
+			const $ = cheerio.load(html);
+			let $img = $('img');
+			expect($img).to.have.a.lengthOf(1);
+
 			const src = $img.attr('src');
 			const data = await fixture.readFile(src, null);
 			expect(data).to.be.an.instanceOf(Buffer);

@@ -14,6 +14,7 @@ export function defineCollection(config) {
 
 const contentDir = '@@CONTENT_DIR@@';
 const assetsDir = '@@ASSETS_DIR@@';
+const relAssetsDir = '@@REL_ASSETS_DIR';
 
 const entryGlob = import.meta.glob('@@ENTRY_GLOB_PATH@@', {
 	query: { astroContent: true },
@@ -43,4 +44,5 @@ export const getEntryBySlug = createGetEntryBySlug({
 
 export const image = createImage({
 	assetsDir,
+	relAssetsDir,
 });

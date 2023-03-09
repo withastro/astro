@@ -6,7 +6,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
-import type { ImageMetadata } from '../assets/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 
@@ -43,21 +42,24 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function extractFrontmatterAssets(data: Record<string, any>): string[] {
-	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
-		return Object.values(potentialAssets).reduce((acc, curr) => {
-			if (typeof curr === 'object') {
-				if (curr.__astro === true) {
-					acc.push(curr);
+export function patchFrontmatterAssets(data: Record<string, any>): Record<string, any> {
+	function patchAsset(potentialAssets: Record<string, any>): Record<string, any> {
+		Object.keys(potentialAssets).forEach((entry) => {
+			if (typeof potentialAssets[entry] === 'object' && potentialAssets[entry] !== null) {
+				if (potentialAssets[entry].__astro_asset) {
+					potentialAssets[
+						entry
+					] = `$$ASSET_(await import('${potentialAssets[entry].src}')).default_ASSET$$`;
 				} else {
-					acc.push(...findAssets(curr));
+					patchAsset(potentialAssets[entry]);
 				}
 			}
-			return acc;
-		}, []);
+		});
+
+		return potentialAssets;
 	}
 
-	return findAssets(data).map((asset) => asset.src);
+	return patchAsset(data);
 }
 
 export function getEntrySlug({
