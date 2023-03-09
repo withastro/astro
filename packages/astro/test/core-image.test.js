@@ -72,6 +72,13 @@ describe('astro:image', () => {
 				expect($img.attr('alt')).to.equal('a penguin');
 			});
 
+			it('middleware loads the file', async () => {
+				let $img = $('#local img');
+				let src = $img.attr('src');
+				let res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+			});
+
 			it('errors on unsupported formats', async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/unsupported-format');
@@ -125,7 +132,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				expect(logs).to.have.a.lengthOf(1);
-				expect(logs[0].message).to.contain('For remote images, width and height are required.');
+				expect(logs[0].message).to.contain('Missing width and height attributes');
 			});
 
 			it('error if no height', async () => {
@@ -134,7 +141,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				expect(logs).to.have.a.lengthOf(1);
-				expect(logs[0].message).to.contain('For remote images, height is required.');
+				expect(logs[0].message).to.contain('Missing height attribute');
 			});
 
 			it('supports aliases', async () => {
@@ -210,6 +217,24 @@ describe('astro:image', () => {
 				let $img = $('img');
 				expect($img).to.have.a.lengthOf(1);
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
+		});
+
+		describe('regular img tag', () => {
+			/** @type {ReturnType<import('cheerio')['load']>} */
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/regular-img');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('does not have a file url', async () => {
+				expect($('img').attr('src').startsWith('file://')).to.equal(false);
+			});
+
+			it('includes /src in the path', async () => {
+				expect($('img').attr('src').startsWith('/src')).to.equal(true);
 			});
 		});
 	});

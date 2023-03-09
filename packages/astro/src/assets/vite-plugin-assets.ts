@@ -9,6 +9,7 @@ import { normalizePath } from 'vite';
 import { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
+import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
@@ -77,8 +78,8 @@ export default function assets({
 							return next();
 						}
 
-						const filePathURL = new URL(filePath, 'file:');
-						const file = await fs.readFile(filePathURL.pathname);
+						const filePathURL = new URL('.' + filePath, settings.config.root);
+						const file = await fs.readFile(filePathURL);
 
 						// Get the file's metadata from the URL
 						let meta = getOrigQueryParams(filePathURL.searchParams);
@@ -108,7 +109,10 @@ export default function assets({
 							format = result.format;
 						}
 
-						res.setHeader('Content-Type', mime.getType(fileURLToPath(url)) || `image/${format}`);
+						res.setHeader(
+							'Content-Type',
+							mime.getType(fileURLToPath(filePathURL)) || `image/${format}`
+						);
 						res.setHeader('Cache-Control', 'max-age=360000');
 
 						const stream = Readable.from(data);
@@ -223,7 +227,7 @@ export default function assets({
 						url.searchParams.append('origHeight', meta.height.toString());
 						url.searchParams.append('origFormat', meta.format);
 
-						meta.src = url.toString();
+						meta.src = rootRelativePath(settings.config, url);
 					}
 
 					return `export default ${JSON.stringify(meta)}`;
