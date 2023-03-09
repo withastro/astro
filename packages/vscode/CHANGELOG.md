@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.29.7
+
+### Patch Changes
+
+- 4e777bb: Update branded assets
+
 ## 0.29.6
 
 ### Patch Changes
