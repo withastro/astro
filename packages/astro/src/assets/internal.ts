@@ -5,7 +5,7 @@ import { ImageService, isLocalService, LocalImageService } from './services/serv
 import type { ImageMetadata, ImageTransform } from './types.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
-	return typeof src === 'object';
+	return typeof src === 'object' && !Array.isArray(src) && src !== null;
 }
 
 export async function getConfiguredImageService(): Promise<ImageService> {

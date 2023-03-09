@@ -46,7 +46,7 @@ export const msg = {
 export function extractFrontmatterAssets(data: Record<string, any>): string[] {
 	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
 		return Object.values(potentialAssets).reduce((acc, curr) => {
-			if (typeof curr === 'object') {
+			if (typeof curr === 'object' && !Array.isArray(curr) && curr !== null) {
 				if (curr.__astro === true) {
 					acc.push(curr);
 				} else {
