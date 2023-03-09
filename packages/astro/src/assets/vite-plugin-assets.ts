@@ -1,17 +1,15 @@
 import MagicString from 'magic-string';
 import mime from 'mime';
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import { Readable } from 'node:stream';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
-import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { isESMImportedImage } from './internal.js';
+import { emitESMImage, isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
 import { copyWasmFiles } from './services/vendor/squoosh/copy-wasm.js';
 import { imageMetadata } from './utils/metadata.js';
@@ -202,34 +200,7 @@ export default function assets({
 			},
 			async load(id) {
 				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id)) {
-					const url = pathToFileURL(id);
-					const meta = await imageMetadata(url);
-
-					if (!meta) {
-						return;
-					}
-
-					// Build
-					if (!this.meta.watchMode) {
-						const pathname = decodeURI(url.pathname);
-						const filename = path.basename(pathname, path.extname(pathname) + `.${meta.format}`);
-
-						const handle = this.emitFile({
-							name: filename,
-							source: await fs.readFile(url),
-							type: 'asset',
-						});
-
-						meta.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
-					} else {
-						// Pass the original file information through query params so we don't have to load the file twice
-						url.searchParams.append('origWidth', meta.width.toString());
-						url.searchParams.append('origHeight', meta.height.toString());
-						url.searchParams.append('origFormat', meta.format);
-
-						meta.src = rootRelativePath(settings.config, url);
-					}
-
+					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},
