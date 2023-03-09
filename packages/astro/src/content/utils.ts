@@ -3,10 +3,11 @@ import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { EmitFile } from 'rollup';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import { AstroConfig, AstroSettings } from '../@types/astro.js';
-import type { ImageMetadata } from '../assets/types.js';
+import { emitESMImage } from '../assets/internal.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 
@@ -43,21 +44,29 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function extractFrontmatterAssets(data: Record<string, any>): string[] {
-	function findAssets(potentialAssets: Record<string, any>): ImageMetadata[] {
-		return Object.values(potentialAssets).reduce((acc, curr) => {
-			if (typeof curr === 'object') {
-				if (curr.__astro === true) {
-					acc.push(curr);
-				} else {
-					acc.push(...findAssets(curr));
-				}
+/**
+ * Mutate (arf) the entryData to reroute assets to their final paths
+ */
+export async function patchAssets(
+	frontmatterEntry: Record<string, any>,
+	watchMode: boolean,
+	fileEmitter: EmitFile,
+	astroSettings: AstroSettings
+) {
+	for (const key of Object.keys(frontmatterEntry)) {
+		if (typeof frontmatterEntry[key] === 'object' && frontmatterEntry[key] !== null) {
+			if (frontmatterEntry[key]['__astro_asset']) {
+				frontmatterEntry[key] = await emitESMImage(
+					frontmatterEntry[key].src,
+					watchMode,
+					fileEmitter,
+					astroSettings
+				);
+			} else {
+				await patchAssets(frontmatterEntry[key], watchMode, fileEmitter, astroSettings);
 			}
-			return acc;
-		}, []);
+		}
 	}
-
-	return findAssets(data).map((asset) => asset.src);
 }
 
 export function getEntrySlug({

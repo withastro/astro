@@ -1,5 +1,5 @@
 ---
-import { getImage,Image } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -26,14 +26,6 @@ const myImage = await getImage(entry.data.image);
 
 		<div id="nested-image">
 			<img src={entry.data.cover.image.src} width={entry.data.cover.image.width} height={entry.data.cover.image.height} />
-		</div>
-
-		<div id="optimized-image-get-image">
-			<img src={myImage.src} {...myImage.attributes} />
-		</div>
-
-		<div id="optimized-image-component">
-			<Image src={entry.data.image} alt="A penguin!" />
 		</div>
 
 		<Content />
