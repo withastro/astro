@@ -71,7 +71,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 };
 
 const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
-	if (error.received === 'undefined') return isRequiredMsg('');
+	if (error.received === 'undefined') return 'Required';
 	const expectedDeduped = new Set(error.expected);
 	switch (error.code) {
 		case 'invalid_type':
@@ -84,8 +84,6 @@ const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 			)}`;
 	}
 };
-
-const isRequiredMsg = (key: string) => prefix(key, 'Required.');
 
 const prefix = (key: string, msg: string) => (key.length ? `**${key}**: ${msg}` : msg);
 
