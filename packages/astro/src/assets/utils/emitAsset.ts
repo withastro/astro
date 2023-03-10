@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { AstroSettings } from '../../@types/astro';
-import { rootRelativePath } from '../../core/util';
-import { imageMetadata } from './metadata';
+import { rootRelativePath } from '../../core/util.js';
+import { imageMetadata } from './metadata.js';
 
 export async function emitESMImage(
 	id: string,
