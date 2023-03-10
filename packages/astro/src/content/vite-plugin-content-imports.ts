@@ -3,7 +3,6 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import { normalizePath } from 'vite';
 import { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
@@ -11,7 +10,6 @@ import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index
 import { CONTENT_FLAG } from './consts.js';
 import {
 	ContentConfig,
-	extractFrontmatterAssets,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
@@ -19,8 +17,8 @@ import {
 	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
+	patchAssets,
 } from './utils.js';
-
 function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
 	const { searchParams, pathname } = new URL(viteId, 'file://');
 	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
@@ -106,25 +104,20 @@ export function astroContentImportPlugin({
 				const slug = getEntrySlug({ ...generatedInfo, unvalidatedSlug: info.slug });
 
 				const collectionConfig = contentConfig?.collections[generatedInfo.collection];
-				const data = collectionConfig
+				let data = collectionConfig
 					? await getEntryData(
 							{ ...generatedInfo, _internal, unvalidatedData: info.data },
 							collectionConfig
 					  )
 					: info.data;
 
-				const images = extractFrontmatterAssets(data).map(
-					(image) => `'${image}': await import('${normalizePath(image)}'),`
-				);
+				await patchAssets(data, this.meta.watchMode, this.emitFile, settings);
 
 				const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(generatedInfo.id)};
 export const collection = ${JSON.stringify(generatedInfo.collection)};
 export const slug = ${JSON.stringify(slug)};
 export const body = ${JSON.stringify(info.body)};
-const frontmatterImages = {
-	${images.join('\n')}
-}
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
 	filePath: ${JSON.stringify(_internal.filePath)},

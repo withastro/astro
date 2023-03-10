@@ -29,6 +29,7 @@ export type RSSOptions = {
 	customData?: z.infer<typeof rssOptionsValidator>['customData'];
 	/** Whether to include drafts or not */
 	drafts?: z.infer<typeof rssOptionsValidator>['drafts'];
+	trailingSlash?: z.infer<typeof rssOptionsValidator>['trailingSlash'];
 };
 
 type RSSFeedItem = {
@@ -54,6 +55,7 @@ type GlobResult = z.infer<typeof globResultValidator>;
 
 const rssFeedItemValidator = rssSchema.extend({ link: z.string(), content: z.string().optional() });
 const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
+
 const rssOptionsValidator = z.object({
 	title: z.string(),
 	description: z.string(),
@@ -77,6 +79,7 @@ const rssOptionsValidator = z.object({
 	drafts: z.boolean().default(false),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
+	trailingSlash: z.boolean().default(true),
 });
 
 export default async function getRSS(rssOptions: RSSOptions) {
@@ -171,7 +174,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 	root.rss.channel = {
 		title: rssOptions.title,
 		description: rssOptions.description,
-		link: createCanonicalURL(site).href,
+		link: createCanonicalURL(site, rssOptions.trailingSlash, undefined).href,
 	};
 	if (typeof rssOptions.customData === 'string')
 		Object.assign(
@@ -183,7 +186,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		// If the item's link is already a valid URL, don't mess with it.
 		const itemLink = isValidURL(result.link)
 			? result.link
-			: createCanonicalURL(result.link, site).href;
+			: createCanonicalURL(result.link, rssOptions.trailingSlash, site).href;
 		const item: any = {
 			title: result.title,
 			link: itemLink,

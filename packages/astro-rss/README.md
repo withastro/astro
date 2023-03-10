@@ -73,6 +73,8 @@ export function get(context) {
     customData: '<language>en-us</language>',
     // (optional) add arbitrary metadata to opening <rss> tag
     xmlns: { h: 'http://www.w3.org/TR/html4/' },
+    // (optional) add trailing slashes to URLs (default: true)
+    trailingSlash: false
   });
 }
 ```
@@ -184,6 +186,21 @@ The `content` key contains the full content of the post as HTML. This allows you
 **Note:** Whenever you're using HTML content in XML, we suggest using a package like [`sanitize-html`](https://www.npmjs.com/package/sanitize-html) in order to make sure that your content is properly sanitized, escaped, and encoded.
 
 [See our RSS documentation](https://docs.astro.build/en/guides/rss/#including-full-post-content) for examples using content collections and glob imports.
+
+### `trailingSlash`
+
+Type: `boolean (optional)`
+Default: `true`
+
+By default, the library will add trailing slashes to the emitted URLs. To prevent this behavior, add `trailingSlash: false` to the `rss` function.
+
+```js
+import rss from '@astrojs/rss';
+
+export const get = () => rss({
+  trailingSlash: false
+});
+```
 
 ## `rssSchema`
 
