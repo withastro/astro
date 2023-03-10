@@ -2,7 +2,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath } from '../../core/path.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
-import { ImageTransform, OutputFormat } from '../types.js';
+import type { ImageTransform, OutputFormat } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 

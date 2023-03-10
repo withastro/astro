@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { AstroSettings } from '../@types/astro.js';
-import { StaticBuildOptions } from '../core/build/types.js';
+import type { AstroSettings } from '../@types/astro.js';
+import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/util.js';
 import { ImageService, isLocalService, LocalImageService } from './services/service.js';

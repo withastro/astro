@@ -1,5 +1,5 @@
 import type { CreatePreviewServer } from 'astro';
-import http from 'http';
+import type http from 'http';
 import { fileURLToPath } from 'url';
 import { createServer } from './http-server.js';
 import type { createExports } from './server';

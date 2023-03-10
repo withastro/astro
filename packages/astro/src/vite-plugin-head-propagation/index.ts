@@ -4,7 +4,7 @@ import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types';
 
-import * as vite from 'vite';
+import type * as vite from 'vite';
 import { walkParentInfos } from '../core/build/graph.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 

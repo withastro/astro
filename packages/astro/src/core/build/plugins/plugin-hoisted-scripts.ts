@@ -3,8 +3,8 @@ import type { AstroSettings } from '../../../@types/astro';
 import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
-import { AstroBuildPlugin } from '../plugin';
-import { StaticBuildOptions } from '../types';
+import type { AstroBuildPlugin } from '../plugin';
+import type { StaticBuildOptions } from '../types';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');

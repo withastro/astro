@@ -3,7 +3,7 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { InlineConfig } from 'vite';
+import type { InlineConfig } from 'vite';
 import {
 	getAstroConfigPath,
 	MarkdocError,
