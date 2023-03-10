@@ -39,6 +39,13 @@ body:
       placeholder: Mac, Windows, Linux
     validations:
       required: true
+  - type: input
+    id: browser
+    attributes:
+      label: What browser are you using?
+      placeholder: Chrome, Firefox, Safari
+    validations:
+      required: true
   - type: textarea
     id: bug-description
     attributes:

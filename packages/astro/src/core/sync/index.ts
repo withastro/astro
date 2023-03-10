@@ -67,6 +67,7 @@ export async function sync(
 			{
 				server: { middlewareMode: true, hmr: false },
 				optimizeDeps: { entries: [] },
+				ssr: { external: ['image-size'] },
 				logLevel: 'silent',
 			},
 			{ settings, logging, mode: 'build', command: 'build', fs }

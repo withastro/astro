@@ -49,6 +49,16 @@ const ALWAYS_NOEXTERNAL = [
 	'@fontsource/*',
 ];
 
+// These specifiers are usually dependencies written in CJS, but loaded through Vite's transform
+// pipeline, which Vite doesn't support in development time. This hardcoded list temporarily
+// fixes things until Vite can properly handle them, or when they support ESM.
+const ONLY_DEV_EXTERNAL = [
+	// Imported by `<Code/>` which is processed by Vite
+	'shiki',
+	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
+	'prismjs/components/index.js',
+];
+
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
@@ -162,10 +172,7 @@ export async function createVite(
 		},
 		ssr: {
 			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
-			// shiki is imported by Code.astro, which is no-externalized (processed by Vite).
-			// However, shiki's deps are in CJS and trips up Vite's dev SSR transform, externalize
-			// shiki to load it with node instead.
-			external: [...(mode === 'dev' ? ['shiki'] : []), ...astroPkgsConfig.ssr.external],
+			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
 
