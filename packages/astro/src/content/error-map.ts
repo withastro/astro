@@ -30,7 +30,10 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 			}
 		}
 		let messages: string[] = [
-			typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.',
+			prefix(
+				baseErrorPath,
+				typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.'
+			),
 		];
 		return {
 			message: messages
