@@ -1,12 +1,15 @@
 import type { ZodErrorMap, ZodInvalidLiteralIssue, ZodInvalidTypeIssue } from 'zod';
 
+const formattedErrorTypes = ['invalid_type', 'invalid_literal'] as const;
+type ExpectedByErrorPathEntry = {
+	code: (typeof formattedErrorTypes)[number];
+	received: unknown;
+	expected: unknown[];
+};
+
 export const errorMap: ZodErrorMap = (error, ctx) => {
 	if (error.code === 'invalid_union') {
-		console.log('union', error);
-		let expectedByErrorPath: Map<
-			string,
-			{ code: 'invalid_type' | 'invalid_literal'; received: unknown; expected: unknown[] }
-		> = new Map();
+		let expectedByErrorPath: Map<string, ExpectedByErrorPathEntry> = new Map();
 		let messages: string[] = [];
 		for (const unionError of error.unionErrors.map((e) => e.errors).flat()) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
@@ -34,7 +37,7 @@ export const errorMap: ZodErrorMap = (error, ctx) => {
 					// Format remaining errors recursively with errorMap
 					error.unionErrors.flatMap((unionError) =>
 						unionError.errors
-							.filter((e) => !formattedErrorTypes.has(e.code))
+							.filter((e) => !formattedErrorTypes.includes(e.code as any))
 							.map((e) => errorMap(e, ctx).message)
 					)
 				)
@@ -42,27 +45,37 @@ export const errorMap: ZodErrorMap = (error, ctx) => {
 		};
 	}
 	const key = flattenErrorPath(error.path);
-	if (error.message) {
+	if (error.code === 'invalid_literal' || error.code === 'invalid_type') {
+		return {
+			message: getFormattedErrorMsg({
+				key,
+				error: {
+					code: error.code,
+					received: error.received,
+					expected: [error.expected],
+				},
+			}),
+		};
+	} else if (error.message) {
 		return { message: prefix(key, error.message) };
+	} else {
+		return { message: prefix(key, ctx.defaultError) };
 	}
-	return { message: prefix(key, ctx.defaultError) };
 };
-
-const formattedErrorTypes = new Set(['invalid_type', 'invalid_literal']);
 
 const getFormattedErrorMsg = ({
 	key,
 	error,
 }: {
 	key: string;
-	error: Pick<ZodInvalidLiteralIssue | ZodInvalidTypeIssue, 'code' | 'expected' | 'received'>;
+	error: ExpectedByErrorPathEntry;
 }): string => {
 	switch (error.code) {
 		case 'invalid_type':
 			if (error.received === 'undefined') return isRequiredMsg(key);
 			return prefix(
 				key,
-				`Expected type ${unionExpectedVals(String(error.expected))}, received ${singleQuote(
+				`Expected type ${unionExpectedVals(error.expected)}, received ${singleQuote(
 					String(error.received)
 				)}`
 			);
@@ -70,7 +83,7 @@ const getFormattedErrorMsg = ({
 			if (typeof error.received === 'undefined') return isRequiredMsg(key);
 			return prefix(
 				key,
-				`Expected ${unionExpectedVals(String(error.expected))}, received ${singleQuote(
+				`Expected ${unionExpectedVals(error.expected)}, received ${singleQuote(
 					String(error.received)
 				)}`
 			);
@@ -85,13 +98,12 @@ const prefix = (key: string, msg: string) => `${key}: ${msg}`;
 // to match Zod's default error messages
 const singleQuote = (str: string) => `'${str}'`;
 
-const unionExpectedVals = (expectedVals: string | string[]) => {
-	const arr = Array.isArray(expectedVals) ? expectedVals : [expectedVals];
-	return arr
+const unionExpectedVals = (expectedVals: unknown[]) => {
+	return expectedVals
 		.map((expectedVal, idx) => {
-			if (idx === 0) return singleQuote(expectedVal);
+			if (idx === 0) return singleQuote(String(expectedVal));
 			const sep = ' | ';
-			return `${sep}${singleQuote(expectedVal)}`;
+			return `${sep}${singleQuote(String(expectedVal))}`;
 		})
 		.join('');
 };
