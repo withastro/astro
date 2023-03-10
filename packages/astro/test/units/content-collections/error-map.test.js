@@ -16,7 +16,6 @@ describe('Content Collections - error map', () => {
 			{ base: 1, nested: { key: 2 }, union: true }
 		);
 		const msgs = messages(error).sort();
-		console.log({ msgs });
 		expect(msgs).to.have.length(3);
 		// expect "**" for bolding
 		expect(msgs[0].startsWith('**base**')).to.equal(true);
@@ -40,6 +39,16 @@ describe('Content Collections - error map', () => {
 			{ lang: 'es' }
 		);
 		expect(messages(error)).to.deep.equal(['**lang**: Expected `"en"`, received "es"']);
+	});
+	it('Replaces undefined errors with "Required"', () => {
+		const error = getParseError(
+			z.object({
+				foo: z.string(),
+				bar: z.string(),
+			}),
+			{ foo: 'foo' }
+		);
+		expect(messages(error)).to.deep.equal(['**bar**: Required']);
 	});
 	it('Returns formatted error for basic union mismatch', () => {
 		const error = getParseError(
@@ -68,6 +77,17 @@ describe('Content Collections - error map', () => {
 			fixLineEndings(
 				'Did not match union:\n> **type**: Expected `"tutorial" | "article"`, received "integration-guide"'
 			),
+		]);
+	});
+	it('Lets unhandled errors fall through', () => {
+		const error = getParseError(
+			z.object({
+				lang: z.enum(['en', 'fr']),
+			}),
+			{ lang: 'jp' }
+		);
+		expect(messages(error)).to.deep.equal([
+			"**lang**: Invalid enum value. Expected 'en' | 'fr', received 'jp'",
 		]);
 	});
 });
