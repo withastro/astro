@@ -12,7 +12,7 @@ export async function imageMetadata(
 	data?: Buffer
 ): Promise<Metadata | undefined> {
 	if (!sizeOf) {
-		sizeOf = await import('image-size').then(mod => mod.default);
+		sizeOf = await import('image-size').then((mod) => mod.default);
 	}
 	let file = data;
 	if (!file) {
