@@ -1,23 +1,28 @@
-import type { ZodErrorMap, ZodInvalidLiteralIssue, ZodInvalidTypeIssue } from 'zod';
+import type { ZodErrorMap } from 'zod';
 
-const formattedErrorTypes = ['invalid_type', 'invalid_literal'] as const;
-type ExpectedByErrorPathEntry = {
-	code: (typeof formattedErrorTypes)[number];
+type TypeOrLiteralErrByPathEntry = {
+	code: 'invalid_type' | 'invalid_literal';
 	received: unknown;
 	expected: unknown[];
 };
 
-export const errorMap: ZodErrorMap = (error, ctx) => {
-	if (error.code === 'invalid_union') {
-		let expectedByErrorPath: Map<string, ExpectedByErrorPathEntry> = new Map();
-		let messages: string[] = [];
-		for (const unionError of error.unionErrors.map((e) => e.errors).flat()) {
+export const errorMap: ZodErrorMap = (baseError, ctx) => {
+	const baseErrorPath = flattenErrorPath(baseError.path);
+	if (baseError.code === 'invalid_union') {
+		let messages: string[] = [prefix(baseErrorPath, 'Did not match union.')];
+		// Optimization: Combine type and literal errors for keys that are common across ALL union types
+		// Ex. a union between `{ key: z.literal('tutorial') }` and `{ key: z.literal('blog') }` will
+		// raise a single error when `key` does not match:
+		// > Did not match union.
+		// > key: Expected type 'tutorial' | 'blog', received 'foo'
+		let typeOrLiteralErrByPath: Map<string, TypeOrLiteralErrByPathEntry> = new Map();
+		for (const unionError of baseError.unionErrors.map((e) => e.errors).flat()) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
-				if (expectedByErrorPath.has(flattenedErrorPath)) {
-					expectedByErrorPath.get(flattenedErrorPath)!.expected.push(unionError.expected);
+				if (typeOrLiteralErrByPath.has(flattenedErrorPath)) {
+					typeOrLiteralErrByPath.get(flattenedErrorPath)!.expected.push(unionError.expected);
 				} else {
-					expectedByErrorPath.set(flattenedErrorPath, {
+					typeOrLiteralErrByPath.set(flattenedErrorPath, {
 						code: unionError.code,
 						received: unionError.received,
 						expected: [unionError.expected],
@@ -27,79 +32,64 @@ export const errorMap: ZodErrorMap = (error, ctx) => {
 		}
 		return {
 			message: messages
-				// Format invalid type and invalid literal errors
 				.concat(
-					[...expectedByErrorPath.entries()].map(([key, error]) =>
-						getFormattedErrorMsg({ key, error })
-					)
-				)
-				.concat(
-					// Format remaining errors recursively with errorMap
-					error.unionErrors.flatMap((unionError) =>
-						unionError.errors
-							.filter((e) => !formattedErrorTypes.includes(e.code as any))
-							.map((e) => errorMap(e, ctx).message)
-					)
+					[...typeOrLiteralErrByPath.entries()]
+						// If type or literal error isn't common to ALL union types,
+						// filter it out. Can lead to confusing noise.
+						.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
+						.map(([key, error]) =>
+							key === baseErrorPath
+								? // Avoid printing the key again if it's a base error
+								  `> ${getTypeOrLiteralMsg(error)}`
+								: `> ${prefix(key, getTypeOrLiteralMsg(error))}`
+						)
 				)
 				.join('\n'),
 		};
 	}
-	const key = flattenErrorPath(error.path);
-	if (error.code === 'invalid_literal' || error.code === 'invalid_type') {
+	if (baseError.code === 'invalid_literal' || baseError.code === 'invalid_type') {
 		return {
-			message: getFormattedErrorMsg({
-				key,
-				error: {
-					code: error.code,
-					received: error.received,
-					expected: [error.expected],
-				},
-			}),
+			message: prefix(
+				baseErrorPath,
+				getTypeOrLiteralMsg({
+					code: baseError.code,
+					received: baseError.received,
+					expected: [baseError.expected],
+				})
+			),
 		};
-	} else if (error.message) {
-		return { message: prefix(key, error.message) };
+	} else if (baseError.message) {
+		return { message: prefix(baseErrorPath, baseError.message) };
 	} else {
-		return { message: prefix(key, ctx.defaultError) };
+		return { message: prefix(baseErrorPath, ctx.defaultError) };
 	}
 };
 
-const getFormattedErrorMsg = ({
-	key,
-	error,
-}: {
-	key: string;
-	error: ExpectedByErrorPathEntry;
-}): string => {
+const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
+	if (error.received === 'undefined') return isRequiredMsg('');
+	const expectedDeduped = new Set(error.expected);
 	switch (error.code) {
 		case 'invalid_type':
-			if (error.received === 'undefined') return isRequiredMsg(key);
-			return prefix(
-				key,
-				`Expected type ${unionExpectedVals(error.expected)}, received ${singleQuote(
-					String(error.received)
-				)}`
-			);
+			return `Expected type ${unionExpectedVals(expectedDeduped)}, received ${singleQuote(
+				String(error.received)
+			)}`;
 		case 'invalid_literal':
-			if (typeof error.received === 'undefined') return isRequiredMsg(key);
-			return prefix(
-				key,
-				`Expected ${unionExpectedVals(error.expected)}, received ${singleQuote(
-					String(error.received)
-				)}`
-			);
+			return `Expected ${unionExpectedVals(expectedDeduped)}, received ${singleQuote(
+				String(error.received)
+			)}`;
 	}
 };
 
 const isRequiredMsg = (key: string) => prefix(key, 'Required.');
 
-const prefix = (key: string, msg: string) => `${key}: ${msg}`;
+const prefix = (key: string, msg: string) => (key.length ? `${key}: ${msg}` : msg);
 
 // Wrap identifiers in single quotes
 // to match Zod's default error messages
 const singleQuote = (str: string) => `'${str}'`;
 
-const unionExpectedVals = (expectedVals: unknown[]) => {
-	return expectedVals
+const unionExpectedVals = (expectedVals: Set<unknown>) => {
+	return [...expectedVals]
 		.map((expectedVal, idx) => {
 			if (idx === 0) return singleQuote(String(expectedVal));
 			const sep = ' | ';
