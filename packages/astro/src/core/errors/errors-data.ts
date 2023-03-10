@@ -538,20 +538,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
 	 * @description
-	 * A dynamic endpoint with `getStaticPaths()` should not return `params` with `undefined` as prerendering
-	 * the endpoint would cause path collisions. For example:
-	 *
-	 * ```ts title="pages/api/[...slug].ts"
-	 * export function getStaticPaths() {
-	 *	 return [
-	 *		 { params: { slug: undefined },
-	 * 		 { params: { slug: "about" } }
-	 * 	 ];
-	 * }
-	 * ```
-	 *
-	 * When prerendering this endpoint, Astro will generate both the `/api` file and `/api/about` file. As `/api`
-	 * is both a file and directory in the filesystem, it will cause a path collision when building.
+	 * You should add an additional extension to the endpoint's filename 
+	 * and A dynamic endpoint with `getStaticPaths` should not return `params` with `undefined`.
 	 */
 	PrerenderDynamicEndpointPathCollide: {
 		title: 'Prerendered dynamic endpoint has path collision.',
