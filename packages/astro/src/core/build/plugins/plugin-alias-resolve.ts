@@ -1,6 +1,6 @@
 import type { Alias, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import { AstroBuildPlugin } from '../plugin.js';
+import type { AstroBuildPlugin } from '../plugin.js';
 
 /**
  * `@rollup/plugin-alias` doesn't resolve aliases in Rollup input by default. This plugin fixes it

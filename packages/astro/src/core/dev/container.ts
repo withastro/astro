@@ -1,4 +1,4 @@
-import * as http from 'http';
+import type * as http from 'http';
 import type { AddressInfo } from 'net';
 import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
 
@@ -13,7 +13,7 @@ import {
 } from '../../integrations/index.js';
 import { createDefaultDevSettings, resolveRoot } from '../config/index.js';
 import { createVite } from '../create-vite.js';
-import { LogOptions } from '../logger/core.js';
+import type { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
