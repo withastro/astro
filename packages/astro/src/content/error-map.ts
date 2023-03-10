@@ -9,12 +9,11 @@ type TypeOrLiteralErrByPathEntry = {
 export const errorMap: ZodErrorMap = (baseError, ctx) => {
 	const baseErrorPath = flattenErrorPath(baseError.path);
 	if (baseError.code === 'invalid_union') {
-		let messages: string[] = [prefix(baseErrorPath, 'Did not match union.')];
 		// Optimization: Combine type and literal errors for keys that are common across ALL union types
 		// Ex. a union between `{ key: z.literal('tutorial') }` and `{ key: z.literal('blog') }` will
 		// raise a single error when `key` does not match:
 		// > Did not match union.
-		// > key: Expected type 'tutorial' | 'blog', received 'foo'
+		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
 		let typeOrLiteralErrByPath: Map<string, TypeOrLiteralErrByPathEntry> = new Map();
 		for (const unionError of baseError.unionErrors.map((e) => e.errors).flat()) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
@@ -30,6 +29,9 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 				}
 			}
 		}
+		let messages: string[] = [
+			typeOrLiteralErrByPath.size ? 'Did not match union:' : 'Did not match union.',
+		];
 		return {
 			message: messages
 				.concat(
@@ -70,32 +72,27 @@ const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 	const expectedDeduped = new Set(error.expected);
 	switch (error.code) {
 		case 'invalid_type':
-			return `Expected type ${unionExpectedVals(expectedDeduped)}, received ${singleQuote(
-				String(error.received)
+			return `Expected type \`${unionExpectedVals(expectedDeduped)}\`, received ${JSON.stringify(
+				error.received
 			)}`;
 		case 'invalid_literal':
-			return `Expected ${unionExpectedVals(expectedDeduped)}, received ${singleQuote(
-				String(error.received)
+			return `Expected \`${unionExpectedVals(expectedDeduped)}\`, received ${JSON.stringify(
+				error.received
 			)}`;
 	}
 };
 
 const isRequiredMsg = (key: string) => prefix(key, 'Required.');
 
-const prefix = (key: string, msg: string) => (key.length ? `${key}: ${msg}` : msg);
+const prefix = (key: string, msg: string) => (key.length ? `**${key}**: ${msg}` : msg);
 
-// Wrap identifiers in single quotes
-// to match Zod's default error messages
-const singleQuote = (str: string) => `'${str}'`;
-
-const unionExpectedVals = (expectedVals: Set<unknown>) => {
-	return [...expectedVals]
+const unionExpectedVals = (expectedVals: Set<unknown>) =>
+	[...expectedVals]
 		.map((expectedVal, idx) => {
-			if (idx === 0) return singleQuote(String(expectedVal));
+			if (idx === 0) return JSON.stringify(expectedVal);
 			const sep = ' | ';
-			return `${sep}${singleQuote(String(expectedVal))}`;
+			return `${sep}${JSON.stringify(expectedVal)}`;
 		})
 		.join('');
-};
 
 const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
