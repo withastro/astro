@@ -771,7 +771,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 9001,
 		message: (collection: string, entryId: string, error: ZodError) => {
 			return [
-				`${String(collection)} → ${String(entryId)} frontmatter does not match collection schema.`,
+				`**${String(collection)} → ${String(entryId)}** frontmatter is invalid.`,
 				...error.errors.map((zodError) => zodError.message),
 			].join('\n');
 		},
