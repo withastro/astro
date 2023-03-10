@@ -38,6 +38,7 @@ export function createCollectionToGlobResultMap({
 	return collectionToGlobResultMap;
 }
 
+const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
 	collectionToEntryMap,
 	collectionToRenderEntryMap,
@@ -47,27 +48,35 @@ export function createGetCollection({
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
-		const entries = Promise.all(
-			lazyImports.map(async (lazyImport) => {
-				const entry = await lazyImport();
-				return {
-					id: entry.id,
-					slug: entry.slug,
-					body: entry.body,
-					collection: entry.collection,
-					data: entry.data,
-					async render() {
-						return render({
-							collection: entry.collection,
-							id: entry.id,
-							collectionToRenderEntryMap,
-						});
-					},
-				};
-			})
-		);
+		let entries: any[] = [];
+		// Cache `getCollection()` calls in production only
+		// prevents stale cache in development
+		if (import.meta.env.PROD && cacheEntriesByCollection.has(collection)) {
+			entries = cacheEntriesByCollection.get(collection)!;
+		} else {
+			entries = await Promise.all(
+				lazyImports.map(async (lazyImport) => {
+					const entry = await lazyImport();
+					return {
+						id: entry.id,
+						slug: entry.slug,
+						body: entry.body,
+						collection: entry.collection,
+						data: entry.data,
+						async render() {
+							return render({
+								collection: entry.collection,
+								id: entry.id,
+								collectionToRenderEntryMap,
+							});
+						},
+					};
+				})
+			);
+			cacheEntriesByCollection.set(collection, entries);
+		}
 		if (typeof filter === 'function') {
-			return (await entries).filter(filter);
+			return entries.filter(filter);
 		} else {
 			return entries;
 		}
