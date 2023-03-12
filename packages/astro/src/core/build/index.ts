@@ -5,8 +5,8 @@ import type { LogOptions } from '../logger/core';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import * as vite from 'vite';
-import yargs from 'yargs-parser';
+import type * as vite from 'vite';
+import type yargs from 'yargs-parser';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -21,7 +21,7 @@ import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
-import { StaticBuildOptions } from './types.js';
+import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {

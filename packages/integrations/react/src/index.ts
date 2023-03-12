@@ -1,4 +1,4 @@
-import { AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 
 function getRenderer() {

@@ -1,6 +1,6 @@
 import type { ModuleLoader } from '../../module-loader/index';
 
-import { RuntimeMode } from '../../../@types/astro.js';
+import type { RuntimeMode } from '../../../@types/astro.js';
 import { viteID } from '../../util.js';
 import { isBuildableCSSRequest } from './util.js';
 import { crawlGraph } from './vite.js';

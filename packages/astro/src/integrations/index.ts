@@ -3,7 +3,7 @@ import type { AddressInfo } from 'net';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
-import {
+import type {
 	AstroConfig,
 	AstroRenderer,
 	AstroSettings,

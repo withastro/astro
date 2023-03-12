@@ -1,4 +1,4 @@
-import { ImageMetadata, InputFormat } from '../types.js';
+import type { ImageMetadata, InputFormat } from '../types.js';
 
 export function getOrigQueryParams(
 	params: URLSearchParams

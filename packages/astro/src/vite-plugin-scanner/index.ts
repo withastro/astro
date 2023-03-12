@@ -1,5 +1,5 @@
 import { normalizePath, Plugin as VitePlugin } from 'vite';
-import { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings } from '../@types/astro.js';
 import { isEndpoint, isPage } from '../core/util.js';
 
 import { scan } from './scan.js';

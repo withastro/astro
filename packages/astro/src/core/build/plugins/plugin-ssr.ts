@@ -14,7 +14,7 @@ import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from '../internal.js';
-import { AstroBuildPlugin } from '../plugin';
+import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;

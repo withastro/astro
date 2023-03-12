@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { LogOptions } from '../logger/core.js';
+import type { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';

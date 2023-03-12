@@ -2,7 +2,7 @@ import { basename, extname } from 'path';
 import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { isESMImportedImage } from '../internal.js';
-import { ImageTransform } from '../types.js';
+import type { ImageTransform } from '../types.js';
 
 export function propsToFilename(transform: ImageTransform) {
 	if (!isESMImportedImage(transform.src)) {

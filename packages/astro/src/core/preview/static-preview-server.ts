@@ -1,4 +1,4 @@
-import http from 'http';
+import type http from 'http';
 import { performance } from 'perf_hooks';
 import enableDestroy from 'server-destroy';
 import { fileURLToPath } from 'url';

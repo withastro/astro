@@ -1,4 +1,4 @@
-import { EnumChangefreq } from 'sitemap';
+import type { EnumChangefreq } from 'sitemap';
 import type { SitemapItem, SitemapOptions } from './index.js';
 import { parseUrl } from './utils/parse-url.js';
 
