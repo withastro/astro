@@ -2,7 +2,7 @@ import type { RouteData } from '../../@types/astro';
 import type { SerializedSSRManifest, SSRManifest } from './types';
 
 import * as fs from 'fs';
-import { IncomingMessage } from 'http';
+import type { IncomingMessage } from 'http';
 import { TLSSocket } from 'tls';
 import { deserializeManifest } from './common.js';
 import { App, MatchOptions } from './index.js';

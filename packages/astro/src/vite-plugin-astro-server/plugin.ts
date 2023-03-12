@@ -3,7 +3,7 @@ import type { AstroSettings, ManifestData } from '../@types/astro';
 
 import type fs from 'fs';
 import { patchOverlay } from '../core/errors/overlay.js';
-import { LogOptions } from '../core/logger/core.js';
+import type { LogOptions } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { createDevelopmentEnvironment } from '../core/render/dev/index.js';
 import { createRouteManifest } from '../core/routing/index.js';

@@ -1,8 +1,8 @@
 import sizeOf from 'image-size';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { InputFormat } from '../loaders/index.js';
-import { ImageMetadata } from '../vite-plugin-astro-image.js';
+import type { InputFormat } from '../loaders/index.js';
+import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
 export interface Metadata extends ImageMetadata {
 	orientation?: number;

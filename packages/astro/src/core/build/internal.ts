@@ -1,8 +1,8 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { SSRResult } from '../../@types/astro';
-import { PageOptions } from '../../vite-plugin-astro/types';
+import type { SSRResult } from '../../@types/astro';
+import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 

@@ -3,7 +3,7 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import { AstroSettings, ContentEntryType } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';

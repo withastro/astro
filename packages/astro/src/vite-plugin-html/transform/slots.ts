@@ -1,7 +1,7 @@
 import type { Root, RootContent } from 'hast';
 import type { Plugin } from 'unified';
 
-import MagicString from 'magic-string';
+import type MagicString from 'magic-string';
 import { visit } from 'unist-util-visit';
 import { escape } from './utils.js';
 

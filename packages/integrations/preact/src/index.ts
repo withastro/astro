@@ -1,4 +1,4 @@
-import { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 
 function getRenderer(development: boolean): AstroRenderer {
 	return {
