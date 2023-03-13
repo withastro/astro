@@ -1,6 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
+import { getRoutesFromVercelJSON } from '../lib/vercel-config.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
@@ -41,11 +42,13 @@ export default function vercelStatic({ analytics }: VercelStaticConfig = {}): As
 				await emptyDir(getVercelOutput(_config.root));
 			},
 			'astro:build:done': async ({ routes }) => {
+				const userRoutes = await getRoutesFromVercelJSON(_config)
+
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
 					version: 3,
-					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }],
+					routes: [...userRoutes, ...getRedirects(routes, _config), { handle: 'filesystem' }],
 				});
 			},
 		},
