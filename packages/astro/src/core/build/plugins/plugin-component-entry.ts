@@ -37,7 +37,7 @@ export function vitePluginComponentEntry(internals: BuildInternals): VitePlugin 
 	}
 
 	return {
-		name: '@astro/plugin-alias-resolve',
+		name: '@astro/plugin-component-entry',
 		enforce: 'pre',
 		config(config) {
 			const rollupInput = config.build?.rollupOptions?.input;
