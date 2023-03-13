@@ -19,7 +19,7 @@ export function vitePluginComponentEntry(internals: BuildInternals): VitePlugin 
 		// If one of the imports has a dot, it's a namespaced import, e.g. `import * as foo from 'foo'`
 		// and `<foo.Counter />`, in which case we re-export `foo` entirely and we don't need to handle
 		// it in this plugin as it's default behaviour from Rollup.
-		if (exportNames.some((name) => name.includes('.'))) {
+		if (exportNames.some((name) => name.includes('.') || name === '*')) {
 			componentToExportNames.delete(componentId);
 		} else {
 			componentToExportNames.set(componentId, Array.from(new Set(exportNames)));
