@@ -36,11 +36,16 @@ export function astroContentVirtualModPlugin({
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace('@@ASSETS_DIR@@', assetsDir)
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
+	const virtualAssetsModContents = fsMod
+		.readFileSync(contentPaths.virtualAssetsModTemplate, 'utf-8')
+		.replace('@@ASSETS_DIR@@', assetsDir);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
+	const allContents = settings.config.experimental.assets ?
+		(virtualModContents + virtualAssetsModContents) :
+		virtualModContents;
 
 	return {
 		name: 'astro-content-virtual-mod-plugin',
@@ -53,7 +58,7 @@ export function astroContentVirtualModPlugin({
 		load(id) {
 			if (id === astroContentVirtualModuleId) {
 				return {
-					code: virtualModContents,
+					code: allContents,
 				};
 			}
 		},

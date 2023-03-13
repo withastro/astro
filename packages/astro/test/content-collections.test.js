@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
@@ -222,6 +223,11 @@ describe('Content Collections', () => {
 				root: './fixtures/content-ssr-integration/',
 				output: 'server',
 				adapter: testAdapter(),
+				vite: {
+					plugins: [
+						preventNodeBuiltinDependencyPlugin()
+					]
+				}
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
