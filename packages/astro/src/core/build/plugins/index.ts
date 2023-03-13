@@ -3,6 +3,7 @@ import { astroHeadPropagationBuildPlugin } from '../../../vite-plugin-head-propa
 import type { AstroBuildPluginContainer } from '../plugin';
 import { pluginAliasResolve } from './plugin-alias-resolve.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
+import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginHoistedScripts } from './plugin-hoisted-scripts.js';
 import { pluginInternals } from './plugin-internals.js';
@@ -11,6 +12,7 @@ import { pluginPrerender } from './plugin-prerender.js';
 import { pluginSSR } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
+	register(pluginComponentEntry(internals));
 	register(pluginAliasResolve(internals));
 	register(pluginAnalyzer(internals));
 	register(pluginInternals(internals));

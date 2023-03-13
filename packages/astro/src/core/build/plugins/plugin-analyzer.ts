@@ -137,7 +137,12 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 				for (const c of astro.hydratedComponents) {
 					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
-					internals.discoveredHydratedComponents.add(rid);
+					if (internals.discoveredHydratedComponents.has(rid)) {
+						const exportNames = internals.discoveredHydratedComponents.get(rid);
+						exportNames?.push(c.exportName)
+					} else {
+						internals.discoveredHydratedComponents.set(rid, [c.exportName]);
+					}
 				}
 
 				// Scan hoisted scripts
@@ -148,7 +153,12 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 					for (const c of astro.clientOnlyComponents) {
 						const cid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
-						internals.discoveredClientOnlyComponents.add(cid);
+						if (internals.discoveredClientOnlyComponents.has(cid)) {
+							const exportNames = internals.discoveredClientOnlyComponents.get(cid);
+							exportNames?.push(c.exportName)
+						} else {
+							internals.discoveredClientOnlyComponents.set(cid, [c.exportName]);
+						}
 						clientOnlys.push(cid);
 
 						const resolvedId = await this.resolve(c.specifier, id);
