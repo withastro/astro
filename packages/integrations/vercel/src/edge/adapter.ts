@@ -127,9 +127,9 @@ export default function vercelEdge({
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
 					routes: [
+						...userRoutes,
 						...getRedirects(routes, _config),
 						{ handle: 'filesystem' },
-						...userRoutes,
 						{ src: '/.*', dest: 'render' },
 					],
 				});
