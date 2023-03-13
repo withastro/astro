@@ -139,7 +139,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 					if (internals.discoveredHydratedComponents.has(rid)) {
 						const exportNames = internals.discoveredHydratedComponents.get(rid);
-						exportNames?.push(c.exportName)
+						exportNames?.push(c.exportName);
 					} else {
 						internals.discoveredHydratedComponents.set(rid, [c.exportName]);
 					}
@@ -155,7 +155,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						const cid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 						if (internals.discoveredClientOnlyComponents.has(cid)) {
 							const exportNames = internals.discoveredClientOnlyComponents.get(cid);
-							exportNames?.push(c.exportName)
+							exportNames?.push(c.exportName);
 						} else {
 							internals.discoveredClientOnlyComponents.set(cid, [c.exportName]);
 						}
