@@ -4492,9 +4492,6 @@ importers:
 
   packages/integrations/sitemap:
     dependencies:
-      fast-glob:
-        specifier: ^3.2.11
-        version: 3.2.12
       sitemap:
         specifier: ^7.1.1
         version: 7.1.1

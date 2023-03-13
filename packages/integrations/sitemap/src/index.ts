@@ -5,14 +5,11 @@ import {
 	type LinkItem as LinkItemBase,
 	type SitemapItemLoose,
 } from 'sitemap';
-import { resolve } from 'path';
 import { fileURLToPath } from 'url';
-import fg from 'fast-glob';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { Logger } from './utils/logger.js';
-import { isRoutePrerendered } from './utils/is-route-prerendered.js';
 import { validateOptions } from './validate-options.js';
 
 export type ChangeFreq = `${EnumChangefreq}`;
@@ -61,61 +58,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 		hooks: {
 			'astro:config:done': async ({ config: cfg }) => {
-				if (cfg.site) {
-					config = cfg;
-				} else {
-					// eslint-disable-next-line no-console
-					console.warn(
-						'The Sitemap integration requires the `site` astro.config option. Skipping.'
-					);
-					return;
-				}
+				config = cfg;
 			},
 
-			'astro:build:start': async () => {
-				if (config.output !== 'server' || !config.site) {
-					return;
-				}
-
-				const srcPath = fileURLToPath(config.srcDir);
-				const pagesPath = resolve(srcPath, 'pages');
-
-				const pageFiles = await fg(`${pagesPath}/**/*.{astro,ts,js}`);
-
-				const routes = (
-					await Promise.all(
-						pageFiles.map(async (filePath) => {
-							const isPrerendered = await isRoutePrerendered(filePath);
-							const index = filePath.indexOf('pages/') + 6;
-							const routeSegment = filePath
-								.substring(index)
-								.replace(/\.(astro|ts|js)/, '')
-								.replace(/index$/, '');
-
-							/**
-							 * @TODO
-							 * figure out how to run `getStaticPaths` here.
-							 */
-							const isDynamicRoute = routeSegment.endsWith(']');
-							const shouldIndex = !isDynamicRoute && !isPrerendered;
-
-							return shouldIndex ? `${config.site}/${routeSegment}` : undefined;
-						})
-					)
-				).filter((route): route is string => Boolean(route));
-				const opts = validateOptions(config.site, options);
-
-				opts.customPages = opts.customPages
-					? Array.from(new Set([...routes, ...opts.customPages]))
-					: routes;
-				options = opts;
-
-				logger.info(`build is starting + ${JSON.stringify(opts.customPages, null, 2)}`);
-			},
-
-			'astro:build:done': async ({ dir, pages }) => {
+			'astro:build:done': async ({ dir, routes }) => {
 				try {
 					if (!config.site) {
+						logger.warn(
+							'The Sitemap integration requires the `site` astro.config option. Skipping.'
+						);
 						return;
 					}
 
@@ -134,12 +85,22 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = pages.map((p) => {
-						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
-							finalSiteUrl.pathname += '/';
-						const path = finalSiteUrl.pathname + p.pathname;
-						return new URL(path, finalSiteUrl).href;
-					});
+					let pageUrls = routes.reduce<string[]>((urls, r) => {
+						/**
+						 * Dynamic URLs have entries with `undefined` pathnames
+						 */
+						if (r.pathname) {
+							/**
+							 * remove the initial slash from relative pathname
+							 * because `finalSiteUrl` always has trailing slash
+							 */
+							const path = finalSiteUrl.pathname + r.pathname.substring(1);
+							const newUrl = new URL(path, finalSiteUrl).href;
+							urls.push(newUrl);
+						}
+
+						return urls;
+					}, []);
 
 					try {
 						if (filter) {
@@ -151,7 +112,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (customPages) {
-						pageUrls = [...pageUrls, ...customPages];
+						pageUrls = Array.from(new Set([...pageUrls, ...customPages]));
 					}
 
 					if (pageUrls.length === 0) {

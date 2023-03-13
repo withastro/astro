@@ -33,7 +33,6 @@
     "test": "mocha --timeout 20000"
   },
   "dependencies": {
-    "fast-glob": "^3.2.11",
     "sitemap": "^7.1.1",
     "zod": "^3.17.3"
   },
