@@ -1,6 +1,7 @@
 import type { Plugin as VitePlugin, UserConfig } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
+import { normalizeEntryId } from './plugin-component-entry.js';
 
 export function vitePluginInternals(input: Set<string>, internals: BuildInternals): VitePlugin {
 	return {
@@ -52,7 +53,7 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
 					const specifiers = mapping.get(chunk.facadeModuleId) || new Set([chunk.facadeModuleId]);
 					for (const specifier of specifiers) {
-						internals.entrySpecifierToBundleMap.set(specifier, chunk.fileName);
+						internals.entrySpecifierToBundleMap.set(normalizeEntryId(specifier), chunk.fileName);
 					}
 				} else if (chunk.type === 'chunk') {
 					for (const id of Object.keys(chunk.modules)) {
