@@ -1,6 +1,4 @@
-import {
-	createImage
-} from 'astro/content/runtime-assets';
+import { createImage } from 'astro/content/runtime-assets';
 
 const assetsDir = '@@ASSETS_DIR@@';
 

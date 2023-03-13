@@ -43,9 +43,9 @@ export function astroContentVirtualModPlugin({
 		.replace('@@ASSETS_DIR@@', assetsDir);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
-	const allContents = settings.config.experimental.assets ?
-		(virtualModContents + virtualAssetsModContents) :
-		virtualModContents;
+	const allContents = settings.config.experimental.assets
+		? virtualModContents + virtualAssetsModContents
+		: virtualModContents;
 
 	return {
 		name: 'astro-content-virtual-mod-plugin',

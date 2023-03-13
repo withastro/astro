@@ -224,10 +224,8 @@ describe('Content Collections', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				vite: {
-					plugins: [
-						preventNodeBuiltinDependencyPlugin()
-					]
-				}
+					plugins: [preventNodeBuiltinDependencyPlugin()],
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
