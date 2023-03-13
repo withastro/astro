@@ -153,7 +153,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						.map((file: string) => `/${file}`);
 
 					for (let page of pages) {
-						staticPathList.push(prependForwardSlash(page.pathname));
+						let pagePath = prependForwardSlash(page.pathname);
+						if (_config.base !== '/') {
+							const base = _config.base.endsWith('/') ? _config.base.substring(0, -1) : _config.base;
+							pagePath = `${base}${pagePath}`;
+						}
+						staticPathList.push(pagePath);
 					}
 
 					const redirectsExists = await fs.promises
