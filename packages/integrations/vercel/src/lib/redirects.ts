@@ -1,14 +1,5 @@
 import type { AstroConfig, RouteData, RoutePart } from 'astro';
-
-// https://vercel.com/docs/project-configuration#legacy/routes
-interface VercelRoute {
-	src: string;
-	methods?: string[];
-	dest?: string;
-	headers?: Record<string, string>;
-	status?: number;
-	continue?: boolean;
-}
+import type { Route as VercelRoute } from '@vercel/routing-utils';
 
 // Copied from /home/juanm04/dev/misc/astro/packages/astro/src/core/routing/manifest/create.ts
 // 2022-04-26

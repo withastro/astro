@@ -11,6 +11,7 @@ import {
 	removeDir,
 	writeJson,
 } from '../lib/fs.js';
+import { getRoutesFromVercelJSON } from '../lib/vercel-config.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';
@@ -119,11 +120,14 @@ export default function vercelEdge({
 					entrypoint: relativePath(commonAncestor, entryPath),
 				});
 
+				const userRoutes = await getRoutesFromVercelJSON(_config)
+
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
 					routes: [
+						...userRoutes,
 						...getRedirects(routes, _config),
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
