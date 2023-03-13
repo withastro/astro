@@ -1,5 +1,40 @@
 # astro
 
+## 2.1.3
+
+### Patch Changes
+
+- [#6530](https://github.com/withastro/astro/pull/6530) [`acf78c5e2`](https://github.com/withastro/astro/commit/acf78c5e271ec3d4f589782078e2a2044cc1c391) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix various inaccuracies with types related to the new Assets features:
+
+  - getConfiguredImageService wasn't present on the astro:assets types.
+  - ImageMetadata wasn't exported
+  - Fixed wrong module declaration for `avif`, `heic` and `heif` files.
+  - Add missing module declaration for SVGs imports
+
+- [#6527](https://github.com/withastro/astro/pull/6527) [`04e624d06`](https://github.com/withastro/astro/commit/04e624d062c6ce385f6293afba26f3942c2290c6) Thanks [@bluwy](https://github.com/bluwy)! - Treeshake exported client components that are not imported
+
+- [#6533](https://github.com/withastro/astro/pull/6533) [`cc90d7219`](https://github.com/withastro/astro/commit/cc90d72197e1139195e9545105b9a1d339f38e1b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added a warning when trying to use `experimental.assets` with a not compatible adapter
+
+- [#6483](https://github.com/withastro/astro/pull/6483) [`a9a6ae298`](https://github.com/withastro/astro/commit/a9a6ae29812339ea00f3b9afd3de09bd9d3733a9) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix images defined in content collections schemas not working
+
+- [#6537](https://github.com/withastro/astro/pull/6537) [`6a7cf0712`](https://github.com/withastro/astro/commit/6a7cf0712da23e2c095f4bc4f2512e618bceb38e) Thanks [@matthewp](https://github.com/matthewp)! - Prevent astro:content from depending on Node builtins
+
+- [#6488](https://github.com/withastro/astro/pull/6488) [`bfd67ea74`](https://github.com/withastro/astro/commit/bfd67ea749dbc6ffa7c9a671fcc48bea6c04a075) Thanks [@matthewp](https://github.com/matthewp)! - Remove use of createRequire breaking non-Node hosts.
+
+- [#6503](https://github.com/withastro/astro/pull/6503) [`f6eddffa0`](https://github.com/withastro/astro/commit/f6eddffa0414d54767e9f9e1ee5a936b8a20146b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add caching to `getCollection()` queries for faster SSG production builds
+
+- [#6508](https://github.com/withastro/astro/pull/6508) [`c63874090`](https://github.com/withastro/astro/commit/c6387409062f1d7c2afc93319748ad57086837c5) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve content collection error formatting:
+
+  - Bold the collection and entry that failed
+  - Consistently list the frontmatter key at the start of every error
+  - Rich errors for union types
+
+- [#6485](https://github.com/withastro/astro/pull/6485) [`d637d1ea5`](https://github.com/withastro/astro/commit/d637d1ea5b347b9c724adc895c9006c696ac8fc8) Thanks [@bluwy](https://github.com/bluwy)! - Fix `@astrojs/prism` edgecase with strict package managers
+
+- [#6532](https://github.com/withastro/astro/pull/6532) [`637f9bc72`](https://github.com/withastro/astro/commit/637f9bc728ea7d56fc82a862d761385f0dcd9528) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `env.d.ts` changing types wrongly on every restart when `experimental.assets` is enabled
+
+- [#6460](https://github.com/withastro/astro/pull/6460) [`77a046e88`](https://github.com/withastro/astro/commit/77a046e886c370b737208574b6934f5a1cf2b177) Thanks [@bluwy](https://github.com/bluwy)! - Add default `.npmrc` file when adding the Lit integration through `astro add lit` and using `pnpm`.
+
 ## 2.1.2
 
 ### Patch Changes
