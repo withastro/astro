@@ -39,7 +39,7 @@ export function astroContentVirtualModPlugin({
 		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
 		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
 	const virtualAssetsModContents = fsMod
-		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+		.readFileSync(contentPaths.virtualAssetsModTemplate, 'utf-8')
 		.replace('@@ASSETS_DIR@@', assetsDir);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
