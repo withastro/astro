@@ -48,7 +48,7 @@ export default function vercelStatic({ analytics }: VercelStaticConfig = {}): As
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
 					version: 3,
-					routes: [...userRoutes, ...getRedirects(routes, _config), { handle: 'filesystem' }],
+					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }, ...userRoutes],
 				});
 			},
 		},
