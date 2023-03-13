@@ -108,7 +108,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						js: SHIM,
 					},
 					logOverride: {
-						'ignored-bare-import': 'silent'
+						'ignored-bare-import': 'silent',
 					},
 				});
 
