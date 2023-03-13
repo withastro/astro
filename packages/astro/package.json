@@ -53,6 +53,8 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./content/internal": "./dist/content/internal.js",
+    "./content/runtime": "./dist/content/runtime.js",
+    "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",

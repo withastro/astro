@@ -347,6 +347,7 @@ export type ContentPaths = {
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
+	virtualAssetsModTemplate: URL;
 	config: {
 		exists: boolean;
 		url: URL;
@@ -365,6 +366,7 @@ export function getContentPaths(
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
+		virtualAssetsModTemplate: new URL('virtual-mod-assets.mjs', templateDir),
 		config: configStats,
 	};
 }
