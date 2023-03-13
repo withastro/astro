@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/alpinejs",
-  "description": "The official Alpine.js integration for Astro.",
+  "description": "Use Alpine within Astro",
   "version": "0.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",

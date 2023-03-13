@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/mdx",
-  "description": "Use MDX within Astro",
+  "description": "Add support for MDX pages in your Astro site",
   "version": "0.18.0",
   "type": "module",
   "types": "./dist/index.d.ts",
