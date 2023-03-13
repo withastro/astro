@@ -4,6 +4,7 @@ import glob from 'fast-glob';
 import { pathToFileURL } from 'url';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
+import { getRoutesFromVercelJSON } from '../lib/vercel-config.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
@@ -106,11 +107,14 @@ export default function vercelServerless({
 					launcherType: 'Nodejs',
 				});
 
+				const userRoutes = await getRoutesFromVercelJSON(_config)
+
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
 					routes: [
+						...userRoutes,
 						...getRedirects(routes, _config),
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
