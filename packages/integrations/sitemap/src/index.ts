@@ -5,11 +5,14 @@ import {
 	type LinkItem as LinkItemBase,
 	type SitemapItemLoose,
 } from 'sitemap';
+import { resolve } from 'path';
 import { fileURLToPath } from 'url';
+import fg from 'fast-glob';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { Logger } from './utils/logger.js';
+import { isRoutePrerendered } from './utils/is-route-prerendered.js';
 import { validateOptions } from './validate-options.js';
 
 export type ChangeFreq = `${EnumChangefreq}`;
@@ -51,18 +54,71 @@ const OUTFILE = 'sitemap-index.xml';
 
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
+	const logger = new Logger(PKG_NAME);
+
 	return {
 		name: PKG_NAME,
 
 		hooks: {
 			'astro:config:done': async ({ config: cfg }) => {
-				config = cfg;
+				if (cfg.site) {
+					config = cfg;
+				} else {
+					// eslint-disable-next-line no-console
+					console.warn(
+						'The Sitemap integration requires the `site` astro.config option. Skipping.'
+					);
+					return;
+				}
+			},
+
+			'astro:build:start': async () => {
+				if (config.output !== 'server' || !config.site) {
+					return;
+				}
+
+				const srcPath = fileURLToPath(config.srcDir);
+				const pagesPath = resolve(srcPath, 'pages');
+
+				const pageFiles = await fg(`${pagesPath}/**/*.{astro,ts,js}`);
+
+				const routes = (
+					await Promise.all(
+						pageFiles.map(async (filePath) => {
+							const isPrerendered = await isRoutePrerendered(filePath);
+							const index = filePath.indexOf('pages/') + 6;
+							const routeSegment = filePath
+								.substring(index)
+								.replace(/\.(astro|ts|js)/, '')
+								.replace(/index$/, '');
+
+							/**
+							 * @TODO
+							 * figure out how to run `getStaticPaths` here.
+							 */
+							const isDynamicRoute = routeSegment.endsWith(']');
+							const shouldIndex = !isDynamicRoute && !isPrerendered;
+
+							return shouldIndex ? `${config.site}/${routeSegment}` : undefined;
+						})
+					)
+				).filter((route): route is string => Boolean(route));
+				const opts = validateOptions(config.site, options);
+
+				opts.customPages = opts.customPages
+					? Array.from(new Set([...routes, ...opts.customPages]))
+					: routes;
+				options = opts;
+
+				logger.info(`build is starting + ${JSON.stringify(opts.customPages, null, 2)}`);
 			},
 
 			'astro:build:done': async ({ dir, pages }) => {
-				const logger = new Logger(PKG_NAME);
-
 				try {
+					if (!config.site) {
+						return;
+					}
+
 					const opts = validateOptions(config.site, options);
 
 					const { filter, customPages, serialize, entryLimit } = opts;
@@ -99,14 +155,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (pageUrls.length === 0) {
-						// offer suggestion for SSR users
-						if (config.output !== 'static') {
-							logger.warn(
-								`No pages found! We can only detect sitemap routes for "static" builds. Since you are using an SSR adapter, we recommend manually listing your sitemap routes using the "customPages" integration option.\n\nExample: \`sitemap({ customPages: ['https://example.com/route'] })\``
-							);
-						} else {
-							logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
-						}
+						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
 						return;
 					}
 
