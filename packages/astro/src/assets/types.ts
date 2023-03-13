@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
-import { ImageService } from './services/service.js';
+import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
+import type { ImageService } from './services/service.js';
 
 export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
-export type InputFormat = (typeof VALID_INPUT_FORMATS)[number] | (string & {});
+export type InputFormat = (typeof VALID_INPUT_FORMATS)[number] | 'svg';
 export type OutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 
 declare global {

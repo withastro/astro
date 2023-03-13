@@ -13,7 +13,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import type { VFile } from 'vfile';
-import { MdxOptions } from './index.js';
+import type { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import remarkPrism from './remark-prism.js';

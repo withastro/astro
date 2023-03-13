@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { ImageMetadata, InputFormat } from '../types.js';
+import type { ImageMetadata, InputFormat } from '../types.js';
 
 export interface Metadata extends ImageMetadata {
 	orientation?: number;
@@ -12,7 +12,7 @@ export async function imageMetadata(
 	data?: Buffer
 ): Promise<Metadata | undefined> {
 	if (!sizeOf) {
-		sizeOf = await import('image-size').then(mod => mod.default);
+		sizeOf = await import('image-size').then((mod) => mod.default);
 	}
 	let file = data;
 	if (!file) {

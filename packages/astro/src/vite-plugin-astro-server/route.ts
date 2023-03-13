@@ -1,7 +1,11 @@
 import type http from 'http';
 import mime from 'mime';
 import type { AstroSettings, ComponentInstance, ManifestData, RouteData } from '../@types/astro';
-import { ComponentPreload, DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
+import type {
+	ComponentPreload,
+	DevelopmentEnvironment,
+	SSROptions,
+} from '../core/render/dev/index';
 
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';

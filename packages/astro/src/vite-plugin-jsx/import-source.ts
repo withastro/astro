@@ -1,5 +1,5 @@
-import { TsConfigJson } from 'tsconfig-resolver';
-import { AstroRenderer } from '../@types/astro';
+import type { TsConfigJson } from 'tsconfig-resolver';
+import type { AstroRenderer } from '../@types/astro';
 import { parseNpmName } from '../core/util.js';
 
 export async function detectImportSource(

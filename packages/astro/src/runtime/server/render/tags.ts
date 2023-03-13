@@ -1,4 +1,4 @@
-import { SSRElement, SSRResult } from '../../../@types/astro';
+import type { SSRElement, SSRResult } from '../../../@types/astro';
 import { renderElement } from './util.js';
 
 const stylesheetRel = 'stylesheet';

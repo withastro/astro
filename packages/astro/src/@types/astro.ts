@@ -20,7 +20,7 @@ import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
 import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -30,7 +30,7 @@ export type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type { ExternalImageService, LocalImageService } from '../assets/services/service';
-export type { ImageTransform } from '../assets/types';
+export type { ImageMetadata, ImageTransform } from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 

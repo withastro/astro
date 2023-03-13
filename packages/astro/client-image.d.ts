@@ -1,6 +1,8 @@
 /// <reference path="./client-base.d.ts" />
 
-type InputFormat = 'avif' | 'gif' | 'heic' | 'heif' | 'jpeg' | 'jpg' | 'png' | 'tiff' | 'webp';
+// TODO: Merge this file with `client-base.d.ts` in 3.0, when the `astro:assets` feature isn't under a flag anymore.
+
+type InputFormat = import('./dist/assets/types.js').InputFormat;
 
 interface ImageMetadata {
 	src: string;
@@ -9,20 +11,7 @@ interface ImageMetadata {
 	format: InputFormat;
 }
 
-// images
-declare module '*.avif' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
 declare module '*.gif' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
-declare module '*.heic' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
-declare module '*.heif' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
@@ -43,6 +32,10 @@ declare module '*.tiff' {
 	export default metadata;
 }
 declare module '*.webp' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
+declare module '*.svg' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
