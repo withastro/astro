@@ -30,7 +30,7 @@ export type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 export type { ExternalImageService, LocalImageService } from '../assets/services/service';
-export type { ImageTransform } from '../assets/types';
+export type { ImageMetadata, ImageTransform } from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
