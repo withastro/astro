@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
@@ -224,20 +225,7 @@ describe('Content Collections', () => {
 				adapter: testAdapter(),
 				vite: {
 					plugins: [
-						// Verifies that `astro:content` does not have a hard dependency on Node builtins.
-						// This is to verify it will run on Cloudflare and Deno
-						{
-							name: 'verify-no-node-stuff',
-							generateBundle() {
-								const nodeModules = ['node:fs', 'node:url', 'node:worker_threads', 'node:path'];
-								nodeModules.forEach(name => {
-									const mod = this.getModuleInfo(name);
-									if(mod) {
-										throw new Error(`Node builtins snuck in: ${name}`)
-									}
-								});
-							}
-						},
+						preventNodeBuiltinDependencyPlugin()
 					]
 				}
 			});
