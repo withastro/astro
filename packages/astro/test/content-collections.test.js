@@ -210,7 +210,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include('"title" should be string, not number.');
+			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
 		});
 	});
 
