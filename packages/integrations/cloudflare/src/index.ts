@@ -107,6 +107,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					banner: {
 						js: SHIM,
 					},
+					logOverride: {
+						'ignored-bare-import': 'silent'
+					},
 				});
 
 				// Rename to worker.js
