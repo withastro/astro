@@ -7,7 +7,7 @@ import type { EmitFile } from 'rollup';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
-import { emitESMImage } from '../assets/internal.js';
+import { emitESMImage } from '../assets/utils/emitAsset.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 
