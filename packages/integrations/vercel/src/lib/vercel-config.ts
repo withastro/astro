@@ -12,5 +12,6 @@ export async function getRoutesFromVercelJSON(config: AstroConfig): Promise<Verc
 	if (!vercelConfig) return []
 	const { routes } = getTransformedRoutes(vercelConfig);
 	
-	return routes ?? [];
+	// First route is `filesystem`, which we already inject
+	return routes?.slice(1) ?? [];
 }
