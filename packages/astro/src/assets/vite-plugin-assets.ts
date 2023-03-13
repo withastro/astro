@@ -100,7 +100,7 @@ export default function assets({
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;
-						let format = meta.format;
+						let format: string = meta.format;
 
 						if (transform) {
 							const result = await globalThis.astroAsset.imageService.transform(file, transform);

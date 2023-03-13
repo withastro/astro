@@ -1,9 +1,18 @@
 export const VIRTUAL_MODULE_ID = 'astro:assets';
 export const VIRTUAL_SERVICE_ID = 'virtual:image-service';
+/**
+ * Valid formats for optimizations in our base services.
+ * Certain formats can be imported (namely SVGs) but not optimized, so they are excluded from this list.
+ */
 export const VALID_INPUT_FORMATS = [
-	'heic',
-	'heif',
-	'avif',
+	// TODO: `image-size` does not support the following formats, so users can't import them.
+	// However, it would be immensely useful to add, for three reasons:
+	// - `heic` and `heif` are common formats, especially among Apple users.
+	// - AVIF is a common format on the web that's bound to become more and more common.
+	// - It's totally reasonable for an user's provided image service to want to support more image types.
+	//'heic',
+	//'heif',
+	//'avif',
 	'jpeg',
 	'jpg',
 	'png',
