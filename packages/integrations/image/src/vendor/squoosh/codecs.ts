@@ -1,5 +1,5 @@
 import { promises as fsp } from 'node:fs'
-import { getModuleURL, instantiateEmscriptenWasm, pathify } from './emscripten-utils.js'
+import { getModuleURL, instantiateEmscriptenWasm, isNetlify, pathify } from './emscripten-utils.js'
 
 interface DecodeModule extends EmscriptenWasm.Module {
   decode: (data: Uint8Array) => ImageData
@@ -33,55 +33,53 @@ export interface RotateOptions {
   numRotations: number
 }
 
+function relativeWasmURL(path: string) {
+	let current = getModuleURL(import.meta.url);
+	if(isNetlify()) {
+		return new URL('../../../../functions-internal/' + path, current);
+	}
+	return new URL(path, current);
+}
+
 // MozJPEG
 import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc'
 import mozDec from './mozjpeg/mozjpeg_node_dec.js'
 import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
-// @ts-expect-error
-import mozEncWasm from './mozjpeg/mozjpeg_node_enc.wasm?init';
-// @ts-expect-error
-import mozDecWasm from './mozjpeg/mozjpeg_node_dec.wasm?init';
+const mozEncWasm = relativeWasmURL('./mozjpeg/mozjpeg_node_enc.wasm');
+const mozDecWasm = relativeWasmURL('./mozjpeg/mozjpeg_node_dec.wasm');
 
 // WebP
 import type { WebPModule as WebPEncodeModule } from './webp/webp_enc'
 import webpDec from './webp/webp_node_dec.js'
 import webpEnc from './webp/webp_node_enc.js'
-// @ts-expect-error
-import webpEncWasm from './webp/webp_node_enc.wasm?init';
-// @ts-expect-error
-import webpDecWasm from './webp/webp_node_dec.wasm?init';
+const webpEncWasm = relativeWasmURL('./webp/webp_node_enc.wasm');
+const webpDecWasm = relativeWasmURL('./webp/webp_node_dec.wasm');
 
 // AVIF
 import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc'
 import avifDec from './avif/avif_node_dec.js'
 import avifEnc from './avif/avif_node_enc.js'
-// @ts-expect-error
-import avifEncWasm from './avif/avif_node_enc.wasm?init';
-// @ts-expect-error
-import avifDecWasm from './avif/avif_node_dec.wasm?init';
+const avifEncWasm = relativeWasmURL('./avif/avif_node_enc.wasm');
+const avifDecWasm = relativeWasmURL('./avif/avif_node_dec.wasm');
 
 // PNG
 import * as pngEncDec from './png/squoosh_png.js'
-// @ts-expect-error
-import pngEncDecWasm from './png/squoosh_png_bg.wasm?init';
+const pngEncDecWasm = relativeWasmURL('./png/squoosh_png_bg.wasm');
 const pngEncDecInit = () =>
-  pngEncDec.default(pngEncDecWasm)
+  pngEncDec.default(fsp.readFile(pathify(pngEncDecWasm.toString())))
 
 // OxiPNG
 import * as oxipng from './png/squoosh_oxipng.js'
-// @ts-expect-error
-import oxipngWasm from './png/squoosh_oxipng_bg.wasm?init';
-const oxipngInit = () => oxipng.default(oxipngWasm);
+const oxipngWasm = relativeWasmURL('./png/squoosh_oxipng_bg.wasm');
+const oxipngInit = () => oxipng.default(fsp.readFile(pathify(oxipngWasm.toString())))
 
 // Resize
 import * as resize from './resize/squoosh_resize.js'
-// @ts-expect-error
-import resizeWasm from './resize/squoosh_resize_bg.wasm?init';
-const resizeInit = () => resize.default(resizeWasm)
+const resizeWasm = relativeWasmURL('./resize/squoosh_resize_bg.wasm');
+const resizeInit = () => resize.default(fsp.readFile(pathify(resizeWasm.toString())))
 
 // rotate
-// @ts-expect-error
-import rotateWasm from './rotate/rotate.wasm?init';
+const rotateWasm = relativeWasmURL('./rotate/rotate.wasm');
 
 // Our decoders currently rely on a `ImageData` global.
 import ImageData from './image_data.js'
