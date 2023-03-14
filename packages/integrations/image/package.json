@@ -38,7 +38,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm run postbuild",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && pnpm run postbuild",
     "postbuild": "astro-scripts copy \"src/**/*.wasm\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "dev": "astro-scripts dev --copy-wasm \"src/**/*.ts\"",
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
