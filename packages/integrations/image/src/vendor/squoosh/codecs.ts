@@ -37,51 +37,41 @@ export interface RotateOptions {
 import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc'
 import mozDec from './mozjpeg/mozjpeg_node_dec.js'
 import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
-// @ts-expect-error
-import mozEncWasm from './mozjpeg/mozjpeg_node_enc.wasm?inline-bytes';
-// @ts-expect-error
-import mozDecWasm from './mozjpeg/mozjpeg_node_dec.wasm?inline-bytes';
+import mozEncWasm from './mozjpeg/mozjpeg_node_enc.wasm.js';
+import mozDecWasm from './mozjpeg/mozjpeg_node_dec.wasm.js';
 
 // WebP
 import type { WebPModule as WebPEncodeModule } from './webp/webp_enc'
 import webpDec from './webp/webp_node_dec.js'
 import webpEnc from './webp/webp_node_enc.js'
-// @ts-expect-error
-import webpEncWasm from './webp/webp_node_enc.wasm?inline-bytes';
-// @ts-expect-error
-import webpDecWasm from './webp/webp_node_dec.wasm?inline-bytes';
+import webpEncWasm from './webp/webp_node_enc.wasm.js';
+import webpDecWasm from './webp/webp_node_dec.wasm.js';
 
 // AVIF
 import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc'
 import avifDec from './avif/avif_node_dec.js'
 import avifEnc from './avif/avif_node_enc.js'
-// @ts-expect-error
-import avifEncWasm from './avif/avif_node_enc.wasm?inline-bytes';
-// @ts-expect-error
-import avifDecWasm from './avif/avif_node_dec.wasm?inline-bytes';
+import avifEncWasm from './avif/avif_node_enc.wasm.js';
+import avifDecWasm from './avif/avif_node_dec.wasm.js';
 
 // PNG
 import * as pngEncDec from './png/squoosh_png.js';
-// @ts-expect-error
-import pngEncDecWasm from './png/squoosh_png_bg.wasm?inline-bytes';
+import pngEncDecWasm from './png/squoosh_png_bg.wasm.js';
 const pngEncDecInit = () =>
   pngEncDec.default(fsp.readFile(pathify(pngEncDecWasm.toString())))
 
 // OxiPNG
 import * as oxipng from './png/squoosh_oxipng.js';
-// @ts-expect-error
-import oxipngWasm from './png/squoosh_oxipng_bg.wasm?inline-bytes';
+import oxipngWasm from './png/squoosh_oxipng_bg.wasm.js';
 const oxipngInit = () => oxipng.default(fsp.readFile(pathify(oxipngWasm.toString())))
 
 // Resize
 import * as resize from './resize/squoosh_resize.js'
-// @ts-expect-error
-import resizeWasm from './resize/squoosh_resize_bg.wasm?inline-bytes';
+import resizeWasm from './resize/squoosh_resize_bg.wasm.js';
 const resizeInit = () => resize.default(fsp.readFile(pathify(resizeWasm.toString())))
 
 // rotate
-// @ts-expect-error
-import rotateWasm from './rotate/rotate.wasm?inline-bytes';
+import rotateWasm from './rotate/rotate.wasm.js';
 
 // Our decoders currently rely on a `ImageData` global.
 import ImageData from './image_data.js'
