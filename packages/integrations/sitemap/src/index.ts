@@ -94,7 +94,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							 * remove the initial slash from relative pathname
 							 * because `finalSiteUrl` always has trailing slash
 							 */
-							const path = finalSiteUrl.pathname + r.pathname.substring(1);
+							const path = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
 							const newUrl = new URL(path, finalSiteUrl).href;
 							urls.push(newUrl);
 						}
