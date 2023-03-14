@@ -49,18 +49,25 @@ export async function setUpEnvTs({
 
 	if (fs.existsSync(envTsPath)) {
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
+
+		// TODO: Remove this logic in 3.0, as `astro/client-image` will be merged into `astro/client`
 		if (settings.config.experimental.assets && typesEnvContents.includes('types="astro/client"')) {
 			typesEnvContents = typesEnvContents.replace(
 				'types="astro/client"',
 				'types="astro/client-image"'
 			);
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
-		} else if (typesEnvContents.includes('types="astro/client-image"')) {
+			info(logging, 'assets', `Added ${bold(envTsPathRelativetoRoot)} types`);
+		} else if (
+			!settings.config.experimental.assets &&
+			typesEnvContents.includes('types="astro/client-image"')
+		) {
 			typesEnvContents = typesEnvContents.replace(
 				'types="astro/client-image"',
 				'types="astro/client"'
 			);
 			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+			info(logging, 'assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
 		}
 
 		if (!fs.existsSync(dotAstroDir))

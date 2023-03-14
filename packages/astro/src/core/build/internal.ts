@@ -48,15 +48,25 @@ export interface BuildInternals {
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
 
 	/**
-	 * A list of hydrated components that are discovered during the SSR build
+	 * A map of hydrated components to export names that are discovered during the SSR build.
 	 * These will be used as the top-level entrypoints for the client build.
+	 *
+	 * @example
+	 * '/project/Component1.jsx' => ['default']
+	 * '/project/Component2.jsx' => ['Counter', 'Timer']
+	 * '/project/Component3.jsx' => ['*']
 	 */
-	discoveredHydratedComponents: Set<string>;
+	discoveredHydratedComponents: Map<string, string[]>;
 	/**
-	 * A list of client:only components that are discovered during the SSR build
+	 * A list of client:only components to export names that are discovered during the SSR build.
 	 * These will be used as the top-level entrypoints for the client build.
+	 *
+	 * @example
+	 * '/project/Component1.jsx' => ['default']
+	 * '/project/Component2.jsx' => ['Counter', 'Timer']
+	 * '/project/Component3.jsx' => ['*']
 	 */
-	discoveredClientOnlyComponents: Set<string>;
+	discoveredClientOnlyComponents: Map<string, string[]>;
 	/**
 	 * A list of hoisted scripts that are discovered during the SSR build
 	 * These will be used as the top-level entrypoints for the client build.
@@ -93,8 +103,8 @@ export function createBuildInternals(): BuildInternals {
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 
-		discoveredHydratedComponents: new Set(),
-		discoveredClientOnlyComponents: new Set(),
+		discoveredHydratedComponents: new Map(),
+		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		propagation: new Map(),

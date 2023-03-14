@@ -92,6 +92,23 @@ describe('rss', () => {
 		chai.expect(body).xml.to.equal(validXmlWithXSLStylesheet);
 	});
 
+	it('should preserve self-closing tags on `customData`', async () => {
+		const customData =
+			'<atom:link href="https://example.com/feed.xml" rel="self" type="application/rss+xml"/>';
+		const { body } = await rss({
+			title,
+			description,
+			items: [],
+			site,
+			xmlns: {
+				atom: 'http://www.w3.org/2005/Atom',
+			},
+			customData,
+		});
+
+		chai.expect(body).to.contain(customData);
+	});
+
 	it('should filter out entries marked as `draft`', async () => {
 		const { body } = await rss({
 			title,
