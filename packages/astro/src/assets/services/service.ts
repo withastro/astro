@@ -100,13 +100,14 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		let targetHeight = options.height;
 		if (isESMImportedImage(options.src)) {
 			const aspectRatio = options.src.width / options.src.height;
-
-			// If we have a desired height and no width, calculate the target width automatically
 			if (targetHeight && !targetWidth) {
+				// If we have a height but no width, use height to calculate the width
 				targetWidth = Math.round(targetHeight * aspectRatio);
 			} else if (targetWidth && !targetHeight) {
+				// If we have a width but no height, use width to calculate the height
 				targetHeight = Math.round(targetWidth / aspectRatio);
-			} else {
+			} else if (!targetWidth && !targetHeight) {
+				// If we have neither width or height, use the original image's dimensions
 				targetWidth = options.src.width;
 				targetHeight = options.src.height;
 			}

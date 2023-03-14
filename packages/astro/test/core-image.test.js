@@ -61,10 +61,28 @@ describe('astro:image', () => {
 				expect(!!$img.attr('decoding')).to.equal(true);
 			});
 
-			it('has width and height', () => {
+			it('has width and height - no dimensions set', () => {
 				let $img = $('#local img');
 				expect($img.attr('width')).to.equal('207');
 				expect($img.attr('height')).to.equal('243');
+			});
+
+			it('has proper width and height - only width', () => {
+				let $img = $('#local-width img');
+				expect($img.attr('width')).to.equal('350');
+				expect($img.attr('height')).to.equal('411');
+			});
+
+			it('has proper width and height - only height', () => {
+				let $img = $('#local-height img');
+				expect($img.attr('width')).to.equal('170');
+				expect($img.attr('height')).to.equal('200');
+			});
+
+			it('has proper width and height - has both width and height', () => {
+				let $img = $('#local-both img');
+				expect($img.attr('width')).to.equal('300');
+				expect($img.attr('height')).to.equal('400');
 			});
 
 			it('includes the provided alt', () => {
