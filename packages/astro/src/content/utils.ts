@@ -7,9 +7,10 @@ import type { EmitFile } from 'rollup';
 import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import { z } from 'zod';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
-import { emitESMImage } from '../assets/internal.js';
+import { emitESMImage } from '../assets/utils/emitAsset.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
+import { errorMap } from './error-map.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -221,20 +222,6 @@ function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
-const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
-
-const errorMap: z.ZodErrorMap = (error, ctx) => {
-	if (error.code === 'invalid_type') {
-		const badKeyPath = JSON.stringify(flattenErrorPath(error.path));
-		if (error.received === 'undefined') {
-			return { message: `${badKeyPath} is required.` };
-		} else {
-			return { message: `${badKeyPath} should be ${error.expected}, not ${error.received}.` };
-		}
-	}
-	return { message: ctx.defaultError };
-};
-
 function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string) {
 	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
 	if (indexOfFrontmatterKey === -1) return 0;
@@ -347,6 +334,7 @@ export type ContentPaths = {
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
+	virtualAssetsModTemplate: URL;
 	config: {
 		exists: boolean;
 		url: URL;
@@ -365,6 +353,7 @@ export function getContentPaths(
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
+		virtualAssetsModTemplate: new URL('virtual-mod-assets.mjs', templateDir),
 		config: configStats,
 	};
 }

@@ -1,5 +1,11 @@
 # @astrojs/turbolinks
 
+## 0.2.1
+
+### Patch Changes
+
+- [#6419](https://github.com/withastro/astro/pull/6419) [`0de08773f`](https://github.com/withastro/astro/commit/0de08773f30cef0e131e42f2068ff56f826b41c0) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Make Tailwind & Turbolinks integration descriptions more consistent
+
 ## 0.2.0
 
 ### Minor Changes

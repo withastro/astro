@@ -1,3 +1,4 @@
+import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
 import mime from 'mime';
 import fs from 'node:fs/promises';
@@ -9,9 +10,10 @@ import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
-import { emitESMImage, isESMImportedImage } from './internal.js';
+import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
 import { copyWasmFiles } from './services/vendor/squoosh/copy-wasm.js';
+import { emitESMImage } from './utils/emitAsset.js';
 import { imageMetadata } from './utils/metadata.js';
 import { getOrigQueryParams } from './utils/queryParams.js';
 import { propsToFilename } from './utils/transformToPath.js';
@@ -26,6 +28,30 @@ export default function assets({
 	let resolvedConfig: vite.ResolvedConfig;
 
 	globalThis.astroAsset = {};
+
+	const UNSUPPORTED_ADAPTERS = new Set([
+		'@astrojs/cloudflare',
+		'@astrojs/deno',
+		'@astrojs/netlify/edge-functions',
+		'@astrojs/vercel/edge',
+	]);
+
+	const adapterName = settings.config.adapter?.name;
+	if (
+		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
+			settings.config.image.service
+		) &&
+		adapterName &&
+		UNSUPPORTED_ADAPTERS.has(adapterName)
+	) {
+		error(
+			logging,
+			'assets',
+			`The currently selected adapter \`${adapterName}\` does not run on Node, however the currently used image service depends on Node built-ins. ${bold(
+				'Your project will NOT be able to build.'
+			)}`
+		);
+	}
 
 	return [
 		// Expose the components and different utilities from `astro:assets` and handle serving images from `/_image` in dev
@@ -99,7 +125,7 @@ export default function assets({
 
 						// if no transforms were added, the original file will be returned as-is
 						let data = file;
-						let format = meta.format;
+						let format: string = meta.format;
 
 						if (transform) {
 							const result = await globalThis.astroAsset.imageService.transform(file, transform);

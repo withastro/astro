@@ -82,8 +82,8 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		.filter((a) => typeof a === 'string') as string[];
 
 	const clientInput = new Set([
-		...internals.discoveredHydratedComponents,
-		...internals.discoveredClientOnlyComponents,
+		...internals.discoveredHydratedComponents.keys(),
+		...internals.discoveredClientOnlyComponents.keys(),
 		...rendererClientEntrypoints,
 		...internals.discoveredScripts,
 	]);

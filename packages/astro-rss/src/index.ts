@@ -142,7 +142,13 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		? rssOptions.items
 		: rssOptions.items.filter((item) => !item.draft);
 
-	const xmlOptions = { ignoreAttributes: false };
+	const xmlOptions = {
+		ignoreAttributes: false,
+		// Avoid correcting self-closing tags to standard tags
+		// when using `customData`
+		// https://github.com/withastro/astro/issues/5794
+		suppressEmptyNode: true,
+	};
 	const parser = new XMLParser(xmlOptions);
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
 	if (typeof rssOptions.stylesheet === 'string') {

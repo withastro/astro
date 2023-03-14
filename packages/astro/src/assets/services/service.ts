@@ -88,8 +88,10 @@ export type BaseServiceTransform = {
  * }
  * ```
  *
- * This service only supports the following properties: `width`, `height`, `format` and `quality`.
- * Additionally, remote URLs are passed as-is.
+ * This service adhere to the included services limitations:
+ * - Remote images are passed as is.
+ * - Only a limited amount of formats are supported.
+ * - For remote images, `width` and `height` are always required.
  *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {

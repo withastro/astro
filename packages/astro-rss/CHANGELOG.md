@@ -1,5 +1,22 @@
 # @astrojs/rss
 
+## 2.3.0
+
+### Minor Changes
+
+- [#6453](https://github.com/withastro/astro/pull/6453) [`2e362042c`](https://github.com/withastro/astro/commit/2e362042c222298fd6cd80a64c1d7b7f3f608a79) Thanks [@ematipico](https://github.com/ematipico)! - Added `trailingSlash` option to control whether or not the emitted URLs should have trailing slashes.
+
+  ```js
+  import rss from '@astrojs/rss';
+
+  export const get = () =>
+    rss({
+      trailingSlash: false,
+    });
+  ```
+
+  By passing `false`, the emitted links won't have trailing slashes.
+
 ## 2.2.0
 
 ### Minor Changes
