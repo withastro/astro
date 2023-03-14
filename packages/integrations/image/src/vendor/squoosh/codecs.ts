@@ -36,7 +36,7 @@ export interface RotateOptions {
 function relativeWasmURL(path: string) {
 	let current = getModuleURL(import.meta.url);
 	if(isNetlify()) {
-		return new URL('../../../../functions-internal/' + path, current);
+		return new URL('../../../../../functions-internal/chunks/' + path, current);
 	}
 	return new URL(path, current);
 }
