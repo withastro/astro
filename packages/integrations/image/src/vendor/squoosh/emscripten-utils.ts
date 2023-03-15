@@ -13,8 +13,12 @@ export function instantiateEmscriptenWasm<T extends EmscriptenWasm.Module>(
   bytes: Uint8Array,
 ): Promise<T> {
   return factory({
+		// @ts-expect-error
 		wasmBinary: bytes,
-  } as any)
+		locateFile(file: string) {
+			return file
+		}
+  })
 }
 
 export function dirname(url: string) {
