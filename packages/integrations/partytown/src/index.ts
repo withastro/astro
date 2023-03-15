@@ -52,7 +52,7 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 			},
 			'astro:build:done': async ({ dir }) => {
 				await copyLibFiles(fileURLToPath(new URL('~partytown', dir)), {
-					debugDir: false,
+					debugDir: options?.config?.debug ?? false,
 				});
 			},
 			'astro:build:ssr': async ({ manifest }) => {
