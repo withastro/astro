@@ -95,8 +95,16 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							 * because `finalSiteUrl` always has trailing slash
 							 */
 							const path = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
-							const newUrl = new URL(path, finalSiteUrl).href;
-							urls.push(newUrl);
+
+							let newUrl = new URL(path, finalSiteUrl).href;
+
+							if (config.trailingSlash === 'never') {
+								urls.push(newUrl);
+							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
+								urls.push(newUrl + '/');
+							} else {
+								urls.push(newUrl);
+							}
 						}
 
 						return urls;
