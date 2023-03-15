@@ -87,7 +87,7 @@ After verifying that the sitemaps are built, you can add them to your site's `<h
 ```html ins={3}
 // src/layouts/Layout.astro
 <head>
-	<link rel="sitemap" href="/sitemap-index.xml">
+  <link rel="sitemap" href="/sitemap-index.xml">
 </head>
 ```
 

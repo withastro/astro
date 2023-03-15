@@ -506,7 +506,7 @@ import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
 export default defineConfig({
-	integrations: [image({
+  integrations: [image({
     // may be useful if your hosting provider allows caching between CI builds
     cacheDir: "./.cache/image"
   })]
