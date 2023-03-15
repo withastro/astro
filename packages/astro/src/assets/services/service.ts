@@ -1,5 +1,4 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { isRemotePath } from '../../core/path.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import type { ImageTransform, OutputFormat } from '../types.js';
@@ -100,13 +99,14 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		let targetHeight = options.height;
 		if (isESMImportedImage(options.src)) {
 			const aspectRatio = options.src.width / options.src.height;
-
-			// If we have a desired height and no width, calculate the target width automatically
 			if (targetHeight && !targetWidth) {
+				// If we have a height but no width, use height to calculate the width
 				targetWidth = Math.round(targetHeight * aspectRatio);
 			} else if (targetWidth && !targetHeight) {
+				// If we have a width but no height, use width to calculate the height
 				targetHeight = Math.round(targetWidth / aspectRatio);
-			} else {
+			} else if (!targetWidth && !targetHeight) {
+				// If we have neither width or height, use the original image's dimensions
 				targetWidth = options.src.width;
 				targetHeight = options.src.height;
 			}
@@ -124,7 +124,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 	},
 	getURL(options: ImageTransform) {
 		if (!isESMImportedImage(options.src)) {
-			// For non-ESM imported images, width and height are required to avoid CLS, as we can't infer them from the file
+			// For remote images, width and height are explicitly required as we can't infer them from the file
 			let missingDimension: 'width' | 'height' | 'both' | undefined;
 			if (!options.width && !options.height) {
 				missingDimension = 'both';
@@ -140,17 +140,12 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
 				});
 			}
-		}
 
-		// Both our currently available local services don't handle remote images, so for them we can just return as is
-		if (!isESMImportedImage(options.src) && isRemotePath(options.src)) {
+			// Both our currently available local services don't handle remote images, so we return the path as is.
 			return options.src;
 		}
 
-		if (
-			isESMImportedImage(options.src) &&
-			!VALID_INPUT_FORMATS.includes(options.src.format as any)
-		) {
+		if (!VALID_INPUT_FORMATS.includes(options.src.format as any)) {
 			throw new AstroError({
 				...AstroErrorData.UnsupportedImageFormat,
 				message: AstroErrorData.UnsupportedImageFormat.message(
@@ -162,7 +157,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 
 		const searchParams = new URLSearchParams();
-		searchParams.append('href', isESMImportedImage(options.src) ? options.src.src : options.src);
+		searchParams.append('href', options.src.src);
 
 		options.width && searchParams.append('w', options.width.toString());
 		options.height && searchParams.append('h', options.height.toString());

@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
-const myImage = await getImage(entry.data.image);
+const myImage = await getImage({src: entry.data.image});
 ---
 <html>
 	<head>
