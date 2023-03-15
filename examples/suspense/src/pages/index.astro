@@ -1,0 +1,43 @@
+---
+import Greeting from '../components/Greeting.astro';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Astro</h1>
+		<main>
+			<Greeting>Hello world</Greeting>
+			<Greeting>Hola mundo</Greeting>
+			<Greeting>Bonjour le monde</Greeting>
+			<Greeting>Hallo Welt</Greeting>
+		</main>
+	</body>
+</html>
+
+<style>
+	:global(*) {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	body {
+		padding: 1rem;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+			Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	}
+
+	main {
+		display: flex;
+		flex-direction: column;
+		padding-top: 2rem;
+		gap: 1rem;
+	}
+</style>

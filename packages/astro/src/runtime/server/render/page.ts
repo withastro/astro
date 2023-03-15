@@ -153,6 +153,9 @@ export async function renderPage(
 								controller.enqueue(bytes);
 								i++;
 							}
+
+							await Promise.all(Array.from(result.suspense.values()).map(suspense => suspense.value.then((chunk: any) => controller.enqueue(chunkToByteArray(result, chunk)))))
+
 							controller.close();
 						} catch (e) {
 							// We don't have a lot of information downstream, and upstream we can't catch the error properly

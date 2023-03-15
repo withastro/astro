@@ -1588,6 +1588,7 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
+	suspense: Map<string, { status: 'pending' | 'fulfilled' | 'rendered', value: any | Promise<any> }>;
 	// Bits 1 = astro, 2 = jsx, 4 = slot
 	// As rendering occurs these bits are manipulated to determine where content
 	// is within a slot. This is used for head injection.

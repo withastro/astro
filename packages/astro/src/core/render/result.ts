@@ -160,6 +160,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		links: args.links ?? new Set<SSRElement>(),
 		propagation: args.propagation ?? new Map(),
 		propagators: new Map(),
+		suspense: new Map(),
 		extraHead: [],
 		scope: 0,
 		cookies,

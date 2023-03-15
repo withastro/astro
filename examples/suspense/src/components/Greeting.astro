@@ -1,0 +1,55 @@
+---
+import Delay from './Delay.astro';
+import Suspense from './Suspense.js';
+---
+
+<div>
+	<Suspense>
+		<h2
+			class="skeleton-box"
+			style={{ '--width': `${10 + Math.floor(Math.random() * 30)}%` }}
+			slot="fallback"
+		>
+		</h2>
+		<Delay><slot /></Delay>
+	</Suspense>
+</div>
+
+<style>
+	h2 {
+		width: 100%;
+	}
+	.skeleton-box {
+		display: inline-block;
+		height: 1em;
+		width: var(--width);
+		position: relative;
+		overflow: hidden;
+		background-color: #ddd;
+		color: transparent;
+		margin: 0;
+	}
+	.skeleton-box::after {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		transform: translateX(-100%);
+		background-image: linear-gradient(
+			to right,
+			rgb(255 255 255 / 0) 0%,
+			rgb(255 255 255 / 20%) 20%,
+			rgb(255 255 255 / 50%) 60%,
+			rgb(255 255 255 / 0) 100%
+		);
+		animation: shimmer 1s infinite;
+		content: '';
+	}
+
+	@keyframes shimmer {
+		100% {
+			transform: translateX(100%);
+		}
+	}
+</style>

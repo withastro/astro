@@ -8,6 +8,7 @@ import { renderChild } from '../any.js';
 import { createScopedResult, ScopeFlags } from '../scope.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
+import { markHTMLString } from '../../escape.js';
 
 type ComponentProps = Record<string | number, any>;
 

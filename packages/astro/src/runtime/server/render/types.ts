@@ -7,6 +7,13 @@ export type RenderDirectiveInstruction = {
 	hydration: HydrationMetadata;
 };
 
+export type RenderSuspenseInstruction = {
+	type: 'suspense';
+	result: SSRResult;
+	id: string;
+	content: any;
+};
+
 export type RenderHeadInstruction = {
 	type: 'head';
 	result: SSRResult;
@@ -20,5 +27,6 @@ export type MaybeRenderHeadInstruction = {
 
 export type RenderInstruction =
 	| RenderDirectiveInstruction
+	| RenderSuspenseInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction;

@@ -21,6 +21,7 @@ export {
 	renderPage,
 	renderScriptElement,
 	renderSlot,
+	renderSuspense,
 	renderStyleElement,
 	renderTemplate as render,
 	renderTemplate,

@@ -12,6 +12,7 @@ export { maybeRenderHead, renderHead } from './head.js';
 export { renderPage } from './page.js';
 export { addScopeFlag, createScopedResult, removeScopeFlag, ScopeFlags } from './scope.js';
 export { renderSlot, type ComponentSlots } from './slot.js';
+export { renderSuspense } from './suspense.js';
 export { renderScriptElement, renderStyleElement, renderUniqueStylesheet } from './tags.js';
 export type { RenderInstruction } from './types';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';

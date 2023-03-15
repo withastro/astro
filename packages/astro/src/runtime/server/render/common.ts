@@ -21,7 +21,7 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
+export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
 		switch (instruction.type) {
@@ -42,6 +42,12 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				} else {
 					return '';
 				}
+			}
+			case 'suspense': {
+				const { id } = instruction;
+				const content = stringifyChunk(result, instruction.content);
+				const html = JSON.stringify(content).replace(/\<\/script\>/g, `</" + "script>`);
+				return markHTMLString(`<script async defer>document.querySelector("astro-placeholder[uid='${id}']").outerHTML = ${html};document.currentScript.remove();</script>`);
 			}
 			case 'head': {
 				if (result._metadata.hasRenderedHead) {
