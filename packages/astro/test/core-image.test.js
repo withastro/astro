@@ -61,10 +61,28 @@ describe('astro:image', () => {
 				expect(!!$img.attr('decoding')).to.equal(true);
 			});
 
-			it('has width and height', () => {
+			it('has width and height - no dimensions set', () => {
 				let $img = $('#local img');
 				expect($img.attr('width')).to.equal('207');
 				expect($img.attr('height')).to.equal('243');
+			});
+
+			it('has proper width and height - only width', () => {
+				let $img = $('#local-width img');
+				expect($img.attr('width')).to.equal('350');
+				expect($img.attr('height')).to.equal('411');
+			});
+
+			it('has proper width and height - only height', () => {
+				let $img = $('#local-height img');
+				expect($img.attr('width')).to.equal('170');
+				expect($img.attr('height')).to.equal('200');
+			});
+
+			it('has proper width and height - has both width and height', () => {
+				let $img = $('#local-both img');
+				expect($img.attr('width')).to.equal('300');
+				expect($img.attr('height')).to.equal('400');
 			});
 
 			it('includes the provided alt', () => {
@@ -121,6 +139,13 @@ describe('astro:image', () => {
 					expect($img.attr('src')).to.equal(
 						'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAA2gAwAEAAAAAQAAAA0AAAAAWvB1rQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGV7hBwAAAWJJREFUKBVtUDEsQ1EUve+1/SItKYMIkYpF06GJdGAwNFFGkxBEYupssRm6EpvJbpVoYhRd6FBikDSxYECsBpG25D/nvP/+p+Ik551z73v33feuyA/izq5CL8ET8ALcBolYIP+vd0ibX/yAT7uj2qkVzwWzUBa0nbacbkKJHi5dlYhXmARYeAS+MwCWA5FPqKIP/9IH/wiygMru5y5mcRYkPHYKP7gAPw4SDbCjRXMgRBJctM4t4ROriM2QSpmkeOtub6YfMYrZvelykbD1sxJVg+6AfKqURRKQLfA4JvoVWgIjDMNlGLVKZxNRFsZsoHGAgREZHKPlJEi2t7if3r2KKS9nVOo0rtNZ3yR7M/VGTqTy5Y4o/scWHBbKfIq0/eZ+x3850OZpaTTxlu/4D3ssuA72uxrYS2rFYjh+aRbmb24LpTVu1IqVKG8P/lmUEaNMxeh6fmquOhkMBE8JJ2yPfwPjdVhiDbiX6AAAAABJRU5ErkJggg=='
 					);
+					expect(!!$img.attr('width')).to.equal(true);
+					expect(!!$img.attr('height')).to.equal(true);
+				});
+
+				it('support images from public', () => {
+					let $img = $('#public img');
+					expect($img.attr('src')).to.equal('/penguin3.jpg');
 					expect(!!$img.attr('width')).to.equal(true);
 					expect(!!$img.attr('height')).to.equal(true);
 				});
