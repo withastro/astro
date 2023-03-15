@@ -143,7 +143,6 @@
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.0.3",
     "prompts": "^2.4.2",
-    "queue": "^6.0.2",
     "rehype": "^12.0.1",
     "semver": "^7.3.8",
     "server-destroy": "^1.0.1",
