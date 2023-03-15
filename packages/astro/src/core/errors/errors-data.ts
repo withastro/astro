@@ -538,8 +538,14 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
 	 * @description
-	 * You should add an additional extension to the endpoint's filename 
-	 * and A dynamic endpoint with `getStaticPaths` should not return `params` with `undefined`.
+ * @description
+	 * The endpoint is prerendered with an `undefined` param but the generated file and folder names will collide.
+	 * 
+	 * An additional extension can be added to the endpoint file name to generate the file with a different name.
+	 * 
+	 * For example, 
+	 * 
+	 * renaming `pages/api/[slug].ts` to `pages/api/[slug].json.ts`.
 	 */
 	PrerenderDynamicEndpointPathCollide: {
 		title: 'Prerendered dynamic endpoint has path collision.',
