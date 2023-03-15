@@ -123,7 +123,7 @@ export const AstroConfigSchema = z.object({
 			service: z.union([
 				z.literal('astro/assets/services/sharp'),
 				z.literal('astro/assets/services/squoosh'),
-				z.string().and(z.object({})),
+				z.string(),
 			]),
 		})
 		.default({
