@@ -142,6 +142,13 @@ describe('astro:image', () => {
 					expect(!!$img.attr('width')).to.equal(true);
 					expect(!!$img.attr('height')).to.equal(true);
 				});
+
+				it('support images from public', () => {
+					let $img = $('#public img');
+					expect($img.attr('src')).to.equal('/penguin3.jpg');
+					expect(!!$img.attr('width')).to.equal(true);
+					expect(!!$img.attr('height')).to.equal(true);
+				});
 			});
 
 			it('error if no width and height', async () => {
