@@ -1,5 +1,4 @@
-import { promises as fsp } from 'node:fs'
-import { getModuleURL, instantiateEmscriptenWasm, isNetlify, pathify } from './emscripten-utils.js'
+import { instantiateEmscriptenWasm } from './emscripten-utils.js'
 
 interface DecodeModule extends EmscriptenWasm.Module {
   decode: (data: Uint8Array) => ImageData
