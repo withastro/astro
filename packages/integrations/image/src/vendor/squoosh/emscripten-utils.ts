@@ -37,10 +37,3 @@ export function getModuleURL(url: string | undefined): string {
 
 	return url
 }
-
-export function isNetlify() {
-  if(typeof __dirname === 'string' && __dirname.split('/').pop() === 'functions-internal') {
-    return true;
-  }
-  return false;
-}

@@ -31,30 +31,15 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 		configResolved(viteConfig) {
 			resolvedConfig = viteConfig;
 		},
-		async resolveId(id, parent) {
+		async resolveId(id) {
 			// The virtual model redirects imports to the ImageService being used
 			// This ensures the module is available in `astro dev` and is included
 			// in the SSR server bundle.
 			if (id === virtualModuleId) {
 				return await this.resolve(options.serviceEntryPoint);
-			} else if(id.endsWith('?inline-bytes')) {
-				let partial = id.slice(0, id.indexOf('?'));
-				let out = await this.resolve(partial, parent, { skipSelf: true });
-				return out?.id + '?inline-bytes';
 			}
 		},
 		async load(id) {
-			//console.log("LOAD", id);
-			if(id.endsWith('?inline-bytes')) {
-				let file = id.slice(0, id.indexOf('?'));
-				if(file.startsWith('/@fs')) {
-					file = file.slice('/@fs'.length);
-				}
-				let url = pathToFileURL(file);
-				let buffer = await fs.readFile(url);
-				let base64 = buffer.toString('base64');
-				return `export default Buffer.from(${JSON.stringify(base64)}, 'base64')`;
-			}
 			// only claim image ESM imports
 			if (!filter(id)) {
 				return null;
