@@ -71,7 +71,7 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	imageService?: any;
 	assetsDir?: URL;
 	resolveImage?: (path: string) => Promise<string>;
-	getImageMetadata?: (filePath: string) => ImageMetadata;
+	getImageMetadata?: any;
 }
 
 export interface MarkdownHeading {
