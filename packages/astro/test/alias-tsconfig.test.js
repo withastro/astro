@@ -34,5 +34,20 @@ describe('Aliases with tsconfig.json', () => {
 			const scripts = $('script').toArray();
 			expect(scripts.length).to.be.greaterThan(0);
 		});
+
+		it('can load via baseUrl', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			expect($('#foo').text()).to.equal('foo');
+		});
+
+		it('works in css @import', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			console.log(html)
+			// imported css should be bundled
+			expect(html).to.include('#style-red');
+			expect(html).to.include('#style-blue');
+		});
 	});
 });
