@@ -215,6 +215,21 @@ describe('Content Collections', () => {
 		});
 	});
 
+	describe('With empty markdown file', () => {
+		it('Throws the right error', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-md-file/',
+			});
+			let error;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include('**title**: Required');
+		});
+	});
+
 	describe('SSR integration', () => {
 		let app;
 
