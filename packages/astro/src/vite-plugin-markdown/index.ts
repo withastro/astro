@@ -13,6 +13,7 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { imageMetadata } from '../assets/index.js';
+import imageSize from '../assets/vendor/image-size/index.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -104,6 +105,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					imageService,
 					assetsDir: new URL('./assets/', settings.config.srcDir),
 					resolveImage: this.meta.watchMode ? undefined : resolveImage.bind(this, fileId),
+					getImageMetadata: imageSize,
 				});
 
 				this;

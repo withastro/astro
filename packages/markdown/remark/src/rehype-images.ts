@@ -1,11 +1,10 @@
-import sizeOf from 'image-size';
 import { join as pathJoin } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { visit } from 'unist-util-visit';
 import { pathToFileURL } from 'url';
-import type { MarkdownVFile } from './types.js';
+import type { ImageMetadata, MarkdownVFile } from './types.js';
 
-export function rehypeImages(imageService: any, assetsDir: URL | undefined) {
+export function rehypeImages(imageService: any, assetsDir: URL | undefined, getImageMetadata: any) {
 	return () =>
 		function (tree: any, file: MarkdownVFile) {
 			visit(tree, (node) => {
@@ -24,10 +23,10 @@ export function rehypeImages(imageService: any, assetsDir: URL | undefined) {
 							fileURL = pathToFileURL(pathJoin(file.dirname, node.properties.src));
 						}
 
-						const fileData = sizeOf(fileURLToPath(fileURL));
-						fileURL.searchParams.append('origWidth', fileData.width!.toString());
-						fileURL.searchParams.append('origHeight', fileData.height!.toString());
-						fileURL.searchParams.append('origFormat', fileData.type!.toString());
+						const fileData = getImageMetadata!(fileURLToPath(fileURL)) as ImageMetadata;
+						fileURL.searchParams.append('origWidth', fileData.width.toString());
+						fileURL.searchParams.append('origHeight', fileData.height.toString());
+						fileURL.searchParams.append('origFormat', fileData.type.toString());
 
 						let options = {
 							src: {

@@ -30,7 +30,6 @@
   "dependencies": {
     "@astrojs/prism": "^2.1.0",
     "github-slugger": "^1.4.0",
-    "image-size": "^1.0.2",
     "import-meta-resolve": "^2.1.0",
     "rehype-raw": "^6.1.1",
     "rehype-stringify": "^9.0.3",
