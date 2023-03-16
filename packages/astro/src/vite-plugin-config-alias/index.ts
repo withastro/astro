@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import type { AstroSettings } from '../@types/astro';
 
-import type { Alias, Plugin as VitePlugin } from 'vite';
-import type { TsConfigJson } from 'tsconfig-resolver';
 import slash from 'slash';
+import type { TsConfigJson } from 'tsconfig-resolver';
+import type { Alias, Plugin as VitePlugin } from 'vite';
 
 /** Returns a list of compiled aliases. */
 const getConfigAlias = (

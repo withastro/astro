@@ -44,7 +44,7 @@ describe('Aliases with tsconfig.json', () => {
 
 		it('works in css @import', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
-			console.log(html)
+			console.log(html);
 			// imported css should be bundled
 			expect(html).to.include('#style-red');
 			expect(html).to.include('#style-blue');
