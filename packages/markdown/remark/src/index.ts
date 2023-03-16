@@ -116,7 +116,7 @@ export async function renderMarkdown(
 	});
 
 	if (opts.experimentalAssets) {
-		parser.use(rehypeImages(await opts.imageService, opts.assetsDir));
+		parser.use(rehypeImages(await opts.imageService, opts.assetsDir, opts.getImageMetadata));
 	}
 	if (!isPerformanceBenchmark) {
 		parser.use([rehypeHeadingIds]);
