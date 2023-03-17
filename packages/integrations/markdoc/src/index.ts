@@ -36,7 +36,7 @@ export default function markdoc(markdocConfig: Config = {}): IntegrationWithPriv
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					getModule({ entry }: any): Partial<rollup.LoadResult> {
+					getRenderModule({ entry }: any): Partial<rollup.LoadResult> {
 						validateRenderProperties(markdocConfig, config);
 						const ast = Markdoc.parse(entry.body);
 						const content = Markdoc.transform(ast, {

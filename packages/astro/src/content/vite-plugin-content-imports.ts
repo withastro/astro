@@ -45,10 +45,98 @@ export function astroContentImportPlugin({
 		}
 	}
 
-	async function getEntryDataById(
-		fileId: string,
-		pluginContext: PluginContext
-	): Promise<ContentEntryModule> {
+	// Used by the `render-module` plugin to avoid double-parsing your schema
+	const contentEntryModuleByIdCache = new Map<string, ContentEntryModule>();
+
+	const plugins: Plugin[] = [
+		{
+			name: 'astro:content-imports',
+			async load(viteId) {
+				if (isContentFlagImport(viteId, contentEntryExts)) {
+					const { fileId } = getFileInfo(viteId, settings.config);
+					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
+						fileId,
+						pluginContext: this,
+					});
+
+					const code = escapeViteEnvReferences(`
+export const id = ${JSON.stringify(id)};
+export const collection = ${JSON.stringify(collection)};
+export const slug = ${JSON.stringify(slug)};
+export const body = ${JSON.stringify(body)};
+export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+export const _internal = {
+	filePath: ${JSON.stringify(_internal.filePath)},
+	rawData: ${JSON.stringify(_internal.rawData)},
+};
+`);
+					return { code };
+				}
+			},
+			configureServer(viteServer) {
+				viteServer.watcher.on('all', async (event, entry) => {
+					if (
+						['add', 'unlink', 'change'].includes(event) &&
+						getEntryType(entry, contentPaths, contentEntryExts) === 'config'
+					) {
+						// Content modules depend on config, so we need to invalidate them.
+						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
+							if (
+								isContentFlagImport(modUrl, contentEntryExts) ||
+								// TODO: refine to content types with getModule
+								contentEntryExts.some((ext) => modUrl.endsWith(ext))
+							) {
+								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
+								if (mod) {
+									viteServer.moduleGraph.invalidateModule(mod);
+								}
+							}
+						}
+					}
+				});
+			},
+			async transform(code, id) {
+				if (isContentFlagImport(id, contentEntryExts)) {
+					// Escape before Rollup internal transform.
+					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
+					return { code: escapeViteEnvReferences(code) };
+				}
+			},
+		},
+	];
+
+	if (settings.contentEntryTypes.some((t) => t.getRenderModule)) {
+		plugins.push({
+			name: 'astro:content-render-imports',
+			async load(viteId) {
+				if (!contentEntryExts.some((ext) => viteId.endsWith(ext))) return;
+
+				const { fileId } = getFileInfo(viteId, settings.config);
+				for (const contentEntryType of settings.contentEntryTypes) {
+					if (contentEntryType.getRenderModule) {
+						const entry = await contentEntryModuleByIdCache.get(fileId);
+						if (!entry)
+							throw new AstroError({
+								...AstroErrorData.UnknownContentCollectionError,
+								message: `Unable to render ${JSON.stringify(
+									fileId
+								)}. Did you import this module directly without using a content collection query?`,
+							});
+
+						return contentEntryType.getRenderModule({ entry });
+					}
+				}
+			},
+		});
+	}
+
+	async function getContentEntryModule({
+		fileId,
+		pluginContext,
+	}: {
+		fileId: string;
+		pluginContext: PluginContext;
+	}): Promise<ContentEntryModule> {
 		const observable = globalContentConfigObserver.get();
 
 		// Content config should be loaded before this plugin is used
@@ -122,82 +210,9 @@ export function astroContentImportPlugin({
 			data,
 			body: info.body,
 		};
-
+		contentEntryModuleByIdCache.set(fileId, contentEntryModule);
 		return contentEntryModule;
 	}
 
-	const plugins: Plugin[] = [
-		{
-			name: 'astro:content-imports',
-			async load(viteId) {
-				const { fileId } = getFileInfo(viteId, settings.config);
-				if (isContentFlagImport(viteId, contentEntryExts)) {
-					const { id, slug, collection, body, data, _internal } = await getEntryDataById(
-						fileId,
-						this
-					);
-
-					const code = escapeViteEnvReferences(`
-export const id = ${JSON.stringify(id)};
-export const collection = ${JSON.stringify(collection)};
-export const slug = ${JSON.stringify(slug)};
-export const body = ${JSON.stringify(body)};
-export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
-export const _internal = {
-	filePath: ${JSON.stringify(_internal.filePath)},
-	rawData: ${JSON.stringify(_internal.rawData)},
-};
-`);
-					return { code };
-				}
-			},
-			configureServer(viteServer) {
-				viteServer.watcher.on('all', async (event, entry) => {
-					if (
-						['add', 'unlink', 'change'].includes(event) &&
-						getEntryType(entry, contentPaths, contentEntryExts) === 'config'
-					) {
-						// Content modules depend on config, so we need to invalidate them.
-						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
-							if (
-								isContentFlagImport(modUrl, contentEntryExts) ||
-								// TODO: refine to content types with getModule
-								contentEntryExts.some((ext) => modUrl.endsWith(ext))
-							) {
-								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
-								if (mod) {
-									viteServer.moduleGraph.invalidateModule(mod);
-								}
-							}
-						}
-					}
-				});
-			},
-			async transform(code, id) {
-				if (isContentFlagImport(id, contentEntryExts)) {
-					// Escape before Rollup internal transform.
-					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
-					return { code: escapeViteEnvReferences(code) };
-				}
-			},
-		},
-	];
-
-	if (settings.contentEntryTypes.some((t) => t.getModule)) {
-		plugins.push({
-			name: 'astro:content-render-modules',
-			async load(viteId) {
-				if (!contentEntryExts.some((ext) => viteId.endsWith(ext))) return;
-
-				const { fileId } = getFileInfo(viteId, settings.config);
-				for (const contentEntryType of settings.contentEntryTypes) {
-					if (contentEntryType.getModule) {
-						const entry = await getEntryDataById(fileId, this);
-						return contentEntryType.getModule({ entry });
-					}
-				}
-			},
-		});
-	}
 	return plugins;
 }
