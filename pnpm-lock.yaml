@@ -3068,7 +3068,6 @@ importers:
       gray-matter: ^4.0.3
       linkedom: ^0.14.12
       mocha: ^9.2.2
-      rollup: ^3.19.1
       stringify-attributes: ^3.0.0
       vite: ^4.0.3
       zod: ^3.17.3
@@ -3087,7 +3086,6 @@ importers:
       devalue: 4.2.3
       linkedom: 0.14.21
       mocha: 9.2.2
-      rollup: 3.19.1
       vite: 4.1.2
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -14670,14 +14668,6 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
-
-  /rollup/3.19.1:
-    resolution: {integrity: sha512-lAbrdN7neYCg/8WaoWn/ckzCtz+jr70GFfYdlf50OF7387HTg+wiuiqJRFYawwSPpqfqDNYqK7smY/ks2iAudg==}
-    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
 
   /run-parallel/1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
