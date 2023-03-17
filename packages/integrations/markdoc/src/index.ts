@@ -3,7 +3,6 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type * as rollup from 'rollup';
 import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -31,7 +30,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					getRenderModule({ entry }: any): Partial<rollup.LoadResult> {
+					getRenderModule({ entry }) {
 						validateRenderProperties(markdocConfig, config);
 						const ast = Markdoc.parse(entry.body);
 						const content = Markdoc.transform(ast, {
