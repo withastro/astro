@@ -86,7 +86,7 @@ The sidebar navigation is controlled by the `SIDEBAR` variable in your `src/conf
 
 ```ts
 export const SIDEBAR = {
-  en: [
+  en: {
     { text: "Section Header", header: true },
     { text: "Introduction", link: "en/introduction" },
     { text: "Page 2", link: "en/page-2" },
@@ -94,7 +94,7 @@ export const SIDEBAR = {
 
     { text: "Another Section", header: true },
     { text: "Page 4", link: "en/page-4" },
-  ],
+  },
 };
 ```
 
@@ -135,16 +135,16 @@ Last step: you'll need to add a new entry to your sidebar, to create the table o
 ```diff
 // src/config.ts
 export const SIDEBAR = {
-  en: [
+  en: {
     { text: 'Section Header', header: true, },
     { text: 'Introduction', link: 'en/introduction' },
     // ...
-  ],
-+  es: [
+  },
++  es: {
 +    { text: 'Encabezado de sección', header: true, },
 +    { text: 'Introducción', link: 'es/introduction' },
 +    // ...
-+  ],
++  },
 };
 
 // ...
