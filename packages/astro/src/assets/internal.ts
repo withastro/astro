@@ -27,6 +27,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 }
 
 interface GetImageResult {
+	rawOptions: ImageTransform;
 	options: ImageTransform;
 	src: string;
 	attributes: Record<string, any>;
@@ -50,17 +51,21 @@ interface GetImageResult {
  */
 export async function getImage(options: ImageTransform): Promise<GetImageResult> {
 	const service = await getConfiguredImageService();
-	let imageURL = service.getURL(options);
+	const validatedOptions = service.validateOptions ? service.validateOptions(options) : options;
+
+	let imageURL = service.getURL(validatedOptions);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
 	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
-		imageURL = globalThis.astroAsset.addStaticImage(options);
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
 	}
 
 	return {
-		options,
+		rawOptions: options,
+		options: validatedOptions,
 		src: imageURL,
-		attributes: service.getHTMLAttributes !== undefined ? service.getHTMLAttributes(options) : {},
+		attributes:
+			service.getHTMLAttributes !== undefined ? service.getHTMLAttributes(validatedOptions) : {},
 	};
 }
 
