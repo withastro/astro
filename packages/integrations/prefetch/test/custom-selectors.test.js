@@ -117,7 +117,7 @@ test.describe('Custom prefetch intent selectors', () => {
 
 			await page.hover(customIntentSelector);
 
-			await page.waitForResponse(astro.resolveUrl('/terms'));
+			await page.waitForLoadState('networkidle');
 
 			expect(
 				requests.includes(astro.resolveUrl('/terms')),
@@ -155,7 +155,7 @@ test.describe('Custom prefetch intent selectors', () => {
 
 			await page.hover(customIntentSelector);
 
-			await page.waitForResponse(astro.resolveUrl('/terms'));
+			await page.waitForLoadState('networkidle');
 
 			expect(
 				requests.includes(astro.resolveUrl('/terms')),

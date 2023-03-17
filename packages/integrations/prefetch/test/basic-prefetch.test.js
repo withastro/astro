@@ -39,7 +39,7 @@ test.describe('Basic prefetch', () => {
 		});
 
 		test.describe('prefetches rel="prefetch-intent" links only on hover', () => {
-			test('skips /uses', async ({ page, astro }) => {
+			test('prefetches /uses on hover', async ({ page, astro }) => {
 				const requests = [];
 
 				page.on('request', (request) => requests.push(request.url()));
@@ -55,7 +55,7 @@ test.describe('Basic prefetch', () => {
 
 				await page.hover('a[href="/uses"]');
 
-				await page.waitForResponse(astro.resolveUrl('/uses'));
+				await page.waitForLoadState('networkidle');
 
 				expect(
 					requests.includes(astro.resolveUrl('/uses')),
@@ -102,7 +102,7 @@ test.describe('Basic prefetch', () => {
 		});
 
 		test.describe('prefetches rel="prefetch-intent" links only on hover', () => {
-			test('skips /uses', async ({ page, astro }) => {
+			test('prefetches /uses on hover', async ({ page, astro }) => {
 				const requests = [];
 
 				page.on('request', (request) => requests.push(request.url()));
@@ -118,7 +118,7 @@ test.describe('Basic prefetch', () => {
 
 				await page.hover('a[href="/uses"]');
 
-				await page.waitForResponse(astro.resolveUrl('/uses'));
+				await page.waitForLoadState('networkidle');
 
 				expect(
 					requests.includes(astro.resolveUrl('/uses')),
