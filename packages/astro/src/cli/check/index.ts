@@ -85,7 +85,10 @@ export async function check(
 			commandName: 'astro check',
 			usage: '[...flags]',
 			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
+				Flags: [
+					['--watch', 'Check input files in watch mode.'],
+					['--help (-h)', 'See all available flags.']
+				],
 			},
 			description: `Runs diagnostics against your project and reports errors to the console.`,
 		});
