@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import type { IncomingMessage } from 'http';
 import { TLSSocket } from 'tls';
 import { deserializeManifest } from './common.js';
-import { App, MatchOptions } from './index.js';
+import { App, type MatchOptions } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

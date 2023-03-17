@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroErrorData } from '../errors-data.js';
-import { AstroError, ErrorWithMetadata } from '../errors.js';
+import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import type { SSRLoadedRenderer } from './../../../@types/astro.js';
 import { renderErrorMarkdown } from './utils.js';

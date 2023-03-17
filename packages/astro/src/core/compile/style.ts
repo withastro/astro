@@ -1,6 +1,6 @@
 import type { TransformOptions } from '@astrojs/compiler';
 import fs from 'fs';
-import { preprocessCSS, ResolvedConfig } from 'vite';
+import { preprocessCSS, type ResolvedConfig } from 'vite';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
 
 export function createStylePreprocessor({

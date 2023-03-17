@@ -13,7 +13,7 @@ import {
 import { ASTRO_VERSION } from '../core/constants.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
-import { debug, error, info, LogOptions } from '../core/logger/core.js';
+import { debug, error, info, type LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';

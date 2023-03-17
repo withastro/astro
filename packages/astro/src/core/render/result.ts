@@ -10,16 +10,16 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import {
-	ComponentSlots,
+	ScopeFlags,
 	createScopedResult,
 	renderSlot,
-	ScopeFlags,
 	stringifyChunk,
+	type ComponentSlots,
 } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { LogOptions, warn } from '../logger/core.js';
+import { warn, type LogOptions } from '../logger/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

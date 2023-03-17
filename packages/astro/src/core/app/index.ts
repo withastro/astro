@@ -5,7 +5,7 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
-import type { RouteInfo, SSRManifest as Manifest } from './types';
+import type { SSRManifest as Manifest, RouteInfo } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
@@ -16,8 +16,8 @@ import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../p
 import {
 	createEnvironment,
 	createRenderContext,
-	Environment,
 	renderPage,
+	type Environment,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {

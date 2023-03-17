@@ -1,7 +1,12 @@
 // TODO: Investigate removing this service once sharp lands WASM support, as libsquoosh is deprecated
 
 import type { ImageQualityPreset, OutputFormat } from '../types.js';
-import { baseService, BaseServiceTransform, LocalImageService, parseQuality } from './service.js';
+import {
+	baseService,
+	parseQuality,
+	type BaseServiceTransform,
+	type LocalImageService,
+} from './service.js';
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
 
