@@ -11,24 +11,19 @@ import {
 	prependForwardSlash,
 } from './utils.js';
 
-type IntegrationWithPrivateHooks = {
-	name: string;
-	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
-		'astro:config:setup': (
-			params: HookParameters<'astro:config:setup'> & {
-				// `contentEntryType` is not a public API
-				// Add type defs here
-				addContentEntryType: (contentEntryType: ContentEntryType) => void;
-			}
-		) => void | Promise<void>;
-	};
+type SetupHookParams = HookParameters<'astro:config:setup'> & {
+	// `contentEntryType` is not a public API
+	// Add type defs here
+	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdoc(markdocConfig: Config = {}): IntegrationWithPrivateHooks {
+export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, addContentEntryType }) => {
+			'astro:config:setup': async (params) => {
+				const { updateConfig, config, addContentEntryType } = params as SetupHookParams;
+
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
 					return {

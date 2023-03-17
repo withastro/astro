@@ -51,6 +51,13 @@ export interface AstroMarkdownOptions {
 	smartypants?: boolean;
 }
 
+export interface ImageMetadata {
+	src: string;
+	width: number;
+	height: number;
+	type: string;
+}
+
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** @internal */
 	fileURL?: URL;
@@ -64,6 +71,7 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	imageService?: any;
 	assetsDir?: URL;
 	resolveImage?: (path: string) => Promise<string>;
+	getImageMetadata?: any;
 }
 
 export interface MarkdownHeading {
