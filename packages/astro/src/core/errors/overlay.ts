@@ -412,6 +412,7 @@ const style = /* css */ `
   padding: 24px;
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 #code h2 {
@@ -419,6 +420,7 @@ const style = /* css */ `
   color: var(--title-text);
   font-size: 18px;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 #code .link {
