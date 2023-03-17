@@ -3,13 +3,8 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { InlineConfig, TransformResult } from 'vite';
-import {
-	getAstroConfigPath,
-	MarkdocError,
-	parseFrontmatter,
-	prependForwardSlash,
-} from './utils.js';
+import type * as rollup from 'rollup';
+import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -36,7 +31,7 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					getModule(entry: any /* TODO: typing */): Partial<TransformResult> {
+					getModule({ entry }: any): Partial<rollup.LoadResult> {
 						validateRenderProperties(markdocConfig, config);
 						const ast = Markdoc.parse(entry.body);
 						const content = Markdoc.transform(ast, {
@@ -44,13 +39,13 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 							variables: {
 								...markdocConfig.variables,
 								entry,
-							}
+							},
 						});
 						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
 								content
-							)};\nexport async function Content ({ components }) { return h(Renderer, { content: transformedContent, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
-						}
+							)};\nexport async function Content ({ components }) { return h(Renderer, { content: transformedContent, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`,
+						};
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
