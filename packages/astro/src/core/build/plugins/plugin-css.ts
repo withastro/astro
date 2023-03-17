@@ -56,6 +56,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 			name: 'astro:rollup-plugin-build-css',
 
 			outputOptions(outputOptions) {
+				if (options.target === 'client') return
+				
 				const assetFileNames = outputOptions.assetFileNames;
 				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 				const createNameForParentPages = namingIncludesHash

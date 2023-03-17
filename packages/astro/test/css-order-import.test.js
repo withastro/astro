@@ -106,6 +106,17 @@ describe('CSS ordering - import order', () => {
 			expect(idx1).to.be.greaterThan(idx2);
 			expect(idx2).to.be.greaterThan(idx3);
 		});
+
+		it('correctly chunks css import from framework components', async () => {
+			let html = await fixture.readFile('/index.html');
+
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
+			const [, { css }] = content;
+			expect(css).to.not.include(
+				'.client-1{background:red!important}',
+				'CSS from Client2.jsx leaked into index.astro when chunking'
+			);
+		});
 	});
 
 	describe('Dynamic import', () => {

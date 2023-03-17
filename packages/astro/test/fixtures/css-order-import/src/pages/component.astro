@@ -1,6 +1,7 @@
 ---
 import One from '../components/One.astro';
 import Two from '../components/Two.astro';
+import Client2 from '../components/Client2.jsx';
 ---
 <html>
 <head>
@@ -15,5 +16,6 @@ import Two from '../components/Two.astro';
 </head>
 <body>
 	<h1>Test</h1>
+	<Client2 client:only="react" />
 </body>
 </html>
