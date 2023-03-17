@@ -1053,7 +1053,9 @@ export interface ContentEntryType {
 		fileUrl: URL;
 		contents: string;
 	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
-	getModule?(params: { entry: ContentEntryModule }): rollup.LoadResult | Promise<rollup.LoadResult>;
+	getRenderModule?(params: {
+		entry: ContentEntryModule;
+	}): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 }
 
