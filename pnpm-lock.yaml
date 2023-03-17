@@ -3103,6 +3103,14 @@ importers:
     devDependencies:
       shiki: 0.11.1
 
+  packages/integrations/markdoc/test/fixtures/entry-prop:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/mdx:
     specifiers:
       '@astrojs/markdown-remark': ^2.1.0
@@ -14669,6 +14677,7 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
 
   /run-parallel/1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -16212,7 +16221,7 @@ packages:
       esbuild: 0.16.17
       postcss: 8.4.21
       resolve: 1.22.1
-      rollup: 3.19.1
+      rollup: 3.14.0
     optionalDependencies:
       fsevents: 2.3.2
 
