@@ -77,11 +77,18 @@ export interface PrefetchOptions {
 	 * @default 1
 	 */
 	throttle?: number;
+	/**
+	 * Element selector used to find all links on the page that should be prefetched on user interaction.
+	 *
+	 * @default 'a[href][rel~="prefetch-intent"]'
+	 */
+	intentSelector?: string;
 }
 
 export default function prefetch({
 	selector = 'a[href][rel~="prefetch"]',
 	throttle = 1,
+	intentSelector = 'a[href][rel~="prefetch-intent"]',
 }: PrefetchOptions) {
 	// If the navigator is offline, it is very unlikely that a request can be made successfully
 	if (!navigator.onLine) {
@@ -109,7 +116,9 @@ export default function prefetch({
 		new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting && entry.target instanceof HTMLAnchorElement) {
-					toAdd(() => preloadHref(entry.target as HTMLAnchorElement).finally(isDone));
+					if (entry.target.getAttribute('rel')?.indexOf(intentSelector) === -1) {
+						toAdd(() => preloadHref(entry.target as HTMLAnchorElement).finally(isDone));
+					}
 				}
 			});
 		});
@@ -117,5 +126,15 @@ export default function prefetch({
 	requestIdleCallback(() => {
 		const links = [...document.querySelectorAll<HTMLAnchorElement>(selector)].filter(shouldPreload);
 		links.forEach(observe);
+
+		// Observe links with prefetch-intent
+		const intentLinks = [...document.querySelectorAll<HTMLAnchorElement>(intentSelector)].filter(
+			shouldPreload
+		);
+		intentLinks.forEach((link) => {
+			events.map((event) =>
+				link.addEventListener(event, onLinkEvent, { passive: true, once: true })
+			);
+		});
 	});
 }
