@@ -45,16 +45,13 @@ export function astroContentImportPlugin({
 		}
 	}
 
-	// Used by the `render-module` plugin to avoid double-parsing your schema
-	const contentEntryModuleByIdCache = new Map<string, ContentEntryModule>();
-
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
 			async load(viteId) {
 				if (isContentFlagImport(viteId, contentEntryExts)) {
 					const { fileId } = getFileInfo(viteId, settings.config);
-					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
+					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
 						fileId,
 						pluginContext: this,
 					});
@@ -114,7 +111,9 @@ export const _internal = {
 				const { fileId } = getFileInfo(viteId, settings.config);
 				for (const contentEntryType of settings.contentEntryTypes) {
 					if (contentEntryType.getRenderModule) {
-						const entry = await contentEntryModuleByIdCache.get(fileId);
+						const entry = await getContentEntryModuleFromCache(fileId);
+						// Cached entry must exist (or be in-flight) when importing the module via content collections.
+						// This is ensured by the `astro:content-imports` plugin.
 						if (!entry)
 							throw new AstroError({
 								...AstroErrorData.UnknownContentCollectionError,
@@ -130,13 +129,34 @@ export const _internal = {
 		});
 	}
 
-	async function getContentEntryModule({
+	// Used by the `render-module` plugin to avoid double-parsing your schema
+	const contentEntryModuleByIdCache = new Map<string, ContentEntryModule | 'loading'>();
+	const awaitingCacheById = new Map<string, ((val: ContentEntryModule) => void)[]>();
+	function getContentEntryModuleFromCache(id: string) {
+		const value = contentEntryModuleByIdCache.get(id);
+		// It's possible for Vite to load modules that depend on this cache
+		// before the cache is populated. In that case, we queue a promise
+		// to be resolved by `setContentEntryModuleCache`.
+		if (value === 'loading') {
+			return new Promise<ContentEntryModule>((resolve, reject) => {
+				const awaiting = awaitingCacheById.get(id) ?? [];
+				awaiting.push(resolve);
+				awaitingCacheById.set(id, awaiting);
+			});
+		} else if (value) {
+			return Promise.resolve(value);
+		}
+		return Promise.resolve(undefined);
+	}
+
+	async function setContentEntryModuleCache({
 		fileId,
 		pluginContext,
 	}: {
 		fileId: string;
 		pluginContext: PluginContext;
 	}): Promise<ContentEntryModule> {
+		contentEntryModuleByIdCache.set(fileId, 'loading');
 		const observable = globalContentConfigObserver.get();
 
 		// Content config should be loaded before this plugin is used
@@ -211,6 +231,13 @@ export const _internal = {
 			body: info.body,
 		};
 		contentEntryModuleByIdCache.set(fileId, contentEntryModule);
+		const awaiting = awaitingCacheById.get(fileId);
+		if (awaiting) {
+			for (const resolve of awaiting) {
+				resolve(contentEntryModule);
+			}
+			awaitingCacheById.delete(fileId);
+		}
 		return contentEntryModule;
 	}
 
