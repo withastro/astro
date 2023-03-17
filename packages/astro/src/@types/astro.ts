@@ -88,6 +88,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	open?: boolean;
 	experimentalAssets?: boolean;
 }
 

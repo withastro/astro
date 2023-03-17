@@ -130,6 +130,11 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 		// TODO: Come back here and refactor to remove this expected error.
 		astroConfig.server.host = flags.host;
 	}
+	if (typeof flags.open === 'boolean') {
+		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
+		// TODO: Come back here and refactor to remove this expected error.
+		astroConfig.server.open = flags.open;
+	}
 	return astroConfig;
 }
 
