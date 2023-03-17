@@ -23,33 +23,21 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
-type IntegrationWithPrivateHooks = {
-	name: string;
-	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
-		'astro:config:setup': (
-			params: HookParameters<'astro:config:setup'> & {
-				// `addPageExtension` and `contentEntryType` are not a public APIs
-				// Add type defs here
-				addPageExtension: (extension: string) => void;
-				addContentEntryType: (contentEntryType: ContentEntryType) => void;
-			}
-		) => void | Promise<void>;
-	};
+type SetupHookParams = HookParameters<'astro:config:setup'> & {
+	// `addPageExtension` and `contentEntryType` are not a public APIs
+	// Add type defs here
+	addPageExtension: (extension: string) => void;
+	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function mdx(
-	partialMdxOptions: Partial<MdxOptions> = {}
-): IntegrationWithPrivateHooks {
+export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': async ({
-				updateConfig,
-				config,
-				addPageExtension,
-				addContentEntryType,
-				command,
-			}) => {
+			'astro:config:setup': async (params) => {
+				const { updateConfig, config, addPageExtension, addContentEntryType, command } =
+					params as SetupHookParams;
+
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],

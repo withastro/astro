@@ -126,7 +126,7 @@ __`svelte.config.js`__
 import { vitePreprocess } from '@astrojs/svelte';
 
 export default {
-	preprocess: vitePreprocess(),
+  preprocess: vitePreprocess(),
 };
 ```
 
