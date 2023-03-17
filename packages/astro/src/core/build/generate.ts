@@ -107,8 +107,15 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	if (opts.settings.config.experimental.assets) {
 		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
+		// As keys of `globalThis.astroAsset.staticImages` are objects, values can be duplicated.
+		// `generatedImagePaths` is used to avoid processing & generating same image multiple time due to that `imageData` contain duplicated entries with same value (`imageData[1]`).
+		const generatedImagePaths = new Set();
 		for (const imageData of getStaticImageList()) {
+			if (generatedImagePaths.has(imageData[1])) {
+				continue;
+			}
 			await generateImage(opts, imageData[0], imageData[1]);
+			generatedImagePaths.add(imageData[1]);
 		}
 		delete globalThis.astroAsset.addStaticImage;
 	}
