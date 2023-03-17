@@ -46,6 +46,7 @@
     "devalue": "^4.2.0",
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
+    "rollup": "^3.19.1",
     "vite": "^4.0.3"
   },
   "engines": {
