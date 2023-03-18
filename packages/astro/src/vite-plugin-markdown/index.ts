@@ -13,6 +13,7 @@ import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { imageMetadata } from '../assets/index.js';
+import type { ImageService } from '../assets/services/service';
 import imageSize from '../assets/vendor/image-size/index.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
@@ -62,6 +63,8 @@ const astroJsxRuntimeModulePath = normalizePath(
 export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
 	const markdownAssetMap = new Map<string, string>();
 
+	let imageService: ImageService | undefined = undefined;
+
 	async function resolveImage(this: PluginContext, fileId: string, path: string) {
 		const resolved = await this.resolve(path, fileId);
 		if (!resolved) return path;
@@ -93,7 +96,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 
-				let imageService = undefined;
 				if (settings.config.experimental.assets) {
 					imageService = (await import(settings.config.image.service)).default;
 				}
@@ -221,10 +223,18 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 						}
 						const fileName = this.getFileName(hash);
 						image.src = npath.join(settings.config.base, fileName);
-						const optimized = globalThis.astroAsset.addStaticImage!({ src: image });
+
+						// TODO: This part recreates code we already have for content collection and normal ESM imports.
+						// It might be possible to refactor so it also uses `emitESMImage`? - erika, 2023-03-15
+						const options = { src: image };
+						const validatedOptions = imageService?.validateOptions
+							? imageService.validateOptions(options)
+							: options;
+
+						const optimized = globalThis.astroAsset.addStaticImage!(validatedOptions);
 						optimizedPaths.set(hash, optimized);
 					}
-					output.code = output.code.replace(/ASTRO_ASSET_MD_([0-9a-z]{8})/, (_str, hash) => {
+					output.code = output.code.replaceAll(/ASTRO_ASSET_MD_([0-9a-z]{8})/gm, (_str, hash) => {
 						const optimizedName = optimizedPaths.get(hash);
 						return optimizedName || this.getFileName(hash);
 					});
