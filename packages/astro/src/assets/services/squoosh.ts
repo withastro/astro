@@ -21,16 +21,14 @@ const qualityTable: Record<Exclude<OutputFormat, 'png'>, Record<ImageQualityPres
 };
 
 const service: LocalImageService = {
+	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	async transform(inputBuffer, transformOptions) {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
-		let format = transform.format;
-		if (!format) {
-			format = 'webp';
-		}
+		let format = transform.format!;
 
 		const operations: Operation[] = [];
 

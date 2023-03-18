@@ -38,11 +38,15 @@ export function rehypeImages(imageService: any, assetsDir: URL | undefined, getI
 							alt: node.properties.alt,
 						};
 
-						const imageURL = imageService.getURL(options);
+						const validatedOptions = imageService.validateOptions
+							? imageService.validateOptions(options)
+							: options;
+
+						const imageURL = imageService.getURL(validatedOptions);
 						node.properties = Object.assign(node.properties, {
 							src: imageURL,
 							...(imageService.getHTMLAttributes !== undefined
-								? imageService.getHTMLAttributes(options)
+								? imageService.getHTMLAttributes(validatedOptions)
 								: {}),
 						});
 					}

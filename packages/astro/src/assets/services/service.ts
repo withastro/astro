@@ -39,6 +39,15 @@ interface SharedServiceProps {
 	 * In most cases, you'll want to return directly what your user supplied you, minus the attributes that were used to generate the image.
 	 */
 	getHTMLAttributes?: (options: ImageTransform) => Record<string, any>;
+	/**
+	 * Validate and return the options passed by the user.
+	 *
+	 * This method is useful to present errors to users who have entered invalid options.
+	 * For instance, if they are missing a required property or have entered an invalid image format.
+	 *
+	 * This method should returns options, and can be used to set defaults (ex: a default output format to be used if the user didn't specify one.)
+	 */
+	validateOptions?: (options: ImageTransform) => ImageTransform;
 }
 
 export type ExternalImageService = SharedServiceProps;
@@ -69,7 +78,7 @@ export type BaseServiceTransform = {
 	src: string;
 	width?: number;
 	height?: number;
-	format?: string | null;
+	format: string;
 	quality?: string | null;
 };
 
@@ -94,6 +103,45 @@ export type BaseServiceTransform = {
  *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
+	validateOptions(options) {
+		if (!isESMImportedImage(options.src)) {
+			// For remote images, width and height are explicitly required as we can't infer them from the file
+			let missingDimension: 'width' | 'height' | 'both' | undefined;
+			if (!options.width && !options.height) {
+				missingDimension = 'both';
+			} else if (!options.width && options.height) {
+				missingDimension = 'width';
+			} else if (options.width && !options.height) {
+				missingDimension = 'height';
+			}
+
+			if (missingDimension) {
+				throw new AstroError({
+					...AstroErrorData.MissingImageDimension,
+					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
+				});
+			}
+		} else {
+			if (!VALID_INPUT_FORMATS.includes(options.src.format as any)) {
+				throw new AstroError({
+					...AstroErrorData.UnsupportedImageFormat,
+					message: AstroErrorData.UnsupportedImageFormat.message(
+						options.src.format,
+						options.src.src,
+						VALID_INPUT_FORMATS
+					),
+				});
+			}
+		}
+
+		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
+		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
+		if (!options.format) {
+			options.format = 'webp';
+		}
+
+		return options;
+	},
 	getHTMLAttributes(options) {
 		let targetWidth = options.width;
 		let targetHeight = options.height;
@@ -123,37 +171,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 	},
 	getURL(options: ImageTransform) {
+		// Both our currently available local services don't handle remote images, so we return the path as is.
 		if (!isESMImportedImage(options.src)) {
-			// For remote images, width and height are explicitly required as we can't infer them from the file
-			let missingDimension: 'width' | 'height' | 'both' | undefined;
-			if (!options.width && !options.height) {
-				missingDimension = 'both';
-			} else if (!options.width && options.height) {
-				missingDimension = 'width';
-			} else if (options.width && !options.height) {
-				missingDimension = 'height';
-			}
-
-			if (missingDimension) {
-				throw new AstroError({
-					...AstroErrorData.MissingImageDimension,
-					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
-				});
-			}
-
-			// Both our currently available local services don't handle remote images, so we return the path as is.
 			return options.src;
-		}
-
-		if (!VALID_INPUT_FORMATS.includes(options.src.format as any)) {
-			throw new AstroError({
-				...AstroErrorData.UnsupportedImageFormat,
-				message: AstroErrorData.UnsupportedImageFormat.message(
-					options.src.format,
-					options.src.src,
-					VALID_INPUT_FORMATS
-				),
-			});
 		}
 
 		const searchParams = new URLSearchParams();
@@ -177,7 +197,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			src: params.get('href')!,
 			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
 			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
-			format: params.get('f') as OutputFormat | null,
+			format: params.get('f') as OutputFormat,
 			quality: params.get('q'),
 		};
 
