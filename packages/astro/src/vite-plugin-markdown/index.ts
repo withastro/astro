@@ -210,30 +210,31 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 			}
 		},
 		async generateBundle(_opts, bundle) {
-			for (const [, output] of Object.entries(bundle)) {
-				if (output.type === 'asset') continue;
+			if (markdownAssetMap.size) {
+				const optimizedPaths = new Map<string, string>();
 
-				if (markdownAssetMap.size) {
-					const optimizedPaths = new Map<string, string>();
-
-					for (const [filename, hash] of markdownAssetMap) {
-						const image = await imageMetadata(pathToFileURL(filename));
-						if (!image) {
-							continue;
-						}
-						const fileName = this.getFileName(hash);
-						image.src = npath.join(settings.config.base, fileName);
-
-						// TODO: This part recreates code we already have for content collection and normal ESM imports.
-						// It might be possible to refactor so it also uses `emitESMImage`? - erika, 2023-03-15
-						const options = { src: image };
-						const validatedOptions = imageService?.validateOptions
-							? imageService.validateOptions(options)
-							: options;
-
-						const optimized = globalThis.astroAsset.addStaticImage!(validatedOptions);
-						optimizedPaths.set(hash, optimized);
+				for (const [filename, hash] of markdownAssetMap) {
+					const image = await imageMetadata(pathToFileURL(filename));
+					if (!image) {
+						continue;
 					}
+					const fileName = this.getFileName(hash);
+					image.src = npath.join(settings.config.base, fileName);
+
+					// TODO: This part recreates code we already have for content collection and normal ESM imports.
+					// It might be possible to refactor so it also uses `emitESMImage`? - erika, 2023-03-15
+					const options = { src: image };
+					const validatedOptions = imageService?.validateOptions
+						? imageService.validateOptions(options)
+						: options;
+
+					const optimized = globalThis.astroAsset.addStaticImage!(validatedOptions);
+					optimizedPaths.set(hash, optimized);
+				}
+
+				for (const [, output] of Object.entries(bundle)) {
+					if (output.type === 'asset') continue;
+
 					output.code = output.code.replaceAll(/ASTRO_ASSET_MD_([0-9a-z]{8})/gm, (_str, hash) => {
 						const optimizedName = optimizedPaths.get(hash);
 						return optimizedName || this.getFileName(hash);
