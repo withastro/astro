@@ -114,6 +114,7 @@ export const AstroConfigSchema = z.object({
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				headers: z.custom<OutgoingHttpHeaders>().optional(),
+				streaming: z.boolean().optional().default(true),
 			})
 			.optional()
 			.default({})

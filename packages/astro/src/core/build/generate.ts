@@ -399,7 +399,7 @@ async function generatePath(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		ssr,
-		streaming: true,
+		streaming: opts.settings.config.server.streaming,
 	});
 	const ctx = createRenderContext({
 		origin,
