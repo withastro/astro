@@ -121,6 +121,9 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 
 	await sleep(100);
 	if (projectDir !== '') {
+		if (projectDir.includes(' ')) {
+			projectDir = `"${projectDir}"`;
+		}
 		const enter = [
 			`\n${prefix}Enter your project directory using`,
 			color.cyan(`cd ./${projectDir}`, ''),
