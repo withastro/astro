@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-add new flag of the open for dev and preview
+add new flag with open for dev and preview
