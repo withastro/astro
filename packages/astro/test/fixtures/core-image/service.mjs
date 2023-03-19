@@ -1,6 +1,9 @@
 import squoosh from 'astro/assets/services/squoosh';
 
 const service = {
+	validateOptions(options) {
+		return squoosh.validateOptions(options);
+	},
   getURL(options) {
 		return squoosh.getURL(options);
   },

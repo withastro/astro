@@ -8,13 +8,6 @@ export function createResolve(loader: ModuleLoader, root: URL) {
 	// - /Users/macos/project/src/Foo.vue
 	// - C:/Windows/project/src/Foo.vue (normalized slash)
 	return async function (s: string) {
-		const url = await resolveIdToUrl(loader, s, root);
-		// Vite does not resolve .jsx -> .tsx when coming from hydration script import,
-		// clip it so Vite is able to resolve implicitly.
-		if (url.startsWith('/') && url.endsWith('.jsx')) {
-			return url.slice(0, -4);
-		} else {
-			return url;
-		}
+		return await resolveIdToUrl(loader, s, root);
 	};
 }

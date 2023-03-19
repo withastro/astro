@@ -308,6 +308,13 @@ describe('astro:image', () => {
 			expect(data).to.be.an.instanceOf(Buffer);
 		});
 
+		it('writes out images to dist folder with proper extension if no format was passed', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.endsWith('.webp')).to.be.true;
+		});
+
 		it('getImage() usage also written', async () => {
 			const html = await fixture.readFile('/get-image/index.html');
 			const $ = cheerio.load(html);

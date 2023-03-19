@@ -32,7 +32,7 @@ export const contentConfigParser = z.object({
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
-type EntryInternal = { rawData: string; filePath: string };
+type EntryInternal = { rawData: string | undefined; filePath: string };
 
 export type EntryInfo = {
 	id: string;
@@ -222,7 +222,8 @@ function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
-function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string) {
+function getFrontmatterErrorLine(rawFrontmatter: string | undefined, frontmatterKey: string) {
+	if (!rawFrontmatter) return 0;
 	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
 	if (indexOfFrontmatterKey === -1) return 0;
 
