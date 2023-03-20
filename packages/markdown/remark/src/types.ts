@@ -68,10 +68,6 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
 	experimentalAssets?: boolean;
-	imageService?: any;
-	assetsDir?: URL;
-	resolveImage?: (path: string) => Promise<string>;
-	getImageMetadata?: any;
 }
 
 export interface MarkdownHeading {

@@ -1,14 +1,10 @@
-import { join as pathJoin } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { visit } from 'unist-util-visit';
-import { pathToFileURL } from 'url';
-import type { ImageMetadata, MarkdownVFile } from './types.js';
+import type { MarkdownVFile } from './types.js';
 
-export function rehypeImages(imageService: any, assetsDir: URL | undefined, getImageMetadata: any) {
+export function rehypeImages() {
 	return () =>
 		function (tree: any, file: MarkdownVFile) {
 			visit(tree, (node) => {
-				if (!assetsDir) return;
 				if (node.type !== 'element') return;
 				if (node.tagName !== 'img') return;
 
@@ -16,39 +12,8 @@ export function rehypeImages(imageService: any, assetsDir: URL | undefined, getI
 					if (file.dirname) {
 						if (!isRelativePath(node.properties.src) && !isAliasedPath(node.properties.src)) return;
 
-						let fileURL: URL;
-						if (isAliasedPath(node.properties.src)) {
-							fileURL = new URL(stripAliasPath(node.properties.src), assetsDir);
-						} else {
-							fileURL = pathToFileURL(pathJoin(file.dirname, node.properties.src));
-						}
-
-						const fileData = getImageMetadata!(fileURLToPath(fileURL)) as ImageMetadata;
-						fileURL.searchParams.append('origWidth', fileData.width.toString());
-						fileURL.searchParams.append('origHeight', fileData.height.toString());
-						fileURL.searchParams.append('origFormat', fileData.type.toString());
-
-						let options = {
-							src: {
-								src: fileURL,
-								width: fileData.width,
-								height: fileData.height,
-								format: fileData.type,
-							},
-							alt: node.properties.alt,
-						};
-
-						const validatedOptions = imageService.validateOptions
-							? imageService.validateOptions(options)
-							: options;
-
-						const imageURL = imageService.getURL(validatedOptions);
-						node.properties = Object.assign(node.properties, {
-							src: imageURL,
-							...(imageService.getHTMLAttributes !== undefined
-								? imageService.getHTMLAttributes(validatedOptions)
-								: {}),
-						});
+						node.properties['__ASTRO_IMAGE_'] = node.properties.src;
+						delete node.properties.src;
 					}
 				}
 			});
@@ -57,10 +22,6 @@ export function rehypeImages(imageService: any, assetsDir: URL | undefined, getI
 
 function isAliasedPath(path: string) {
 	return path.startsWith('~/assets');
-}
-
-function stripAliasPath(path: string) {
-	return path.replace('~/assets/', '');
 }
 
 function isRelativePath(path: string) {
