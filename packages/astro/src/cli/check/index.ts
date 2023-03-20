@@ -86,7 +86,7 @@ export async function check(
 			usage: '[...flags]',
 			tables: {
 				Flags: [
-					['--watch', 'Check input files in watch mode.'],
+					['--watch', 'Watch Astro files for changes and re-run checks.'],
 					['--help (-h)', 'See all available flags.']
 				],
 			},
