@@ -81,15 +81,15 @@ export default async function build(...args) {
 		return;
 	}
 
-	const builder = await esbuild.build({
-		...config,
-		watch: {
-			onRebuild(error, result) {
+	const rebuildPlugin = {
+		name: 'astro:rebuild',
+		setup(build) {
+			build.onEnd(async result => {
 				if (prebuilds.length) {
-					prebuild(...prebuilds);
+					await prebuild(...prebuilds);
 				}
 				const date = dt.format(new Date());
-				if (error || (result && result.errors.length)) {
+				if (result && result.errors.length) {
 					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
@@ -99,12 +99,17 @@ export default async function build(...args) {
 					}
 					console.log(dim(`[${date}] `) + green('✔ updated'));
 				}
-			},
+			});
 		},
+	};
+
+	const builder = await esbuild.context({
+		...config,
 		entryPoints,
 		outdir,
 		format,
 		plugins: [
+			rebuildPlugin,
 			svelte({ isDev }),
 			...(copyWASM
 				? [
@@ -119,6 +124,8 @@ export default async function build(...args) {
 				: []),
 		],
 	});
+
+	await builder.watch();
 
 	process.on('beforeExit', () => {
 		builder.stop && builder.stop();
