@@ -1,5 +1,5 @@
-export type { RenderContext } from './context';
 export { createRenderContext } from './context.js';
+export type { RenderContext } from './context.js';
 export { getParamsAndProps, GetParamsAndPropsError, renderPage } from './core.js';
 export type { Environment } from './environment';
 export { createBasicEnvironment, createEnvironment } from './environment.js';

@@ -1,4 +1,4 @@
-import { normalizePath, Plugin as VitePlugin } from 'vite';
+import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { isEndpoint, isPage } from '../core/util.js';
 

@@ -3,7 +3,7 @@ import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import fs from 'fs/promises';
 import path from 'path';
-import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
+import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';

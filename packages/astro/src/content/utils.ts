@@ -4,7 +4,7 @@ import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { EmitFile } from 'rollup';
-import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
 import { z } from 'zod';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { emitESMImage } from '../assets/utils/emitAsset.js';

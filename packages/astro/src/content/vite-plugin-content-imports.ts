@@ -9,7 +9,6 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
 import {
-	ContentConfig,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
@@ -18,6 +17,7 @@ import {
 	getEntryType,
 	globalContentConfigObserver,
 	patchAssets,
+	type ContentConfig,
 } from './utils.js';
 function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
 	const { searchParams, pathname } = new URL(viteId, 'file://');

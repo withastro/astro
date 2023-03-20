@@ -1,6 +1,6 @@
 import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
 import type { SSRError } from '../../@types/astro.js';
-import { AstroErrorCodes, AstroErrorData, ErrorData } from './errors-data.js';
+import { AstroErrorData, type AstroErrorCodes, type ErrorData } from './errors-data.js';
 
 /**
  * Get the line and character based on the offset

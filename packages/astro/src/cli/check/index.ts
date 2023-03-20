@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
-import { AstroCheck, DiagnosticSeverity, GetDiagnosticsResult } from '@astrojs/language-server';
+import {
+	AstroCheck,
+	DiagnosticSeverity,
+	type GetDiagnosticsResult,
+} from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
 import fsMod, * as fs from 'fs';

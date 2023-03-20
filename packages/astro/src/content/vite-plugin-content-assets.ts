@@ -3,7 +3,7 @@ import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
-import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
+import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
