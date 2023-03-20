@@ -11,6 +11,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
 import {
+	ContentObservable,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
@@ -156,37 +157,8 @@ export const _internal = {
 		pluginContext: PluginContext;
 	}): Promise<ContentEntryModule> {
 		contentEntryModuleByIdCache.set(fileId, 'loading');
-		const observable = globalContentConfigObserver.get();
 
-		// Content config should be loaded before this plugin is used
-		if (observable.status === 'init') {
-			throw new AstroError({
-				...AstroErrorData.UnknownContentCollectionError,
-				message: 'Content config failed to load.',
-			});
-		}
-		if (observable.status === 'error') {
-			// Throw here to bubble content config errors
-			// to the error overlay in development
-			throw observable.error;
-		}
-
-		let contentConfig: ContentConfig | undefined =
-			observable.status === 'loaded' ? observable.config : undefined;
-		if (observable.status === 'loading') {
-			// Wait for config to load
-			contentConfig = await new Promise((resolve) => {
-				const unsubscribe = globalContentConfigObserver.subscribe((ctx) => {
-					if (ctx.status === 'loaded') {
-						resolve(ctx.config);
-						unsubscribe();
-					} else if (ctx.status === 'error') {
-						resolve(undefined);
-						unsubscribe();
-					}
-				});
-			});
-		}
+		const contentConfig = await getContentConfigFromGlobal();
 		const rawContents = await fs.promises.readFile(fileId, 'utf-8');
 		const fileExt = extname(fileId);
 		if (!contentEntryExtToParser.has(fileExt)) {
@@ -241,4 +213,40 @@ export const _internal = {
 	}
 
 	return plugins;
+}
+
+async function getContentConfigFromGlobal() {
+	const observable = globalContentConfigObserver.get();
+
+	// Content config should be loaded before being accessed from Vite plugins
+	if (observable.status === 'init') {
+		throw new AstroError({
+			...AstroErrorData.UnknownContentCollectionError,
+			message: 'Content config failed to load.',
+		});
+	}
+	if (observable.status === 'error') {
+		// Throw here to bubble content config errors
+		// to the error overlay in development
+		throw observable.error;
+	}
+
+	let contentConfig: ContentConfig | undefined =
+		observable.status === 'loaded' ? observable.config : undefined;
+	if (observable.status === 'loading') {
+		// Wait for config to load
+		contentConfig = await new Promise((resolve) => {
+			const unsubscribe = globalContentConfigObserver.subscribe((ctx) => {
+				if (ctx.status === 'loaded') {
+					resolve(ctx.config);
+					unsubscribe();
+				} else if (ctx.status === 'error') {
+					resolve(undefined);
+					unsubscribe();
+				}
+			});
+		});
+	}
+
+	return contentConfig;
 }
