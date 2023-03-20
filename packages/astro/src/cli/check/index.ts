@@ -91,7 +91,7 @@ export async function check(
 			tables: {
 				Flags: [
 					['--watch', 'Watch Astro files for changes and re-run checks.'],
-					['--help (-h)', 'See all available flags.']
+					['--help (-h)', 'See all available flags.'],
 				],
 			},
 			description: `Runs diagnostics against your project and reports errors to the console.`,
