@@ -249,7 +249,7 @@ title: Welcome to Markdoc 👋
 # {% $entry.data.title %}
 ```
 
-The `$entry` object matches [the `CollectionEntry`type](https://docs.astro.build/en/reference/api-reference/#collection-entry-type), excluding the `.render()` property.
+The `$entry` object matches [the `CollectionEntry` type](https://docs.astro.build/en/reference/api-reference/#collection-entry-type), excluding the `.render()` property.
 
 ### Markdoc config
 
