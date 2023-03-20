@@ -2,8 +2,8 @@
 import type { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode, type AstroVNode } from '../../jsx-runtime/index.js';
 import {
-	HTMLString,
 	escapeHTML,
+	HTMLString,
 	markHTMLString,
 	renderComponentToIterable,
 	renderToString,
@@ -12,7 +12,7 @@ import {
 } from './index.js';
 import { HTMLParts } from './render/common.js';
 import type { ComponentIterable } from './render/component';
-import { ScopeFlags, createScopedResult } from './render/scope.js';
+import { createScopedResult, ScopeFlags } from './render/scope.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 

@@ -5,7 +5,7 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
-import type { SSRManifest as Manifest, RouteInfo } from './types';
+import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';

@@ -10,9 +10,9 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import {
-	ScopeFlags,
 	createScopedResult,
 	renderSlot,
+	ScopeFlags,
 	stringifyChunk,
 	type ComponentSlots,
 } from '../../runtime/server/index.js';
