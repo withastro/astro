@@ -4,6 +4,7 @@
  *  - https://github.com/apollographql/apollo-client/blob/main/src/utilities/common/responseIterator.ts
  */
 
+import type { ReadableStreamDefaultReadResult } from 'node:stream/web';
 import { Readable as NodeReadableStream } from 'stream';
 import type { Response as NodeResponse } from 'undici';
 
@@ -63,6 +64,7 @@ function isNodeReadableStream(value: any): value is NodeReadableStream {
 
 function readerIterator<T>(reader: ReadableStreamDefaultReader<T>): AsyncIterableIterator<T> {
 	const iterator: ReaderIterator<T> = {
+		//@ts-expect-error
 		next() {
 			return reader.read();
 		},
