@@ -84,7 +84,7 @@ export default async function build(...args) {
 	const rebuildPlugin = {
 		name: 'astro:rebuild',
 		setup(build) {
-			build.onEnd(async result => {
+			build.onEnd(async (result) => {
 				if (prebuilds.length) {
 					await prebuild(...prebuilds);
 				}
