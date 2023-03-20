@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Queue from "../queue/queue.js";
 import { detector } from "./detector.js";
-import { imageType, typeHandlers } from "./types.js";
+import { typeHandlers, type imageType } from "./types.js";
 import type { ISizeCalculationResult } from "./types/interface.js";
 
 type CallbackFn = (e: Error | null, r?: ISizeCalculationResult) => void;

@@ -5,8 +5,8 @@ import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { LogOptions, warn } from '../logger/core.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
+import { warn, type LogOptions } from '../logger/core.js';
+import { GetParamsAndPropsError, getParamsAndProps } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 

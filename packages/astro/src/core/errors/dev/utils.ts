@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
-import { AggregateError, ErrorWithMetadata } from '../errors.js';
+import { AggregateError, type ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
 
