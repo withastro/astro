@@ -23,19 +23,14 @@ async function loadSharp() {
 }
 
 const sharpService: LocalImageService = {
+	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	async transform(inputBuffer, transformOptions) {
 		if (!sharp) sharp = await loadSharp();
 
-		const transform: BaseServiceTransform = transformOptions;
-
-		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
-		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
-		if (!transform.format) {
-			transform.format = 'webp';
-		}
+		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
 		let result = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
