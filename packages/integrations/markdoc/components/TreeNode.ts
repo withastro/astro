@@ -1,6 +1,6 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
-import { createComponent, renderComponent } from 'astro/runtime/server/index.js';
+import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
 import Markdoc from '@markdoc/markdoc';
 import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
@@ -24,11 +24,11 @@ export type TreeNode =
 
 export const ComponentNode = createComponent({
 	factory(result: any, { treeNode }: { treeNode: TreeNode }) {
-		if (treeNode.type === 'text') return treeNode.content;
+		if (treeNode.type === 'text') return render`${treeNode.content}`;
 		const slots = {
-			default: treeNode.children.map((child) =>
+			default: () => render`${treeNode.children.map((child) =>
 				renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child })
-			),
+			)}`,
 		};
 		if (treeNode.type === 'component') {
 			return renderComponent(
