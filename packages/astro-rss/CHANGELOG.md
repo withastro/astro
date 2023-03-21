@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 2.3.1
+
+### Patch Changes
+
+- [#6538](https://github.com/withastro/astro/pull/6538) [`400ef26c9`](https://github.com/withastro/astro/commit/400ef26c998a586b29c2f3931e63c1c5801d3bea) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Preserve self-closing tags in `customData` option
+
 ## 2.3.0
 
 ### Minor Changes
