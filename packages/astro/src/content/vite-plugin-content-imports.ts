@@ -45,6 +45,8 @@ function idHandledByContentRenderPlugin(
 	return false;
 }
 
+const CHOKIDAR_MODIFIED_EVENTS = ['add', 'unlink', 'change'];
+
 export function astroContentImportPlugin({
 	fs,
 	settings,
@@ -90,7 +92,7 @@ export const _internal = {
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (
-						['add', 'unlink', 'change'].includes(event) &&
+						CHOKIDAR_MODIFIED_EVENTS.includes(event) &&
 						getEntryType(entry, contentPaths, contentEntryExts) === 'config'
 					) {
 						// Content modules depend on config, so we need to invalidate them.
