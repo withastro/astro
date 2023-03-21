@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.0.3
+
+### Patch Changes
+
+- [#6552](https://github.com/withastro/astro/pull/6552) [`392ba3e4d`](https://github.com/withastro/astro/commit/392ba3e4d55f73ce9194bd94a2243f1aa62af079) Thanks [@bluwy](https://github.com/bluwy)! - Fix integration return type
+
 ## 0.0.2
 
 ### Patch Changes
