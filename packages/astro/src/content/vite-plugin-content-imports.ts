@@ -22,9 +22,27 @@ import {
 	patchAssets,
 	type ContentConfig,
 } from './utils.js';
+
 function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
 	const { searchParams, pathname } = new URL(viteId, 'file://');
 	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
+}
+
+function idHandledByContentRenderPlugin(
+	viteId: string,
+	settings: Pick<AstroSettings, 'contentEntryTypes'>
+) {
+	let ext = viteId.split('.').pop();
+	if (!ext) return false;
+	for (const contentEntryType of settings.contentEntryTypes) {
+		if (
+			Boolean(contentEntryType.getRenderModule) &&
+			contentEntryType.extensions.includes('.' + ext)
+		) {
+			return true;
+		}
+	}
+	return false;
 }
 
 export function astroContentImportPlugin({
@@ -79,8 +97,7 @@ export const _internal = {
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 							if (
 								isContentFlagImport(modUrl, contentEntryExts) ||
-								// TODO: refine to content types with getModule
-								contentEntryExts.some((ext) => modUrl.endsWith(ext))
+								idHandledByContentRenderPlugin(modUrl, settings)
 							) {
 								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
 								if (mod) {
@@ -105,10 +122,9 @@ export const _internal = {
 		plugins.push({
 			name: 'astro:content-render-imports',
 			async load(viteId) {
-				// Skip if module is not handled by content collections
-				if (!contentEntryExts.some((ext) => viteId.endsWith(ext))) return;
-
+				if (!idHandledByContentRenderPlugin(viteId, settings)) return;
 				const { fileId } = getFileInfo(viteId, settings.config);
+
 				for (const contentEntryType of settings.contentEntryTypes) {
 					if (contentEntryType.getRenderModule) {
 						const entry = await getContentEntryModuleFromCache(fileId);
