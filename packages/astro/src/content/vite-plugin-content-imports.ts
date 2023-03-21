@@ -28,21 +28,21 @@ function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
 	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
 }
 
-function idHandledByContentRenderPlugin(
+function getContentRendererByViteId(
 	viteId: string,
 	settings: Pick<AstroSettings, 'contentEntryTypes'>
-) {
+): ContentEntryType['getRenderModule'] | undefined {
 	let ext = viteId.split('.').pop();
-	if (!ext) return false;
+	if (!ext) return undefined;
 	for (const contentEntryType of settings.contentEntryTypes) {
 		if (
 			Boolean(contentEntryType.getRenderModule) &&
 			contentEntryType.extensions.includes('.' + ext)
 		) {
-			return true;
+			return contentEntryType.getRenderModule;
 		}
 	}
-	return false;
+	return undefined;
 }
 
 const CHOKIDAR_MODIFIED_EVENTS = ['add', 'unlink', 'change'];
@@ -99,7 +99,7 @@ export const _internal = {
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 							if (
 								isContentFlagImport(modUrl, contentEntryExts) ||
-								idHandledByContentRenderPlugin(modUrl, settings)
+								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
 								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
 								if (mod) {
@@ -124,25 +124,23 @@ export const _internal = {
 		plugins.push({
 			name: 'astro:content-render-imports',
 			async load(viteId) {
-				if (!idHandledByContentRenderPlugin(viteId, settings)) return;
+				const contentRenderer = getContentRendererByViteId(viteId, settings);
+				if (!contentRenderer) return;
+
 				const { fileId } = getFileInfo(viteId, settings.config);
-
-				for (const contentEntryType of settings.contentEntryTypes) {
-					if (contentEntryType.getRenderModule) {
-						const entry = await getContentEntryModuleFromCache(fileId);
-						// Cached entry must exist (or be in-flight) when importing the module via content collections.
-						// This is ensured by the `astro:content-imports` plugin.
-						if (!entry)
-							throw new AstroError({
-								...AstroErrorData.UnknownContentCollectionError,
-								message: `Unable to render ${JSON.stringify(
-									fileId
-								)}. Did you import this module directly without using a content collection query?`,
-							});
-
-						return contentEntryType.getRenderModule({ entry });
-					}
+				const entry = await getContentEntryModuleFromCache(fileId);
+				if (!entry) {
+					// Cached entry must exist (or be in-flight) when importing the module via content collections.
+					// This is ensured by the `astro:content-imports` plugin.
+					throw new AstroError({
+						...AstroErrorData.UnknownContentCollectionError,
+						message: `Unable to render ${JSON.stringify(
+							fileId
+						)}. Did you import this module directly without using a content collection query?`,
+					});
 				}
+
+				return contentRenderer({ entry });
 			},
 		});
 	}
