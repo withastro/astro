@@ -26,9 +26,10 @@ export const ComponentNode = createComponent({
 	factory(result: any, { treeNode }: { treeNode: TreeNode }) {
 		if (treeNode.type === 'text') return render`${treeNode.content}`;
 		const slots = {
-			default: () => render`${treeNode.children.map((child) =>
-				renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child })
-			)}`,
+			default: () =>
+				render`${treeNode.children.map((child) =>
+					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child })
+				)}`,
 		};
 		if (treeNode.type === 'component') {
 			return renderComponent(
