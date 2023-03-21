@@ -45,6 +45,7 @@ export default async function dev(
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
 					['--help (-h)', 'See all available flags.'],
+					['--open (-h)', 'automatically open the app in the browser on server start'],
 				],
 			},
 			description: `Check ${cyan(
