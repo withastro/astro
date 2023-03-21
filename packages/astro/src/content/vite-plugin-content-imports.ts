@@ -128,7 +128,18 @@ export const _internal = {
 		});
 	}
 
-	// Used by the `render-module` plugin to avoid double-parsing your schema
+	/**
+	 * There are two content collection plugins that depend on the same entry data:
+	 * - `astro:content-imports` - creates module containing the `getCollection()` result.
+	 * - `astro:content-render-imports` - creates module containing the `collectionEntry.render()` result.
+	 *
+	 * We could run the same transforms to generate the slug and parsed data in each plugin,
+	 * though this would run the user's collection schema _twice_ for each entry.
+	 *
+	 * Instead, we've implemented a cache for all content entry data. To avoid race conditions,
+	 * this may store either the module itself or a queue of promises awaiting this module.
+	 * See the implementations of `getContentEntryModuleFromCache` and `setContentEntryModuleCache`.
+	 */
 	const contentEntryModuleByIdCache = new Map<
 		string,
 		ContentEntryModule | AwaitingCacheResultQueue
@@ -136,13 +147,18 @@ export const _internal = {
 	type AwaitingCacheResultQueue = {
 		awaitingQueue: ((val: ContentEntryModule) => void)[];
 	};
+	function isAwaitingQueue(
+		cacheEntry: ReturnType<typeof contentEntryModuleByIdCache.get>
+	): cacheEntry is AwaitingCacheResultQueue {
+		return typeof cacheEntry === 'object' && cacheEntry != null && 'awaitingQueue' in cacheEntry;
+	}
 
-	function getContentEntryModuleFromCache(id: string) {
+	function getContentEntryModuleFromCache(id: string): Promise<ContentEntryModule | undefined> {
 		const cacheEntry = contentEntryModuleByIdCache.get(id);
-		// It's possible for Vite to load modules that depend on this cache
-		// before the cache is populated. In that case, we queue a promise
-		// to be resolved by `setContentEntryModuleCache`.
-		if (typeof cacheEntry === 'object' && cacheEntry != null && 'awaitingQueue' in cacheEntry) {
+		// It's possible to request an entry while `setContentEntryModuleCache` is still
+		// setting that entry. In this case, queue a promise for `setContentEntryModuleCache`
+		// to resolve once it is complete.
+		if (isAwaitingQueue(cacheEntry)) {
 			return new Promise<ContentEntryModule>((resolve, reject) => {
 				cacheEntry.awaitingQueue.push(resolve);
 			});
@@ -159,6 +175,9 @@ export const _internal = {
 		fileId: string;
 		pluginContext: PluginContext;
 	}): Promise<ContentEntryModule> {
+		// Create a queue so, if `getContentEntryModuleFromCache` is called
+		// while this function is running, we can resolve all requests
+		// in the `awaitingQueue` with the result.
 		contentEntryModuleByIdCache.set(fileId, { awaitingQueue: [] });
 
 		const contentConfig = await getContentConfigFromGlobal();
@@ -211,7 +230,8 @@ export const _internal = {
 		};
 
 		const cacheEntry = contentEntryModuleByIdCache.get(fileId);
-		if (typeof cacheEntry === 'object' && cacheEntry != null && 'awaitingQueue' in cacheEntry) {
+		// Pass the entry to all promises awaiting this result
+		if (isAwaitingQueue(cacheEntry)) {
 			for (const resolve of cacheEntry.awaitingQueue) {
 				resolve(contentEntryModule);
 			}
