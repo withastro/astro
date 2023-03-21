@@ -105,6 +105,7 @@ export const _internal = {
 		plugins.push({
 			name: 'astro:content-render-imports',
 			async load(viteId) {
+				// Skip if module is not handled by content collections
 				if (!contentEntryExts.some((ext) => viteId.endsWith(ext))) return;
 
 				const { fileId } = getFileInfo(viteId, settings.config);
