@@ -11,7 +11,6 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
 import {
-	ContentObservable,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
@@ -170,36 +169,41 @@ export const _internal = {
 			});
 		}
 		const contentEntryParser = contentEntryExtToParser.get(fileExt)!;
-		const info = await contentEntryParser.getEntryInfo({
+		const {
+			rawData,
+			body,
+			slug: unvalidatedSlug,
+			data: unvalidatedData,
+		} = await contentEntryParser.getEntryInfo({
 			fileUrl: pathToFileURL(fileId),
 			contents: rawContents,
 		});
-		const generatedInfo = getEntryInfo({
+		const entryInfoResult = getEntryInfo({
 			entry: pathToFileURL(fileId),
 			contentDir: contentPaths.contentDir,
 		});
-		if (generatedInfo instanceof NoCollectionError) throw generatedInfo;
+		if (entryInfoResult instanceof NoCollectionError) throw entryInfoResult;
 
-		const _internal = { filePath: fileId, rawData: info.rawData };
+		const { id, slug: generatedSlug, collection } = entryInfoResult;
+
+		const _internal = { filePath: fileId, rawData: rawData };
 		// TODO: move slug calculation to the start of the build
 		// to generate a performant lookup map for `getEntryBySlug`
-		const slug = getEntrySlug({ ...generatedInfo, unvalidatedSlug: info.slug });
+		const slug = getEntrySlug({ id, collection, slug: generatedSlug, unvalidatedSlug });
 
-		const collectionConfig = contentConfig?.collections[generatedInfo.collection];
+		const collectionConfig = contentConfig?.collections[collection];
 		let data = collectionConfig
-			? await getEntryData(
-					{ ...generatedInfo, _internal, unvalidatedData: info.data },
-					collectionConfig
-			  )
-			: info.data;
+			? await getEntryData({ id, collection, slug, _internal, unvalidatedData }, collectionConfig)
+			: unvalidatedData;
 
 		await patchAssets(data, pluginContext.meta.watchMode, pluginContext.emitFile, settings);
 		const contentEntryModule: ContentEntryModule = {
-			...generatedInfo,
-			_internal,
+			id,
 			slug,
+			collection,
 			data,
-			body: info.body,
+			body,
+			_internal,
 		};
 		contentEntryModuleByIdCache.set(fileId, contentEntryModule);
 		const awaiting = awaitingCacheById.get(fileId);
