@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [#6594](https://github.com/withastro/astro/pull/6594) [`a661907b4`](https://github.com/withastro/astro/commit/a661907b40e76aa56e7d7bd7e745bb16456b13e7) Thanks [@btea](https://github.com/btea)! - wrap projecDir in quptes if it contains spaces
+- [#6594](https://github.com/withastro/astro/pull/6594) [`a661907b4`](https://github.com/withastro/astro/commit/a661907b40e76aa56e7d7bd7e745bb16456b13e7) Thanks [@btea](https://github.com/btea)! - wrap `projectDir` in quotes if it contains spaces
 
 ## 3.1.0
 
