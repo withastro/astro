@@ -1,5 +1,5 @@
 import { polyfill } from '@astrojs/webapi';
-import { builder, Handler } from '@netlify/functions';
+import { builder, type Handler } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 

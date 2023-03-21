@@ -7,9 +7,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import {
-	BuildInternals,
 	createBuildInternals,
 	eachPrerenderedPageData,
+	type BuildInternals,
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
@@ -22,7 +22,7 @@ import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
+import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
