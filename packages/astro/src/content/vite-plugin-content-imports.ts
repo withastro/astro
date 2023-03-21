@@ -129,21 +129,25 @@ export const _internal = {
 	}
 
 	// Used by the `render-module` plugin to avoid double-parsing your schema
-	const contentEntryModuleByIdCache = new Map<string, ContentEntryModule | 'loading'>();
-	const awaitingCacheById = new Map<string, ((val: ContentEntryModule) => void)[]>();
+	const contentEntryModuleByIdCache = new Map<
+		string,
+		ContentEntryModule | AwaitingCacheResultQueue
+	>();
+	type AwaitingCacheResultQueue = {
+		awaitingQueue: ((val: ContentEntryModule) => void)[];
+	};
+
 	function getContentEntryModuleFromCache(id: string) {
-		const value = contentEntryModuleByIdCache.get(id);
+		const cacheEntry = contentEntryModuleByIdCache.get(id);
 		// It's possible for Vite to load modules that depend on this cache
 		// before the cache is populated. In that case, we queue a promise
 		// to be resolved by `setContentEntryModuleCache`.
-		if (value === 'loading') {
+		if (typeof cacheEntry === 'object' && cacheEntry != null && 'awaitingQueue' in cacheEntry) {
 			return new Promise<ContentEntryModule>((resolve, reject) => {
-				const awaiting = awaitingCacheById.get(id) ?? [];
-				awaiting.push(resolve);
-				awaitingCacheById.set(id, awaiting);
+				cacheEntry.awaitingQueue.push(resolve);
 			});
-		} else if (value) {
-			return Promise.resolve(value);
+		} else if (cacheEntry) {
+			return Promise.resolve(cacheEntry);
 		}
 		return Promise.resolve(undefined);
 	}
@@ -155,7 +159,7 @@ export const _internal = {
 		fileId: string;
 		pluginContext: PluginContext;
 	}): Promise<ContentEntryModule> {
-		contentEntryModuleByIdCache.set(fileId, 'loading');
+		contentEntryModuleByIdCache.set(fileId, { awaitingQueue: [] });
 
 		const contentConfig = await getContentConfigFromGlobal();
 		const rawContents = await fs.promises.readFile(fileId, 'utf-8');
@@ -205,14 +209,14 @@ export const _internal = {
 			body,
 			_internal,
 		};
-		contentEntryModuleByIdCache.set(fileId, contentEntryModule);
-		const awaiting = awaitingCacheById.get(fileId);
-		if (awaiting) {
-			for (const resolve of awaiting) {
+
+		const cacheEntry = contentEntryModuleByIdCache.get(fileId);
+		if (typeof cacheEntry === 'object' && cacheEntry != null && 'awaitingQueue' in cacheEntry) {
+			for (const resolve of cacheEntry.awaitingQueue) {
 				resolve(contentEntryModule);
 			}
-			awaitingCacheById.delete(fileId);
 		}
+		contentEntryModuleByIdCache.set(fileId, contentEntryModule);
 		return contentEntryModule;
 	}
 
