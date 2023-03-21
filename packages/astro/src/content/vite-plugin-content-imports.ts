@@ -285,7 +285,8 @@ async function getContentConfigFromGlobal() {
 				if (ctx.status === 'loaded') {
 					resolve(ctx.config);
 					unsubscribe();
-				} else if (ctx.status === 'error') {
+				}
+				if (ctx.status === 'error') {
 					resolve(undefined);
 					unsubscribe();
 				}
