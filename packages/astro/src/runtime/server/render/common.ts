@@ -6,7 +6,7 @@ import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
-	PrescriptType,
+	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
 import { hasScopeFlag, ScopeFlags } from './scope.js';

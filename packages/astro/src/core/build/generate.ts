@@ -18,7 +18,7 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/internal.js';
-import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
+import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,

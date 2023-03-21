@@ -2,10 +2,10 @@ import { bold } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizePath, Plugin } from 'vite';
+import { normalizePath, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { getContentPaths, getDotAstroTypeReference } from '../content/index.js';
-import { info, LogOptions } from '../core/logger/core.js';
+import { info, type LogOptions } from '../core/logger/core.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);

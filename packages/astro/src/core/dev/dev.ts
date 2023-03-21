@@ -7,7 +7,7 @@ import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
-import { info, LogOptions, warn } from '../logger/core.js';
+import { info, warn, type LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
 import { startContainer } from './container.js';

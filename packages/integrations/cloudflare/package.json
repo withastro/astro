@@ -34,7 +34,7 @@
     "test": "mocha --exit --timeout 30000 test/"
   },
   "dependencies": {
-    "esbuild": "^0.15.18",
+    "esbuild": "^0.17.12",
     "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {

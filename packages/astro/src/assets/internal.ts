@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { ImageService, isLocalService, LocalImageService } from './services/service.js';
+import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
 import type { ImageMetadata, ImageTransform } from './types.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
