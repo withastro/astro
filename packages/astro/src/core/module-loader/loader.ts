@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import type * as fs from 'fs';
-import type TypedEmitter from '../../@types/typed-emitter';
+import type { TypedEventEmitter } from '../../@types/typed-emitter';
 
 // This is a generic interface for a module loader. In the astro cli this is
 // fulfilled by Vite, see vite.ts
@@ -18,7 +18,7 @@ export type LoaderEvents = {
 	}) => void;
 };
 
-export type ModuleLoaderEventEmitter = TypedEmitter<LoaderEvents>;
+export type ModuleLoaderEventEmitter = TypedEventEmitter<LoaderEvents>;
 
 export interface ModuleLoader {
 	import: (src: string) => Promise<Record<string, any>>;
@@ -35,7 +35,7 @@ export interface ModuleLoader {
 	clientReload: () => void;
 	webSocketSend: (msg: any) => void;
 	isHttps: () => boolean;
-	events: TypedEmitter<LoaderEvents>;
+	events: TypedEventEmitter<LoaderEvents>;
 }
 
 export interface ModuleNode {
