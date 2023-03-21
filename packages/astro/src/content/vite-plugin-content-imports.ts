@@ -1,11 +1,10 @@
 import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
-import type { ContentEntryModule } from '../@types/astro.js';
 import { extname } from 'node:path';
 import type { PluginContext } from 'rollup';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryModule, ContentEntryType } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
