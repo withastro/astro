@@ -49,7 +49,7 @@ describe('Aliases with tsconfig.json', () => {
 			expect(html).to.include('#style-blue');
 		});
 
-		it('can load load typescript files without .ts extension', async () => {
+		it('can load load typescript files without .ts or .d.ts extensions', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
