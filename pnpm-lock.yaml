@@ -3109,6 +3109,14 @@ importers:
     devDependencies:
       shiki: 0.11.1
 
+  packages/integrations/markdoc/test/fixtures/entry-prop:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/mdx:
     specifiers:
       '@astrojs/markdown-remark': ^2.1.1
