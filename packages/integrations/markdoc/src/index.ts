@@ -23,7 +23,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 };
 
 export default function markdocIntegration(
-	markdocConfig: ReadonlyMarkdocConfig = {}
+	userMarkdocConfig: ReadonlyMarkdocConfig = {}
 ): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
@@ -55,21 +55,21 @@ export default function markdocIntegration(
 					extensions: ['.mdoc'],
 					getEntryInfo,
 					async getRenderModule({ entry }) {
-						validateRenderProperties(markdocConfig, astroConfig);
+						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
 
-						const config: MarkdocConfig = {
-							...markdocConfig,
+						const markdocConfig: MarkdocConfig = {
+							...userMarkdocConfig,
 							variables: {
-								...markdocConfig.variables,
+								...userMarkdocConfig.variables,
 								entry,
 							},
 						};
 
 						if (astroConfig.experimental?.assets) {
-							config.nodes ??= {};
-							config.nodes.image = {
+							markdocConfig.nodes ??= {};
+							markdocConfig.nodes.image = {
 								...Markdoc.nodes.image,
 								async transform(node, config) {
 									const attributes = node.transformAttributes(config);
@@ -112,7 +112,7 @@ export default function markdocIntegration(
 							};
 						}
 
-						const content = await Markdoc.transform(ast, config);
+						const content = await Markdoc.transform(ast, markdocConfig);
 
 						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(

@@ -54,8 +54,8 @@ function rootRelativePath(config: Pick<AstroConfig, 'root'>, url: URL) {
 	return prependForwardSlash(basePath.slice(rootPath.length));
 }
 
-function prependForwardSlash(path: string) {
-	return path[0] === '/' ? path : '/' + path;
+function prependForwardSlash(filePath: string) {
+	return filePath[0] === '/' ? filePath : '/' + filePath;
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {
