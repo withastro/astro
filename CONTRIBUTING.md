@@ -57,6 +57,22 @@ pnpm run dev
 pnpm run build
 ```
 
+**How can I test my changes while contributing to the repository?**
+
+During the development process, you may want to test your changes to ensure they are working as expected. Here are a few ways to do it:
+
+1. Run any of the examples in the `/examples` folder. They are linked to use the local Astro source code, so you can see the effects of your changes.
+
+   ```
+     pnpm --filter @example/minimal run dev
+   ```
+
+2. Write a test and run it. This is useful if you're making a specific fix and want to see if your changes are working as expected.
+
+3. Create a separate project and use your local Astro through [`pnpm link`](https://pnpm.io/cli/link). This is helpful if you're making bigger changes and want to test them in a separate project.
+
+Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
+
 #### Debugging Vite
 
 You can debug vite by prefixing any command with `DEBUG` like so:
