@@ -136,7 +136,11 @@ export async function getEntryData(
 				} else if ('shape' in schema) {
 					await preprocessAssetPaths(schema.shape);
 				} else if ('unwrap' in schema) {
-					await preprocessAssetPaths(schema.unwrap().shape);
+					const unwrapped = schema.unwrap().shape;
+
+					if (unwrapped) {
+						await preprocessAssetPaths(schema.unwrap().shape);
+					}
 				}
 			}
 		}
