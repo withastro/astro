@@ -6,12 +6,12 @@ import type { AstroSettings, AstroConfig } from '../../@types/astro';
 import { imageMetadata } from './metadata.js';
 
 export async function emitESMImage(
-	idOrUrl: string | URL,
+	id: string,
 	watchMode: boolean,
 	fileEmitter: any,
 	settings: Pick<AstroSettings, 'config'>
 ) {
-	const url: URL = typeof idOrUrl === 'string' ? pathToFileURL(idOrUrl) : idOrUrl;
+	const url = pathToFileURL(id);
 	const meta = await imageMetadata(url);
 
 	if (!meta) {
