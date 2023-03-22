@@ -54,6 +54,10 @@ const astroJsxRuntimeModulePath = normalizePath(
 	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
 );
 
+const astroServerRuntimeModulePath = normalizePath(
+	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url))
+);
+
 export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
@@ -108,6 +112,8 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
+				import { spreadAttributes } from ${JSON.stringify(astroServerRuntimeModulePath)};
+
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 				${settings.config.experimental.assets ? 'import { getImage } from "astro:assets";' : ''}
 
@@ -121,10 +127,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				function updateImageReferences(html) {
 					return html.replaceAll(
 						/__ASTRO_IMAGE_=\"(.+)\"/gm,
-						(full, imagePath) =>
-							\`src="\${images[imagePath].src}" \${Object.entries(images[imagePath].attributes)
-								.map((entry) => \`\${entry[0]}="\${entry[1]}"\`)
-								.join(" ")}\`
+						(full, imagePath) => spreadAttributes({src: images[imagePath].src, ...images[imagePath].attributes})
 					);
 				}
 
