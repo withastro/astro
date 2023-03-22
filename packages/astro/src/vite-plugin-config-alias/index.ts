@@ -75,7 +75,7 @@ export default function configAliasVitePlugin({
 					const importer: string = args2[1];
 
 					// fast path so we don't run this extensive logic in prebundling
-					if (importer.includes('node_modules')) {
+					if (importer?.includes('node_modules')) {
 						return resolver.apply(_createResolver, args2);
 					}
 
