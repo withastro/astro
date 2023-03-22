@@ -387,8 +387,8 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
 				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
 				const dir = new URL(path.parse(clientUrl.href).dir)				
-				// It can't find this file cause the node throws an error if the users custom a path that includes the folder path in `assetFileNames`
-				// fix bug https://github.com/withastro/astro/issues/6420
+				// It can't find this file because the user defines a custom path 
+				// that includes the folder paths in `assetFileNames
 				if(!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
 				return fs.promises.rename(currentUrl, clientUrl);
 			})
