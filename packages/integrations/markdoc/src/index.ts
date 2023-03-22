@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
 	getAstroConfigPath,
+	isValidUrl,
 	MarkdocError,
 	parseFrontmatter,
 	prependForwardSlash,
@@ -75,9 +76,8 @@ export default function markdocIntegration(
 									const children = node.transformChildren(config);
 									const { src, ...rest } = attributes;
 
-									// Avoid optimizing absolute paths.
-									// Assume these are `public/` assets.
-									if (src.startsWith('/')) {
+									// Short circuit for external or absolute paths.
+									if (src.startsWith('/') || isValidUrl(src)) {
 										return new Markdoc.Tag('img', attributes, children);
 									}
 
@@ -102,9 +102,11 @@ export default function markdocIntegration(
 
 										return new Markdoc.Tag('Image', { ...rest, src: image }, children);
 									} else {
-										// If we cannot resolve this path to `src/assets/` with Vite,
-										// leave the image `src` untouched.
-										return new Markdoc.Tag('img', attributes, children);
+										throw new MarkdocError({
+											message: `Could not resolve image ${JSON.stringify(
+												src
+											)} from \`src/assets/\`. Does the file exist?`,
+										});
 									}
 								},
 							};
