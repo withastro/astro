@@ -5,16 +5,10 @@ import {
 } from '@astrojs/markdown-remark/dist/internal.js';
 import fs from 'fs';
 import matter from 'gray-matter';
-import npath from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { PluginContext } from 'rollup';
-import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { imageMetadata } from '../assets/index.js';
-import type { ImageService } from '../assets/services/service';
-import imageSize from '../assets/vendor/image-size/index.js';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -60,29 +54,11 @@ const astroJsxRuntimeModulePath = normalizePath(
 	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
 );
 
+const astroServerRuntimeModulePath = normalizePath(
+	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url))
+);
+
 export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
-	const markdownAssetMap = new Map<string, string>();
-
-	let imageService: ImageService | undefined = undefined;
-
-	async function resolveImage(this: PluginContext, fileId: string, path: string) {
-		const resolved = await this.resolve(path, fileId);
-		if (!resolved) return path;
-		const rel = npath.relative(normalizePath(fileURLToPath(settings.config.root)), resolved.id);
-		const buffer = await fs.promises.readFile(resolved.id);
-		// This conditional has to be here, to prevent race conditions on setting the map
-		if (markdownAssetMap.has(resolved.id)) {
-			return `ASTRO_ASSET_MD_${markdownAssetMap.get(resolved.id)!}`;
-		}
-		const file = this.emitFile({
-			type: 'asset',
-			name: rel,
-			source: buffer,
-		});
-		markdownAssetMap.set(resolved.id, file);
-		return `ASTRO_ASSET_MD_${file}`;
-	}
-
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -96,30 +72,24 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 
-				if (settings.config.experimental.assets) {
-					imageService = (await import(settings.config.image.service)).default;
-				}
 				const renderResult = await renderMarkdown(raw.content, {
 					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					frontmatter: raw.data,
 					experimentalAssets: settings.config.experimental.assets,
-					imageService,
-					assetsDir: new URL('./assets/', settings.config.srcDir),
-					resolveImage: this.meta.watchMode ? undefined : resolveImage.bind(this, fileId),
-					getImageMetadata: imageSize,
 				});
-
-				this;
 
 				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				let imagePaths: string[] = [];
+				let imagePaths: { raw: string; absolute: string }[] = [];
 				if (settings.config.experimental.assets) {
 					let paths = (renderResult.vfile.data.imagePaths as string[]) ?? [];
 					imagePaths = await Promise.all(
 						paths.map(async (imagePath) => {
-							return (await this.resolve(imagePath))?.id ?? imagePath;
+							return {
+								raw: imagePath,
+								absolute: (await this.resolve(imagePath, id))?.id ?? imagePath,
+							};
 						})
 					);
 				}
@@ -142,18 +112,26 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
+				import { spreadAttributes } from ${JSON.stringify(astroServerRuntimeModulePath)};
+
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-				${
-					settings.config.experimental.assets
-						? 'import { getConfiguredImageService } from "astro:assets";\ngetConfiguredImageService();'
-						: ''
+				${settings.config.experimental.assets ? 'import { getImage } from "astro:assets";' : ''}
+
+				export const images = {
+					${imagePaths.map(
+						(entry) =>
+							`'${entry.raw}': await getImage({src: (await import("${entry.absolute}")).default})`
+					)}
 				}
 
-				const images = {
-					${imagePaths.map((entry) => `'${entry}': await import('${entry}')`)}
+				function updateImageReferences(html) {
+					return html.replaceAll(
+						/__ASTRO_IMAGE_=\"(.+)\"/gm,
+						(full, imagePath) => spreadAttributes({src: images[imagePath].src, ...images[imagePath].attributes})
+					);
 				}
 
-				const html = ${JSON.stringify(html)};
+				const html = updateImageReferences(${JSON.stringify(html)});
 
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
@@ -207,38 +185,6 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 						},
 					},
 				};
-			}
-		},
-		async generateBundle(_opts, bundle) {
-			for (const [, output] of Object.entries(bundle)) {
-				if (output.type === 'asset') continue;
-
-				if (markdownAssetMap.size) {
-					const optimizedPaths = new Map<string, string>();
-
-					for (const [filename, hash] of markdownAssetMap) {
-						const image = await imageMetadata(pathToFileURL(filename));
-						if (!image) {
-							continue;
-						}
-						const fileName = this.getFileName(hash);
-						image.src = npath.join(settings.config.base, fileName);
-
-						// TODO: This part recreates code we already have for content collection and normal ESM imports.
-						// It might be possible to refactor so it also uses `emitESMImage`? - erika, 2023-03-15
-						const options = { src: image };
-						const validatedOptions = imageService?.validateOptions
-							? imageService.validateOptions(options)
-							: options;
-
-						const optimized = globalThis.astroAsset.addStaticImage!(validatedOptions);
-						optimizedPaths.set(hash, optimized);
-					}
-					output.code = output.code.replaceAll(/ASTRO_ASSET_MD_([0-9a-z]{8})/gm, (_str, hash) => {
-						const optimizedName = optimizedPaths.get(hash);
-						return optimizedName || this.getFileName(hash);
-					});
-				}
 			}
 		},
 	};
