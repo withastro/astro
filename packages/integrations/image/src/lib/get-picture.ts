@@ -1,6 +1,6 @@
 /// <reference types="astro/astro-jsx" />
 import mime from 'mime';
-import { OutputFormat, parseAspectRatio, TransformOptions } from '../loaders/index.js';
+import { parseAspectRatio, type OutputFormat, type TransformOptions } from '../loaders/index.js';
 import { extname } from '../utils/paths.js';
 import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 import { getImage } from './get-image.js';

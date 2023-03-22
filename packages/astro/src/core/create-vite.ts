@@ -196,7 +196,7 @@ export async function createVite(
 		const applyToFilter = command === 'build' ? 'serve' : 'build';
 		const applyArgs = [
 			{ ...settings.config.vite, mode },
-			{ command, mode },
+			{ command: command === 'dev' ? 'serve' : command, mode },
 		];
 		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
 		plugins = plugins.flat(Infinity).filter((p) => {

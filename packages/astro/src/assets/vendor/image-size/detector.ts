@@ -1,4 +1,4 @@
-import { imageType, typeHandlers } from './types.js'
+import { typeHandlers, type imageType } from './types.js'
 
 const keys = Object.keys(typeHandlers) as imageType[]
 

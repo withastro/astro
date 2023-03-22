@@ -10,6 +10,7 @@ import type {
 import type * as babel from '@babel/core';
 import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
+import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { z } from 'zod';
@@ -1034,12 +1035,27 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
+export type ContentEntryModule = {
+	id: string;
+	collection: string;
+	slug: string;
+	body: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
 	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	getRenderModule?(params: {
+		entry: ContentEntryModule;
+	}): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 }
 

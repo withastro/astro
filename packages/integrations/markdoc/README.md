@@ -237,6 +237,20 @@ const { Content } = await entry.render();
 />
 ```
 
+### Access frontmatter and content collection information from your templates
+
+You can access content collection information from your Markdoc templates using the `$entry` variable. This includes the entry `slug`, `collection` name, and frontmatter `data` parsed by your content collection schema (if any). This example renders the `title` frontmatter property as a heading:
+
+```md
+---
+title: Welcome to Markdoc 👋
+---
+
+# {% $entry.data.title %}
+```
+
+The `$entry` object matches [the `CollectionEntry` type](https://docs.astro.build/en/reference/api-reference/#collection-entry-type), excluding the `.render()` property.
+
 ### Markdoc config
 
 The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [functions](https://markdoc.dev/docs/functions).
@@ -292,11 +306,11 @@ You will need to install the `@markdoc/markdoc` package into your project first:
 
 ```sh
 # Using NPM
-npx astro add @markdoc/markdoc
+npm install @markdoc/markdoc
 # Using Yarn
-yarn astro add @markdoc/markdoc
+yarn add @markdoc/markdoc
 # Using PNPM
-pnpm astro add @markdoc/markdoc
+pnpm add @markdoc/markdoc
 ```
 
 Now, you can define Markdoc configuration options using `Markdock.transform()`.
