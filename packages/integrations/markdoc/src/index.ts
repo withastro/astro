@@ -15,6 +15,7 @@ import {
 	stripAliasPath,
 } from './utils.js';
 import { emitESMImage } from 'astro/assets/utils/emitAsset';
+import type { Plugin as VitePlugin } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -36,6 +37,11 @@ export default function markdocIntegration(
 				} = params as SetupHookParams;
 
 				const assetsDir = new URL('./assets/', astroConfig.srcDir);
+				updateConfig({
+					vite: {
+						plugins: [safeAssetsVirtualModulePlugin({ astroConfig })],
+					},
+				});
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -166,4 +172,38 @@ function validateRenderProperty({
 
 function isCapitalized(str: string) {
 	return str.length > 0 && str[0] === str[0].toUpperCase();
+}
+
+/**
+ * TODO: remove when `experimental.assets` is baselined.
+ *
+ * `astro:assets` will fail to resolve if the `experimental.assets` flag is not enabled.
+ * This ensures a fallback for the Markdoc renderer to safely import at the top level.
+ * @see ../components/TreeNode.ts
+ */
+function safeAssetsVirtualModulePlugin({
+	astroConfig,
+}: {
+	astroConfig: Pick<AstroConfig, 'experimental'>;
+}): VitePlugin {
+	const virtualModuleId = 'astro:markdoc-assets';
+	const resolvedVirtualModuleId = '\0' + virtualModuleId;
+
+	return {
+		name: 'astro:markdoc-safe-assets-virtual-module',
+		resolveId(id) {
+			if (id === virtualModuleId) {
+				return resolvedVirtualModuleId;
+			}
+		},
+		load(id) {
+			if (id !== resolvedVirtualModuleId) return;
+
+			if (astroConfig.experimental?.assets) {
+				return `export { Image } from 'astro:assets';`;
+			} else {
+				return `export const Image = () => { throw new Error('Cannot use the Image component without the \`experimental.assets\` flag.'); }`;
+			}
+		},
+	};
 }

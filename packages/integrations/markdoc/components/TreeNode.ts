@@ -1,7 +1,8 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
-import { Image } from 'astro:assets';
+// @ts-expect-error Cannot find module 'astro:markdoc-assets' or its corresponding type declarations
+import { Image } from 'astro:markdoc-assets';
 import Markdoc from '@markdoc/markdoc';
 import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
