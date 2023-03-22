@@ -62,23 +62,23 @@ export default function configAliasVitePlugin({
 	return {
 		name: 'astro:tsconfig-alias',
 		enforce: 'pre',
-		config() {
-			if (configAlias.length) {
-				return {
-					resolve: {
-						alias: configAlias,
-					},
-				};
-			}
-		},
 		async resolveId(id, importer, options) {
-			if (id.startsWith('.') || path.isAbsolute(id)) return;
+			// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
+			// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
+			for (const alias of configAlias) {
+				if ((alias.find as RegExp).test(id)) {
+					const updatedId = id.replace(alias.find, alias.replacement);
+					const resolved = await this.resolve(updatedId, importer, { skipSelf: true, ...options });
+					if (resolved) return resolved;
+				}
+			}
 
 			// Handle baseUrl mapping for non-relative and non-root imports.
 			// Since TypeScript only applies `baseUrl` autocompletions for files that exist
 			// in the filesystem only, we can use this heuristic to skip resolve if needed.
-			const resolved = path.posix.join(resolvedBaseUrl, id);
+			if (id.startsWith('.') || path.isAbsolute(id)) return;
 
+			const resolved = path.posix.join(resolvedBaseUrl, id);
 			return await this.resolve(resolved, importer, {
 				skipSelf: true,
 				...options,
