@@ -56,7 +56,7 @@ describe('Aliases with tsconfig.json', () => {
 			expect($('#mistery').text()).to.equal("I'm a TypeScript file!");
 		});
 
-		it('can load @foo/bar package with "@*" tsconfig paths alias', async () => {
+		it('can load "@test/dep-at-pkg-alias" package with "@*" tsconfig paths alias', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
