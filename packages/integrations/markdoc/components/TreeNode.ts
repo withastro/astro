@@ -46,10 +46,16 @@ export const ComponentNode = createComponent({
 	propagation: 'none',
 });
 
+const builtInComponents: Record<string, AstroInstance['default']> = {
+	Image,
+};
+
 export function createTreeNode(
 	node: RenderableTreeNode,
-	components: Record<string, AstroInstance['default']> = {}
+	userComponents: Record<string, AstroInstance['default']> = {}
 ): TreeNode {
+	const components = { ...userComponents, ...builtInComponents };
+
 	if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
@@ -64,18 +70,6 @@ export function createTreeNode(
 		return {
 			type: 'component',
 			component,
-			props,
-			children,
-		};
-	} else if (node.name === 'AstroImage') {
-		const props = node.attributes;
-		const children = node.children.flat().map((child) => createTreeNode(child, components));
-
-		console.log(props);
-
-		return {
-			type: 'component',
-			component: Image,
 			props,
 			children,
 		};

@@ -1,4 +1,7 @@
-import { Config, Tag } from '@markdoc/markdoc';
+import type {
+	Config as ReadonlyMarkdocConfig,
+	ConfigType as MarkdocConfig,
+} from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
@@ -18,7 +21,9 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(markdocConfig: Config = {}): AstroIntegration {
+export default function markdocIntegration(
+	markdocConfig: ReadonlyMarkdocConfig = {}
+): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
@@ -48,44 +53,51 @@ export default function markdocIntegration(markdocConfig: Config = {}): AstroInt
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
 
-						const content = await Markdoc.transform(ast, {
+						const config: MarkdocConfig = {
 							...markdocConfig,
 							variables: {
 								...markdocConfig.variables,
 								entry,
 							},
-							nodes: {
-								...markdocConfig.nodes,
-								image: {
-									...Markdoc.nodes.image,
-									async transform(node, config) {
-										const { src, ...rest } = node.attributes;
-										// TODO: aliased paths
-										if (isRelativePath(src)) {
-											const image = await emitESMImage(
-												new URL(src, assetsDir),
-												pluginContext.meta.watchMode,
-												pluginContext.emitFile,
-												{ config: astroConfig }
-											);
-											console.log({ image });
+						};
 
-											return new Tag(
-												'AstroImage',
-												{
-													...rest,
-													src: image,
-												},
-												[]
-											);
+						if (astroConfig.experimental?.assets) {
+							config.nodes ??= {};
+							config.nodes.image = {
+								...Markdoc.nodes.image,
+								async transform(node, config) {
+									const { src, ...rest } = node.attributes;
+									// TODO: aliased paths
+									if (isRelativePath(src)) {
+										const srcUrl = new URL(src, assetsDir);
+										if (!fs.existsSync(srcUrl)) {
+											throw new MarkdocError({
+												message: `Could not find the image ${JSON.stringify(
+													src
+												)} from \`src/assets/\`. Does the file exist?`,
+											});
 										}
-										const attributes = node.transformAttributes(config);
-										const children = node.transformChildren(config);
-										return new Tag('img', attributes, children);
-									},
+
+										const image = await emitESMImage(
+											new URL(src, assetsDir),
+											pluginContext.meta.watchMode,
+											pluginContext.emitFile,
+											{ config: astroConfig }
+										);
+
+										return new Markdoc.Tag('Image', {
+											...rest,
+											src: image,
+										});
+									}
+									const attributes = node.transformAttributes(config);
+									const children = node.transformChildren(config);
+									return new Markdoc.Tag('img', attributes, children);
 								},
-							},
-						});
+							};
+						}
+
+						const content = await Markdoc.transform(ast, config);
 
 						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
@@ -103,7 +115,7 @@ export default function markdocIntegration(markdocConfig: Config = {}): AstroInt
 	};
 }
 
-function validateRenderProperties(markdocConfig: Config, astroConfig: AstroConfig) {
+function validateRenderProperties(markdocConfig: ReadonlyMarkdocConfig, astroConfig: AstroConfig) {
 	const tags = markdocConfig.tags ?? {};
 	const nodes = markdocConfig.nodes ?? {};
 
