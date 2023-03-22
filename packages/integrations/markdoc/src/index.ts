@@ -75,6 +75,12 @@ export default function markdocIntegration(
 									const children = node.transformChildren(config);
 									const { src, ...rest } = attributes;
 
+									// Avoid optimizing absolute paths.
+									// Assume these are `public/` assets.
+									if (src.startsWith('/')) {
+										return new Markdoc.Tag('img', attributes, children);
+									}
+
 									// Attempt to resolve source against `src/assets/` with Vite.
 									// This handles relative paths and configured aliases
 									const resolved = await pluginContext.resolve(
