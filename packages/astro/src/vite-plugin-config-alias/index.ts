@@ -72,16 +72,18 @@ export default function configAliasVitePlugin({
 				};
 			}
 		},
-		resolveId(id) {
-			if (id.startsWith('.') || id.startsWith('/')) return;
+		async resolveId(id, importer, options) {
+			if (id.startsWith('.') || path.isAbsolute(id)) return;
 
 			// Handle baseUrl mapping for non-relative and non-root imports.
 			// Since TypeScript only applies `baseUrl` autocompletions for files that exist
 			// in the filesystem only, we can use this heuristic to skip resolve if needed.
 			const resolved = path.posix.join(resolvedBaseUrl, id);
-			if (fs.existsSync(resolved)) {
-				return resolved;
-			}
+
+			return await this.resolve(resolved, importer, {
+				skipSelf: true,
+				...options,
+			});
 		},
 	};
 }
