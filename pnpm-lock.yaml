@@ -3082,13 +3082,13 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@markdoc/markdoc': 0.2.2
+      astro: link:../../astro
       gray-matter: 4.0.3
       zod: 3.20.6
     devDependencies:
       '@types/chai': 4.3.4
       '@types/html-escaper': 3.0.0
       '@types/mocha': 9.1.1
-      astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       devalue: 4.2.3

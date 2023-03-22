@@ -31,15 +31,18 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
+    "astro": "workspace:*",
     "@markdoc/markdoc": "^0.2.2",
     "gray-matter": "^4.0.3",
     "zod": "^3.17.3"
+  },
+  "peerDependencies": {
+    "astro": "workspace:*"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
     "@types/html-escaper": "^3.0.0",
     "@types/mocha": "^9.1.1",
-    "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "devalue": "^4.2.0",
