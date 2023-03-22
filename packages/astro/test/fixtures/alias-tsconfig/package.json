@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/svelte": "workspace:*",
+    "@test/dep-at-pkg-alias": "link:./deps/at-pkg-alias",
     "astro": "workspace:*",
     "svelte": "^3.48.0"
   }

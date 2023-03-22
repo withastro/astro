@@ -4,6 +4,9 @@ import Foo from 'src/components/Foo.astro';
 import StyleComp from 'src/components/Style.astro';
 import '@styles/main.css';
 import { whoImI } from 'src/ts-file';
+// @ts-expect-error lib has no types
+import { foo } from "@test/dep-at-pkg-alias"
+
 const mistery = whoImI();
 ---
 
@@ -19,6 +22,7 @@ const mistery = whoImI();
 			<Foo />
 			<StyleComp />
 			<div id="mistery">{mistery}</div>
+			<div id="at-pkg-alias">should render bar: {foo}</div>
 		</main>
 	</body>
 </html>

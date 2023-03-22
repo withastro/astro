@@ -1268,12 +1268,17 @@ importers:
   packages/astro/test/fixtures/alias-tsconfig:
     specifiers:
       '@astrojs/svelte': workspace:*
+      '@test/dep-at-pkg-alias': link:./deps/at-pkg-alias
       astro: workspace:*
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../../../integrations/svelte
+      '@test/dep-at-pkg-alias': link:deps/at-pkg-alias
       astro: link:../../..
       svelte: 3.55.1
+
+  packages/astro/test/fixtures/alias-tsconfig/deps/at-pkg-alias:
+    specifiers: {}
 
   packages/astro/test/fixtures/api-routes:
     specifiers:
@@ -4208,15 +4213,14 @@ packages:
       - react
     dev: false
 
-  /@astrojs/markdown-remark/2.1.0_astro@packages+astro:
-    resolution: {integrity: sha512-w9T5o3UWQIfMcCkM2nLWrlfVQazh/7mw+2N/85QGcSUkZy6oNJoyy8Xz/ZkDhHLx8HPO0RT9fABR0B/H+aDaEw==}
+  /@astrojs/markdown-remark/2.1.2_astro@packages+astro:
+    resolution: {integrity: sha512-rYkmFEv2w7oEk6ZPgxHkhWzwcxSUGc1vJU0cbCu5sHF8iFNnc1cmMsjXWa5DrU5sCEf8VVYE1iFlbbnFzvHQJw==}
     peerDependencies:
       astro: '*'
     dependencies:
       '@astrojs/prism': 2.1.1
       astro: link:packages/astro
       github-slugger: 1.5.0
-      image-size: 1.0.2
       import-meta-resolve: 2.2.1
       rehype-raw: 6.1.1
       rehype-stringify: 9.0.3
@@ -4236,7 +4240,7 @@ packages:
     resolution: {integrity: sha512-mol57cw1jJMcQgKMRGn7p6cewajq6JTNtqj5aAZgROWam/phVDSOCbXj/WU3O9+3qFnyKtpczoufQKwJTQltAw==}
     engines: {node: '>=16.12.0'}
     dependencies:
-      '@astrojs/markdown-remark': 2.1.0_astro@packages+astro
+      '@astrojs/markdown-remark': 2.1.2_astro@packages+astro
       '@astrojs/prism': 2.1.1
       '@mdx-js/mdx': 2.3.0
       '@mdx-js/rollup': 2.3.0

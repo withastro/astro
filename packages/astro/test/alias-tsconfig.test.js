@@ -49,11 +49,18 @@ describe('Aliases with tsconfig.json', () => {
 			expect(html).to.include('#style-blue');
 		});
 
-		it('can load load typescript files without .ts or .d.ts extensions', async () => {
+		it('can load typescript files without .ts or .d.ts extensions', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			expect($('#mistery').text()).to.equal("I'm a TypeScript file!");
+		});
+
+		it('can load @foo/bar package with "@*" tsconfig paths alias', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			expect($('#at-pkg-alias').text()).to.equal('should render bar: bar');
 		});
 	});
 });
