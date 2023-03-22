@@ -46,7 +46,7 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 
 ### Site metadata
 
-`src/config.ts` contains several data objects that describe metadata about your site like title, description, default language, and Open Graph details. You can customize these to match your project.
+`src/consts.ts` contains several data objects that describe metadata about your site like title, description, default language, and Open Graph details. You can customize these to match your project.
 
 ### CSS styling
 
@@ -82,19 +82,18 @@ For more SEO related properties, look at `src/components/HeadSEO.astro`
 
 ### Sidebar navigation
 
-The sidebar navigation is controlled by the `SIDEBAR` variable in your `src/config.ts` file. You can customize the sidebar by modifying this object. A default, starter navigation has already been created for you.
+The sidebar navigation is controlled by the `SIDEBAR` variable in your `src/consts.ts` file. You can customize the sidebar by modifying this object. A default, starter navigation has already been created for you.
 
 ```ts
 export const SIDEBAR = {
-  en: [
-    { text: "Section Header", header: true },
-    { text: "Introduction", link: "en/introduction" },
-    { text: "Page 2", link: "en/page-2" },
-    { text: "Page 3", link: "en/page-3" },
-
-    { text: "Another Section", header: true },
-    { text: "Page 4", link: "en/page-4" },
-  ],
+  en: {
+		'Section Header': [
+			{ text: 'Introduction', link: 'en/introduction' },
+			{ text: 'Page 2', link: 'en/page-2' },
+			{ text: 'Page 3', link: 'en/page-3' },
+		],
+		'Another Section': [{ text: 'Page 4', link: 'en/page-4' }],
+	},
 };
 ```
 
@@ -118,10 +117,10 @@ To add a new language to your project, you'll want to extend the current `src/co
 + ┃ ┣ 📜 page-3.astro
 ```
 
-You'll also need to add the new language name to the `KNOWN_LANGUAGES` map in your `src/config.ts` file. This will enable your new language switcher in the site header.
+You'll also need to add the new language name to the `KNOWN_LANGUAGES` map in your `src/consts.ts` file. This will enable your new language switcher in the site header.
 
 ```diff
-// src/config.ts
+// src/consts.ts
 export const KNOWN_LANGUAGES = {
   English: 'en',
 +  Spanish: 'es',
@@ -133,18 +132,22 @@ Last step: you'll need to add a new entry to your sidebar, to create the table o
 > Make sure the sidebar `link` value points to the correct language!
 
 ```diff
-// src/config.ts
+// src/consts.ts
 export const SIDEBAR = {
-  en: [
-    { text: 'Section Header', header: true, },
-    { text: 'Introduction', link: 'en/introduction' },
-    // ...
-  ],
-+  es: [
-+    { text: 'Encabezado de sección', header: true, },
-+    { text: 'Introducción', link: 'es/introduction' },
-+    // ...
-+  ],
+  en: {
+		'Section Header': [
+			{ text: 'Introduction', link: 'en/introduction' },
+      // ...
+		],
+		// ...
+	},,
++  es: {
++		'Encabezado de sección': [
++			{ text: 'Introducción', link: 'en/introduction' },
++     // ...
++		],
++   // ...
++  },
 };
 
 // ...
@@ -169,8 +172,8 @@ If that single language is not English, you can just replace `en` in directory l
 
 ### Search (Powered by Algolia)
 
-[Algolia](https://www.algolia.com/) offers a free service to qualified open source projects called [DocSearch](https://docsearch.algolia.com/). If you are accepted to the DocSearch program, provide your API Key & index name in `src/config.ts` and a search box will automatically appear in your site header.
+[Algolia](https://www.algolia.com/) offers a free service to qualified open source projects called [DocSearch](https://docsearch.algolia.com/). If you are accepted to the DocSearch program, provide your API Key & index name in `src/consts.ts` and a search box will automatically appear in your site header.
 
-Note that Aglolia and Astro are not affiliated. We have no say over acceptance to the DocSearch program.
+Note that Algolia and Astro are not affiliated. We have no say over acceptance to the DocSearch program.
 
 If you'd prefer to remove Algolia's search and replace it with your own, check out the `src/components/Header.astro` component to see where the component is added.

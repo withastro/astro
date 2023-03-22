@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
-import { AstroCheck, DiagnosticSeverity, GetDiagnosticsResult } from '@astrojs/language-server';
+import {
+	AstroCheck,
+	DiagnosticSeverity,
+	type GetDiagnosticsResult,
+} from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
 import fsMod, * as fs from 'fs';
@@ -85,7 +89,10 @@ export async function check(
 			commandName: 'astro check',
 			usage: '[...flags]',
 			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
+				Flags: [
+					['--watch', 'Watch Astro files for changes and re-run checks.'],
+					['--help (-h)', 'See all available flags.'],
+				],
 			},
 			description: `Runs diagnostics against your project and reports errors to the console.`,
 		});

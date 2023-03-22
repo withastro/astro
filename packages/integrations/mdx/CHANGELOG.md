@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 0.18.2
+
+### Patch Changes
+
+- [#6552](https://github.com/withastro/astro/pull/6552) [`392ba3e4d`](https://github.com/withastro/astro/commit/392ba3e4d55f73ce9194bd94a2243f1aa62af079) Thanks [@bluwy](https://github.com/bluwy)! - Fix integration return type
+
+- Updated dependencies [[`90e5f87d0`](https://github.com/withastro/astro/commit/90e5f87d03215a833bb6ac91f9548670a25ce659), [`f5fddafc2`](https://github.com/withastro/astro/commit/f5fddafc248bb1ef57b7349bfecc25539ae2b5ea)]:
+  - @astrojs/markdown-remark@2.1.1
+
 ## 0.18.1
 
 ### Patch Changes

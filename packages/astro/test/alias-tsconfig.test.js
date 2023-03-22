@@ -44,10 +44,16 @@ describe('Aliases with tsconfig.json', () => {
 
 		it('works in css @import', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
-			console.log(html);
 			// imported css should be bundled
 			expect(html).to.include('#style-red');
 			expect(html).to.include('#style-blue');
+		});
+
+		it('can load load typescript files without .ts or .d.ts extensions', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			expect($('#mistery').text()).to.equal("I'm a TypeScript file!");
 		});
 	});
 });

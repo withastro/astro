@@ -94,8 +94,8 @@ Astro is generously supported by Netlify, Storyblok, and several other amazing o
 
 [![Astro's sponsors.](https://astro.build/sponsors.png 
 "Astro's sponsors.
-Platinum sponsors: Netlify, storyblok, Vercel, Ship Shape
-Gold sponsors: ‹div›RIOTS, StackUp, DEEPGRAM
+Platinum sponsors: Netlify, storyblok, Vercel, Ship Shape, Google Chrome
+Gold sponsors: ‹div›RIOTS, DEEPGRAM, CloudCannon
 Sponsors: Monogram, Qoddi, Dimension")](https://github.com/sponsors/withastro)
 
   </a>

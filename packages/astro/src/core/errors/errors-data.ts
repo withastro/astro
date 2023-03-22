@@ -11,9 +11,7 @@ export interface ErrorData {
 	hint?: string | ((...params: any) => string);
 }
 
-// TODO: Replace with `satisfies` once TS 4.9 is out
-const defineErrors = <T extends Record<string, ErrorData>>(errs: T) => errs;
-export const AstroErrorData = defineErrors({
+export const AstroErrorData = {
 	/**
 	 * @docs
 	 * @kind heading
@@ -819,7 +817,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Unknown Error.',
 		code: 99999,
 	},
-} as const);
+} as const satisfies Record<string, ErrorData>;
 
 type ValueOf<T> = T[keyof T];
 export type AstroErrorCodes = ValueOf<{
