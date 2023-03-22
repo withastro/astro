@@ -1,9 +1,16 @@
-import type { Config } from '@markdoc/markdoc';
+import { Config, Tag } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { getAstroConfigPath, MarkdocError, parseFrontmatter } from './utils.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+	getAstroConfigPath,
+	isAliasedPath,
+	MarkdocError,
+	parseFrontmatter,
+	isRelativePath,
+} from './utils.js';
+import { emitESMImage } from 'astro/assets/utils/emitAsset';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -11,12 +18,18 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
+export default function markdocIntegration(markdocConfig: Config = {}): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { updateConfig, config, addContentEntryType } = params as SetupHookParams;
+				const {
+					updateConfig,
+					config: astroConfig,
+					addContentEntryType,
+				} = params as SetupHookParams;
+
+				const assetsDir = new URL('./assets/', astroConfig.srcDir);
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -30,16 +43,50 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					getRenderModule({ entry }) {
-						validateRenderProperties(markdocConfig, config);
+					async getRenderModule({ entry }) {
+						validateRenderProperties(markdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
-						const content = Markdoc.transform(ast, {
+						const pluginContext = this;
+
+						const content = await Markdoc.transform(ast, {
 							...markdocConfig,
 							variables: {
 								...markdocConfig.variables,
 								entry,
 							},
+							nodes: {
+								...markdocConfig.nodes,
+								image: {
+									...Markdoc.nodes.image,
+									async transform(node, config) {
+										const { src, ...rest } = node.attributes;
+										// TODO: aliased paths
+										if (isRelativePath(src)) {
+											const image = await emitESMImage(
+												new URL(src, assetsDir),
+												pluginContext.meta.watchMode,
+												pluginContext.emitFile,
+												{ config: astroConfig }
+											);
+											console.log({ image });
+
+											return new Tag(
+												'AstroImage',
+												{
+													...rest,
+													src: image,
+												},
+												[]
+											);
+										}
+										const attributes = node.transformAttributes(config);
+										const children = node.transformChildren(config);
+										return new Tag('img', attributes, children);
+									},
+								},
+							},
 						});
+
 						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
 								content

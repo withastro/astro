@@ -1,6 +1,7 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
+import { Image } from 'astro:assets';
 import Markdoc from '@markdoc/markdoc';
 import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
@@ -58,11 +59,23 @@ export function createTreeNode(
 	if (node.name in components) {
 		const component = components[node.name];
 		const props = node.attributes;
-		const children = node.children.map((child) => createTreeNode(child, components));
+		const children = node.children.flat().map((child) => createTreeNode(child, components));
 
 		return {
 			type: 'component',
 			component,
+			props,
+			children,
+		};
+	} else if (node.name === 'AstroImage') {
+		const props = node.attributes;
+		const children = node.children.flat().map((child) => createTreeNode(child, components));
+
+		console.log(props);
+
+		return {
+			type: 'component',
+			component: Image,
 			props,
 			children,
 		};
@@ -76,7 +89,7 @@ export function createTreeNode(
 			type: 'element',
 			tag: node.name,
 			attributes: node.attributes,
-			children: node.children.map((child) => createTreeNode(child, components)),
+			children: node.children.flat().map((child) => createTreeNode(child, components)),
 		};
 	}
 }

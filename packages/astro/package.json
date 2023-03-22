@@ -52,6 +52,7 @@
     "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
+    "./assets/utils/emitAsset": "./dist/assets/utils/emitAsset.js",
     "./content/internal": "./dist/content/internal.js",
     "./content/runtime": "./dist/content/runtime.js",
     "./content/runtime-assets": "./dist/content/runtime-assets.js",

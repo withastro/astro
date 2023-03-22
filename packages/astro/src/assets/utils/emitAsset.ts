@@ -1,17 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import type { AstroSettings } from '../../@types/astro';
-import { rootRelativePath } from '../../core/util.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import slash from 'slash';
+import type { AstroSettings, AstroConfig } from '../../@types/astro';
 import { imageMetadata } from './metadata.js';
 
 export async function emitESMImage(
-	id: string,
+	idOrUrl: string | URL,
 	watchMode: boolean,
 	fileEmitter: any,
-	settings: AstroSettings
+	settings: Pick<AstroSettings, 'config'>
 ) {
-	const url = pathToFileURL(id);
+	const url: URL = typeof idOrUrl === 'string' ? pathToFileURL(idOrUrl) : idOrUrl;
 	const meta = await imageMetadata(url);
 
 	if (!meta) {
@@ -40,4 +40,22 @@ export async function emitESMImage(
 	}
 
 	return meta;
+}
+
+function rootRelativePath(config: Pick<AstroConfig, 'root'>, url: URL) {
+	const basePath = fileURLToNormalizedPath(url);
+	const rootPath = fileURLToNormalizedPath(config.root);
+	return prependForwardSlash(basePath.slice(rootPath.length));
+}
+
+function prependForwardSlash(path: string) {
+	return path[0] === '/' ? path : '/' + path;
+}
+
+function fileURLToNormalizedPath(filePath: URL): string {
+	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
+}
+
+export function emoji(char: string, fallback: string) {
+	return process.platform !== 'win32' ? char : fallback;
 }
