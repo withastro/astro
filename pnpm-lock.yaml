@@ -3117,6 +3117,14 @@ importers:
       '@astrojs/markdoc': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/image-assets:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/mdx:
     specifiers:
       '@astrojs/markdown-remark': ^2.1.1
