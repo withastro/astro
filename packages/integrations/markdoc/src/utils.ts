@@ -145,28 +145,3 @@ const componentsPropValidator = z.record(
 export function isCapitalized(str: string) {
 	return str.length > 0 && str[0] === str[0].toUpperCase();
 }
-
-export function isAliasedPath(path: string) {
-	return path.startsWith('~/assets');
-}
-
-export function stripAliasPath(path: string) {
-	return path.replace('~/assets/', '');
-}
-
-export function isRelativePath(path: string) {
-	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
-}
-
-function startsWithDotDotSlash(path: string) {
-	const c1 = path[0];
-	const c2 = path[1];
-	const c3 = path[2];
-	return c1 === '.' && c2 === '.' && c3 === '/';
-}
-
-function startsWithDotSlash(path: string) {
-	const c1 = path[0];
-	const c2 = path[1];
-	return c1 === '.' && c2 === '/';
-}

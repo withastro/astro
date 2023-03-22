@@ -8,11 +8,9 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
 	getAstroConfigPath,
-	isAliasedPath,
 	MarkdocError,
 	parseFrontmatter,
-	isRelativePath,
-	stripAliasPath,
+	prependForwardSlash,
 } from './utils.js';
 import { emitESMImage } from 'astro/assets/utils/emitAsset';
 import type { Plugin as VitePlugin } from 'vite';
@@ -73,35 +71,35 @@ export default function markdocIntegration(
 							config.nodes.image = {
 								...Markdoc.nodes.image,
 								async transform(node, config) {
-									const { src, ...rest } = node.attributes;
-									// Use default Markdoc image transform for absolute paths
-									if (!isRelativePath(src) && !isAliasedPath(src)) {
-										const attributes = node.transformAttributes(config);
-										const children = node.transformChildren(config);
-										return new Markdoc.Tag('img', attributes, children);
-									}
+									const attributes = node.transformAttributes(config);
+									const children = node.transformChildren(config);
+									const { src, ...rest } = attributes;
 
-									const srcUrl = new URL(isAliasedPath(src) ? stripAliasPath(src) : src, assetsDir);
-
-									if (!fs.existsSync(srcUrl)) {
-										throw new MarkdocError({
-											message: `Could not find the image ${JSON.stringify(
-												src
-											)} from \`src/assets/\`. Does the file exist?`,
-										});
-									}
-
-									const image = await emitESMImage(
-										srcUrl,
-										pluginContext.meta.watchMode,
-										pluginContext.emitFile,
-										{ config: astroConfig }
+									// Attempt to resolve source against `src/assets/` with Vite.
+									// This handles relative paths and configured aliases
+									const resolved = await pluginContext.resolve(
+										src,
+										// Use arbitrary file name for Vite to resolve against in `src/assets/`
+										new URL('entry.js', assetsDir).pathname
 									);
 
-									return new Markdoc.Tag('Image', {
-										...rest,
-										src: image,
-									});
+									if (
+										resolved?.id &&
+										fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))
+									) {
+										const image = await emitESMImage(
+											resolved.id,
+											pluginContext.meta.watchMode,
+											pluginContext.emitFile,
+											{ config: astroConfig }
+										);
+
+										return new Markdoc.Tag('Image', { ...rest, src: image }, children);
+									} else {
+										// If we cannot resolve this path to `src/assets/` with Vite,
+										// leave the image `src` untouched.
+										return new Markdoc.Tag('img', attributes, children);
+									}
 								},
 							};
 						}
