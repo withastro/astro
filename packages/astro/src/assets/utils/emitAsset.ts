@@ -42,6 +42,12 @@ export async function emitESMImage(
 	return meta;
 }
 
+/**
+ * Utilities inlined from `packages/astro/src/core/util.ts`
+ * Avoids ESM / CJS bundling failures when accessed from integrations
+ * due to Vite dependencies in core.
+ */
+
 function rootRelativePath(config: Pick<AstroConfig, 'root'>, url: URL) {
 	const basePath = fileURLToNormalizedPath(url);
 	const rootPath = fileURLToNormalizedPath(config.root);
@@ -53,6 +59,8 @@ function prependForwardSlash(path: string) {
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {
+	// Uses `slash` package instead of Vite's `normalizePath`
+	// to avoid CJS bundling issues.
 	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
 }
 
