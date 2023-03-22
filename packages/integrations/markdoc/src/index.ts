@@ -5,13 +5,14 @@ import type {
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import {
 	getAstroConfigPath,
 	isAliasedPath,
 	MarkdocError,
 	parseFrontmatter,
 	isRelativePath,
+	stripAliasPath,
 } from './utils.js';
 import { emitESMImage } from 'astro/assets/utils/emitAsset';
 
@@ -67,32 +68,34 @@ export default function markdocIntegration(
 								...Markdoc.nodes.image,
 								async transform(node, config) {
 									const { src, ...rest } = node.attributes;
-									// TODO: aliased paths
-									if (isRelativePath(src)) {
-										const srcUrl = new URL(src, assetsDir);
-										if (!fs.existsSync(srcUrl)) {
-											throw new MarkdocError({
-												message: `Could not find the image ${JSON.stringify(
-													src
-												)} from \`src/assets/\`. Does the file exist?`,
-											});
-										}
+									// Use default Markdoc image transform for absolute paths
+									if (!isRelativePath(src) && !isAliasedPath(src)) {
+										const attributes = node.transformAttributes(config);
+										const children = node.transformChildren(config);
+										return new Markdoc.Tag('img', attributes, children);
+									}
 
-										const image = await emitESMImage(
-											new URL(src, assetsDir),
-											pluginContext.meta.watchMode,
-											pluginContext.emitFile,
-											{ config: astroConfig }
-										);
+									const srcUrl = new URL(isAliasedPath(src) ? stripAliasPath(src) : src, assetsDir);
 
-										return new Markdoc.Tag('Image', {
-											...rest,
-											src: image,
+									if (!fs.existsSync(srcUrl)) {
+										throw new MarkdocError({
+											message: `Could not find the image ${JSON.stringify(
+												src
+											)} from \`src/assets/\`. Does the file exist?`,
 										});
 									}
-									const attributes = node.transformAttributes(config);
-									const children = node.transformChildren(config);
-									return new Markdoc.Tag('img', attributes, children);
+
+									const image = await emitESMImage(
+										srcUrl,
+										pluginContext.meta.watchMode,
+										pluginContext.emitFile,
+										{ config: astroConfig }
+									);
+
+									return new Markdoc.Tag('Image', {
+										...rest,
+										src: image,
+									});
 								},
 							};
 						}
