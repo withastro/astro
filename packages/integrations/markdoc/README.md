@@ -306,11 +306,11 @@ You will need to install the `@markdoc/markdoc` package into your project first:
 
 ```sh
 # Using NPM
-npx astro add @markdoc/markdoc
+npm install @markdoc/markdoc
 # Using Yarn
-yarn astro add @markdoc/markdoc
+yarn add @markdoc/markdoc
 # Using PNPM
-pnpm astro add @markdoc/markdoc
+pnpm add @markdoc/markdoc
 ```
 
 Now, you can define Markdoc configuration options using `Markdock.transform()`.
