@@ -59,9 +59,38 @@ export default function configAliasVitePlugin({
 
 	const configAlias = getConfigAlias(paths, resolvedBaseUrl);
 
-	return {
+	const plugin: VitePlugin = {
 		name: 'astro:tsconfig-alias',
 		enforce: 'pre',
+		configResolved(config) {
+			// Patch config.createResolver as Vite would only use it to resolve in CSS files, which we want
+			// the tsconfig aliases to take effect too. In the future, this could be easier with
+			// https://github.com/vitejs/vite/pull/10555
+			const _createResolver = config.createResolver;
+			// @ts-expect-error override readonly property intentionally
+			config.createResolver = function (...args1: any) {
+				const resolver = _createResolver.apply(config, args1);
+				return async function (...args2: any) {
+					const id: string = args2[0];
+					const importer: string = args2[1];
+
+					// fast path so we don't run this extensive logic in prebundling
+					if (importer.includes('node_modules')) {
+						return resolver.apply(_createResolver, args2);
+					}
+
+					const fakePluginContext = {
+						resolve: (_id: string, _importer: string) => resolver(_id, _importer),
+					};
+
+					// @ts-expect-error resolveId exists
+					const resolved = await plugin.resolveId.apply(fakePluginContext, [id, importer]);
+					if (resolved) return resolved;
+
+					return resolver.apply(_createResolver, args2);
+				};
+			};
+		},
 		async resolveId(id, importer, options) {
 			// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
 			// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
@@ -85,4 +114,6 @@ export default function configAliasVitePlugin({
 			});
 		},
 	};
+
+	return plugin;
 }
