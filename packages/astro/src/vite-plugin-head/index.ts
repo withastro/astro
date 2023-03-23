@@ -21,7 +21,9 @@ export default function configHeadVitePlugin({
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P]
-	>(this: { getModuleInfo(id: string): ModuleInfo | null }, id: string, prop: P, value: V) {
+	>(this: { getModuleInfo(id: string): ModuleInfo | null }, id: string, prop: P, value: V, seen = new Set<string>()) {
+		if(seen.has(id)) return;
+		seen.add(id);
 		const mod = server.moduleGraph.getModuleById(id);
 		const info = this.getModuleInfo(id);
 		if (info?.meta.astro) {
@@ -33,7 +35,7 @@ export default function configHeadVitePlugin({
 
 		for (const parent of mod?.importers || []) {
 			if(parent.id) {
-				propagateMetadata.call(this, parent.id, prop, value);
+				propagateMetadata.call(this, parent.id, prop, value, seen);
 			}
 		}
 	}
