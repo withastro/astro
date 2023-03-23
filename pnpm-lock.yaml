@@ -3076,7 +3076,7 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
-      devalue: ^4.2.0
+      esbuild: ^0.17.12
       gray-matter: ^4.0.3
       linkedom: ^0.14.12
       mocha: ^9.2.2
@@ -3085,6 +3085,7 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@markdoc/markdoc': 0.2.2
+      esbuild: 0.17.12
       gray-matter: 4.0.3
       zod: 3.20.6
     devDependencies:
@@ -3094,7 +3095,6 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
-      devalue: 4.2.3
       linkedom: 0.14.21
       mocha: 9.2.2
       rollup: 3.20.1
@@ -9822,6 +9822,7 @@ packages:
 
   /devalue/4.2.3:
     resolution: {integrity: sha512-JG6Q248aN0pgFL57e3zqTVeFraBe+5W2ugvv1mLXsJP6YYIYJhRZhAl7QP8haJrqob6X10F9NEkuCvNILZTPeQ==}
+    dev: false
 
   /didyoumean/1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
