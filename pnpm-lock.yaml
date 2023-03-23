@@ -2907,6 +2907,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       cheerio: ^1.0.0-rc.11
+      fast-glob: ^3.2.11
       http-cache-semantics: ^4.1.0
       image-size: ^1.0.2
       kleur: ^4.1.5
@@ -2931,6 +2932,7 @@ importers:
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       cheerio: 1.0.0-rc.12
+      fast-glob: 3.2.12
       mocha: 9.2.2
       rollup-plugin-copy: 3.4.0
       sharp: 0.31.3
