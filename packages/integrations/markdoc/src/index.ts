@@ -1,6 +1,7 @@
 import type {
 	Config as ReadonlyMarkdocConfig,
 	ConfigType as MarkdocConfig,
+	Node,
 } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
@@ -13,7 +14,8 @@ import {
 	parseFrontmatter,
 	prependForwardSlash,
 } from './utils.js';
-import { emitESMImage } from 'astro/dist/assets/index.js';
+// @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
+import { emitESMImage } from 'astro/assets';
 import type { Plugin as VitePlugin } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -57,6 +59,7 @@ export default function markdocIntegration(
 					async getRenderModule({ entry }) {
 						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
+						collectImageAttributes(ast);
 						const pluginContext = this;
 
 						const markdocConfig: MarkdocConfig = {
@@ -128,6 +131,12 @@ export default function markdocIntegration(
 			},
 		},
 	};
+}
+
+function collectImageAttributes(ast: Node) {
+	for (const node of ast.children) {
+		console.log({ node });
+	}
 }
 
 function validateRenderProperties(markdocConfig: ReadonlyMarkdocConfig, astroConfig: AstroConfig) {
