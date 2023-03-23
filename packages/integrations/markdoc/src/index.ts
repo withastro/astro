@@ -6,6 +6,7 @@ import type {
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
+import type * as rollup from 'rollup';
 import { fileURLToPath } from 'node:url';
 import {
 	getAstroConfigPath,
@@ -37,7 +38,6 @@ export default function markdocIntegration(
 					addContentEntryType,
 				} = params as SetupHookParams;
 
-				const assetsDir = new URL('./assets/', astroConfig.srcDir);
 				updateConfig({
 					vite: {
 						plugins: [safeAssetsVirtualModulePlugin({ astroConfig })],
@@ -59,8 +59,13 @@ export default function markdocIntegration(
 					async getRenderModule({ entry }) {
 						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
-						collectImageAttributes(ast);
 						const pluginContext = this;
+
+						await emitOptimizedImages(ast.children, {
+							astroConfig,
+							pluginContext,
+							filePath: entry._internal.filePath,
+						});
 
 						const markdocConfig: MarkdocConfig = {
 							...userMarkdocConfig,
@@ -74,48 +79,21 @@ export default function markdocIntegration(
 							markdocConfig.nodes ??= {};
 							markdocConfig.nodes.image = {
 								...Markdoc.nodes.image,
-								async transform(node, config) {
+								transform(node, config) {
 									const attributes = node.transformAttributes(config);
 									const children = node.transformChildren(config);
-									const { src, ...rest } = attributes;
 
-									// Short circuit for external or absolute paths.
-									if (src.startsWith('/') || isValidUrl(src)) {
-										return new Markdoc.Tag('img', attributes, children);
-									}
-
-									// Attempt to resolve source against `src/assets/` with Vite.
-									// This handles relative paths and configured aliases
-									const resolved = await pluginContext.resolve(
-										src,
-										// Use arbitrary file name for Vite to resolve against in `src/assets/`
-										new URL('entry.js', assetsDir).pathname
-									);
-
-									if (
-										resolved?.id &&
-										fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))
-									) {
-										const image = await emitESMImage(
-											resolved.id,
-											pluginContext.meta.watchMode,
-											pluginContext.emitFile,
-											{ config: astroConfig }
-										);
-
-										return new Markdoc.Tag('Image', { ...rest, src: image }, children);
+									if (node.type === 'image' && '__optimizedSrc' in node.attributes) {
+										const { __optimizedSrc, ...rest } = node.attributes;
+										return new Markdoc.Tag('Image', { ...rest, src: __optimizedSrc }, children);
 									} else {
-										throw new MarkdocError({
-											message: `Could not resolve image ${JSON.stringify(
-												src
-											)} from \`src/assets/\`. Does the file exist?`,
-										});
+										return new Markdoc.Tag('img', attributes, children);
 									}
 								},
 							};
 						}
 
-						const content = await Markdoc.transform(ast, markdocConfig);
+						const content = Markdoc.transform(ast, markdocConfig);
 
 						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
@@ -133,10 +111,45 @@ export default function markdocIntegration(
 	};
 }
 
-function collectImageAttributes(ast: Node) {
-	for (const node of ast.children) {
-		console.log({ node });
+/**
+ * Emits optimized images, and appends the generated `src` to each AST node
+ * via the `__optimizedSrc` attribute.
+ */
+async function emitOptimizedImages(
+	nodeChildren: Node[],
+	ctx: {
+		pluginContext: rollup.PluginContext;
+		filePath: string;
+		astroConfig: AstroConfig;
 	}
+) {
+	for (const node of nodeChildren) {
+		if (
+			node.type === 'image' &&
+			typeof node.attributes.src === 'string' &&
+			shouldOptimizeImage(node.attributes.src)
+		) {
+			// Attempt to resolve source with Vite.
+			// This handles relative paths and configured aliases
+			const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
+
+			if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
+				const src = await emitESMImage(
+					resolved.id,
+					ctx.pluginContext.meta.watchMode,
+					ctx.pluginContext.emitFile,
+					{ config: ctx.astroConfig }
+				);
+				node.attributes.__optimizedSrc = src;
+			}
+		}
+		await emitOptimizedImages(node.children, ctx);
+	}
+}
+
+function shouldOptimizeImage(src: string) {
+	// Optimize anything that is NOT external or an absolute path to `public/`
+	return !isValidUrl(src) && !src.startsWith('/');
 }
 
 function validateRenderProperties(markdocConfig: ReadonlyMarkdocConfig, astroConfig: AstroConfig) {
