@@ -63,8 +63,8 @@ export function createTreeNode(
 		return { type: 'text', content: '' };
 	}
 
-	if (node.name in components) {
-		const component = components[node.name];
+	if (typeof node.name === 'function') {
+		const component = node.name;
 		const props = node.attributes;
 		const children = node.children.map((child) => createTreeNode(child, components));
 

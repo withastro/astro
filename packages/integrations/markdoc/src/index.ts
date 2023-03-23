@@ -18,6 +18,7 @@ import {
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import type { Plugin as VitePlugin } from 'vite';
+import { loadMarkdocConfig } from './load-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -37,6 +38,9 @@ export default function markdocIntegration(
 					config: astroConfig,
 					addContentEntryType,
 				} = params as SetupHookParams;
+
+				const configLoadResult = await loadMarkdocConfig(astroConfig);
+				const userMarkdocConfig = configLoadResult?.config ?? {};
 
 				updateConfig({
 					vite: {
@@ -60,13 +64,6 @@ export default function markdocIntegration(
 						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig: MarkdocConfig = {
-							...userMarkdocConfig,
-							variables: {
-								...userMarkdocConfig.variables,
-								entry,
-							},
-						};
 
 						if (astroConfig.experimental?.assets) {
 							await emitOptimizedImages(ast.children, {
@@ -74,31 +71,38 @@ export default function markdocIntegration(
 								pluginContext,
 								filePath: entry._internal.filePath,
 							});
-
-							markdocConfig.nodes ??= {};
-							markdocConfig.nodes.image = {
-								...Markdoc.nodes.image,
-								transform(node, config) {
-									const attributes = node.transformAttributes(config);
-									const children = node.transformChildren(config);
-
-									if (node.type === 'image' && '__optimizedSrc' in node.attributes) {
-										const { __optimizedSrc, ...rest } = node.attributes;
-										return new Markdoc.Tag('Image', { ...rest, src: __optimizedSrc }, children);
-									} else {
-										return new Markdoc.Tag('img', attributes, children);
-									}
-								},
-							};
 						}
 
-						const content = Markdoc.transform(ast, markdocConfig);
+						const validationErrors = Markdoc.validate(ast, userMarkdocConfig).filter((e) => {
+							// Ignore `variable-undefined` errors.
+							// Variables can be configured at runtime,
+							// so we cannot validate them at build time.
+							return e.error.id !== 'variable-undefined';
+						});
+						if (validationErrors.length) {
+							throw new MarkdocError({
+								message: [
+									`**${String(entry.collection)} → ${String(entry.id)}** failed to validate:`,
+									...validationErrors.map((e) => e.error.id),
+								].join('\n'),
+							});
+						}
 
-						return {
-							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
-								content
-							)};\nexport async function Content ({ components }) { return h(Renderer, { content: transformedContent, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`,
+						const code = {
+							code: `import { jsx as h } from 'astro/jsx-runtime';${
+								configLoadResult
+									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
+									: ''
+							}\nimport { Renderer } from '@astrojs/markdoc/components';\nconst stringifiedAst = ${JSON.stringify(
+								// Double stringify to encode *as* stringified JSON
+								JSON.stringify(ast)
+							)};\nexport async function Content ({ components, variables }) {\n	const config = ${
+								configLoadResult
+									? '{ ...userConfig, variables: { ...userConfig.variables, ...variables } }'
+									: '{ variables }'
+							};\n	return h(Renderer, { stringifiedAst, config, components }); };`,
 						};
+						return code;
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
