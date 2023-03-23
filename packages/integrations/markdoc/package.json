@@ -31,8 +31,8 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "astro": "workspace:*",
     "@markdoc/markdoc": "^0.2.2",
+    "astro": "workspace:*",
     "gray-matter": "^4.0.3",
     "zod": "^3.17.3"
   },
@@ -48,6 +48,7 @@
     "devalue": "^4.2.0",
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
+    "rollup": "^3.20.1",
     "vite": "^4.0.3"
   },
   "engines": {
