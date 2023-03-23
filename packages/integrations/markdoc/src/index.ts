@@ -141,6 +141,12 @@ async function emitOptimizedImages(
 					{ config: ctx.astroConfig }
 				);
 				node.attributes.__optimizedSrc = src;
+			} else {
+				throw new MarkdocError({
+					message: `Could not resolve image ${JSON.stringify(
+						node.attributes.src
+					)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
+				});
 			}
 		}
 		await emitOptimizedImages(node.children, ctx);
