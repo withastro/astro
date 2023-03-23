@@ -50,10 +50,12 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
-				if (result._metadata.hasRenderedHead) {
+				if (result._metadata.hasRenderedHead || result._metadata.headInTree) {
 					return '';
 				}
 
+				// TODO legacy code, we should deprecate implicit head injection in 3.0
+				// and these hacks will not be needed.
 				const scope = instruction.scope;
 				switch (scope) {
 					// JSX with an Astro slot

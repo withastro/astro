@@ -120,6 +120,9 @@ export async function renderPage(
 			]),
 		});
 	}
+	// Mark if this page component contains a <head> within its tree. If it does
+	// We avoid implicit head injection entirely.
+	result._metadata.headInTree = result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
 	const factoryReturnValue = await componentFactory(result, props, children);
 	const factoryIsHeadAndContent = isHeadAndContent(factoryReturnValue);
 	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {

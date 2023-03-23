@@ -424,7 +424,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^1.2.0
+      '@astrojs/compiler': 0.0.0-head-metadata-20230316175054
       '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^2.1.2
       '@astrojs/telemetry': ^2.1.0
@@ -517,7 +517,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 1.2.0
+      '@astrojs/compiler': 0.0.0-head-metadata-20230316175054
       '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -4182,12 +4182,12 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
+  /@astrojs/compiler/0.0.0-head-metadata-20230316175054:
+    resolution: {integrity: sha512-9hXCSNk7R+QK8MAk3CIQ2+x8pSK23L4UC8L8sac5x01+AsC2CFUGHSaj1Ny54SQ6Ihj/SSzjVy0q6Pv+8lOF4Q==}
+    dev: false
+
   /@astrojs/compiler/0.31.4:
     resolution: {integrity: sha512-6bBFeDTtPOn4jZaiD3p0f05MEGQL9pw2Zbfj546oFETNmjJFWO3nzHz6/m+P53calknCvyVzZ5YhoBLIvzn5iw==}
-
-  /@astrojs/compiler/1.2.0:
-    resolution: {integrity: sha512-O8yPCyuq+PU9Fjht2tIW6WzSWiq8qDF1e8uAX2x+SOGFzKqOznp52UlDG2mSf+ekf0Z3R34sb64O7SgX+asTxg==}
-    dev: false
 
   /@astrojs/language-server/0.28.3:
     resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}

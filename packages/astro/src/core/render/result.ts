@@ -48,7 +48,7 @@ export interface CreateResultArgs {
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
-	propagation?: SSRResult['propagation'];
+	componentMetadata?: SSRResult['componentMetadata'];
 	request: Request;
 	status: number;
 }
@@ -150,6 +150,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = undefined;
+	let componentMetadata = args.componentMetadata ?? new Map();
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -158,7 +159,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
-		propagation: args.propagation ?? new Map(),
+		componentMetadata,
 		propagators: new Map(),
 		extraHead: [],
 		scope: 0,
@@ -248,6 +249,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			hasHydrationScript: false,
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
+			headInTree: false,
 		},
 		response,
 	};

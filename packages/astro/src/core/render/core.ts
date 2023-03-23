@@ -98,7 +98,7 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 		params,
 		props: pageProps,
 		pathname: ctx.pathname,
-		propagation: ctx.propagation,
+		componentMetadata: ctx.componentMetadata,
 		resolve: env.resolve,
 		renderers: env.renderers,
 		request: ctx.request,
