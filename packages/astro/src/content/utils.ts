@@ -3,8 +3,8 @@ import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { EmitFile } from 'rollup';
-import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
+import type { EmitFile, PluginContext } from 'rollup';
+import { normalizePath, type ViteDevServer, type ErrorPayload as ViteErrorPayload } from 'vite';
 import { z } from 'zod';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
 import { emitESMImage } from '../assets/utils/emitAsset.js';
@@ -88,7 +88,8 @@ export function getEntrySlug({
 
 export async function getEntryData(
 	entry: EntryInfo & { unvalidatedData: Record<string, unknown>; _internal: EntryInternal },
-	collectionConfig: CollectionConfig
+	collectionConfig: CollectionConfig,
+	resolver: (idToResolve: string) => ReturnType<PluginContext['resolve']>
 ) {
 	// Remove reserved `slug` field before parsing data
 	let { slug, ...data } = entry.unvalidatedData;
@@ -117,6 +118,37 @@ export async function getEntryData(
 				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
 			});
 		}
+
+		/**
+		 * Resolve all the images referred to in the frontmatter from the file requesting them
+		 */
+		async function preprocessAssetPaths(object: Record<string, any>) {
+			if (typeof object !== 'object' || object === null) return;
+
+			for (let [schemaName, schema] of Object.entries<any>(object)) {
+				if (schema._def.description === '__image') {
+					object[schemaName] = z.preprocess(
+						async (value: unknown) => {
+							if (!value || typeof value !== 'string') return value;
+							return (await resolver(value))?.id;
+						},
+						schema,
+						{ description: undefined }
+					);
+				} else if ('shape' in schema) {
+					await preprocessAssetPaths(schema.shape);
+				} else if ('unwrap' in schema) {
+					const unwrapped = schema.unwrap().shape;
+
+					if (unwrapped) {
+						await preprocessAssetPaths(unwrapped);
+					}
+				}
+			}
+		}
+
+		await preprocessAssetPaths(collectionConfig.schema.shape);
+
 		// Use `safeParseAsync` to allow async transforms
 		const parsed = await collectionConfig.schema.safeParseAsync(entry.unvalidatedData, {
 			errorMap,
