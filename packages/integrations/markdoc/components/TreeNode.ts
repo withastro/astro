@@ -66,7 +66,7 @@ export function createTreeNode(
 	if (node.name in components) {
 		const component = components[node.name];
 		const props = node.attributes;
-		const children = node.children.flat().map((child) => createTreeNode(child, components));
+		const children = node.children.map((child) => createTreeNode(child, components));
 
 		return {
 			type: 'component',
@@ -84,7 +84,7 @@ export function createTreeNode(
 			type: 'element',
 			tag: node.name,
 			attributes: node.attributes,
-			children: node.children.flat().map((child) => createTreeNode(child, components)),
+			children: node.children.map((child) => createTreeNode(child, components)),
 		};
 	}
 }
