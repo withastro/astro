@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 
 const result = await fastglob(fileURLToPath(new URL('./src/**/*.wasm', import.meta.url)));
 
-for(const filepath of result) {
+for (const filepath of result) {
 	const buffer = await fs.promises.readFile(filepath);
 	const base64 = buffer.toString('base64');
 	const source = `export default Buffer.from(${JSON.stringify(base64)}, 'base64');`;
