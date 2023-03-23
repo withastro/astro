@@ -13,7 +13,7 @@ import {
 	parseFrontmatter,
 	prependForwardSlash,
 } from './utils.js';
-import { emitESMImage } from 'astro/assets';
+import { emitESMImage } from 'astro/dist/assets/index.js';
 import type { Plugin as VitePlugin } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
