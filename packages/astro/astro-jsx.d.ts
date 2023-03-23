@@ -789,9 +789,9 @@ declare namespace astroHTML.JSX {
 		fetchpriority?: 'auto' | 'high' | 'low' | undefined | null;
 		integrity?: string | undefined | null;
 		media?: string | undefined | null;
-		imageSrcSet?: string | undefined | null;
-		imageSizes?: string | undefined | null;
-		referrerPolicy?: HTMLAttributeReferrerPolicy | undefined | null;
+		imagesrcset?: string | undefined | null;
+		imagesizes?: string | undefined | null;
+		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
 		rel?: string | undefined | null;
 		sizes?: string | undefined | null;
 		type?: string | undefined | null;
