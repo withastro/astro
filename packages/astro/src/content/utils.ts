@@ -123,6 +123,8 @@ export async function getEntryData(
 		 * Resolve all the images referred to in the frontmatter from the file requesting them
 		 */
 		async function preprocessAssetPaths(object: Record<string, any>) {
+			if (typeof object !== 'object' || object === null) return;
+
 			for (let [schemaName, schema] of Object.entries<any>(object)) {
 				if (schema._def.description === '__image') {
 					object[schemaName] = z.preprocess(
@@ -139,7 +141,7 @@ export async function getEntryData(
 					const unwrapped = schema.unwrap().shape;
 
 					if (unwrapped) {
-						await preprocessAssetPaths(schema.unwrap().shape);
+						await preprocessAssetPaths(unwrapped);
 					}
 				}
 			}
