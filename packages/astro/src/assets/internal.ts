@@ -1,6 +1,8 @@
 import fs from 'node:fs';
+import { basename, join } from 'node:path';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { prependForwardSlash } from '../core/path.js';
 import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
 import type { ImageMetadata, ImageTransform } from './types.js';
 
@@ -104,7 +106,15 @@ export async function generateImage(
 		clientRoot = buildOpts.settings.config.outDir;
 	}
 
-	const fileData = await fs.promises.readFile(new URL('.' + options.src.src, serverRoot));
+	const fileData = await fs.promises.readFile(
+		new URL(
+			'.' +
+				prependForwardSlash(
+					join(buildOpts.settings.config.build.assets, basename(options.src.src))
+				),
+			serverRoot
+		)
+	);
 	const resultData = await imageService.transform(fileData, { ...options, src: options.src.src });
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
