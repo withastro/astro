@@ -2,7 +2,6 @@ import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
-import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
 export type TreeNode =
 	| {
@@ -63,11 +62,6 @@ export function createTreeNode(node: RenderableTreeNode): TreeNode {
 			props,
 			children,
 		};
-	} else if (isCapitalized(node.name)) {
-		throw new MarkdocError({
-			message: `Unable to render ${JSON.stringify(node.name)}.`,
-			hint: 'Did you add this to the "components" prop on your <Content /> component?',
-		});
 	} else {
 		return {
 			type: 'element',

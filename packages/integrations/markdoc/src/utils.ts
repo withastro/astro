@@ -114,10 +114,6 @@ export function prependForwardSlash(str: string) {
 	return str[0] === '/' ? str : '/' + str;
 }
 
-export function isCapitalized(str: string) {
-	return str.length > 0 && str[0] === str[0].toUpperCase();
-}
-
 export function isValidUrl(str: string): boolean {
 	try {
 		new URL(str);
