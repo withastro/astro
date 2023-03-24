@@ -18,6 +18,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 
 export default function markdocIntegration(legacyConfig: any): AstroIntegration {
 	if (legacyConfig) {
+		// eslint-disable-next-line no-console
 		console.log(
 			`${red(
 				bold('[Markdoc]')

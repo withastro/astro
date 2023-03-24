@@ -1,6 +1,6 @@
 import type { AstroConfig } from 'astro';
 import type { Config as MarkdocConfig } from '@markdoc/markdoc';
-import { build } from 'esbuild';
+import { build as esbuild } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 import * as fs from 'node:fs';
 
@@ -45,7 +45,7 @@ async function bundleConfigFile({
 	markdocConfigUrl: URL;
 	astroConfig: Pick<AstroConfig, 'root'>;
 }): Promise<{ code: string; dependencies: string[] }> {
-	const result = await build({
+	const result = await esbuild({
 		absWorkingDir: fileURLToPath(astroConfig.root),
 		entryPoints: [fileURLToPath(markdocConfigUrl)],
 		outfile: 'out.js',
