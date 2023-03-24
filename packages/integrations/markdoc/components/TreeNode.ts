@@ -1,9 +1,7 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
-import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
-// @ts-expect-error Cannot find module 'astro:markdoc-assets' or its corresponding type declarations
-import { Image } from 'astro:markdoc-assets';
 import Markdoc from '@markdoc/markdoc';
+import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
 import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
 export type TreeNode =
@@ -47,16 +45,7 @@ export const ComponentNode = createComponent({
 	propagation: 'none',
 });
 
-const builtInComponents: Record<string, AstroInstance['default']> = {
-	Image,
-};
-
-export function createTreeNode(
-	node: RenderableTreeNode,
-	userComponents: Record<string, AstroInstance['default']> = {}
-): TreeNode {
-	const components = { ...userComponents, ...builtInComponents };
-
+export function createTreeNode(node: RenderableTreeNode): TreeNode {
 	if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
@@ -66,7 +55,7 @@ export function createTreeNode(
 	if (typeof node.name === 'function') {
 		const component = node.name;
 		const props = node.attributes;
-		const children = node.children.map((child) => createTreeNode(child, components));
+		const children = node.children.map((child) => createTreeNode(child));
 
 		return {
 			type: 'component',
@@ -84,7 +73,7 @@ export function createTreeNode(
 			type: 'element',
 			tag: node.name,
 			attributes: node.attributes,
-			children: node.children.map((child) => createTreeNode(child, components)),
+			children: node.children.map((child) => createTreeNode(child)),
 		};
 	}
 }
