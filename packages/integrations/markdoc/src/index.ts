@@ -1,16 +1,9 @@
-import type { Config as ReadonlyMarkdocConfig, Node } from '@markdoc/markdoc';
+import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type * as rollup from 'rollup';
-import {
-	getAstroConfigPath,
-	isValidUrl,
-	MarkdocError,
-	parseFrontmatter,
-	prependForwardSlash,
-} from './utils.js';
+import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { loadMarkdocConfig } from './load-config.js';
@@ -22,9 +15,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(
-	userMarkdocConfig: ReadonlyMarkdocConfig = {}
-): AstroIntegration {
+export default function markdocIntegration(): AstroIntegration {
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
