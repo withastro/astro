@@ -1,5 +1,5 @@
 ---
-'@astrojs/markdoc': minor
+'@astrojs/markdoc': patch
 'astro': patch
 ---
 
