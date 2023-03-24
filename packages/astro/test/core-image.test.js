@@ -304,10 +304,42 @@ describe('astro:image', () => {
 			await fixture.build();
 		});
 
-		it('has base path prefix', async () => {
+		it('has base path prefix when using the Image component', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const src = $('#local img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix when using getImage', async () => {
+			const html = await fixture.readFile('/get-image/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix when using image directly', async () => {
+			const html = await fixture.readFile('/direct/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix in Markdown', async () => {
+			const html = await fixture.readFile('/post/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix in Content Collection frontmatter', async () => {
+			const html = await fixture.readFile('/blog/one/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
 			expect(src.length).to.be.greaterThan(0);
 			expect(src.startsWith('/blog')).to.be.true;
 		});
