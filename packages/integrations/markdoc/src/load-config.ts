@@ -65,10 +65,10 @@ async function bundleConfigFile({
 			{
 				name: 'stub-astro-imports',
 				setup(build) {
-					build.onResolve({ filter: /.*\.astro$/ }, async ({ path: id, importer, kind }) => {
-						console.log({ id });
+					build.onResolve({ filter: /.*\.astro$/ }, () => {
 						return {
-							path: '@astrojs/markdoc/astro-stub',
+							// Stub with an unused default export
+							path: 'data:text/javascript,export default true',
 							external: true,
 						};
 					});
