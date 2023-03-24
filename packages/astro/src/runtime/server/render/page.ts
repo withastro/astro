@@ -81,7 +81,16 @@ export async function renderPage(
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
 		let output: ComponentIterable;
+		let head = '';
 		try {
+			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
+				const parts = new HTMLParts();
+				for await(const chunk of maybeRenderHead(result)) {
+					parts.append(chunk, result);
+				}
+				head = parts.toString();
+			}
+
 			const renderResult = await renderComponent(
 				result,
 				componentFactory.name,
@@ -106,11 +115,7 @@ export async function renderPage(
 
 		// Accumulate the HTML string and append the head if necessary.
 		const bytes = await iterableToHTMLBytes(result, output, async (parts) => {
-			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
-				for await (let chunk of maybeRenderHead(result)) {
-					parts.append(chunk, result);
-				}
-			}
+			parts.append(head, result);
 		});
 
 		return new Response(bytes, {
