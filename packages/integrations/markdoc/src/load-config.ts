@@ -37,6 +37,7 @@ export async function loadMarkdocConfig(astroConfig: Pick<AstroConfig, 'root'>) 
  * Forked from Vite's `bundleConfigFile` function
  * with added handling for `.astro` imports,
  * and removed unused Deno patches.
+ * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L961
  */
 async function bundleConfigFile({
 	markdocConfigUrl,
@@ -79,6 +80,11 @@ async function bundleConfigFile({
 	};
 }
 
+/**
+ * Forked from Vite config loader, replacing CJS-based path concat
+ * with ESM only
+ * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L1074
+ */
 async function loadConfigFromBundledFile(root: URL, code: string): Promise<MarkdocConfig> {
 	// Write it to disk, load it with native Node ESM, then delete the file.
 	const tmpFileUrl = new URL(`markdoc.config.timestamp-${Date.now()}.mjs`, root);
