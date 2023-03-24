@@ -40,6 +40,9 @@ describe('Markdoc - render', () => {
 			expect(textContent).to.include('Hola');
 			expect(textContent).to.include(`Konnichiwa`);
 
+			const runtimeVariable = document.querySelector('#runtime-variable');
+			expect(runtimeVariable?.textContent?.trim()).to.equal('working!');
+
 			await server.stop();
 		});
 
@@ -93,6 +96,9 @@ describe('Markdoc - render', () => {
 			expect(textContent).to.not.include('Hello');
 			expect(textContent).to.include('Hola');
 			expect(textContent).to.include(`Konnichiwa`);
+
+			const runtimeVariable = document.querySelector('#runtime-variable');
+			expect(runtimeVariable?.textContent?.trim()).to.equal('working!');
 		});
 
 		it('renders content - with components', async () => {
