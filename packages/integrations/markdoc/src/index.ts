@@ -6,8 +6,8 @@ import type {
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
-import type * as rollup from 'rollup';
 import { fileURLToPath } from 'node:url';
+import type * as rollup from 'rollup';
 import {
 	getAstroConfigPath,
 	isValidUrl,

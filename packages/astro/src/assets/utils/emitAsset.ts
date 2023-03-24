@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import slash from 'slash';
-import type { AstroSettings, AstroConfig } from '../../@types/astro';
+import type { AstroConfig, AstroSettings } from '../../@types/astro';
 import { imageMetadata } from './metadata.js';
 
 export async function emitESMImage(
