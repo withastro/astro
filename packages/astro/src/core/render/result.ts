@@ -9,11 +9,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import {
-	renderSlot,
-	stringifyChunk,
-	type ComponentSlots,
-} from '../../runtime/server/index.js';
+import { renderSlot, stringifyChunk, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';

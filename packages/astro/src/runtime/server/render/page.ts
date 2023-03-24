@@ -83,7 +83,7 @@ export async function renderPage(
 		try {
 			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
 				const parts = new HTMLParts();
-				for await(const chunk of maybeRenderHead(result)) {
+				for await (const chunk of maybeRenderHead(result)) {
 					parts.append(chunk, result);
 				}
 				head = parts.toString();
@@ -125,7 +125,8 @@ export async function renderPage(
 	}
 	// Mark if this page component contains a <head> within its tree. If it does
 	// We avoid implicit head injection entirely.
-	result._metadata.headInTree = result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
+	result._metadata.headInTree =
+		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
 	const factoryReturnValue = await componentFactory(result, props, children);
 	const factoryIsHeadAndContent = isHeadAndContent(factoryReturnValue);
 	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {

@@ -1,4 +1,4 @@
-import type { SSRResult, SSRComponentMetadata } from '../../../@types/astro';
+import type { SSRComponentMetadata, SSRResult } from '../../../@types/astro';
 
 import type { ModuleInfo, ModuleLoader } from '../../module-loader/index';
 
@@ -24,21 +24,18 @@ export async function getComponentMetadata(
 	return map;
 }
 
-function addMetadata(
-	map: SSRResult['componentMetadata'],
-	modInfo: ModuleInfo | null
-) {
+function addMetadata(map: SSRResult['componentMetadata'], modInfo: ModuleInfo | null) {
 	if (modInfo) {
 		const astro = getAstroMetadata(modInfo);
-		if(astro) {
+		if (astro) {
 			let metadata: SSRComponentMetadata = {
 				containsHead: false,
-				propagation: 'none'
+				propagation: 'none',
 			};
-			if(astro.propagation) {
+			if (astro.propagation) {
 				metadata.propagation = astro.propagation;
 			}
-			if(astro.containsHead) {
+			if (astro.containsHead) {
 				metadata.containsHead = astro.containsHead;
 			}
 			map.set(modInfo.id, metadata);

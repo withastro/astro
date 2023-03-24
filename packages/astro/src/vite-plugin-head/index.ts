@@ -1,6 +1,6 @@
-import type * as vite from 'vite';
 import type { ModuleInfo } from 'rollup';
-import type { AstroSettings, SSRResult, SSRComponentMetadata } from '../@types/astro';
+import type * as vite from 'vite';
+import type { AstroSettings, SSRComponentMetadata, SSRResult } from '../@types/astro';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
@@ -21,26 +21,31 @@ export default function configHeadVitePlugin({
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P]
-	>(this: { getModuleInfo(id: string): ModuleInfo | null }, id: string, prop: P, value: V, seen = new Set<string>()) {
-		if(seen.has(id)) return;
+	>(
+		this: { getModuleInfo(id: string): ModuleInfo | null },
+		id: string,
+		prop: P,
+		value: V,
+		seen = new Set<string>()
+	) {
+		if (seen.has(id)) return;
 		seen.add(id);
 		const mod = server.moduleGraph.getModuleById(id);
 		const info = this.getModuleInfo(id);
 		if (info?.meta.astro) {
-			const astroMetadata = getAstroMetadata(info)
-			if(astroMetadata) {
+			const astroMetadata = getAstroMetadata(info);
+			if (astroMetadata) {
 				Reflect.set(astroMetadata, prop, value);
-			}	
+			}
 		}
 
 		for (const parent of mod?.importers || []) {
-			if(parent.id) {
+			if (parent.id) {
 				propagateMetadata.call(this, parent.id, prop, value, seen);
 			}
 		}
 	}
 
-	
 	return {
 		name: 'astro:head-metadata',
 		configureServer(_server) {
@@ -52,7 +57,7 @@ export default function configHeadVitePlugin({
 			}
 
 			let info = this.getModuleInfo(id);
-			if(info && getAstroMetadata(info)?.containsHead) {
+			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
@@ -77,23 +82,23 @@ export function astroHeadBuildPlugin(
 						generateBundle(_opts, bundle) {
 							const map: SSRResult['componentMetadata'] = internals.componentMetadata;
 							function getOrCreateMetadata(id: string): SSRComponentMetadata {
-								if(map.has(id)) return map.get(id)!;
+								if (map.has(id)) return map.get(id)!;
 								const metadata: SSRComponentMetadata = {
 									propagation: 'none',
-									containsHead: false
+									containsHead: false,
 								};
 								map.set(id, metadata);
 								return metadata;
 							}
 
-							for (const [,output] of Object.entries(bundle)) {
+							for (const [, output] of Object.entries(bundle)) {
 								if (output.type !== 'chunk') continue;
 								for (const [id, mod] of Object.entries(output.modules)) {
 									const modinfo = this.getModuleInfo(id);
 
 									// <head> tag in the tree
-									if(modinfo && getAstroMetadata(modinfo)?.containsHead) {
-										for(const [pageInfo] of getTopLevelPages(id, this)) {
+									if (modinfo && getAstroMetadata(modinfo)?.containsHead) {
+										for (const [pageInfo] of getTopLevelPages(id, this)) {
 											let metadata = getOrCreateMetadata(pageInfo.id);
 											metadata.containsHead = true;
 										}

@@ -1594,8 +1594,8 @@ export interface SSRMetadata {
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
 export type SSRComponentMetadata = {
-	propagation: PropagationHint,
-	containsHead: boolean
+	propagation: PropagationHint;
+	containsHead: boolean;
 };
 
 export interface SSRResult {

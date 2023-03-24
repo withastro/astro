@@ -178,13 +178,7 @@ async function render({
 
 			return createHeadAndContent(
 				unescapeHTML(styles + links + scripts) as any,
-				renderTemplate`${renderComponent(
-					result,
-					'Content',
-					mod.Content,
-					props,
-					slots
-				)}`
+				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
 			);
 		},
 		propagation: 'self',

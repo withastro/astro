@@ -1,9 +1,9 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	ComponentInstance,
-	SSRComponentMetadata,
 	RouteData,
 	SerializedRouteData,
+	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
