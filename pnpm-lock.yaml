@@ -330,9 +330,11 @@ importers:
     specifiers:
       '@astrojs/markdoc': ^0.0.5
       astro: ^2.1.7
+      kleur: ^4.1.5
     dependencies:
       '@astrojs/markdoc': link:../../packages/integrations/markdoc
       astro: link:../../packages/astro
+      kleur: 4.1.5
 
   examples/with-markdown-plugins:
     specifiers:
