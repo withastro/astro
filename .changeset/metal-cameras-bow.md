@@ -29,6 +29,7 @@ You should also remove the `components` prop from your `Content` components. Sin
 
 ```diff
 ---
+- import Aside from '../components/Aside.astro';
 import { getEntryBySlug } from 'astro:content';
 
 const entry = await getEntryBySlug('docs', 'why-markdoc');
