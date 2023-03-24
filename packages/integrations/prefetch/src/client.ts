@@ -82,7 +82,7 @@ export interface PrefetchOptions {
 	 *
 	 * @default 'a[href][rel~="prefetch-intent"]'
 	 */
-	intentSelector?: string;
+	intentSelector?: string | string[];
 }
 
 export default function prefetch({
@@ -116,7 +116,19 @@ export default function prefetch({
 		new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting && entry.target instanceof HTMLAnchorElement) {
-					if (entry.target.getAttribute('rel')?.indexOf(intentSelector) === -1) {
+					const relAttributeValue = entry.target.getAttribute('rel') || '';
+					let matchesIntentSelector = false;
+					// Check if intentSelector is an array
+					if (Array.isArray(intentSelector)) {
+						// If intentSelector is an array, use .some() to check for matches
+						matchesIntentSelector = intentSelector.some((intent) =>
+							relAttributeValue.includes(intent)
+						);
+					} else {
+						// If intentSelector is a string, use .includes() to check for a match
+						matchesIntentSelector = relAttributeValue.includes(intentSelector);
+					}
+					if (!matchesIntentSelector) {
 						toAdd(() => preloadHref(entry.target as HTMLAnchorElement).finally(isDone));
 					}
 				}
@@ -127,10 +139,13 @@ export default function prefetch({
 		const links = [...document.querySelectorAll<HTMLAnchorElement>(selector)].filter(shouldPreload);
 		links.forEach(observe);
 
+		const intentSelectorFinal = Array.isArray(intentSelector)
+			? intentSelector.join(',')
+			: intentSelector;
 		// Observe links with prefetch-intent
-		const intentLinks = [...document.querySelectorAll<HTMLAnchorElement>(intentSelector)].filter(
-			shouldPreload
-		);
+		const intentLinks = [
+			...document.querySelectorAll<HTMLAnchorElement>(intentSelectorFinal),
+		].filter(shouldPreload);
 		intentLinks.forEach((link) => {
 			events.map((event) =>
 				link.addEventListener(event, onLinkEvent, { passive: true, once: true })
