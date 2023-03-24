@@ -218,7 +218,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'build': {
 			const { default: build } = await import('../core/build/index.js');
 
-			return await build(settings, { flags, logging, telemetry, teardownCompiler: true });
+			return await build(settings, {
+				flags,
+				logging,
+				telemetry,
+				teardownCompiler: true,
+				mode: flags.mode,
+			});
 		}
 
 		case 'check': {
