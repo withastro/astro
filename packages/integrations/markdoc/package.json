@@ -22,6 +22,7 @@
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./default-config": "./dist/default-config.js",
+    "./config": "./dist/config.js",
     "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
   },

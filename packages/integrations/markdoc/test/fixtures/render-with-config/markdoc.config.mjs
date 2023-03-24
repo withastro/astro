@@ -1,4 +1,6 @@
-export default {
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+
+export default defineMarkdocConfig({
 	variables: {
 		countries: ['ES', 'JP'],
 	},
@@ -10,4 +12,4 @@ export default {
 			},
 		},
 	},
-}
+})

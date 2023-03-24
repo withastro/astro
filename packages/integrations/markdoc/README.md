@@ -109,7 +109,7 @@ This example renders an `Aside` component, and allows a `type` prop to be passed
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 import Aside from './src/components/Aside.astro';
 
 export default defineMarkdocConfig({
@@ -147,7 +147,7 @@ You may also want to map standard HTML elements like headings and paragraphs to 
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 import Heading from './src/components/Heading.astro';
 
 export default defineMarkdocConfig({
@@ -191,7 +191,7 @@ This component can be passed to the `render` prop for any [tag][markdoc-tags] or
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 import Aside from './src/components/Aside.astro';
 
 export default defineMarkdocConfig({
@@ -228,7 +228,7 @@ You can pass these options from the default export in your `markdoc.config.mjs|t
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
   functions: {
@@ -286,7 +286,7 @@ Let me tell you about image optimization...
 To make a variable global to all Markdoc files, you can use the `variables` attribute from your `markdoc.config.mjs|ts`:
 
 ```js
-import { defineMarkdocConfig } from '@astrojs/markdoc';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
   variables: {

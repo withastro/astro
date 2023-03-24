@@ -1,7 +1,8 @@
 import Code from './src/components/Code.astro';
 import CustomMarquee from './src/components/CustomMarquee.astro';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 
-export default {
+export default defineMarkdocConfig({
 	nodes: {
 		fence: {
 			render: Code,
@@ -24,4 +25,4 @@ export default {
 			},
 		},
 	},
-}
+})
