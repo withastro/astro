@@ -25,12 +25,8 @@ export async function loadMarkdocConfig(astroConfig: Pick<AstroConfig, 'root'>) 
 		markdocConfigUrl,
 		astroConfig,
 	});
-
-	console.log({ code });
-
 	const config: MarkdocConfig = await loadConfigFromBundledFile(astroConfig.root, code);
 
-	console.log({ config });
 	return {
 		config,
 		fileUrl: markdocConfigUrl,
