@@ -49,7 +49,7 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = applyDefaultConfig({ entry, config: userMarkdocConfig });
+						const markdocConfig = applyDefaultConfig(userMarkdocConfig, { entry });
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							// Ignore `variable-undefined` errors.
@@ -75,9 +75,10 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 						}
 
 						const code = {
-							code: `import { jsx as h } from 'astro/jsx-runtime';import { applyDefaultConfig } from '@astrojs/markdoc/default-config';\nimport * as entry from ${JSON.stringify(
-								viteId + '?astroContent'
-							)};\n${
+							code: `import { jsx as h } from 'astro/jsx-runtime';
+import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
+import { Renderer } from '@astrojs/markdoc/components';
+import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
 								configLoadResult
 									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
 									: ''
@@ -85,18 +86,21 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 								astroConfig.experimental.assets
 									? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';`
 									: ''
-							}\nimport { Renderer } from '@astrojs/markdoc/components';\nconst stringifiedAst = ${JSON.stringify(
-								// Double stringify to encode *as* stringified JSON
-								JSON.stringify(ast)
-							)};\nexport async function Content (props) {\n	const config = applyDefaultConfig({ entry, config: ${
-								configLoadResult
-									? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
-									: '{ variables: props }'
-							} });\n${
+							}
+const stringifiedAst = ${JSON.stringify(
+								/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
+							)};
+export async function Content (props) {
+	const config = applyDefaultConfig(${
+		configLoadResult
+			? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
+			: '{ variables: props }'
+	}, { entry });${
 								astroConfig.experimental.assets
 									? `\nconfig.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
 									: ''
-							}\n	return h(Renderer, { stringifiedAst, config }); };`,
+							}
+	return h(Renderer, { stringifiedAst, config }); };`,
 						};
 						return code;
 					},
