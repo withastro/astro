@@ -1,5 +1,16 @@
 # @astrojs/image
 
+## 0.16.2
+
+### Patch Changes
+
+- [#6548](https://github.com/withastro/astro/pull/6548) [`4685f5554`](https://github.com/withastro/astro/commit/4685f55549da418137ecf1a99e9cd36b3ad08c8c) Thanks [@matthewp](https://github.com/matthewp)! - Use base64 encoded modules for Squoosh integration
+
+  This moves `@astrojs/image` to use base64 encoded versions of the Squoosh wasm modules. This is in order to prevent breakage in SSR environments where your files are moved around. This will fix usage of the integration in Netlify.
+
+- Updated dependencies [[`9caf2a9cc`](https://github.com/withastro/astro/commit/9caf2a9ccc2fd59af5cb2bb7ede9399fc491d38b), [`d338b6f74`](https://github.com/withastro/astro/commit/d338b6f74a3e34b494be85d24739bec9b2566faf)]:
+  - astro@2.1.6
+
 ## 0.16.1
 
 ### Patch Changes
