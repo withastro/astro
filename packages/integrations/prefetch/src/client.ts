@@ -64,6 +64,17 @@ async function preloadHref(link: HTMLAnchorElement) {
 	} catch {}
 }
 
+function isIntentSelector(link: HTMLAnchorElement, intentSelector: string | string[]) {
+	if (Array.isArray(intentSelector)) {
+		return intentSelector.some((selector) => link.matches(selector));
+	}
+	return link.matches(intentSelector);
+}
+
+function observeIntent(link: HTMLAnchorElement) {
+	events.map((event) => link.addEventListener(event, onLinkEvent, { passive: true, once: true }));
+}
+
 export interface PrefetchOptions {
 	/**
 	 * Element selector used to find all links on the page that should be prefetched.
@@ -82,7 +93,7 @@ export interface PrefetchOptions {
 	 *
 	 * @default 'a[href][rel~="prefetch-intent"]'
 	 */
-	intentSelector?: string;
+	intentSelector?: string | string[];
 }
 
 export default function prefetch({
@@ -116,7 +127,7 @@ export default function prefetch({
 		new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting && entry.target instanceof HTMLAnchorElement) {
-					if (entry.target.getAttribute('rel')?.indexOf(intentSelector) === -1) {
+					if (!isIntentSelector(entry.target, intentSelector)) {
 						toAdd(() => preloadHref(entry.target as HTMLAnchorElement).finally(isDone));
 					}
 				}
@@ -125,16 +136,12 @@ export default function prefetch({
 
 	requestIdleCallback(() => {
 		const links = [...document.querySelectorAll<HTMLAnchorElement>(selector)].filter(shouldPreload);
-		links.forEach(observe);
-
-		// Observe links with prefetch-intent
-		const intentLinks = [...document.querySelectorAll<HTMLAnchorElement>(intentSelector)].filter(
-			shouldPreload
-		);
-		intentLinks.forEach((link) => {
-			events.map((event) =>
-				link.addEventListener(event, onLinkEvent, { passive: true, once: true })
-			);
+		links.forEach((link) => {
+			if (isIntentSelector(link, intentSelector)) {
+				observeIntent(link);
+			} else {
+				observe(link);
+			}
 		});
 	});
 }
