@@ -39,7 +39,7 @@
     "esbuild": "^0.15.18"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.1.6"
+    "astro": "workspace:^2.1.7"
   },
   "devDependencies": {
     "@netlify/edge-handler-types": "^0.34.1",
