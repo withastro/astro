@@ -14,6 +14,7 @@ import {
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { loadMarkdocConfig } from './load-config.js';
+import { applyDefaultConfig } from './default-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -45,12 +46,13 @@ export default function markdocIntegration(
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					async getRenderModule({ entry }) {
+					async getRenderModule({ entry, viteId }) {
 						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
+						const markdocConfig = applyDefaultConfig({ entry, config: userMarkdocConfig });
 
-						const validationErrors = Markdoc.validate(ast, userMarkdocConfig).filter((e) => {
+						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							// Ignore `variable-undefined` errors.
 							// Variables can be configured at runtime,
 							// so we cannot validate them at build time.
@@ -74,7 +76,9 @@ export default function markdocIntegration(
 						}
 
 						const code = {
-							code: `import { jsx as h } from 'astro/jsx-runtime';${
+							code: `import { jsx as h } from 'astro/jsx-runtime';import { applyDefaultConfig } from '@astrojs/markdoc/default-config';\nimport * as entry from ${JSON.stringify(
+								viteId + '?astroContent'
+							)};\n${
 								configLoadResult
 									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
 									: ''
@@ -85,13 +89,13 @@ export default function markdocIntegration(
 							}\nimport { Renderer } from '@astrojs/markdoc/components';\nconst stringifiedAst = ${JSON.stringify(
 								// Double stringify to encode *as* stringified JSON
 								JSON.stringify(ast)
-							)};\nexport async function Content (props) {\n	const config = ${
+							)};\nexport async function Content (props) {\n	const config = applyDefaultConfig({ entry, config: ${
 								configLoadResult
 									? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
 									: '{ variables: props }'
-							};${
+							} });\n${
 								astroConfig.experimental.assets
-									? `config.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
+									? `\nconfig.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
 									: ''
 							}\n	return h(Renderer, { stringifiedAst, config }); };`,
 						};
