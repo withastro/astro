@@ -1,5 +1,3 @@
-import type { AstroInstance } from 'astro';
-import z from 'astro/zod';
 import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
@@ -83,28 +81,6 @@ interface ErrorProperties {
 	hint?: string;
 	stack?: string;
 	frame?: string;
-}
-
-/**
- * Matches `search` function used for resolving `astro.config` files.
- * Used by Markdoc for error handling.
- * @see 'astro/src/core/config/config.ts'
- */
-export function getAstroConfigPath(fs: typeof fsMod, root: string): string | undefined {
-	const paths = [
-		'astro.config.mjs',
-		'astro.config.js',
-		'astro.config.ts',
-		'astro.config.mts',
-		'astro.config.cjs',
-		'astro.config.cts',
-	].map((p) => path.join(root, p));
-
-	for (const file of paths) {
-		if (fs.existsSync(file)) {
-			return file;
-		}
-	}
 }
 
 /**
