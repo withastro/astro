@@ -1,4 +1,5 @@
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import type { ViteDevServer } from 'vite';
 
 import { resolvedPagesVirtualModuleId } from '../app/index.js';
 

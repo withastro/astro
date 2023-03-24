@@ -41,8 +41,13 @@ describe('Content Collections - render()', () => {
 					const launchWeekEntry = blog.find(post => post.id === 'promo/launch-week.mdx');
 					const { Content } = await launchWeekEntry.render();
 					---
-					<h1>testing</h1>
-					<Content />
+					<html>
+						<head><title>Testing</title></head>
+						<body>
+							<h1>testing</h1>
+							<Content />
+						</body>
+					</html>
 				`,
 			},
 			root
@@ -250,8 +255,13 @@ description: Astro is launching this week!
 					---
 					import { Content } from '../launch-week.ts';
 					---
-					<h1>Testing</h1>
-					<Content />
+					<html>
+						<head><title>Testing</title></head>
+						<body>
+							<h1>Testing</h1>
+							<Content />
+						</body>
+					</html>
 				`,
 			},
 			root

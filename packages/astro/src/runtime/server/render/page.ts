@@ -15,7 +15,6 @@ import {
 import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
-import { createScopedResult, ScopeFlags } from './scope.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 
@@ -56,13 +55,12 @@ async function iterableToHTMLBytes(
 // to be propagated up.
 async function bufferHeadContent(result: SSRResult) {
 	const iterator = result.propagators.values();
-	const scoped = createScopedResult(result, ScopeFlags.HeadBuffer);
 	while (true) {
 		const { value, done } = iterator.next();
 		if (done) {
 			break;
 		}
-		const returnValue = await value.init(scoped);
+		const returnValue = await value.init(result);
 		if (isHeadAndContent(returnValue)) {
 			result.extraHead.push(returnValue.head);
 		}
@@ -81,7 +79,16 @@ export async function renderPage(
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
 		let output: ComponentIterable;
+		let head = '';
 		try {
+			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
+				const parts = new HTMLParts();
+				for await(const chunk of maybeRenderHead(result)) {
+					parts.append(chunk, result);
+				}
+				head = parts.toString();
+			}
+
 			const renderResult = await renderComponent(
 				result,
 				componentFactory.name,
@@ -106,11 +113,7 @@ export async function renderPage(
 
 		// Accumulate the HTML string and append the head if necessary.
 		const bytes = await iterableToHTMLBytes(result, output, async (parts) => {
-			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
-				for await (let chunk of maybeRenderHead(result)) {
-					parts.append(chunk, result);
-				}
-			}
+			parts.append(head, result);
 		});
 
 		return new Response(bytes, {
@@ -120,6 +123,9 @@ export async function renderPage(
 			]),
 		});
 	}
+	// Mark if this page component contains a <head> within its tree. If it does
+	// We avoid implicit head injection entirely.
+	result._metadata.headInTree = result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
 	const factoryReturnValue = await componentFactory(result, props, children);
 	const factoryIsHeadAndContent = isHeadAndContent(factoryReturnValue);
 	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {

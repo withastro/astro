@@ -3,7 +3,6 @@ import type { HeadAndContent } from './head-and-content';
 import type { RenderTemplateResult } from './render-template';
 
 import { HTMLParts } from '../common.js';
-import { createScopedResult, ScopeFlags } from '../scope.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { renderAstroTemplateResult } from './render-template.js';
 
@@ -28,8 +27,7 @@ export async function renderToString(
 	props: any,
 	children: any
 ): Promise<string> {
-	const scoped = createScopedResult(result, ScopeFlags.Astro);
-	const factoryResult = await componentFactory(scoped, props, children);
+	const factoryResult = await componentFactory(result, props, children);
 
 	if (factoryResult instanceof Response) {
 		const response = factoryResult;
@@ -50,8 +48,8 @@ export function isAPropagatingComponent(
 	factory: AstroComponentFactory
 ): boolean {
 	let hint: PropagationHint = factory.propagation || 'none';
-	if (factory.moduleId && result.propagation.has(factory.moduleId) && hint === 'none') {
-		hint = result.propagation.get(factory.moduleId)!;
+	if(factory.moduleId && result.componentMetadata.has(factory.moduleId) && hint === 'none') {
+		hint = result.componentMetadata.get(factory.moduleId)!.propagation;
 	}
 	return hint === 'in-tree' || hint === 'self';
 }
