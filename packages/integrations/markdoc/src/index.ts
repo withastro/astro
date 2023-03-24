@@ -60,13 +60,6 @@ export default function markdocIntegration(
 						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-
-						await emitOptimizedImages(ast.children, {
-							astroConfig,
-							pluginContext,
-							filePath: entry._internal.filePath,
-						});
-
 						const markdocConfig: MarkdocConfig = {
 							...userMarkdocConfig,
 							variables: {
@@ -76,6 +69,12 @@ export default function markdocIntegration(
 						};
 
 						if (astroConfig.experimental?.assets) {
+							await emitOptimizedImages(ast.children, {
+								astroConfig,
+								pluginContext,
+								filePath: entry._internal.filePath,
+							});
+
 							markdocConfig.nodes ??= {};
 							markdocConfig.nodes.image = {
 								...Markdoc.nodes.image,
