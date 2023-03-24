@@ -145,3 +145,12 @@ const componentsPropValidator = z.record(
 export function isCapitalized(str: string) {
 	return str.length > 0 && str[0] === str[0].toUpperCase();
 }
+
+export function isValidUrl(str: string): boolean {
+	try {
+		new URL(str);
+		return true;
+	} catch {
+		return false;
+	}
+}

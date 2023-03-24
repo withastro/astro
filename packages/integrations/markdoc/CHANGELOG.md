@@ -1,5 +1,24 @@
 # @astrojs/markdoc
 
+## 0.0.5
+
+### Patch Changes
+
+- [#6630](https://github.com/withastro/astro/pull/6630) [`cfcf2e2ff`](https://github.com/withastro/astro/commit/cfcf2e2ffdaa68ace5c84329c05b83559a29d638) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support automatic image optimization for Markdoc images when using `experimental.assets`. You can [follow our Assets guide](https://docs.astro.build/en/guides/assets/#enabling-assets-in-your-project) to enable this feature in your project. Then, start using relative or aliased image sources in your Markdoc files for automatic optimization:
+
+  ```md
+  <!--Relative paths-->
+
+  ![The Milky Way Galaxy](../assets/galaxy.jpg)
+
+  <!--Or configured aliases-->
+
+  ![Houston smiling and looking cute](~/assets/houston-smiling.jpg)
+  ```
+
+- Updated dependencies [[`b7194103e`](https://github.com/withastro/astro/commit/b7194103e39267bf59dcd6ba00f522e424219d16), [`cfcf2e2ff`](https://github.com/withastro/astro/commit/cfcf2e2ffdaa68ace5c84329c05b83559a29d638), [`45da39a86`](https://github.com/withastro/astro/commit/45da39a8642d64eb318840b18dfc2b5ccc6561bc), [`7daef9a29`](https://github.com/withastro/astro/commit/7daef9a2993b5d457f3d243a1ebfd1dd383b3327)]:
+  - astro@2.1.7
+
 ## 0.0.4
 
 ### Patch Changes

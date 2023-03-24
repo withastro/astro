@@ -10,6 +10,7 @@ export interface PluginMetadata {
 		hydratedComponents: TransformResult['hydratedComponents'];
 		clientOnlyComponents: TransformResult['clientOnlyComponents'];
 		scripts: TransformResult['scripts'];
+		containsHead: TransformResult['containsHead'];
 		propagation: PropagationHint;
 		pageOptions: PageOptions;
 	};

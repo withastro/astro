@@ -405,7 +405,7 @@ async function generatePath(
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
-		propagation: internals.propagation,
+		componentMetadata: internals.componentMetadata,
 		scripts,
 		links,
 		route: pageData.route,
