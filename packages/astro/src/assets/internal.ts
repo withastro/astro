@@ -50,6 +50,13 @@ interface GetImageResult {
  * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
  */
 export async function getImage(options: ImageTransform): Promise<GetImageResult> {
+	if (!options || typeof options !== 'object') {
+		throw new AstroError({
+			...AstroErrorData.ExpectedImageOptions,
+			message: AstroErrorData.ExpectedImageOptions.message(JSON.stringify(options)),
+		});
+	}
+
 	const service = await getConfiguredImageService();
 	const validatedOptions = service.validateOptions ? service.validateOptions(options) : options;
 

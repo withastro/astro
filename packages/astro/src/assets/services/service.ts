@@ -104,6 +104,13 @@ export type BaseServiceTransform = {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	validateOptions(options) {
+		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+			throw new AstroError({
+				...AstroErrorData.ExpectedImage,
+				message: AstroErrorData.ExpectedImage.message(JSON.stringify(options.src)),
+			});
+		}
+
 		if (!isESMImportedImage(options.src)) {
 			// For remote images, width and height are explicitly required as we can't infer them from the file
 			let missingDimension: 'width' | 'height' | 'both' | undefined;

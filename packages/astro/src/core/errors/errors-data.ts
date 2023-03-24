@@ -464,7 +464,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set `alt=""` so that screen readers know to ignore the image.
 	 */
 	ImageMissingAlt: {
-		title: 'Missing alt property',
+		title: 'Missing alt property.',
 		code: 3022,
 		message: 'The alt property is required.',
 		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
@@ -479,7 +479,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * If you believe that your service is properly configured and this error is wrong, please [open an issue](https://astro.build/issues/).
 	 */
 	InvalidImageService: {
-		title: 'Error while loading image service',
+		title: 'Error while loading image service.',
 		code: 3023,
 		message:
 			'There was an error loading the configured image service. Please see the stack trace for more information.',
@@ -529,6 +529,63 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 				', '
 			)} are supported for optimization.`,
 		hint: "If you do not need optimization, using an `img` tag directly instead of the `Image` component might be what you're looking for.",
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * The `src` property, either on `getImage`'s first parameter or on the Image component needs to be either an image that as has been ESM imported or a string.
+	 *
+	 * ```astro
+	 * ---
+	 * import { Image } from "astro:assets";
+	 * import myImage from "../assets/my_image.png";
+	 * ---
+	 *
+	 * <Image src={myImage} alt="..." />
+	 * <Image src="https://example.com/logo.png" width={300} height={300} alt="..." />
+	 * ```
+	 *
+	 * In most cases, this error happens when the value passed to `src` is undefined.
+	 */
+	ExpectedImage: {
+		title: 'Expected src to be an image.',
+		code: 3026,
+		message: (options: string) =>
+			`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
+		hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * `getImage()` first parameter is an object with the different properties to apply to your image.
+	 *
+	 * ```ts
+	 * import { getImage } from "astro:assets";
+	 * import myImage from "../assets/my_image.png";
+	 *
+	 * const optimizedImage = await getImage({src: myImage, width: 300, height: 300});
+	 * ```
+	 *
+	 * In most cases, this error happen because parameters were passed directly instead of inside an object.
+	 */
+	ExpectedImageOptions: {
+		title: 'Expected image options.',
+		code: 3027,
+		message: (options: string) =>
+			`Expected getImage() parameter to be an object. Received \`${options}\`.`,
+	},
+	MarkdownImageNotFound: {
+		title: 'Image not found',
+		code: 3028,
+		message: (imagePath: string, fullImagePath: string | undefined) =>
+			`Could not find requested image \`${imagePath}\`${
+				fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
+			}`,
+		hint: 'This is often caused by a typo in the image path. Please make sure the file exists.',
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
