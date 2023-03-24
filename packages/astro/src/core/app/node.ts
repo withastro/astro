@@ -9,7 +9,7 @@ import { App, type MatchOptions } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): Request {
+function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Array): Request {
 	const protocol =
 		req.socket instanceof TLSSocket || req.headers['x-forwarded-proto'] === 'https'
 			? 'https'
@@ -29,11 +29,32 @@ function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): 
 	return request;
 }
 
+class NodeIncomingMessage extends IncomingMessage {
+	/**
+	 * The read-only body property of the Request interface contains a ReadableStream with the body contents that have been added to the request. 
+	 */
+	body?: any | undefined;
+}
+
 export class NodeApp extends App {
-	match(req: IncomingMessage | Request, opts: MatchOptions = {}) {
+	match(req: NodeIncomingMessage | Request, opts: MatchOptions = {}) {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req), opts);
 	}
-	render(req: IncomingMessage | Request, routeData?: RouteData) {
+	render(req: NodeIncomingMessage | Request, routeData?: RouteData) {
+    if (typeof (req.body) === 'string' && req.body.length > 0) {
+      return super.render(
+				req instanceof Request ? req : createRequestFromNodeRequest(req, Buffer.from(req.body)),
+        routeData
+      );
+    }
+    
+    if ((typeof (req.body) === 'object') && (Object.keys(req.body).length > 0)) {
+      return super.render(
+				req instanceof Request ? req : createRequestFromNodeRequest(req, Buffer.from(JSON.stringify(req.body))),
+        routeData
+      );
+    }
+
 		if ('on' in req) {
 			let body = Buffer.from([]);
 			let reqBodyComplete = new Promise((resolve, reject) => {
