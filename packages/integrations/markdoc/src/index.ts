@@ -9,6 +9,7 @@ import { emitESMImage } from 'astro/assets';
 import { loadMarkdocConfig } from './load-config.js';
 import { applyDefaultConfig } from './default-config.js';
 import { bold, red } from 'kleur/colors';
+import type * as rollup from 'rollup';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
