@@ -1,5 +1,6 @@
 import type { Config as MarkdocConfig } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
+//@ts-expect-error Cannot find module 'astro:assets' or its corresponding type declarations.
 import { Image } from 'astro:assets';
 
 // Separate module to only import `astro:assets` when
