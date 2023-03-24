@@ -193,7 +193,7 @@ export class App {
 				request,
 				origin: url.origin,
 				pathname,
-				propagation: this.#manifest.propagation,
+				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
 				links,
 				route: routeData,

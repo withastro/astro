@@ -77,7 +77,7 @@ export interface BuildInternals {
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: OutputChunk;
-	propagation: SSRResult['propagation'];
+	componentMetadata: SSRResult['componentMetadata'];
 }
 
 /**
@@ -107,7 +107,7 @@ export function createBuildInternals(): BuildInternals {
 		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
-		propagation: new Map(),
+		componentMetadata: new Map(),
 	};
 }
 
