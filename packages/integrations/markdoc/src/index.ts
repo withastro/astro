@@ -47,7 +47,6 @@ export default function markdocIntegration(
 					extensions: ['.mdoc'],
 					getEntryInfo,
 					async getRenderModule({ entry, viteId }) {
-						validateRenderProperties(userMarkdocConfig, astroConfig);
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
 						const markdocConfig = applyDefaultConfig({ entry, config: userMarkdocConfig });
@@ -156,54 +155,4 @@ async function emitOptimizedImages(
 function shouldOptimizeImage(src: string) {
 	// Optimize anything that is NOT external or an absolute path to `public/`
 	return !isValidUrl(src) && !src.startsWith('/');
-}
-
-function validateRenderProperties(markdocConfig: ReadonlyMarkdocConfig, astroConfig: AstroConfig) {
-	const tags = markdocConfig.tags ?? {};
-	const nodes = markdocConfig.nodes ?? {};
-
-	for (const [name, config] of Object.entries(tags)) {
-		validateRenderProperty({ type: 'tag', name, config, astroConfig });
-	}
-	for (const [name, config] of Object.entries(nodes)) {
-		validateRenderProperty({ type: 'node', name, config, astroConfig });
-	}
-}
-
-function validateRenderProperty({
-	name,
-	config,
-	type,
-	astroConfig,
-}: {
-	name: string;
-	config: { render?: string };
-	type: 'node' | 'tag';
-	astroConfig: Pick<AstroConfig, 'root'>;
-}) {
-	if (typeof config.render === 'string' && config.render.length === 0) {
-		throw new Error(
-			`Invalid ${type} configuration: ${JSON.stringify(
-				name
-			)}. The "render" property cannot be an empty string.`
-		);
-	}
-	if (typeof config.render === 'string' && !isCapitalized(config.render)) {
-		const astroConfigPath = getAstroConfigPath(fs, fileURLToPath(astroConfig.root));
-		throw new MarkdocError({
-			message: `Invalid ${type} configuration: ${JSON.stringify(
-				name
-			)}. The "render" property must reference a capitalized component name.`,
-			hint: 'If you want to render to an HTML element, see our docs on rendering Markdoc manually: https://docs.astro.build/en/guides/integrations-guide/markdoc/#render-markdoc-nodes--html-elements-as-astro-components',
-			location: astroConfigPath
-				? {
-						file: astroConfigPath,
-				  }
-				: undefined,
-		});
-	}
-}
-
-function isCapitalized(str: string) {
-	return str.length > 0 && str[0] === str[0].toUpperCase();
 }
