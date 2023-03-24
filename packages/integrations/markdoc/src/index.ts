@@ -8,6 +8,7 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 import { emitESMImage } from 'astro/assets';
 import { loadMarkdocConfig } from './load-config.js';
 import { applyDefaultConfig } from './default-config.js';
+import { bold, red } from 'kleur/colors';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -17,12 +18,13 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 
 export default function markdocIntegration(legacyConfig: any): AstroIntegration {
 	if (legacyConfig) {
-		throw new MarkdocError({
-			message:
-				'Passing Markdoc config from your `astro.config` is no longer supported. Configuration should be exported from a `markdoc.config.mjs` file. See the configuration docs for more: https://docs.astro.build/en/guides/integrations-guide/markdoc/#configuration',
-		});
+		console.log(
+			`${red(
+				bold('[Markdoc]')
+			)} Passing Markdoc config from your \`astro.config\` is no longer supported. Configuration should be exported from a \`markdoc.config.mjs\` file. See the configuration docs for more: https://docs.astro.build/en/guides/integrations-guide/markdoc/#configuration`
+		);
+		process.exit(0);
 	}
-
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
