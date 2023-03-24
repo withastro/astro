@@ -3080,6 +3080,7 @@ importers:
       gray-matter: ^4.0.3
       linkedom: ^0.14.12
       mocha: ^9.2.2
+      rollup: ^3.20.1
       vite: ^4.0.3
       zod: ^3.17.3
     dependencies:
@@ -3096,6 +3097,7 @@ importers:
       devalue: 4.2.3
       linkedom: 0.14.21
       mocha: 9.2.2
+      rollup: 3.20.1
       vite: 4.1.2
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -3112,6 +3114,14 @@ importers:
       shiki: 0.11.1
 
   packages/integrations/markdoc/test/fixtures/entry-prop:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/image-assets:
     specifiers:
       '@astrojs/markdoc': workspace:*
       astro: workspace:*
@@ -14920,6 +14930,14 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
+
+  /rollup/3.20.1:
+    resolution: {integrity: sha512-sz2w8cBJlWQ2E17RcpvHuf4sk2BQx4tfKDnjNPikEpLEevrbIAR7CH3PGa2hpPwWbNgPaA9yh9Jzljds5bc9zg==}
+    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
 
   /run-parallel/1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}

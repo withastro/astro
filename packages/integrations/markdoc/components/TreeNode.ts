@@ -1,6 +1,8 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
+// @ts-expect-error Cannot find module 'astro:markdoc-assets' or its corresponding type declarations
+import { Image } from 'astro:markdoc-assets';
 import Markdoc from '@markdoc/markdoc';
 import { MarkdocError, isCapitalized } from '../dist/utils.js';
 
@@ -45,10 +47,16 @@ export const ComponentNode = createComponent({
 	propagation: 'none',
 });
 
+const builtInComponents: Record<string, AstroInstance['default']> = {
+	Image,
+};
+
 export function createTreeNode(
 	node: RenderableTreeNode,
-	components: Record<string, AstroInstance['default']> = {}
+	userComponents: Record<string, AstroInstance['default']> = {}
 ): TreeNode {
+	const components = { ...userComponents, ...builtInComponents };
+
 	if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
