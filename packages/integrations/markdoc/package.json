@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",
-    "astro": "workspace:*",
     "gray-matter": "^4.0.3",
     "zod": "^3.17.3"
   },
@@ -40,6 +39,7 @@
     "astro": "workspace:*"
   },
   "devDependencies": {
+    "astro": "workspace:*",
     "@types/chai": "^4.3.1",
     "@types/html-escaper": "^3.0.0",
     "@types/mocha": "^9.1.1",

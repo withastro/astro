@@ -3083,13 +3083,13 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@markdoc/markdoc': 0.2.2
-      astro: link:../../astro
       gray-matter: 4.0.3
       zod: 3.20.6
     devDependencies:
       '@types/chai': 4.3.4
       '@types/html-escaper': 3.0.0
       '@types/mocha': 9.1.1
+      astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       devalue: 4.2.3
@@ -14935,6 +14935,7 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
 
   /run-parallel/1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -16472,7 +16473,7 @@ packages:
       esbuild: 0.16.17
       postcss: 8.4.21
       resolve: 1.22.1
-      rollup: 3.20.1
+      rollup: 3.14.0
     optionalDependencies:
       fsevents: 2.3.2
 
