@@ -292,6 +292,27 @@ describe('astro:image', () => {
 		});
 	});
 
+	describe('support base option correctly', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-base/',
+				experimental: {
+					assets: true,
+				},
+				base: '/blog',
+			});
+			await fixture.build();
+		});
+
+		it('has base path prefix', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+	});
+
 	describe('build ssg', () => {
 		before(async () => {
 			fixture = await loadFixture({

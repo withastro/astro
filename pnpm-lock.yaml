@@ -1869,6 +1869,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/core-image-base:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/core-image-ssg:
     specifiers:
       astro: workspace:*
