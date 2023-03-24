@@ -22,6 +22,7 @@
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./astro-stub": "./dist/astro-stub.js",
+    "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -47,6 +48,7 @@
     "@types/mocha": "^9.1.1",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
+    "devalue": "^4.2.0",
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
     "rollup": "^3.20.1",
