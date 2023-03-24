@@ -15,7 +15,6 @@ import {
 import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
-import { createScopedResult, ScopeFlags } from './scope.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 
@@ -56,13 +55,12 @@ async function iterableToHTMLBytes(
 // to be propagated up.
 async function bufferHeadContent(result: SSRResult) {
 	const iterator = result.propagators.values();
-	const scoped = createScopedResult(result, ScopeFlags.HeadBuffer);
 	while (true) {
 		const { value, done } = iterator.next();
 		if (done) {
 			break;
 		}
-		const returnValue = await value.init(scoped);
+		const returnValue = await value.init(result);
 		if (isHeadAndContent(returnValue)) {
 			result.extraHead.push(returnValue.head);
 		}
