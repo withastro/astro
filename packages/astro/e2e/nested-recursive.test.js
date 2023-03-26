@@ -29,7 +29,7 @@ test.describe('Recursive Nested Frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = await counter.locator('#react-counter-increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -44,7 +44,7 @@ test.describe('Recursive Nested Frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = await counter.locator('#preact-counter-increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -59,7 +59,7 @@ test.describe('Recursive Nested Frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = await counter.locator('#solid-counter-increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -74,7 +74,7 @@ test.describe('Recursive Nested Frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = await counter.locator('#vue-counter-increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -89,7 +89,7 @@ test.describe('Recursive Nested Frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = await counter.locator('#svelte-counter-increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});

@@ -27,7 +27,7 @@ test.describe('Client only', () => {
 		await expect(children, 'children exist').toHaveText('react');
 
 		const increment = await counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -45,7 +45,7 @@ test.describe('Client only', () => {
 		await expect(children, 'children exist').toHaveText('preact');
 
 		const increment = await counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -63,7 +63,7 @@ test.describe('Client only', () => {
 		await expect(children, 'children exist').toHaveText('solid');
 
 		const increment = await counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -81,7 +81,7 @@ test.describe('Client only', () => {
 		await expect(children, 'children exist').toHaveText('vue');
 
 		const increment = await counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -99,7 +99,7 @@ test.describe('Client only', () => {
 		await expect(children, 'children exist').toHaveText('svelte');
 
 		const increment = await counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});

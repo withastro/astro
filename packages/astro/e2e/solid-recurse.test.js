@@ -23,7 +23,7 @@ test.describe('Recursive elements with Solid', () => {
 		const increment = page.locator('#case1-B');
 		await expect(increment, 'initial count is 0').toHaveText('B: 0');
 
-		await increment.click();
+		await increment.click({ delay: 150 });
 		await expect(increment, 'count is incremented').toHaveText('B: 1');
 	});
 });

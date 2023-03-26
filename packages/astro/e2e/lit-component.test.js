@@ -35,7 +35,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
-			await inc.click();
+			await inc.click({ delay: 150 });
 
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
@@ -48,7 +48,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
-			await inc.click();
+			await inc.click({ delay: 150 });
 
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
@@ -63,7 +63,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
-			await inc.click();
+			await inc.click({ delay: 150 });
 
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
@@ -80,7 +80,7 @@ test.describe('Lit components', () => {
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
-			await inc.click();
+			await inc.click({ delay: 150 });
 
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
@@ -95,14 +95,14 @@ test.describe('Lit components', () => {
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
 			const inc = counter.locator('button');
-			await inc.click();
+			await inc.click({ delay: 150 });
 
 			await expect(count, 'component not hydrated yet').toHaveText('Count: 10');
 
 			// Reset the viewport to hydrate the component (max-width: 50rem)
 			await page.setViewportSize({ width: 414, height: 1124 });
 
-			await inc.click();
+			await inc.click({ delay: 150 });
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 

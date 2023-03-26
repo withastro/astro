@@ -16,8 +16,8 @@ const config = {
 	},
 	/* Fail the build on CI if you accidentally left test in the source code. */
 	forbidOnly: !!process.env.CI,
-	/* Retry on CI only */
-	retries: process.env.CI ? 3 : 0,
+	/* Always retry due to flaky click() responsiveness of some components, even with a 150ms delay. */
+	retries: 3,
 	/* Opt out of parallel tests on CI. */
 	workers: 1,
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -40,6 +40,7 @@ const config = {
 			},
 		},
 	],
+	reporter: [['html', {open: 'never'}]],
 };
 
 export default config;

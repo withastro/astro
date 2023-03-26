@@ -14,7 +14,7 @@ function runTest(it) {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
-		await inc.click();
+		await inc.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});

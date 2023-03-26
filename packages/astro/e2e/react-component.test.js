@@ -30,7 +30,7 @@ test.describe('dev', () => {
 
 		const suffix = page.locator('#suffix');
 		expect(await suffix.textContent()).toBe('suffix toggle false');
-		await suffix.click();
+		await suffix.click({ delay: 150 });
 		expect(await suffix.textContent()).toBe('suffix toggle true');
 	});
 });

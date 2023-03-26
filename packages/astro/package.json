@@ -103,7 +103,9 @@
     "test": "pnpm run test:unit && mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g",
     "test:e2e": "playwright test",
-    "test:e2e:match": "playwright test -g"
+    "test:e2e:match": "playwright test -g",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:debug": "playwright test --debug -g"
   },
   "dependencies": {
     "@astrojs/compiler": "^1.3.0",

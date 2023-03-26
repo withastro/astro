@@ -30,7 +30,7 @@ test.describe('Hydrating namespaced components', () => {
 		await expect(namespacedChildren, 'children exist').toHaveText('preact (namespace import)');
 
 		const namespacedIncrement = await namespacedCounter.locator('.increment');
-		await namespacedIncrement.click();
+		await namespacedIncrement.click({ delay: 150 });
 
 		await expect(namespacedCount, 'count incremented by 1').toHaveText('1');
 
@@ -45,7 +45,7 @@ test.describe('Hydrating namespaced components', () => {
 		await expect(namedChildren, 'children exist').toHaveText('preact (named import)');
 
 		const namedIncrement = await namedCounter.locator('.increment');
-		await namedIncrement.click();
+		await namedIncrement.click({ delay: 150 });
 
 		await expect(namedCount, 'count incremented by 1').toHaveText('1');
 	});
@@ -64,7 +64,7 @@ test.describe('Hydrating namespaced components', () => {
 		await expect(namespacedChildren, 'children exist').toHaveText('preact (namespace import)');
 
 		const namespacedIncrement = await namespacedCounter.locator('.increment');
-		await namespacedIncrement.click();
+		await namespacedIncrement.click({ delay: 150 });
 
 		await expect(namespacedCount, 'count incremented by 1').toHaveText('1');
 
@@ -79,7 +79,7 @@ test.describe('Hydrating namespaced components', () => {
 		await expect(namedChildren, 'children exist').toHaveText('preact (named import)');
 
 		const namedIncrement = await namedCounter.locator('.increment');
-		await namedIncrement.click();
+		await namedIncrement.click({ delay: 150 });
 
 		await expect(namedCount, 'count incremented by 1').toHaveText('1');
 	});

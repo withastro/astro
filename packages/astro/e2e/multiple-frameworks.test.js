@@ -24,7 +24,7 @@ test.skip('Multiple frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -39,7 +39,7 @@ test.skip('Multiple frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -54,7 +54,7 @@ test.skip('Multiple frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -69,7 +69,7 @@ test.skip('Multiple frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
@@ -84,7 +84,7 @@ test.skip('Multiple frameworks', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const increment = counter.locator('.increment');
-		await increment.click();
+		await increment.click({ delay: 150 });
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
