@@ -1,5 +1,6 @@
 import slashify from 'slash';
 import type { SSRElement } from '../../@types/astro';
+import type { StylesheetAsset } from '../app/types';
 import { joinPaths, prependForwardSlash } from '../../core/path.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: string): string {
@@ -12,28 +13,35 @@ export function createAssetLink(href: string, base?: string, assetsPrefix?: stri
 	}
 }
 
-export function createLinkStylesheetElement(
-	href: string,
+export function createStylesheetElement(
+	stylesheet: StylesheetAsset,
 	base?: string,
 	assetsPrefix?: string
 ): SSRElement {
-	return {
-		props: {
-			rel: 'stylesheet',
-			href: createAssetLink(href, base, assetsPrefix),
-		},
-		children: '',
-	};
+	if (stylesheet.type === 'inline') {
+		return {
+			props: {
+				type: 'text/css',
+			},
+			children: stylesheet.content,
+		};
+	} else {
+		return {
+			props: {
+				rel: 'stylesheet',
+				href: createAssetLink(stylesheet.src, base, assetsPrefix),
+			},
+			children: '',
+		};
+	}
 }
 
-export function createLinkStylesheetElementSet(
-	hrefs: string[],
+export function createStylesheetElementSet(
+	stylesheets: StylesheetAsset[],
 	base?: string,
 	assetsPrefix?: string
-) {
-	return new Set<SSRElement>(
-		hrefs.map((href) => createLinkStylesheetElement(href, base, assetsPrefix))
-	);
+): Set<SSRElement> {
+	return new Set(stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix)));
 }
 
 export function createModuleScriptElement(

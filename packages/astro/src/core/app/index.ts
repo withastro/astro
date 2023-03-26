@@ -22,7 +22,7 @@ import {
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
-	createLinkStylesheetElementSet,
+	createStylesheetElementSet,
 	createModuleScriptElement,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
@@ -174,7 +174,9 @@ export class App {
 		const url = new URL(request.url);
 		const pathname = '/' + this.removeBase(url.pathname);
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
-		const links = createLinkStylesheetElementSet(info.links);
+		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+		const links = new Set<never>();
+		const styles = createStylesheetElementSet(info.styles);
 
 		let scripts = new Set<SSRElement>();
 		for (const script of info.scripts) {
@@ -197,6 +199,7 @@ export class App {
 				pathname,
 				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
+				styles,
 				links,
 				route: routeData,
 				status,

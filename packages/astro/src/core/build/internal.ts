@@ -246,13 +246,13 @@ export function* eachServerPageData(internals: BuildInternals) {
  * The return of this function is an array of CSS paths, with shared CSS on top
  * and page-level CSS on bottom.
  */
-export function sortedCSS(pageData: PageBuildData) {
-	return Array.from(pageData.css)
+export function sortedStylesheets(pageData: PageBuildData) {
+	return pageData.styles
 		.sort((a, b) => {
-			let depthA = a[1].depth,
-				depthB = b[1].depth,
-				orderA = a[1].order,
-				orderB = b[1].order;
+			let depthA = a.depth,
+				depthB = b.depth,
+				orderA = a.order,
+				orderB = b.order;
 
 			if (orderA === -1 && orderB >= 0) {
 				return 1;
@@ -272,7 +272,7 @@ export function sortedCSS(pageData: PageBuildData) {
 				}
 			}
 		})
-		.map(([id]) => id);
+		.map(({ sheet }) => sheet);
 }
 
 export function isHoistedScript(internals: BuildInternals, id: string): boolean {
