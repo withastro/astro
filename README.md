@@ -8,7 +8,6 @@
   <br/><br/>
 </p>
 
-
 ## Install
 
 The **recommended** way to install the latest version of Astro is by running the command below:
@@ -26,6 +25,7 @@ npm install --save-dev astro
 Looking for help? Start with our [Getting Started](https://docs.astro.build/en/getting-started/) guide.  
 
 Looking for quick examples? [Open a starter project](https://astro.new/) right in your browser.
+
 ## Documentation
 
 Visit our [official documentation](https://docs.astro.build/).
@@ -33,9 +33,10 @@ Visit our [official documentation](https://docs.astro.build/).
 ## Support
 
 Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
+
 ## Contributing
 
-**New contributors welcome!** Check out our [Contributors Guide](CONTRIBUTING.md) for help getting started. 
+**New contributors welcome!** Check out our [Contributors Guide](CONTRIBUTING.md) for help getting started.
 
 Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll help you get your first contribution in no time!
 
@@ -74,7 +75,6 @@ Several official projects are maintained outside of this repo:
 | [@astrojs/compiler](https://github.com/withastro/compiler)                 | [withastro/compiler](https://github.com/withastro/compiler)             |
 | [Astro Language Tools](https://github.com/withastro/language-tools) | [withastro/language-tools](https://github.com/withastro/language-tools) |
 
-
 ## Links
 
 - [License (MIT)](LICENSE)
@@ -92,7 +92,7 @@ Astro is generously supported by Netlify, Storyblok, and several other amazing o
 <p align="center">
   <a target="_blank" href="https://github.com/sponsors/withastro">
 
-[![Astro's sponsors.](https://astro.build/sponsors.png 
+[![Astro's sponsors.](https://astro.build/sponsors.png
 "Astro's sponsors.
 Platinum sponsors: Netlify, storyblok, Vercel, Ship Shape, Google Chrome
 Gold sponsors: ‹div›RIOTS, DEEPGRAM, CloudCannon

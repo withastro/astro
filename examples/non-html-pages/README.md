@@ -2,9 +2,9 @@
 
 Documentation for "Non-HTML Pages":
 
-https://docs.astro.build/en/core-concepts/endpoints/#static-file-endpoints
+<https://docs.astro.build/en/core-concepts/endpoints/#static-file-endpoints>
 
-```
+```bash
 npm create astro@latest -- --template non-html-pages
 ```
 
@@ -15,9 +15,10 @@ npm create astro@latest -- --template non-html-pages
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
 ## 🚀 Project Structure
+
 Inside your Astro project, you'll see the following folders and files:
 
-```
+```bash
 /
 ├── public/
 ├── src/

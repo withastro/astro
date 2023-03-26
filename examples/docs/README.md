@@ -76,13 +76,13 @@ The sidebar navigation is controlled by the `SIDEBAR` variable in your `src/cons
 ```ts
 export const SIDEBAR = {
   en: {
-		'Section Header': [
-			{ text: 'Introduction', link: 'en/introduction' },
-			{ text: 'Page 2', link: 'en/page-2' },
-			{ text: 'Page 3', link: 'en/page-3' },
-		],
-		'Another Section': [{ text: 'Page 4', link: 'en/page-4' }],
-	},
+  'Section Header': [
+   { text: 'Introduction', link: 'en/introduction' },
+   { text: 'Page 2', link: 'en/page-2' },
+   { text: 'Page 3', link: 'en/page-3' },
+  ],
+  'Another Section': [{ text: 'Page 4', link: 'en/page-4' }],
+ },
 };
 ```
 
@@ -124,17 +124,17 @@ Last step: you'll need to add a new entry to your sidebar, to create the table o
 // src/consts.ts
 export const SIDEBAR = {
   en: {
-		'Section Header': [
-			{ text: 'Introduction', link: 'en/introduction' },
+  'Section Header': [
+   { text: 'Introduction', link: 'en/introduction' },
       // ...
-		],
-		// ...
-	},,
+  ],
+  // ...
+ },,
 +  es: {
-+		'Encabezado de sección': [
-+			{ text: 'Introducción', link: 'en/introduction' },
++  'Encabezado de sección': [
++   { text: 'Introducción', link: 'en/introduction' },
 +     // ...
-+		],
++  ],
 +   // ...
 +  },
 };

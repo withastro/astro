@@ -1,6 +1,6 @@
 # Astro + AlpineJS Example
 
-```
+```bash
 npm create astro@latest -- --template framework-alpine
 ```
 

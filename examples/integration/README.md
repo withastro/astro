@@ -2,7 +2,7 @@
 
 This is a template for an Astro integration. Use this template for writing integrations to use in multiple projects or publish to NPM.
 
-```
+```bash
 npm create astro@latest -- --template integration
 ```
 
@@ -10,11 +10,11 @@ npm create astro@latest -- --template integration
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/integration)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/integration/devcontainer.json)
 
-
 ## 🚀 Project Structure
+
 Inside your Astro project, you'll see the following folders and files:
 
-```
+```bash
 /
 ├── index.ts
 ├── tsconfig.json
@@ -24,6 +24,7 @@ Inside your Astro project, you'll see the following folders and files:
 The `index.ts` file is the "entry point" for your integration. Export your integration in `index.ts` to make them importable from your package.
 
 ## 🧞 Commands
+
 All commands are run from the root of the project, from a terminal:
 
 | Command                | Action                                           |

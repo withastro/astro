@@ -4,7 +4,7 @@
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/deno)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/deno/devcontainer.json)
 
-```
+```bash
 npm create astro@latest -- --template deno
 ```
 
@@ -12,11 +12,11 @@ npm create astro@latest -- --template deno
 
 ![basics](https://user-images.githubusercontent.com/4677417/186188965-73453154-fdec-4d6b-9c34-cb35c248ae5b.png)
 
-
 ## 🚀 Project Structure
+
 Inside your Astro project, you'll see the following folders and files:
 
-```
+```bash
 /
 ├── public/
 │   └── favicon.svg

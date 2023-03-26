@@ -1,6 +1,6 @@
 # Astro Example: Nanostores
 
-```
+```bash
 npm create astro@latest -- --template with-nanostores
 ```
 

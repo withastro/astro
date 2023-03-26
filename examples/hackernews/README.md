@@ -1,6 +1,6 @@
 # Astro Starter Kit: Hackernews
 
-```
+```bash
 npm create astro@latest -- --template hackernews
 ```
 
@@ -11,9 +11,10 @@ npm create astro@latest -- --template hackernews
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
 ## 🚀 Project Structure
+
 Inside your Astro project, you'll see the following folders and files:
 
-```
+```bash
 /
 ├── public/
 │   └── favicon.svg

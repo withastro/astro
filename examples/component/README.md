@@ -2,7 +2,7 @@
 
 This is a template for an Astro component library. Use this template for writing components to use in multiple projects or publish to NPM.
 
-```
+```bash
 npm create astro@latest -- --template component
 ```
 
@@ -10,11 +10,11 @@ npm create astro@latest -- --template component
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/non-html-pages)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/component/devcontainer.json)
 
-
 ## 🚀 Project Structure
+
 Inside your Astro project, you'll see the following folders and files:
 
-```
+```bash
 /
 ├── index.ts
 ├── src
@@ -26,6 +26,7 @@ Inside your Astro project, you'll see the following folders and files:
 The `index.ts` file is the "entry point" for your package. Export your components in `index.ts` to make them importable from your package.
 
 ## 🧞 Commands
+
 All commands are run from the root of the project, from a terminal:
 
 | Command                | Action                                           |
