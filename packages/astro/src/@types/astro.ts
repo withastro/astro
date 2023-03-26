@@ -1038,6 +1038,27 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.inlineStylesheets
+		 * @type {'always' | 'auto' | 'never'}
+		 * @default "never"
+		 * @description
+		 * Control whether the styles imported or authored in astro modules are sent to the browser in a seprate css file or inlined into <style> tags
+		 *
+		 * "always" : all styles necessary are inlined into <style> tags
+		 * "auto"   : stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined
+		 * "never"  : all styles necessary are sent in external stylsheets
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		inlineStylesheets: "auto",
+		 * 	},
+		 * }
+		 */
+		inlineStylesheets?: 'always' | 'auto' | 'never';
+		
+		/**
+		 * @docs
 		 * @name experimental.middleware
 		 * @type {boolean}
 		 * @default `false`

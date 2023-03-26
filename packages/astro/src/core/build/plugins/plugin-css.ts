@@ -5,7 +5,7 @@ import { type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
 import { isBuildableCSSRequest } from '../../render/dev/util.js';
 import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
-import type { PageBuildData, StaticBuildOptions } from '../types';
+import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types';
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import * as assetName from '../css-asset-name.js';
@@ -30,6 +30,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 	const { settings } = buildOptions;
 
 	let resolvedConfig: ResolvedConfig;
+
+	// stylesheet filenames are kept in here until "post", when they are rendered and ready to be inlined
+	const pagesToCss = new Map<string, Map<string, { order: number; depth: number }>>();
 
 	function createNameHash(baseId: string, hashIds: string[]): string {
 		const baseName = baseId ? npath.parse(baseId).name : 'index';
@@ -110,9 +113,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					for (const importedCssImport of meta.importedCss) {
 						// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
 						// Depth info is used when sorting the links on the page.
-						if (pageData?.css.has(importedCssImport)) {
-							// eslint-disable-next-line
-							const cssInfo = pageData?.css.get(importedCssImport)!;
+						const cssInfo = pagesToCss.get(pageData.moduleSpecifier)?.get(importedCssImport);
+						if (cssInfo !== undefined) {
 							if (depth < cssInfo.depth) {
 								cssInfo.depth = depth;
 							}
@@ -124,7 +126,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								cssInfo.order = order;
 							}
 						} else {
-							pageData?.css.set(importedCssImport, { depth, order });
+							const cssToInfoMap =
+								pagesToCss.get(pageData.moduleSpecifier) ??
+								pagesToCss.set(pageData.moduleSpecifier, new Map()).get(pageData.moduleSpecifier)!;
+
+							cssToInfoMap.set(importedCssImport, { depth, order });
 						}
 					}
 				};
@@ -154,7 +160,13 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 									for (const id of Object.keys(c.modules)) {
 										for (const pageData of getParentClientOnlys(id, this)) {
 											for (const importedCssImport of meta.importedCss) {
-												pageData.css.set(importedCssImport, { depth: -1, order: -1 });
+												const cssToInfoMap =
+													pagesToCss.get(pageData.moduleSpecifier) ??
+													pagesToCss
+														.set(pageData.moduleSpecifier, new Map())
+														.get(pageData.moduleSpecifier)!;
+
+												cssToInfoMap.set(importedCssImport, { depth: -1, order: -1 });
 											}
 										}
 									}
@@ -228,10 +240,56 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					);
 					if (cssChunk) {
 						for (const pageData of eachPageData(internals)) {
-							pageData.css.set(cssChunk.fileName, { depth: -1, order: -1 });
+							const cssToInfoMap =
+								pagesToCss.get(pageData.moduleSpecifier) ??
+								pagesToCss.set(pageData.moduleSpecifier, new Map()).get(pageData.moduleSpecifier)!;
+
+							cssToInfoMap.set(cssChunk.fileName, { depth: -1, order: -1 });
 						}
 					}
 				}
+			},
+		},
+		{
+			name: 'astro:rollup-plugin-inline-stylesheets',
+			enforce: 'post',
+			async generateBundle(_outputOptions, bundle) {
+				const inlineConfig = settings.config.experimental.inlineStylesheets;
+				const { assetsInlineLimit = 4096 } = settings.config.vite?.build ?? {};
+
+				Object.entries(bundle).forEach(([id, stylesheet]) => {
+					if (
+						stylesheet.type !== 'asset' ||
+						stylesheet.name?.endsWith('.css') !== true ||
+						typeof stylesheet.source !== 'string'
+					)
+						return;
+
+					const assetSize = new TextEncoder().encode(stylesheet.source).byteLength;
+
+					const toBeInlined =
+						inlineConfig === 'always'
+							? true
+							: inlineConfig === 'never'
+							? false
+							: assetSize <= assetsInlineLimit;
+
+					if (toBeInlined) delete bundle[id];
+
+					// there should be a single js object for each stylesheet,
+					// allowing the single reference to be shared and checked for duplicates
+					const sheet: StylesheetAsset = toBeInlined
+						? { type: 'inline', content: stylesheet.source }
+						: { type: 'external', src: stylesheet.fileName };
+
+					const pages = Array.from(eachPageData(internals));
+
+					pages.forEach((pageData) => {
+						const orderingInfo = pagesToCss.get(pageData.moduleSpecifier)?.get(stylesheet.fileName);
+						if (orderingInfo === undefined) return;
+						pageData.styles.push({ ...orderingInfo, sheet });
+					});
+				});
 			},
 		},
 	];

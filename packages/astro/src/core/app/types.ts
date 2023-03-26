@@ -11,6 +11,10 @@ import type {
 
 export type ComponentPath = string;
 
+export type StylesheetAsset =
+	| { type: 'inline'; content: string }
+	| { type: 'external'; src: string };
+
 export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
@@ -21,6 +25,7 @@ export interface RouteInfo {
 		// Hoisted
 		| { type: 'inline' | 'external'; value: string }
 	)[];
+	styles: StylesheetAsset[];
 }
 
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
