@@ -83,11 +83,32 @@ First, [performing a build](https://docs.astro.build/en/guides/deploy/#building-
 
 ### Middleware
 
+Middleware mode lets you use your Astro site as part of a larger application.
+#### Integration tips
+
+
 The server entrypoint is built to `./dist/server/entry.mjs` by default. This module exports a `handler` function that can be used with any framework that supports the Node `request` and `response` objects.
 
-For example, with Express:
+In middleware mode, Astro does not do file serving. You'll need to configure your HTTP framework to do that for you. By default the client assets are written to `./dist/client/`.
+
+The location of the main server file is up to you, but `server.js` in the project root is common.
+
+You may need to adjust the commands in your `package.json` to be aware of both Astro and your other server. The following example builds Astro once, then uses [concurrently](https://www.npmjs.com/package/concurrently) to rebuild Astro as needed and run the server:
+
+```json5
+// package.json
+"scripts": {
+  "build:astro": "astro build",
+  "dev": "npm run build:astro && concurrently npm:dev:*",
+  "dev:astro": "astro dev",
+  "dev:server": "node server.js"
+}
+```
+
+#### Express Example
 
 ```js
+// server.js
 import express from 'express';
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
@@ -98,7 +119,7 @@ app.use(ssrHandler);
 app.listen(8080);
 ```
 
-Or, with Fastify (>4):
+#### Fastify (>4) Example
 
 ```js
 import Fastify from 'fastify';
@@ -118,8 +139,6 @@ app.use(ssrHandler);
 
 app.listen({ port: 8080 });
 ```
-
-Note that middleware mode does not do file serving. You'll need to configure your HTTP framework to do that for you. By default the client assets are written to `./dist/client/`.
 
 ### Standalone
 
