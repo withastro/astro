@@ -12,7 +12,7 @@ npm create astro@latest -- --template with-vite-plugin-pwa
 
 ## 🚀 Project Structure
 
-Inside of your Astro project, you'll see the following folders and files:
+Inside your Astro project, you'll see the following folders and files:
 
 ```
 /

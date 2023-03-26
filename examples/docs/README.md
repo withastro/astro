@@ -50,7 +50,7 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 
 ### CSS styling
 
-The theme's look and feel is controlled by a few key variables that you can customize yourself. You'll find them in the `src/styles/theme.css` CSS file.
+The theme's look and feel are controlled by a few key variables that you can customize yourself. You'll find them in the `src/styles/theme.css` CSS file.
 
 If you've never worked with CSS variables before, give [MDN's guide on CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) a quick read.
 
@@ -67,18 +67,7 @@ This theme uses a "cool blue" accent color by default. To customize this for you
 ## Page metadata
 
 Astro uses frontmatter in Markdown pages to choose layouts and pass properties to those layouts. If you are using the default layout, you can customize the page in many different ways to optimize SEO and other things. For example, you can use the `title` and `description` properties to set the document title, meta title, meta description, and Open Graph description.
-
-```markdown
----
-title: Example title
-description: Really cool docs example that uses Astro
-layout: ../../layouts/MainLayout.astro
----
-
-# Page content...
-```
-
-For more SEO related properties, look at `src/components/HeadSEO.astro`
+For more SEO-related properties, look at `src/components/HeadSEO.astro`
 
 ### Sidebar navigation
 
@@ -97,7 +86,7 @@ export const SIDEBAR = {
 };
 ```
 
-Note the top-level `en` key: This is needed for multi-language support. You can change it to whatever language you'd like, or add new languages as you go. More details on this below.
+Note the top-level `en` key: This is needed for multi-language support. You can change it to whatever language you'd like, or add new languages as you go. More details on this are below.
 
 ### Multiple Languages support
 
@@ -172,7 +161,7 @@ If that single language is not English, you can just replace `en` in directory l
 
 ### Search (Powered by Algolia)
 
-[Algolia](https://www.algolia.com/) offers a free service to qualified open source projects called [DocSearch](https://docsearch.algolia.com/). If you are accepted to the DocSearch program, provide your API Key & index name in `src/consts.ts` and a search box will automatically appear in your site header.
+[Algolia](https://www.algolia.com/) offers a free service to qualified open-source projects called [DocSearch](https://docsearch.algolia.com/). If you are accepted to the DocSearch program, provide your API Key & index name in `src/consts.ts` and a search box will automatically appear in your site header.
 
 Note that Algolia and Astro are not affiliated. We have no say over acceptance to the DocSearch program.
 
