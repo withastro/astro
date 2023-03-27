@@ -13,7 +13,7 @@ function getTypesDts() {
 	const typesdtsURL = new URL('../../../src/content/template/types.d.ts', import.meta.url);
 	const relpath = slash(path.relative(fileURLToPath(root), fileURLToPath(typesdtsURL)));
 	return {
-		[relpath]: nodeFS.readFileSync(typesdtsURL, 'utf-8')
+		[relpath]: nodeFS.readFileSync(typesdtsURL, 'utf-8'),
 	};
 }
 
@@ -65,8 +65,8 @@ describe('frontmatter', () => {
 				`
 			);
 			triggerFSEvent(container, fs, '/src/content/posts/blog.md', 'change');
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 			// Note, if we got here, it didn't crash
 		});
-	})
+	});
 });

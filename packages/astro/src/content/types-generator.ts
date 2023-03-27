@@ -235,10 +235,7 @@ export async function createContentTypesGenerator({
 				// Errors still crash dev from *starting*.
 			}
 		};
-		debounceTimeout = setTimeout(
-			runEventsSafe,
-			50 /* debounce to batch chokidar events */
-		);
+		debounceTimeout = setTimeout(runEventsSafe, 50 /* debounce to batch chokidar events */);
 	}
 
 	async function runEvents(opts?: EventOpts) {
