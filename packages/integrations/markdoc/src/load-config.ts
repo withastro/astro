@@ -7,6 +7,7 @@ import * as fs from 'node:fs';
 const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.js',
 	'markdoc.config.mjs',
+	'markdoc.config.mts',
 	'markdoc.config.ts',
 ];
 
