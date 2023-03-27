@@ -63,7 +63,9 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 									: routeMatch.generate({
 											...params,
 											page:
-												!includesFirstPageNumber && pageNum - 1 === 1 ? '' : String(pageNum - 1),
+												!includesFirstPageNumber && pageNum - 1 === 1
+													? undefined
+													: String(pageNum - 1),
 									  }),
 						},
 					} as Page,
