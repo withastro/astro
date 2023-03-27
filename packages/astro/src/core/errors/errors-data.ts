@@ -561,7 +561,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
-	 * `getImage()` first parameter is an object with the different properties to apply to your image.
+	 * `getImage()` first parameter should be an object with the different properties to apply to your image.
 	 *
 	 * ```ts
 	 * import { getImage } from "astro:assets";
@@ -578,6 +578,15 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (options: string) =>
 			`Expected getImage() parameter to be an object. Received \`${options}\`.`,
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
+	 *
+	 * Images in Markdown are relative to the current file, as such, to refer to an image that is directly next to the `.md` file, your path should start with `./`
+	 */
 	MarkdownImageNotFound: {
 		title: 'Image not found',
 		code: 3028,
