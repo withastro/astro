@@ -3,12 +3,11 @@ import { installWindowOnGlobal } from '@lit-labs/ssr/lib/dom-shim.js';
 if (typeof fetch === 'function') {
 	const _fetch = fetch;
 	installWindowOnGlobal();
-	globalThis.fetch = window.fetch = _fetch;
+	globalThis.fetch = _fetch;
 } else {
 	installWindowOnGlobal();
 }
 
-window.global = window;
 document.getElementsByTagName = () => [];
 // See https://github.com/lit/lit/issues/2393
 document.currentScript = null;
