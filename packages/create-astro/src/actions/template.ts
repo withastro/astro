@@ -35,8 +35,13 @@ export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRu
 			while: () =>
 				copyTemplate(ctx.template!, ctx as Context).catch((e) => {
 					// eslint-disable-next-line no-console
-					error('error', e);
-					process.exit(1);
+					if (e instanceof Error) {
+						error('error', e.message);
+						process.exit(1);
+					} else {
+						error('error', 'Unable to clone template.');
+						process.exit(1);
+					}
 				}),
 		});
 	} else {
