@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import nodeFS from 'node:fs';
 import path from 'node:path';
+import slash from 'slash';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
 import { attachContentServerListeners } from '../../../dist/content/index.js';
@@ -10,7 +11,7 @@ const root = new URL('../../fixtures/alias/', import.meta.url);
 
 function getTypesDts() {
 	const typesdtsURL = new URL('../../../src/content/template/types.d.ts', import.meta.url);
-	const relpath = path.relative(fileURLToPath(root), fileURLToPath(typesdtsURL));
+	const relpath = slash(path.relative(fileURLToPath(root), fileURLToPath(typesdtsURL)));
 	return {
 		[relpath]: nodeFS.readFileSync(typesdtsURL, 'utf-8')
 	};

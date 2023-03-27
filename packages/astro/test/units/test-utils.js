@@ -3,7 +3,7 @@ import { Volume } from 'memfs';
 import httpMocks from 'node-mocks-http';
 import realFS from 'node:fs';
 import npath from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { unixify } from './correct-path.js';
 
 class VirtualVolume extends Volume {
@@ -24,6 +24,10 @@ class VirtualVolume extends Volume {
 
 	getFullyResolvedPath(pth) {
 		return npath.posix.join(this.#root, pth);
+	}
+
+	readFile(p, ...args) {
+		return super.readFile(this.#forcePath(p), ...args);
 	}
 
 	existsSync(p) {
