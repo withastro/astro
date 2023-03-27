@@ -81,11 +81,18 @@ export default async function copyTemplate(tmpl: string, ctx: Context) {
 		} catch (err: any) {
 			fs.rmdirSync(ctx.cwd);
 			if (err.message.includes('404')) {
-				await error('Error', `Template ${color.reset(tmpl)} ${color.dim('does not exist!')}`);
+				throw new Error(`Template ${color.reset(tmpl)} ${color.dim('does not exist!')}`);
 			} else {
-				console.error(err.message);
+				throw new Error(err.message);
 			}
-			ctx.exit(1);
+		}
+
+		// It's possible the repo exists (ex. `withastro/astro`),
+		// But the template route is invalid (ex. `withastro/astro/examples/DNE`).
+		// `giget` doesn't throw for this case,
+		// so check if the directory is still empty as a heuristic.
+		if (fs.readdirSync(ctx.cwd).length === 0) {
+			throw new Error(`Template ${color.reset(tmpl)} ${color.dim('is empty!')}`);
 		}
 
 		// Post-process in parallel
