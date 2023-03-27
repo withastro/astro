@@ -139,7 +139,7 @@ export const _internal = {
 					});
 				}
 
-				return contentRenderer.bind(this)({ entry });
+				return contentRenderer.bind(this)({ entry, viteId });
 			},
 		});
 	}

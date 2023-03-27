@@ -1056,6 +1056,7 @@ export interface ContentEntryType {
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
+			viteId: string;
 			entry: ContentEntryModule;
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;

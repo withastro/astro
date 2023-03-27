@@ -1,5 +1,5 @@
 {
-  "name": "@test/markdoc-content-collections",
+  "name": "@test/markdoc-render-simple",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

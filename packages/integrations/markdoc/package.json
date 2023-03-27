@@ -21,6 +21,9 @@
   "exports": {
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
+    "./default-config": "./dist/default-config.js",
+    "./config": "./dist/config.js",
+    "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -32,17 +35,19 @@
   },
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",
+    "esbuild": "^0.17.12",
     "gray-matter": "^4.0.3",
+    "kleur": "^4.1.5",
     "zod": "^3.17.3"
   },
   "peerDependencies": {
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "astro": "workspace:*",
     "@types/chai": "^4.3.1",
     "@types/html-escaper": "^3.0.0",
     "@types/mocha": "^9.1.1",
+    "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "devalue": "^4.2.0",

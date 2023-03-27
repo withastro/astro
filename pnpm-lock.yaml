@@ -330,9 +330,11 @@ importers:
     specifiers:
       '@astrojs/markdoc': ^0.0.5
       astro: ^2.1.7
+      kleur: ^4.1.5
     dependencies:
       '@astrojs/markdoc': link:../../packages/integrations/markdoc
       astro: link:../../packages/astro
+      kleur: 4.1.5
 
   examples/with-markdown-plugins:
     specifiers:
@@ -3083,7 +3085,9 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       devalue: ^4.2.0
+      esbuild: ^0.17.12
       gray-matter: ^4.0.3
+      kleur: ^4.1.5
       linkedom: ^0.14.12
       mocha: ^9.2.2
       rollup: ^3.20.1
@@ -3091,7 +3095,9 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@markdoc/markdoc': 0.2.2
+      esbuild: 0.17.12
       gray-matter: 4.0.3
+      kleur: 4.1.5
       zod: 3.20.6
     devDependencies:
       '@types/chai': 4.3.4
@@ -3109,15 +3115,10 @@ importers:
   packages/integrations/markdoc/test/fixtures/content-collections:
     specifiers:
       '@astrojs/markdoc': workspace:*
-      '@markdoc/markdoc': ^0.2.2
       astro: workspace:*
-      shiki: ^0.11.1
     dependencies:
       '@astrojs/markdoc': link:../../..
-      '@markdoc/markdoc': 0.2.2
       astro: link:../../../../../astro
-    devDependencies:
-      shiki: 0.11.1
 
   packages/integrations/markdoc/test/fixtures/entry-prop:
     specifiers:
@@ -3128,6 +3129,33 @@ importers:
       astro: link:../../../../../astro
 
   packages/integrations/markdoc/test/fixtures/image-assets:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/render-simple:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/render-with-components:
+    specifiers:
+      '@astrojs/markdoc': workspace:*
+      astro: workspace:*
+      shiki: ^0.11.1
+    dependencies:
+      '@astrojs/markdoc': link:../../..
+      astro: link:../../../../../astro
+    devDependencies:
+      shiki: 0.11.1
+
+  packages/integrations/markdoc/test/fixtures/render-with-config:
     specifiers:
       '@astrojs/markdoc': workspace:*
       astro: workspace:*

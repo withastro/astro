@@ -1,23 +1,15 @@
-import type {
-	Config as ReadonlyMarkdocConfig,
-	ConfigType as MarkdocConfig,
-	Node,
-} from '@markdoc/markdoc';
+import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type * as rollup from 'rollup';
-import {
-	getAstroConfigPath,
-	isValidUrl,
-	MarkdocError,
-	parseFrontmatter,
-	prependForwardSlash,
-} from './utils.js';
+import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
-import type { Plugin as VitePlugin } from 'vite';
+import { loadMarkdocConfig } from './load-config.js';
+import { applyDefaultConfig } from './default-config.js';
+import { bold, red } from 'kleur/colors';
+import type * as rollup from 'rollup';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -25,24 +17,24 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(
-	userMarkdocConfig: ReadonlyMarkdocConfig = {}
-): AstroIntegration {
+export default function markdocIntegration(legacyConfig: any): AstroIntegration {
+	if (legacyConfig) {
+		// eslint-disable-next-line no-console
+		console.log(
+			`${red(
+				bold('[Markdoc]')
+			)} Passing Markdoc config from your \`astro.config\` is no longer supported. Configuration should be exported from a \`markdoc.config.mjs\` file. See the configuration docs for more: https://docs.astro.build/en/guides/integrations-guide/markdoc/#configuration`
+		);
+		process.exit(0);
+	}
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const {
-					updateConfig,
-					config: astroConfig,
-					addContentEntryType,
-				} = params as SetupHookParams;
+				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
 
-				updateConfig({
-					vite: {
-						plugins: [safeAssetsVirtualModulePlugin({ astroConfig })],
-					},
-				});
+				const configLoadResult = await loadMarkdocConfig(astroConfig);
+				const userMarkdocConfig = configLoadResult?.config ?? {};
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -56,49 +48,63 @@ export default function markdocIntegration(
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					async getRenderModule({ entry }) {
-						validateRenderProperties(userMarkdocConfig, astroConfig);
+					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig: MarkdocConfig = {
-							...userMarkdocConfig,
-							variables: {
-								...userMarkdocConfig.variables,
-								entry,
-							},
-						};
+						const markdocConfig = applyDefaultConfig(userMarkdocConfig, { entry });
 
-						if (astroConfig.experimental?.assets) {
+						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
+							// Ignore `variable-undefined` errors.
+							// Variables can be configured at runtime,
+							// so we cannot validate them at build time.
+							return e.error.id !== 'variable-undefined';
+						});
+						if (validationErrors.length) {
+							throw new MarkdocError({
+								message: [
+									`**${String(entry.collection)} → ${String(entry.id)}** failed to validate:`,
+									...validationErrors.map((e) => e.error.id),
+								].join('\n'),
+							});
+						}
+
+						if (astroConfig.experimental.assets) {
 							await emitOptimizedImages(ast.children, {
 								astroConfig,
 								pluginContext,
 								filePath: entry._internal.filePath,
 							});
-
-							markdocConfig.nodes ??= {};
-							markdocConfig.nodes.image = {
-								...Markdoc.nodes.image,
-								transform(node, config) {
-									const attributes = node.transformAttributes(config);
-									const children = node.transformChildren(config);
-
-									if (node.type === 'image' && '__optimizedSrc' in node.attributes) {
-										const { __optimizedSrc, ...rest } = node.attributes;
-										return new Markdoc.Tag('Image', { ...rest, src: __optimizedSrc }, children);
-									} else {
-										return new Markdoc.Tag('img', attributes, children);
-									}
-								},
-							};
 						}
 
-						const content = Markdoc.transform(ast, markdocConfig);
-
-						return {
-							code: `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
-								content
-							)};\nexport async function Content ({ components }) { return h(Renderer, { content: transformedContent, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`,
+						const code = {
+							code: `import { jsx as h } from 'astro/jsx-runtime';
+import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
+import { Renderer } from '@astrojs/markdoc/components';
+import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
+								configLoadResult
+									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
+									: ''
+							}${
+								astroConfig.experimental.assets
+									? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';`
+									: ''
+							}
+const stringifiedAst = ${JSON.stringify(
+								/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
+							)};
+export async function Content (props) {
+	const config = applyDefaultConfig(${
+		configLoadResult
+			? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
+			: '{ variables: props }'
+	}, { entry });${
+								astroConfig.experimental.assets
+									? `\nconfig.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
+									: ''
+							}
+	return h(Renderer, { stringifiedAst, config }); };`,
 						};
+						return code;
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
@@ -155,88 +161,4 @@ async function emitOptimizedImages(
 function shouldOptimizeImage(src: string) {
 	// Optimize anything that is NOT external or an absolute path to `public/`
 	return !isValidUrl(src) && !src.startsWith('/');
-}
-
-function validateRenderProperties(markdocConfig: ReadonlyMarkdocConfig, astroConfig: AstroConfig) {
-	const tags = markdocConfig.tags ?? {};
-	const nodes = markdocConfig.nodes ?? {};
-
-	for (const [name, config] of Object.entries(tags)) {
-		validateRenderProperty({ type: 'tag', name, config, astroConfig });
-	}
-	for (const [name, config] of Object.entries(nodes)) {
-		validateRenderProperty({ type: 'node', name, config, astroConfig });
-	}
-}
-
-function validateRenderProperty({
-	name,
-	config,
-	type,
-	astroConfig,
-}: {
-	name: string;
-	config: { render?: string };
-	type: 'node' | 'tag';
-	astroConfig: Pick<AstroConfig, 'root'>;
-}) {
-	if (typeof config.render === 'string' && config.render.length === 0) {
-		throw new Error(
-			`Invalid ${type} configuration: ${JSON.stringify(
-				name
-			)}. The "render" property cannot be an empty string.`
-		);
-	}
-	if (typeof config.render === 'string' && !isCapitalized(config.render)) {
-		const astroConfigPath = getAstroConfigPath(fs, fileURLToPath(astroConfig.root));
-		throw new MarkdocError({
-			message: `Invalid ${type} configuration: ${JSON.stringify(
-				name
-			)}. The "render" property must reference a capitalized component name.`,
-			hint: 'If you want to render to an HTML element, see our docs on rendering Markdoc manually: https://docs.astro.build/en/guides/integrations-guide/markdoc/#render-markdoc-nodes--html-elements-as-astro-components',
-			location: astroConfigPath
-				? {
-						file: astroConfigPath,
-				  }
-				: undefined,
-		});
-	}
-}
-
-function isCapitalized(str: string) {
-	return str.length > 0 && str[0] === str[0].toUpperCase();
-}
-
-/**
- * TODO: remove when `experimental.assets` is baselined.
- *
- * `astro:assets` will fail to resolve if the `experimental.assets` flag is not enabled.
- * This ensures a fallback for the Markdoc renderer to safely import at the top level.
- * @see ../components/TreeNode.ts
- */
-function safeAssetsVirtualModulePlugin({
-	astroConfig,
-}: {
-	astroConfig: Pick<AstroConfig, 'experimental'>;
-}): VitePlugin {
-	const virtualModuleId = 'astro:markdoc-assets';
-	const resolvedVirtualModuleId = '\0' + virtualModuleId;
-
-	return {
-		name: 'astro:markdoc-safe-assets-virtual-module',
-		resolveId(id) {
-			if (id === virtualModuleId) {
-				return resolvedVirtualModuleId;
-			}
-		},
-		load(id) {
-			if (id !== resolvedVirtualModuleId) return;
-
-			if (astroConfig.experimental?.assets) {
-				return `export { Image } from 'astro:assets';`;
-			} else {
-				return `export const Image = () => { throw new Error('Cannot use the Image component without the \`experimental.assets\` flag.'); }`;
-			}
-		},
-	};
 }

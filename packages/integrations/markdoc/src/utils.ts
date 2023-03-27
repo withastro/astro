@@ -1,5 +1,3 @@
-import type { AstroInstance } from 'astro';
-import z from 'astro/zod';
 import matter from 'gray-matter';
 import type fsMod from 'node:fs';
 import path from 'node:path';
@@ -86,64 +84,10 @@ interface ErrorProperties {
 }
 
 /**
- * Matches `search` function used for resolving `astro.config` files.
- * Used by Markdoc for error handling.
- * @see 'astro/src/core/config/config.ts'
- */
-export function getAstroConfigPath(fs: typeof fsMod, root: string): string | undefined {
-	const paths = [
-		'astro.config.mjs',
-		'astro.config.js',
-		'astro.config.ts',
-		'astro.config.mts',
-		'astro.config.cjs',
-		'astro.config.cts',
-	].map((p) => path.join(root, p));
-
-	for (const file of paths) {
-		if (fs.existsSync(file)) {
-			return file;
-		}
-	}
-}
-
-/**
  * @see 'astro/src/core/path.ts'
  */
 export function prependForwardSlash(str: string) {
 	return str[0] === '/' ? str : '/' + str;
-}
-
-export function validateComponentsProp(components: Record<string, AstroInstance['default']>) {
-	try {
-		componentsPropValidator.parse(components);
-	} catch (e) {
-		throw new MarkdocError({
-			message:
-				e instanceof z.ZodError
-					? e.issues[0].message
-					: 'Invalid `components` prop. Ensure you are passing an object of components to <Content />',
-		});
-	}
-}
-
-const componentsPropValidator = z.record(
-	z
-		.string()
-		.min(1, 'Invalid `components` prop. Component names cannot be empty!')
-		.refine(
-			(value) => isCapitalized(value),
-			(value) => ({
-				message: `Invalid \`components\` prop: ${JSON.stringify(
-					value
-				)}. Component name must be capitalized. If you want to render HTML elements as components, try using a Markdoc node (https://docs.astro.build/en/guides/integrations-guide/markdoc/#render-markdoc-nodes--html-elements-as-astro-components)`,
-			})
-		),
-	z.any()
-);
-
-export function isCapitalized(str: string) {
-	return str.length > 0 && str[0] === str[0].toUpperCase();
 }
 
 export function isValidUrl(str: string): boolean {

@@ -99,53 +99,46 @@ const { Content } = await entry.render();
 
 ### Using components
 
-You can add Astro and UI framework components (React, Vue, Svelte, etc.) to your Markdoc using both [Markdoc tags][markdoc-tags] and HTML element [nodes][markdoc-nodes].
+You can add Astro components to your Markdoc using both [Markdoc tags][markdoc-tags] and HTML element [nodes][markdoc-nodes].
 
 #### Render Markdoc tags as Astro components
 
-You may configure [Markdoc tags][markdoc-tags] that map to components. You can configure a new tag from your `astro.config` using the `tags` attribute.
+You may configure [Markdoc tags][markdoc-tags] that map to components. You can configure a new tag by creating a `markdoc.config.mjs|ts` file at the root of your project and configuring the `tag` attribute.
 
+This example renders an `Aside` component, and allows a `type` prop to be passed as a string:
 
 ```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import markdoc from '@astrojs/markdoc';
+// markdoc.config.mjs
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import Aside from './src/components/Aside.astro';
 
-// https://astro.build/config
-export default defineConfig({
-  integrations: [
-    markdoc({
-      tags: {
-        aside: {
-          render: 'Aside',
-          attributes: {
-            // Component props as attribute definitions
-            // See Markdoc's documentation on defining attributes
-            // https://markdoc.dev/docs/attributes#defining-attributes
-            type: { type: String },
-          }
-        },
-      },
-    }),
-  ],
-});
+export default defineMarkdocConfig({
+  tags: {
+    aside: {
+      render: Aside,
+      attributes: {
+      // Markdoc requires type defs for each attribute.
+      // These should mirror the `Props` type of the component
+      // you are rendering. 
+      // See Markdoc's documentation on defining attributes
+      // https://markdoc.dev/docs/attributes#defining-attributes
+        type: { type: String },
+      }
+    },
+  },
+})
 ```
 
-Then, you can wire this render name (`'Aside'`) to a component from the `components` prop via the `<Content />` component. Note the object key name (`Aside` in this case) should match the render name:
+This component can now be used in your Markdoc files with the `{% aside %}` tag. Children will be passed to your component's default slot:
 
+```md
+# Welcome to Markdoc 👋
 
-```astro
----
-import { getEntryBySlug } from 'astro:content';
-import Aside from '../components/Aside.astro';
+{% aside type="tip" %}
 
-const entry = await getEntryBySlug('docs', 'why-markdoc');
-const { Content } = await entry.render();
----
+Use tags like this fancy "aside" to add some *flair* to your docs.
 
-<Content
-  components={{ Aside }}
-/>
+{% /aside %}
 ```
 
 #### Render Markdoc nodes / HTML elements as Astro components
@@ -153,46 +146,22 @@ const { Content } = await entry.render();
 You may also want to map standard HTML elements like headings and paragraphs to components. For this, you can configure a custom [Markdoc node][markdoc-nodes]. This example overrides Markdoc's `heading` node to render a `Heading` component, passing the built-in `level` attribute as a prop:
 
 ```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import markdoc from '@astrojs/markdoc';
+// markdoc.config.mjs
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import Heading from './src/components/Heading.astro';
 
-// https://astro.build/config
-export default defineConfig({
-  integrations: [
-    markdoc({
-      nodes: {
-        heading: {
-          render: 'Heading',
-          // Markdoc requires type defs for each attribute.
-          // These should mirror the `Props` type of the component
-          // you are rendering. 
-          // See Markdoc's documentation on defining attributes
-          // https://markdoc.dev/docs/attributes#defining-attributes
-          attributes: {
-            level: { type: String },
-          }
-        },
-      },
-    }),
-  ],
-});
-```
-
-Now, you can map the string passed to render (`'Heading'` in this example) to a component import. This is configured from the `<Content />` component used to render your Markdoc using the `components` prop:
-
-```astro
----
-import { getEntryBySlug } from 'astro:content';
-import Heading from '../components/Heading.astro';
-
-const entry = await getEntryBySlug('docs', 'why-markdoc');
-const { Content } = await entry.render();
----
-
-<Content
-  components={{ Heading }}
-/>
+export default defineMarkdocConfig({
+  nodes: {
+    heading: {
+      render: Heading,
+      attributes: {
+        // Pass the attributes from Markdoc's default heading node
+        // as component props.
+        level: { type: String },
+      }
+    },
+  },
+})
 ```
 
 Now, all Markdown headings will render with the `Heading.astro` component. This example uses a level 3 heading, automatically passing `level: 3` as the component prop:
@@ -215,26 +184,26 @@ This example wraps a `Aside.tsx` component with a `ClientAside.astro` wrapper:
 import Aside from './Aside';
 ---
 
-<Aside client:load />
+<Aside {...Astro.props} client:load />
 ```
 
-This component [can be applied via the `components` prop](#render-markdoc-nodes--html-elements-as-astro-components):
+This component can be passed to the `render` prop for any [tag][markdoc-tags] or [node][markdoc-nodes] in your config:
 
-```astro
----
-// src/pages/why-markdoc.astro
-import { getEntryBySlug } from 'astro:content';
-import ClientAside from '../components/ClientAside.astro';
+```js
+// markdoc.config.mjs
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import Aside from './src/components/Aside.astro';
 
-const entry = await getEntryBySlug('docs', 'why-markdoc');
-const { Content } = await entry.render();
----
-
-<Content
-  components={{
-    Aside: ClientAside,
-  }}
-/>
+export default defineMarkdocConfig({
+  tags: {
+    aside: {
+      render: Aside,
+      attributes: {
+        type: { type: String },
+      }
+    },
+  },
+})
 ```
 
 ### Access frontmatter and content collection information from your templates
@@ -253,35 +222,29 @@ The `$entry` object matches [the `CollectionEntry` type](https://docs.astro.buil
 
 ### Markdoc config
 
-The Markdoc integration accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [functions](https://markdoc.dev/docs/functions).
+The `markdoc.config.mjs|ts` file accepts [all Markdoc configuration options](https://markdoc.dev/docs/config), including [tags](https://markdoc.dev/docs/tags) and [functions](https://markdoc.dev/docs/functions).
 
-You can pass these options from the `markdoc()` integration in your `astro.config`. This example adds a global `getCountryEmoji` function:
+You can pass these options from the default export in your `markdoc.config.mjs|ts` file:
 
 ```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import markdoc from '@astrojs/markdoc';
+// markdoc.config.mjs
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 
-// https://astro.build/config
-export default defineConfig({
-  integrations: [
-    markdoc({
-      functions: {
-        getCountryEmoji: {
-          transform(parameters) {
-            const [country] = Object.values(parameters);
-            const countryToEmojiMap = {
-              japan: '🇯🇵',
-              spain: '🇪🇸',
-              france: '🇫🇷',
-            }
-            return countryToEmojiMap[country] ?? '🏳'
-          },
-        },
+export default defineMarkdocConfig({
+  functions: {
+    getCountryEmoji: {
+      transform(parameters) {
+        const [country] = Object.values(parameters);
+        const countryToEmojiMap = {
+          japan: '🇯🇵',
+          spain: '🇪🇸',
+          france: '🇫🇷',
+        }
+        return countryToEmojiMap[country] ?? '🏳'
       },
-    }),
-  ],
-});
+    },
+  },
+})
 ```
 
 Now, you can call this function from any Markdoc content entry:
@@ -290,47 +253,46 @@ Now, you can call this function from any Markdoc content entry:
 ¡Hola {% getCountryEmoji("spain") %}!
 ```
 
-:::note
-These options will be applied during [the Markdoc "transform" phase](https://markdoc.dev/docs/render#transform). This is run **at build time** (rather than server request time) both for static and SSR Astro projects. If you need to define configuration at runtime (ex. SSR variables), [see the next section](#define-markdoc-configuration-at-runtime).
-:::
-
 📚 [See the Markdoc documentation](https://markdoc.dev/docs/functions#creating-a-custom-function) for more on using variables or functions in your content.
 
-### Define Markdoc configuration at runtime
+### Pass Markdoc variables
 
-You may need to define Markdoc configuration at the component level, rather than the `astro.config.mjs` level. This is useful when mapping props and SSR parameters to [Markdoc variables](https://markdoc.dev/docs/variables).
+You may need to pass [variables][markdoc-variables] to your content. This is useful when passing SSR parameters like A/B tests.
 
-Astro recommends running the Markdoc transform step manually. This allows you to define your configuration and call Markdoc's rendering functions in a `.astro` file directly, ignoring any Markdoc config in your `astro.config.mjs`.
-
-You will need to install the `@markdoc/markdoc` package into your project first:
-
-```sh
-# Using NPM
-npm install @markdoc/markdoc
-# Using Yarn
-yarn add @markdoc/markdoc
-# Using PNPM
-pnpm add @markdoc/markdoc
-```
-
-Now, you can define Markdoc configuration options using `Markdock.transform()`.
-
-This example defines an `abTestGroup` Markdoc variable based on an SSR param, transforming the raw entry `body`. The result is rendered using the `Renderer` component provided by `@astrojs/markdoc`:
+Variables can be passed as props via the `Content` component:
 
 ```astro
 ---
-import Markdoc from '@markdoc/markdoc';
-import { Renderer } from '@astrojs/markdoc/components';
 import { getEntryBySlug } from 'astro:content';
 
-const { body } = await getEntryBySlug('docs', 'with-ab-test');
-const ast = Markdoc.parse(body);
-const content = Markdoc.transform({
-  variables: { abTestGroup: Astro.params.abTestGroup },
-}, ast);
+const entry = await getEntryBySlug('docs', 'why-markdoc');
+const { Content } = await entry.render();
 ---
 
-<Renderer {content} components={{ /* same `components` prop used by the `Content` component */ }} />
+<!--Pass the `abTest` param as a variable-->
+<Content abTestGroup={Astro.params.abTestGroup} />
+```
+
+Now, `abTestGroup` is available as a variable in `docs/why-markdoc.mdoc`:
+
+```md
+{% if $abTestGroup === 'image-optimization-lover' %}
+
+Let me tell you about image optimization...
+
+{% /if %}
+```
+
+To make a variable global to all Markdoc files, you can use the `variables` attribute from your `markdoc.config.mjs|ts`:
+
+```js
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+
+export default defineMarkdocConfig({
+  variables: {
+    environment: process.env.IS_PROD ? 'prod' : 'dev',
+  }
+})
 ```
 
 ## Examples
@@ -360,3 +322,5 @@ See [CHANGELOG.md](https://github.com/withastro/astro/tree/main/packages/integra
 [markdoc-tags]: https://markdoc.dev/docs/tags
 
 [markdoc-nodes]: https://markdoc.dev/docs/nodes
+
+[markdoc-variables]: https://markdoc.dev/docs/variables
