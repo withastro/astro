@@ -1542,7 +1542,7 @@ var Module = (function () {
               navigator.languages &&
               navigator.languages[0]) ||
             'C'
-          ).replace('-', '_') + '.UTF-8'
+          ).replace('-', '_') + '.utf-8'
         var env = {
           USER: 'web_user',
           LOGNAME: 'web_user',

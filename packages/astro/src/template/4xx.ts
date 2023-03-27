@@ -25,7 +25,7 @@ export default function template({
 	return `<!doctype html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8">
+		<meta charset="utf-8">
 		<title>${tabTitle}</title>
 		<style>
 			${baseCSS}
