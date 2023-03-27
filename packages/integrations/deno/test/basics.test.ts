@@ -68,7 +68,7 @@ Deno.test({
 			resp = await fetch(new URL(href!, baseUrl));
 			assertEquals(resp.status, 200);
 			const ct = resp.headers.get('content-type');
-			assertEquals(ct, 'text/css; charset=utf-8');
+			assertEquals(ct, 'text/css; charset=UTF-8');
 			await resp.body!.cancel();
 		});
 	},
