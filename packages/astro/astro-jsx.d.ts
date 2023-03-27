@@ -822,6 +822,7 @@ declare namespace astroHTML.JSX {
 	interface MetaHTMLAttributes extends HTMLAttributes {
 		charset?: string | undefined | null;
 		content?: string | URL | undefined | null;
+		'http-equiv'?: string | undefined | null;
 		name?: string | undefined | null;
 		media?: string | undefined | null;
 	}
