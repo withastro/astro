@@ -1,6 +1,4 @@
 import matter from 'gray-matter';
-import type fsMod from 'node:fs';
-import path from 'node:path';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
 /**

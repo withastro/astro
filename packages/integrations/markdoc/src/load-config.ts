@@ -1,8 +1,8 @@
-import type { AstroConfig } from 'astro';
 import type { Config as MarkdocConfig } from '@markdoc/markdoc';
+import type { AstroConfig } from 'astro';
 import { build as esbuild } from 'esbuild';
-import { fileURLToPath } from 'node:url';
 import * as fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.js',
