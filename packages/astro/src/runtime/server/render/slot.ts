@@ -4,7 +4,6 @@ import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
-import { createScopedResult, ScopeFlags } from './scope.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
@@ -32,8 +31,7 @@ export async function renderSlot(
 	fallback?: ComponentSlotValue | RenderTemplateResult
 ): Promise<string> {
 	if (slotted) {
-		const scoped = createScopedResult(result, ScopeFlags.Slot);
-		let iterator = renderChild(typeof slotted === 'function' ? slotted(scoped) : slotted);
+		let iterator = renderChild(typeof slotted === 'function' ? slotted(result) : slotted);
 		let content = '';
 		let instructions: null | RenderInstruction[] = null;
 		for await (const chunk of iterator) {

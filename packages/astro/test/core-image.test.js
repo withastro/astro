@@ -191,7 +191,11 @@ describe('astro:image', () => {
 			it('Adds the <img> tag', () => {
 				let $img = $('img');
 				expect($img).to.have.a.lengthOf(1);
-				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+
+				// Verbose test for the full URL to make sure the image went through the full pipeline
+				expect($img.attr('src')).to.equal(
+					'/_image?href=%2Fsrc%2Fassets%2Fpenguin1.jpg%3ForigWidth%3D207%26origHeight%3D243%26origFormat%3Djpg&f=webp'
+				);
 			});
 
 			it('has width and height attributes', () => {
@@ -288,6 +292,59 @@ describe('astro:image', () => {
 		});
 	});
 
+	describe('support base option correctly', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-base/',
+				experimental: {
+					assets: true,
+				},
+				base: '/blog',
+			});
+			await fixture.build();
+		});
+
+		it('has base path prefix when using the Image component', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix when using getImage', async () => {
+			const html = await fixture.readFile('/get-image/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix when using image directly', async () => {
+			const html = await fixture.readFile('/direct/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix in Markdown', async () => {
+			const html = await fixture.readFile('/post/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+
+		it('has base path prefix in Content Collection frontmatter', async () => {
+			const html = await fixture.readFile('/blog/one/index.html');
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			expect(src.length).to.be.greaterThan(0);
+			expect(src.startsWith('/blog')).to.be.true;
+		});
+	});
+
 	describe('build ssg', () => {
 		before(async () => {
 			fixture = await loadFixture({
@@ -323,6 +380,21 @@ describe('astro:image', () => {
 			// <img> tag
 			expect($img).to.have.a.lengthOf(1);
 			expect($img.attr('alt')).to.equal('a penguin');
+
+			// image itself
+			const src = $img.attr('src');
+			const data = await fixture.readFile(src, null);
+			expect(data).to.be.an.instanceOf(Buffer);
+		});
+
+		it('markdown images are written', async () => {
+			const html = await fixture.readFile('/post/index.html');
+			const $ = cheerio.load(html);
+			let $img = $('img');
+
+			// <img> tag
+			expect($img).to.have.a.lengthOf(1);
+			expect($img.attr('alt')).to.equal('My article cover');
 
 			// image itself
 			const src = $img.attr('src');
@@ -458,6 +530,14 @@ describe('astro:image', () => {
 
 			const $ = cheerio.load(html);
 			expect($('#local img').attr('data-service')).to.equal('my-custom-service');
+		});
+
+		it('custom service works in Markdown', async () => {
+			const response = await fixture.fetch('/post');
+			const html = await response.text();
+
+			const $ = cheerio.load(html);
+			expect($('img').attr('data-service')).to.equal('my-custom-service');
 		});
 	});
 });

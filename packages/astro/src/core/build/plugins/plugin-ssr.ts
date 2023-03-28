@@ -209,7 +209,7 @@ function buildManifest(
 		base: settings.config.base,
 		markdown: settings.config.markdown,
 		pageMap: null as any,
-		propagation: Array.from(internals.propagation),
+		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		entryModules,
 		assets: staticFiles.map((s) => settings.config.base + s),
