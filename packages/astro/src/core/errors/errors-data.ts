@@ -535,7 +535,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
-	 * The `src` property, either on `getImage`'s first parameter or on the Image component needs to be either an image that as has been ESM imported or a string.
+	 * The `src` property, either on `getImage`'s first parameter or on the Image component needs to be either an image that has been ESM imported or a string.
 	 *
 	 * ```astro
 	 * ---
@@ -561,7 +561,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
-	 * `getImage()` first parameter should be an object with the different properties to apply to your image.
+	 * `getImage()`'s first parameter should be an object with the different properties to apply to your image.
 	 *
 	 * ```ts
 	 * import { getImage } from "astro:assets";
@@ -570,7 +570,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * const optimizedImage = await getImage({src: myImage, width: 300, height: 300});
 	 * ```
 	 *
-	 * In most cases, this error happen because parameters were passed directly instead of inside an object.
+	 * In most cases, this error happens because parameters were passed directly instead of inside an object.
 	 */
 	ExpectedImageOptions: {
 		title: 'Expected image options.',
@@ -588,7 +588,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * Images in Markdown are relative to the current file, as such, to refer to an image that is directly next to the `.md` file, your path should start with `./`
 	 */
 	MarkdownImageNotFound: {
-		title: 'Image not found',
+		title: 'Image not found.',
 		code: 3028,
 		message: (imagePath: string, fullImagePath: string | undefined) =>
 			`Could not find requested image \`${imagePath}\`${
