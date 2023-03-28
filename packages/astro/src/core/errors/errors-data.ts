@@ -535,7 +535,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
-	 * The `src` property, either on `getImage`'s first parameter or on the Image component needs to be either an image that has been ESM imported or a string.
+	 * An image's `src` property is not valid.  The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
 	 *
 	 * ```astro
 	 * ---
@@ -585,7 +585,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @description
 	 * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
 	 *
-	 * Images in Markdown are relative to the current file, as such, to refer to an image that is directly next to the `.md` file, your path should start with `./`
+	 * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
 	 */
 	MarkdownImageNotFound: {
 		title: 'Image not found.',
@@ -594,7 +594,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`Could not find requested image \`${imagePath}\`${
 				fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
 			}`,
-		hint: 'This is often caused by a typo in the image path. Please make sure the file exists.',
+		hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
