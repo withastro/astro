@@ -103,7 +103,6 @@ describe('astro:image', () => {
 				await res.text();
 
 				expect(logs).to.have.a.lengthOf(1);
-				console.log(logs[0].message);
 				expect(logs[0].message).to.contain('Received unsupported format');
 			});
 		});
@@ -330,7 +329,6 @@ describe('astro:image', () => {
 			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			console.log(logs[0].message);
 			expect(logs[0].message).to.contain('Expected getImage() parameter');
 		});
 
@@ -341,7 +339,6 @@ describe('astro:image', () => {
 			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			console.log(logs[0].message);
 			expect(logs[0].message).to.contain('Expected src to be an image.');
 		});
 
@@ -351,7 +348,6 @@ describe('astro:image', () => {
 			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			console.log(logs[0].message);
 			expect(logs[0].message).to.contain('does not exist. Is the path correct?');
 		});
 
@@ -361,7 +357,6 @@ describe('astro:image', () => {
 			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			console.log(logs[0].message);
 			expect(logs[0].message).to.contain('Could not find requested image');
 		});
 	});
