@@ -1,7 +1,5 @@
 ---
 import { getEntryBySlug } from "astro:content";
-import Code from '../components/Code.astro';
-import CustomMarquee from '../components/CustomMarquee.astro';
 
 const post = await getEntryBySlug('blog', 'with-components');
 const { Content } = await post.render();
@@ -13,11 +11,9 @@ const { Content } = await post.render();
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Content - with components</title>
+	<title>Content</title>
 </head>
 <body>
-	<Content
-		components={{ CustomMarquee, Code }}
-	/>
+	<Content />	
 </body>
 </html>
