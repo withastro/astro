@@ -55,11 +55,11 @@ describe('Pagination', () => {
 					expect(prevHref).to.be.undefined;
 					expect(nextHref).to.be.undefined;
 				}
-				if (color === 'blue' && p === 1) {
+				if (color === 'blue' && p === '1') {
 					expect(prevHref).to.be.undefined;
 					expect(nextHref).to.equal('/posts/blue/2');
 				}
-				if (color === 'blue' && p === 2) {
+				if (color === 'blue' && p === '2') {
 					expect(prevHref).to.equal('/posts/blue/1');
 					expect(nextHref).to.be.undefined;
 				}
