@@ -30,6 +30,15 @@ export function prepareTestFactory(opts) {
 			await expect(count, 'component not hydrated').toHaveText('0');
 		});
 
+		test('client-test', async ({ page, astro }) => {
+			
+			await page.goto(astro.resolveUrl(pageUrl));
+
+			const label = page.locator('#client-test');
+
+			await expect(label, 'component not hydrated').toHaveText('2');
+		});
+
 		test('client:idle', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl(pageUrl));
 
@@ -133,6 +142,9 @@ export function prepareTestFactory(opts) {
 			await expect(label, 'client:only slot text is visible').toHaveText(
 				'Updated framework client:only component'
 			);
+
+			const clientTest = page.locator('#client-test');
+			await expect(clientTest, 'client-test slot text is visible').toHaveText('2');
 
 			// Edit the imported CSS file
 			await astro.editFile(counterCssFilePath || './src/components/Counter.css', (original) =>

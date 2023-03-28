@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue'
+const props = defineProps(['id'])
 /** The top-level await causes event handling to not work (button click) */
 await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -12,7 +13,7 @@ onMounted(()=>{
 </script>
 
 <template>
-  <div id="test">
+  <div :id="props.id">
    {{ a }}
   </div>
 </template>
