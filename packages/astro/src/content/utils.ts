@@ -131,7 +131,8 @@ export async function getEntryData(
 						async (value: unknown) => {
 							if (!value || typeof value !== 'string') return value;
 							return (
-								(await resolver(value))?.id ?? path.join(path.dirname(entry._internal.filePath))
+								(await resolver(value))?.id ??
+								path.join(path.dirname(entry._internal.filePath), value)
 							);
 						},
 						schema,
