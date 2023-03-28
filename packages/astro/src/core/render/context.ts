@@ -11,7 +11,7 @@ export interface RenderContext {
 	scripts?: Set<SSRElement>;
 	links?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
-	propagation?: SSRResult['propagation'];
+	componentMetadata?: SSRResult['componentMetadata'];
 	route?: RouteData;
 	status?: number;
 }

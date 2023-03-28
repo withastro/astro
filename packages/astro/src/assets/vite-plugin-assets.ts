@@ -168,15 +168,14 @@ export default function assets({
 
 						filePath = prependForwardSlash(
 							joinPaths(
-								settings.config.base,
 								settings.config.build.assets,
-								propsToFilename(options)
+								propsToFilename(options, settings.config.image.service)
 							)
 						);
 						globalThis.astroAsset.staticImages.set(options, filePath);
 					}
 
-					return filePath;
+					return prependForwardSlash(joinPaths(settings.config.base, filePath));
 				};
 			},
 			async buildEnd() {

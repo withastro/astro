@@ -18,7 +18,7 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/internal.js';
-import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
+import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
@@ -405,7 +405,7 @@ async function generatePath(
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
-		propagation: internals.propagation,
+		componentMetadata: internals.componentMetadata,
 		scripts,
 		links,
 		route: pageData.route,

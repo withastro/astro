@@ -10,6 +10,7 @@ import type {
 import type * as babel from '@babel/core';
 import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
+import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { z } from 'zod';
@@ -88,6 +89,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	open?: boolean;
 	experimentalAssets?: boolean;
 }
 
@@ -1034,12 +1036,31 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
+export type ContentEntryModule = {
+	id: string;
+	collection: string;
+	slug: string;
+	body: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
 	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	getRenderModule?(
+		this: rollup.PluginContext,
+		params: {
+			viteId: string;
+			entry: ContentEntryModule;
+		}
+	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 }
 
@@ -1559,6 +1580,7 @@ export interface SSRMetadata {
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
+	headInTree: boolean;
 }
 
 /**
@@ -1573,11 +1595,16 @@ export interface SSRMetadata {
  */
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
+export type SSRComponentMetadata = {
+	propagation: PropagationHint;
+	containsHead: boolean;
+};
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
-	propagation: Map<string, PropagationHint>;
+	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;

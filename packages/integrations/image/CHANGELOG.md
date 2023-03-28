@@ -1,5 +1,25 @@
 # @astrojs/image
 
+## 0.16.3
+
+### Patch Changes
+
+- [#6680](https://github.com/withastro/astro/pull/6680) [`386336441`](https://github.com/withastro/astro/commit/386336441ad70017eea22db0683591126131db21) Thanks [@koriwi](https://github.com/koriwi)! - Invalidates cache when changing serviceEntryPoint
+
+- Updated dependencies [[`1f783e320`](https://github.com/withastro/astro/commit/1f783e32075c20b13063599696644f5d47b75d8d), [`2e92e9aa9`](https://github.com/withastro/astro/commit/2e92e9aa976735c3ddb647152bb9c4850136e386), [`adecda7d6`](https://github.com/withastro/astro/commit/adecda7d6009793c5d20519a997e3b7afb08ad57), [`386336441`](https://github.com/withastro/astro/commit/386336441ad70017eea22db0683591126131db21), [`7c439868a`](https://github.com/withastro/astro/commit/7c439868a3bc7d466418da9af669966014f3d9fe), [`25cd3e574`](https://github.com/withastro/astro/commit/25cd3e574999c1c7294a089ad8c39df27ccdbf17), [`4bf87c64f`](https://github.com/withastro/astro/commit/4bf87c64ff7e9ca49e0f5c27e06bd49faaf60542), [`fc0ed9c53`](https://github.com/withastro/astro/commit/fc0ed9c53cd374860bbdb2503318a55ca09a2662)]:
+  - astro@2.1.8
+
+## 0.16.2
+
+### Patch Changes
+
+- [#6548](https://github.com/withastro/astro/pull/6548) [`4685f5554`](https://github.com/withastro/astro/commit/4685f55549da418137ecf1a99e9cd36b3ad08c8c) Thanks [@matthewp](https://github.com/matthewp)! - Use base64 encoded modules for Squoosh integration
+
+  This moves `@astrojs/image` to use base64 encoded versions of the Squoosh wasm modules. This is in order to prevent breakage in SSR environments where your files are moved around. This will fix usage of the integration in Netlify.
+
+- Updated dependencies [[`9caf2a9cc`](https://github.com/withastro/astro/commit/9caf2a9ccc2fd59af5cb2bb7ede9399fc491d38b), [`d338b6f74`](https://github.com/withastro/astro/commit/d338b6f74a3e34b494be85d24739bec9b2566faf)]:
+  - astro@2.1.6
+
 ## 0.16.1
 
 ### Patch Changes

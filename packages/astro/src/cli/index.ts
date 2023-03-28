@@ -13,7 +13,7 @@ import {
 import { ASTRO_VERSION } from '../core/constants.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
-import { debug, error, info, LogOptions } from '../core/logger/core.js';
+import { debug, error, info, type LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
@@ -218,7 +218,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'build': {
 			const { default: build } = await import('../core/build/index.js');
 
-			return await build(settings, { flags, logging, telemetry, teardownCompiler: true });
+			return await build(settings, {
+				flags,
+				logging,
+				telemetry,
+				teardownCompiler: true,
+				mode: flags.mode,
+			});
 		}
 
 		case 'check': {

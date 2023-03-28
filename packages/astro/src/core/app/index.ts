@@ -16,8 +16,8 @@ import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../p
 import {
 	createEnvironment,
 	createRenderContext,
-	Environment,
 	renderPage,
+	type Environment,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
@@ -102,7 +102,9 @@ export class App {
 			if (routeData.prerender) return undefined;
 			return routeData;
 		} else if (matchNotFound) {
-			return matchRoute('/404', this.#manifestData);
+			const notFoundRouteData = matchRoute('/404', this.#manifestData);
+			if (notFoundRouteData?.prerender) return undefined;
+			return notFoundRouteData;
 		} else {
 			return undefined;
 		}
@@ -191,7 +193,7 @@ export class App {
 				request,
 				origin: url.origin,
 				pathname,
-				propagation: this.#manifest.propagation,
+				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
 				links,
 				route: routeData,

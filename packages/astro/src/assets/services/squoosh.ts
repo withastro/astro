@@ -1,7 +1,12 @@
 // TODO: Investigate removing this service once sharp lands WASM support, as libsquoosh is deprecated
 
 import type { ImageQualityPreset, OutputFormat } from '../types.js';
-import { baseService, BaseServiceTransform, LocalImageService, parseQuality } from './service.js';
+import {
+	baseService,
+	parseQuality,
+	type BaseServiceTransform,
+	type LocalImageService,
+} from './service.js';
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
 
@@ -21,16 +26,14 @@ const qualityTable: Record<Exclude<OutputFormat, 'png'>, Record<ImageQualityPres
 };
 
 const service: LocalImageService = {
+	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	async transform(inputBuffer, transformOptions) {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
-		let format = transform.format;
-		if (!format) {
-			format = 'webp';
-		}
+		let format = transform.format!;
 
 		const operations: Operation[] = [];
 

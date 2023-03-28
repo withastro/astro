@@ -15,7 +15,7 @@ import type {
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
-import { info, LogOptions } from '../core/logger/core.js';
+import { info, type LogOptions } from '../core/logger/core.js';
 import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({

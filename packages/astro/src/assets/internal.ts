@@ -1,7 +1,9 @@
 import fs from 'node:fs';
+import { basename, join } from 'node:path/posix';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { ImageService, isLocalService, LocalImageService } from './services/service.js';
+import { prependForwardSlash } from '../core/path.js';
+import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
 import type { ImageMetadata, ImageTransform } from './types.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
@@ -27,6 +29,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 }
 
 interface GetImageResult {
+	rawOptions: ImageTransform;
 	options: ImageTransform;
 	src: string;
 	attributes: Record<string, any>;
@@ -50,17 +53,21 @@ interface GetImageResult {
  */
 export async function getImage(options: ImageTransform): Promise<GetImageResult> {
 	const service = await getConfiguredImageService();
-	let imageURL = service.getURL(options);
+	const validatedOptions = service.validateOptions ? service.validateOptions(options) : options;
+
+	let imageURL = service.getURL(validatedOptions);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
 	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
-		imageURL = globalThis.astroAsset.addStaticImage(options);
+		imageURL = globalThis.astroAsset.addStaticImage(validatedOptions);
 	}
 
 	return {
-		options,
+		rawOptions: options,
+		options: validatedOptions,
 		src: imageURL,
-		attributes: service.getHTMLAttributes !== undefined ? service.getHTMLAttributes(options) : {},
+		attributes:
+			service.getHTMLAttributes !== undefined ? service.getHTMLAttributes(validatedOptions) : {},
 	};
 }
 
@@ -99,8 +106,19 @@ export async function generateImage(
 		clientRoot = buildOpts.settings.config.outDir;
 	}
 
-	const fileData = await fs.promises.readFile(new URL('.' + options.src.src, serverRoot));
-	const resultData = await imageService.transform(fileData, { ...options, src: options.src.src });
+	// The original file's path (the `src` attribute of the ESM imported image passed by the user)
+	const originalImagePath = options.src.src;
+
+	const fileData = await fs.promises.readFile(
+		new URL(
+			'.' +
+				prependForwardSlash(
+					join(buildOpts.settings.config.build.assets, basename(originalImagePath))
+				),
+			serverRoot
+		)
+	);
+	const resultData = await imageService.transform(fileData, { ...options, src: originalImagePath });
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);

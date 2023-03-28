@@ -2,7 +2,7 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
+import mdxPlugin, { type Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
@@ -23,33 +23,21 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
-type IntegrationWithPrivateHooks = {
-	name: string;
-	hooks: Omit<AstroIntegration['hooks'], 'astro:config:setup'> & {
-		'astro:config:setup': (
-			params: HookParameters<'astro:config:setup'> & {
-				// `addPageExtension` and `contentEntryType` are not a public APIs
-				// Add type defs here
-				addPageExtension: (extension: string) => void;
-				addContentEntryType: (contentEntryType: ContentEntryType) => void;
-			}
-		) => void | Promise<void>;
-	};
+type SetupHookParams = HookParameters<'astro:config:setup'> & {
+	// `addPageExtension` and `contentEntryType` are not a public APIs
+	// Add type defs here
+	addPageExtension: (extension: string) => void;
+	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function mdx(
-	partialMdxOptions: Partial<MdxOptions> = {}
-): IntegrationWithPrivateHooks {
+export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': async ({
-				updateConfig,
-				config,
-				addPageExtension,
-				addContentEntryType,
-				command,
-			}) => {
+			'astro:config:setup': async (params) => {
+				const { updateConfig, config, addPageExtension, addContentEntryType, command } =
+					params as SetupHookParams;
+
 				addPageExtension('.mdx');
 				addContentEntryType({
 					extensions: ['.mdx'],
