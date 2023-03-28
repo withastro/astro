@@ -14,6 +14,10 @@ describe('check', () => {
 
 	it('should be false with a registered non-lit component', async () => {
 		const tagName = 'non-lit-component';
+		// Lit no longer shims HTMLElement globally, so we need to do it ourselves.
+		if (!globalThis.HTMLElement) {
+			globalThis.HTMLElement = class {};
+		}
 		customElements.define(tagName, class TestComponent extends HTMLElement {});
 		expect(await check(tagName)).to.equal(false);
 	});
