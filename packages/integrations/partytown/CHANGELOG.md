@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 1.2.0
+
+### Minor Changes
+
+- [#6667](https://github.com/withastro/astro/pull/6667) [`aff53c109`](https://github.com/withastro/astro/commit/aff53c109c4f7b08b6b80e58e9ca5cb481131eb5) Thanks [@thebinarymutant](https://github.com/thebinarymutant)! - Expose more partytown config properties
+
 ## 1.1.1
 
 ### Patch Changes
