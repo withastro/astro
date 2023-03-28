@@ -89,6 +89,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	open?: boolean;
 	experimentalAssets?: boolean;
 }
 
@@ -1056,6 +1057,7 @@ export interface ContentEntryType {
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
+			viteId: string;
 			entry: ContentEntryModule;
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
