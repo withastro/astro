@@ -35,6 +35,27 @@ export async function getParamsAndProps(
 			const paramsMatch = route.pattern.exec(pathname);
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
+
+				// If we have an endpoint at `src/pages/api/[slug].ts` that's prerendered, and the `slug`
+				// is `undefined`, throw an error as we can't generate the `/api` file and `/api` directory
+				// at the same time. Using something like `[slug].json.ts` instead will work.
+				if (route.type === 'endpoint' && mod.getStaticPaths) {
+					const lastSegment = route.segments[route.segments.length - 1];
+					const paramValues = Object.values(params);
+					const lastParam = paramValues[paramValues.length - 1];
+					// Check last segment is solely `[slug]` or `[...slug]` case (dynamic). Make sure it's not
+					// `foo[slug].js` by checking segment length === 1. Also check here if that param is undefined.
+					if (lastSegment.length === 1 && lastSegment[0].dynamic && lastParam === undefined) {
+						throw new AstroError({
+							...AstroErrorData.PrerenderDynamicEndpointPathCollide,
+							message: AstroErrorData.PrerenderDynamicEndpointPathCollide.message(route.route),
+							hint: AstroErrorData.PrerenderDynamicEndpointPathCollide.hint(route.component),
+							location: {
+								file: route.component,
+							},
+						});
+					}
+				}
 			}
 		}
 		let routeCacheEntry = routeCache.get(route);

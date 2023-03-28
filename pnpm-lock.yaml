@@ -1971,6 +1971,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/dynamic-endpoint-collision:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/dynamic-route-build-file:
     specifiers:
       astro: workspace:*
