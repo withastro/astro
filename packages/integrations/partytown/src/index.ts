@@ -1,5 +1,5 @@
-import { partytownSnippet } from '@builder.io/partytown/integration';
 import type { PartytownConfig } from '@builder.io/partytown/integration';
+import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import * as fs from 'fs';
