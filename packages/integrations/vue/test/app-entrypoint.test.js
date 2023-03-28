@@ -1,6 +1,5 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
