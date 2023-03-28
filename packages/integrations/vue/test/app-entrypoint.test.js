@@ -1,9 +1,6 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 describe('App Entrypoint', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
