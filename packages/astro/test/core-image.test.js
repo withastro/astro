@@ -348,8 +348,6 @@ describe('astro:image', () => {
 			const text = await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			console.log(text);
-			console.log(logs[0]);
 			expect(logs[0].message).to.contain('does not exist. Is the path correct?');
 		});
 
@@ -359,8 +357,6 @@ describe('astro:image', () => {
 			const text = await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
-			console.log(text);
-			console.log(logs[0]);
 			expect(logs[0].message).to.contain('Could not find requested image');
 		});
 	});
