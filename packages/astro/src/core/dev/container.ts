@@ -86,11 +86,6 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
-			define: {
-				'import.meta.env.BASE_URL': settings.config.base
-					? JSON.stringify(settings.config.base)
-					: 'undefined',
-			},
 		},
 		{ settings, logging, mode: 'dev', command: 'dev', fs }
 	);
