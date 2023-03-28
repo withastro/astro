@@ -61,7 +61,7 @@ export default async function build(settings: AstroSettings, options: BuildOptio
 class AstroBuilder {
 	private settings: AstroSettings;
 	private logging: LogOptions;
-	private mode: RuntimeMode = 'production';
+	private mode: RuntimeMode;
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
@@ -71,6 +71,8 @@ class AstroBuilder {
 	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
 			this.mode = options.mode;
+		} else {
+			this.mode = 'production'
 		}
 		this.settings = settings;
 		this.logging = options.logging;
