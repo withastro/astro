@@ -28,7 +28,7 @@ export default async function preview(
 			tables: {
 				Flags: [
 					['--help (-h)', 'See all available flags.'],
-					['--open (-h)', 'automatically open the app in the browser on server start'],
+					['--open (-h)', 'Automatically open the app in the browser on server start'],
 				],
 			},
 			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
