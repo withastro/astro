@@ -613,6 +613,23 @@ export interface AstroUserConfig {
 		assets?: string;
 		/**
 		 * @docs
+		 * @name build.assetsPrefix
+		 * @type {string}
+		 * @default `undefined`
+		 * @description
+		 * Specifies the prefix for Astro-generated asset links, this can be used if assets are served from a different domain.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assetsPrefix: 'https://cdn.example.com'
+		 *   }
+		 * }
+		 * ```
+		 */
+		assetsPrefix?: string;
+		/**
+		 * @docs
 		 * @name build.serverEntry
 		 * @type {string}
 		 * @default `'entry.mjs'`
