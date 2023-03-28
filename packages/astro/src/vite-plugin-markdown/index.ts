@@ -127,7 +127,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export const images = {
 					${imagePaths.map(
 						(entry) =>
-							`'${entry.raw}': await getImageSafely((await import("${entry.resolved}")).default, "${
+							`'${entry.raw}': await getImageSafely((await import("${entry.raw}")).default, "${
 								entry.raw
 							}", "${rootRelativePath(settings.config, entry.resolved)}")`
 					)}
