@@ -139,7 +139,7 @@ export const _internal = {
 					});
 				}
 
-				return contentRenderer({ entry });
+				return contentRenderer.bind(this)({ entry, viteId });
 			},
 		});
 	}
@@ -232,7 +232,11 @@ export const _internal = {
 
 		const collectionConfig = contentConfig?.collections[collection];
 		let data = collectionConfig
-			? await getEntryData({ id, collection, slug, _internal, unvalidatedData }, collectionConfig)
+			? await getEntryData(
+					{ id, collection, slug, _internal, unvalidatedData },
+					collectionConfig,
+					(idToResolve: string) => pluginContext.resolve(idToResolve, fileId)
+			  )
 			: unvalidatedData;
 
 		await patchAssets(data, pluginContext.meta.watchMode, pluginContext.emitFile, settings);

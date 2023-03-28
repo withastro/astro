@@ -1054,9 +1054,13 @@ export interface ContentEntryType {
 		fileUrl: URL;
 		contents: string;
 	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
-	getRenderModule?(params: {
-		entry: ContentEntryModule;
-	}): rollup.LoadResult | Promise<rollup.LoadResult>;
+	getRenderModule?(
+		this: rollup.PluginContext,
+		params: {
+			viteId: string;
+			entry: ContentEntryModule;
+		}
+	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 }
 
@@ -1576,6 +1580,7 @@ export interface SSRMetadata {
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
+	headInTree: boolean;
 }
 
 /**
@@ -1590,11 +1595,16 @@ export interface SSRMetadata {
  */
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
+export type SSRComponentMetadata = {
+	propagation: PropagationHint;
+	containsHead: boolean;
+};
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
-	propagation: Map<string, PropagationHint>;
+	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;

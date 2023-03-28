@@ -1,8 +1,7 @@
 import type { AstroInstance } from 'astro';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
-import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
 import Markdoc from '@markdoc/markdoc';
-import { MarkdocError, isCapitalized } from '../dist/utils.js';
+import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
 
 export type TreeNode =
 	| {
@@ -45,20 +44,17 @@ export const ComponentNode = createComponent({
 	propagation: 'none',
 });
 
-export function createTreeNode(
-	node: RenderableTreeNode,
-	components: Record<string, AstroInstance['default']> = {}
-): TreeNode {
+export function createTreeNode(node: RenderableTreeNode): TreeNode {
 	if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return { type: 'text', content: '' };
 	}
 
-	if (node.name in components) {
-		const component = components[node.name];
+	if (typeof node.name === 'function') {
+		const component = node.name;
 		const props = node.attributes;
-		const children = node.children.map((child) => createTreeNode(child, components));
+		const children = node.children.map((child) => createTreeNode(child));
 
 		return {
 			type: 'component',
@@ -66,17 +62,12 @@ export function createTreeNode(
 			props,
 			children,
 		};
-	} else if (isCapitalized(node.name)) {
-		throw new MarkdocError({
-			message: `Unable to render ${JSON.stringify(node.name)}.`,
-			hint: 'Did you add this to the "components" prop on your <Content /> component?',
-		});
 	} else {
 		return {
 			type: 'element',
 			tag: node.name,
 			attributes: node.attributes,
-			children: node.children.map((child) => createTreeNode(child, components)),
+			children: node.children.map((child) => createTreeNode(child)),
 		};
 	}
 }

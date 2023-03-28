@@ -15,7 +15,7 @@ import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
-import { getPropagationMap } from './head.js';
+import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
@@ -142,9 +142,9 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 		});
 	});
 
-	const propagationMap = await getPropagationMap(filePath, env.loader);
+	const metadata = await getComponentMetadata(filePath, env.loader);
 
-	return { scripts, styles, links, propagationMap };
+	return { scripts, styles, links, metadata };
 }
 
 export async function renderPage(options: SSROptions): Promise<Response> {
@@ -154,7 +154,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 	// The new instances are passed through.
 	options.env.renderers = renderers;
 
-	const { scripts, links, styles, propagationMap } = await getScriptsAndStyles({
+	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
 		env: options.env,
 		filePath: options.filePath,
 	});
@@ -166,7 +166,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		scripts,
 		links,
 		styles,
-		propagation: propagationMap,
+		componentMetadata: metadata,
 		route: options.route,
 	});
 

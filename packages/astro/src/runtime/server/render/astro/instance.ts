@@ -5,7 +5,6 @@ import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.j
 import { HydrationDirectiveProps } from '../../hydration.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
-import { createScopedResult, ScopeFlags } from '../scope.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 
@@ -31,9 +30,8 @@ export class AstroComponentInstance {
 		this.props = props;
 		this.factory = factory;
 		this.slotValues = {};
-		const scoped = createScopedResult(result, ScopeFlags.Slot);
 		for (const name in slots) {
-			const value = slots[name](scoped);
+			const value = slots[name](result);
 			this.slotValues[name] = () => value;
 		}
 	}

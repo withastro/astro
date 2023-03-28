@@ -30,7 +30,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^2.1.1",
+    "@astrojs/markdown-remark": "^2.1.2",
     "@astrojs/prism": "^2.1.1",
     "@mdx-js/mdx": "^2.3.0",
     "@mdx-js/rollup": "^2.3.0",
