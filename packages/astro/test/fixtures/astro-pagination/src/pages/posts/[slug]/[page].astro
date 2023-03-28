@@ -21,8 +21,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="canonical" href={canonicalURL.href} />
   </head>
   <body>
-    <div id="page-a">{params.page}</div>
-    <div id="page-b">{page.currentPage}</div>
+    <div id="page-param">{params.page}</div>
+    <div id="currentPage">{page.currentPage}</div>
     <div id="filter">{filter}</div>
+		<a href={page.url.prev} id="prev">Previous</a>
+		<a href={page.url.next} id="next">Next</a>
   </body>
 </html>
