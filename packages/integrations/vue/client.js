@@ -33,6 +33,6 @@ export default (element) =>
 	};
 
 function isAsync (fn) {
-	const constructor = fn.constructor
+	const constructor = fn?.constructor
 	return constructor && constructor.name === 'AsyncFunction';
 }
