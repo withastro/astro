@@ -41,7 +41,7 @@
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:*"
+    "astro": "workspace:^2.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
