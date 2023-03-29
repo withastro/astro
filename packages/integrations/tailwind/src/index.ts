@@ -33,14 +33,14 @@ async function getUserConfig(
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	let resolvedConfigPath = path.join(resolvedRoot, './tailwind.config.js');
+	let resolvedConfigPath = path.join(resolvedRoot, 'tailwind.config.js');
 	if (!configPath) {
-		if (existsSync(path.join(resolvedRoot + './tailwind.config.ts'))) {
-			resolvedConfigPath = path.join(resolvedRoot + './tailwind.config.ts');
+		if (existsSync(path.join(resolvedRoot + 'tailwind.config.ts'))) {
+			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.ts');
 		}
 
-		if (existsSync(path.join(resolvedRoot + './tailwind.config.cjs'))) {
-			resolvedConfigPath = path.join(resolvedRoot + './tailwind.config.cjs');
+		if (existsSync(path.join(resolvedRoot + 'tailwind.config.cjs'))) {
+			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.cjs');
 		}
 	}
 
