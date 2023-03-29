@@ -8,5 +8,8 @@ export default defineConfig({
     integrations: [react()],
     build: {
         assetsPrefix: 'http://localhost:4321'
+    },
+    experimental: {
+        assets: true
     }
 });
