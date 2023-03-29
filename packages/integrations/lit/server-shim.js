@@ -16,9 +16,10 @@ if (globalThis.HTMLElement) {
 }
 
 // Astro seems to have a DOM shim and the only real difference that we need out
-// of the Lit DOM shim is that the Lit DOM shim does something that triggers
-// ReactiveElement.finalize() to be called. So this is the only thing we will
-// re-shim since Lit will try to respect other global DOM shims.
+// of the Lit DOM shim is that the Lit DOM shim reads
+// `HTMLElement.observedAttributes` which is meant to trigger
+// `ReactiveElement.finalize()`. So this is the only thing we will re-shim since
+// Lit will try to respect other global DOM shims.
 globalThis.customElements = litCE;
 
 const litCeDefine = customElements.define;

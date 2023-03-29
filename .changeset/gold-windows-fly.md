@@ -1,5 +1,5 @@
 ---
-'@astrojs/lit': patch
+'@astrojs/lit': major
 ---
 
 Update to use `@lit-labs/ssr@^3`
