@@ -12,8 +12,8 @@
     "astro": "workspace:*"
   },
   "dependencies": {
-    "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.2.5",
+    "@webcomponents/template-shadowroot": "^0.2.1",
+    "lit": "^2.7.0",
     "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
