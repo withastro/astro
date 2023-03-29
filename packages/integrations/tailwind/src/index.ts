@@ -1,9 +1,9 @@
-import load, { resolve } from '@proload/core';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
-import fs from 'fs/promises';
+import { existsSync } from 'fs';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
+import loadConfig from 'tailwindcss/loadconfig.js';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
@@ -28,42 +28,43 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	if (isRestart) {
-		// Hack: Write config to temporary file at project root
-		// This invalidates and reloads file contents when using ESM imports or "resolve"
-		const resolvedConfigPath = (await resolve('tailwind', {
-			mustExist: false,
-			cwd: resolvedRoot,
-			filePath: userConfigPath,
-		})) as string;
+	// if (isRestart) {
+	// 	// Hack: Write config to temporary file at project root
+	// 	// This invalidates and reloads file contents when using ESM imports or "resolve"
 
-		const { dir, base } = path.parse(resolvedConfigPath);
-		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
-		await fs.copyFile(resolvedConfigPath, tempConfigPath);
+	// 	const { dir, base } = path.parse(resolvedConfigPath);
+	// 	const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
+	// 	await fs.copyFile(resolvedConfigPath, tempConfigPath);
 
-		let result: load.Config<Record<any, any>> | undefined;
-		try {
-			result = await load('tailwind', {
-				mustExist: false,
-				cwd: resolvedRoot,
-				filePath: tempConfigPath,
-			});
-		} catch (err) {
-			console.error(err);
-		} finally {
-			await fs.unlink(tempConfigPath);
-		}
+	// 	let result: Record<any, any> | undefined;
+	// 	try {
+	// 		result = loadConfig(userConfigPath);
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 	} finally {
+	// 		await fs.unlink(tempConfigPath);
+	// 	}
 
-		return {
-			...result,
-			filePath: resolvedConfigPath,
-		};
-	} else {
-		return await load('tailwind', {
-			mustExist: false,
-			cwd: resolvedRoot,
-			filePath: userConfigPath,
-		});
+	// 	return {
+	// 		...result,
+	// 		filePath: resolvedConfigPath,
+	// 	};
+	// } else {
+	const realConfigPath = userConfigPath ?? path.join(resolvedRoot, './tailwind.config.cjs');
+	if (userConfigPath) {
+		return loadConfig(realConfigPath);
+	}
+
+	if (existsSync(path.join(resolvedRoot + './tailwind.config.ts'))) {
+		return loadConfig(path.join(resolvedRoot + './tailwind.config.ts'));
+	}
+
+	if (existsSync(path.join(resolvedRoot + './tailwind.config.cjs'))) {
+		return loadConfig(path.join(resolvedRoot + './tailwind.config.cjs'));
+	}
+
+	if (existsSync(path.join(resolvedRoot + './tailwind.config.js'))) {
+		return loadConfig(path.join(resolvedRoot + './tailwind.config.js'));
 	}
 }
 
@@ -142,8 +143,8 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 			}) => {
 				// Inject the Tailwind postcss plugin
 				const userConfig = await getUserConfig(config.root, customConfigPath, isRestart);
-
-				if (customConfigPath && !userConfig?.value) {
+				console.log(customConfigPath, userConfig);
+				if (customConfigPath && !userConfig) {
 					throw new Error(
 						`Could not find a Tailwind config at ${JSON.stringify(
 							customConfigPath
@@ -152,12 +153,14 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 				}
 
 				if (addWatchFile && userConfig?.filePath) {
-					addWatchFile(userConfig.filePath);
+					addWatchFile(
+						'/Users/finn/Documents/GitHub/astro/examples/with-tailwindcss/tailwind.config.ts'
+					);
 				}
 
 				const tailwindConfig =
-					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
-
+					(userConfig as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
+				console.log(tailwindConfig);
 				updateConfig({
 					vite: await getViteConfiguration(tailwindConfig, config.vite),
 				});
