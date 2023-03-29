@@ -175,8 +175,9 @@ export default function assets({
 						globalThis.astroAsset.staticImages.set(options, filePath);
 					}
 
-					return prependForwardSlash(
-						joinPaths(settings.config.build.assetsPrefix || settings.config.base, filePath)
+					return joinPaths(
+						settings.config.build.assetsPrefix || prependForwardSlash(settings.config.base),
+						filePath
 					);
 				};
 			},
@@ -203,8 +204,9 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const outputFilepath = normalizePath(
-						joinPaths(settings.config.build.assetsPrefix || settings.config.base, file + postfix)
+					const outputFilepath = joinPaths(
+						settings.config.build.assetsPrefix || settings.config.base,
+						normalizePath(file + postfix)
 					);
 
 					s.overwrite(match.index, match.index + full.length, outputFilepath);
