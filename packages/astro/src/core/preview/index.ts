@@ -26,7 +26,10 @@ export default async function preview(
 			commandName: 'astro preview',
 			usage: '[...flags]',
 			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
+				Flags: [
+					['--open', 'Automatically open the app in the browser on server start'],
+					['--help (-h)', 'See all available flags.'],
+				],
 			},
 			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
 				'https://docs.astro.build/en/reference/cli-reference/#astro-preview'

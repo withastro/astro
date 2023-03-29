@@ -39,6 +39,21 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 				...additionalParams,
 				[paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
 			};
+			const current = correctIndexRoute(routeMatch.generate({ ...params }));
+			const next =
+				pageNum === lastPage
+					? undefined
+					: correctIndexRoute(routeMatch.generate({ ...params, page: String(pageNum + 1) }));
+			const prev =
+				pageNum === 1
+					? undefined
+					: correctIndexRoute(
+							routeMatch.generate({
+								...params,
+								page:
+									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
+							})
+					  );
 			return {
 				params,
 				props: {
@@ -51,25 +66,21 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 						total: data.length,
 						currentPage: pageNum,
 						lastPage: lastPage,
-						url: {
-							current: routeMatch.generate({ ...params }),
-							next:
-								pageNum === lastPage
-									? undefined
-									: routeMatch.generate({ ...params, page: String(pageNum + 1) }),
-							prev:
-								pageNum === 1
-									? undefined
-									: routeMatch.generate({
-											...params,
-											page:
-												!includesFirstPageNumber && pageNum - 1 === 1 ? '' : String(pageNum - 1),
-									  }),
-						},
+						url: { current, next, prev },
 					} as Page,
 				},
 			};
 		});
 		return result;
 	};
+}
+
+function correctIndexRoute(route: string) {
+	// `routeMatch.generate` avoids appending `/`
+	// unless `trailingSlash: 'always'` is configured.
+	// This means an empty string is possible for the index route.
+	if (route === '') {
+		return '/';
+	}
+	return route;
 }

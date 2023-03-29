@@ -1,6 +1,6 @@
 # @astrojs/react ⚛️
 
-This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [React](https://reactjs.org/) components.
+This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [React](https://react.dev/) components.
 
 ## Installation
 

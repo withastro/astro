@@ -23,23 +23,20 @@ Inside of your Astro project, you'll see the following folders and files:
         └── docs/
 │           └── intro.mdoc
 |       └── config.ts
-│   └── components/
-|       ├── Aside.astro
-│       └── DocsContent.astro
-│   └── layouts/
-│       └── Layout.astro
-│   └── pages/
-│       └── index.astro
+│   └── components/Aside.astro
+│   └── layouts/Layout.astro
+│   └── pages/index.astro
 |   └── env.d.ts
 ├── astro.config.mjs
+├── markdoc.config.mjs
 ├── README.md
 ├── package.json
 └── tsconfig.json
 ```
 
-Markdoc (`.mdoc`) files can be used in content collections to author your Markdown content alongside Astro and server-rendered UI framework components (React, Vue, Svelte, and more). See `src/content/docs/` for an example file.
+Markdoc (`.mdoc`) files can be used in content collections. See `src/content/docs/` for an example file.
 
-You can also apply Astro components and server-rendered UI components (React, Vue, Svelte, etc) to your Markdoc files. See `src/content/DocsContent.astro` for an example.
+You can also render Astro components from your Markdoc files using [tags](https://markdoc.dev/docs/tags). See the `markdoc.config.mjs` file for an example configuration.
 
 ## 🧞 Commands
 
