@@ -130,10 +130,13 @@ export async function getEntryData(
 					object[schemaName] = z.preprocess(
 						async (value: unknown) => {
 							if (!value || typeof value !== 'string') return value;
-							return (await resolver(value))?.id;
+							return (
+								(await resolver(value))?.id ??
+								path.join(path.dirname(entry._internal.filePath), value)
+							);
 						},
 						schema,
-						{ description: undefined }
+						{ description: '__image' }
 					);
 				} else if ('shape' in schema) {
 					await preprocessAssetPaths(schema.shape);

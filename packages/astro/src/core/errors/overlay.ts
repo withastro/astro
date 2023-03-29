@@ -78,7 +78,7 @@ const style = /* css */ `
   --shiki-token-function: #4ca48f;
   --shiki-token-string-expression: #9f722a;
   --shiki-token-punctuation: #ffffff;
-  --shiki-token-link: #ee0000;
+  --shiki-token-link: #9f722a;
 }
 
 :host(.astro-dark) {
@@ -131,9 +131,9 @@ const style = /* css */ `
   --shiki-token-function: #90f4e3;
   --shiki-token-string-expression: #f4cf90;
   --shiki-token-punctuation: #ffffff;
-  --shiki-token-link: #ee0000;
+  --shiki-token-link: #f4cf90;
 }
-  
+
 #theme-toggle-wrapper{
   position: relative;
   display: inline-block
@@ -144,7 +144,7 @@ const style = /* css */ `
   right: 3px;
   margin-top: 3px;
 }
-  
+
 .theme-toggle-checkbox {
 	opacity: 0;
 	position: absolute;
@@ -250,7 +250,7 @@ const style = /* css */ `
     padding: 12px;
     margin-top: 12px;
   }
-  
+
   #theme-toggle-wrapper > div{
     position: absolute;
     right: 22px;
@@ -372,6 +372,7 @@ const style = /* css */ `
   background-color: var(--border);
   padding: 4px;
   border-radius: var(--roundiness);
+	white-space: nowrap;
 }
 
 .link {

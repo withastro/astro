@@ -37,6 +37,7 @@ export default async function createStaticPreviewServer(
 				host: settings.config.server.host,
 				port: settings.config.server.port,
 				headers: settings.config.server.headers,
+				open: settings.config.server.open,
 			},
 			plugins: [vitePluginAstroPreview(settings)],
 		});

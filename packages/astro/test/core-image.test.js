@@ -103,7 +103,6 @@ describe('astro:image', () => {
 				await res.text();
 
 				expect(logs).to.have.a.lengthOf(1);
-				console.log(logs[0].message);
 				expect(logs[0].message).to.contain('Received unsupported format');
 			});
 		});
@@ -289,6 +288,76 @@ describe('astro:image', () => {
 			it('includes /src in the path', async () => {
 				expect($('img').attr('src').startsWith('/src')).to.equal(true);
 			});
+		});
+	});
+
+	describe('proper errors', () => {
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
+		let logs = [];
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-errors/',
+				experimental: {
+					assets: true,
+				},
+			});
+
+			devServer = await fixture.startDevServer({
+				logging: {
+					level: 'error',
+					dest: new Writable({
+						objectMode: true,
+						write(event, _, callback) {
+							logs.push(event);
+							callback();
+						},
+					}),
+				},
+			});
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it("properly error when getImage's first parameter isn't filled", async () => {
+			logs.length = 0;
+			let res = await fixture.fetch('/get-image-empty');
+			await res.text();
+
+			expect(logs).to.have.a.lengthOf(1);
+			expect(logs[0].message).to.contain('Expected getImage() parameter');
+		});
+
+		// TODO: For some reason, this error crashes the dev server?
+		it.skip('properly error when src is undefined', async () => {
+			logs.length = 0;
+			let res = await fixture.fetch('/get-image-undefined');
+			await res.text();
+
+			expect(logs).to.have.a.lengthOf(1);
+			expect(logs[0].message).to.contain('Expected src to be an image.');
+		});
+
+		it('properly error image in Markdown frontmatter is not found', async () => {
+			logs.length = 0;
+			let res = await fixture.fetch('/blog/one');
+			const text = await res.text();
+
+			expect(logs).to.have.a.lengthOf(1);
+			expect(logs[0].message).to.contain('does not exist. Is the path correct?');
+		});
+
+		it('properly error image in Markdown content is not found', async () => {
+			logs.length = 0;
+			let res = await fixture.fetch('/post');
+			const text = await res.text();
+
+			expect(logs).to.have.a.lengthOf(1);
+			expect(logs[0].message).to.contain('Could not find requested image');
 		});
 	});
 
