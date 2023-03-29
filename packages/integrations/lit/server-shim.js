@@ -1,4 +1,4 @@
-import {customElements as litCE} from '@lit-labs/ssr-dom-shim';
+import { customElements as litCE, HTMLElement as litShimHTMLElement } from '@lit-labs/ssr-dom-shim';
 
 // Something at build time injects document.currentScript = undefined instead of
 // document.currentScript = null. This causes Sass build to fail because it
@@ -7,6 +7,12 @@ import {customElements as litCE} from '@lit-labs/ssr-dom-shim';
 // preview time.
 if (globalThis.document) {
 	document.currentScript = null;
+}
+
+if (globalThis.HTMLElement) {
+	// Seems Astro's Element shim does nothing when `.setAttribute` is called
+	// and subsequently `.getAttribute` is called. Causes Lit to not SSR attrs
+	globalThis.HTMLElement = litShimHTMLElement;
 }
 
 // Astro seems to have a DOM shim and the only real difference that we need out
