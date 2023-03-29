@@ -2,6 +2,7 @@ import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
 import nodeFs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
@@ -175,6 +176,20 @@ export async function createVite(
 			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
+
+	// If the user provides a custom assets prefix, make sure assets handled by Vite
+	// are prefixed with it too. This uses one of it's experimental features, but it
+	// has been stable for a long time now.
+	const assetsPrefix = settings.config.build.assetsPrefix;
+	if (assetsPrefix) {
+		commonConfig.experimental = {
+			renderBuiltUrl(filename, { type }) {
+				if (type === 'asset') {
+					return path.posix.join(assetsPrefix, filename);
+				}
+			},
+		};
+	}
 
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.

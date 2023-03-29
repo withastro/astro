@@ -221,6 +221,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
 					.transform((val) => new URL(val, fileProtocolRoot)),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
+				assetsPrefix: z.string().optional(),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			})
 			.optional()
