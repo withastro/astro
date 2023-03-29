@@ -49,14 +49,13 @@ async function getUserConfig(
 	if (isRestart) {
 		// Hack: Write config to temporary file at project root
 		// This invalidates and reloads file contents when using ESM imports or "resolve"
-
 		const { dir, base } = path.parse(resolvedConfigPath);
 		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
-		await copyFile(userConfigPath ?? resolvedConfigPath, tempConfigPath);
+		await copyFile(configPathToUse, tempConfigPath);
 
 		let result: TailwindConfig | undefined;
 		try {
-			result = loadConfig(userConfigPath ?? resolvedConfigPath) as TailwindConfig;
+			result = loadConfig(tempConfigPath) as TailwindConfig;
 		} catch (err) {
 			console.error(err);
 		} finally {
@@ -166,7 +165,6 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 				}
 
 				const tailwindConfig = userConfig.config ?? getDefaultTailwindConfig(config.root);
-				console.log(tailwindConfig);
 				updateConfig({
 					vite: await getViteConfiguration(tailwindConfig, config.vite),
 				});
