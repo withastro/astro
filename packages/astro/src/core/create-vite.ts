@@ -2,7 +2,6 @@ import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
 import nodeFs from 'fs';
-import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
@@ -27,6 +26,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -183,7 +183,7 @@ export async function createVite(
 		commonConfig.experimental = {
 			renderBuiltUrl(filename, { type }) {
 				if (type === 'asset') {
-					return path.posix.join(assetsPrefix, filename);
+					return joinPaths(assetsPrefix, filename);
 				}
 			},
 		};

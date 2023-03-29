@@ -1,0 +1,21 @@
+---
+import p1Url from '../images/penguin1.jpg';
+import Counter from '../components/Counter.jsx';
+---
+
+<html lang="en">
+  <head>
+    <title>Assets Prefix</title>
+  </head>
+  <body>
+    <h1>I am red</h1>
+    <img id="image-import" src={p1Url} />
+    <Counter client:load />
+    <p id="assets-prefix-env">{import.meta.env.ASSETS_PREFIX}</p>
+    <style>
+      h1 {
+        color: red;
+      }
+    </style>
+  </body>
+</html>

@@ -1301,6 +1301,18 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-assets-prefix:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
   packages/astro/test/fixtures/astro-attrs:
     specifiers:
       '@astrojs/react': workspace:*
@@ -4266,15 +4278,14 @@ packages:
       - react
     dev: false
 
-  /@astrojs/markdown-remark/2.1.0_astro@packages+astro:
-    resolution: {integrity: sha512-w9T5o3UWQIfMcCkM2nLWrlfVQazh/7mw+2N/85QGcSUkZy6oNJoyy8Xz/ZkDhHLx8HPO0RT9fABR0B/H+aDaEw==}
+  /@astrojs/markdown-remark/2.1.2_astro@packages+astro:
+    resolution: {integrity: sha512-rYkmFEv2w7oEk6ZPgxHkhWzwcxSUGc1vJU0cbCu5sHF8iFNnc1cmMsjXWa5DrU5sCEf8VVYE1iFlbbnFzvHQJw==}
     peerDependencies:
       astro: '*'
     dependencies:
       '@astrojs/prism': 2.1.1
       astro: link:packages/astro
       github-slugger: 1.5.0
-      image-size: 1.0.2
       import-meta-resolve: 2.2.1
       rehype-raw: 6.1.1
       rehype-stringify: 9.0.3
@@ -4294,7 +4305,7 @@ packages:
     resolution: {integrity: sha512-mol57cw1jJMcQgKMRGn7p6cewajq6JTNtqj5aAZgROWam/phVDSOCbXj/WU3O9+3qFnyKtpczoufQKwJTQltAw==}
     engines: {node: '>=16.12.0'}
     dependencies:
-      '@astrojs/markdown-remark': 2.1.0_astro@packages+astro
+      '@astrojs/markdown-remark': 2.1.2_astro@packages+astro
       '@astrojs/prism': 2.1.1
       '@mdx-js/mdx': 2.3.0
       '@mdx-js/rollup': 2.3.0
@@ -15331,6 +15342,7 @@ packages:
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
 
   /source-map/0.7.4:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
