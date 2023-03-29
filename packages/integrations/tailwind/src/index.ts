@@ -1,6 +1,7 @@
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import { existsSync } from 'fs';
+import { copyFile, unlink } from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
 import loadConfig from 'tailwindcss/loadconfig.js';
@@ -28,43 +29,40 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	// if (isRestart) {
-	// 	// Hack: Write config to temporary file at project root
-	// 	// This invalidates and reloads file contents when using ESM imports or "resolve"
+	let resolvedConfigPath = path.join(resolvedRoot, './tailwind.config.js');
+	if (!configPath) {
+		if (existsSync(path.join(resolvedRoot + './tailwind.config.ts'))) {
+			resolvedConfigPath = path.join(resolvedRoot + './tailwind.config.ts');
+		}
 
-	// 	const { dir, base } = path.parse(resolvedConfigPath);
-	// 	const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
-	// 	await fs.copyFile(resolvedConfigPath, tempConfigPath);
-
-	// 	let result: Record<any, any> | undefined;
-	// 	try {
-	// 		result = loadConfig(userConfigPath);
-	// 	} catch (err) {
-	// 		console.error(err);
-	// 	} finally {
-	// 		await fs.unlink(tempConfigPath);
-	// 	}
-
-	// 	return {
-	// 		...result,
-	// 		filePath: resolvedConfigPath,
-	// 	};
-	// } else {
-	const realConfigPath = userConfigPath ?? path.join(resolvedRoot, './tailwind.config.cjs');
-	if (userConfigPath) {
-		return loadConfig(realConfigPath);
+		if (existsSync(path.join(resolvedRoot + './tailwind.config.cjs'))) {
+			resolvedConfigPath = path.join(resolvedRoot + './tailwind.config.cjs');
+		}
 	}
 
-	if (existsSync(path.join(resolvedRoot + './tailwind.config.ts'))) {
+	if (isRestart) {
+		// Hack: Write config to temporary file at project root
+		// This invalidates and reloads file contents when using ESM imports or "resolve"
+
+		const { dir, base } = path.parse(resolvedConfigPath);
+		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
+		await copyFile(userConfigPath ?? resolvedConfigPath, tempConfigPath);
+
+		let result: Record<any, any> | undefined;
+		try {
+			result = loadConfig(userConfigPath ?? resolvedConfigPath);
+		} catch (err) {
+			console.error(err);
+		} finally {
+			await unlink(tempConfigPath);
+		}
+
+		return {
+			...result,
+			filePath: resolvedConfigPath,
+		};
+	} else {
 		return loadConfig(path.join(resolvedRoot + './tailwind.config.ts'));
-	}
-
-	if (existsSync(path.join(resolvedRoot + './tailwind.config.cjs'))) {
-		return loadConfig(path.join(resolvedRoot + './tailwind.config.cjs'));
-	}
-
-	if (existsSync(path.join(resolvedRoot + './tailwind.config.js'))) {
-		return loadConfig(path.join(resolvedRoot + './tailwind.config.js'));
 	}
 }
 
