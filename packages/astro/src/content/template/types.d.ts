@@ -14,7 +14,7 @@ declare module 'astro:content' {
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]];
 
 	// This needs to be in sync with ImageMetadata
-	export const image: () => import('astro/zod').ZodObject<{
+	type ImageFunction = () => import('astro/zod').ZodObject<{
 		src: import('astro/zod').ZodString;
 		width: import('astro/zod').ZodNumber;
 		height: import('astro/zod').ZodNumber;
@@ -45,7 +45,7 @@ declare module 'astro:content' {
 		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
 
 	type BaseCollectionConfig<S extends BaseSchema> = {
-		schema?: S;
+		schema?: S | (({ image }: { image: ImageFunction }) => S);
 		slug?: (entry: {
 			id: CollectionEntry<keyof typeof entryMap>['id'];
 			defaultSlug: string;
