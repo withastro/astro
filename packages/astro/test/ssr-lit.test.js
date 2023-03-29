@@ -27,6 +27,6 @@ describe('Lit integration in SSR', () => {
 	it('Is able to load', async () => {
 		const html = await fetchHTML('/');
 		const $ = cheerioLoad(html);
-		expect($('#win').text()).to.equal('function');
+		expect($('#str').text()).to.equal('initialized');
 	});
 });
