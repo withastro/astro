@@ -14,7 +14,7 @@ jobs:
   json-yaml-validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3
 
       - name: json-yaml-validate
         id: json-yaml-validate
