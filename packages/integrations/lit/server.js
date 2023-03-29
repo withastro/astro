@@ -1,5 +1,4 @@
 import './server-shim.js';
-import '@lit-labs/ssr/lib/render-lit-html.js';
 import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
 import * as parse5 from 'parse5';
 

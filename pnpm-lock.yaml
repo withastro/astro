@@ -181,14 +181,14 @@ importers:
   examples/framework-lit:
     specifiers:
       '@astrojs/lit': ^1.3.0
-      '@webcomponents/template-shadowroot': ^0.1.0
+      '@webcomponents/template-shadowroot': ^0.2.1
       astro: ^2.1.8
-      lit: ^2.2.5
+      lit: ^2.7.0
     dependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
-      '@webcomponents/template-shadowroot': 0.1.0
+      '@webcomponents/template-shadowroot': 0.2.1
       astro: link:../../packages/astro
-      lit: 2.6.1
+      lit: 2.7.0
 
   examples/framework-multiple:
     specifiers:
@@ -785,14 +785,14 @@ importers:
   packages/astro/e2e/fixtures/lit-component:
     specifiers:
       '@astrojs/lit': workspace:*
-      '@webcomponents/template-shadowroot': ^0.1.0
+      '@webcomponents/template-shadowroot': ^0.2.1
       astro: workspace:*
-      lit: ^2.2.5
+      lit: ^2.7.0
     dependencies:
       '@astrojs/lit': link:../../../../integrations/lit
-      '@webcomponents/template-shadowroot': 0.1.0
+      '@webcomponents/template-shadowroot': 0.2.1
       astro: link:../../..
-      lit: 2.6.1
+      lit: 2.7.0
 
   packages/astro/e2e/fixtures/multiple-frameworks:
     specifiers:
@@ -802,9 +802,9 @@ importers:
       '@astrojs/solid-js': workspace:*
       '@astrojs/svelte': workspace:*
       '@astrojs/vue': workspace:*
-      '@webcomponents/template-shadowroot': ^0.1.0
+      '@webcomponents/template-shadowroot': ^0.2.1
       astro: workspace:*
-      lit: ^2.2.5
+      lit: ^2.7.0
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -812,8 +812,8 @@ importers:
       svelte: ^3.48.0
       vue: ^3.2.37
     dependencies:
-      '@webcomponents/template-shadowroot': 0.1.0
-      lit: 2.6.1
+      '@webcomponents/template-shadowroot': 0.2.1
+      lit: 2.7.0
       preact: 10.12.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -2175,14 +2175,14 @@ importers:
   packages/astro/test/fixtures/lit-element:
     specifiers:
       '@astrojs/lit': workspace:*
-      '@webcomponents/template-shadowroot': ^0.1.0
+      '@webcomponents/template-shadowroot': ^0.2.1
       astro: workspace:*
-      lit: ^2.2.5
+      lit: ^2.7.0
     dependencies:
       '@astrojs/lit': link:../../../../integrations/lit
-      '@webcomponents/template-shadowroot': 0.1.0
+      '@webcomponents/template-shadowroot': 0.2.1
       astro: link:../../..
-      lit: 2.6.1
+      lit: 2.7.0
 
   packages/astro/test/fixtures/markdown:
     specifiers:
@@ -3066,24 +3066,26 @@ importers:
 
   packages/integrations/lit:
     specifiers:
-      '@lit-labs/ssr': ^2.2.0
+      '@lit-labs/ssr': ^3.1.0
+      '@lit-labs/ssr-dom-shim': ^1.1.0
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
       cheerio: ^1.0.0-rc.11
-      lit: ^2.2.5
+      lit: ^2.7.0
       mocha: ^9.2.2
       parse5: ^7.1.2
       sass: ^1.52.2
     dependencies:
-      '@lit-labs/ssr': 2.3.0
+      '@lit-labs/ssr': 3.1.0
+      '@lit-labs/ssr-dom-shim': 1.1.0
       parse5: 7.1.2
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       cheerio: 1.0.0-rc.12
-      lit: 2.6.1
+      lit: 2.7.0
       mocha: 9.2.2
       sass: 1.58.0
 
@@ -4266,15 +4268,14 @@ packages:
       - react
     dev: false
 
-  /@astrojs/markdown-remark/2.1.0_astro@packages+astro:
-    resolution: {integrity: sha512-w9T5o3UWQIfMcCkM2nLWrlfVQazh/7mw+2N/85QGcSUkZy6oNJoyy8Xz/ZkDhHLx8HPO0RT9fABR0B/H+aDaEw==}
+  /@astrojs/markdown-remark/2.1.2_astro@packages+astro:
+    resolution: {integrity: sha512-rYkmFEv2w7oEk6ZPgxHkhWzwcxSUGc1vJU0cbCu5sHF8iFNnc1cmMsjXWa5DrU5sCEf8VVYE1iFlbbnFzvHQJw==}
     peerDependencies:
       astro: '*'
     dependencies:
       '@astrojs/prism': 2.1.1
       astro: link:packages/astro
       github-slugger: 1.5.0
-      image-size: 1.0.2
       import-meta-resolve: 2.2.1
       rehype-raw: 6.1.1
       rehype-stringify: 9.0.3
@@ -4294,7 +4295,7 @@ packages:
     resolution: {integrity: sha512-mol57cw1jJMcQgKMRGn7p6cewajq6JTNtqj5aAZgROWam/phVDSOCbXj/WU3O9+3qFnyKtpczoufQKwJTQltAw==}
     engines: {node: '>=16.12.0'}
     dependencies:
-      '@astrojs/markdown-remark': 2.1.0_astro@packages+astro
+      '@astrojs/markdown-remark': 2.1.2_astro@packages+astro
       '@astrojs/prism': 2.1.1
       '@mdx-js/mdx': 2.3.0
       '@mdx-js/rollup': 2.3.0
@@ -6928,25 +6929,26 @@ packages:
     resolution: {integrity: sha512-rr/UVhxbKWNUr+3qRyvZk+glC7v7ph8Gk/W0z96YG64COJKf9ilnWY6JGW77TRqhrRMmS2nsvAXOyQgcF+4jrA==}
     dependencies:
       '@lit/reactive-element': 1.6.1
-      lit: 2.6.1
-      lit-html: 2.6.1
+      lit: 2.7.0
+      lit-html: 2.7.0
     dev: false
 
-  /@lit-labs/ssr-dom-shim/1.0.0:
-    resolution: {integrity: sha512-ic93MBXfApIFTrup4a70M/+ddD8xdt2zxxj9sRwHQzhS9ag/syqkD8JPdTXsc1gUy2K8TTirhlCqyTEM/sifNw==}
+  /@lit-labs/ssr-dom-shim/1.1.0:
+    resolution: {integrity: sha512-92uQ5ARf7UXYrzaFcAX3T2rTvaS9Z1//ukV+DqjACM4c8s0ZBQd7ayJU5Dh2AFLD/Ayuyz4uMmxQec8q3U4Ong==}
 
-  /@lit-labs/ssr/2.3.0:
-    resolution: {integrity: sha512-uPaJoNf5w3t8DOVDpuI4WR6wo552mZwiiE9n9TpIvinh75lDgvl1ki07wvfrFI6VEbDVPRj4jHiCduBr1dVJ7A==}
+  /@lit-labs/ssr/3.1.0:
+    resolution: {integrity: sha512-D4Ut27bmmj5AV9iQaEOxdjPHSZGp11ww0DI3zAniyFf2KBOH7y/X2U163oOdmKh6KQNFLQDOkVx+A6NlmxcY4Q==}
     engines: {node: '>=13.9.0'}
     dependencies:
       '@lit-labs/ssr-client': 1.0.1
+      '@lit-labs/ssr-dom-shim': 1.1.0
       '@lit/reactive-element': 1.6.1
       '@parse5/tools': 0.1.0
       '@types/node': 16.18.12
       enhanced-resolve: 5.12.0
-      lit: 2.6.1
-      lit-element: 3.2.2
-      lit-html: 2.6.1
+      lit: 2.7.0
+      lit-element: 3.3.0
+      lit-html: 2.7.0
       node-fetch: 3.3.0
       parse5: 7.1.2
     dev: false
@@ -6954,7 +6956,7 @@ packages:
   /@lit/reactive-element/1.6.1:
     resolution: {integrity: sha512-va15kYZr7KZNNPZdxONGQzpUr+4sxVu7V/VG7a8mRfPPXUyhEYj5RzXCQmGrlP3tAh0L3HHm5AjBMFYRqlM9SA==}
     dependencies:
-      '@lit-labs/ssr-dom-shim': 1.0.0
+      '@lit-labs/ssr-dom-shim': 1.1.0
 
   /@ljharb/has-package-exports-patterns/0.0.2:
     resolution: {integrity: sha512-4/RWEeXDO6bocPONheFe6gX/oQdP/bEpv0oL4HqjPP5DCenBSt0mHgahppY49N0CpsaqffdwPq+TlX9CYOq2Dw==}
@@ -8524,8 +8526,8 @@ packages:
   /@vue/shared/3.2.47:
     resolution: {integrity: sha512-BHGyyGN3Q97EZx0taMQ+OLNuZcW3d37ZEVmEAyeoA9ERdGvm9Irc/0Fua8SNyOtV1w6BS4q25wbMzJujO9HIfQ==}
 
-  /@webcomponents/template-shadowroot/0.1.0:
-    resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
+  /@webcomponents/template-shadowroot/0.2.1:
+    resolution: {integrity: sha512-fXL/vIUakyZL62hyvUh+EMwbVoTc0hksublmRz6ai6et8znHkJa6gtqMUZo1oc7dIz46exHSIImml9QTdknMHg==}
     dev: false
 
   /abab/2.0.6:
@@ -12209,23 +12211,24 @@ packages:
       uhyphen: 0.1.0
     dev: true
 
-  /lit-element/3.2.2:
-    resolution: {integrity: sha512-6ZgxBR9KNroqKb6+htkyBwD90XGRiqKDHVrW/Eh0EZ+l+iC+u+v+w3/BA5NGi4nizAVHGYvQBHUDuSmLjPp7NQ==}
+  /lit-element/3.3.0:
+    resolution: {integrity: sha512-M3OIoblNS7LZdRxOIk8g0wyLEA/lRw/UGJ1TX+767OpkuDsRdSoxBIvewpWqCo7sMd9xt1XedUNZIr9jUO1X3g==}
     dependencies:
+      '@lit-labs/ssr-dom-shim': 1.1.0
       '@lit/reactive-element': 1.6.1
-      lit-html: 2.6.1
+      lit-html: 2.7.0
 
-  /lit-html/2.6.1:
-    resolution: {integrity: sha512-Z3iw+E+3KKFn9t2YKNjsXNEu/LRLI98mtH/C6lnFg7kvaqPIzPn124Yd4eT/43lyqrejpc5Wb6BHq3fdv4S8Rw==}
+  /lit-html/2.7.0:
+    resolution: {integrity: sha512-/zPOl8EfeB3HHpTzINSpnWgvgQ8N07g/j272EOAIyB0Ys2RzBqTVT23i+JZuUlNbB2WHHeSsTCFi92NtWrtpqQ==}
     dependencies:
       '@types/trusted-types': 2.0.2
 
-  /lit/2.6.1:
-    resolution: {integrity: sha512-DT87LD64f8acR7uVp7kZfhLRrHkfC/N4BVzAtnw9Yg8087mbBJ//qedwdwX0kzDbxgPccWRW6mFwGbRQIxy0pw==}
+  /lit/2.7.0:
+    resolution: {integrity: sha512-qSy2BAVA+OiWtNptP404egcC/izDdNRw6iHGIbUmkZtbMJvPKfNsaoKrNs8Zmsbjmv5ZX2tur1l9TfzkSWWT4g==}
     dependencies:
       '@lit/reactive-element': 1.6.1
-      lit-element: 3.2.2
-      lit-html: 2.6.1
+      lit-element: 3.3.0
+      lit-html: 2.7.0
 
   /lite-vimeo-embed/0.1.0:
     resolution: {integrity: sha512-XFzPdv4NaWlyaM9WpBaS5CIUkf+laIRZEXQGsBb2ZdDWkuMmnzfAZ5nriYv3a3MVx5tEEetGN0sNaUhAVRXr1g==}
@@ -15331,6 +15334,7 @@ packages:
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
 
   /source-map/0.7.4:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
