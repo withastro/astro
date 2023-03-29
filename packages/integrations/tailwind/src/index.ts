@@ -20,7 +20,11 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	}) as TailwindConfig;
 }
 
-async function getUserConfig(root: URL, configPath?: string, isRestart = false) {
+async function getUserConfig(
+	root: URL,
+	configPath?: string,
+	isRestart = false
+): Promise<{ config: TailwindConfig | undefined; configPath: string }> {
 	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
 
@@ -40,6 +44,8 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 		}
 	}
 
+	const configPathToUse = userConfigPath ?? resolvedConfigPath;
+
 	if (isRestart) {
 		// Hack: Write config to temporary file at project root
 		// This invalidates and reloads file contents when using ESM imports or "resolve"
@@ -48,9 +54,9 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
 		await copyFile(userConfigPath ?? resolvedConfigPath, tempConfigPath);
 
-		let result: Record<any, any> | undefined;
+		let result: TailwindConfig | undefined;
 		try {
-			result = loadConfig(userConfigPath ?? resolvedConfigPath);
+			result = loadConfig(userConfigPath ?? resolvedConfigPath) as TailwindConfig;
 		} catch (err) {
 			console.error(err);
 		} finally {
@@ -58,11 +64,16 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 		}
 
 		return {
-			...result,
-			filePath: resolvedConfigPath,
+			config: result,
+			configPath: configPathToUse,
 		};
 	} else {
-		return loadConfig(path.join(resolvedRoot + './tailwind.config.ts'));
+		try {
+			return { config: loadConfig(configPathToUse) as TailwindConfig, configPath: configPathToUse };
+		} catch (err) {
+			console.error(err);
+			return { config: undefined, configPath: configPathToUse };
+		}
 	}
 }
 
@@ -150,14 +161,11 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					);
 				}
 
-				if (addWatchFile && userConfig?.filePath) {
-					addWatchFile(
-						'/Users/finn/Documents/GitHub/astro/examples/with-tailwindcss/tailwind.config.ts'
-					);
+				if (addWatchFile && userConfig?.configPath) {
+					addWatchFile(userConfig.configPath);
 				}
 
-				const tailwindConfig =
-					(userConfig as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
+				const tailwindConfig = userConfig.config ?? getDefaultTailwindConfig(config.root);
 				console.log(tailwindConfig);
 				updateConfig({
 					vite: await getViteConfiguration(tailwindConfig, config.vite),
