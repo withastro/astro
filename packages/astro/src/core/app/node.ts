@@ -48,7 +48,7 @@ export class NodeApp extends App {
 			);
 		}
 
-		if (typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+		if (typeof req.body === 'object' && req.body !== null && Object.keys(req.body).length > 0) {
 			return super.render(
 				req instanceof Request
 					? req

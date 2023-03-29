@@ -533,9 +533,29 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
+	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+	 * @description
+	 * The endpoint is prerendered with an `undefined` param so the generated path will collide with another route.
+	 *
+	 * If you cannot prevent passing `undefined`, then an additional extension can be added to the endpoint file name to generate the file with a different name. For example, renaming `pages/api/[slug].ts` to `pages/api/[slug].json.ts`.
+	 */
+	PrerenderDynamicEndpointPathCollide: {
+		title: 'Prerendered dynamic endpoint has path collision.',
+		code: 3026,
+		message: (pathname: string) =>
+			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. ` +
+			`Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, ` +
+			`or add an additional extension to the endpoint's filename.`,
+		hint: (filename: string) =>
+			`Rename \`${filename}\` to \`${filename.replace(/\.(js|ts)/, (m) => `.json` + m)}\``,
+	},
+	/**
+	 * @docs
+	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
-	 * An image's `src` property is not valid.  The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
+	 * An image's `src` property is not valid. The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
 	 *
 	 * ```astro
 	 * ---
@@ -551,7 +571,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ExpectedImage: {
 		title: 'Expected src to be an image.',
-		code: 3026,
+		code: 3027,
 		message: (options: string) =>
 			`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
 		hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
@@ -574,7 +594,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ExpectedImageOptions: {
 		title: 'Expected image options.',
-		code: 3027,
+		code: 3028,
 		message: (options: string) =>
 			`Expected getImage() parameter to be an object. Received \`${options}\`.`,
 	},
@@ -589,7 +609,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MarkdownImageNotFound: {
 		title: 'Image not found.',
-		code: 3028,
+		code: 3029,
 		message: (imagePath: string, fullImagePath: string | undefined) =>
 			`Could not find requested image \`${imagePath}\`${
 				fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
