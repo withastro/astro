@@ -2970,6 +2970,14 @@ importers:
       sharp: 0.31.3
       vite: 4.1.2
 
+  packages/integrations/image/test/fixtures/assets-prefix:
+    specifiers:
+      '@astrojs/image': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/image/test/fixtures/background-color-image:
     specifiers:
       '@astrojs/image': workspace:*
