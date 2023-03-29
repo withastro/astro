@@ -1,6 +1,7 @@
 ---
 import { getEntryBySlug } from "astro:content";
-const post = await getEntryBySlug('blog', 'simple');
+
+const post = await getEntryBySlug('blog', 'with-components');
 const { Content } = await post.render();
 ---
 
@@ -9,9 +10,9 @@ const { Content } = await post.render();
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Content - Simple</title>
+	<title>Content</title>
 </head>
 <body>
-	<Content />	
+	<Content />
 </body>
 </html>
