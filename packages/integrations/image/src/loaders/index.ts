@@ -95,6 +95,11 @@ export interface TransformOptions {
 	 */
 	src: string;
 	/**
+	 * The alt tag of the image. This is used for accessibility and will be made required in a future version.
+	 * Empty string is allowed.
+	 */
+	alt?: string;
+	/**
 	 * The output format to be used in the optimized image.
 	 *
 	 * @default undefined The original image format will be used.
