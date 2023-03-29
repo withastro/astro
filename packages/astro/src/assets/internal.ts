@@ -11,7 +11,7 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
 }
 
 export async function getConfiguredImageService(): Promise<ImageService> {
-	if (!globalThis.astroAsset.imageService) {
+	if (!globalThis?.astroAsset?.imageService) {
 		const { default: service }: { default: ImageService } = await import(
 			// @ts-expect-error
 			'virtual:image-service'
@@ -21,6 +21,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			throw error;
 		});
 
+		if (!globalThis.astroAsset) globalThis.astroAsset = {};
 		globalThis.astroAsset.imageService = service;
 		return service;
 	}
