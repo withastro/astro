@@ -21,3 +21,4 @@ jobs:
         uses: GrantBirki/json-yaml-validate@v1.2.0
         with:
           comment: "true" # enable comment mode
+          json_exclude_regex: ".*tsconfig.*" # exclude all kinds of tsconfig files
