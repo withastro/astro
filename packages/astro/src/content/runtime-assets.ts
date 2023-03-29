@@ -1,6 +1,9 @@
 import { pathToFileURL } from 'url';
 import { z } from 'zod';
-import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
+import {
+	imageMetadata as internalGetImageMetadata,
+	type Metadata,
+} from '../assets/utils/metadata.js';
 
 export function createImage(options: { assetsDir: string; relAssetsDir: string }) {
 	return () => {
@@ -8,8 +11,20 @@ export function createImage(options: { assetsDir: string; relAssetsDir: string }
 			throw new Error('Enable `experimental.assets` in your Astro config to use image()');
 		}
 
-		return z.string({ description: '__image' }).transform(async (imagePath) => {
-			return await getImageMetadata(pathToFileURL(imagePath));
+		return z.string({ description: '__image' }).transform(async (imagePath, ctx) => {
+			const imageMetadata = await getImageMetadata(pathToFileURL(imagePath));
+
+			if (!imageMetadata) {
+				ctx.addIssue({
+					code: 'custom',
+					message: `Image ${imagePath} does not exist. Is the path correct?`,
+					fatal: true,
+				});
+
+				return z.NEVER;
+			}
+
+			return imageMetadata;
 		});
 	};
 }
@@ -17,7 +32,7 @@ export function createImage(options: { assetsDir: string; relAssetsDir: string }
 async function getImageMetadata(
 	imagePath: URL
 ): Promise<(Metadata & { __astro_asset: true }) | undefined> {
-	const meta = await imageMetadata(imagePath);
+	const meta = await internalGetImageMetadata(imagePath);
 
 	if (!meta) {
 		return undefined;

@@ -3,8 +3,9 @@ import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
-import fs from 'fs';
 import matter from 'gray-matter';
+import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
@@ -12,7 +13,7 @@ import type { AstroSettings } from '../@types/astro';
 import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
-import { isMarkdownFile } from '../core/util.js';
+import { isMarkdownFile, rootRelativePath } from '../core/util.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -58,6 +59,10 @@ const astroServerRuntimeModulePath = normalizePath(
 	fileURLToPath(new URL('../runtime/server/index.js', import.meta.url))
 );
 
+const astroErrorModulePath = normalizePath(
+	fileURLToPath(new URL('../core/errors/index.js', import.meta.url))
+);
+
 export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
@@ -81,14 +86,15 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				let imagePaths: { raw: string; absolute: string }[] = [];
+				let imagePaths: { raw: string; resolved: string }[] = [];
 				if (settings.config.experimental.assets) {
 					let paths = (renderResult.vfile.data.imagePaths as string[]) ?? [];
 					imagePaths = await Promise.all(
 						paths.map(async (imagePath) => {
 							return {
 								raw: imagePath,
-								absolute: (await this.resolve(imagePath, id))?.id ?? imagePath,
+								resolved:
+									(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
 							};
 						})
 					);
@@ -113,6 +119,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from ${JSON.stringify(astroJsxRuntimeModulePath)};
 				import { spreadAttributes } from ${JSON.stringify(astroServerRuntimeModulePath)};
+				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 				${settings.config.experimental.assets ? 'import { getImage } from "astro:assets";' : ''}
@@ -120,8 +127,25 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				export const images = {
 					${imagePaths.map(
 						(entry) =>
-							`'${entry.raw}': await getImage({src: (await import("${entry.absolute}")).default})`
+							`'${entry.raw}': await getImageSafely((await import("${entry.raw}")).default, "${
+								entry.raw
+							}", "${rootRelativePath(settings.config, entry.resolved)}")`
 					)}
+				}
+
+				async function getImageSafely(imageSrc, imagePath, resolvedImagePath) {
+					if (!imageSrc) {
+						throw new AstroError({
+							...AstroErrorData.MarkdownImageNotFound,
+							message: AstroErrorData.MarkdownImageNotFound.message(
+								imagePath,
+								resolvedImagePath
+							),
+							location: { file: "${id}" },
+						});
+					}
+
+					return await getImage({src: imageSrc})
 				}
 
 				function updateImageReferences(html) {
