@@ -52,7 +52,7 @@ async function getUserConfig(
 	let loadConfig: (filePath: string) => Promise<TailwindConfig>;
 
 	try {
-		const twLoad = (await import('tailwindcss/loadconfig.js')).default as (
+		const twLoad = (await import('tailwindcss/loadconfig')).default as (
 			filePath: string
 		) => TailwindConfig;
 		loadConfig = async (filePath: string) => twLoad(filePath);
@@ -64,7 +64,7 @@ async function getUserConfig(
 		}
 
 		// previous to tailwindcss 3.3.0 loadConfig did not exist
-		const proLoad = (await import('@proload/core')).default;
+		const proLoad = (await import('@proload/core/lib')).default;
 
 		loadConfig = async (filePath: string) =>
 			(
