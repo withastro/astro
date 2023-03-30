@@ -1,8 +1,7 @@
-import load from '@proload/core';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
+import clearModule from 'clear-module';
 import { existsSync } from 'fs';
-import { copyFile, unlink } from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
 import loadConfig from 'tailwindcss/loadConfig.js';
@@ -34,66 +33,45 @@ async function getUserConfig(
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	let resolvedConfigPath = path.join(resolvedRoot, 'tailwind.config.js');
+	let resolvedConfigPath = '';
 	if (!configPath) {
-		if (existsSync(path.join(resolvedRoot + 'tailwind.config.ts'))) {
+		if (path.join(resolvedRoot, 'tailwind.config.js')) {
+			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.ts');
+		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.ts'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.ts');
 		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.cjs'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.cjs');
 		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.mjs'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.mjs');
+		} else {
+			throw new Error('No tailwind config found at project root');
 		}
 	}
 
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
-	console.error('oom????');
-	let loadTailwindConfig: (filePath: string) => Promise<TailwindConfig>;
-	if (loadConfig) {
-		loadTailwindConfig = async (filePath: string) => loadConfig(filePath) as TailwindConfig;
-	} else {
-		if (configPathToUse.endsWith('ts')) {
-			throw new Error(
-				'To use a typescript tailwind config file please install tailwind 3.3.0 or higher'
-			);
-		}
 
-		// previous to tailwindcss 3.3.0 loadConfig did not exist
-		loadTailwindConfig = async (filePath: string) =>
-			(
-				await load('tailwind', {
-					mustExist: false,
-					cwd: resolvedRoot,
-					filePath,
-				})
-			)?.value as unknown as TailwindConfig;
+	if (!loadConfig && configPathToUse.endsWith('ts')) {
+		throw new Error(
+			'To use a typescript tailwind config file please install tailwind 3.3.0 or higher'
+		);
 	}
 
+	// previous to tailwindcss 3.3.0 loadConfig did not exist
+
 	if (isRestart) {
-		// Hack: Write config to temporary file at project root
-		// This invalidates and reloads file contents when using ESM imports or "resolve"
-		const { dir, base } = path.parse(resolvedConfigPath);
-		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
-		await copyFile(configPathToUse, tempConfigPath);
-
-		let result: TailwindConfig | undefined;
-		try {
-			result = (await loadTailwindConfig(tempConfigPath)) as TailwindConfig;
-		} catch (err) {
-			console.error(err);
-		} finally {
-			await unlink(tempConfigPath);
+		clearModule(configPathToUse);
+		if (configPathToUse.endsWith('ts')) {
+			return { config: loadConfig(configPathToUse), configPath: configPathToUse };
+		} else {
+			return { config: (await import(configPathToUse))?.default, configPath: configPathToUse };
 		}
-
-		return {
-			config: result,
-			configPath: configPathToUse,
-		};
 	} else {
 		try {
-			return {
-				config: (await loadTailwindConfig(configPathToUse)) as TailwindConfig,
-				configPath: configPathToUse,
-			};
+			if (configPathToUse.endsWith('ts')) {
+				return { config: loadConfig(configPathToUse), configPath: configPathToUse };
+			} else {
+				return { config: (await import(configPathToUse)).default, configPath: configPathToUse };
+			}
 		} catch (err) {
 			console.error('failed to load tailwind config: ', err);
 			return { config: undefined, configPath: configPathToUse };

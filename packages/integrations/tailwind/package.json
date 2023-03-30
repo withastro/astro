@@ -31,7 +31,7 @@
     "@proload/core": "^0.3.2",
     "autoprefixer": "^10.4.7",
     "postcss": "^8.4.14",
-    "postcss-load-config": "^4.0.1"
+    "clear-module": "^4.1.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
