@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
-import { joinPaths, prependForwardSlash, removeLeadingForwardSlash } from '../../path.js';
+import { appendForwardSlash, joinPaths, removeLeadingForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -204,7 +204,7 @@ function buildManifest(
 	}
 
 	const staticAssetsPrefix = settings.config.build.assetsPrefix
-		? prependForwardSlash(settings.config.build.assetsPrefix)
+		? appendForwardSlash(settings.config.build.assetsPrefix)
 		: settings.config.base;
 
 	const ssrManifest: SerializedSSRManifest = {

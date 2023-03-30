@@ -5,8 +5,10 @@ import { joinPaths, prependForwardSlash } from '../../core/path.js';
 export function createAssetLink(href: string, base?: string, assetsPrefix?: string): string {
 	if (assetsPrefix) {
 		return joinPaths(assetsPrefix, slashify(href));
-	} else {
+	} else if (base) {
 		return prependForwardSlash(joinPaths(base, slashify(href)));
+	} else {
+		return href;
 	}
 }
 

@@ -8,7 +8,11 @@ import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
-import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../core/path.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	prependForwardSlash,
+} from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
@@ -206,7 +210,7 @@ export default function assets({
 
 					const file = this.getFileName(hash);
 					const prefix = settings.config.build.assetsPrefix
-						? removeTrailingForwardSlash(settings.config.build.assetsPrefix)
+						? appendForwardSlash(settings.config.build.assetsPrefix)
 						: resolvedConfig.base;
 					const outputFilepath = prefix + normalizePath(file + postfix);
 

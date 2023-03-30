@@ -9,7 +9,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
 import type { InputFormat } from './loaders/index.js';
 import { metadata } from './utils/metadata.js';
-import { removeTrailingForwardSlash } from './utils/paths.js';
+import { appendForwardSlash } from './utils/paths.js';
 
 export interface ImageMetadata {
 	src: string;
@@ -120,7 +120,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 				const file = this.getFileName(hash);
 				const prefix = config.build.assetsPrefix
-					? removeTrailingForwardSlash(config.build.assetsPrefix)
+					? appendForwardSlash(config.build.assetsPrefix)
 					: config.base;
 				const outputFilepath = prefix + file + postfix;
 
