@@ -3644,7 +3644,7 @@ importers:
       autoprefixer: ^10.4.7
       postcss: ^8.4.14
       postcss-load-config: ^4.0.1
-      tailwindcss: 3.3.0
+      tailwindcss: ^3.3.0
       vite: ^4.1.2
     dependencies:
       autoprefixer: 10.4.13_postcss@8.4.21
