@@ -122,7 +122,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						? staticImages.get(transform.src)!
 						: new Map<string, TransformOptions>();
 
-					const filename = propsToFilename(transform);
+					const filename = propsToFilename(transform, resolvedOptions.serviceEntryPoint);
 
 					srcTranforms.set(filename, transform);
 					staticImages.set(transform.src, srcTranforms);
