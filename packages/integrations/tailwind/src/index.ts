@@ -51,23 +51,24 @@ async function getUserConfig(
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
 
 	if (!loadConfig) {
-	  if (configPathToUse.endsWith('ts')) {
-		  throw new Error('TypeScript Tailwind configurations requires `tailwindcss@^3.3.0`');
-	  }
-	  if (configPathToUse.endsWith('mjs')) {
-		  throw new Error('ESM Tailwind configurations requires `tailwindcss@^3.3.0`');
-	  }
+		if (configPathToUse.endsWith('ts')) {
+			throw new Error('TypeScript Tailwind configurations requires `tailwindcss@^3.3.0`');
+		}
+		if (configPathToUse.endsWith('mjs')) {
+			throw new Error('ESM Tailwind configurations requires `tailwindcss@^3.3.0`');
+		}
+	}
 
 	if (isRestart) {
 		clearModule(configPathToUse);
-		if (configPathToUse.endsWith('ts') || configPathToUse.endsWith("mjs") {
+		if (configPathToUse.endsWith('ts') || configPathToUse.endsWith('mjs')) {
 			return { config: loadConfig(configPathToUse), configPath: configPathToUse };
 		} else {
 			return { config: (await import(configPathToUse))?.default, configPath: configPathToUse };
 		}
 	} else {
 		try {
-			if (configPathToUse.endsWith('ts') || configPathToUse.endsWith('mjs')) {
+			if (configPathToUse.endsWith('ts') || configPathToUse.endsWith('mjs')) {
 				return { config: loadConfig(configPathToUse), configPath: configPathToUse };
 			} else {
 				return { config: (await import(configPathToUse)).default, configPath: configPathToUse };
