@@ -30,3 +30,18 @@ export const web1FeedItemWithContent = {
 	...web1FeedItem,
 	content: `<h1>${web1FeedItem.title}</h1><p>${web1FeedItem.description}</p>`,
 };
+export const web1FeedItemWithAllData = {
+	...web1FeedItem,
+	categories: ['web1', 'history'],
+	author: 'test@example.com',
+	comments: 'http://example.com/comments',
+	source: {
+		url: 'http://example.com/source',
+		title: 'The Web 1.0 blog',
+	},
+	enclosure: {
+		url: 'http://example.com/podcast.mp3',
+		length: 256,
+		type: 'audio/mpeg',
+	},
+};

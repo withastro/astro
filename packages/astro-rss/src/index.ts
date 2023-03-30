@@ -211,6 +211,25 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		if (typeof result.customData === 'string') {
 			Object.assign(item, parser.parse(`<item>${result.customData}</item>`).item);
 		}
+		if (Array.isArray(result.categories)) {
+			item.category = result.categories;
+		}
+		if (typeof result.author === 'string') {
+			item.author = result.author;
+		}
+		if (typeof result.comments === 'string') {
+			item.comments = result.comments;
+		}
+		if (result.source) {
+			item.source = parser.parse(
+				`<source url="${result.source.url}">${result.source.title}</source>`
+			).source;
+		}
+		if (result.enclosure) {
+			item.enclosure = parser.parse(
+				`<enclosure url="${result.enclosure.url}" length="${result.enclosure.length}" type="${result.enclosure.type}"/>`
+			).enclosure;
+		}
 		return item;
 	});
 
