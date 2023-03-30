@@ -5,7 +5,7 @@ import { existsSync } from 'fs';
 import { copyFile, unlink } from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
-// import loadConfig from 'tailwindcss/loadConfig';
+import loadConfig from 'tailwindcss/loadConfig.js';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
@@ -50,13 +50,13 @@ async function getUserConfig(
 	}
 
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
+
 	let loadTailwindConfig: (filePath: string) => Promise<TailwindConfig>;
-	try {
-		const twLoad = require('tailwindcss/loadConfig').default as (
-			filePath: string
-		) => TailwindConfig;
-		loadTailwindConfig = async (filePath: string) => twLoad(filePath);
-	} catch (e) {
+	if (loadConfig) {
+		loadTailwindConfig = async (filePath: string) => {
+			return loadConfig(filePath) as TailwindConfig;
+		};
+	} else {
 		if (configPathToUse.endsWith('ts')) {
 			throw new Error(
 				'To use a typescript tailwind config file please install tailwind 3.3.0 or higher'
