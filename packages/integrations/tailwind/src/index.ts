@@ -36,7 +36,7 @@ async function getUserConfig(
 	let resolvedConfigPath = '';
 	if (!configPath) {
 		if (path.join(resolvedRoot, 'tailwind.config.js')) {
-			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.ts');
+			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.js');
 		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.ts'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.ts');
 		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.cjs'))) {
