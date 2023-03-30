@@ -38,24 +38,18 @@ async function getUserConfig(
 	if (!configPath) {
 		if (existsSync(path.join(resolvedRoot + 'tailwind.config.ts'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.ts');
-		}
-
-		if (existsSync(path.join(resolvedRoot + 'tailwind.config.cjs'))) {
+		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.cjs'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.cjs');
-		}
-
-		if (existsSync(path.join(resolvedRoot + 'tailwind.config.mjs'))) {
+		} else if (existsSync(path.join(resolvedRoot + 'tailwind.config.mjs'))) {
 			resolvedConfigPath = path.join(resolvedRoot + 'tailwind.config.mjs');
 		}
 	}
 
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
-
+	console.error('oom????');
 	let loadTailwindConfig: (filePath: string) => Promise<TailwindConfig>;
 	if (loadConfig) {
-		loadTailwindConfig = async (filePath: string) => {
-			return loadConfig(filePath) as TailwindConfig;
-		};
+		loadTailwindConfig = async (filePath: string) => loadConfig(filePath) as TailwindConfig;
 	} else {
 		if (configPathToUse.endsWith('ts')) {
 			throw new Error(
@@ -101,7 +95,7 @@ async function getUserConfig(
 				configPath: configPathToUse,
 			};
 		} catch (err) {
-			console.error(err);
+			console.error('failed to load tailwind config: ', err);
 			return { config: undefined, configPath: configPathToUse };
 		}
 	}
@@ -191,11 +185,12 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					);
 				}
 
-				if (addWatchFile && userConfig?.configPath) {
+				if (addWatchFile && userConfig?.configPath && !isRestart) {
 					addWatchFile(userConfig.configPath);
 				}
 
 				const tailwindConfig = userConfig.config ?? getDefaultTailwindConfig(config.root);
+
 				updateConfig({
 					vite: await getViteConfiguration(tailwindConfig, config.vite),
 				});
