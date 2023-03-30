@@ -6,9 +6,12 @@ const blogCollection = defineCollection({
     image: image(),
 		cover: z.object({
 			image: image()
-		})
+		}),
+		arrayOfImages: z.array(image()),
+		refinedImage: image().refine((img) => img.width > 200)
   }),
 });
+
 
 export const collections = {
 	blog: blogCollection
