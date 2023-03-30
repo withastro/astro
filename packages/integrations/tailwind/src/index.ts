@@ -52,7 +52,7 @@ async function getUserConfig(
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
 	let loadTailwindConfig: (filePath: string) => Promise<TailwindConfig>;
 	try {
-		const twLoad = (await import('tailwindcss/loadconfig')).default as (
+		const twLoad = require('tailwindcss/loadConfig').default as (
 			filePath: string
 		) => TailwindConfig;
 		loadTailwindConfig = async (filePath: string) => twLoad(filePath);
