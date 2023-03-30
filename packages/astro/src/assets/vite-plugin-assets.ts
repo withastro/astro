@@ -185,12 +185,14 @@ export default function assets({
 					return;
 				}
 
-				const dir =
-					settings.config.output === 'server'
-						? settings.config.build.server
-						: settings.config.outDir;
+				if (settings.config.image.service === 'astro/assets/services/squoosh') {
+					const dir =
+						settings.config.output === 'server'
+							? settings.config.build.server
+							: settings.config.outDir;
 
-				await copyWasmFiles(new URL('./chunks', dir));
+					await copyWasmFiles(new URL('./chunks', dir));
+				}
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {
