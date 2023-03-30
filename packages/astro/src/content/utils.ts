@@ -72,7 +72,13 @@ export async function getEntryData(
 	const schema =
 		typeof collectionConfig.schema === 'function'
 			? collectionConfig.schema({
-					image: createImage(settings, pluginContext, entry._internal.filePath),
+					image: settings.config.experimental.assets
+						? createImage(settings, pluginContext, entry._internal.filePath)
+						: () => {
+								throw new Error(
+									'Enable `experimental.assets` in your Astro config to use `image()`.'
+								);
+						  },
 			  })
 			: collectionConfig.schema;
 

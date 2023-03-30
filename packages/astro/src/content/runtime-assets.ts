@@ -8,10 +8,6 @@ export function createImage(
 	pluginContext: PluginContext,
 	entryFilePath: string
 ) {
-	if (!settings.config.experimental.assets) {
-		throw new Error('Enable `experimental.assets` in your Astro config to use image()');
-	}
-
 	return () => {
 		return z.string().transform(async (imagePath, ctx) => {
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
