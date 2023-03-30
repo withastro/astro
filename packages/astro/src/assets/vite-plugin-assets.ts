@@ -8,7 +8,7 @@ import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
-import { joinPaths, prependForwardSlash } from '../core/path.js';
+import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
@@ -175,10 +175,11 @@ export default function assets({
 						globalThis.astroAsset.staticImages.set(options, filePath);
 					}
 
-					return joinPaths(
-						settings.config.build.assetsPrefix || prependForwardSlash(settings.config.base),
-						filePath
-					);
+					if (settings.config.build.assetsPrefix) {
+						return joinPaths(settings.config.build.assetsPrefix, filePath);
+					} else {
+						return prependForwardSlash(joinPaths(settings.config.base, filePath));
+					}
 				};
 			},
 			async buildEnd() {
@@ -204,10 +205,10 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const outputFilepath = joinPaths(
-						settings.config.build.assetsPrefix || settings.config.base,
-						normalizePath(file + postfix)
-					);
+					const prefix = settings.config.build.assetsPrefix
+						? removeTrailingForwardSlash(settings.config.build.assetsPrefix)
+						: resolvedConfig.base;
+					const outputFilepath = prefix + normalizePath(file + postfix);
 
 					s.overwrite(match.index, match.index + full.length, outputFilepath);
 				}

@@ -106,12 +106,13 @@ export function astroConfigBuildPlugin(
 			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
-				const prependBase = (src: string) =>
-					joinPaths(
-						options.settings.config.build.assetsPrefix ||
-							prependForwardSlash(options.settings.config.base),
-						src
-					);
+				const prependBase = (src: string) => {
+					if (options.settings.config.build.assetsPrefix) {
+						return joinPaths(options.settings.config.build.assetsPrefix, src);
+					} else {
+						return prependForwardSlash(joinPaths(options.settings.config.base, src));
+					}
+				};
 				for (const chunk of outputs) {
 					if (
 						chunk.type === 'chunk' &&

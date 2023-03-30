@@ -3,7 +3,11 @@ import type { SSRElement } from '../../@types/astro';
 import { joinPaths, prependForwardSlash } from '../../core/path.js';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: string): string {
-	return joinPaths(assetsPrefix || prependForwardSlash(base || '/'), slashify(href));
+	if (assetsPrefix) {
+		return joinPaths(assetsPrefix, slashify(href));
+	} else {
+		return prependForwardSlash(joinPaths(base, slashify(href)));
+	}
 }
 
 export function createLinkStylesheetElement(
