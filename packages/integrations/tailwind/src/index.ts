@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { copyFile, unlink } from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
-import loadConfig from 'tailwindcss/loadconfig';
+
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
@@ -49,6 +49,32 @@ async function getUserConfig(
 	}
 
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
+	let loadConfig: (filePath: string) => Promise<TailwindConfig>;
+
+	try {
+		const twLoad = (await import('tailwindcss/loadconfig.js')).default as (
+			filePath: string
+		) => TailwindConfig;
+		loadConfig = async (filePath: string) => twLoad(filePath);
+	} catch (e) {
+		if (configPathToUse.endsWith('ts')) {
+			throw new Error(
+				'To use a typescript tailwind config file please install tailwind 3.3.0 or higher'
+			);
+		}
+
+		// previous to tailwindcss 3.3.0 loadConfig did not exist
+		const proLoad = (await import('@proload/core')).default;
+
+		loadConfig = async (filePath: string) =>
+			(
+				await proLoad('tailwind', {
+					mustExist: false,
+					cwd: resolvedRoot,
+					filePath,
+				})
+			)?.value as unknown as TailwindConfig;
+	}
 
 	if (isRestart) {
 		// Hack: Write config to temporary file at project root
@@ -59,7 +85,7 @@ async function getUserConfig(
 
 		let result: TailwindConfig | undefined;
 		try {
-			result = loadConfig(tempConfigPath) as TailwindConfig;
+			result = (await loadConfig(tempConfigPath)) as TailwindConfig;
 		} catch (err) {
 			console.error(err);
 		} finally {
@@ -72,7 +98,10 @@ async function getUserConfig(
 		};
 	} else {
 		try {
-			return { config: loadConfig(configPathToUse) as TailwindConfig, configPath: configPathToUse };
+			return {
+				config: (await loadConfig(configPathToUse)) as TailwindConfig,
+				configPath: configPathToUse,
+			};
 		} catch (err) {
 			console.error(err);
 			return { config: undefined, configPath: configPathToUse };

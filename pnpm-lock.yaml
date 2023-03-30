@@ -395,7 +395,7 @@ importers:
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
-      tailwindcss: ^3.3.0
+      tailwindcss: ^3.1.0
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
@@ -3639,6 +3639,7 @@ importers:
 
   packages/integrations/tailwind:
     specifiers:
+      '@proload/core': ^0.3.2
       astro: workspace:*
       astro-scripts: workspace:*
       autoprefixer: ^10.4.7
@@ -3647,6 +3648,7 @@ importers:
       tailwindcss: ^3.3.0
       vite: ^4.1.2
     dependencies:
+      '@proload/core': 0.3.3
       autoprefixer: 10.4.13_postcss@8.4.21
       postcss: 8.4.21
       postcss-load-config: 4.0.1_postcss@8.4.21
@@ -7460,6 +7462,13 @@ packages:
     dependencies:
       '@preact/signals-core': 1.2.3
       preact: 10.12.0
+    dev: false
+
+  /@proload/core/0.3.3:
+    resolution: {integrity: sha512-7dAFWsIK84C90AMl24+N/ProHKm4iw0akcnoKjRvbfHifJZBLhaDsDus1QJmhG12lXj4e/uB/8mB/0aduCW+NQ==}
+    dependencies:
+      deepmerge: 4.3.0
+      escalade: 3.1.1
     dev: false
 
   /@rollup/plugin-alias/3.1.9_rollup@2.79.1:
