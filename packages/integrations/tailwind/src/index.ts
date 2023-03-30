@@ -1,10 +1,11 @@
+import load from '@proload/core';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import { existsSync } from 'fs';
 import { copyFile, unlink } from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
-
+// import loadConfig from 'tailwindcss/loadConfig';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
@@ -49,13 +50,12 @@ async function getUserConfig(
 	}
 
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
-	let loadConfig: (filePath: string) => Promise<TailwindConfig>;
-
+	let loadTailwindConfig: (filePath: string) => Promise<TailwindConfig>;
 	try {
 		const twLoad = (await import('tailwindcss/loadconfig')).default as (
 			filePath: string
 		) => TailwindConfig;
-		loadConfig = async (filePath: string) => twLoad(filePath);
+		loadTailwindConfig = async (filePath: string) => twLoad(filePath);
 	} catch (e) {
 		if (configPathToUse.endsWith('ts')) {
 			throw new Error(
@@ -64,11 +64,9 @@ async function getUserConfig(
 		}
 
 		// previous to tailwindcss 3.3.0 loadConfig did not exist
-		const proLoad = (await import('@proload/core/lib')).default;
-
-		loadConfig = async (filePath: string) =>
+		loadTailwindConfig = async (filePath: string) =>
 			(
-				await proLoad('tailwind', {
+				await load('tailwind', {
 					mustExist: false,
 					cwd: resolvedRoot,
 					filePath,
@@ -85,7 +83,7 @@ async function getUserConfig(
 
 		let result: TailwindConfig | undefined;
 		try {
-			result = (await loadConfig(tempConfigPath)) as TailwindConfig;
+			result = (await loadTailwindConfig(tempConfigPath)) as TailwindConfig;
 		} catch (err) {
 			console.error(err);
 		} finally {
@@ -99,7 +97,7 @@ async function getUserConfig(
 	} else {
 		try {
 			return {
-				config: (await loadConfig(configPathToUse)) as TailwindConfig,
+				config: (await loadTailwindConfig(configPathToUse)) as TailwindConfig,
 				configPath: configPathToUse,
 			};
 		} catch (err) {
