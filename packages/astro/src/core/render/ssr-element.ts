@@ -8,7 +8,7 @@ export function createAssetLink(href: string, base?: string, assetsPrefix?: stri
 	} else if (base) {
 		return prependForwardSlash(joinPaths(base, slashify(href)));
 	} else {
-		return href;
+		return prependForwardSlash(href);
 	}
 }
 
