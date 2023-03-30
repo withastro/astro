@@ -91,6 +91,7 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
+	mode?: string;
 }
 
 export interface BuildConfig {
@@ -357,6 +358,24 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	root?: string;
+	/**
+	 * @docs
+	 * @name mode
+	 * @cli --root
+	 * @type {string}
+	 * @default `"development"`
+	 * @description 
+	 * Explicitly set a mode to run in.
+	 * 
+	 * This will override the default mode for each command, and can be overridden by the command line --mode option.
+	 *
+	 * ```js
+	 * {
+	 *   mode: 'test'
+	 * }
+	 * ```
+	 */
+	mode?: string;
 
 	/**
 	 * @docs

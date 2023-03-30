@@ -98,6 +98,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		open: typeof flags.open === 'boolean' ? flags.open : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
+		mode: typeof flags.mode === 'string' ? flags.mode : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
@@ -119,6 +120,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	astroConfig.markdown = astroConfig.markdown || {};
 	astroConfig.experimental = astroConfig.experimental || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
+	if (typeof flags.mode === 'string') astroConfig.mode = flags.mode;
 	if (typeof flags.base === 'string') astroConfig.base = flags.base;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
