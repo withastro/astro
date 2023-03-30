@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { copyFile, unlink } from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
-import loadConfig from 'tailwindcss/loadconfig.js';
+import loadConfig from 'tailwindcss/loadconfig';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
@@ -155,7 +155,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 			}) => {
 				// Inject the Tailwind postcss plugin
 				const userConfig = await getUserConfig(config.root, customConfigPath, isRestart);
-				console.log(customConfigPath, userConfig);
+
 				if (customConfigPath && !userConfig) {
 					throw new Error(
 						`Could not find a Tailwind config at ${JSON.stringify(
