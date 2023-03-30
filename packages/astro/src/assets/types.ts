@@ -12,7 +12,7 @@ declare global {
 	var astroAsset: {
 		imageService?: ImageService;
 		addStaticImage?: ((options: ImageTransform) => string) | undefined;
-		staticImages?: Map<ImageTransform, string>;
+		staticImages?: Map<string, { path: string; options: ImageTransform }>;
 	};
 }
 
