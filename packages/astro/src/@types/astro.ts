@@ -1197,7 +1197,7 @@ export type GetStaticPaths = (
  *
  * @example
  * ```ts
- * import { GetStaticPaths } from 'astro';
+ * import type { GetStaticPaths } from 'astro';
  *
  * export const getStaticPaths = (() => {
  *   return results.map((entry) => ({
@@ -1224,7 +1224,7 @@ export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infe
  *
  * @example
  * ```ts
- * import { GetStaticPaths } from 'astro';
+ * import type { GetStaticPaths } from 'astro';
  *
  * export const getStaticPaths = (() => {
  *   return results.map((entry) => ({
