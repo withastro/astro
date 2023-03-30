@@ -50,24 +50,24 @@ async function getUserConfig(
 
 	const configPathToUse = userConfigPath ?? resolvedConfigPath;
 
-	if (!loadConfig && configPathToUse.endsWith('ts')) {
-		throw new Error(
-			'To use a typescript tailwind config file please install tailwind 3.3.0 or higher'
-		);
-	}
-
-	// previous to tailwindcss 3.3.0 loadConfig did not exist
+	if (!loadConfig) {
+	  if (configPathToUse.endsWith('ts')) {
+		  throw new Error('TypeScript Tailwind configurations requires `tailwindcss@^3.3.0`');
+	  }
+	  if (configPathToUse.endsWith('mjs')) {
+		  throw new Error('ESM Tailwind configurations requires `tailwindcss@^3.3.0`');
+	  }
 
 	if (isRestart) {
 		clearModule(configPathToUse);
-		if (configPathToUse.endsWith('ts')) {
+		if (configPathToUse.endsWith('ts') || configPathToUse.endsWith("mjs") {
 			return { config: loadConfig(configPathToUse), configPath: configPathToUse };
 		} else {
 			return { config: (await import(configPathToUse))?.default, configPath: configPathToUse };
 		}
 	} else {
 		try {
-			if (configPathToUse.endsWith('ts')) {
+			if (configPathToUse.endsWith('ts') || configPathToUse.endsWith('mjs')) {
 				return { config: loadConfig(configPathToUse), configPath: configPathToUse };
 			} else {
 				return { config: (await import(configPathToUse)).default, configPath: configPathToUse };
