@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
-import { appendForwardSlash, joinPaths, removeLeadingForwardSlash } from '../../path.js';
+import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -134,9 +134,13 @@ function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
-	const assetPrefix =
-		settings.config.build.assetsPrefix || removeLeadingForwardSlash(settings.config.base);
-	const prefixAssetPath = (pth: string) => (assetPrefix ? joinPaths(assetPrefix, pth) : pth);
+	const prefixAssetPath = (pth: string) => {
+		if (settings.config.build.assetsPrefix) {
+			return joinPaths(settings.config.build.assetsPrefix, pth);
+		} else {
+			return prependForwardSlash(joinPaths(settings.config.base, pth));
+		}
+	};
 
 	for (const pageData of eachPrerenderedPageData(internals)) {
 		if (!pageData.route.pathname) continue;
@@ -203,10 +207,6 @@ function buildManifest(
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
 
-	const staticAssetsPrefix = settings.config.build.assetsPrefix
-		? appendForwardSlash(settings.config.build.assetsPrefix)
-		: settings.config.base;
-
 	const ssrManifest: SerializedSSRManifest = {
 		adapterName: opts.settings.adapter!.name,
 		routes,
@@ -217,7 +217,7 @@ function buildManifest(
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		entryModules,
-		assets: staticFiles.map((s) => staticAssetsPrefix + s),
+		assets: staticFiles.map(prefixAssetPath),
 	};
 
 	return ssrManifest;
