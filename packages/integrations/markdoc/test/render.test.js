@@ -68,6 +68,18 @@ describe('Markdoc - render', () => {
 
 			await server.stop();
 		});
+
+		it('renders content - with `render: null` in document', async () => {
+			const fixture = await getFixture('render-null');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+
+			renderNullChecks(html);
+
+			await server.stop();
+		});
 	});
 
 	describe('build', () => {
@@ -120,5 +132,24 @@ describe('Markdoc - render', () => {
 			expect(pre).to.not.be.null;
 			expect(pre.className).to.equal('astro-code');
 		});
+
+		it('renders content - with `render: null` in document', async () => {
+			const fixture = await getFixture('render-null');
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+
+			renderNullChecks(html);
+		});
 	});
 });
+
+/**
+ * @param {string} html
+ */
+function renderNullChecks(html) {
+	const { document } = parseHTML(html);
+	const h2 = document.querySelector('h2');
+	expect(h2.textContent).to.equal('Post with render null');
+	expect(h2.parentElement?.tagName).to.equal('BODY');
+}
