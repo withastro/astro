@@ -619,10 +619,10 @@ export interface AstroUserConfig {
 		 * @default `undefined`
 		 * @version 2.2.0
 		 * @description
-		 * Specifies the prefix for Astro-generated asset links, this can be used if assets are served from a different domain than the current site.
+		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
 		 * 
-		 * If this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
-		 * To change the `_astro` path, you can use the `build.assets` option to rename it.
+		 * For example, if this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
+		 * To rename the `_astro` path, specify a new directory in `build.assets`.
 		 *
 		 * ```js
 		 * {
