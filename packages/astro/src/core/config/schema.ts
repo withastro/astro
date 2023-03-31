@@ -22,6 +22,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
 	},
+	compact: true,
 	server: {
 		host: false,
 		port: 3000,
@@ -62,6 +63,7 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
 	site: z.string().url().optional(),
+	compact: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compact),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
@@ -197,6 +199,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+		compact: z
+			.boolean()
+			.optional()
+			.default(ASTRO_CONFIG_DEFAULTS.compact),
 		publicDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
