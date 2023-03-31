@@ -18,9 +18,9 @@ export default (element) =>
 		// related to https://github.com/withastro/astro/issues/6549
 		// if the component is async, wrap it in a Suspense component
 		if (isAsync(Component.setup)) {
-			content = h(Suspense, null, content)
+			content = h(Suspense, null, content);
 		}
-		
+
 		if (client === 'only') {
 			const app = createApp({ name, render: () => content });
 			await setup(app);
@@ -32,7 +32,7 @@ export default (element) =>
 		}
 	};
 
-function isAsync (fn) {
-	const constructor = fn?.constructor
+function isAsync(fn) {
+	const constructor = fn?.constructor;
 	return constructor && constructor.name === 'AsyncFunction';
 }
