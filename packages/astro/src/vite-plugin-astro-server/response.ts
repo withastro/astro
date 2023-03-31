@@ -99,6 +99,7 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	res.end();
 }
 
-export async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
+export async function writeSSRResult(webRequest: Request, webResponse: Response, res: http.ServerResponse) {
+	Reflect.set(webRequest, Symbol.for('astro.responseSent'), true);
 	return writeWebResponse(res, webResponse);
 }

@@ -29,6 +29,7 @@ export { deserializeManifest } from './common.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
+const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
@@ -201,6 +202,7 @@ export class App {
 			});
 
 			const response = await renderPage(mod, ctx, this.#env);
+			Reflect.set(request, responseSentSymbol, true)
 			return response;
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));

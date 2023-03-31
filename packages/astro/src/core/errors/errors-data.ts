@@ -618,6 +618,16 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			}`,
 		hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
 	},
+	/**
+	 * @docs
+	 * @description
+	 * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
+	 */
+	ResponseSentError: {
+		title: 'Unable to set response',
+		code: 3030,
+		message: 'The response has already been sent to the browser and cannot be altered.',
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
