@@ -1,4 +1,11 @@
-import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
+import type {
+	APIContext,
+	ComponentInstance,
+	OnBeforeRequestHook,
+	Params,
+	Props,
+	RouteData,
+} from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
@@ -9,6 +16,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
+import { isValueSerializable } from '../util.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -84,7 +92,12 @@ export async function getParamsAndProps(
 	return [params, pageProps];
 }
 
-export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env: Environment) {
+export async function renderPage(
+	mod: ComponentInstance,
+	ctx: RenderContext,
+	env: Environment,
+	apiContext?: APIContext
+) {
 	const paramsAndPropsRes = await getParamsAndProps({
 		logging: env.logging,
 		mod,
@@ -110,6 +123,16 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
+	let locals = {};
+	if (apiContext) {
+		if (!isValueSerializable(apiContext.locals)) {
+			throw new AstroError({
+				...AstroErrorData.LocalsNotSerializable,
+				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+			});
+		}
+		locals = apiContext.locals;
+	}
 	const result = createResult({
 		adapterName: env.adapterName,
 		links: ctx.links,
@@ -129,6 +152,7 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 		scripts: ctx.scripts,
 		ssr: env.ssr,
 		status: ctx.status ?? 200,
+		locals,
 	});
 
 	// Support `export const components` for `MDX` pages
@@ -136,7 +160,7 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 		Object.assign(pageProps, { components: (mod as any).components });
 	}
 
-	const response = await runtimeRenderPage(
+	let response = await runtimeRenderPage(
 		result,
 		Component,
 		pageProps,

@@ -16,6 +16,7 @@ export interface CreateRequestOptions {
 }
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 export function createRequest({
 	url,
@@ -64,6 +65,9 @@ export function createRequest({
 	} else if (clientAddress) {
 		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
+
+	// TODO: PLT-104 check if this needs to be set in another adapters?
+	Reflect.set(request, clientLocalsSymbol, {});
 
 	return request;
 }

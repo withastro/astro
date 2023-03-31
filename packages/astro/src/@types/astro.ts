@@ -947,6 +947,29 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Integrations
+	 * @description
+	 *
+	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
+	 *
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 *
+	 * ```js
+	 * import react from '@astrojs/react';
+	 * import tailwind from '@astrojs/tailwind';
+	 * {
+	 *   // Example: Add React + Tailwind support to Astro
+	 *   integrations: [react(), tailwind()]
+	 * }
+	 * ```
+	 */
+	middlewares?: Array<
+		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
+	>;
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Vite
 	 * @description
 	 *
@@ -1075,6 +1098,9 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+
+	// Order of the middlewares
+	middlewareOrder: string[];
 }
 
 export type ContentEntryModule = {
@@ -1373,6 +1399,7 @@ export interface Page<T = any> {
 export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | undefined>;
+export type Locals = Record<string, string | undefined>;
 
 export interface AstroAdapter {
 	name: string;
@@ -1414,6 +1441,16 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	 * Redirect to another page (**SSR Only**).
 	 */
 	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
+
+	/**
+	 * TODO documentation
+	 */
+	locals: Locals;
+
+	/**
+	 * TODO documentation
+	 */
+	setLocal: (key: string, value: any) => void;
 }
 
 export interface APIContext<Props extends Record<string, any> = Record<string, any>>
@@ -1487,6 +1524,11 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
+
+	/**
+	 * TODO documentation
+	 */
+	locals: AstroSharedContext['locals'];
 }
 
 export type Props = Record<string, unknown>;
@@ -1527,7 +1569,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
-export type HookParameters<
+export type HookIntegrationParameters<
 	Hook extends keyof AstroIntegration['hooks'],
 	Fn = AstroIntegration['hooks'][Hook]
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
@@ -1574,6 +1616,21 @@ export interface AstroIntegration {
 		}) => void | Promise<void>;
 	};
 }
+
+export type MiddlewareResolve = (context: APIContext) => Promise<Response>;
+
+export type OnBeforeRequestHook = (context: APIContext, resolve: Resolve) => Promise<Response>;
+
+export type Resolve = (context: APIContext) => Promise<Response>;
+
+export type OnAfterRequestHook = (
+	context: Readonly<APIContext>,
+	response: Response
+) => Promise<Response>;
+
+export type AstroMiddlewareInstance = {
+	onRequest?: OnBeforeRequestHook;
+};
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;

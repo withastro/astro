@@ -1,22 +1,38 @@
 import { fileURLToPath } from 'url';
 import type {
+	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
+	OnBeforeRequestHook,
+	Resolve,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
-import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
+import {
+	AggregateError,
+	AstroError,
+	AstroErrorData,
+	CSSError,
+	MarkdownError,
+} from '../../errors/index.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
-import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
+import {
+	createRenderContext,
+	getParamsAndProps,
+	GetParamsAndPropsError,
+	renderPage as coreRenderPage,
+} from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
+import { createAPIContext } from '../../endpoint/index.js';
+import { sequence } from '../../sequence.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 
@@ -35,6 +51,10 @@ export interface SSROptions {
 	request: Request;
 	/** optional, in case we need to render something outside of a dev server */
 	route?: RouteData;
+	/**
+	 * Optional middlewares
+	 */
+	middlewares?: AstroMiddlewareInstance[];
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
@@ -170,5 +190,80 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		route: options.route,
 	});
 
+	if (options.middlewares && options.middlewares.length > 0) {
+		const { env } = options;
+		const paramsAndPropsRes = await getParamsAndProps({
+			logging: env.logging,
+			mod,
+			route: ctx.route,
+			routeCache: env.routeCache,
+			pathname: ctx.pathname,
+			ssr: env.ssr,
+		});
+
+		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
+			throw new AstroError({
+				...AstroErrorData.NoMatchingStaticPathFound,
+				message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
+				hint: ctx.route?.component
+					? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
+					: '',
+			});
+		}
+		const [params, pageProps] = paramsAndPropsRes;
+
+		const apiContext = createAPIContext({
+			request: options.request,
+			params,
+			props: pageProps,
+			adapterName: options.env.adapterName,
+		});
+
+		const beforeHooks: OnBeforeRequestHook[] = [];
+		for (const middleware of options.middlewares) {
+			const { onRequest } = middleware;
+			if (onRequest) {
+				beforeHooks.push(onRequest);
+			}
+		}
+
+		let middleware = sequence(...beforeHooks);
+
+		// const response = await coreRenderPage(mod, ctx, options.env, apiContext);
+
+		let resolveResolve: any;
+		new Promise((resolve) => {
+			resolveResolve = resolve;
+		});
+
+		let resolveCalledResolve: any;
+		let resolveCalled = new Promise((resolve) => {
+			resolveCalledResolve = resolve;
+		});
+		const resolve: Resolve = (context) => {
+			const response = coreRenderPage(mod, ctx, options.env, apiContext);
+			resolveCalledResolve('resolveCalled');
+			return response;
+		};
+
+		let middlewarePromise = middleware(apiContext, resolve);
+
+		let response = await Promise.race([middlewarePromise, resolveCalled]).then(async (value) => {
+			console.log('rance', value);
+			if (value === 'resolveCalled') {
+				// Middleware called resolve()
+				// render the page and then pass back to middleware
+				// for post-processing
+				const responseResult = await coreRenderPage(mod, ctx, options.env, apiContext);
+				await resolveResolve(responseResult);
+				return middlewarePromise;
+			} else {
+				// Middleware did not call resolve()
+				return await coreRenderPage(mod, ctx, options.env, apiContext);
+			}
+		});
+
+		return response;
+	}
 	return await coreRenderPage(mod, ctx, options.env); // NOTE: without "await", errors won’t get caught below
 }

@@ -9,6 +9,7 @@ import { warn, type LogOptions } from '../logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 type EndpointCallResult =
 	| {
@@ -22,7 +23,7 @@ type EndpointCallResult =
 			response: Response;
 	  };
 
-function createAPIContext({
+export function createAPIContext({
 	request,
 	params,
 	site,
@@ -66,6 +67,7 @@ function createAPIContext({
 
 			return Reflect.get(request, clientAddressSymbol);
 		},
+		locals: Reflect.get(request, clientLocalsSymbol),
 	};
 }
 

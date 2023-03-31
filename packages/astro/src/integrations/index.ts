@@ -9,7 +9,7 @@ import type {
 	AstroSettings,
 	BuildConfig,
 	ContentEntryType,
-	HookParameters,
+	HookIntegrationParameters,
 	RouteData,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
@@ -55,6 +55,7 @@ export async function runHookConfigSetup({
 
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
+
 	for (const integration of settings.config.integrations) {
 		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
@@ -68,8 +69,8 @@ export async function runHookConfigSetup({
 		 * ]
 		 * ```
 		 */
-		if (integration?.hooks?.['astro:config:setup']) {
-			const hooks: HookParameters<'astro:config:setup'> = {
+		if (integration.hooks?.['astro:config:setup']) {
+			const hooks: HookIntegrationParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
 				isRestart,

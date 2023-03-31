@@ -628,6 +628,37 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 3030,
 		message: 'The response has already been sent to the browser and cannot be altered.',
 	},
+
+	/**
+	 * TODO [PLT-101] documentation
+	 */
+	MiddlewareNotFound: {
+		title: 'Middleware not found.',
+		code: 3030,
+		message: (middlewareName: string, middlewarePath: string) =>
+			`Can't find the middleware ${middlewareName} at path ${middlewarePath}. Make sure the file exists and has the correct name.`,
+	},
+
+	/**
+	 * TODO [PLT-101] documentation
+	 */
+	LocalsNotAvailable: {
+		title: '`Astro.locals` is not available in current adapter.',
+		code: 3030,
+		message: (adapterName: string) =>
+			`\`Astro.locals\` is not available in the "${adapterName}" adapter. File an issue with the adapter to add support.`,
+	},
+
+	/**
+	 * TODO [PLT-101] documentation
+	 */
+	LocalsNotSerializable: {
+		title: '`Astro.locals` are not serializable.',
+		code: 3031,
+		message: (href: string) => {
+			return `Information stored in \`Astro.locals\` are not serializable when visiting "${href}" path. Make sure you store only data that are compatible.`;
+		},
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**

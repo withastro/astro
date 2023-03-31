@@ -1,6 +1,11 @@
 import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import type {
+	AstroConfig,
+	AstroIntegration,
+	ContentEntryType,
+	HookIntegrationParameters,
+} from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
@@ -11,7 +16,7 @@ import type * as rollup from 'rollup';
 import { applyDefaultConfig } from './default-config.js';
 import { loadMarkdocConfig } from './load-config.js';
 
-type SetupHookParams = HookParameters<'astro:config:setup'> & {
+type SetupHookParams = HookIntegrationParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
 	// Add type defs here
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;

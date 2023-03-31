@@ -3,7 +3,7 @@ import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/inter
 import { compile as mdxCompile } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { type Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import type { AstroIntegration, ContentEntryType, HookIntegrationParameters } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +24,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
-type SetupHookParams = HookParameters<'astro:config:setup'> & {
+type SetupHookParams = HookIntegrationParameters<'astro:config:setup'> & {
 	// `addPageExtension` and `contentEntryType` are not a public APIs
 	// Add type defs here
 	addPageExtension: (extension: string) => void;
