@@ -35,7 +35,7 @@ export function testFactory(inlineConfig) {
 /**
  *
  * @param {string} page
- * @returns {Promise<{message: string, hint: string}>}
+ * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string}>}
  */
 export async function getErrorOverlayContent(page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
@@ -47,8 +47,11 @@ export async function getErrorOverlayContent(page) {
 
 	const message = await overlay.$$eval('#message-content', (m) => m[0].textContent);
 	const hint = await overlay.$$eval('#hint-content', (m) => m[0].textContent);
-
-	return { message, hint };
+	const [absoluteFileLocation, fileLocation] = await overlay.$$eval('#code header h2', (m) => [
+		m[0].title,
+		m[0].textContent,
+	]);
+	return { message, hint, absoluteFileLocation, fileLocation };
 }
 
 /**

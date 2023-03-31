@@ -52,6 +52,28 @@ test.describe('Error display', () => {
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);
 	});
 
+	test('shows correct file path when a page has an error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/import-not-found'));
+
+		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
+		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
+		const fileExists = astro.pathExists(absoluteFileUrl);
+
+		expect(fileExists).toBeTruthy();
+		expect(fileLocation).toMatch(/^pages\/import-not-found\.astro/);
+	});
+
+	test('shows correct file path when a component has an error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/preact-runtime-error'));
+
+		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
+		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
+		const fileExists = astro.pathExists(absoluteFileUrl);
+
+		expect(fileExists).toBeTruthy();
+		expect(fileLocation).toMatch(/^components\/PreactRuntimeError.jsx/);
+	});
+
 	test('framework errors recover when fixed', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/svelte-syntax-error'));
 

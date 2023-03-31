@@ -79,7 +79,9 @@ export async function getImage(options: ImageTransform): Promise<GetImageResult>
 	};
 }
 
-export function getStaticImageList(): Iterable<[ImageTransform, string]> {
+export function getStaticImageList(): Iterable<
+	[string, { path: string; options: ImageTransform }]
+> {
 	if (!globalThis?.astroAsset?.staticImages) {
 		return [];
 	}
