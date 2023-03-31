@@ -44,6 +44,10 @@ export interface ModuleNode {
 	ssrModule: Record<string, any> | null;
 	ssrError: Error | null;
 	importedModules: Set<ModuleNode>;
+	// Since Vite 4.3, `importedModules` strictly contains client-side imported modules only.
+	// For SSR, we need to use `ssrImportedModules` or `ssrTransformResult.deps` instead.
+	// The former is more ergonomic so we use it here.
+	ssrImportedModules?: Set<ModuleNode>;
 }
 
 export interface ModuleInfo {

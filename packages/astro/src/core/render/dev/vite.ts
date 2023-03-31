@@ -44,7 +44,8 @@ export async function* crawlGraph(
 		if (id === entry.id) {
 			scanned.add(id);
 			const entryIsStyle = isCSSRequest(id);
-			for (const importedModule of entry.importedModules) {
+			const entryImportedModules = entry.ssrImportedModules ?? entry.importedModules;
+			for (const importedModule of entryImportedModules) {
 				// some dynamically imported modules are *not* server rendered in time
 				// to only SSR modules that we can safely transform, we check against
 				// a list of file extensions based on our built-in vite plugins
