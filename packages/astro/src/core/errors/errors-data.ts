@@ -600,6 +600,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message
+	 * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
