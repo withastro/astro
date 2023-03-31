@@ -3,7 +3,6 @@ import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
-import { copyWasmFiles } from './vendor/squoosh/copy-wasm.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
@@ -143,13 +142,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				// for SSG builds, build all requested image transforms to dist
 				const loader = globalThis?.astroImage?.loader;
 
-				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					// For the Squoosh service, copy all wasm files to dist/chunks.
-					// Because the default loader is dynamically imported (above),
-					// Vite will bundle squoosh to dist/chunks and expect to find the wasm files there
-					await copyWasmFiles(new URL('./chunks', dir));
-				}
-
 				if (loader && 'transform' in loader && staticImages.size > 0) {
 					const cacheDir = !!resolvedOptions.cacheDir
 						? new URL(resolvedOptions.cacheDir, _config.root)
@@ -163,11 +155,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						logLevel: resolvedOptions.logLevel,
 						cacheDir,
 					});
-				}
-			},
-			'astro:build:ssr': async () => {
-				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(new URL('./chunks/', _buildConfig.server));
 				}
 			},
 		},

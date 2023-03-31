@@ -1216,11 +1216,13 @@ export type GetStaticPaths = (
  *
  * @example
  * ```ts
- * export async function getStaticPaths() {
+ * import type { GetStaticPaths } from 'astro';
+ *
+ * export const getStaticPaths = (() => {
  *   return results.map((entry) => ({
  *     params: { slug: entry.slug },
  *   }));
- * }
+ * }) satisfies GetStaticPaths;
  *
  * type Params = InferGetStaticParamsType<typeof getStaticPaths>;
  * //   ^? { slug: string; }
@@ -1228,7 +1230,7 @@ export type GetStaticPaths = (
  * const { slug } = Astro.params as Params;
  * ```
  */
-export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
+export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
 			? P
@@ -1241,7 +1243,9 @@ export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
  *
  * @example
  * ```ts
- * export async function getStaticPaths() {
+ * import type { GetStaticPaths } from 'astro';
+ *
+ * export const getStaticPaths = (() => {
  *   return results.map((entry) => ({
  *     params: { slug: entry.slug },
  *     props: {
@@ -1249,15 +1253,15 @@ export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
  *       propB: 42
  *     },
  *   }));
- * }
+ * }) satisfies GetStaticPaths;
  *
  * type Props = InferGetStaticPropsType<typeof getStaticPaths>;
  * //   ^? { propA: boolean; propB: number; }
  *
- * const { propA, propB } = Astro.props as Props;
+ * const { propA, propB } = Astro.props;
  * ```
  */
-export type InferGetStaticPropsType<T> = T extends () => Promise<infer R>
+export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
 			? P
