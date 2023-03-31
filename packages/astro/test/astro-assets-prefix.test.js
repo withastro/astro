@@ -54,6 +54,13 @@ describe('Assets Prefix - Static', () => {
 		const imgAsset = $('img');
 		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
 	});
+
+	it('content collections image src start with assetsPrefix', async () => {
+		const html = await fixture.readFile('/blog/index.html');
+		const $ = cheerio.load(html);
+		const imgAsset = $('img');
+		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+	});
 });
 
 describe('Assets Prefix - Server', () => {
