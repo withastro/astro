@@ -163,7 +163,7 @@ class AstroCookies implements AstroCookiesInterface {
 			true,
 		]);
 
-		if((this.#request as any)[responseSentSymbol]) {
+		if ((this.#request as any)[responseSentSymbol]) {
 			throw new AstroError({
 				...AstroErrorData.ResponseSentError,
 			});

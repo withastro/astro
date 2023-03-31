@@ -202,7 +202,7 @@ export class App {
 			});
 
 			const response = await renderPage(mod, ctx, this.#env);
-			Reflect.set(request, responseSentSymbol, true)
+			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));

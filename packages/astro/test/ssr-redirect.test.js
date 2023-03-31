@@ -30,8 +30,10 @@ describe('Astro.redirect', () => {
 		try {
 			const text = await response.text();
 			expect(false).to.equal(true);
-		} catch(e) {
-			expect(e.message).to.equal('The response has already been sent to the browser and cannot be altered.');
+		} catch (e) {
+			expect(e.message).to.equal(
+				'The response has already been sent to the browser and cannot be altered.'
+			);
 		}
 	});
 });

@@ -199,7 +199,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				redirect: args.ssr
 					? (path, status) => {
 							// If the response is already sent, error as we cannot proceed with the redirect.
-							if((request as any)[responseSentSymbol]) {
+							if ((request as any)[responseSentSymbol]) {
 								throw new AstroError({
 									...AstroErrorData.ResponseSentError,
 								});
