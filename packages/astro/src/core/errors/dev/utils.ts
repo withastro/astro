@@ -4,13 +4,13 @@ import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
-import { normalizePath } from 'vite';
 import type { ESBuildTransformResult } from 'vite';
+import { normalizePath } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
+import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
-import { removeLeadingForwardSlashWindows } from '../../path.js';
 
 type EsbuildMessage = ESBuildTransformResult['warnings'][number];
 
