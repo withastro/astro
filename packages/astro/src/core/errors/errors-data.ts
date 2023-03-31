@@ -900,6 +900,18 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
+	/**
+	 * @docs
+	 * @message The response cannot be altered after it has already been sent.
+	 * @description
+	 * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
+	 */
+	ResponseSentError: {
+		title: 'Unable to set response',
+		code: 9004,
+		message: 'The response has already been sent to the browser and cannot be altered.',
+	},
+
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',

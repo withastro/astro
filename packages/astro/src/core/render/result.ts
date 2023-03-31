@@ -16,6 +16,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const responseSentSymbol = Symbol.for('astro.responseSent');
 
 function onlyAvailableInSSR(name: 'Astro.redirect') {
 	return function _onlyAvailableInSSR() {
@@ -197,6 +198,13 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				url,
 				redirect: args.ssr
 					? (path, status) => {
+							// If the response is already sent, error as we cannot proceed with the redirect.
+							if((request as any)[responseSentSymbol]) {
+								throw new AstroError({
+									...AstroErrorData.ResponseSentError,
+								});
+							}
+
 							return new Response(null, {
 								status: status || 302,
 								headers: {

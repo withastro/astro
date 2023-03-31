@@ -1,5 +1,6 @@
 import type { CookieSerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 interface AstroCookieSetOptions {
 	domain?: string;
@@ -33,6 +34,7 @@ interface AstroCookiesInterface {
 
 const DELETED_EXPIRATION = new Date(0);
 const DELETED_VALUE = 'deleted';
+const responseSentSymbol = Symbol.for('astro.responseSent');
 
 class AstroCookie implements AstroCookieInterface {
 	constructor(public value: string | undefined) {}
@@ -160,6 +162,12 @@ class AstroCookies implements AstroCookiesInterface {
 			serialize(key, serializedValue, serializeOptions),
 			true,
 		]);
+
+		if((this.#request as any)[responseSentSymbol]) {
+			throw new AstroError({
+				...AstroErrorData.ResponseSentError,
+			});
+		}
 	}
 
 	/**

@@ -20,7 +20,7 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
+export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
 		switch (instruction.type) {

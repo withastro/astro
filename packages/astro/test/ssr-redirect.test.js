@@ -22,4 +22,16 @@ describe('Astro.redirect', () => {
 		expect(response.status).to.equal(302);
 		expect(response.headers.get('location')).to.equal('/login');
 	});
+
+	it('Warns when used inside a component', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/late');
+		const response = await app.render(request);
+		try {
+			const text = await response.text();
+			expect(false).to.equal(true);
+		} catch(e) {
+			expect(e.message).to.equal('The response has already been sent to the browser and cannot be altered.');
+		}
+	});
 });
