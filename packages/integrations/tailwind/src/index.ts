@@ -1,47 +1,8 @@
-import load, { resolve } from '@proload/core';
-import typescript from '@proload/plugin-typescript';
-
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
-import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
-import resolveConfig from 'tailwindcss/resolveConfig.js';
-import { fileURLToPath } from 'url';
+
 import type { CSSOptions, UserConfig } from 'vite';
-
-function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
-	return resolveConfig({
-		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
-	}) as TailwindConfig;
-}
-
-async function getUserConfig(root: URL, srcDir: URL, configPath?: string) {
-	const resolvedRoot = fileURLToPath(root);
-	let userConfigPath: string | undefined;
-
-	if (configPath) {
-		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
-		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
-	}
-
-	load.use([typescript]);
-
-	try {
-		const resolvedConfigPath = await resolve('tailwind', {
-			mustExist: true,
-			cwd: resolvedRoot,
-			filePath: userConfigPath,
-		});
-		return { config: resolvedConfigPath as string };
-	} catch (err) {
-		if (configPath) {
-			console.error(
-				`Could not find a Tailwind config at ${JSON.stringify(configPath)}. Does the file exist?`
-			);
-		}
-		return getDefaultTailwindConfig(srcDir);
-	}
-}
 
 async function getPostCssConfig(
 	root: UserConfig['root'],
@@ -62,7 +23,7 @@ async function getPostCssConfig(
 }
 
 async function getViteConfiguration(
-	tailwindConfig: TailwindConfig | { config: string },
+	tailwindConfig: TailwindConfig | { config: string } | undefined,
 	viteConfig: UserConfig
 ) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
@@ -113,11 +74,16 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({ config, updateConfig, injectScript }) => {
-				const userConfig = await getUserConfig(config.root, config.srcDir, customConfigPath);
-
 				// Inject the Tailwind postcss plugin
 				updateConfig({
-					vite: await getViteConfiguration(userConfig, config.vite as UserConfig),
+					vite: await getViteConfiguration(
+						customConfigPath
+							? {
+									config: customConfigPath,
+							  }
+							: void 0,
+						config.vite as UserConfig
+					),
 				});
 
 				if (applyBaseStyles) {
