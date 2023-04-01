@@ -10,8 +10,6 @@ import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
 
-load.use([typescript]);
-
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	return resolveConfig({
 		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
@@ -21,6 +19,8 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 async function getUserConfig(root: URL, configPath?: string, isRestart = false) {
 	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
+
+	load.use([typescript]);
 
 	if (configPath) {
 		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
