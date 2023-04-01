@@ -148,6 +148,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		// when using `customData`
 		// https://github.com/withastro/astro/issues/5794
 		suppressEmptyNode: true,
+		suppressBooleanAttributes: false,
 	};
 	const parser = new XMLParser(xmlOptions);
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
@@ -196,7 +197,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		const item: any = {
 			title: result.title,
 			link: itemLink,
-			guid: itemLink,
+			guid: { '#text': itemLink, '@_isPermaLink': 'true' },
 		};
 		if (result.description) {
 			item.description = result.description;
