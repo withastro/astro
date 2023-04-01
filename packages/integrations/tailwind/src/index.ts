@@ -1,4 +1,6 @@
 import load, { resolve } from '@proload/core';
+import typescript from '@proload/plugin-typescript';
+
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import fs from 'fs/promises';
@@ -8,14 +10,11 @@ import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
 
+load.use([typescript]);
+
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	return resolveConfig({
-		theme: {
-			extend: {},
-		},
-		plugins: [],
 		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
-		presets: undefined, // enable Tailwind's default preset
 	}) as TailwindConfig;
 }
 
