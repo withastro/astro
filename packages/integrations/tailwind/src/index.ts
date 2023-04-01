@@ -3,7 +3,6 @@ import typescript from '@proload/plugin-typescript';
 
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
-import fs from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
@@ -16,53 +15,31 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	}) as TailwindConfig;
 }
 
-async function getUserConfig(root: URL, configPath?: string, isRestart = false) {
+async function getUserConfig(root: URL, srcDir: URL, configPath?: string) {
 	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
-
-	load.use([typescript]);
 
 	if (configPath) {
 		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	if (isRestart) {
-		// Hack: Write config to temporary file at project root
-		// This invalidates and reloads file contents when using ESM imports or "resolve"
-		const resolvedConfigPath = (await resolve('tailwind', {
-			mustExist: false,
-			cwd: resolvedRoot,
-			filePath: userConfigPath,
-		})) as string;
+	load.use([typescript]);
 
-		const { dir, base } = path.parse(resolvedConfigPath);
-		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
-		await fs.copyFile(resolvedConfigPath, tempConfigPath);
-
-		let result: load.Config<Record<any, any>> | undefined;
-		try {
-			result = await load('tailwind', {
-				mustExist: false,
-				cwd: resolvedRoot,
-				filePath: tempConfigPath,
-			});
-		} catch (err) {
-			console.error(err);
-		} finally {
-			await fs.unlink(tempConfigPath);
-		}
-
-		return {
-			...result,
-			filePath: resolvedConfigPath,
-		};
-	} else {
-		return await load('tailwind', {
-			mustExist: false,
+	try {
+		const resolvedConfigPath = await resolve('tailwind', {
+			mustExist: true,
 			cwd: resolvedRoot,
 			filePath: userConfigPath,
 		});
+		return { config: resolvedConfigPath as string };
+	} catch (err) {
+		if (configPath) {
+			console.error(
+				`Could not find a Tailwind config at ${JSON.stringify(configPath)}. Does the file exist?`
+			);
+		}
+		return getDefaultTailwindConfig(srcDir);
 	}
 }
 
@@ -84,7 +61,10 @@ async function getPostCssConfig(
 	return postcssConfigResult;
 }
 
-async function getViteConfiguration(tailwindConfig: TailwindConfig, viteConfig: UserConfig) {
+async function getViteConfiguration(
+	tailwindConfig: TailwindConfig | { config: string },
+	viteConfig: UserConfig
+) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
 	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
@@ -132,33 +112,12 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({
-				config,
-				updateConfig,
-				injectScript,
-				addWatchFile,
-				isRestart,
-			}) => {
+			'astro:config:setup': async ({ config, updateConfig, injectScript }) => {
+				const userConfig = await getUserConfig(config.root, config.srcDir, customConfigPath);
+
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.root, customConfigPath, isRestart);
-
-				if (customConfigPath && !userConfig?.value) {
-					throw new Error(
-						`Could not find a Tailwind config at ${JSON.stringify(
-							customConfigPath
-						)}. Does the file exist?`
-					);
-				}
-
-				if (addWatchFile && userConfig?.filePath) {
-					addWatchFile(userConfig.filePath);
-				}
-
-				const tailwindConfig =
-					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
-
 				updateConfig({
-					vite: await getViteConfiguration(tailwindConfig, config.vite),
+					vite: await getViteConfiguration(userConfig, config.vite as UserConfig),
 				});
 
 				if (applyBaseStyles) {
