@@ -31,7 +31,7 @@ Looking for quick examples? [Open a starter project](https://astro.new/) right i
 Visit our [official documentation](https://docs.astro.build/).
 
 ## Support
-
+we can create some changes
 Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
 ## Contributing
 
