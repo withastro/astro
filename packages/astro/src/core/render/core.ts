@@ -1,11 +1,4 @@
-import type {
-	APIContext,
-	ComponentInstance,
-	OnBeforeRequestHook,
-	Params,
-	Props,
-	RouteData,
-} from '../../@types/astro';
+import type { APIContext, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';

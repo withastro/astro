@@ -1,6 +1,6 @@
-import type { APIContext, OnBeforeRequestHook } from '../@types/astro';
+import type { APIContext, MiddlewareHandler } from '../../@types/astro';
 
-export function sequence(...handlers: OnBeforeRequestHook[]): OnBeforeRequestHook {
+export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 	const length = handlers.length;
 	if (!length) return (context, resolve) => resolve(context);
 

@@ -121,31 +121,18 @@ export async function matchRoute(
  *
  * If not middlewares were not set, the function returns an empty array.
  */
-export async function loadMiddlewares(
+export async function loadMiddleware(
 	moduleLoader: ModuleLoader,
-	basePath: URL,
-	middlewareOrder: string[]
-): Promise<AstroMiddlewareInstance[]> {
-	if (middlewareOrder.length === 0) {
-		return [];
+	basePath: URL
+): Promise<AstroMiddlewareInstance | undefined> {
+	let path = fileURLToPath(basePath);
+	let middlewarePath = path + 'src' + '/' + MIDDLEWARE_PATH_SEGMENT_NAME;
+	try {
+		const module = (await moduleLoader.import(middlewarePath)) as AstroMiddlewareInstance;
+		return module as AstroMiddlewareInstance;
+	} catch {
+		return undefined;
 	}
-	const middlewares = await Promise.all(
-		middlewareOrder.map(async (middlewareName) => {
-			let path = fileURLToPath(basePath);
-			let middlewarePath = path + 'src' + '/' + MIDDLEWARE_PATH_SEGMENT_NAME + '/' + middlewareName;
-			try {
-				const module = (await moduleLoader.import(middlewarePath)) as AstroMiddlewareInstance;
-				return module;
-			} catch {
-				throw new AstroError({
-					...AstroErrorData.MiddlewareNotFound,
-					message: AstroErrorData.MiddlewareNotFound.message(middlewareName, middlewarePath),
-				});
-			}
-		})
-	);
-
-	return middlewares.filter(Boolean) as AstroMiddlewareInstance[];
 }
 
 export async function handleRoute(
@@ -205,10 +192,9 @@ export async function handleRoute(
 		request,
 		route,
 	};
-	const middlewares = await loadMiddlewares(env.loader, config.root, config.middlewareOrder);
-
-	if (middlewares.length > 0) {
-		options.middlewares = middlewares;
+	const middleware = await loadMiddleware(env.loader, config.root);
+	if (middleware) {
+		options.middleware = middleware;
 	}
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {

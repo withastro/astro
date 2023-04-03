@@ -64,6 +64,10 @@
     "./zod": {
       "types": "./zod.d.ts",
       "default": "./zod.mjs"
+    },
+    "./middleware": {
+      "default": "./middleware.mjs",
+      "types": ""
     }
   },
   "imports": {
@@ -81,6 +85,8 @@
     "config.mjs",
     "zod.d.ts",
     "zod.mjs",
+    "sequence.d.ts",
+    "sequence.mjs",
     "env.d.ts",
     "client.d.ts",
     "client-base.d.ts",

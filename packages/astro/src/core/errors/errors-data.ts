@@ -632,11 +632,10 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * TODO [PLT-101] documentation
 	 */
-	MiddlewareNotFound: {
-		title: 'Middleware not found.',
+	MiddlewareOnRequestNotFound: {
+		title: "The middleware doesn't export the function 'onRequest'.",
 		code: 3030,
-		message: (middlewareName: string, middlewarePath: string) =>
-			`Can't find the middleware ${middlewareName} at path ${middlewarePath}. Make sure the file exists and has the correct name.`,
+		message: "A middleware must export a function called 'onRequest'",
 	},
 
 	/**

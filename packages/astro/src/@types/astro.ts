@@ -947,29 +947,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Integrations
-	 * @description
-	 *
-	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
-	 *
-	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
-	 *
-	 * ```js
-	 * import react from '@astrojs/react';
-	 * import tailwind from '@astrojs/tailwind';
-	 * {
-	 *   // Example: Add React + Tailwind support to Astro
-	 *   integrations: [react(), tailwind()]
-	 * }
-	 * ```
-	 */
-	middlewares?: Array<
-		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
-	>;
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Vite
 	 * @description
 	 *
@@ -1098,9 +1075,6 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
-
-	// Order of the middlewares
-	middlewareOrder: string[];
 }
 
 export type ContentEntryModule = {
@@ -1618,18 +1592,13 @@ export interface AstroIntegration {
 }
 
 export type MiddlewareResolve = (context: APIContext) => Promise<Response>;
-
-export type OnBeforeRequestHook = (context: APIContext, resolve: Resolve) => Promise<Response>;
-
-export type Resolve = (context: APIContext) => Promise<Response>;
-
-export type OnAfterRequestHook = (
+export type MiddlewareHandler = (
 	context: Readonly<APIContext>,
-	response: Response
+	response: MiddlewareResolve
 ) => Promise<Response>;
 
 export type AstroMiddlewareInstance = {
-	onRequest?: OnBeforeRequestHook;
+	onRequest?: MiddlewareHandler;
 };
 
 export interface AstroPluginOptions {

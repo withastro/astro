@@ -3,8 +3,8 @@ import type {
 	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
-	OnBeforeRequestHook,
-	Resolve,
+	MiddlewareHandler,
+	MiddlewareResolve,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -32,7 +32,7 @@ import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
 import { createAPIContext } from '../../endpoint/index.js';
-import { sequence } from '../../sequence.js';
+import { sequence } from '../../middleware/sequence.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 
@@ -54,7 +54,7 @@ export interface SSROptions {
 	/**
 	 * Optional middlewares
 	 */
-	middlewares?: AstroMiddlewareInstance[];
+	middleware?: AstroMiddlewareInstance;
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
@@ -190,7 +190,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		route: options.route,
 	});
 
-	if (options.middlewares && options.middlewares.length > 0) {
+	if (options.middleware) {
 		const { env } = options;
 		const paramsAndPropsRes = await getParamsAndProps({
 			logging: env.logging,
@@ -219,18 +219,15 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 			adapterName: options.env.adapterName,
 		});
 
-		const beforeHooks: OnBeforeRequestHook[] = [];
-		for (const middleware of options.middlewares) {
-			const { onRequest } = middleware;
-			if (onRequest) {
-				beforeHooks.push(onRequest);
-			}
+		let onRequestHandler: MiddlewareHandler | undefined = undefined;
+		const { onRequest } = options.middleware;
+		if (onRequest) {
+			onRequestHandler = onRequest;
+		} else {
+			throw new AstroError({
+				...AstroErrorData.MiddlewareOnRequestNotFound,
+			});
 		}
-
-		let middleware = sequence(...beforeHooks);
-
-		// const response = await coreRenderPage(mod, ctx, options.env, apiContext);
-
 		let resolveResolve: any;
 		new Promise((resolve) => {
 			resolveResolve = resolve;
@@ -240,16 +237,15 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		let resolveCalled = new Promise((resolve) => {
 			resolveCalledResolve = resolve;
 		});
-		const resolve: Resolve = (context) => {
+		const resolve: MiddlewareResolve = (context) => {
 			const response = coreRenderPage(mod, ctx, options.env, apiContext);
 			resolveCalledResolve('resolveCalled');
 			return response;
 		};
 
-		let middlewarePromise = middleware(apiContext, resolve);
+		let middlewarePromise = onRequestHandler(apiContext, resolve);
 
 		let response = await Promise.race([middlewarePromise, resolveCalled]).then(async (value) => {
-			console.log('rance', value);
 			if (value === 'resolveCalled') {
 				// Middleware called resolve()
 				// render the page and then pass back to middleware
