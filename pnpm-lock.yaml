@@ -689,7 +689,7 @@ importers:
         version: 5.3.7
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2(sass@1.58.0)
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.1.2)
@@ -3597,7 +3597,7 @@ importers:
         version: 0.31.3
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2
 
   packages/integrations/image/test/fixtures/background-color-image:
     dependencies:
@@ -3769,7 +3769,7 @@ importers:
     dependencies:
       '@markdoc/markdoc':
         specifier: ^0.2.2
-        version: 0.2.2(@types/react@18.0.27)(react@18.2.0)
+        version: 0.2.2
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
@@ -3815,7 +3815,7 @@ importers:
         version: 3.20.1
       vite:
         specifier: ^4.0.3
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2
 
   packages/integrations/markdoc/test/fixtures/content-collections:
     dependencies:
@@ -3994,7 +3994,7 @@ importers:
         version: 8.0.1
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
     dependencies:
@@ -4136,7 +4136,7 @@ importers:
         version: 9.2.2
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2(@types/node@14.18.36)
 
   packages/integrations/netlify/test/edge-functions/fixtures/dynimport:
     dependencies:
@@ -4436,7 +4436,7 @@ importers:
         version: 1.6.10
       vitefu:
         specifier: ^0.2.4
-        version: 0.2.4(vite@4.1.2)
+        version: 0.2.4
     devDependencies:
       astro:
         specifier: workspace:*
@@ -4455,7 +4455,7 @@ importers:
         version: 2.0.2(svelte@3.55.1)(vite@4.1.2)
       svelte2tsx:
         specifier: ^0.5.11
-        version: 0.5.23(svelte@3.55.1)(typescript@5.0.2)
+        version: 0.5.23(svelte@3.55.1)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -4468,7 +4468,7 @@ importers:
         version: 3.55.1
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2
 
   packages/integrations/tailwind:
     dependencies:
@@ -4496,7 +4496,7 @@ importers:
         version: 3.2.6(postcss@8.4.21)
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2
 
   packages/integrations/turbolinks:
     dependencies:
@@ -4576,7 +4576,7 @@ importers:
         version: 3.0.0(vite@4.1.2)(vue@3.2.47)
       '@vue/babel-plugin-jsx':
         specifier: ^1.1.1
-        version: 1.1.1(@babel/core@7.20.12)
+        version: 1.1.1
       '@vue/compiler-sfc':
         specifier: ^3.2.39
         version: 3.2.47
@@ -4601,7 +4601,7 @@ importers:
         version: 9.2.2
       vite:
         specifier: ^4.1.2
-        version: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+        version: 4.1.2
       vue:
         specifier: ^3.2.37
         version: 3.2.47
@@ -5952,6 +5952,18 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.20.12
+      '@babel/helper-plugin-utils': 7.20.2
+    dev: false
+
+  /@babel/plugin-syntax-jsx@7.18.6:
+    resolution: {integrity: sha512-6mmljtAedFGTWu2p/8WIORGwy+61PLgOMPOdazc7YoJ9ZCWUyFy3A6CpPkRKLKD1ToAesxX8KGEViAiLo9N+7Q==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+    dependencies:
       '@babel/helper-plugin-utils': 7.20.2
     dev: false
 
@@ -7943,6 +7955,21 @@ packages:
       - supports-color
     dev: false
 
+  /@markdoc/markdoc@0.2.2:
+    resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
+    engines: {node: '>=14.7.0'}
+    peerDependencies:
+      '@types/react': '*'
+      react: '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    optionalDependencies:
+      '@types/markdown-it': 12.2.3
+    dev: false
+
   /@markdoc/markdoc@0.2.2(@types/react@18.0.27)(react@18.2.0):
     resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
     engines: {node: '>=14.7.0'}
@@ -8585,7 +8612,7 @@ packages:
       magic-string: 0.27.0
       svelte: 3.55.1
       svelte-hmr: 0.15.1(svelte@3.55.1)
-      vite: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+      vite: 4.1.2
       vitefu: 0.2.4(vite@4.1.2)
     transitivePeerDependencies:
       - supports-color
@@ -9299,7 +9326,7 @@ packages:
       '@babel/core': 7.20.12
       '@babel/plugin-transform-typescript': 7.20.13(@babel/core@7.20.12)
       '@vue/babel-plugin-jsx': 1.1.1(@babel/core@7.20.12)
-      vite: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+      vite: 4.1.2
       vue: 3.2.47
     transitivePeerDependencies:
       - supports-color
@@ -9315,7 +9342,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+      vite: 4.1.2
       vue: 3.2.47
     dev: false
 
@@ -9335,6 +9362,23 @@ packages:
 
   /@vue/babel-helper-vue-transform-on@1.0.2:
     resolution: {integrity: sha512-hz4R8tS5jMn8lDq6iD+yWL6XNB699pGIVLk7WSJnn1dbpjaazsjZQkieJoRX6gW5zpYSCFqQ7jUquPNY65tQYA==}
+    dev: false
+
+  /@vue/babel-plugin-jsx@1.1.1:
+    resolution: {integrity: sha512-j2uVfZjnB5+zkcbc/zsOc0fSNGCMMjaEXP52wdwdIfn0qjFfEYpYZBFKFg+HHnQeJCVrjOeO0YxgaL7DMrym9w==}
+    dependencies:
+      '@babel/helper-module-imports': 7.18.6
+      '@babel/plugin-syntax-jsx': 7.18.6
+      '@babel/template': 7.20.7
+      '@babel/traverse': 7.20.13
+      '@babel/types': 7.20.7
+      '@vue/babel-helper-vue-transform-on': 1.0.2
+      camelcase: 6.3.0
+      html-tags: 3.2.0
+      svg-tags: 1.0.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
     dev: false
 
   /@vue/babel-plugin-jsx@1.1.1(@babel/core@7.20.12):
@@ -9774,7 +9818,7 @@ packages:
         optional: true
     dependencies:
       '@babel/helper-module-imports': 7.18.6
-      '@babel/plugin-syntax-jsx': 7.18.6(@babel/core@7.20.12)
+      '@babel/plugin-syntax-jsx': 7.18.6
       '@babel/types': 7.20.7
       html-entities: 2.3.3
       validate-html-nesting: 1.2.1
@@ -16537,7 +16581,7 @@ packages:
       svelte: 3.55.1
     dev: false
 
-  /svelte2tsx@0.5.23(svelte@3.55.1)(typescript@5.0.2):
+  /svelte2tsx@0.5.23(svelte@3.55.1):
     resolution: {integrity: sha512-jYFnugTQRFmUpvLXPQrKzVYcW5ErT+0QCxg027Zx9BuvYefMZFuoBSTDYe7viPEFGrPPiLgT2m7f5n9khE7f7Q==}
     peerDependencies:
       svelte: ^3.24
@@ -16549,7 +16593,6 @@ packages:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 3.55.1
-      typescript: 5.0.2
     dev: false
 
   /svelte@3.55.1:
@@ -17409,7 +17452,7 @@ packages:
       fsevents: 2.3.2
     dev: false
 
-  /vite@4.1.2(@types/node@18.13.0)(sass@1.58.0):
+  /vite@4.1.2:
     resolution: {integrity: sha512-MWDb9Rfy3DI8omDQySbMK93nQqStwbsQWejXRY2EBzEWKmLAXWb1mkI9Yw2IJrc+oCvPCI1Os5xSSIBYY6DEAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -17434,7 +17477,72 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 18.13.0
+      esbuild: 0.16.17
+      postcss: 8.4.21
+      resolve: 1.22.1
+      rollup: 3.14.0
+    optionalDependencies:
+      fsevents: 2.3.2
+
+  /vite@4.1.2(@types/node@14.18.36):
+    resolution: {integrity: sha512-MWDb9Rfy3DI8omDQySbMK93nQqStwbsQWejXRY2EBzEWKmLAXWb1mkI9Yw2IJrc+oCvPCI1Os5xSSIBYY6DEAw==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 14.18.36
+      esbuild: 0.16.17
+      postcss: 8.4.21
+      resolve: 1.22.1
+      rollup: 3.14.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
+  /vite@4.1.2(sass@1.58.0):
+    resolution: {integrity: sha512-MWDb9Rfy3DI8omDQySbMK93nQqStwbsQWejXRY2EBzEWKmLAXWb1mkI9Yw2IJrc+oCvPCI1Os5xSSIBYY6DEAw==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
       esbuild: 0.16.17
       postcss: 8.4.21
       resolve: 1.22.1
@@ -17442,6 +17550,16 @@ packages:
       sass: 1.58.0
     optionalDependencies:
       fsevents: 2.3.2
+    dev: false
+
+  /vitefu@0.2.4:
+    resolution: {integrity: sha512-fanAXjSaf9xXtOOeno8wZXIhgia+CZury481LsDaV++lSvcU2R9Ch2bPh3PYFyoHW+w9LqAeYRISVQjUIew14g==}
+    peerDependencies:
+      vite: ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      vite:
+        optional: true
+    dev: false
 
   /vitefu@0.2.4(vite@4.1.2):
     resolution: {integrity: sha512-fanAXjSaf9xXtOOeno8wZXIhgia+CZury481LsDaV++lSvcU2R9Ch2bPh3PYFyoHW+w9LqAeYRISVQjUIew14g==}
@@ -17451,7 +17569,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.1.2(@types/node@18.13.0)(sass@1.58.0)
+      vite: 4.1.2(sass@1.58.0)
     dev: false
 
   /vitest@0.20.3:
