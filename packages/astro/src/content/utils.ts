@@ -83,6 +83,16 @@ export async function getEntryData(
 			: collectionConfig.schema;
 
 	if (schema) {
+		// Override _processInputParams so we can pass down our own context.
+		const _processInputParams = schema._processInputParams;
+		schema._processInputParams = function(input: any) {
+			const out = _processInputParams.call(this, input);
+			out.ctx.astro = {
+				settings, pluginContext,
+				filePath: entry._internal.filePath
+			};
+			return out;
+		};
 		// Catch reserved `slug` field inside schema
 		// Note: will not warn for `z.union` or `z.intersection` schemas
 		if (typeof schema === 'object' && 'shape' in schema && schema.shape.slug) {
