@@ -75,14 +75,17 @@ export function astroContentAssetPropagationPlugin({
 				}
 
 				const code = `
-					export async function getMod() {
+					async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
-					export const collectedLinks = ${stringifiedLinks};
-					export const collectedStyles = ${stringifiedStyles};
-					export const collectedScripts = ${stringifiedScripts};
+					const collectedLinks = ${stringifiedLinks};
+					const collectedStyles = ${stringifiedStyles};
+					const collectedScripts = ${stringifiedScripts};
+					const defaultMod = { __astroPropagation: true, getMod, collectedLinks, collectedStyles, collectedScripts };
+					export default defaultMod;
 				`;
-
+				// ^ Use a default export for tools like Markdoc
+				// to catch the `__astroPropagation` identifier
 				return { code, map: { mappings: '' } };
 			}
 		},

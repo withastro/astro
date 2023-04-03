@@ -176,6 +176,8 @@ async function render({
 				};
 			}
 
+			console.log(renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`);
+
 			return createHeadAndContent(
 				unescapeHTML(styles + links + scripts) as any,
 				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
@@ -185,7 +187,7 @@ async function render({
 	});
 
 	return {
-		Content,
+		Content: mod.Content,
 		headings: mod.getHeadings?.() ?? [],
 		remarkPluginFrontmatter: mod.frontmatter ?? {},
 	};

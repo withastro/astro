@@ -14,4 +14,4 @@ const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 const content = Markdoc.transform(ast, config);
 ---
 
-<ComponentNode treeNode={createTreeNode(content)} />
+<ComponentNode treeNode={await createTreeNode(content)} />

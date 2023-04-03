@@ -77,8 +77,11 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 						}
 
 						const code = {
-							code: `import { jsx as h } from 'astro/jsx-runtime';
-import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
+							code: `import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
+import {
+	createComponent,
+	renderComponent,
+} from 'astro/runtime/server/index.js';
 import { Renderer } from '@astrojs/markdoc/components';
 import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
 								configLoadResult
@@ -92,17 +95,27 @@ import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
 const stringifiedAst = ${JSON.stringify(
 								/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
 							)};
-export async function Content (props) {
-	const config = applyDefaultConfig(${
-		configLoadResult
-			? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
-			: '{ variables: props }'
-	}, { entry });${
+export const Content = createComponent({
+	factory(result, props) {
+		const config = applyDefaultConfig(${
+			configLoadResult
+				? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
+				: '{ variables: props }'
+		}, { entry });${
 								astroConfig.experimental.assets
 									? `\nconfig.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
 									: ''
 							}
-	return h(Renderer, { stringifiedAst, config }); };`,
+		return renderComponent(
+			result,
+			Renderer.name,
+			Renderer,
+			{ stringifiedAst, config },
+			{}
+		);
+	},
+	propagation: 'self',
+});`,
 						};
 						return code;
 					},

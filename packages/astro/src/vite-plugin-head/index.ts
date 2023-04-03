@@ -32,6 +32,7 @@ export default function configHeadVitePlugin({
 		seen.add(id);
 		const mod = server.moduleGraph.getModuleById(id);
 		const info = this.getModuleInfo(id);
+		console.log('propagateMetadata', { id, mod });
 		if (info?.meta.astro) {
 			const astroMetadata = getAstroMetadata(info);
 			if (astroMetadata) {
