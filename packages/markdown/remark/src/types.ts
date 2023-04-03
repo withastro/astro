@@ -1,8 +1,8 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type {
-	all as Handlers,
 	one as Handler,
+	all as Handlers,
 	Options as RemarkRehypeOptions,
 } from 'remark-rehype';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
@@ -85,11 +85,12 @@ export interface MarkdownMetadata {
 export interface MarkdownVFile extends VFile {
 	data: {
 		__astroHeadings?: MarkdownHeading[];
+		imagePaths?: Set<string>;
 	};
 }
 
 export interface MarkdownRenderingResult {
 	metadata: MarkdownMetadata;
-	vfile: VFile;
+	vfile: MarkdownVFile;
 	code: string;
 }
