@@ -71,7 +71,11 @@ export function astroContentAssetPropagationPlugin({
 					'development'
 				);
 
-				const hoistedScripts = await getScriptsForURL(pathToFileURL(basePath), devModuleLoader);
+				const hoistedScripts = await getScriptsForURL(
+					pathToFileURL(basePath),
+					settings.config.root,
+					devModuleLoader
+				);
 
 				return {
 					code: code
