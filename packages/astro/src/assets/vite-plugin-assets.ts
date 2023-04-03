@@ -1,6 +1,6 @@
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
-import mime from 'mime';
+import mime from 'mime/lite.js';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
@@ -133,10 +133,7 @@ export default function assets({
 							format = result.format;
 						}
 
-						res.setHeader(
-							'Content-Type',
-							mime.getType(fileURLToPath(filePathURL)) || `image/${format}`
-						);
+						res.setHeader('Content-Type', mime.getType(format) ?? `image/${format}`);
 						res.setHeader('Cache-Control', 'max-age=360000');
 
 						const stream = Readable.from(data);
