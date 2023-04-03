@@ -1,6 +1,10 @@
 ---
-import { getEntryBySlug } from 'astro:content';
+import { getCollection, getEntryBySlug } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+
+const authors = await getCollection('authors');
+
+console.log(authors);
 
 const intro = await getEntryBySlug('docs', 'intro');
 const { Content } = await intro.render();
