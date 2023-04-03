@@ -80,7 +80,7 @@ export default function assets({
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
 					return `
-					export { getImage, getConfiguredImageService } from "astro/assets";
+					export { getImage, getConfiguredImageService, isLocalService } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 				`;
 				}

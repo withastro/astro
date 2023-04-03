@@ -4,8 +4,8 @@ import type { ImageService } from './services/service.js';
 
 export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
-export type InputFormat = (typeof VALID_INPUT_FORMATS)[number] | 'svg';
-export type OutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
+export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number] | 'svg';
+export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 
 declare global {
 	// eslint-disable-next-line no-var
@@ -23,7 +23,7 @@ export interface ImageMetadata {
 	src: string;
 	width: number;
 	height: number;
-	format: InputFormat;
+	format: ImageInputFormat;
 }
 
 /**
@@ -31,12 +31,19 @@ export interface ImageMetadata {
  */
 export type ImageTransform = {
 	src: ImageMetadata | string;
-	width?: number;
-	height?: number;
-	quality?: ImageQuality;
-	format?: OutputFormat;
+	width?: number | undefined;
+	height?: number | undefined;
+	quality?: ImageQuality | undefined;
+	format?: ImageOutputFormat | undefined;
 	[key: string]: any;
 };
+
+export interface GetImageResult {
+	rawOptions: ImageTransform;
+	options: ImageTransform;
+	src: string;
+	attributes: Record<string, any>;
+}
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type ImageSharedProps<T> = T & {
@@ -94,11 +101,11 @@ export type LocalImageProps<T> = ImageSharedProps<T> & {
 	 * <Image src={...} format="avif" alt="..." />
 	 * ```
 	 */
-	format?: OutputFormat;
+	format?: ImageOutputFormat;
 	/**
 	 * Desired quality for the image. Value can either be a preset such as `low` or `high`, or a numeric value from 0 to 100.
 	 *
-	 * The perceptual quality of the output image is loader-specific.
+	 * The perceptual quality of the output image is service-specific.
 	 * For instance, a certain service might decide that `high` results in a very beautiful image, but another could choose for it to be at best passable.
 	 *
 	 * **Example**:
