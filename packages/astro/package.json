@@ -99,6 +99,7 @@
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js",
+    "t": "mocha --exit --timeout 30000 ./test/astro-mode-envs.test.js",
     "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
     "test": "pnpm run test:unit && mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g",
