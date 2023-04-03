@@ -21,9 +21,9 @@ import {
 	type ContentConfig,
 } from './utils.js';
 
-function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
-	const { searchParams, pathname } = new URL(viteId, 'file://');
-	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
+function isContentFlagImport(viteId: string) {
+	const flags = new URLSearchParams(viteId.split('?')[1]);
+	return flags.has(CONTENT_FLAG);
 }
 
 function getContentRendererByViteId(
@@ -62,12 +62,23 @@ export function astroContentImportPlugin({
 		}
 	}
 
+	// Have Vite treat content modules as `.js` modules.
+	// Hack to avoid aggressive `.json` file transform.
+	const CONTENT_MODULE_JS_MASK = `.js?${CONTENT_FLAG}=true`;
+
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
-			async load(viteId) {
-				if (isContentFlagImport(viteId, contentEntryExts)) {
-					const { fileId } = getFileInfo(viteId, settings.config);
+			enforce: 'pre',
+			async resolveId(id) {
+				if (isContentFlagImport(id) && !id.endsWith(CONTENT_MODULE_JS_MASK)) {
+					return id.split('?')[0] + CONTENT_MODULE_JS_MASK;
+				}
+			},
+			async load(unresolvedId) {
+				if (isContentFlagImport(unresolvedId)) {
+					const unmaskedId = unresolvedId.replace(CONTENT_MODULE_JS_MASK, '');
+					const fileId = (await this.resolve(unmaskedId))?.id ?? unmaskedId;
 					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
 						fileId,
 						pluginContext: this,
@@ -96,7 +107,7 @@ export const _internal = {
 						// Content modules depend on config, so we need to invalidate them.
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 							if (
-								isContentFlagImport(modUrl, contentEntryExts) ||
+								isContentFlagImport(modUrl) ||
 								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
 								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
@@ -109,7 +120,7 @@ export const _internal = {
 				});
 			},
 			async transform(code, id) {
-				if (isContentFlagImport(id, contentEntryExts)) {
+				if (isContentFlagImport(id)) {
 					// Escape before Rollup internal transform.
 					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
 					return { code: escapeViteEnvReferences(code) };
