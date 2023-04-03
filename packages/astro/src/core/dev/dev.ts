@@ -21,7 +21,7 @@ export interface DevOptions {
 	telemetry: AstroTelemetry;
 	handleConfigError: (error: Error) => void;
 	isRestart?: boolean;
-	mode?: RuntimeMode;
+	mode: RuntimeMode;
 }
 
 export interface DevServer {

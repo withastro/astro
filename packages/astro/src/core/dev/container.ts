@@ -48,17 +48,17 @@ export interface CreateContainerParams {
 	configFlag?: string;
 	configFlagPath?: string;
 	disableTelemetry?: boolean;
-	mode?: RuntimeMode
+	mode: RuntimeMode;
 }
 
-export async function createContainer(params: CreateContainerParams = {}): Promise<Container> {
+export async function createContainer(params: CreateContainerParams = { mode: 'development'}): Promise<Container> {
 	let {
 		isRestart = false,
 		logging = defaultLogging,
 		settings = await createDefaultDevSettings(params.userConfig, params.root),
 		fs = nodeFs,
 		disableTelemetry,
-		mode
+		mode,
 	} = params;
 
 	if (disableTelemetry) {
@@ -83,7 +83,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 
 	const viteConfig = await createVite(
 		{
-			mode: mode || 'development',
+			mode: mode,
 			server: { host, headers, open },
 			optimizeDeps: {
 				include: rendererClientEntries,
@@ -158,7 +158,7 @@ export async function runInContainer(
 	params: CreateContainerParams,
 	callback: (container: Container) => Promise<void> | void
 ) {
-	const container = await createContainer({ ...params, disableTelemetry: true });
+	const container = await createContainer({...{ mode: 'developmen' }, ...params, disableTelemetry: true });
 	try {
 		await callback(container);
 	} finally {

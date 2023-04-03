@@ -206,7 +206,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				flags,
 				logging,
 				telemetry,
-				mode: flags.mode,
+				mode: flags.mode || 'development',
 				handleConfigError(e) {
 					handleConfigError(e, { cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');
@@ -223,7 +223,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				logging,
 				telemetry,
 				teardownCompiler: true,
-				mode: flags.mode,
+				mode: flags.mode || 'production',
 			});
 		}
 

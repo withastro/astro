@@ -10,7 +10,7 @@ async function createRestartedContainer(
 	container: Container,
 	settings: AstroSettings,
 	needsStart: boolean,
-	mode?: RuntimeMode
+	mode: RuntimeMode
 ): Promise<Container> {
 	const { logging, fs, resolvedRoot, configFlag, configFlagPath } = container;
 	const newContainer = await createContainer({
@@ -68,7 +68,7 @@ interface RestartContainerParams {
 	logMsg: string;
 	handleConfigError: (err: Error) => Promise<void> | void;
 	beforeRestart?: () => void;
-	mode?: RuntimeMode
+	mode: RuntimeMode
 }
 
 export async function restartContainer({

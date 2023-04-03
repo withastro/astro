@@ -25,7 +25,7 @@ import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-	mode?: RuntimeMode;
+	mode: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 	/**
@@ -61,7 +61,7 @@ export default async function build(settings: AstroSettings, options: BuildOptio
 class AstroBuilder {
 	private settings: AstroSettings;
 	private logging: LogOptions;
-	private mode?: RuntimeMode;
+	private mode: RuntimeMode = 'production';
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
@@ -71,8 +71,6 @@ class AstroBuilder {
 	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
 			this.mode = options.mode;
-		} else {
-			this.mode = 'production';
 		}
 
 		this.settings = settings;
