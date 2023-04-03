@@ -1,6 +1,6 @@
 import type * as http from 'http';
 import type { AddressInfo } from 'net';
-import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
+import type { AstroSettings, AstroUserConfig, RuntimeMode } from '../../@types/astro';
 
 import nodeFs from 'fs';
 import * as vite from 'vite';
@@ -48,6 +48,7 @@ export interface CreateContainerParams {
 	configFlag?: string;
 	configFlagPath?: string;
 	disableTelemetry?: boolean;
+	mode?: RuntimeMode
 }
 
 export async function createContainer(params: CreateContainerParams = {}): Promise<Container> {
@@ -57,6 +58,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		settings = await createDefaultDevSettings(params.userConfig, params.root),
 		fs = nodeFs,
 		disableTelemetry,
+		mode
 	} = params;
 
 	if (disableTelemetry) {
@@ -81,7 +83,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 
 	const viteConfig = await createVite(
 		{
-			mode: 'development',
+			mode: mode || 'development',
 			server: { host, headers, open },
 			optimizeDeps: {
 				include: rendererClientEntries,

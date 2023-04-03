@@ -206,6 +206,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				flags,
 				logging,
 				telemetry,
+				mode: flags.mode,
 				handleConfigError(e) {
 					handleConfigError(e, { cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');

@@ -34,7 +34,7 @@ export interface StaticBuildOptions {
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 	manifest: ManifestData;
-	mode: RuntimeMode;
+	mode?: RuntimeMode;
 	origin: string;
 	pageNames: string[];
 	routeCache: RouteCache;

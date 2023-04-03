@@ -1,5 +1,5 @@
 import * as vite from 'vite';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings, RuntimeMode } from '../../@types/astro';
 import { createSettings, openConfig } from '../config/index.js';
 import { createSafeError } from '../errors/index.js';
 import { info } from '../logger/core.js';
@@ -9,7 +9,8 @@ import { createContainer, isStarted, startContainer } from './container.js';
 async function createRestartedContainer(
 	container: Container,
 	settings: AstroSettings,
-	needsStart: boolean
+	needsStart: boolean,
+	mode?: RuntimeMode
 ): Promise<Container> {
 	const { logging, fs, resolvedRoot, configFlag, configFlagPath } = container;
 	const newContainer = await createContainer({
@@ -20,6 +21,7 @@ async function createRestartedContainer(
 		root: resolvedRoot,
 		configFlag,
 		configFlagPath,
+		mode,
 	});
 
 	if (needsStart) {
@@ -66,6 +68,7 @@ interface RestartContainerParams {
 	logMsg: string;
 	handleConfigError: (err: Error) => Promise<void> | void;
 	beforeRestart?: () => void;
+	mode?: RuntimeMode
 }
 
 export async function restartContainer({
@@ -74,6 +77,7 @@ export async function restartContainer({
 	logMsg,
 	handleConfigError,
 	beforeRestart,
+	mode
 }: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
 	const { logging, close, resolvedRoot, settings: existingSettings } = container;
 	container.restartInFlight = true;
@@ -96,7 +100,7 @@ export async function restartContainer({
 		const settings = createSettings(astroConfig, resolvedRoot);
 		await close();
 		return {
-			container: await createRestartedContainer(container, settings, needsStart),
+			container: await createRestartedContainer(container, settings, needsStart, mode),
 			error: null,
 		};
 	} catch (_err) {
@@ -105,7 +109,7 @@ export async function restartContainer({
 		await close();
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
 		return {
-			container: await createRestartedContainer(container, existingSettings, needsStart),
+			container: await createRestartedContainer(container, existingSettings, needsStart, mode),
 			error,
 		};
 	}
@@ -161,6 +165,7 @@ export async function createContainerWithAutomaticRestart({
 					},
 				});
 			},
+			mode: params.mode
 		});
 		restart.container = newContainer;
 		// Add new watches because this is a new container with a new Vite server

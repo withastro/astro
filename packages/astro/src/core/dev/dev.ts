@@ -5,7 +5,7 @@ import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings, RuntimeMode } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
 import { info, warn, type LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
@@ -21,6 +21,7 @@ export interface DevOptions {
 	telemetry: AstroTelemetry;
 	handleConfigError: (error: Error) => void;
 	isRestart?: boolean;
+	mode?: RuntimeMode;
 }
 
 export interface DevServer {
@@ -69,6 +70,7 @@ export default async function dev(
 			root: options.flags?.root,
 			logging: options.logging,
 			isRestart: options.isRestart,
+			mode: options.mode
 		},
 	});
 
