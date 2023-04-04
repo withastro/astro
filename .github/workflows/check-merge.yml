@@ -67,7 +67,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         continue-on-error: true
         with:
-          issue-number: ${{ github.event.issue.number }}
+          issue-number: ${{ github.event.number }}
           body: |
             This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.
           edit-mode: replace
