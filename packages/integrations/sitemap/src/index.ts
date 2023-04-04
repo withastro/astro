@@ -79,6 +79,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					let pageUrls = pages.map((p) => {
+						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+							finalSiteUrl.pathname += '/';
 						const path = finalSiteUrl.pathname + p.pathname;
 						return new URL(path, finalSiteUrl).href;
 					});
