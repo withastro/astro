@@ -24,6 +24,7 @@ import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
+import * as MODE from '../constants'
 import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
@@ -144,7 +145,7 @@ async function ssrBuild(
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
+		mode: viteConfig.mode || MODE.PRODUCTION_MODE,
 		logLevel: opts.viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
@@ -220,7 +221,7 @@ async function clientBuild(
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
-		mode: viteConfig.mode || 'production',
+		mode: viteConfig.mode || MODE.PRODUCTION_MODE,
 		logLevel: 'info',
 		build: {
 			target: 'esnext',

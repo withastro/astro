@@ -22,6 +22,7 @@ import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
+import * as MODE from '../constants'
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
@@ -47,6 +48,7 @@ export default async function build(settings: AstroSettings, options: BuildOptio
 				Flags: [
 					['--drafts', `Include Markdown draft pages in the build.`],
 					['--help (-h)', 'See all available flags.'],
+					['--mode', 'Specifying this in config will override the default mode for both serve and build.'],
 				],
 			},
 			description: `Builds your site for deployment.`,
@@ -61,7 +63,7 @@ export default async function build(settings: AstroSettings, options: BuildOptio
 class AstroBuilder {
 	private settings: AstroSettings;
 	private logging: LogOptions;
-	private mode: RuntimeMode = 'production';
+	private mode: RuntimeMode = MODE.PRODUCTION_MODE;
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;

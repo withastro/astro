@@ -16,6 +16,7 @@ import { createVite } from '../create-vite.js';
 import type { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 import { appendForwardSlash } from '../path.js';
+import * as MODE from '../constants'
 import { apply as applyPolyfill } from '../polyfill.js';
 
 const defaultLogging: LogOptions = {
@@ -51,7 +52,7 @@ export interface CreateContainerParams {
 	mode: RuntimeMode;
 }
 
-export async function createContainer(params: CreateContainerParams = { mode: 'development'}): Promise<Container> {
+export async function createContainer(params: CreateContainerParams = { mode: MODE.DEVELOPMENT_MODE}): Promise<Container> {
 	let {
 		isRestart = false,
 		logging = defaultLogging,
@@ -158,7 +159,7 @@ export async function runInContainer(
 	params: CreateContainerParams,
 	callback: (container: Container) => Promise<void> | void
 ) {
-	const container = await createContainer({...{ mode: 'developmen' }, ...params, disableTelemetry: true });
+	const container = await createContainer({...{ mode: MODE.DEVELOPMENT_MODE }, ...params, disableTelemetry: true });
 	try {
 		await callback(container);
 	} finally {

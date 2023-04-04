@@ -2,6 +2,7 @@
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
+import * as MODE from '../core/constants'
 import yargs from 'yargs-parser';
 import { z } from 'zod';
 import {
@@ -172,7 +173,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
 	if (!process.env.NODE_ENV) {
-		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
+		process.env.NODE_ENV = cmd === 'dev' ? MODE.DEVELOPMENT_MODE : MODE.PRODUCTION_MODE;
 	}
 
 	let { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
@@ -206,7 +207,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				flags,
 				logging,
 				telemetry,
-				mode: flags.mode || 'development',
+				mode: flags.mode || MODE.DEVELOPMENT_MODE,
 				handleConfigError(e) {
 					handleConfigError(e, { cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');
@@ -223,7 +224,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				logging,
 				telemetry,
 				teardownCompiler: true,
-				mode: flags.mode || 'production',
+				mode: flags.mode || MODE.PRODUCTION_MODE,
 			});
 		}
 

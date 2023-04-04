@@ -10,3 +10,6 @@ export const SUPPORTED_MARKDOWN_FILE_EXTENSIONS = [
 	'.mdwn',
 	'.md',
 ] as const;
+
+export const DEVELOPMENT_MODE = "development";
+export const PRODUCTION_MODE = "production";

@@ -12,12 +12,12 @@ describe('Environment Variables when use --mode flag', () => {
 		});
 	});
 
-	describe('Build', () => {
+	describe('when running "astro build', () => {
 		before(async () => {
 			await fixture.build({mode: 'test'});
 		});
 
-		it('does render public env and private env', async () => {
+		it('should render public env and private env', async () => {
 			let indexHtml = await fixture.readFile('/index.html');
 			expect(indexHtml).to.include('test');
 			expect(indexHtml).to.include('BLUE_BAYOU');
@@ -26,7 +26,7 @@ describe('Environment Variables when use --mode flag', () => {
 	
 	});
 
-	describe('Development', () => {
+	describe('when running "astro dev', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
 		before(async () => {
@@ -36,7 +36,7 @@ describe('Environment Variables when use --mode flag', () => {
 			await devServer.stop();
 		});
 
-		it('does render public env and private env', async () => {
+		it('should render public env and private env', async () => {
 			let res = await fixture.fetch('/index.html');
 			let test = await res.text();
 			expect(test).to.include('test');
