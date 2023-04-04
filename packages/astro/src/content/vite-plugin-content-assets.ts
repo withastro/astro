@@ -18,12 +18,9 @@ import {
 } from './consts.js';
 import { getContentEntryExts } from './utils.js';
 
-function isPropagatedAsset(viteId: string, contentEntryExts: string[]): boolean {
-	const url = new URL(viteId, 'file://');
-	return (
-		url.searchParams.has(PROPAGATED_ASSET_FLAG) &&
-		contentEntryExts.some((ext) => url.pathname.endsWith(ext))
-	);
+function isPropagatedAsset(viteId: string) {
+	const flags = new URLSearchParams(viteId.split('?')[1]);
+	return flags.has(PROPAGATED_ASSET_FLAG);
 }
 
 export function astroContentAssetPropagationPlugin({
@@ -43,9 +40,9 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		async transform(code, id, options) {
-			if (isPropagatedAsset(id, contentEntryExts)) {
+			if (isPropagatedAsset(id)) {
 				const basePath = id.split('?')[0];
-				let collectedLinks: string, collectedStyles: string, collectedScripts: string;
+				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
 
 				// We can access the server in dev,
 				// so resolve collected styles and scripts here.
@@ -65,25 +62,25 @@ export function astroContentAssetPropagationPlugin({
 						devModuleLoader
 					);
 
-					collectedLinks = JSON.stringify([...urls]);
-					collectedStyles = JSON.stringify([...stylesMap.values()]);
-					collectedScripts = JSON.stringify([...hoistedScripts]);
+					stringifiedLinks = JSON.stringify([...urls]);
+					stringifiedStyles = JSON.stringify([...stylesMap.values()]);
+					stringifiedScripts = JSON.stringify([...hoistedScripts]);
 				} else {
 					// Otherwise, use placeholders to inject styles and scripts
 					// during the production bundle step.
 					// @see the `astro:content-build-plugin` below.
-					collectedLinks = JSON.stringify(LINKS_PLACEHOLDER);
-					collectedStyles = JSON.stringify(STYLES_PLACEHOLDER);
-					collectedScripts = JSON.stringify(SCRIPTS_PLACEHOLDER);
+					stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
+					stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
+					stringifiedScripts = JSON.stringify(SCRIPTS_PLACEHOLDER);
 				}
 
 				const code = `
 					export async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
-					export const collectedLinks = ${collectedLinks};
-					export const collectedStyles = ${collectedStyles};
-					export const collectedScripts = ${collectedScripts};
+					export const collectedLinks = ${stringifiedLinks};
+					export const collectedStyles = ${stringifiedStyles};
+					export const collectedScripts = ${stringifiedScripts};
 				`;
 				return { code };
 			}
