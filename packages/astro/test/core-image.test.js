@@ -218,6 +218,19 @@ describe('astro:image', () => {
 				let $img = $('img');
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
 			});
+
+			it('properly handles remote images', async () => {
+				let res = await fixture.fetch('/httpImage');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(2);
+				const remoteUrls = ['https://example.com/image.png', '/image.png'];
+				$img.each((index, element) => {
+					expect(element.attribs['src']).to.equal(remoteUrls[index]);
+				});
+			});
 		});
 
 		describe('getImage', () => {
