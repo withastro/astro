@@ -632,15 +632,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * TODO [PLT-101] documentation
 	 */
-	MiddlewareOnRequestNotFound: {
-		title: "The middleware doesn't export the function 'onRequest'.",
-		code: 3030,
-		message: "A middleware must export a function called 'onRequest'",
-	},
-
-	/**
-	 * TODO [PLT-101] documentation
-	 */
 	LocalsNotAvailable: {
 		title: '`Astro.locals` is not available in current adapter.',
 		code: 3030,

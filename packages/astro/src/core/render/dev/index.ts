@@ -210,56 +210,51 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 					: '',
 			});
 		}
-		const [params, pageProps] = paramsAndPropsRes;
 
-		const apiContext = createAPIContext({
-			request: options.request,
-			params,
-			props: pageProps,
-			adapterName: options.env.adapterName,
-		});
-
-		let onRequestHandler: MiddlewareHandler | undefined = undefined;
 		const { onRequest } = options.middleware;
 		if (onRequest) {
-			onRequestHandler = onRequest;
-		} else {
-			throw new AstroError({
-				...AstroErrorData.MiddlewareOnRequestNotFound,
+			const [params, pageProps] = paramsAndPropsRes;
+
+			const apiContext = createAPIContext({
+				request: options.request,
+				params,
+				props: pageProps,
+				adapterName: options.env.adapterName,
 			});
-		}
-		let resolveResolve: any;
-		new Promise((resolve) => {
-			resolveResolve = resolve;
-		});
 
-		let resolveCalledResolve: any;
-		let resolveCalled = new Promise((resolve) => {
-			resolveCalledResolve = resolve;
-		});
-		const resolve: MiddlewareResolve = (context) => {
-			const response = coreRenderPage(mod, ctx, options.env, apiContext);
-			resolveCalledResolve('resolveCalled');
+			let resolveResolve: any;
+			new Promise((resolve) => {
+				resolveResolve = resolve;
+			});
+
+			let resolveCalledResolve: any;
+			let resolveCalled = new Promise((resolve) => {
+				resolveCalledResolve = resolve;
+			});
+			const resolve: MiddlewareResolve = (context) => {
+				const response = coreRenderPage(mod, ctx, options.env, apiContext);
+				resolveCalledResolve('resolveCalled');
+				return response;
+			};
+
+			let middlewarePromise = onRequest(apiContext, resolve);
+
+			let response = await Promise.race([middlewarePromise, resolveCalled]).then(async (value) => {
+				if (value === 'resolveCalled') {
+					// Middleware called resolve()
+					// render the page and then pass back to middleware
+					// for post-processing
+					const responseResult = await coreRenderPage(mod, ctx, options.env, apiContext);
+					await resolveResolve(responseResult);
+					return middlewarePromise;
+				} else {
+					// Middleware did not call resolve()
+					return await coreRenderPage(mod, ctx, options.env, apiContext);
+				}
+			});
+
 			return response;
-		};
-
-		let middlewarePromise = onRequestHandler(apiContext, resolve);
-
-		let response = await Promise.race([middlewarePromise, resolveCalled]).then(async (value) => {
-			if (value === 'resolveCalled') {
-				// Middleware called resolve()
-				// render the page and then pass back to middleware
-				// for post-processing
-				const responseResult = await coreRenderPage(mod, ctx, options.env, apiContext);
-				await resolveResolve(responseResult);
-				return middlewarePromise;
-			} else {
-				// Middleware did not call resolve()
-				return await coreRenderPage(mod, ctx, options.env, apiContext);
-			}
-		});
-
-		return response;
+		}
 	}
 	return await coreRenderPage(mod, ctx, options.env); // NOTE: without "await", errors won’t get caught below
 }
