@@ -47,6 +47,16 @@ type RSSFeedItem = {
 	customData?: z.infer<typeof rssSchema>['customData'];
 	/** Whether draft or not */
 	draft?: z.infer<typeof rssSchema>['draft'];
+	/** Categories or tags related to the item */
+	categories?: z.infer<typeof rssSchema>['categories'];
+	/** The item author's email address */
+	author?: z.infer<typeof rssSchema>['author'];
+	/** A URL of a page for comments related to the item */
+	comments?: z.infer<typeof rssSchema>['comments'];
+	/** The RSS channel that the item came from */
+	source?: z.infer<typeof rssSchema>['source'];
+	/** A media object that belongs to the item */
+	enclosure?: z.infer<typeof rssSchema>['enclosure'];
 };
 
 type ValidatedRSSFeedItem = z.infer<typeof rssFeedItemValidator>;

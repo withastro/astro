@@ -128,6 +128,16 @@ type RSSFeedItem = {
   content?: string;
   /** Append some other XML-valid data to this item */
   customData?: string;
+  /** Categories or tags related to the item */
+  categories?: string[];
+  /** The item author's email address */
+  author?: string;
+  /** A URL of a page for comments relating to the item */
+  comments?: string;
+  /** The RSS channel that the item came from */
+  source?: { url: string, title: string }
+  /** A media object that belongs to the item */
+  enclosure?: { url: string, length: number, type: string }
 };
 ```
 
