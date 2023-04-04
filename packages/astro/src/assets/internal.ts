@@ -4,7 +4,7 @@ import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
-import type { ImageMetadata, ImageTransform } from './types.js';
+import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
@@ -29,13 +29,6 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return globalThis.astroAsset.imageService;
 }
 
-interface GetImageResult {
-	rawOptions: ImageTransform;
-	options: ImageTransform;
-	src: string;
-	attributes: Record<string, any>;
-}
-
 /**
  * Get an optimized image and the necessary attributes to render it.
  *
@@ -45,7 +38,7 @@ interface GetImageResult {
  * import { getImage } from 'astro:assets';
  * import originalImage from '../assets/image.png';
  *
- * const optimizedImage = await getImage({src: originalImage, width: 1280 })
+ * const optimizedImage = await getImage({src: originalImage, width: 1280 });
  * ---
  * <img src={optimizedImage.src} {...optimizedImage.attributes} />
  * ```

@@ -1,4 +1,4 @@
-import type { OutputFormat } from '../../../types.js';
+import type { ImageOutputFormat } from '../../../types.js';
 import * as impl from './impl.js';
 
 type RotateOperation = {
@@ -15,7 +15,7 @@ export type Operation = RotateOperation | ResizeOperation
 export async function processBuffer(
   buffer: Buffer,
   operations: Operation[],
-  encoding: OutputFormat,
+  encoding: ImageOutputFormat,
   quality?: number
 ): Promise<Uint8Array> {
   let imageData = await impl.decodeBuffer(buffer)
