@@ -13,6 +13,25 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]];
 
+	// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
+	/**
+	 * @deprecated
+	 * `astro:content` no longer provide `image()`.
+	 *
+	 * Please use it through `schema`, like such:
+	 * ```ts
+	 * import { defineCollection, z } from "astro:content";
+	 *
+	 * defineCollection({
+	 *   schema: ({ image }) =>
+	 *     z.object({
+	 *       image: image(),
+	 *     }),
+	 * });
+	 * ```
+	 */
+	export const image: never;
+
 	// This needs to be in sync with ImageMetadata
 	type ImageFunction = () => import('astro/zod').ZodObject<{
 		src: import('astro/zod').ZodString;
