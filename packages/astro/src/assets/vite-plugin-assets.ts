@@ -1,6 +1,6 @@
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
-import mime from 'mime';
+import mime from 'mime/lite.js';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,7 @@ import { copyWasmFiles } from './services/vendor/squoosh/copy-wasm.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { imageMetadata } from './utils/metadata.js';
 import { getOrigQueryParams } from './utils/queryParams.js';
-import { propsToFilename } from './utils/transformToPath.js';
+import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -80,7 +80,7 @@ export default function assets({
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
 					return `
-					export { getImage, getConfiguredImageService } from "astro/assets";
+					export { getImage, getConfiguredImageService, isLocalService } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 				`;
 				}
@@ -133,10 +133,7 @@ export default function assets({
 							format = result.format;
 						}
 
-						res.setHeader(
-							'Content-Type',
-							mime.getType(fileURLToPath(filePathURL)) || `image/${format}`
-						);
+						res.setHeader('Content-Type', mime.getType(format) ?? `image/${format}`);
 						res.setHeader('Cache-Control', 'max-age=360000');
 
 						const stream = Readable.from(data);
@@ -153,12 +150,17 @@ export default function assets({
 
 				globalThis.astroAsset.addStaticImage = (options) => {
 					if (!globalThis.astroAsset.staticImages) {
-						globalThis.astroAsset.staticImages = new Map<ImageTransform, string>();
+						globalThis.astroAsset.staticImages = new Map<
+							string,
+							{ path: string; options: ImageTransform }
+						>();
 					}
 
+					const hash = hashTransform(options, settings.config.image.service);
+
 					let filePath: string;
-					if (globalThis.astroAsset.staticImages.has(options)) {
-						filePath = globalThis.astroAsset.staticImages.get(options)!;
+					if (globalThis.astroAsset.staticImages.has(hash)) {
+						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
 					} else {
 						// If the image is not imported, we can return the path as-is, since static references
 						// should only point ot valid paths for builds or remote images
@@ -167,12 +169,9 @@ export default function assets({
 						}
 
 						filePath = prependForwardSlash(
-							joinPaths(
-								settings.config.build.assets,
-								propsToFilename(options, settings.config.image.service)
-							)
+							joinPaths(settings.config.build.assets, propsToFilename(options, hash))
 						);
-						globalThis.astroAsset.staticImages.set(options, filePath);
+						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
 					}
 
 					return prependForwardSlash(joinPaths(settings.config.base, filePath));
@@ -183,12 +182,14 @@ export default function assets({
 					return;
 				}
 
-				const dir =
-					settings.config.output === 'server'
-						? settings.config.build.server
-						: settings.config.outDir;
+				if (settings.config.image.service === 'astro/assets/services/squoosh') {
+					const dir =
+						settings.config.output === 'server'
+							? settings.config.build.server
+							: settings.config.outDir;
 
-				await copyWasmFiles(new URL('./chunks', dir));
+					await copyWasmFiles(new URL('./chunks', dir));
+				}
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {

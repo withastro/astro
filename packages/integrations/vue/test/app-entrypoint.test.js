@@ -1,7 +1,6 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-
 describe('App Entrypoint', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

@@ -18,7 +18,6 @@ import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
-import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 
 type Arguments = yargs.Arguments;
@@ -228,6 +227,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'check': {
+			const { check } = await import('./check/index.js');
+
 			// We create a server to start doing our operations
 			const checkServer = await check(settings, { flags, logging });
 			if (checkServer) {

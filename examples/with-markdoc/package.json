@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/markdoc": "^0.1.0",
-    "astro": "^2.1.8",
+    "astro": "^2.1.9",
     "kleur": "^4.1.5"
   }
 }

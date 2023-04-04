@@ -216,6 +216,6 @@ export async function handleRoute(
 	} else {
 		const result = await renderPage(options);
 		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(result, res);
+		return await writeSSRResult(request, result, res);
 	}
 }
