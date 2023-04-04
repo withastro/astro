@@ -68,7 +68,7 @@ export const ComponentNode = createComponent({
 
 			const head = unescapeHTML(styles + links + scripts);
 
-			return createHeadAndContent(
+			let headAndContent = createHeadAndContent(
 				head,
 				renderTemplate`${renderComponent(
 					result,
@@ -78,6 +78,15 @@ export const ComponentNode = createComponent({
 					slots
 				)}`
 			);
+
+			// Let the runtime know that this component is being used.
+			result.propagators.set({}, {
+				init() {
+					return headAndContent;
+				}
+			});
+
+			return headAndContent;
 		}
 		return renderComponent(result, treeNode.tag, treeNode.tag, treeNode.attributes, slots);
 	},

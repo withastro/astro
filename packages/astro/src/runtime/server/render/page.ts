@@ -55,7 +55,6 @@ async function iterableToHTMLBytes(
 // to be propagated up.
 async function bufferHeadContent(result: SSRResult) {
 	const iterator = result.propagators.values();
-	console.log('bufferHeadContent', result.componentMetadata);
 	while (true) {
 		const { value, done } = iterator.next();
 		if (done) {

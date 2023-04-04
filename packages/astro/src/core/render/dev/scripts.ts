@@ -15,7 +15,7 @@ export async function getScriptsForURL(
 	const rootID = viteID(filePath);
 	const modInfo = loader.getModuleInfo(rootID);
 	addHoistedScripts(elements, modInfo, root);
-	for await (const moduleNode of crawlGraph(loader, rootID, true)) {
+	for await (const moduleNode of crawlGraph(loader, rootID, true, true)) {
 		const id = moduleNode.id;
 		if (id) {
 			const info = loader.getModuleInfo(id);

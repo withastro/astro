@@ -14,7 +14,7 @@ export async function getStylesForURL(
 	const importedCssUrls = new Set<string>();
 	const importedStylesMap = new Map<string, string>();
 
-	for await (const importedModule of crawlGraph(loader, viteID(filePath), true)) {
+	for await (const importedModule of crawlGraph(loader, viteID(filePath), true, true)) {
 		if (isBuildableCSSRequest(importedModule.url)) {
 			let ssrModule: Record<string, any>;
 			try {
