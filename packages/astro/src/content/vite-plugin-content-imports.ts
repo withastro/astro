@@ -62,23 +62,12 @@ export function astroContentImportPlugin({
 		}
 	}
 
-	// Have Vite treat content modules as `.js` modules.
-	// Hack to avoid aggressive `.json` file transform.
-	const CONTENT_MODULE_JS_MASK = `.js?${CONTENT_FLAG}=true`;
-
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
-			enforce: 'pre',
-			async resolveId(id) {
-				if (isContentFlagImport(id) && !id.endsWith(CONTENT_MODULE_JS_MASK)) {
-					return id.split('?')[0] + CONTENT_MODULE_JS_MASK;
-				}
-			},
-			async load(unresolvedId) {
-				if (isContentFlagImport(unresolvedId)) {
-					const unmaskedId = unresolvedId.replace(CONTENT_MODULE_JS_MASK, '');
-					const fileId = (await this.resolve(unmaskedId))?.id ?? unmaskedId;
+			async transform(code, viteId) {
+				if (isContentFlagImport(viteId)) {
+					const fileId = viteId.split('?')[0];
 					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
 						fileId,
 						pluginContext: this,
@@ -118,13 +107,6 @@ export const _internal = {
 						}
 					}
 				});
-			},
-			async transform(code, id) {
-				if (isContentFlagImport(id)) {
-					// Escape before Rollup internal transform.
-					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
-					return { code: escapeViteEnvReferences(code) };
-				}
 			},
 		},
 	];

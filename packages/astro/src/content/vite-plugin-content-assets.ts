@@ -37,51 +37,55 @@ export function astroContentAssetPropagationPlugin({
 	const contentEntryExts = getContentEntryExts(settings);
 	return {
 		name: 'astro:content-asset-propagation',
-		enforce: 'pre',
 		configureServer(server) {
 			if (mode === 'dev') {
 				devModuleLoader = createViteLoader(server);
 			}
 		},
-		load(id) {
+		async transform(code, id, options) {
 			if (isPropagatedAsset(id, contentEntryExts)) {
 				const basePath = id.split('?')[0];
+				let collectedLinks: string, collectedStyles: string, collectedScripts: string;
+
+				// We can access the server in dev,
+				// so resolve collected styles and scripts here.
+				if (options?.ssr && devModuleLoader) {
+					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
+						await devModuleLoader.import(basePath);
+					}
+					const { stylesMap, urls } = await getStylesForURL(
+						pathToFileURL(basePath),
+						devModuleLoader,
+						'development'
+					);
+
+					const hoistedScripts = await getScriptsForURL(
+						pathToFileURL(basePath),
+						settings.config.root,
+						devModuleLoader
+					);
+
+					collectedLinks = JSON.stringify([...urls]);
+					collectedStyles = JSON.stringify([...stylesMap.values()]);
+					collectedScripts = JSON.stringify([...hoistedScripts]);
+				} else {
+					// Otherwise, use placeholders to inject styles and scripts
+					// during the production bundle step.
+					// @see the `astro:content-build-plugin` below.
+					collectedLinks = JSON.stringify(LINKS_PLACEHOLDER);
+					collectedStyles = JSON.stringify(STYLES_PLACEHOLDER);
+					collectedScripts = JSON.stringify(SCRIPTS_PLACEHOLDER);
+				}
+
 				const code = `
 					export async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
-					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
-					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
-					export const collectedScripts = ${JSON.stringify(SCRIPTS_PLACEHOLDER)};
+					export const collectedLinks = ${collectedLinks};
+					export const collectedStyles = ${collectedStyles};
+					export const collectedScripts = ${collectedScripts};
 				`;
 				return { code };
-			}
-		},
-		async transform(code, id, options) {
-			if (!options?.ssr) return;
-			if (devModuleLoader && isPropagatedAsset(id, contentEntryExts)) {
-				const basePath = id.split('?')[0];
-				if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
-					await devModuleLoader.import(basePath);
-				}
-				const { stylesMap, urls } = await getStylesForURL(
-					pathToFileURL(basePath),
-					devModuleLoader,
-					'development'
-				);
-
-				const hoistedScripts = await getScriptsForURL(
-					pathToFileURL(basePath),
-					settings.config.root,
-					devModuleLoader
-				);
-
-				return {
-					code: code
-						.replace(JSON.stringify(LINKS_PLACEHOLDER), JSON.stringify([...urls]))
-						.replace(JSON.stringify(STYLES_PLACEHOLDER), JSON.stringify([...stylesMap.values()]))
-						.replace(JSON.stringify(SCRIPTS_PLACEHOLDER), JSON.stringify([...hoistedScripts])),
-				};
 			}
 		},
 	};
