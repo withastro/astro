@@ -97,6 +97,13 @@ describe('astro:image', () => {
 				expect(res.status).to.equal(200);
 			});
 
+			it('returns proper content-type', async () => {
+				let $img = $('#local img');
+				let src = $img.attr('src');
+				let res = await fixture.fetch(src);
+				expect(res.headers.get('content-type')).to.equal('image/webp');
+			});
+
 			it('errors on unsupported formats', async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/unsupported-format');
