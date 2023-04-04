@@ -24,7 +24,7 @@ import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
-import * as MODE from '../constants'
+import * as MODE from '../constants.js';
 import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {

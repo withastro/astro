@@ -2,7 +2,7 @@
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
-import * as MODE from '../core/constants'
+
 import yargs from 'yargs-parser';
 import { z } from 'zod';
 import {
@@ -18,6 +18,7 @@ import { debug, error, info, type LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
+import * as MODE from '../core/constants.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { openInBrowser } from './open.js';
 

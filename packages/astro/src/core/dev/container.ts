@@ -16,7 +16,7 @@ import { createVite } from '../create-vite.js';
 import type { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 import { appendForwardSlash } from '../path.js';
-import * as MODE from '../constants'
+import * as MODE from '../constants.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
 const defaultLogging: LogOptions = {

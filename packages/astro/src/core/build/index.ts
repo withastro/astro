@@ -22,7 +22,7 @@ import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
-import * as MODE from '../constants'
+import * as MODE from '../constants.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
