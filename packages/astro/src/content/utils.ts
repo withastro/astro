@@ -69,18 +69,18 @@ export async function getEntryData(
 	// Remove reserved `slug` field before parsing data
 	let { slug, ...data } = entry.unvalidatedData;
 
-	const schema =
-		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({
-					image: settings.config.experimental.assets
-						? createImage(settings, pluginContext, entry._internal.filePath)
-						: () => {
-								throw new Error(
-									'Enable `experimental.assets` in your Astro config to use `image()`.'
-								);
-						  },
-			  })
-			: collectionConfig.schema;
+	let schema = collectionConfig.schema;
+	if (typeof schema === 'function') {
+		if (!settings.config.experimental.assets) {
+			throw new Error(
+				'The function shape for schema can only be used when `experimental.assets` is enabled.'
+			);
+		}
+
+		schema = schema({
+			image: createImage(settings, pluginContext, entry._internal.filePath),
+		});
+	}
 
 	if (schema) {
 		// Catch reserved `slug` field inside schema
