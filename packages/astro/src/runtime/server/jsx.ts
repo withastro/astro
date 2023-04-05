@@ -288,7 +288,7 @@ function filteredConsoleError(msg: any, ...rest: any[]) {
 		// the following error, which we can safely filter out:
 		const isKnownReactHookError =
 			msg.includes('Warning: Invalid hook call.') &&
-			msg.includes('https://reactjs.org/link/invalid-hook-call');
+			msg.includes('https://react.dev/warnings/invalid-hook-call-warning');
 		if (isKnownReactHookError) return;
 	}
 	originalConsoleError(msg, ...rest);
