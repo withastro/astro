@@ -1,15 +1,17 @@
 import fs from 'node:fs';
+import { basename, join } from 'node:path/posix';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { ImageService, isLocalService, LocalImageService } from './services/service.js';
-import type { ImageMetadata, ImageTransform } from './types.js';
+import { prependForwardSlash } from '../core/path.js';
+import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
+import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
 }
 
 export async function getConfiguredImageService(): Promise<ImageService> {
-	if (!globalThis.astroAsset.imageService) {
+	if (!globalThis?.astroAsset?.imageService) {
 		const { default: service }: { default: ImageService } = await import(
 			// @ts-expect-error
 			'virtual:image-service'
@@ -19,18 +21,12 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			throw error;
 		});
 
+		if (!globalThis.astroAsset) globalThis.astroAsset = {};
 		globalThis.astroAsset.imageService = service;
 		return service;
 	}
 
 	return globalThis.astroAsset.imageService;
-}
-
-interface GetImageResult {
-	rawOptions: ImageTransform;
-	options: ImageTransform;
-	src: string;
-	attributes: Record<string, any>;
 }
 
 /**
@@ -42,7 +38,7 @@ interface GetImageResult {
  * import { getImage } from 'astro:assets';
  * import originalImage from '../assets/image.png';
  *
- * const optimizedImage = await getImage({src: originalImage, width: 1280 })
+ * const optimizedImage = await getImage({src: originalImage, width: 1280 });
  * ---
  * <img src={optimizedImage.src} {...optimizedImage.attributes} />
  * ```
@@ -50,6 +46,13 @@ interface GetImageResult {
  * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
  */
 export async function getImage(options: ImageTransform): Promise<GetImageResult> {
+	if (!options || typeof options !== 'object') {
+		throw new AstroError({
+			...AstroErrorData.ExpectedImageOptions,
+			message: AstroErrorData.ExpectedImageOptions.message(JSON.stringify(options)),
+		});
+	}
+
 	const service = await getConfiguredImageService();
 	const validatedOptions = service.validateOptions ? service.validateOptions(options) : options;
 
@@ -69,7 +72,9 @@ export async function getImage(options: ImageTransform): Promise<GetImageResult>
 	};
 }
 
-export function getStaticImageList(): Iterable<[ImageTransform, string]> {
+export function getStaticImageList(): Iterable<
+	[string, { path: string; options: ImageTransform }]
+> {
 	if (!globalThis?.astroAsset?.staticImages) {
 		return [];
 	}
@@ -104,8 +109,19 @@ export async function generateImage(
 		clientRoot = buildOpts.settings.config.outDir;
 	}
 
-	const fileData = await fs.promises.readFile(new URL('.' + options.src.src, serverRoot));
-	const resultData = await imageService.transform(fileData, { ...options, src: options.src.src });
+	// The original file's path (the `src` attribute of the ESM imported image passed by the user)
+	const originalImagePath = options.src.src;
+
+	const fileData = await fs.promises.readFile(
+		new URL(
+			'.' +
+				prependForwardSlash(
+					join(buildOpts.settings.config.build.assets, basename(originalImagePath))
+				),
+			serverRoot
+		)
+	);
+	const resultData = await imageService.transform(fileData, { ...options, src: originalImagePath });
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);

@@ -10,6 +10,7 @@ import type {
 import type * as babel from '@babel/core';
 import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
+import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { z } from 'zod';
@@ -29,8 +30,20 @@ export type {
 	RemarkPlugins,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-export type { ExternalImageService, LocalImageService } from '../assets/services/service';
-export type { ImageMetadata, ImageTransform } from '../assets/types';
+export type {
+	ExternalImageService,
+	ImageService,
+	LocalImageService,
+} from '../assets/services/service';
+export type {
+	GetImageResult,
+	ImageInputFormat,
+	ImageMetadata,
+	ImageOutputFormat,
+	ImageQuality,
+	ImageQualityPreset,
+	ImageTransform,
+} from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -88,6 +101,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	open?: boolean;
 	experimentalAssets?: boolean;
 }
 
@@ -1034,12 +1048,31 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
+export type ContentEntryModule = {
+	id: string;
+	collection: string;
+	slug: string;
+	body: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
 	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	getRenderModule?(
+		this: rollup.PluginContext,
+		params: {
+			viteId: string;
+			entry: ContentEntryModule;
+		}
+	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
 }
 
@@ -1176,11 +1209,13 @@ export type GetStaticPaths = (
  *
  * @example
  * ```ts
- * export async function getStaticPaths() {
+ * import type { GetStaticPaths } from 'astro';
+ *
+ * export const getStaticPaths = (() => {
  *   return results.map((entry) => ({
  *     params: { slug: entry.slug },
  *   }));
- * }
+ * }) satisfies GetStaticPaths;
  *
  * type Params = InferGetStaticParamsType<typeof getStaticPaths>;
  * //   ^? { slug: string; }
@@ -1188,7 +1223,7 @@ export type GetStaticPaths = (
  * const { slug } = Astro.params as Params;
  * ```
  */
-export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
+export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
 			? P
@@ -1201,7 +1236,9 @@ export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
  *
  * @example
  * ```ts
- * export async function getStaticPaths() {
+ * import type { GetStaticPaths } from 'astro';
+ *
+ * export const getStaticPaths = (() => {
  *   return results.map((entry) => ({
  *     params: { slug: entry.slug },
  *     props: {
@@ -1209,15 +1246,15 @@ export type InferGetStaticParamsType<T> = T extends () => Promise<infer R>
  *       propB: 42
  *     },
  *   }));
- * }
+ * }) satisfies GetStaticPaths;
  *
  * type Props = InferGetStaticPropsType<typeof getStaticPaths>;
  * //   ^? { propA: boolean; propB: number; }
  *
- * const { propA, propB } = Astro.props as Props;
+ * const { propA, propB } = Astro.props;
  * ```
  */
-export type InferGetStaticPropsType<T> = T extends () => Promise<infer R>
+export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { props: infer P }
 			? P
@@ -1559,6 +1596,7 @@ export interface SSRMetadata {
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
+	headInTree: boolean;
 }
 
 /**
@@ -1573,11 +1611,16 @@ export interface SSRMetadata {
  */
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
+export type SSRComponentMetadata = {
+	propagation: PropagationHint;
+	containsHead: boolean;
+};
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
-	propagation: Map<string, PropagationHint>;
+	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;

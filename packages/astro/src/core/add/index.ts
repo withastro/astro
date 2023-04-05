@@ -13,11 +13,11 @@ import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath } from '../config/index.js';
 import {
 	defaultTSConfig,
-	frameworkWithTSSettings,
 	presets,
 	updateTSConfigForFramework,
+	type frameworkWithTSSettings,
 } from '../config/tsconfig.js';
-import { debug, info, LogOptions } from '../logger/core.js';
+import { debug, info, type LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
 import { appendForwardSlash } from '../path.js';
@@ -62,7 +62,7 @@ export default {
 `;
 const LIT_NPMRC_STUB = `\
 # Lit libraries are required to be hoisted due to dependency issues.
-public-hoist-pattern[]=*lit* 
+public-hoist-pattern[]=*lit*
 `;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {

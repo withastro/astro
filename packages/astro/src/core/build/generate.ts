@@ -18,7 +18,8 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/internal.js';
-import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
+import { deleteWasmFiles } from '../../assets/services/vendor/squoosh/copy-wasm.js';
+import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
@@ -108,8 +109,18 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	if (opts.settings.config.experimental.assets) {
 		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
 		for (const imageData of getStaticImageList()) {
-			await generateImage(opts, imageData[0], imageData[1]);
+			await generateImage(opts, imageData[1].options, imageData[1].path);
 		}
+
+		// Our Squoosh image service loads `.wasm` files relatively, so we need to copy the WASM files to the dist
+		// for the image generation to work. In static output, we can remove those after the build is done.
+		if (
+			opts.settings.config.image.service === 'astro/assets/services/squoosh' &&
+			opts.settings.config.output === 'static'
+		) {
+			await deleteWasmFiles(new URL('./chunks', opts.settings.config.outDir));
+		}
+
 		delete globalThis.astroAsset.addStaticImage;
 	}
 
@@ -405,7 +416,7 @@ async function generatePath(
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
-		propagation: internals.propagation,
+		componentMetadata: internals.componentMetadata,
 		scripts,
 		links,
 		route: pageData.route,

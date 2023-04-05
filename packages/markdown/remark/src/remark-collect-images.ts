@@ -1,32 +1,31 @@
 import type { Image } from 'mdast';
 import { visit } from 'unist-util-visit';
-import type { VFile } from 'vfile';
+import type { MarkdownVFile } from './types';
 
-type OptionalResolveImage = ((path: string) => Promise<string>) | undefined;
-
-export default function toRemarkCollectImages(resolveImage: OptionalResolveImage) {
+export default function toRemarkCollectImages() {
 	return () =>
-		async function (tree: any, vfile: VFile) {
+		async function (tree: any, vfile: MarkdownVFile) {
 			if (typeof vfile?.path !== 'string') return;
 
 			const imagePaths = new Set<string>();
-			visit(tree, 'image', function raiseError(node: Image) {
-				imagePaths.add(node.url);
+			visit(tree, 'image', (node: Image) => {
+				if (shouldOptimizeImage(node.url)) imagePaths.add(node.url);
 			});
-			if (imagePaths.size === 0) {
-				vfile.data.imagePaths = [];
-				return;
-			} else if (resolveImage) {
-				const mapping = new Map<string, string>();
-				for (const path of Array.from(imagePaths)) {
-					const id = await resolveImage(path);
-					mapping.set(path, id);
-				}
-				visit(tree, 'image', function raiseError(node: Image) {
-					node.url = mapping.get(node.url)!;
-				});
-			}
 
-			vfile.data.imagePaths = Array.from(imagePaths);
+			vfile.data.imagePaths = imagePaths;
 		};
+}
+
+function shouldOptimizeImage(src: string) {
+	// Optimize anything that is NOT external or an absolute path to `public/`
+	return !isValidUrl(src) && !src.startsWith('/');
+}
+
+function isValidUrl(str: string): boolean {
+	try {
+		new URL(str);
+		return true;
+	} catch {
+		return false;
+	}
 }

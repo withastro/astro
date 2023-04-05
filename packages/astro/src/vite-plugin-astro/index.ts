@@ -5,7 +5,11 @@ import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import { normalizePath } from 'vite';
-import { cachedCompilation, CompileProps, getCachedCompileResult } from '../core/compile/index.js';
+import {
+	cachedCompilation,
+	getCachedCompileResult,
+	type CompileProps,
+} from '../core/compile/index.js';
 import { isRelativePath } from '../core/path.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { cachedFullCompilation } from './compile.js';
@@ -149,6 +153,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				clientOnlyComponents: transformResult.clientOnlyComponents,
 				hydratedComponents: transformResult.hydratedComponents,
 				scripts: transformResult.scripts,
+				containsHead: transformResult.containsHead,
 				propagation: 'none',
 				pageOptions: {},
 			};

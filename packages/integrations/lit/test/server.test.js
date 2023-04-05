@@ -1,6 +1,8 @@
 import { expect } from 'chai';
-import server from '../server.js';
 import { LitElement, html } from 'lit';
+// Must come after lit import because @lit/reactive-element defines
+// globalThis.customElements which the server shim expects to be defined.
+import server from '../server.js';
 import * as cheerio from 'cheerio';
 
 const { check, renderToStaticMarkup } = server;
@@ -12,6 +14,10 @@ describe('check', () => {
 
 	it('should be false with a registered non-lit component', async () => {
 		const tagName = 'non-lit-component';
+		// Lit no longer shims HTMLElement globally, so we need to do it ourselves.
+		if (!globalThis.HTMLElement) {
+			globalThis.HTMLElement = class {};
+		}
 		customElements.define(tagName, class TestComponent extends HTMLElement {});
 		expect(await check(tagName)).to.equal(false);
 	});
@@ -85,7 +91,7 @@ describe('renderToStaticMarkup', () => {
 	});
 
 	it('should render DSD attributes based on shadowRootOptions', async () => {
-		const tagName = 'lit-component';
+		const tagName = 'shadow-root-options-component';
 		customElements.define(
 			tagName,
 			class extends LitElement {

@@ -16,10 +16,9 @@ import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
-import astroHeadPropagationPlugin from '../vite-plugin-head-propagation/index.js';
+import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
-import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
@@ -119,9 +118,8 @@ export async function createVite(
 			htmlVitePlugin(),
 			jsxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin({ settings }),
-			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
-			astroHeadPropagationPlugin({ settings }),
+			astroHeadPlugin({ settings }),
 			astroScannerPlugin({ settings }),
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
@@ -196,7 +194,7 @@ export async function createVite(
 		const applyToFilter = command === 'build' ? 'serve' : 'build';
 		const applyArgs = [
 			{ ...settings.config.vite, mode },
-			{ command, mode },
+			{ command: command === 'dev' ? 'serve' : command, mode },
 		];
 		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
 		plugins = plugins.flat(Infinity).filter((p) => {

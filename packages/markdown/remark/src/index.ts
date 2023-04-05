@@ -96,7 +96,7 @@ export async function renderMarkdown(
 
 		if (opts.experimentalAssets) {
 			// Apply later in case user plugins resolve relative image paths
-			parser.use([toRemarkCollectImages(opts.resolveImage)]);
+			parser.use([toRemarkCollectImages()]);
 		}
 	}
 
@@ -116,7 +116,7 @@ export async function renderMarkdown(
 	});
 
 	if (opts.experimentalAssets) {
-		parser.use(rehypeImages(await opts.imageService, opts.assetsDir, opts.getImageMetadata));
+		parser.use(rehypeImages());
 	}
 	if (!isPerformanceBenchmark) {
 		parser.use([rehypeHeadingIds]);

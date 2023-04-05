@@ -7,7 +7,7 @@ import OS from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
-import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
+import { debug, info, warn, type LoggerLevel } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
 import { ImageCache } from './cache.js';
 

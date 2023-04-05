@@ -8,7 +8,7 @@ import type {
 	RuntimeMode,
 } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { debug, LogOptions, warn } from '../logger/core.js';
+import { debug, warn, type LogOptions } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';

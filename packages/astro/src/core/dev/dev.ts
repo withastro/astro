@@ -7,7 +7,7 @@ import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
-import { info, LogOptions, warn } from '../logger/core.js';
+import { info, warn, type LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
 import { startContainer } from './container.js';
@@ -44,6 +44,7 @@ export default async function dev(
 					['--port', `Specify which port to run on. Defaults to 3000.`],
 					['--host', `Listen on all addresses, including LAN and public addresses.`],
 					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
+					['--open', 'Automatically open the app in the browser on server start'],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},

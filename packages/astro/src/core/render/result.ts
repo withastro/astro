@@ -9,19 +9,14 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import {
-	ComponentSlots,
-	createScopedResult,
-	renderSlot,
-	ScopeFlags,
-	stringifyChunk,
-} from '../../runtime/server/index.js';
+import { renderSlot, stringifyChunk, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { LogOptions, warn } from '../logger/core.js';
+import { warn, type LogOptions } from '../logger/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const responseSentSymbol = Symbol.for('astro.responseSent');
 
 function onlyAvailableInSSR(name: 'Astro.redirect') {
 	return function _onlyAvailableInSSR() {
@@ -48,7 +43,7 @@ export interface CreateResultArgs {
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
-	propagation?: SSRResult['propagation'];
+	componentMetadata?: SSRResult['componentMetadata'];
 	request: Request;
 	status: number;
 }
@@ -95,7 +90,7 @@ class Slots {
 	public async render(name: string, args: any[] = []) {
 		if (!this.#slots || !this.has(name)) return;
 
-		const scoped = createScopedResult(this.#result, ScopeFlags.RenderSlot);
+		const result = this.#result;
 		if (!Array.isArray(args)) {
 			warn(
 				this.#loggingOpts,
@@ -104,24 +99,24 @@ class Slots {
 			);
 		} else if (args.length > 0) {
 			const slotValue = this.#slots[name];
-			const component = typeof slotValue === 'function' ? await slotValue(scoped) : await slotValue;
+			const component = typeof slotValue === 'function' ? await slotValue(result) : await slotValue;
 
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = () => expression(...args);
-				return await renderSlot(scoped, slot).then((res) => (res != null ? String(res) : res));
+				return await renderSlot(result, slot).then((res) => (res != null ? String(res) : res));
 			}
 			// JSX
 			if (typeof component === 'function') {
-				return await renderJSX(scoped, (component as any)(...args)).then((res) =>
+				return await renderJSX(result, (component as any)(...args)).then((res) =>
 					res != null ? String(res) : res
 				);
 			}
 		}
 
-		const content = await renderSlot(scoped, this.#slots[name]);
-		const outHTML = stringifyChunk(scoped, content);
+		const content = await renderSlot(result, this.#slots[name]);
+		const outHTML = stringifyChunk(result, content);
 
 		return outHTML;
 	}
@@ -150,6 +145,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = undefined;
+	let componentMetadata = args.componentMetadata ?? new Map();
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -158,7 +154,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
-		propagation: args.propagation ?? new Map(),
+		componentMetadata,
 		propagators: new Map(),
 		extraHead: [],
 		scope: 0,
@@ -202,6 +198,13 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				url,
 				redirect: args.ssr
 					? (path, status) => {
+							// If the response is already sent, error as we cannot proceed with the redirect.
+							if ((request as any)[responseSentSymbol]) {
+								throw new AstroError({
+									...AstroErrorData.ResponseSentError,
+								});
+							}
+
 							return new Response(null, {
 								status: status || 302,
 								headers: {
@@ -248,6 +251,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			hasHydrationScript: false,
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
+			headInTree: false,
 		},
 		response,
 	};

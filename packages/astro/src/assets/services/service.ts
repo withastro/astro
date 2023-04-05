@@ -1,7 +1,7 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
-import type { ImageTransform, OutputFormat } from '../types.js';
+import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -71,7 +71,7 @@ export interface LocalImageService extends SharedServiceProps {
 	transform: (
 		inputBuffer: Buffer,
 		transform: LocalImageTransform
-	) => Promise<{ data: Buffer; format: OutputFormat }>;
+	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
 export type BaseServiceTransform = {
@@ -104,6 +104,13 @@ export type BaseServiceTransform = {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	validateOptions(options) {
+		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+			throw new AstroError({
+				...AstroErrorData.ExpectedImage,
+				message: AstroErrorData.ExpectedImage.message(JSON.stringify(options.src)),
+			});
+		}
+
 		if (!isESMImportedImage(options.src)) {
 			// For remote images, width and height are explicitly required as we can't infer them from the file
 			let missingDimension: 'width' | 'height' | 'both' | undefined;
@@ -197,7 +204,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			src: params.get('href')!,
 			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
 			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
-			format: params.get('f') as OutputFormat,
+			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
 		};
 

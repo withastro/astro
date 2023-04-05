@@ -3,17 +3,13 @@ import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath, ViteDevServer } from 'vite';
+import { normalizePath, type ViteDevServer } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { info, LogOptions, warn } from '../core/logger/core.js';
+import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import {
-	ContentConfig,
-	ContentObservable,
-	ContentPaths,
-	EntryInfo,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryInfo,
@@ -22,6 +18,10 @@ import {
 	loadContentConfig,
 	NoCollectionError,
 	parseFrontmatter,
+	type ContentConfig,
+	type ContentObservable,
+	type ContentPaths,
+	type EntryInfo,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -226,10 +226,16 @@ export async function createContentTypesGenerator({
 		events.push(event);
 
 		debounceTimeout && clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(
-			async () => runEvents(opts),
-			50 /* debounce to batch chokidar events */
-		);
+		const runEventsSafe = async () => {
+			try {
+				await runEvents(opts);
+			} catch {
+				// Prevent frontmatter errors from crashing the server. The errors
+				// are still reported on page reflects as desired.
+				// Errors still crash dev from *starting*.
+			}
+		};
+		debounceTimeout = setTimeout(runEventsSafe, 50 /* debounce to batch chokidar events */);
 	}
 
 	async function runEvents(opts?: EventOpts) {
