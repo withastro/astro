@@ -232,7 +232,8 @@ export class App {
 			status,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging);
+		// TODO PLT-104 add adapter middleware here
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, undefined);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

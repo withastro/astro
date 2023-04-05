@@ -1,4 +1,12 @@
-import type { APIContext, AstroConfig, EndpointHandler, Params } from '../../@types/astro';
+import type {
+	APIContext,
+	AstroConfig,
+	AstroMiddlewareInstance,
+	EndpointHandler,
+	EndpointOutput,
+	MiddlewareHandler,
+	Params,
+} from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
 import { renderEndpoint } from '../../runtime/server/index.js';
@@ -7,6 +15,7 @@ import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
+import { callMiddleware } from '../middleware/index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -75,7 +84,8 @@ export async function call(
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	logging: LogOptions
+	logging: LogOptions,
+	middleware: AstroMiddlewareInstance<Response | EndpointOutput> | undefined
 ): Promise<EndpointCallResult> {
 	const paramsAndPropsResp = await getParamsAndProps({
 		mod: mod as any,
@@ -105,7 +115,15 @@ export async function call(
 		adapterName: env.adapterName,
 	});
 
-	const response = await renderEndpoint(mod, context, env.ssr);
+	let response;
+	if (middleware && middleware.onRequest) {
+		const onRequest = middleware.onRequest as MiddlewareHandler<Response | EndpointOutput>;
+		response = await callMiddleware<Response | EndpointOutput>(onRequest, context, () => {
+			return renderEndpoint(mod, context, env.ssr);
+		});
+	} else {
+		response = await renderEndpoint(mod, context, env.ssr);
+	}
 
 	if (response instanceof Response) {
 		attachToResponse(response, context.cookies);

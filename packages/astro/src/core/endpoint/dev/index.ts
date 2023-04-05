@@ -1,4 +1,8 @@
-import type { EndpointHandler } from '../../../@types/astro';
+import type {
+	AstroMiddlewareInstance,
+	EndpointHandler,
+	EndpointOutput,
+} from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 import type { SSROptions } from '../../render/dev';
 import { createRenderContext } from '../../render/index.js';
@@ -8,6 +12,7 @@ export async function call(options: SSROptions, logging: LogOptions) {
 	const {
 		env,
 		preload: [, mod],
+		middleware,
 	} = options;
 	const endpointHandler = mod as unknown as EndpointHandler;
 
@@ -18,5 +23,11 @@ export async function call(options: SSROptions, logging: LogOptions) {
 		route: options.route,
 	});
 
-	return await callEndpoint(endpointHandler, env, ctx, logging);
+	return await callEndpoint(
+		endpointHandler,
+		env,
+		ctx,
+		logging,
+		middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+	);
 }

@@ -1,10 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
-
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../../app/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { eachPageData, hasPrerenderedPages, type BuildInternals } from '../internal.js';
+import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -22,8 +22,10 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 			}
 		},
 
-		load(id) {
+		async load(id) {
 			if (id === resolvedPagesVirtualModuleId) {
+				const middlewareId = await this.resolve(`./src/${MIDDLEWARE_PATH_SEGMENT_NAME}`);
+
 				let importMap = '';
 				let imports = [];
 				let i = 0;
@@ -47,8 +49,12 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 				const def = `${imports.join('\n')}
 
+${middlewareId ? `import * as _middleware from "${middlewareId.id}";` : ''}
+
 export const pageMap = new Map([${importMap}]);
-export const renderers = [${rendererItems}];`;
+export const renderers = [${rendererItems}];
+export const middleware = ${middlewareId ? '_middleware' : '{ onRequest() {} }'};
+`;
 
 				return def;
 			}

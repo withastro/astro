@@ -29,7 +29,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		open: false,
 	},
 	integrations: [],
-	middlewares: [],
 	markdown: {
 		drafts: false,
 		...markdownConfigDefaults,

@@ -13,7 +13,7 @@ import {
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
-import { isModeServerWithNoAdapter } from '../../core/util.js';
+import { isModeServerWithNoAdapter, viteID } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { resolvedPagesVirtualModuleId } from '../app/index.js';
@@ -26,6 +26,7 @@ import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.
 import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;

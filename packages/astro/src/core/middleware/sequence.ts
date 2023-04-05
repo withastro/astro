@@ -5,14 +5,19 @@ import type { APIContext, MiddlewareHandler } from '../../@types/astro';
  *
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */
-export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
+export function sequence<R>(...handlers: MiddlewareHandler<R>[]): MiddlewareHandler<R> {
 	const length = handlers.length;
-	if (!length) return (context, resolve) => resolve(context);
+	if (!length) {
+		const handler: MiddlewareHandler<R> = (context, resolve) => {
+			return resolve(context);
+		};
+		return handler;
+	}
 
 	return (context, resolve) => {
 		return applyHandle(0, context);
 
-		function applyHandle(i: number, handleContext: APIContext): Promise<Response> {
+		function applyHandle(i: number, handleContext: APIContext): Promise<R> {
 			const handle = handlers[i];
 
 			return handle(handleContext, (nextContext) => {

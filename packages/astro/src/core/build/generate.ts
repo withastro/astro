@@ -5,13 +5,16 @@ import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
+	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
 	ImageTransform,
+	MiddlewareHandler,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
+	EndpointOutput,
 } from '../../@types/astro';
 import {
 	generateImage as generateImageInternal,
@@ -25,10 +28,20 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
-import { AstroError } from '../errors/index.js';
+import {
+	call as callEndpoint,
+	createAPIContext,
+	throwIfRedirectNotAllowed,
+} from '../endpoint/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
+import {
+	createEnvironment,
+	createRenderContext,
+	getParamsAndProps,
+	GetParamsAndPropsError,
+	renderPage,
+} from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -42,6 +55,7 @@ import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { callMiddleware } from '../middleware/index.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
@@ -157,6 +171,7 @@ async function generatePage(
 	const scripts = pageInfo?.hoistedScript ?? null;
 
 	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const middleware = ssrEntry.middleware;
 
 	if (!pageModule) {
 		throw new Error(
@@ -186,7 +201,7 @@ async function generatePage(
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions);
+		await generatePath(path, opts, generationOptions, middleware);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -328,7 +343,8 @@ function getUrlForPath(
 async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
-	gopts: GeneratePathOptions
+	gopts: GeneratePathOptions,
+	middleware: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
 	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
@@ -414,6 +430,7 @@ async function generatePath(
 		ssr,
 		streaming: true,
 	});
+
 	const ctx = createRenderContext({
 		origin,
 		pathname,
@@ -428,7 +445,14 @@ async function generatePath(
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
-		const result = await callEndpoint(endpointHandler, env, ctx, logging);
+
+		const result = await callEndpoint(
+			endpointHandler,
+			env,
+			ctx,
+			logging,
+			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+		);
 
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
@@ -443,7 +467,39 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			response = await renderPage(mod, ctx, env);
+			const paramsAndPropsResp = await getParamsAndProps({
+				mod: mod as any,
+				route: ctx.route,
+				routeCache: env.routeCache,
+				pathname: ctx.pathname,
+				logging: env.logging,
+				ssr: env.ssr,
+			});
+
+			if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
+				throw new AstroError({
+					...AstroErrorData.NoMatchingStaticPathFound,
+					message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
+					hint: ctx.route?.component
+						? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
+						: '',
+				});
+			}
+			const [params, props] = paramsAndPropsResp;
+
+			const context = createAPIContext({
+				request: ctx.request,
+				params,
+				props,
+				site: env.site,
+				adapterName: env.adapterName,
+			});
+			// If the user doesn't configure a middleware, the rollup plugin emits a no-op function,
+			// so it's safe to use `callMiddleware` regardless
+			let onRequest = middleware.onRequest as MiddlewareHandler<Response>;
+			response = await callMiddleware<Response>(onRequest, context, () => {
+				return renderPage(mod, ctx, env, context);
+			});
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;

@@ -6,11 +6,10 @@ import type {
 	DevelopmentEnvironment,
 	SSROptions,
 } from '../core/render/dev/index';
-
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
@@ -18,10 +17,7 @@ import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import type { ModuleLoader } from '../core/module-loader';
-import type { AstroMiddlewareInstance } from '../@types/astro';
-import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../core/constants.js';
-import { fileURLToPath } from 'node:url';
+import { loadMiddleware } from '../core/middleware/index.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -116,25 +112,6 @@ export async function matchRoute(
 	return undefined;
 }
 
-/**
- * It accepts a module loader and the astro settings, and it attempts to load the middlewares defined in the configuration.
- *
- * If not middlewares were not set, the function returns an empty array.
- */
-export async function loadMiddleware(
-	moduleLoader: ModuleLoader,
-	basePath: URL
-): Promise<AstroMiddlewareInstance | undefined> {
-	let path = fileURLToPath(basePath);
-	let middlewarePath = path + 'src' + '/' + MIDDLEWARE_PATH_SEGMENT_NAME;
-	try {
-		const module = (await moduleLoader.import(middlewarePath)) as AstroMiddlewareInstance;
-		return module as AstroMiddlewareInstance;
-	} catch {
-		return undefined;
-	}
-}
-
 export async function handleRoute(
 	matchedRoute: AsyncReturnType<typeof matchRoute>,
 	url: URL,
@@ -192,7 +169,7 @@ export async function handleRoute(
 		request,
 		route,
 	};
-	const middleware = await loadMiddleware(env.loader, config.root);
+	const middleware = await loadMiddleware(env.loader, config.root.href);
 	if (middleware) {
 		options.middleware = middleware;
 	}

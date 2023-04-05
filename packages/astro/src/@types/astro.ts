@@ -1420,11 +1420,6 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	 * TODO documentation
 	 */
 	locals: Locals;
-
-	/**
-	 * TODO documentation
-	 */
-	setLocal: (key: string, value: any) => void;
 }
 
 export interface APIContext<Props extends Record<string, any> = Record<string, any>>
@@ -1591,14 +1586,16 @@ export interface AstroIntegration {
 	};
 }
 
-export type MiddlewareResolve = (context: APIContext) => Promise<Response>;
-export type MiddlewareHandler = (
+export type MiddlewareResolve<R> = (context: APIContext) => Promise<R>;
+export type MiddlewareHandler<R> = (
 	context: Readonly<APIContext>,
-	response: MiddlewareResolve
-) => Promise<Response>;
+	response: MiddlewareResolve<R>
+) => Promise<R>;
 
-export type AstroMiddlewareInstance = {
-	onRequest?: MiddlewareHandler;
+// NOTE: when updating this file with other functions,
+// remember to update `plugin-page.ts` too, to add that function as a no-op function.
+export type AstroMiddlewareInstance<R> = {
+	onRequest?: MiddlewareHandler<R>;
 };
 
 export interface AstroPluginOptions {
