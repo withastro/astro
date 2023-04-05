@@ -128,7 +128,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 						(entry) =>
 							`'${entry.raw}': await getImageSafely((await import("${entry.raw}")).default, "${
 								entry.raw
-							}", "${rootRelativePath(settings.config, entry.resolved)}")`
+							}", "${rootRelativePath(settings.config.root, entry.resolved)}")`
 					)}
 				}
 

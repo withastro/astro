@@ -26,6 +26,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -173,6 +174,20 @@ export async function createVite(
 			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
+
+	// If the user provides a custom assets prefix, make sure assets handled by Vite
+	// are prefixed with it too. This uses one of it's experimental features, but it
+	// has been stable for a long time now.
+	const assetsPrefix = settings.config.build.assetsPrefix;
+	if (assetsPrefix) {
+		commonConfig.experimental = {
+			renderBuiltUrl(filename, { type }) {
+				if (type === 'asset') {
+					return joinPaths(assetsPrefix, filename);
+				}
+			},
+		};
+	}
 
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.
