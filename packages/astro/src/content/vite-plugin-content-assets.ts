@@ -8,7 +8,7 @@ import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
-import { prependForwardSlash } from '../core/path.js';
+import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
@@ -71,7 +71,11 @@ export function astroContentAssetPropagationPlugin({
 					'development'
 				);
 
-				const hoistedScripts = await getScriptsForURL(pathToFileURL(basePath), devModuleLoader);
+				const hoistedScripts = await getScriptsForURL(
+					pathToFileURL(basePath),
+					settings.config.root,
+					devModuleLoader
+				);
 
 				return {
 					code: code
@@ -106,8 +110,13 @@ export function astroConfigBuildPlugin(
 			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
-				const prependBase = (src: string) =>
-					prependForwardSlash(npath.posix.join(options.settings.config.base, src));
+				const prependBase = (src: string) => {
+					if (options.settings.config.build.assetsPrefix) {
+						return joinPaths(options.settings.config.build.assetsPrefix, src);
+					} else {
+						return prependForwardSlash(joinPaths(options.settings.config.base, src));
+					}
+				};
 				for (const chunk of outputs) {
 					if (
 						chunk.type === 'chunk' &&

@@ -32,7 +32,11 @@ import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
+import {
+	createAssetLink,
+	createLinkStylesheetElementSet,
+	createModuleScriptsSet,
+} from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
@@ -351,10 +355,15 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const links = createLinkStylesheetElementSet(linkIds, settings.config.base);
+	const links = createLinkStylesheetElementSet(
+		linkIds,
+		settings.config.base,
+		settings.config.build.assetsPrefix
+	);
 	const scripts = createModuleScriptsSet(
 		hoistedScripts ? [hoistedScripts] : [],
-		settings.config.base
+		settings.config.base,
+		settings.config.build.assetsPrefix
 	);
 
 	if (settings.scripts.some((script) => script.stage === 'page')) {
@@ -362,7 +371,11 @@ async function generatePath(
 		if (typeof hashedFilePath !== 'string') {
 			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
 		}
-		const src = prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
+		const src = createAssetLink(
+			hashedFilePath,
+			settings.config.base,
+			settings.config.build.assetsPrefix
+		);
 		scripts.add({
 			props: { type: 'module', src },
 			children: '',
@@ -403,7 +416,11 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			return prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
+			return createAssetLink(
+				hashedFilePath,
+				settings.config.base,
+				settings.config.build.assetsPrefix
+			);
 		},
 		routeCache,
 		site: settings.config.site
