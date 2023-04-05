@@ -659,12 +659,12 @@ importers:
 
   packages/astro/e2e/fixtures/astro-component:
     specifiers:
-      '@astrojs/preact': ^1.1.0
+      '@astrojs/preact': workspace:*
       '@e2e/astro-linked-lib': link:../_deps/astro-linked-lib
       astro: workspace:*
       preact: ^10.11.0
     dependencies:
-      '@astrojs/preact': 1.2.0_preact@10.12.0
+      '@astrojs/preact': link:../../../../integrations/preact
       '@e2e/astro-linked-lib': link:../_deps/astro-linked-lib
       astro: link:../../..
       preact: 10.12.0
@@ -1171,11 +1171,11 @@ importers:
 
   packages/astro/performance/fixtures/md:
     specifiers:
-      '@astrojs/react': ^2.0.2
-      '@performance/utils': ^0.0.0
+      '@astrojs/react': workspace:*
+      '@performance/utils': workspace:*
       '@types/react': ^18.0.21
       '@types/react-dom': ^18.0.6
-      astro: ^2.0.12
+      astro: workspace:*
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
@@ -1189,16 +1189,16 @@ importers:
 
   packages/astro/performance/fixtures/mdoc:
     specifiers:
-      '@astrojs/markdoc': ^0.0.0-markdoc-20230302210326
-      '@astrojs/react': ^2.0.2
-      '@performance/utils': ^0.0.0
+      '@astrojs/markdoc': workspace:*
+      '@astrojs/react': workspace:*
+      '@performance/utils': workspace:*
       '@types/react': ^18.0.21
       '@types/react-dom': ^18.0.6
-      astro: ^2.0.12
+      astro: workspace:*
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
-      '@astrojs/markdoc': 0.0.0-markdoc-20230302210326_3stiutgnnbnfnf3uowm5cip22i
+      '@astrojs/markdoc': link:../../../../integrations/markdoc
       '@astrojs/react': link:../../../../integrations/react
       '@performance/utils': link:../utils
       '@types/react': 18.0.27
@@ -1209,16 +1209,16 @@ importers:
 
   packages/astro/performance/fixtures/mdx:
     specifiers:
-      '@astrojs/mdx': ^0.17.2
-      '@astrojs/react': ^2.0.2
-      '@performance/utils': ^0.0.0
+      '@astrojs/mdx': workspace:*
+      '@astrojs/react': workspace:*
+      '@performance/utils': workspace:*
       '@types/react': ^18.0.21
       '@types/react-dom': ^18.0.6
-      astro: ^2.0.12
+      astro: workspace:*
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
-      '@astrojs/mdx': 0.17.2_astro@packages+astro
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/react': link:../../../../integrations/react
       '@performance/utils': link:../utils
       '@types/react': 18.0.27
@@ -1229,7 +1229,7 @@ importers:
 
   packages/astro/performance/fixtures/utils:
     specifiers:
-      astro: ^2.0.12
+      astro: workspace:*
       react: ^18.2.0
       react-dom: ^18.2.0
     devDependencies:
@@ -4291,92 +4291,6 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdoc/0.0.0-markdoc-20230302210326_3stiutgnnbnfnf3uowm5cip22i:
-    resolution: {integrity: sha512-tcov6vc4QETuN+5vV+QEASVKIDotavz2N5SgRZa9YwQWhjZOgWVJs+1udbPEps6WTCjjoX8L4M+C9CXv3/xskw==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      '@markdoc/markdoc': 0.2.2_3stiutgnnbnfnf3uowm5cip22i
-      gray-matter: 4.0.3
-      stringify-attributes: 3.0.0
-      zod: 3.20.6
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-    dev: false
-
-  /@astrojs/markdown-remark/2.1.2_astro@packages+astro:
-    resolution: {integrity: sha512-rYkmFEv2w7oEk6ZPgxHkhWzwcxSUGc1vJU0cbCu5sHF8iFNnc1cmMsjXWa5DrU5sCEf8VVYE1iFlbbnFzvHQJw==}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/prism': 2.1.1
-      astro: link:packages/astro
-      github-slugger: 1.5.0
-      import-meta-resolve: 2.2.1
-      rehype-raw: 6.1.1
-      rehype-stringify: 9.0.3
-      remark-gfm: 3.0.1
-      remark-parse: 10.0.1
-      remark-rehype: 10.1.0
-      remark-smartypants: 2.0.0
-      shiki: 0.11.1
-      unified: 10.1.2
-      unist-util-visit: 4.1.2
-      vfile: 5.3.7
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/mdx/0.17.2_astro@packages+astro:
-    resolution: {integrity: sha512-mol57cw1jJMcQgKMRGn7p6cewajq6JTNtqj5aAZgROWam/phVDSOCbXj/WU3O9+3qFnyKtpczoufQKwJTQltAw==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      '@astrojs/markdown-remark': 2.1.2_astro@packages+astro
-      '@astrojs/prism': 2.1.1
-      '@mdx-js/mdx': 2.3.0
-      '@mdx-js/rollup': 2.3.0
-      acorn: 8.8.2
-      es-module-lexer: 1.1.1
-      estree-util-visit: 1.2.1
-      github-slugger: 1.5.0
-      gray-matter: 4.0.3
-      kleur: 4.1.5
-      rehype-raw: 6.1.1
-      remark-frontmatter: 4.0.1
-      remark-gfm: 3.0.1
-      remark-smartypants: 2.0.0
-      shiki: 0.11.1
-      unist-util-visit: 4.1.2
-      vfile: 5.3.7
-    transitivePeerDependencies:
-      - astro
-      - rollup
-      - supports-color
-    dev: false
-
-  /@astrojs/preact/1.2.0_preact@10.12.0:
-    resolution: {integrity: sha512-Vm8rkBIE3cNlxhFoUO2Rsv5RxSP7x7Oi9J6qz8+91lwAIjdm6oyDOrrBmdGqsONJ1MqnjPG4EPmIZJGuFtz2SQ==}
-    engines: {node: ^14.18.0 || >=16.12.0}
-    peerDependencies:
-      preact: ^10.6.5
-    dependencies:
-      '@babel/core': 7.20.12
-      '@babel/plugin-transform-react-jsx': 7.20.13_@babel+core@7.20.12
-      '@preact/signals': 1.1.3_preact@10.12.0
-      babel-plugin-module-resolver: 4.1.0
-      preact: 10.12.0
-      preact-render-to-string: 5.2.6_preact@10.12.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/prism/2.1.1:
-    resolution: {integrity: sha512-Gnwnlb1lGJzCQEg89r4/WqgfCGPNFC7Kuh2D/k289Cbdi/2PD7Lrdstz86y1itDvcb2ijiRqjqWnJ5rsfu/QOA==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      prismjs: 1.29.0
-    dev: false
-
   /@babel/code-frame/7.18.6:
     resolution: {integrity: sha512-TDCmlK5eOvH+eH7cdAFlNXeVJqWIQ7gW9tY1GJIpUtFb6CmjVyq2VM3u71bOyR8CRihcCgMUYoDNyLXao3+70Q==}
     engines: {node: '>=6.9.0'}
@@ -7038,24 +6952,6 @@ packages:
       '@types/markdown-it': 12.2.3
     dev: false
 
-  /@markdoc/markdoc/0.2.2_3stiutgnnbnfnf3uowm5cip22i:
-    resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
-    engines: {node: '>=14.7.0'}
-    peerDependencies:
-      '@types/react': '*'
-      react: '*'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      react:
-        optional: true
-    dependencies:
-      '@types/react': 18.0.27
-      react: 18.2.0
-    optionalDependencies:
-      '@types/markdown-it': 12.2.3
-    dev: false
-
   /@mdx-js/mdx/2.3.0:
     resolution: {integrity: sha512-jLuwRlz8DQfQNiUCJR50Y09CGPq3fLtmtUQfVrj79E0JWu3dvsVcxVIcfhR5h0iXu+/z++zDrYeiJqifRynJkA==}
     dependencies:
@@ -8892,17 +8788,6 @@ packages:
       validate-html-nesting: 1.2.1
     dev: false
 
-  /babel-plugin-module-resolver/4.1.0:
-    resolution: {integrity: sha512-MlX10UDheRr3lb3P0WcaIdtCSRlxdQsB1sBqL7W0raF070bGl1HQQq5K3T2vf2XAYie+ww+5AKC/WrkjRO2knA==}
-    engines: {node: '>= 8.0.0'}
-    dependencies:
-      find-babel-config: 1.2.0
-      glob: 7.2.3
-      pkg-up: 3.1.0
-      reselect: 4.1.7
-      resolve: 1.22.1
-    dev: false
-
   /babel-plugin-module-resolver/5.0.0:
     resolution: {integrity: sha512-g0u+/ChLSJ5+PzYwLwP8Rp8Rcfowz58TJNCe+L/ui4rpzE/mg//JVX0EWBUYoxaextqnwuGHzfGp2hh0PPV25Q==}
     engines: {node: '>= 16'}
@@ -10430,11 +10315,6 @@ packages:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
     engines: {node: '>=6'}
 
-  /escape-goat/3.0.0:
-    resolution: {integrity: sha512-w3PwNZJwRxlp47QGzhuEBldEqVHHhh8/tIPcl6ecf2Bou99cdAt0knihBV0Ecc7CGxYduXVBDheH1K2oADRlvw==}
-    engines: {node: '>=10'}
-    dev: false
-
   /escape-html/1.0.3:
     resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
     dev: false
@@ -10841,14 +10721,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       to-regex-range: 5.0.1
-
-  /find-babel-config/1.2.0:
-    resolution: {integrity: sha512-jB2CHJeqy6a820ssiqwrKMeyC6nNdmrcgkKWJWmpoxpE8RKciYJXCcXRq1h2AzCo5I5BJeN2tkGEO3hLTuePRA==}
-    engines: {node: '>=4.0.0'}
-    dependencies:
-      json5: 0.5.1
-      path-exists: 3.0.0
-    dev: false
 
   /find-babel-config/2.0.0:
     resolution: {integrity: sha512-dOKT7jvF3hGzlW60Gc3ONox/0rRZ/tz7WCil0bqA1In/3I8f1BctpXahRnEKDySZqci7u+dqq93sZST9fOJpFw==}
@@ -12108,11 +11980,6 @@ packages:
   /json-stable-stringify-without-jsonify/1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
     dev: true
-
-  /json5/0.5.1:
-    resolution: {integrity: sha512-4xrs1aW+6N5DalkqSVA8fxh458CXvR99WU8WLKmq4v8eWAL86Xo3BVqyd3SkA9wEVjCMqyvvRRkshAdOnBp5rw==}
-    hasBin: true
-    dev: false
 
   /json5/2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
@@ -15447,13 +15314,6 @@ packages:
     resolution: {integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==}
     dependencies:
       safe-buffer: 5.2.1
-
-  /stringify-attributes/3.0.0:
-    resolution: {integrity: sha512-tJKiThlLfog6ljT7ZTihlMh0iAtjKlu/ss9DMmBE5oOosbMqOMcuxc7zDfxP2lGzSb2Bwvbd3gQTqTSCmXyySw==}
-    engines: {node: '>=12'}
-    dependencies:
-      escape-goat: 3.0.0
-    dev: false
 
   /stringify-entities/4.0.3:
     resolution: {integrity: sha512-BP9nNHMhhfcMbiuQKCqMjhDP5yBCAxsPu4pHFFzJ6Alo9dZgY4VLDPutXqIjpRiMoKdp7Av85Gr73Q5uH9k7+g==}
