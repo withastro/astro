@@ -263,12 +263,25 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(4);
+				expect($img).to.have.a.lengthOf(7);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
 				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+			});
+
+			it('has proper source for refined image', () => {
+				let $img = $('#refined-image img');
+				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+			});
+
+			it('has proper sources for array of images', () => {
+				let $img = $('#array-of-images img');
+				const imgsSrcs = [];
+				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				expect($img).to.have.a.lengthOf(2);
+				expect(imgsSrcs.every((img) => img.startsWith('/src/'))).to.be.true;
 			});
 
 			it('has proper attributes for optimized image through getImage', () => {
@@ -365,7 +378,7 @@ describe('astro:image', () => {
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/blog/one');
-			const text = await res.text();
+			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('does not exist. Is the path correct?');
@@ -374,7 +387,7 @@ describe('astro:image', () => {
 		it('properly error image in Markdown content is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/post');
-			const text = await res.text();
+			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('Could not find requested image');
