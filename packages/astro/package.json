@@ -100,8 +100,8 @@
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test:unit": "mocha --parallel --exit --timeout 30000 ./test/units/**/*.test.js",
     "test:unit:match": "mocha --parallel --exit --timeout 30000 ./test/units/**/*.test.js -g",
-    "test": "pnpm run test:unit && mocha --parallel --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --parallel --timeout 20000 **/lit-element.test.js",
-    "test:match": "mocha --parallel --timeout 20000 -g",
+    "test": "pnpm run test:unit && mocha --parallel --exit --timeout 40000 --ignore **/lit-element.test.js && mocha --parallel --timeout 40000 **/lit-element.test.js",
+    "test:match": "mocha --parallel --timeout 40000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g"
   },

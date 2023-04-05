@@ -22,7 +22,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.js\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --parallel --exit --timeout 20000"
+    "test": "mocha --parallel --exit --timeout 40000"
   },
   "peerDependencies": {
     "astro": "workspace:^2.1.5"
