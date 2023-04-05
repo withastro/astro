@@ -10,7 +10,6 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
 import {
-	NoCollectionError,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
@@ -18,6 +17,7 @@ import {
 	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
+	NoCollectionError,
 	type ContentConfig,
 } from './utils.js';
 
