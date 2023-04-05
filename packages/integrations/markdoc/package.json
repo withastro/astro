@@ -30,8 +30,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --parallel --exit --timeout 40000",
-    "test:match": "mocha --parallel --timeout 40000 -g"
+    "test": "mocha --parallel --jobs 2 --exit --timeout 40000",
+    "test:match": "mocha --parallel --jobs 2 --timeout 40000 -g"
   },
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",

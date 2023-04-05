@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "test": "mocha --parallel --exit --timeout 40000"
+    "test": "mocha --parallel --jobs 2 --exit --timeout 40000"
   },
   "devDependencies": {
     "@types/mocha": "^9.1.1",
