@@ -11,9 +11,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.1.9",
+    "astro": "^2.2.0",
     "lit": "^2.7.0",
-    "@astrojs/lit": "^2.0.0",
+    "@astrojs/lit": "^2.0.1",
     "@webcomponents/template-shadowroot": "^0.2.1"
   }
 }
