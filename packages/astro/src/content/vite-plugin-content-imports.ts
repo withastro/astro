@@ -18,7 +18,6 @@ import {
 	getEntryType,
 	globalContentConfigObserver,
 	NoCollectionError,
-	patchAssets,
 	type ContentConfig,
 } from './utils.js';
 
@@ -235,11 +234,11 @@ export const _internal = {
 			? await getEntryData(
 					{ id, collection, slug, _internal, unvalidatedData },
 					collectionConfig,
-					(idToResolve: string) => pluginContext.resolve(idToResolve, fileId)
+					pluginContext,
+					settings
 			  )
 			: unvalidatedData;
 
-		await patchAssets(data, pluginContext.meta.watchMode, pluginContext.emitFile, settings);
 		const contentEntryModule: ContentEntryModule = {
 			id,
 			slug,

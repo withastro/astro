@@ -76,7 +76,7 @@ interface GetScriptsAndStylesParams {
 
 async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, env.loader);
+	const scripts = await getScriptsForURL(filePath, env.settings.config.root, env.loader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, env.settings) && env.mode === 'development') {

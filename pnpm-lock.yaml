@@ -1301,6 +1301,18 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-assets-prefix:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
   packages/astro/test/fixtures/astro-attrs:
     specifiers:
       '@astrojs/react': workspace:*
@@ -2957,6 +2969,14 @@ importers:
       rollup-plugin-copy: 3.4.0
       sharp: 0.31.3
       vite: 4.1.2
+
+  packages/integrations/image/test/fixtures/assets-prefix:
+    specifiers:
+      '@astrojs/image': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      astro: link:../../../../../astro
 
   packages/integrations/image/test/fixtures/background-color-image:
     specifiers:
