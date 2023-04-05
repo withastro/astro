@@ -13,8 +13,27 @@ declare module 'astro:content' {
 	export type CollectionEntry<C extends keyof typeof entryMap> =
 		(typeof entryMap)[C][keyof (typeof entryMap)[C]];
 
+	// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
+	/**
+	 * @deprecated
+	 * `astro:content` no longer provide `image()`.
+	 *
+	 * Please use it through `schema`, like such:
+	 * ```ts
+	 * import { defineCollection, z } from "astro:content";
+	 *
+	 * defineCollection({
+	 *   schema: ({ image }) =>
+	 *     z.object({
+	 *       image: image(),
+	 *     }),
+	 * });
+	 * ```
+	 */
+	export const image: never;
+
 	// This needs to be in sync with ImageMetadata
-	export const image: () => import('astro/zod').ZodObject<{
+	type ImageFunction = () => import('astro/zod').ZodObject<{
 		src: import('astro/zod').ZodString;
 		width: import('astro/zod').ZodNumber;
 		height: import('astro/zod').ZodNumber;
@@ -45,7 +64,7 @@ declare module 'astro:content' {
 		| import('astro/zod').ZodEffects<BaseSchemaWithoutEffects>;
 
 	type BaseCollectionConfig<S extends BaseSchema> = {
-		schema?: S;
+		schema?: S | (({ image }: { image: ImageFunction }) => S);
 		slug?: (entry: {
 			id: CollectionEntry<keyof typeof entryMap>['id'];
 			defaultSlug: string;
@@ -81,8 +100,9 @@ declare module 'astro:content' {
 		filter?: (entry: CollectionEntry<C>) => unknown
 	): Promise<CollectionEntry<C>[]>;
 
+	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
 	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
-		Required<ContentConfig['collections'][C]>['schema']
+		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
 
 	const entryMap: {

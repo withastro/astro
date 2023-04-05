@@ -27,7 +27,7 @@ describe('Projects with a space in the folder name', () => {
 			const html = await fixture.fetch('/').then((r) => r.text());
 			const $ = cheerio.load(html);
 
-			expect($('script[src*="space in folder name"]')).to.have.a.lengthOf(1);
+			expect($('script[src*="/src/pages/index.astro"]')).to.have.a.lengthOf(1);
 		});
 	});
 });

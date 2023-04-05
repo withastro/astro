@@ -59,7 +59,12 @@ function* render(Component, attrs, slots) {
 	yield `<${tagName}${shouldDeferHydration ? ' defer-hydration' : ''}`;
 	yield* instance.renderAttributes();
 	yield `>`;
-	const shadowContents = instance.renderShadow({});
+	const shadowContents = instance.renderShadow({
+		elementRenderers: [LitElementRenderer],
+		customElementInstanceStack: [instance],
+		customElementHostStack: [],
+		deferHydration: false,
+	});
 	if (shadowContents !== undefined) {
 		const { mode = 'open', delegatesFocus } = instance.shadowRootOptions ?? {};
 		// `delegatesFocus` is intentionally allowed to coerce to boolean to
