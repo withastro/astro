@@ -232,36 +232,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 				}
 			},
 		},
-		{
-			name: 'astro:rollup-plugin-build-css-minify',
-			enforce: 'post',
-			async generateBundle(_outputOptions, bundle) {
-				// Minify CSS in each bundle ourselves, since server builds are not minified
-				// so that the JS is debuggable. Since you cannot configure vite:css-post to minify
-				// we need to do it ourselves.
-				if (options.target === 'server') {
-					for (const [, output] of Object.entries(bundle)) {
-						if (output.type === 'asset') {
-							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
-								const cssTarget = settings.config.vite.build?.cssTarget;
-								const minify = settings.config.vite.build?.minify !== false;
-								const { code: minifiedCSS } = await transformWithEsbuild(
-									output.source,
-									output.name,
-									{
-										loader: 'css',
-										minify,
-										target: cssTarget || undefined,
-										sourcemap: false,
-									}
-								);
-								output.source = minifiedCSS;
-							}
-						}
-					}
-				}
-			},
-		},
 	];
 }
 
