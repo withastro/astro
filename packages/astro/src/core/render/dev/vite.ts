@@ -1,7 +1,6 @@
 import type { ModuleLoader, ModuleNode } from '../../module-loader/index';
 
 import npath from 'path';
-import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { unwrapId } from '../../util.js';
 import { isCSSRequest } from './util.js';
@@ -19,14 +18,10 @@ export async function* crawlGraph(
 	loader: ModuleLoader,
 	_id: string,
 	isRootFile: boolean,
-	stopAtPropagatedAssets: boolean,
 	scanned = new Set<string>()
 ): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<ModuleNode>();
-	if(stopAtPropagatedAssets) {
-		if (new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) return;
-	}
 
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
@@ -96,6 +91,6 @@ export async function* crawlGraph(
 		}
 
 		yield importedModule;
-		yield* crawlGraph(loader, importedModule.id, false, stopAtPropagatedAssets, scanned);
+		yield* crawlGraph(loader, importedModule.id, false, scanned);
 	}
 }

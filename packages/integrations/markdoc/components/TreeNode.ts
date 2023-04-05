@@ -80,11 +80,14 @@ export const ComponentNode = createComponent({
 			);
 
 			// Let the runtime know that this component is being used.
-			result.propagators.set({}, {
-				init() {
-					return headAndContent;
+			result.propagators.set(
+				{},
+				{
+					init() {
+						return headAndContent;
+					},
 				}
-			});
+			);
 
 			return headAndContent;
 		}
@@ -146,7 +149,7 @@ export async function createTreeNode(
 }
 
 type PropagatedAssetsModule = {
-	__astroAsset: true;
+	__astroPropagation: true;
 	getMod: () => Promise<AstroInstance['default']>;
 	collectedStyles: string[];
 	collectedLinks: string[];
@@ -154,5 +157,5 @@ type PropagatedAssetsModule = {
 };
 
 function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
-	return typeof module === 'object' && module != null && '__astroAsset' in module;
+	return typeof module === 'object' && module != null && '__astroPropagation' in module;
 }

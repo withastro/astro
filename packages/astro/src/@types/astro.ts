@@ -1097,6 +1097,7 @@ export interface ContentEntryType {
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
+	handlePropagation: boolean;
 }
 
 type GetEntryInfoReturnType = {

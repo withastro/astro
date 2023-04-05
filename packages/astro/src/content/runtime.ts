@@ -141,54 +141,72 @@ async function render({
 	const baseMod = await lazyImport();
 	if (baseMod == null || typeof baseMod !== 'object') throw UnexpectedRenderError;
 
-	const { collectedStyles, collectedLinks, collectedScripts, getMod } = baseMod;
-	if (typeof getMod !== 'function') throw UnexpectedRenderError;
-	const mod = await getMod();
-	if (mod == null || typeof mod !== 'object') throw UnexpectedRenderError;
+	if (
+		baseMod.default != null &&
+		typeof baseMod.default === 'object' &&
+		baseMod.default.__astroPropagation === true
+	) {
+		const { collectedStyles, collectedLinks, collectedScripts, getMod } = baseMod.default;
+		if (typeof getMod !== 'function') throw UnexpectedRenderError;
+		const propagationMod = await getMod();
+		if (propagationMod == null || typeof propagationMod !== 'object') throw UnexpectedRenderError;
 
-	const Content = createComponent({
-		factory(result, baseProps, slots) {
-			let styles = '',
-				links = '',
-				scripts = '';
-			if (Array.isArray(collectedStyles)) {
-				styles = collectedStyles.map((style: any) => renderStyleElement(style)).join('');
-			}
-			if (Array.isArray(collectedLinks)) {
-				links = collectedLinks
-					.map((link: any) => {
-						return renderUniqueStylesheet(result, {
-							href: prependForwardSlash(link),
-						});
-					})
-					.join('');
-			}
-			if (Array.isArray(collectedScripts)) {
-				scripts = collectedScripts.map((script: any) => renderScriptElement(script)).join('');
-			}
+		const Content = createComponent({
+			factory(result, baseProps, slots) {
+				let styles = '',
+					links = '',
+					scripts = '';
+				if (Array.isArray(collectedStyles)) {
+					styles = collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+				}
+				if (Array.isArray(collectedLinks)) {
+					links = collectedLinks
+						.map((link: any) => {
+							return renderUniqueStylesheet(result, {
+								href: prependForwardSlash(link),
+							});
+						})
+						.join('');
+				}
+				if (Array.isArray(collectedScripts)) {
+					scripts = collectedScripts.map((script: any) => renderScriptElement(script)).join('');
+				}
 
-			let props = baseProps;
-			// Auto-apply MDX components export
-			if (id.endsWith('mdx')) {
-				props = {
-					components: mod.components ?? {},
-					...baseProps,
-				};
-			}
+				let props = baseProps;
+				// Auto-apply MDX components export
+				if (id.endsWith('mdx')) {
+					props = {
+						components: propagationMod.components ?? {},
+						...baseProps,
+					};
+				}
 
-			console.log(renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`);
+				return createHeadAndContent(
+					unescapeHTML(styles + links + scripts) as any,
+					renderTemplate`${renderComponent(
+						result,
+						'Content',
+						propagationMod.Content,
+						props,
+						slots
+					)}`
+				);
+			},
+			propagation: 'self',
+		});
 
-			return createHeadAndContent(
-				unescapeHTML(styles + links + scripts) as any,
-				renderTemplate`${renderComponent(result, 'Content', mod.Content, props, slots)}`
-			);
-		},
-		propagation: 'self',
-	});
-
-	return {
-		Content: mod.Content,
-		headings: mod.getHeadings?.() ?? [],
-		remarkPluginFrontmatter: mod.frontmatter ?? {},
-	};
+		return {
+			Content,
+			headings: propagationMod.getHeadings?.() ?? [],
+			remarkPluginFrontmatter: propagationMod.frontmatter ?? {},
+		};
+	} else if (baseMod.Content && typeof baseMod.Content === 'function') {
+		return {
+			Content: baseMod.Content,
+			headings: baseMod.getHeadings?.() ?? [],
+			remarkPluginFrontmatter: baseMod.frontmatter ?? {},
+		};
+	} else {
+		throw UnexpectedRenderError;
+	}
 }

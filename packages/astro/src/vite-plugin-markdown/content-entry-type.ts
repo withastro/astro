@@ -13,6 +13,7 @@ export const markdownContentEntryType: ContentEntryType = {
 			rawData: parsed.matter,
 		};
 	},
+	handlePropagation: false,
 };
 
 /**
@@ -30,6 +31,9 @@ export const mdxContentEntryType: ContentEntryType = {
 			rawData: parsed.matter,
 		};
 	},
+	// MDX can import scripts and styles,
+	// so wrap all MDX files with script / style propagation checks
+	handlePropagation: true,
 	contentModuleTypes: `declare module 'astro:content' {
 	interface Render {
 		'.mdx': Promise<{

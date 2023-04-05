@@ -48,6 +48,9 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
+					// Markdoc handles script / style propagation
+					// for Astro components internally
+					handlePropagation: false,
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;

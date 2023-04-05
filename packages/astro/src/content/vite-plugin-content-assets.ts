@@ -1,4 +1,5 @@
-import { pathToFileURL } from 'url';
+import { extname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
@@ -11,12 +12,13 @@ import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
+	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
-import { getContentEntryExts } from './utils.js';
+import { hasContentFlag } from './utils.js';
 
 function isPropagatedAsset(viteId: string) {
 	const flags = new URLSearchParams(viteId.split('?')[1]);
@@ -31,9 +33,28 @@ export function astroContentAssetPropagationPlugin({
 	settings: AstroSettings;
 }): Plugin {
 	let devModuleLoader: ModuleLoader;
-	const contentEntryExts = getContentEntryExts(settings);
 	return {
 		name: 'astro:content-asset-propagation',
+		enforce: 'pre',
+		async resolveId(id, importer, opts) {
+			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
+				const resolvedBase = await this.resolve(id.split('?')[0], importer, {
+					skipSelf: true,
+					...opts,
+				});
+				if (!resolvedBase) return;
+				const base = resolvedBase.id;
+
+				for (const { extensions, handlePropagation } of settings.contentEntryTypes) {
+					if (handlePropagation && extensions.includes(extname(base))) {
+						return `${base}?${PROPAGATED_ASSET_FLAG}`;
+					}
+				}
+				// Resolve to the base id (no content flags)
+				// if Astro doesn't need to handle propagation.
+				return base;
+			}
+		},
 		configureServer(server) {
 			if (mode === 'dev') {
 				devModuleLoader = createViteLoader(server);
