@@ -60,7 +60,7 @@
     "mocha": "^9.2.2",
     "rollup-plugin-copy": "^3.4.0",
     "sharp": "^0.31.0",
-    "vite": "^4.1.2"
+    "vite": "^4.2.1"
   },
   "peerDependencies": {
     "astro": "workspace:^2.1.9",
