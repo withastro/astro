@@ -1,0 +1,7 @@
+{
+  "locale": "es",
+  "keys": {
+    "greeting": "¡Hola!",
+    "body": "Este es un ejemplo de un archivo de traducción."
+  }
+}

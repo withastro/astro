@@ -1,0 +1,7 @@
+{
+  "locale": "en",
+  "keys": {
+    "greeting": "Hello!",
+    "body": "This is an example of a translation file."
+  }
+}
