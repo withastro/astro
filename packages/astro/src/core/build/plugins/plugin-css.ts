@@ -55,9 +55,22 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 		{
 			name: 'astro:rollup-plugin-build-css',
 
+			transform(_, id) {
+				// In the SSR build, styles that are bundled are tracked in `internals.cssChunkModuleIds`.
+				// In the client build, if we're also bundling the same style, return an empty string to
+				// deduplicate the final CSS output.
+				if (
+					options.target === 'client' &&
+					isBuildableCSSRequest(id) &&
+					internals.cssChunkModuleIds.has(id)
+				) {
+					return '';
+				}
+			},
+
 			outputOptions(outputOptions) {
-				if (options.target === 'client') return
-				
+				if (options.target === 'client') return;
+
 				const assetFileNames = outputOptions.assetFileNames;
 				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 				const createNameForParentPages = namingIncludesHash
@@ -133,17 +146,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								if (options.target === 'server') {
 									for (const id of Object.keys(c.modules)) {
 										internals.cssChunkModuleIds.add(id);
-									}
-								}
-								// In the client build, we bail if the chunk is a duplicated CSS chunk tracked from
-								// above. We remove all the importedCss to prevent emitting the CSS asset.
-								if (options.target === 'client') {
-									if (Object.keys(c.modules).every((id) => internals.cssChunkModuleIds.has(id))) {
-										for (const importedCssImport of meta.importedCss) {
-											delete bundle[importedCssImport];
-											meta.importedCss.delete(importedCssImport);
-										}
-										return;
 									}
 								}
 
