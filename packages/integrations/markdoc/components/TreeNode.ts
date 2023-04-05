@@ -79,6 +79,7 @@ export const ComponentNode = createComponent({
 				)}`
 			);
 
+			console.log('[Markdoc renderer] Setting propagator');
 			// Let the runtime know that this component is being used.
 			result.propagators.set(
 				{},

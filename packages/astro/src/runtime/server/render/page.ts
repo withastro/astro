@@ -54,6 +54,7 @@ async function iterableToHTMLBytes(
 // Recursively calls component instances that might have head content
 // to be propagated up.
 async function bufferHeadContent(result: SSRResult) {
+	console.log('[bufferHeadContent] Started');
 	const iterator = result.propagators.values();
 	while (true) {
 		const { value, done } = iterator.next();
@@ -62,6 +63,7 @@ async function bufferHeadContent(result: SSRResult) {
 		}
 		const returnValue = await value.init(result);
 		if (isHeadAndContent(returnValue)) {
+			console.log('[bufferHeadContent] Found head:', returnValue.head);
 			result.extraHead.push(returnValue.head);
 		}
 	}
@@ -130,6 +132,7 @@ export async function renderPage(
 	result._metadata.headInTree =
 		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
 	const factoryReturnValue = await componentFactory(result, props, children);
+	console.log('factoryReturnValue', result);
 	const factoryIsHeadAndContent = isHeadAndContent(factoryReturnValue);
 	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {
 		// Wait for head content to be buffered up
@@ -138,6 +141,7 @@ export async function renderPage(
 			? factoryReturnValue.content
 			: factoryReturnValue;
 
+		console.log('rendering template');
 		let iterable = renderAstroTemplateResult(templateResult);
 		let init = result.response;
 		let headers = new Headers(init.headers);

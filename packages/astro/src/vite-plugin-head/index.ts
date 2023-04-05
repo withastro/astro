@@ -42,6 +42,7 @@ export default function configHeadVitePlugin({
 
 		for (const parent of mod?.importers || []) {
 			if (parent.id) {
+				console.log('[propagateMetadata] Bubbling:', id);
 				propagateMetadata.call(this, parent.id, prop, value, seen);
 			}
 		}
@@ -63,6 +64,7 @@ export default function configHeadVitePlugin({
 			}
 
 			if (injectExp.test(source)) {
+				console.log('[propagateMetadata] Found root:', id);
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 		},
