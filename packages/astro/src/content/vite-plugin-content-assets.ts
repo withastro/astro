@@ -1,4 +1,3 @@
-import npath from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
