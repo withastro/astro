@@ -14,7 +14,7 @@ export async function getComponentMetadata(
 
 	const rootID = viteID(filePath);
 	addMetadata(map, loader.getModuleInfo(rootID));
-	for await (const moduleNode of crawlGraph(loader, rootID, true, false)) {
+	for await (const moduleNode of crawlGraph(loader, rootID, true)) {
 		const id = moduleNode.id;
 		if (id) {
 			addMetadata(map, loader.getModuleInfo(id));
