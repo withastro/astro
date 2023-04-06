@@ -72,7 +72,6 @@ describe('Streaming', () => {
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			let chunks = [];
-			let decoder = new TextDecoder();
 			for await (const bytes of streamAsyncIterator(response.body)) {
 				let chunk = decoder.decode(bytes);
 				chunks.push(chunk);
