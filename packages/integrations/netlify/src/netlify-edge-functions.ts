@@ -1,5 +1,5 @@
-import type { SSRManifest } from 'astro';
 import type { Context } from '@netlify/edge-functions';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -16,9 +16,10 @@ export function createExports(manifest: SSRManifest) {
 			return;
 		}
 		if (app.match(request)) {
-			const ip = request.headers.get('x-nf-client-connection-ip')
-				|| context?.ip
-				|| (context as any)?.remoteAddr?.hostname;
+			const ip =
+				request.headers.get('x-nf-client-connection-ip') ||
+				context?.ip ||
+				(context as any)?.remoteAddr?.hostname;
 			Reflect.set(request, clientAddressSymbol, ip);
 			const response = await app.render(request);
 			if (app.setCookieHeaders) {
