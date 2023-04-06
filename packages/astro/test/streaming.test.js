@@ -9,6 +9,8 @@ describe('Streaming', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
+	let decoder = new TextDecoder();
+
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/streaming/',
@@ -33,10 +35,20 @@ describe('Streaming', () => {
 			let res = await fixture.fetch('/');
 			let chunks = [];
 			for await (const bytes of streamAsyncIterator(res.body)) {
-				let chunk = bytes.toString('utf-8');
+				let chunk = decoder.decode(bytes);
 				chunks.push(chunk);
 			}
 			expect(chunks.length).to.be.greaterThan(1);
+		});
+
+		it('Body of slots is chunked', async () => {
+			let res = await fixture.fetch('/slot');
+			let chunks = [];
+			for await (const bytes of streamAsyncIterator(res.body)) {
+				let chunk = decoder.decode(bytes);
+				chunks.push(chunk);
+			}
+			expect(chunks.length).to.be.greaterThan(2);
 		});
 	});
 
