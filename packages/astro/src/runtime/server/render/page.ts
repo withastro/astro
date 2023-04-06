@@ -77,7 +77,7 @@ export async function renderPage(
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
 		result._metadata.headInTree =
-		result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
+			result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
 		let output: ComponentIterable;
