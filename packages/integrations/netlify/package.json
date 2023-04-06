@@ -42,6 +42,7 @@
     "astro": "workspace:^2.2.0"
   },
   "devDependencies": {
+    "@netlify/edge-functions": "^2.0.0",
     "@netlify/edge-handler-types": "^0.34.1",
     "@types/node": "^14.18.20",
     "astro": "workspace:*",
