@@ -25,7 +25,7 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function renderSlot(
+export async function renderSlotToString(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
 	fallback?: ComponentSlotValue | RenderTemplateResult
@@ -48,10 +48,12 @@ export async function renderSlot(
 	}
 
 	if (fallback) {
-		return renderSlot(result, fallback);
+		return renderSlotToString(result, fallback);
 	}
 	return '';
 }
+
+export const renderSlot = renderSlotToString;
 
 interface RenderSlotsResult {
 	slotInstructions: null | RenderInstruction[];
@@ -67,7 +69,7 @@ export async function renderSlots(
 	if (slots) {
 		await Promise.all(
 			Object.entries(slots).map(([key, value]) =>
-				renderSlot(result, value).then((output: any) => {
+				renderSlotToString(result, value).then((output: any) => {
 					if (output.instructions) {
 						if (slotInstructions === null) {
 							slotInstructions = [];
