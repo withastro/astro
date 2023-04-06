@@ -67,13 +67,6 @@ declare module 'astro:content' {
 
 	type BaseCollectionConfig<S extends BaseSchema> = {
 		schema?: S | ((context: SchemaContext) => S);
-		slug?: (entry: {
-			id: CollectionEntry<keyof typeof entryMap>['id'];
-			defaultSlug: string;
-			collection: string;
-			body: string;
-			data: import('astro/zod').infer<S>;
-		}) => string | Promise<string>;
 	};
 	export function defineCollection<S extends BaseSchema>(
 		input: BaseCollectionConfig<S>
