@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 2.0.1
+
+### Patch Changes
+
+- [#6752](https://github.com/withastro/astro/pull/6752) [`c7eb0d431`](https://github.com/withastro/astro/commit/c7eb0d431032edc5d4af72726d84e1c52ef36575) Thanks [@augustjk](https://github.com/augustjk)! - Provide `renderInfo` when rendering Lit components. Fixes issue with rendering nested components.
+
 ## 2.0.0
 
 ### Major Changes

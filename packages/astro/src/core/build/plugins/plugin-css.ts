@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
-import { transformWithEsbuild, type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
+import { type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
 import { isBuildableCSSRequest } from '../../render/dev/util.js';
 import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
@@ -231,36 +231,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					if (cssChunk) {
 						for (const pageData of eachPageData(internals)) {
 							pageData.css.set(cssChunk.fileName, { depth: -1, order: -1 });
-						}
-					}
-				}
-			},
-		},
-		{
-			name: 'astro:rollup-plugin-build-css-minify',
-			enforce: 'post',
-			async generateBundle(_outputOptions, bundle) {
-				// Minify CSS in each bundle ourselves, since server builds are not minified
-				// so that the JS is debuggable. Since you cannot configure vite:css-post to minify
-				// we need to do it ourselves.
-				if (options.target === 'server') {
-					for (const [, output] of Object.entries(bundle)) {
-						if (output.type === 'asset') {
-							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
-								const cssTarget = settings.config.vite.build?.cssTarget;
-								const minify = settings.config.vite.build?.minify !== false;
-								const { code: minifiedCSS } = await transformWithEsbuild(
-									output.source,
-									output.name,
-									{
-										loader: 'css',
-										minify,
-										target: cssTarget || undefined,
-										sourcemap: false,
-									}
-								);
-								output.source = minifiedCSS;
-							}
 						}
 					}
 				}

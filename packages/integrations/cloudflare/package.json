@@ -38,7 +38,7 @@
     "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.1.9"
+    "astro": "workspace:^2.2.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
