@@ -3375,6 +3375,7 @@ importers:
   packages/integrations/netlify:
     specifiers:
       '@astrojs/webapi': ^2.1.0
+      '@netlify/edge-functions': ^2.0.0
       '@netlify/edge-handler-types': ^0.34.1
       '@netlify/functions': ^1.0.0
       '@types/node': ^14.18.20
@@ -3390,6 +3391,7 @@ importers:
       '@netlify/functions': 1.4.0
       esbuild: 0.15.18
     devDependencies:
+      '@netlify/edge-functions': 2.0.0
       '@netlify/edge-handler-types': 0.34.1
       '@types/node': 14.18.36
       astro: link:../../astro
@@ -6102,6 +6104,17 @@ packages:
       postcss-selector-parser: 6.0.11
     dev: true
 
+  /@deno/shim-deno-test/0.3.3:
+    resolution: {integrity: sha512-Ge0Tnl7zZY0VvEfgsyLhjid8DzI1d0La0dgm+3m0/A8gZXgp5xwlyIyue5e4SCUuVB/3AH/0lun9LcJhhTwmbg==}
+    dev: true
+
+  /@deno/shim-deno/0.10.0:
+    resolution: {integrity: sha512-E7rQ0Hk33V45xQXKEnCxizdSP5C+hhqw1H3xWXsct3kYFWgG93B5gN3LKlyvcxbckt8d67jVa6s+y5duRYawvg==}
+    dependencies:
+      '@deno/shim-deno-test': 0.3.3
+      which: 2.0.2
+    dev: true
+
   /@docsearch/css/3.3.3:
     resolution: {integrity: sha512-6SCwI7P8ao+se1TUsdZ7B4XzL+gqeQZnBc+2EONZlcVa0dVrk0NjETxozFKgMv0eEGH8QzP1fkN+A1rH61l4eg==}
     dev: false
@@ -7371,6 +7384,13 @@ packages:
       nanostores: 0.5.13
       preact: 10.12.0
     dev: false
+
+  /@netlify/edge-functions/2.0.0:
+    resolution: {integrity: sha512-mRVGnPNA4YayDLPwnO1ZrcWwBODPj5BQPbx3/FUlQtZ5ow2D+PjMPQr8IcFm0HfMJQgtHZS39p9VS6PRSi1ePw==}
+    engines: {node: ^14.16.0 || >=16.0.0}
+    dependencies:
+      '@deno/shim-deno': 0.10.0
+    dev: true
 
   /@netlify/edge-handler-types/0.34.1:
     resolution: {integrity: sha512-YTwn8cw89M4lRTmoUhl9s8ljSGMDt7FOIsxsrx7YrRz/RZlbh4Yuh4RU13DDafDRBEVuRbjGo93cnN621ZfBjA==}
