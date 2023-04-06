@@ -148,6 +148,9 @@ async function ssrBuild(
 		logLevel: opts.viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
+			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
+			// as the CSS generated are used and served to the client.
+			cssMinify: viteConfig.build?.minify == null ? true : !!viteConfig.build?.minify,
 			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: false,
@@ -173,6 +176,7 @@ async function ssrBuild(
 				},
 			},
 			ssr: true,
+			ssrEmitAssets: true,
 			// improve build performance
 			minify: false,
 			modulePreload: { polyfill: false },
