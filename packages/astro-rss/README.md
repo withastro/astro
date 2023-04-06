@@ -187,7 +187,7 @@ export const get = () => rss({
 
 ## `RSSFeedItem`
 
-An `RSSFeedItem` is a single item in the list of items in your feed. It represents a story, with `link`, `title` and `pubDate` fields. There are further optional fields defined below.
+An `RSSFeedItem` is a single item in the list of items in your feed. It represents a story, with `link`, `title` and `pubDate` fields. There are further optional fields defined below. You can also check the definitions for the fields in the [RSS spec](https://validator.w3.org/feed/docs/rss2.html#ltpubdategtSubelementOfLtitemgt).
 
 An example feed item might look like:
 
