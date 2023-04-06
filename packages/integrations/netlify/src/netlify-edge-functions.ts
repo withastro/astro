@@ -1,4 +1,5 @@
 import type { SSRManifest } from 'astro';
+import type { Context } from '@netlify/edge-functions';
 import { App } from 'astro/app';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -6,7 +7,7 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
-	const handler = async (request: Request): Promise<Response | void> => {
+	const handler = async (request: Request, context: Context): Promise<Response | void> => {
 		const url = new URL(request.url);
 
 		// If this matches a static asset, just return and Netlify will forward it
@@ -15,7 +16,9 @@ export function createExports(manifest: SSRManifest) {
 			return;
 		}
 		if (app.match(request)) {
-			const ip = request.headers.get('x-nf-client-connection-ip');
+			const ip = request.headers.get('x-nf-client-connection-ip')
+				|| context?.ip
+				|| (context as any)?.remoteAddr?.hostname;
 			Reflect.set(request, clientAddressSymbol, ip);
 			const response = await app.render(request);
 			if (app.setCookieHeaders) {
