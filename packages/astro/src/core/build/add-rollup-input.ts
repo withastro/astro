@@ -1,4 +1,4 @@
-import type { InputOptions } from 'rollup';
+import type { Rollup } from 'vite';
 
 function fromEntries<V>(entries: [string, V][]) {
 	const obj: Record<string, V> = {};
@@ -8,7 +8,10 @@ function fromEntries<V>(entries: [string, V][]) {
 	return obj;
 }
 
-export function addRollupInput(inputOptions: InputOptions, newInputs: string[]): InputOptions {
+export function addRollupInput(
+	inputOptions: Rollup.InputOptions,
+	newInputs: string[]
+): Rollup.InputOptions {
 	// Add input module ids to existing input option, whether it's a string, array or object
 	// this way you can use multiple html plugins all adding their own inputs
 	if (!inputOptions.input) {

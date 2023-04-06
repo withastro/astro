@@ -36,7 +36,7 @@ type RSSFeedItem = {
 	/** Link to item */
 	link: string;
 	/** Full content of the item. Should be valid HTML */
-	content?: string;
+	content?: string | undefined;
 	/** Title of item */
 	title: z.infer<typeof rssSchema>['title'];
 	/** Publication date of item */

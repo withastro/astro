@@ -1,7 +1,6 @@
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
-import npath from 'path';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
@@ -18,6 +17,7 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/internal.js';
+import { deleteWasmFiles } from '../../assets/services/vendor/squoosh/copy-wasm.js';
 import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -31,7 +31,11 @@ import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
+import {
+	createAssetLink,
+	createLinkStylesheetElementSet,
+	createModuleScriptsSet,
+} from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
@@ -108,8 +112,18 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	if (opts.settings.config.experimental.assets) {
 		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
 		for (const imageData of getStaticImageList()) {
-			await generateImage(opts, imageData[0], imageData[1]);
+			await generateImage(opts, imageData[1].options, imageData[1].path);
 		}
+
+		// Our Squoosh image service loads `.wasm` files relatively, so we need to copy the WASM files to the dist
+		// for the image generation to work. In static output, we can remove those after the build is done.
+		if (
+			opts.settings.config.image.service === 'astro/assets/services/squoosh' &&
+			opts.settings.config.output === 'static'
+		) {
+			await deleteWasmFiles(new URL('./chunks', opts.settings.config.outDir));
+		}
+
 		delete globalThis.astroAsset.addStaticImage;
 	}
 
@@ -340,10 +354,15 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const links = createLinkStylesheetElementSet(linkIds, settings.config.base);
+	const links = createLinkStylesheetElementSet(
+		linkIds,
+		settings.config.base,
+		settings.config.build.assetsPrefix
+	);
 	const scripts = createModuleScriptsSet(
 		hoistedScripts ? [hoistedScripts] : [],
-		settings.config.base
+		settings.config.base,
+		settings.config.build.assetsPrefix
 	);
 
 	if (settings.scripts.some((script) => script.stage === 'page')) {
@@ -351,7 +370,11 @@ async function generatePath(
 		if (typeof hashedFilePath !== 'string') {
 			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
 		}
-		const src = prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
+		const src = createAssetLink(
+			hashedFilePath,
+			settings.config.base,
+			settings.config.build.assetsPrefix
+		);
 		scripts.add({
 			props: { type: 'module', src },
 			children: '',
@@ -392,7 +415,11 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			return prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
+			return createAssetLink(
+				hashedFilePath,
+				settings.config.base,
+				settings.config.build.assetsPrefix
+			);
 		},
 		routeCache,
 		site: settings.config.site

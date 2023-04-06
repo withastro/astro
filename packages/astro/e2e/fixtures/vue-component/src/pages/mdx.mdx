@@ -1,6 +1,7 @@
 export { default } from '../components/Layout.astro';
 import Counter from '../components/Counter.vue';
 import VueComponent from '../components/VueComponent.vue';
+import AsyncTest from '../components/Test.vue';
 
 export const someProps = {
 	count: 0,
@@ -27,3 +28,5 @@ export const someProps = {
 </Counter>
 
 <VueComponent id="client-only" client:only="vue" />
+
+<AsyncTest id="client-test" client:only="vue" />

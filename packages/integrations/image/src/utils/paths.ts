@@ -35,16 +35,19 @@ function basename(src: string) {
 	return removeQueryString(src.replace(/^.*[\\\/]/, ''));
 }
 
-export function propsToFilename(transform: TransformOptions) {
+export function propsToFilename(transform: TransformOptions, serviceEntryPoint: string) {
 	// strip off the querystring first, then remove the file extension
 	let filename = removeQueryString(transform.src);
+	// take everything from transform except alt, which is not used in the hash
+	const { alt, ...rest } = transform;
+	const hashFields = { ...rest, serviceEntryPoint };
 	filename = basename(filename);
 	const ext = extname(filename);
 	filename = removeExtname(filename);
 
 	const outputExt = transform.format ? `.${transform.format}` : ext;
 
-	return `/${filename}_${shorthash(JSON.stringify(transform))}${outputExt}`;
+	return `/${filename}_${shorthash(JSON.stringify(hashFields))}${outputExt}`;
 }
 
 export function appendForwardSlash(path: string) {

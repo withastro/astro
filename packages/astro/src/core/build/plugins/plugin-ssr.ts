@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
-import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../../path.js';
+import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -134,8 +134,13 @@ function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
-	const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
-	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
+	const prefixAssetPath = (pth: string) => {
+		if (settings.config.build.assetsPrefix) {
+			return joinPaths(settings.config.build.assetsPrefix, pth);
+		} else {
+			return prependForwardSlash(joinPaths(settings.config.base, pth));
+		}
+	};
 
 	for (const pageData of eachPrerenderedPageData(internals)) {
 		if (!pageData.route.pathname) continue;
@@ -165,7 +170,7 @@ function buildManifest(
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			const hoistedValue = pageData.hoistedScript.value;
-			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue;
+			const value = hoistedValue.endsWith('.js') ? prefixAssetPath(hoistedValue) : hoistedValue;
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
 					value,
@@ -177,11 +182,11 @@ function buildManifest(
 
 			scripts.push({
 				type: 'external',
-				value: joinBase(src),
+				value: prefixAssetPath(src),
 			});
 		}
 
-		const links = sortedCSS(pageData).map((pth) => joinBase(pth));
+		const links = sortedCSS(pageData).map((pth) => prefixAssetPath(pth));
 
 		routes.push({
 			file: '',
@@ -212,7 +217,7 @@ function buildManifest(
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		entryModules,
-		assets: staticFiles.map((s) => settings.config.base + s),
+		assets: staticFiles.map(prefixAssetPath),
 	};
 
 	return ssrManifest;

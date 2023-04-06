@@ -1,6 +1,6 @@
 // TODO: Investigate removing this service once sharp lands WASM support, as libsquoosh is deprecated
 
-import type { ImageQualityPreset, OutputFormat } from '../types.js';
+import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	baseService,
 	parseQuality,
@@ -11,7 +11,10 @@ import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
 
 const baseQuality = { low: 25, mid: 50, high: 80, max: 100 };
-const qualityTable: Record<Exclude<OutputFormat, 'png'>, Record<ImageQualityPreset, number>> = {
+const qualityTable: Record<
+	Exclude<ImageOutputFormat, 'png'>,
+	Record<ImageQualityPreset, number>
+> = {
 	avif: {
 		// Squoosh's AVIF encoder has a bit of a weird behavior where `62` is technically the maximum, and anything over is overkill
 		max: 62,

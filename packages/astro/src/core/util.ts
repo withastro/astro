@@ -151,14 +151,14 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
-export function rootRelativePath(config: AstroConfig, idOrUrl: URL | string) {
+export function rootRelativePath(root: URL, idOrUrl: URL | string) {
 	let id: string;
 	if (typeof idOrUrl !== 'string') {
 		id = unwrapId(viteID(idOrUrl));
 	} else {
 		id = idOrUrl;
 	}
-	return prependForwardSlash(id.slice(normalizePath(fileURLToPath(config.root)).length));
+	return prependForwardSlash(id.slice(normalizePath(fileURLToPath(root)).length));
 }
 
 export function emoji(char: string, fallback: string) {

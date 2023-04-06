@@ -1,0 +1,12 @@
+{
+  "name": "@test/markdoc-render-with-components",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/markdoc": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "shiki": "^0.11.1"
+  }
+}

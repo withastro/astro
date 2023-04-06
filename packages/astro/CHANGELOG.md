@@ -1,5 +1,154 @@
 # astro
 
+## 2.2.0
+
+### Minor Changes
+
+- [#6703](https://github.com/withastro/astro/pull/6703) [`a1108e037`](https://github.com/withastro/astro/commit/a1108e037115cdb67d03505286c7d3a4fc2a1ff5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Move `image()` to come from `schema` instead to fix it not working with refine and inside complex types
+
+  **Migration**:
+
+  Remove the `image` import from `astro:content`, and instead use a function to generate your schema, like such:
+
+  ```ts
+  import { defineCollection, z } from 'astro:content';
+
+  defineCollection({
+    schema: ({ image }) =>
+      z.object({
+        image: image().refine((img) => img.width >= 200, {
+          message: 'image too small',
+        }),
+      }),
+  });
+  ```
+
+- [#6714](https://github.com/withastro/astro/pull/6714) [`ff0430786`](https://github.com/withastro/astro/commit/ff043078630e678348ae4f4757b3015b3b862c16) Thanks [@bluwy](https://github.com/bluwy)! - Add `build.assetsPrefix` option for CDN support. If set, all Astro-generated asset links will be prefixed with it. For example, setting it to `https://cdn.example.com` would generate `https://cdn.example.com/_astro/penguin.123456.png` links.
+
+  Also adds `import.meta.env.ASSETS_PREFIX` environment variable that can be used to manually create asset links not handled by Astro.
+
+### Patch Changes
+
+- [#6753](https://github.com/withastro/astro/pull/6753) [`489dd8d69`](https://github.com/withastro/astro/commit/489dd8d69cdd9d7c243cf8bec96051a914984b9c) Thanks [@bluwy](https://github.com/bluwy)! - Fix `getViteConfig` return type
+
+- [#6744](https://github.com/withastro/astro/pull/6744) [`a1a4f45b5`](https://github.com/withastro/astro/commit/a1a4f45b51a80215fa7598da83bd0d9c5acd20d2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix remote images in Markdown throwing errors when using `experimental.assets`
+
+- [#6762](https://github.com/withastro/astro/pull/6762) [`8b88e4cf1`](https://github.com/withastro/astro/commit/8b88e4cf15c8bea7942b3985380164e0edf7250b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved error message when an error was encountered while generating types
+
+- [#6719](https://github.com/withastro/astro/pull/6719) [`d54cbe413`](https://github.com/withastro/astro/commit/d54cbe41349e55f8544212ad9320705f07325920) Thanks [@matthewp](https://github.com/matthewp)! - Better errors for when response is already sent
+
+  This adds clearer error messaging when a Response has already been sent to the browser and the developer attempts to use:
+
+  - Astro.cookies.set
+  - Astro.redirect
+
+- [#6741](https://github.com/withastro/astro/pull/6741) [`4c347ab51`](https://github.com/withastro/astro/commit/4c347ab51e46f2319d614f8577fe502e3dc816e2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix content-type header being wrong in dev on images from `astro:assets`
+
+- [#6739](https://github.com/withastro/astro/pull/6739) [`2f2e572e9`](https://github.com/withastro/astro/commit/2f2e572e937fd25451bbc78a05d55b7caa1ca3ec) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added more types and utilities exports related to `astro:assets` to help building custom image components and image services
+
+- [#6759](https://github.com/withastro/astro/pull/6759) [`7116c021a`](https://github.com/withastro/astro/commit/7116c021a39eac15a6e1264dfbd11bef0f5d618a) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4.2
+
+- Updated dependencies [[`a1a4f45b5`](https://github.com/withastro/astro/commit/a1a4f45b51a80215fa7598da83bd0d9c5acd20d2)]:
+  - @astrojs/markdown-remark@2.1.3
+
+## 2.1.9
+
+### Patch Changes
+
+- [#6693](https://github.com/withastro/astro/pull/6693) [`c0b7864a4`](https://github.com/withastro/astro/commit/c0b7864a41dd9f31e5a588208d1ff806d4edf047) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: avoid calling `astro:server:setup` integration hook in production
+
+- [#6676](https://github.com/withastro/astro/pull/6676) [`5e33c51a9`](https://github.com/withastro/astro/commit/5e33c51a9c3c3b731a33f2c4a020a36d1471b78b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix next and previous links for index routes when using pagination
+
+- [#6717](https://github.com/withastro/astro/pull/6717) [`c2d4ae1cb`](https://github.com/withastro/astro/commit/c2d4ae1cbed622b2fadeb1fe8cc8bbed5f5adc8f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Dynamically import check command to improve startup speed and prevent Astro from crashing due to language-server stuff
+
+- [#6679](https://github.com/withastro/astro/pull/6679) [`08e92f4f8`](https://github.com/withastro/astro/commit/08e92f4f8ece50e377af5b0caca4ad789e0f23c1) Thanks [@fcFn](https://github.com/fcFn)! - Fix incorrect path to file in error overlay on Win
+
+- [#6649](https://github.com/withastro/astro/pull/6649) [`f0b732d32`](https://github.com/withastro/astro/commit/f0b732d326c609208f30485b9805a84a321a870e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improve error handling when using `astro:assets`
+
+- [#6710](https://github.com/withastro/astro/pull/6710) [`a0bdf4ce2`](https://github.com/withastro/astro/commit/a0bdf4ce2f36a0ce7045dc9f96c15dc7d9204c47) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix multiple Image / getImage calls with the same image causing multiple duplicate images to be generated
+
+- [#6711](https://github.com/withastro/astro/pull/6711) [`c04ea0d43`](https://github.com/withastro/astro/commit/c04ea0d43cc2aa8ebe520a1def19dd89828cf662) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix InferGetStaticParamsType and InferGetStaticPropsType not working when getStaticPaths wasn't async
+
+- [#6701](https://github.com/withastro/astro/pull/6701) [`46ecf4662`](https://github.com/withastro/astro/commit/46ecf466281450caedff5915cecde7a9fe3fdde0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove unnecessary `.wasm` files inside build output when possible
+
+## 2.1.8
+
+### Patch Changes
+
+- [#6675](https://github.com/withastro/astro/pull/6675) [`1f783e320`](https://github.com/withastro/astro/commit/1f783e32075c20b13063599696644f5d47b75d8d) Thanks [@matthewp](https://github.com/matthewp)! - Prevent frontmatter errors from crashing the dev server
+
+- [#6688](https://github.com/withastro/astro/pull/6688) [`2e92e9aa9`](https://github.com/withastro/astro/commit/2e92e9aa976735c3ddb647152bb9c4850136e386) Thanks [@JohannesKlauss](https://github.com/JohannesKlauss)! - Add a additional check for `null` on the `req.body` check in `NodeApp.render`.
+
+- [#6578](https://github.com/withastro/astro/pull/6578) [`adecda7d6`](https://github.com/withastro/astro/commit/adecda7d6009793c5d20519a997e3b7afb08ad57) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - add new flag with open for dev and preview
+
+- [#6680](https://github.com/withastro/astro/pull/6680) [`386336441`](https://github.com/withastro/astro/commit/386336441ad70017eea22db0683591126131db21) Thanks [@koriwi](https://github.com/koriwi)! - Invalidates cache when changing serviceEntryPoint
+
+- [#6653](https://github.com/withastro/astro/pull/6653) [`7c439868a`](https://github.com/withastro/astro/commit/7c439868a3bc7d466418da9af669966014f3d9fe) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Simplify Markdoc configuration with a new `markdoc.config.mjs` file. This lets you import Astro components directly to render as Markdoc tags and nodes, without the need for the previous `components` property. This new configuration also unlocks passing variables to your Markdoc from the `Content` component ([see the new docs](https://docs.astro.build/en/guides/integrations-guide/markdoc/#pass-markdoc-variables)).
+
+  ## Migration
+
+  Move any existing Markdoc config from your `astro.config` to a new `markdoc.config.mjs` file at the root of your project. This should be applied as a default export, with the optional `defineMarkdocConfig()` helper for autocomplete in your editor.
+
+  This example configures an `aside` Markdoc tag. Note that components should be imported and applied to the `render` attribute _directly,_ instead of passing the name as a string:
+
+  ```js
+  // markdoc.config.mjs
+  import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+  import Aside from './src/components/Aside.astro';
+
+  export default defineMarkdocConfig({
+    tags: {
+      aside: {
+        render: Aside,
+      },
+    },
+  });
+  ```
+
+  You should also remove the `components` prop from your `Content` components. Since components are imported into your config directly, this is no longer needed.
+
+  ```diff
+  ---
+  - import Aside from '../components/Aside.astro';
+  import { getEntryBySlug } from 'astro:content';
+
+  const entry = await getEntryBySlug('docs', 'why-markdoc');
+  const { Content } = await entry.render();
+  ---
+
+  <Content
+  - components={{ Aside }}
+  />
+  ```
+
+- [#6639](https://github.com/withastro/astro/pull/6639) [`25cd3e574`](https://github.com/withastro/astro/commit/25cd3e574999c1c7294a089ad8c39df27ccdbf17) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes an attribute naming mismatch in the definition for <link> elements in astro.JSX
+
+- [#6353](https://github.com/withastro/astro/pull/6353) [`4bf87c64f`](https://github.com/withastro/astro/commit/4bf87c64ff7e9ca49e0f5c27e06bd49faaf60542) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Throw better error when a dynamic endpoint without additional extensions is prerendered with `undefined` params.
+
+- [#6643](https://github.com/withastro/astro/pull/6643) [`fc0ed9c53`](https://github.com/withastro/astro/commit/fc0ed9c53cd374860bbdb2503318a55ca09a2662) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix images not having the proper path when using `base`
+
+## 2.1.7
+
+### Patch Changes
+
+- [#6192](https://github.com/withastro/astro/pull/6192) [`b7194103e`](https://github.com/withastro/astro/commit/b7194103e39267bf59dcd6ba00f522e424219d16) Thanks [@erg208](https://github.com/erg208)! - Updated to fix the Node SSR fails on POST with Express JSON middleware
+
+- [#6630](https://github.com/withastro/astro/pull/6630) [`cfcf2e2ff`](https://github.com/withastro/astro/commit/cfcf2e2ffdaa68ace5c84329c05b83559a29d638) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support automatic image optimization for Markdoc images when using `experimental.assets`. You can [follow our Assets guide](https://docs.astro.build/en/guides/assets/#enabling-assets-in-your-project) to enable this feature in your project. Then, start using relative or aliased image sources in your Markdoc files for automatic optimization:
+
+  ```md
+  <!--Relative paths-->
+
+  ![The Milky Way Galaxy](../assets/galaxy.jpg)
+
+  <!--Or configured aliases-->
+
+  ![Houston smiling and looking cute](~/assets/houston-smiling.jpg)
+  ```
+
+- [#6647](https://github.com/withastro/astro/pull/6647) [`45da39a86`](https://github.com/withastro/astro/commit/45da39a8642d64eb318840b18dfc2b5ccc6561bc) Thanks [@bluwy](https://github.com/bluwy)! - Fix --mode flag for builds
+
+- [#6638](https://github.com/withastro/astro/pull/6638) [`7daef9a29`](https://github.com/withastro/astro/commit/7daef9a2993b5d457f3d243a1ebfd1dd383b3327) Thanks [@matthewp](https://github.com/matthewp)! - Avoid implicit head injection when a head is in the tree
+
 ## 2.1.6
 
 ### Patch Changes
