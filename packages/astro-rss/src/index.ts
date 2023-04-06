@@ -52,7 +52,7 @@ type RSSFeedItem = {
 	/** The item author's email address */
 	author?: z.infer<typeof rssSchema>['author'];
 	/** A URL of a page for comments related to the item */
-	comments?: z.infer<typeof rssSchema>['comments'];
+	commentsUrl?: z.infer<typeof rssSchema>['commentsUrl'];
 	/** The RSS channel that the item came from */
 	source?: z.infer<typeof rssSchema>['source'];
 	/** A media object that belongs to the item */
@@ -228,8 +228,8 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		if (typeof result.author === 'string') {
 			item.author = result.author;
 		}
-		if (typeof result.comments === 'string') {
-			item.comments = result.comments;
+		if (typeof result.commentsUrl === 'string') {
+			item.comments = result.commentsUrl;
 		}
 		if (result.source) {
 			item.source = parser.parse(

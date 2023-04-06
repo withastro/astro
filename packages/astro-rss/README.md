@@ -112,34 +112,7 @@ Type: `RSSFeedItem[] (required)`
 
 A list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
 
-When providing a formatted RSS item list, see the `RSSFeedItem` type reference below:
-
-```ts
-type RSSFeedItem = {
-  /** Link to item */
-  link: string;
-  /** Title of item */
-  title: string;
-  /** Publication date of item */
-  pubDate: Date;
-  /** Item description */
-  description?: string;
-  /** Full content of the item, should be valid HTML */
-  content?: string;
-  /** Append some other XML-valid data to this item */
-  customData?: string;
-  /** Categories or tags related to the item */
-  categories?: string[];
-  /** The item author's email address */
-  author?: string;
-  /** A URL of a page for comments relating to the item */
-  comments?: string;
-  /** The RSS channel that the item came from */
-  source?: { url: string, title: string }
-  /** A media object that belongs to the item */
-  enclosure?: { url: string, length: number, type: string }
-};
-```
+When providing a formatted RSS item list, see the [`RSSFeedItem` type reference below](#rssfeeditem).
 
 ### drafts
 
@@ -211,6 +184,112 @@ export const get = () => rss({
   trailingSlash: false
 });
 ```
+
+## `RSSFeedItem`
+
+An `RSSFeedItem` is a single item in the list of items in your feed. It represents a story, with `link`, `title` and `pubDate` fields. There are further optional fields defined below.
+
+An example feed item might look like:
+
+```js
+const item = {
+  title: "Alpha Centauri: so close you can touch it",
+  link: "/blog/alpha-centuari",
+  pubDate: new Date("2023-06-04"),
+  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
+  categories: ["stars", "space"]
+}
+```
+
+### `title`
+
+Type: `string (required)`
+
+The `<title>` attribute of the item in the feed.
+
+### `link`
+
+Type: `string (required)`
+
+The `<link>` attribute of the item in the feed containing the URL of the item on the web.
+
+### `pubDate`
+
+Type: `Date (required)`
+
+Indicates when the item was published.
+
+### `description`
+
+Type: `string (optional)`
+
+If the item is complete within itself, that is you are publishing the full content of the item in the feed, the `description` field may contain the full text (entity-encoded HTML is permitted). If the item is a stub, then the `description` may contain a synopsis of the item.
+
+### `content`
+
+Type: `string (optional)`
+
+If you want to supply both a short description and also the full content in an item, set the `content` field to the full, encoded text. See the [recommendations from the RSS spec for how to use and differentiate between `description` and `content`](https://www.rssboard.org/rss-profile#namespace-elements-content-encoded).
+
+### `categories`
+
+Type: `string[] (optional)`
+
+If you use tags or categories to categorize your content, you can add them as the `categories` field. They will be output as multiple `<category>` elements.
+
+### `author`
+
+Type: `string (optional)`
+
+Useful for multi-author blogs, the `author` field provides the email address of the person who wrote the item.
+
+### `commentsUrl`
+
+Type: `string (optional)`
+
+The `commentsUrl` defines a URL of a web page that contains comments on the item.
+
+### `source`
+
+Type: `object (optional)`
+
+Items that are republished from other publications may define a `source` which defines the `title` and `url` of the original feed in which it was published.
+
+#### `title`
+
+Type: `string (required)`
+
+If you define a `source` you must define that source's `title`. It is the name of the original feed in which the item was published.
+
+#### `url`
+
+Type: `string (required)`
+
+If you define a `source` you must also define that source's `url` which identifies the URL of the original feed in which the item was published.
+
+### `enclosure`
+
+Type: `object (optional)`
+
+Items that include media as part of the feed, like a podcast, can define an `enclosure` which is made of three required fields, a `url`, `length`, and `type`.
+
+#### `url`
+
+Type: `string (required)`
+
+The `url` field for the `enclosure` defines a URL where the media can be found.
+
+#### `length`
+
+Type: `number (required)`
+
+The `length` field defines the size of the file found at the `url` in bytes.
+
+#### `type`
+
+Type: `string (required)`
+
+The `type` field defines the MIME type for the media item found at the `url`.
 
 ## `rssSchema`
 
