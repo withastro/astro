@@ -62,12 +62,30 @@ jobs:
             --header 'content-type: application/json' \
             -d '["semver minor"]'
 
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          comment-author: 'github-actions[bot]'
+
       - name: Send PR review
         if: steps.find-blockers.outputs.found == 'true'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         continue-on-error: true
         with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.number }}
           body: |
             This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.
           edit-mode: replace
+      - name: Change PR status
+        if: steps.find-blockers.outputs.found == 'true'
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          -d '{"event":"REQUEST_CHANGES"}'
+
