@@ -17,7 +17,7 @@ describe('astro scan', () => {
 		expect(result.prerender).to.equal(false);
 	});
 
-	it('recognizes single quoted boolean (\'true\')', async () => {
+	it("recognizes single quoted boolean ('true')", async () => {
 		const result = await scan(`export const prerender = 'true';`, '/src/components/index.astro');
 		expect(result.prerender).to.equal(true);
 	});
@@ -32,7 +32,7 @@ describe('astro scan', () => {
 		expect(result.prerender).to.equal(false);
 	});
 
-	it('recognizes single quoted boolean (\'false\')', async () => {
+	it("recognizes single quoted boolean ('false')", async () => {
 		const result = await scan(`export const prerender = 'false';`, '/src/components/index.astro');
 		expect(result.prerender).to.equal(false);
 	});

@@ -15,7 +15,7 @@ function includesExport(code: string) {
 
 // Support quoted values to allow statically known `import.meta.env` variables to be used
 function isQuoted(value: string) {
-	return (value[0] === '"' || value[0] === "'") && value[value.length - 1] === value[0]
+	return (value[0] === '"' || value[0] === "'") && value[value.length - 1] === value[0];
 }
 
 function isTruthy(value: string) {
