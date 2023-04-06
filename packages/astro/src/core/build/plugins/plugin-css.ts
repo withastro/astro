@@ -59,16 +59,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 				// In the SSR build, styles that are bundled are tracked in `internals.cssChunkModuleIds`.
 				// In the client build, if we're also bundling the same style, return an empty string to
 				// deduplicate the final CSS output.
-				if (
-					options.target === 'client' &&
-					isBuildableCSSRequest(id) &&
-					internals.cssChunkModuleIds.has(id)
-				) {
+				if (options.target === 'client' && internals.cssChunkModuleIds.has(id)) {
 					return '';
 				}
 			},
 
 			outputOptions(outputOptions) {
+				// Skip in client builds as its module graph doesn't have reference to Astro pages
+				// to be able to chunk based on it's related top-level pages.
 				if (options.target === 'client') return;
 
 				const assetFileNames = outputOptions.assetFileNames;

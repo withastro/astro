@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix CSS chunking between multiple framework components
+Fix CSS chunking and deduping between multiple Astro files and framework components
