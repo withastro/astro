@@ -17,6 +17,36 @@ describe('astro scan', () => {
 		expect(result.prerender).to.equal(false);
 	});
 
+	it('recognizes single quoted boolean (\'true\')', async () => {
+		const result = await scan(`export const prerender = 'true';`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(true);
+	});
+
+	it('recognizes double quoted boolean ("true")', async () => {
+		const result = await scan(`export const prerender = "true";`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(true);
+	});
+
+	it('recognizes double quoted boolean ("false")', async () => {
+		const result = await scan(`export const prerender = "false";`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(false);
+	});
+
+	it('recognizes single quoted boolean (\'false\')', async () => {
+		const result = await scan(`export const prerender = 'false';`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(false);
+	});
+
+	it('recognizes number (1)', async () => {
+		const result = await scan(`export const prerender = 1;`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(true);
+	});
+
+	it('recognizes number (0)', async () => {
+		const result = await scan(`export const prerender = 0;`, '/src/components/index.astro');
+		expect(result.prerender).to.equal(false);
+	});
+
 	it('throws on let boolean literal', async () => {
 		try {
 			const result = await scan(`export let prerender = true;`, '/src/components/index.astro');
