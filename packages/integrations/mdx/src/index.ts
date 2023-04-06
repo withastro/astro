@@ -160,6 +160,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									// Ensures styles and scripts are injected into a `<head>`
 									// When a layout is not applied
 									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
+									code += `\nContent.moduleId = ${JSON.stringify(id)};`
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
