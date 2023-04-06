@@ -17,6 +17,7 @@ const {
 	formats = ['avif', 'webp'],
 	loading = 'lazy',
 	decoding = 'async',
+	class: className,
 	...attrs
 } = Astro.props;
 
@@ -39,7 +40,7 @@ delete image.width;
 delete image.height;
 ---
 
-<picture>
+<picture class={className}>
 	{sources.map((attrs) => <source {...attrs} {sizes} />)}
-	<img {...image} {loading} {decoding} {...attrs} />
+	<img {...image} {loading} {decoding} class={className} {...attrs} />
 </picture>
