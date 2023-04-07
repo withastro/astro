@@ -147,7 +147,7 @@ You can now [import your own `base.css` as a local stylesheet](https://docs.astr
 
 When using the `@apply` directive in an Astro, Vue, Svelte, or another component integration's `<style>` tag, it may generate errors about your custom Tailwind class not existing and cause your build to fail.
 
-```
+```sh
 error   The `text-special` class does not exist. If `text-special` is a custom class, make sure it is defined within a `@layer` directive.
 ```
 
