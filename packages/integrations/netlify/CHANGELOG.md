@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 2.2.1
+
+### Patch Changes
+
+- [#6651](https://github.com/withastro/astro/pull/6651) [`416ceb973`](https://github.com/withastro/astro/commit/416ceb9730ce604cd3f73c22200907d9b9978073) Thanks [@matthewp](https://github.com/matthewp)! - Use Deno API to set Astro.clientAddress in Netlify Edge
+
+- Updated dependencies [[`72fed684a`](https://github.com/withastro/astro/commit/72fed684a35f00d80c69bcf6e8af297fed0294fe), [`45bff6fcc`](https://github.com/withastro/astro/commit/45bff6fccb3f5c71ff24c1ceb48cd532196c90f6), [`52d7a4a01`](https://github.com/withastro/astro/commit/52d7a4a011a3bb722b522fffd88c5fe9a519a196), [`9e88e0f23`](https://github.com/withastro/astro/commit/9e88e0f23c5913c07f7e3e96fa0555219ef710dc), [`fa84f1a7d`](https://github.com/withastro/astro/commit/fa84f1a7d2c290479c75199f16e8de489036d7ea), [`a98f6f418`](https://github.com/withastro/astro/commit/a98f6f418c92261a06ef79624a8c86e288c21eab), [`7f74326b7`](https://github.com/withastro/astro/commit/7f74326b762bfc174ebe8e37ae03733563e4214f)]:
+  - astro@2.2.1
+
 ## 2.2.0
 
 ### Minor Changes
