@@ -17,7 +17,7 @@ import {
 } from './astro/index.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
-import { renderSlot, renderSlots, type ComponentSlots } from './slot.js';
+import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -207,7 +207,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	} else {
 		if (metadata.hydrate === 'only') {
-			html = await renderSlot(result, slots?.fallback);
+			html = await renderSlotToString(result, slots?.fallback);
 		} else {
 			({ html, attrs } = await renderer.ssr.renderToStaticMarkup.call(
 				{ result },
@@ -332,7 +332,7 @@ function sanitizeElementName(tag: string) {
 }
 
 async function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}) {
-	const children = await renderSlot(result, slots?.default);
+	const children = await renderSlotToString(result, slots?.default);
 	if (children == null) {
 		return children;
 	}

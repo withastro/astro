@@ -9,7 +9,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { renderSlot, stringifyChunk, type ComponentSlots } from '../../runtime/server/index.js';
+import { renderSlotToString, stringifyChunk, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -105,7 +105,7 @@ class Slots {
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = () => expression(...args);
-				return await renderSlot(result, slot).then((res) => (res != null ? String(res) : res));
+				return await renderSlotToString(result, slot).then((res) => (res != null ? String(res) : res));
 			}
 			// JSX
 			if (typeof component === 'function') {
@@ -115,7 +115,7 @@ class Slots {
 			}
 		}
 
-		const content = await renderSlot(result, this.#slots[name]);
+		const content = await renderSlotToString(result, this.#slots[name]);
 		const outHTML = stringifyChunk(result, content);
 
 		return outHTML;

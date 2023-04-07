@@ -10,7 +10,7 @@ export { renderComponent, renderComponentToIterable } from './component.js';
 export { renderHTMLElement } from './dom.js';
 export { maybeRenderHead, renderHead } from './head.js';
 export { renderPage } from './page.js';
-export { renderSlot, type ComponentSlots } from './slot.js';
+export { renderSlotToString, renderSlot, type ComponentSlots } from './slot.js';
 export { renderScriptElement, renderStyleElement, renderUniqueStylesheet } from './tags.js';
 export type { RenderInstruction } from './types';
 export { addAttribute, defineScriptVars, voidElementNames } from './util.js';
