@@ -1183,22 +1183,6 @@ export interface ContentEntryType {
 	contentModuleTypes?: string;
 }
 
-export interface DataEntryType {
-	extensions: string[];
-	getEntryInfo(params: {
-		fileUrl: URL;
-		contents: string;
-	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
-}
-
-type GetDataEntryInfoReturnType = {
-	data: Record<string, unknown>;
-	// TODO: figure out if we want this.
-	// Used for mapping exceptions to YAML sourcemaps,
-	// which won't match JSON and other formats.
-	rawData?: never;
-};
-
 type GetContentEntryInfoReturnType = {
 	data: Record<string, unknown>;
 	/**
@@ -1210,6 +1194,16 @@ type GetContentEntryInfoReturnType = {
 	body: string;
 	slug: string;
 };
+
+export interface DataEntryType {
+	extensions: string[];
+	getEntries(params: {
+		fileUrl: URL;
+		contents: string;
+	}): GetEntriesReturnType | Promise<GetEntriesReturnType>;
+}
+
+export type GetEntriesReturnType = Record<string, unknown>[];
 
 export interface AstroSettings {
 	config: AstroConfig;

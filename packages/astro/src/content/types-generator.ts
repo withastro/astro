@@ -4,7 +4,7 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
-import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType, GetEntriesReturnType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
@@ -23,6 +23,7 @@ import {
 	getContentEntryConfigByExtMap,
 	getEntryCollectionName,
 	getDataEntryExts,
+	getDataEntryParserByExtMap,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -62,6 +63,7 @@ export async function createContentTypesGenerator({
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
+	const dataEntryParserByExt = getDataEntryParserByExtMap(settings);
 
 	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -171,7 +173,14 @@ export async function createContentTypesGenerator({
 			};
 		}
 		if (fileType === 'data') {
-			console.log('custom stuff!', event);
+			const { entry } = event;
+			const entryParser = dataEntryParserByExt.get(path.extname(fileURLToPath(entry)))!;
+			const entries = entryParser({
+				fileUrl: entry,
+				contents: await fs.promises.readFile(entry, 'utf-8'),
+			});
+			console.log(entries);
+
 			return { shouldGenerateTypes: false };
 		}
 

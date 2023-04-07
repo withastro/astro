@@ -11,6 +11,7 @@ import type {
 	AstroConfig,
 	AstroSettings,
 	ContentEntryType,
+	DataEntryType,
 	ImageInputFormat,
 } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
@@ -168,6 +169,16 @@ export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'con
 		}
 	}
 	return map;
+}
+
+export function getDataEntryParserByExtMap(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
+	const parsers = new Map<string, DataEntryType['getEntries']>();
+	for (const entryType of settings.dataEntryTypes) {
+		for (const ext of entryType.extensions) {
+			parsers.set(ext, entryType.getEntries);
+		}
+	}
+	return parsers;
 }
 
 export function getEntryCollectionName({

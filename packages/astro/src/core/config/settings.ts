@@ -24,11 +24,15 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		dataEntryTypes: [
 			{
 				extensions: ['.json'],
-				getEntryInfo({ contents }) {
+				getEntries({ contents }) {
+					if (contents === undefined || contents === '') return [];
+
 					const data = JSON.parse(contents);
-					return {
-						data,
-					};
+					if (Array.isArray(data)) return data;
+					else {
+						// TODO: nice error
+						throw new Error('[Content] JSON collection must be an array of entries.');
+					}
 				},
 			},
 		],
