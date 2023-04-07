@@ -148,33 +148,32 @@ export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'con
 	return map;
 }
 
-export class NoCollectionError extends Error {}
+export function getEntryCollectionName({
+	contentDir,
+	entry,
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL }) {
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+	const collectionName = path.dirname(rawRelativePath).split(path.sep).shift() ?? '';
+	const isOutsideCollection =
+		collectionName === '' || collectionName === '..' || collectionName === '.';
 
-export function getEntryInfo(
-	params: Pick<ContentPaths, 'contentDir'> & {
-		entry: string | URL;
-		allowFilesOutsideCollection?: true;
+	if (isOutsideCollection) {
+		return undefined;
 	}
-): EntryInfo;
-export function getEntryInfo({
+
+	return collectionName;
+}
+
+export function getContentEntryIdAndSlug({
 	entry,
 	contentDir,
-	allowFilesOutsideCollection = false,
-}: Pick<ContentPaths, 'contentDir'> & {
-	entry: string | URL;
-	allowFilesOutsideCollection?: boolean;
-}): EntryInfo | NoCollectionError {
-	const rawRelativePath = path.relative(
-		fileURLToPath(contentDir),
-		typeof entry === 'string' ? entry : fileURLToPath(entry)
-	);
-	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
-	const isOutsideCollection = rawCollection === '..' || rawCollection === '.';
-
-	if (!rawCollection || (!allowFilesOutsideCollection && isOutsideCollection))
-		return new NoCollectionError();
-
-	const rawId = path.relative(rawCollection, rawRelativePath);
+	collection,
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): Pick<
+	EntryInfo,
+	'id' | 'slug'
+> {
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+	const rawId = path.relative(collection, rawRelativePath);
 	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
 	const rawSlugSegments = rawIdWithoutFileExt.split(path.sep);
 
@@ -188,7 +187,6 @@ export function getEntryInfo({
 	const res = {
 		id: normalizePath(rawId),
 		slug,
-		collection: normalizePath(rawCollection),
 	};
 	return res;
 }
@@ -420,12 +418,16 @@ export async function getStringifiedLookupMap({
 
 	await Promise.all(
 		contentGlob.map(async (filePath) => {
-			const info = getEntryInfo({ contentDir, entry: filePath });
-			if (info instanceof NoCollectionError) return;
 			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
 			if (!contentEntryType) return;
+			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
+			if (!collection) return;
 
-			const { id, collection, slug: generatedSlug } = info;
+			const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+				entry: pathToFileURL(filePath),
+				contentDir,
+				collection,
+			});
 			filePathByLookupId[collection] ??= {};
 			const slug = await getEntrySlug({
 				id,

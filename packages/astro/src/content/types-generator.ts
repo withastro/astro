@@ -11,16 +11,17 @@ import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentPaths,
-	getEntryInfo,
 	getEntryType,
 	loadContentConfig,
-	NoCollectionError,
+	getContentEntryIdAndSlug,
+	getEntrySlug,
+	parseFrontmatter,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
 	type EntryInfo,
 	getContentEntryConfigByExtMap,
-	getEntrySlug,
+	getEntryCollectionName,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -156,22 +157,19 @@ export async function createContentTypesGenerator({
 			if (event.name === 'unlink') {
 				return { shouldGenerateTypes: false };
 			}
-			const entryInfo = getEntryInfo({
+			const { id } = getContentEntryIdAndSlug({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
-				// Skip invalid file check. We already know it’s invalid.
-				allowFilesOutsideCollection: true,
+				collection: '',
 			});
 			return {
 				shouldGenerateTypes: false,
-				error: new UnsupportedFileTypeError(entryInfo.id),
+				error: new UnsupportedFileTypeError(id),
 			};
 		}
-		const entryInfo = getEntryInfo({
-			entry: event.entry,
-			contentDir: contentPaths.contentDir,
-		});
-		if (entryInfo instanceof NoCollectionError) {
+		const params = { entry: event.entry, contentDir: contentPaths.contentDir };
+		const collection = getEntryCollectionName(params);
+		if (collection === undefined) {
 			if (['info', 'warn'].includes(logLevel)) {
 				warn(
 					logging,
@@ -186,9 +184,11 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, collection, slug: generatedSlug } = entryInfo;
 		const contentEntryType = contentEntryConfigByExt.get(path.extname(event.entry.pathname));
 		if (!contentEntryType) return { shouldGenerateTypes: false };
+		const { id, slug: generatedSlug } = getContentEntryIdAndSlug(
+			Object.assign(params, { collection })
+		);
 
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
