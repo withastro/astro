@@ -25,18 +25,18 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function * renderSlot(
+export async function* renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
 	fallback?: ComponentSlotValue | RenderTemplateResult
 ): AsyncGenerator<any, void, undefined> {
 	if (slotted) {
 		let iterator = renderChild(typeof slotted === 'function' ? slotted(result) : slotted);
-		yield * iterator;
+		yield* iterator;
 	}
 
 	if (fallback) {
-		yield * renderSlot(result, fallback);
+		yield* renderSlot(result, fallback);
 	}
 }
 
