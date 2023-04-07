@@ -20,9 +20,17 @@ import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
 import { rootRelativePath } from '../core/util.js';
 
-export const collectionConfigParser = z.object({
-	schema: z.any().optional(),
-});
+export const collectionConfigParser = z.union([
+	z.object({
+		type: z.literal('content').default('content'),
+		schema: z.any().optional(),
+	}),
+	z.object({
+		type: z.literal('data'),
+		key: z.never(),
+		schema: z.any().optional(),
+	}),
+]);
 
 export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
 	const { cacheDir } = getContentPaths({ root, srcDir });
@@ -79,8 +87,13 @@ export async function getEntryData(
 	pluginContext: PluginContext,
 	settings: AstroSettings
 ) {
-	// Remove reserved `slug` field before parsing data
-	let { slug, ...data } = entry.unvalidatedData;
+	let data;
+	if (collectionConfig.type === 'data') {
+		data = entry.unvalidatedData;
+	} else {
+		const { slug, ...unvalidatedData } = entry.unvalidatedData;
+		data = unvalidatedData;
+	}
 
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
@@ -96,9 +109,14 @@ export async function getEntryData(
 	}
 
 	if (schema) {
-		// Catch reserved `slug` field inside schema
+		// Catch reserved `slug` field inside content schemas
 		// Note: will not warn for `z.union` or `z.intersection` schemas
-		if (typeof schema === 'object' && 'shape' in schema && schema.shape.slug) {
+		if (
+			collectionConfig.type === 'content' &&
+			typeof schema === 'object' &&
+			'shape' in schema &&
+			schema.shape.slug
+		) {
 			throw new AstroError({
 				...AstroErrorData.ContentSchemaContainsSlugError,
 				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),

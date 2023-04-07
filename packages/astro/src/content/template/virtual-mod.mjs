@@ -8,7 +8,11 @@ import {
 export { z } from 'astro/zod';
 
 export function defineCollection(config) {
-	return config;
+	return Object.assign(config, { type: 'content' });
+}
+
+export function defineDataCollection(config) {
+	return Object.assign(config, { type: 'data' });
 }
 
 // TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04

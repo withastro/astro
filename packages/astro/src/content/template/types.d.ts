@@ -65,12 +65,24 @@ declare module 'astro:content' {
 
 	export type SchemaContext = { image: ImageFunction };
 
-	type BaseCollectionConfig<S extends BaseSchema> = {
+	type ContentCollectionConfig<S extends BaseSchema> = {
+		type: 'content';
 		schema?: S | ((context: SchemaContext) => S);
 	};
+
+	type DataCollectionConfig<S extends BaseSchema> = {
+		type: 'data';
+		key?: string;
+		schema?: S;
+	};
+
 	export function defineCollection<S extends BaseSchema>(
-		input: BaseCollectionConfig<S>
-	): BaseCollectionConfig<S>;
+		input: Omit<ContentCollectionConfig<S>, 'type'>
+	): ContentCollectionConfig<S>;
+
+	export function defineDataCollection<S extends BaseSchema>(
+		input: Omit<DataCollectionConfig<S>, 'type'>
+	): DataCollectionConfig<S>;
 
 	type EntryMapKeys = keyof typeof entryMap;
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
