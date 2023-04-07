@@ -120,7 +120,7 @@ export async function createVite(
 			htmlVitePlugin(),
 			jsxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin({ settings }),
-			astroIntegrationsContainerPlugin({ settings, logging }),
+			mode === 'dev' && astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin({ settings }),
 			astroScannerPlugin({ settings }),
