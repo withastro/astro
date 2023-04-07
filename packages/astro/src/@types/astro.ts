@@ -1172,7 +1172,7 @@ export interface ContentEntryType {
 	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
-	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	}): GetContentEntryInfoReturnType | Promise<GetContentEntryInfoReturnType>;
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
@@ -1183,7 +1183,23 @@ export interface ContentEntryType {
 	contentModuleTypes?: string;
 }
 
-type GetEntryInfoReturnType = {
+export interface DataEntryType {
+	extensions: string[];
+	getEntryInfo(params: {
+		fileUrl: URL;
+		contents: string;
+	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
+}
+
+type GetDataEntryInfoReturnType = {
+	data: Record<string, unknown>;
+	// TODO: figure out if we want this.
+	// Used for mapping exceptions to YAML sourcemaps,
+	// which won't match JSON and other formats.
+	rawData?: never;
+};
+
+type GetContentEntryInfoReturnType = {
 	data: Record<string, unknown>;
 	/**
 	 * Used for error hints to point to correct line and location
@@ -1201,6 +1217,7 @@ export interface AstroSettings {
 	injectedRoutes: InjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
+	dataEntryTypes: DataEntryType[];
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;

@@ -21,6 +21,17 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		contentEntryTypes: [markdownContentEntryType],
+		dataEntryTypes: [
+			{
+				extensions: ['.json'],
+				getEntryInfo({ contents }) {
+					const data = JSON.parse(contents);
+					return {
+						data,
+					};
+				},
+			},
+		],
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: [],

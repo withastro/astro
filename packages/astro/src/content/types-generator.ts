@@ -22,6 +22,7 @@ import {
 	type EntryInfo,
 	getContentEntryConfigByExtMap,
 	getEntryCollectionName,
+	getDataEntryExts,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -60,6 +61,7 @@ export async function createContentTypesGenerator({
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
+	const dataEntryExts = getDataEntryExts(settings);
 
 	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -128,6 +130,7 @@ export async function createContentTypesGenerator({
 			fileURLToPath(event.entry),
 			contentPaths,
 			contentEntryExts,
+			dataEntryExts,
 			settings.config.experimental.assets
 		);
 		if (fileType === 'ignored') {
@@ -167,6 +170,11 @@ export async function createContentTypesGenerator({
 				error: new UnsupportedFileTypeError(id),
 			};
 		}
+		if (fileType === 'data') {
+			console.log('custom stuff!', event);
+			return { shouldGenerateTypes: false };
+		}
+
 		const { entry } = event;
 		const { contentDir } = contentPaths;
 		const collection = getEntryCollectionName({ entry, contentDir });

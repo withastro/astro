@@ -9,6 +9,7 @@ import type {
 	AstroSettings,
 	BuildConfig,
 	ContentEntryType,
+	DataEntryType,
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
@@ -111,6 +112,9 @@ export async function runHookConfigSetup({
 			function addContentEntryType(contentEntryType: ContentEntryType) {
 				updatedSettings.contentEntryTypes.push(contentEntryType);
 			}
+			function addDataEntryType(dataEntryType: DataEntryType) {
+				updatedSettings.dataEntryTypes.push(dataEntryType);
+			}
 
 			Object.defineProperty(hooks, 'addPageExtension', {
 				value: addPageExtension,
@@ -122,6 +126,11 @@ export async function runHookConfigSetup({
 				writable: false,
 				enumerable: false,
 			});
+			Object.defineProperty(hooks, 'addContentEntryType', {
+				value: addDataEntryType,
+				writable: false,
+				enumerable: false,
+			});
 			// ---
 
 			await withTakingALongTimeMsg({
@@ -129,20 +138,6 @@ export async function runHookConfigSetup({
 				hookResult: integration.hooks['astro:config:setup'](hooks),
 				logging,
 			});
-
-			addContentEntryType({
-				extensions: ['.json'],
-				getEntryInfo({ fileUrl, contents }) {
-					const data = JSON.parse(contents);
-					return {
-						rawData: contents.replace('{\n', ''),
-						data,
-						body: contents,
-						slug: '',
-					};
-				},
-			});
-			console.log('added');
 
 			// Add MDX content entry type to support older `@astrojs/mdx` versions
 			// TODO: remove in next Astro minor release

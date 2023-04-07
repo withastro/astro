@@ -20,6 +20,7 @@ import {
 	type ContentConfig,
 	getContentEntryConfigByExtMap,
 	getEntryCollectionName,
+	getDataEntryExts,
 } from './utils.js';
 
 function isContentFlagImport(viteId: string) {
@@ -55,6 +56,7 @@ export function astroContentImportPlugin({
 }): Plugin[] {
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryExts = getContentEntryExts(settings);
+	const dataEntryExts = getDataEntryExts(settings);
 
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 
@@ -95,6 +97,7 @@ export function astroContentImportPlugin({
 							entry,
 							contentPaths,
 							contentEntryExts,
+							dataEntryExts,
 							settings.config.experimental.assets
 						) === 'config'
 					) {

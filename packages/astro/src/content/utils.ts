@@ -156,6 +156,10 @@ export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryT
 	return settings.contentEntryTypes.map((t) => t.extensions).flat();
 }
 
+export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
+	return settings.dataEntryTypes.map((t) => t.extensions).flat();
+}
+
 export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
 	const map: Map<string, ContentEntryType> = new Map();
 	for (const entryType of settings.contentEntryTypes) {
@@ -213,9 +217,10 @@ export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
 	contentFileExts: string[],
+	dataFileExts: string[],
 	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
 	experimentalAssets: boolean
-): 'content' | 'config' | 'ignored' | 'unsupported' {
+): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
@@ -227,6 +232,8 @@ export function getEntryType(
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
+	} else if (dataFileExts.includes(ext)) {
+		return 'data';
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
 	} else {
