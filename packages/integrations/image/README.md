@@ -147,7 +147,7 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
+For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/press/full-logo-light.png"`)
 
 For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
 
@@ -296,7 +296,7 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
+For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/press/full-logo-light.png"`)
 
 For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
 
@@ -594,7 +594,7 @@ For remote images, an `aspectRatio` is required to ensure the correct `height` c
 import { Picture } from '@astrojs/image/components';
 import hero from '../assets/hero.png';
 
-const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const imageUrl = 'https://astro.build/assets/press/full-logo-light.png';
 ---
 
 // Local image with multiple sizes
