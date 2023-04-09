@@ -1351,7 +1351,7 @@ export interface Page<T = any> {
 	/** the current page number, starting from 1 */
 	currentPage: number;
 	/** number of items per page (default: 25) */
-	size: number;
+	pageSize: number;
 	/** number of last page */
 	lastPage: number;
 	url: {
