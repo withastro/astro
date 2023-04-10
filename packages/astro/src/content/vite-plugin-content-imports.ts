@@ -108,13 +108,6 @@ export const _internal = {
 					}
 				});
 			},
-			async transform(code, id) {
-				if (isContentFlagImport(id, contentEntryExts)) {
-					// Escape before Rollup internal transform.
-					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
-					return { code: escapeViteEnvReferences(code) };
-				}
-			},
 		},
 	];
 
