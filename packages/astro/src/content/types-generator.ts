@@ -141,7 +141,6 @@ export async function createContentTypesGenerator({
 			contentConfigObserver.set({ status: 'loading' });
 			try {
 				const config = await loadContentConfig({ fs, settings, viteServer });
-				console.log({ config });
 				if (config) {
 					contentConfigObserver.set({ status: 'loaded', config });
 				} else {
