@@ -170,21 +170,12 @@ export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'con
 	return map;
 }
 
-export function getDataEntryParserByExtMap(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
-	const parsers = new Map<string, DataEntryType['getEntries']>();
-	for (const entryType of settings.dataEntryTypes) {
-		for (const ext of entryType.extensions) {
-			parsers.set(ext, entryType.getEntries);
-		}
-	}
-	return parsers;
-}
-
 export function getEntryCollectionName({
 	contentDir,
 	entry,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL }) {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+}: Pick<ContentPaths, 'contentDir'> & { entry: string | URL }) {
+	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
 	const collectionName = path.dirname(rawRelativePath).split(path.sep).shift() ?? '';
 	const isOutsideCollection =
 		collectionName === '' || collectionName === '..' || collectionName === '.';
@@ -325,6 +316,13 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
+// TODO: hoist to proper error
+const InvalidDataCollectionConfigError = {
+	...AstroErrorData.UnknownContentCollectionError,
+	message: (dataExtsStringified: string) =>
+		`Found a content collection with a ${dataExtsStringified} files. To make this a data collection, use the \`defineDataCollection()\` helper or add \`type: 'data'\` to your collection config.`,
+};
+
 export async function loadContentConfig({
 	fs,
 	settings,
@@ -347,6 +345,32 @@ export async function loadContentConfig({
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
+		// Check that data collections are properly configured using `defineDataCollection()`.
+		const dataEntryExts = getDataEntryExts(settings);
+
+		const collectionEntryGlob = await glob('**', {
+			cwd: fileURLToPath(contentPaths.contentDir),
+			fs: {
+				readdir: fs.readdir.bind(fs),
+				readdirSync: fs.readdirSync.bind(fs),
+			},
+		});
+
+		for (const entry of collectionEntryGlob) {
+			const collectionName = getEntryCollectionName({ contentDir: contentPaths.contentDir, entry });
+			if (!collectionName || !config.data.collections[collectionName]) continue;
+
+			const { type } = config.data.collections[collectionName];
+			if (type === 'content' && dataEntryExts.includes(path.extname(entry))) {
+				throw new AstroError({
+					...InvalidDataCollectionConfigError,
+					message: InvalidDataCollectionConfigError.message(
+						JSON.stringify(dataEntryExts.join(', '))
+					),
+				});
+			}
+		}
+
 		return config.data;
 	} else {
 		return undefined;
