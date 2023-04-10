@@ -1,6 +1,4 @@
 import nodeFs from 'fs';
-import npath from 'path';
-import slashify from 'slash';
 import type * as vite from 'vite';
 
 type NodeFileSystemModule = typeof nodeFs;
@@ -15,7 +13,10 @@ export default function loadFallbackPlugin({
 	root,
 }: LoadFallbackPluginParams): vite.Plugin[] | false {
 	// Only add this plugin if a custom fs implementation is provided.
-	if (!fs || fs === nodeFs) {
+	// Also check for `fs.default` because `import * as fs from 'fs'` will
+	// export as so, which only it's `.default` would === `nodeFs`.
+	// @ts-expect-error check default
+	if (!fs || fs === nodeFs || fs.default === nodeFs) {
 		return false;
 	}
 
@@ -41,25 +42,6 @@ export default function loadFallbackPlugin({
 		{
 			name: 'astro:load-fallback',
 			enforce: 'post',
-			async resolveId(id, parent) {
-				// See if this can be loaded from our fs
-				if (parent) {
-					const candidateId = npath.posix.join(npath.posix.dirname(slashify(parent)), id);
-					try {
-						// Check to see if this file exists and is not a directory.
-						const stats = await fs.promises.stat(candidateId);
-						if (!stats.isDirectory()) {
-							return candidateId;
-						}
-					} catch {}
-				}
-
-				let resolved = await this.resolve(id, parent, { skipSelf: true });
-				if (resolved) {
-					return resolved.id;
-				}
-				return slashify(id);
-			},
 			async load(id) {
 				const source = await tryLoadModule(id);
 				return source;
