@@ -320,7 +320,7 @@ export const globalContentConfigObserver = contentObservable({ status: 'init' })
 const InvalidDataCollectionConfigError = {
 	...AstroErrorData.UnknownContentCollectionError,
 	message: (dataExtsStringified: string) =>
-		`Found a content collection with a ${dataExtsStringified} files. To make this a data collection, use the \`defineDataCollection()\` helper or add \`type: 'data'\` to your collection config.`,
+		`Found a non-data collection with ${dataExtsStringified} files. To make this a data collection, use the \`defineDataCollection()\` helper or add \`type: 'data'\` to your collection config.`,
 };
 
 export async function loadContentConfig({
@@ -350,6 +350,7 @@ export async function loadContentConfig({
 
 		const collectionEntryGlob = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
+			absolute: true,
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
