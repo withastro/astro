@@ -1,10 +1,9 @@
 ---
 import { Image } from 'astro:assets';
-import { getDataEntryById, getDataCollection } from 'astro:content';
+import { getEntryBySlug } from 'astro:content';
 
-const authors = await getDataCollection('authors');
-
-const banner = await getDataEntryById('banners', 'welcome');
+const welcomePost = await getEntryBySlug('blog', 'welcome');
+const { Content } = await welcomePost.render();
 ---
 
 <html lang="en">
@@ -16,10 +15,7 @@ const banner = await getDataEntryById('banners', 'welcome');
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Welcome to the future!</h1>
-		<Image {...banner.data} />
-		<ul>
-			{authors.map((author) => <li>{author.data.name}</li>)}
-		</ul>
+		<Image {...welcomePost.data.banner} />
+		<Content />
 	</body>
 </html>

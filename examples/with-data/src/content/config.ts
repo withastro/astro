@@ -1,9 +1,10 @@
-import { defineCollection, defineDataCollection, z } from 'astro:content';
+import { defineCollection, defineDataCollection, z, reference } from 'astro:content';
 
 const blog = defineCollection({
 	schema: z.object({
 		title: z.string(),
-		description: z.string(),
+		banner: reference('banners'),
+		author: reference('authors'),
 	}),
 });
 
