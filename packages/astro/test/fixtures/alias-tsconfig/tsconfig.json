@@ -5,12 +5,13 @@
       "@components/*": [
         "src/components/*"
       ],
-      "@layouts/*": [
-        "src/layouts/*"
+      "@styles/*": [
+        "src/styles/*"
       ],
-      "@assets/*": [
-        "src/assets/*"
-      ],
+      // this can really trip up namespaced packages
+      "@*": [
+        "src/*"
+      ]
     }
   }
 }
