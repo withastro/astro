@@ -4,7 +4,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { emitESMImage } from '../assets/index.js';
 
 export function createImage(
-	settings: AstroSettings,
+	settings: Pick<AstroSettings, 'config'>,
 	pluginContext: PluginContext,
 	entryFilePath: string
 ) {

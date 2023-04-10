@@ -4,11 +4,17 @@ import { extname } from 'node:path';
 import type { PluginContext } from 'rollup';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
-import type { AstroSettings, ContentEntryModule, ContentEntryType } from '../@types/astro.js';
+import type {
+	AstroSettings,
+	ContentEntryModule,
+	ContentEntryType,
+	DataEntryModule,
+	DataEntryType,
+} from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
-import { CONTENT_FLAG } from './consts.js';
+import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
 	getContentEntryExts,
 	getContentPaths,
@@ -21,6 +27,9 @@ import {
 	getContentEntryConfigByExtMap,
 	getEntryCollectionName,
 	getDataEntryExts,
+	hasContentFlag,
+	type ContentPaths,
+	getDataEntryId,
 } from './utils.js';
 
 function isContentFlagImport(viteId: string) {
@@ -60,15 +69,41 @@ export function astroContentImportPlugin({
 
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 
-	// Have Vite treat content modules as `.js` modules.
-	// Hack to avoid aggressive `.json` file transform.
-	const CONTENT_MODULE_JS_MASK = `.js?${CONTENT_FLAG}=true`;
+	const dataEntryExtToParser: Map<string, DataEntryType['getEntryInfo']> = new Map();
+	for (const entryType of settings.dataEntryTypes) {
+		for (const ext of entryType.extensions) {
+			dataEntryExtToParser.set(ext, entryType.getEntryInfo);
+		}
+	}
 
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
 			async transform(_, viteId) {
-				if (isContentFlagImport(viteId)) {
+				if (hasContentFlag(viteId, DATA_FLAG)) {
+					const fileId = viteId.split('?')[0];
+					// Data collections don't need to rely on the module cache.
+					// This cache only exists for the `render()` function specific to content.
+					const { id, data, collection, _internal } = await getDataEntryModule({
+						fileId,
+						dataEntryExtToParser,
+						contentPaths,
+						settings,
+						fs,
+						pluginContext: this,
+					});
+
+					const code = escapeViteEnvReferences(`
+export const id = ${JSON.stringify(id)};
+export const collection = ${JSON.stringify(collection)};
+export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+export const _internal = {
+	filePath: ${JSON.stringify(_internal.filePath)},
+	rawData: ${JSON.stringify(_internal.rawData)},
+};
+`);
+					return code;
+				} else if (isContentFlagImport(viteId)) {
 					const fileId = viteId.split('?')[0];
 					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
 						fileId,
@@ -104,7 +139,8 @@ export function astroContentImportPlugin({
 						// Content modules depend on config, so we need to invalidate them.
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 							if (
-								isContentFlagImport(modUrl) ||
+								hasContentFlag(modUrl, CONTENT_FLAG) ||
+								hasContentFlag(modUrl, DATA_FLAG) ||
 								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
 								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
@@ -238,7 +274,7 @@ export function astroContentImportPlugin({
 		const collectionConfig = contentConfig?.collections[collection];
 		let data = collectionConfig
 			? await getEntryData(
-					{ id, collection, slug, _internal, unvalidatedData },
+					{ id, collection, _internal, unvalidatedData },
 					collectionConfig,
 					pluginContext,
 					settings
@@ -303,4 +339,58 @@ async function getContentConfigFromGlobal() {
 	}
 
 	return contentConfig;
+}
+
+async function getDataEntryModule({
+	fileId,
+	dataEntryExtToParser,
+	contentPaths,
+	fs,
+	pluginContext,
+	settings,
+}: {
+	fs: typeof fsMod;
+	fileId: string;
+	contentPaths: Pick<ContentPaths, 'contentDir'>;
+	pluginContext: PluginContext;
+	dataEntryExtToParser: Map<string, DataEntryType['getEntryInfo']>;
+	settings: Pick<AstroSettings, 'config'>;
+}): Promise<DataEntryModule> {
+	const contentConfig = await getContentConfigFromGlobal();
+	const rawContents = await fs.promises.readFile(fileId, 'utf-8');
+	const fileExt = extname(fileId);
+	const dataEntryParser = dataEntryExtToParser.get(fileExt);
+
+	if (!dataEntryParser) {
+		throw new AstroError({
+			...AstroErrorData.UnknownContentCollectionError,
+			message: `No parser found for data entry ${JSON.stringify(
+				fileId
+			)}. Did you apply an integration for this file type?`,
+		});
+	}
+	const { data: unvalidatedData } = await dataEntryParser({
+		fileUrl: pathToFileURL(fileId),
+		contents: rawContents,
+	});
+	const entry = pathToFileURL(fileId);
+	const { contentDir } = contentPaths;
+	const collection = getEntryCollectionName({ entry, contentDir });
+	if (collection === undefined) throw new AstroError(AstroErrorData.UnknownContentCollectionError);
+
+	const id = getDataEntryId({ entry, contentDir, collection });
+
+	const _internal = { filePath: fileId, rawData: '' };
+
+	const collectionConfig = contentConfig?.collections[collection];
+	let data = collectionConfig
+		? await getEntryData(
+				{ id, collection, _internal, unvalidatedData },
+				collectionConfig,
+				pluginContext,
+				settings
+		  )
+		: unvalidatedData;
+
+	return { id, collection, data, _internal };
 }

@@ -4,7 +4,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryConfigByExtMap,
-	getContentEntryExts,
+	getDataEntryExts,
 	getContentPaths,
 	getExtGlob,
 	getStringifiedLookupMap,
@@ -23,14 +23,17 @@ export function astroContentVirtualModPlugin({
 
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
+	const dataEntryExts = getDataEntryExts(settings);
 
-	const extGlob = getExtGlob(contentEntryExts);
-	const entryGlob = `${relContentDir}**/*${extGlob}`;
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace('@@ENTRY_GLOB_PATH@@', entryGlob)
-		.replace('@@RENDER_ENTRY_GLOB_PATH@@', entryGlob);
+		.replace('@@CONTENT_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(contentEntryExts)}`)
+		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(dataEntryExts)}`)
+		.replace(
+			'@@RENDER_ENTRY_GLOB_PATH@@',
+			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
+		);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 

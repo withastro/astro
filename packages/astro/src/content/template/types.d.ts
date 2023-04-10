@@ -98,11 +98,26 @@ declare module 'astro:content' {
 	): E extends ValidEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
+
+	export function getDataEntryById<
+		C extends keyof typeof entryMap,
+		E extends keyof (typeof entryMap)[C]
+	>(collection: C, entryId: E): Promise<CollectionEntry<C>>;
+
 	export function getCollection<C extends keyof typeof entryMap, E extends CollectionEntry<C>>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => entry is E
 	): Promise<E[]>;
 	export function getCollection<C extends keyof typeof entryMap>(
+		collection: C,
+		filter?: (entry: CollectionEntry<C>) => unknown
+	): Promise<CollectionEntry<C>[]>;
+
+	export function getDataCollection<C extends keyof typeof entryMap, E extends CollectionEntry<C>>(
+		collection: C,
+		filter?: (entry: CollectionEntry<C>) => entry is E
+	): Promise<E[]>;
+	export function getDataCollection<C extends keyof typeof entryMap>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => unknown
 	): Promise<CollectionEntry<C>[]>;

@@ -1167,6 +1167,16 @@ export type ContentEntryModule = {
 	};
 };
 
+export type DataEntryModule = {
+	id: string;
+	collection: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
@@ -1203,7 +1213,7 @@ export interface DataEntryType {
 	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
 }
 
-export type GetDataEntryInfoReturnType = Record<string, unknown>;
+export type GetDataEntryInfoReturnType = { data: Record<string, unknown> };
 
 export interface AstroSettings {
 	config: AstroConfig;

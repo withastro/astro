@@ -2,7 +2,9 @@
 import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
+	createGetDataCollection,
 	createGetEntryBySlug,
+	createGetDataEntryById,
 } from 'astro/content/runtime';
 
 export { z } from 'astro/zod';
@@ -24,11 +26,19 @@ export const image = () => {
 
 const contentDir = '@@CONTENT_DIR@@';
 
-const entryGlob = import.meta.glob('@@ENTRY_GLOB_PATH@@', {
-	query: { astroContent: true },
+const contentEntryGlob = import.meta.glob('@@CONTENT_ENTRY_GLOB_PATH@@', {
+	query: { astroContentCollectionEntry: true },
 });
-const collectionToEntryMap = createCollectionToGlobResultMap({
-	globResult: entryGlob,
+const contentCollectionToEntryMap = createCollectionToGlobResultMap({
+	globResult: contentEntryGlob,
+	contentDir,
+});
+
+const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
+	query: { astroDataCollectionEntry: true },
+});
+const dataCollectionToEntryMap = createCollectionToGlobResultMap({
+	globResult: dataEntryGlob,
 	contentDir,
 });
 
@@ -53,11 +63,19 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 });
 
 export const getCollection = createGetCollection({
-	collectionToEntryMap,
+	contentCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+});
+
+export const getDataCollection = createGetDataCollection({
+	dataCollectionToEntryMap,
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+});
+
+export const getDataEntryById = createGetDataEntryById({
+	dataCollectionToEntryMap,
 });

@@ -37,14 +37,14 @@ export function createCollectionToGlobResultMap({
 
 const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
-	collectionToEntryMap,
+	contentCollectionToEntryMap,
 	getRenderEntryImport,
 }: {
-	collectionToEntryMap: CollectionToEntryMap;
+	contentCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
-		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
+		const lazyImports = Object.values(contentCollectionToEntryMap[collection] ?? {});
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
@@ -67,6 +67,39 @@ export function createGetCollection({
 								renderEntryImport: await getRenderEntryImport(collection, entry.slug),
 							});
 						},
+					};
+				})
+			);
+			cacheEntriesByCollection.set(collection, entries);
+		}
+		if (typeof filter === 'function') {
+			return entries.filter(filter);
+		} else {
+			return entries;
+		}
+	};
+}
+
+export function createGetDataCollection({
+	dataCollectionToEntryMap,
+}: {
+	dataCollectionToEntryMap: CollectionToEntryMap;
+}) {
+	return async function getDataCollection(collection: string, filter?: (entry: any) => unknown) {
+		const lazyImports = Object.values(dataCollectionToEntryMap[collection] ?? {});
+		let entries: any[] = [];
+		// Cache `getCollection()` calls in production only
+		// prevents stale cache in development
+		if (import.meta.env.PROD && cacheEntriesByCollection.has(collection)) {
+			entries = cacheEntriesByCollection.get(collection)!;
+		} else {
+			entries = await Promise.all(
+				lazyImports.map(async (lazyImport) => {
+					const entry = await lazyImport();
+					return {
+						id: entry.id,
+						collection: entry.collection,
+						data: entry.data,
 					};
 				})
 			);
@@ -106,6 +139,28 @@ export function createGetEntryBySlug({
 					renderEntryImport: await getRenderEntryImport(collection, slug),
 				});
 			},
+		};
+	};
+}
+
+export function createGetDataEntryById({
+	dataCollectionToEntryMap,
+}: {
+	dataCollectionToEntryMap: CollectionToEntryMap;
+}) {
+	return async function getDataEntryById(collection: string, id: string) {
+		console.log('reading...');
+		const lazyImport =
+			dataCollectionToEntryMap[collection]?.[/*TODO: filePathToIdMap*/ id + '.json'];
+
+		// TODO: AstroError
+		if (!lazyImport) throw new Error(`Entry ${collection} → ${id} was not found.`);
+		const entry = await lazyImport();
+
+		return {
+			id: entry.id,
+			collection: entry.collection,
+			data: entry.data,
 		};
 	};
 }
