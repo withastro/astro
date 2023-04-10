@@ -1,4 +1,10 @@
 ---
+import { Image } from 'astro:assets';
+import { getDataEntryById, getDataCollection } from 'astro:content';
+
+const authors = await getDataCollection('authors');
+
+const banner = await getDataEntryById('banners', 'welcome');
 ---
 
 <html lang="en">
@@ -10,6 +16,10 @@
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<h1>Welcome to the future!</h1>
+		<Image {...banner.data} />
+		<ul>
+			{authors.map((author) => <li>{author.data.name}</li>)}
+		</ul>
 	</body>
 </html>

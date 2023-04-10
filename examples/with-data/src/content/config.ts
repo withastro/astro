@@ -11,7 +11,7 @@ const banners = defineDataCollection({
 	schema: ({ image }) =>
 		z.object({
 			alt: z.string(),
-			src: image().refine((image) => image.width === 1920 && image.height === 1080),
+			src: image(),
 		}),
 });
 
@@ -19,7 +19,7 @@ const authors = defineDataCollection({
 	schema: ({ image }) =>
 		z.object({
 			name: z.string(),
-			avatar: image(),
+			avatar: image().optional(),
 		}),
 });
 
