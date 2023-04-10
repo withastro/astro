@@ -828,7 +828,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	GenerateContentTypesError: {
 		title: 'Failed to generate content types.',
 		code: 8001,
-		message: '`astro sync` command failed to generate content collection types.',
+		message: (errorMessage: string) =>
+			`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
 		hint: 'Check your `src/content/config.*` file for typos.',
 	},
 	/**

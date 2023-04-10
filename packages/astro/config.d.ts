@@ -1,4 +1,5 @@
 type ViteUserConfig = import('vite').UserConfig;
+type ViteUserConfigFn = import('vite').UserConfigFn;
 type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
 
 /**
@@ -10,4 +11,4 @@ export function defineConfig(config: AstroUserConfig): AstroUserConfig;
 /**
  * Use Astro to generate a fully resolved Vite config
  */
-export function getViteConfig(config: ViteUserConfig): ViteUserConfig;
+export function getViteConfig(config: ViteUserConfig): ViteUserConfigFn;

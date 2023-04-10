@@ -3,19 +3,23 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import slash from 'slash';
 import type { AstroConfig, AstroSettings } from '../../@types/astro';
-import { imageMetadata } from './metadata.js';
+import { imageMetadata, type Metadata } from './metadata.js';
 
 export async function emitESMImage(
-	id: string,
+	id: string | undefined,
 	watchMode: boolean,
 	fileEmitter: any,
 	settings: Pick<AstroSettings, 'config'>
-) {
+): Promise<Metadata | undefined> {
+	if (!id) {
+		return undefined;
+	}
+
 	const url = pathToFileURL(id);
 	const meta = await imageMetadata(url);
 
 	if (!meta) {
-		return;
+		return undefined;
 	}
 
 	// Build
@@ -48,13 +52,13 @@ export async function emitESMImage(
  * due to Vite dependencies in core.
  */
 
-function rootRelativePath(config: Pick<AstroConfig, 'root'>, url: URL) {
+function rootRelativePath(config: Pick<AstroConfig, 'root'>, url: URL): string {
 	const basePath = fileURLToNormalizedPath(url);
 	const rootPath = fileURLToNormalizedPath(config.root);
 	return prependForwardSlash(basePath.slice(rootPath.length));
 }
 
-function prependForwardSlash(filePath: string) {
+function prependForwardSlash(filePath: string): string {
 	return filePath[0] === '/' ? filePath : '/' + filePath;
 }
 
@@ -64,6 +68,6 @@ function fileURLToNormalizedPath(filePath: URL): string {
 	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
 }
 
-export function emoji(char: string, fallback: string) {
+export function emoji(char: string, fallback: string): string {
 	return process.platform !== 'win32' ? char : fallback;
 }

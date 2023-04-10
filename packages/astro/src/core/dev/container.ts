@@ -8,7 +8,6 @@ import {
 	runHookConfigDone,
 	runHookConfigSetup,
 	runHookServerDone,
-	runHookServerSetup,
 	runHookServerStart,
 } from '../../integrations/index.js';
 import { createDefaultDevSettings, resolveRoot } from '../config/index.js';
@@ -89,17 +88,11 @@ export async function createContainer(params: CreateContainerParams = { mode: MO
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
-			define: {
-				'import.meta.env.BASE_URL': settings.config.base
-					? JSON.stringify(settings.config.base)
-					: 'undefined',
-			},
 		},
 		{ settings, logging, mode: 'dev', command: 'dev', fs }
 	);
 	await runHookConfigDone({ settings, logging });
 	const viteServer = await vite.createServer(viteConfig);
-	runHookServerSetup({ config: settings.config, server: viteServer, logging });
 
 	const container: Container = {
 		configFlag: params.configFlag,
