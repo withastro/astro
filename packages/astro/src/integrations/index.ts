@@ -126,7 +126,7 @@ export async function runHookConfigSetup({
 				writable: false,
 				enumerable: false,
 			});
-			Object.defineProperty(hooks, 'addContentEntryType', {
+			Object.defineProperty(hooks, 'addDataEntryType', {
 				value: addDataEntryType,
 				writable: false,
 				enumerable: false,

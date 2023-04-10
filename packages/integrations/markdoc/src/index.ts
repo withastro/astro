@@ -80,7 +80,7 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 							code: `import { jsx as h } from 'astro/jsx-runtime';
 import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
 import { Renderer } from '@astrojs/markdoc/components';
-import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
+import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};${
 								configLoadResult
 									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
 									: ''
