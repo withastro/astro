@@ -1,5 +1,6 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
+import { z } from 'astro/zod';
 
 import {
 	createComponent,
@@ -239,5 +240,23 @@ async function render({
 		Content,
 		headings: mod.getHeadings?.() ?? [],
 		remarkPluginFrontmatter: mod.frontmatter ?? {},
+	};
+}
+
+export function createReference({
+	dataCollectionToEntryMap,
+}: {
+	dataCollectionToEntryMap: CollectionToEntryMap;
+}) {
+	return function reference(collection: string) {
+		return z.string().transform(async (entryId: string) => {
+			const lazyImport = dataCollectionToEntryMap[collection]?.[entryId + '.json'];
+			if (!lazyImport) {
+				// TODO: AstroError
+				throw new Error(`Reference to non-existent entry ${collection} → ${entryId}`);
+			}
+			const entry = await lazyImport();
+			return entry.data;
+		});
 	};
 }

@@ -88,6 +88,10 @@ declare module 'astro:content' {
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
 	type ValidEntrySlug<C extends EntryMapKeys> = AllValuesOf<(typeof entryMap)[C]>['slug'];
 
+	export async function reference<C extends keyof typeof entryMap>(
+		collection: C
+	): import('astro/zod').ZodEffects<Promise<InferEntrySchema<C>>>;
+
 	export function getEntryBySlug<
 		C extends keyof typeof entryMap,
 		E extends ValidEntrySlug<C> | (string & {})

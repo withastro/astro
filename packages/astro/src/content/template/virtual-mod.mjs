@@ -5,6 +5,7 @@ import {
 	createGetDataCollection,
 	createGetEntryBySlug,
 	createGetDataEntryById,
+	createReference,
 } from 'astro/content/runtime';
 
 export { z } from 'astro/zod';
@@ -77,5 +78,9 @@ export const getEntryBySlug = createGetEntryBySlug({
 });
 
 export const getDataEntryById = createGetDataEntryById({
+	dataCollectionToEntryMap,
+});
+
+export const reference = createReference({
 	dataCollectionToEntryMap,
 });
