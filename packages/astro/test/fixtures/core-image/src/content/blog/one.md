@@ -1,8 +1,12 @@
 ---
 title: One
-image: penguin2.jpg
+image: ~/assets/penguin2.jpg
 cover:
-  image: penguin1.jpg
+  image: ../../assets/penguin1.jpg
+arrayOfImages:
+  - ~/assets/penguin2.jpg
+  - ~/assets/penguin1.jpg
+refinedImage: ../../assets/penguin1.jpg
 ---
 
 # A post

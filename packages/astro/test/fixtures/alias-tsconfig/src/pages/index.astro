@@ -1,24 +1,15 @@
 ---
-import Client from '@components/Client.svelte';
-import Foo from 'src/components/Foo.astro';
-import StyleComp from 'src/components/Style.astro';
-import '@styles/main.css';
-import { whoImI } from 'src/ts-file';
-const mistery = whoImI();
+import Client from '@components/Client.svelte'
 ---
-
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>Aliases using tsconfig</title>
-	</head>
-	<body>
-		<main>
-			<Client client:load />
-			<Foo />
-			<StyleComp />
-			<div id="mistery">{mistery}</div>
-		</main>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Aliases using tsconfig</title>
+  </head>
+  <body>
+    <main>
+      <Client client:load />
+    </main>
+  </body>
 </html>

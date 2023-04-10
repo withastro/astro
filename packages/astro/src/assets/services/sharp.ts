@@ -1,5 +1,5 @@
 import type { FormatEnum } from 'sharp';
-import type { ImageQualityPreset, OutputFormat } from '../types.js';
+import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	baseService,
 	parseQuality,
@@ -64,7 +64,7 @@ const sharpService: LocalImageService = {
 
 		return {
 			data: data,
-			format: info.format as OutputFormat,
+			format: info.format as ImageOutputFormat,
 		};
 	},
 };

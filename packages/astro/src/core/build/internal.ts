@@ -1,4 +1,4 @@
-import type { OutputChunk, RenderedChunk } from 'rollup';
+import type { Rollup } from 'vite';
 import type { PageBuildData, ViteID } from './types';
 
 import type { SSRResult } from '../../@types/astro';
@@ -76,8 +76,8 @@ export interface BuildInternals {
 	// A list of all static files created during the build. Used for SSR.
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
-	ssrEntryChunk?: OutputChunk;
-	propagation: SSRResult['propagation'];
+	ssrEntryChunk?: Rollup.OutputChunk;
+	componentMetadata: SSRResult['componentMetadata'];
 }
 
 /**
@@ -107,7 +107,7 @@ export function createBuildInternals(): BuildInternals {
 		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
-		propagation: new Map(),
+		componentMetadata: new Map(),
 	};
 }
 
@@ -146,7 +146,7 @@ export function trackClientOnlyPageDatas(
 
 export function* getPageDatasByChunk(
 	internals: BuildInternals,
-	chunk: RenderedChunk
+	chunk: Rollup.RenderedChunk
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByViteID = internals.pagesByViteID;
 	for (const [modulePath] of Object.entries(chunk.modules)) {

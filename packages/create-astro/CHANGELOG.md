@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.2
+
+### Patch Changes
+
+- [#6677](https://github.com/withastro/astro/pull/6677) [`4a3262060`](https://github.com/withastro/astro/commit/4a32620600966ea89ddb5e1669d89a53e85ccf9a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Log an error when passing a `--template` that does not exist
+
 ## 3.1.1
 
 ### Patch Changes

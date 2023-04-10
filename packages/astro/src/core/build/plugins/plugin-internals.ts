@@ -23,15 +23,6 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 			return extra;
 		},
 
-		configResolved(resolvedConfig) {
-			// Delete this hook because it causes assets not to be built
-			const plugins = resolvedConfig.plugins as VitePlugin[];
-			const viteAsset = plugins.find((p) => p.name === 'vite:asset');
-			if (viteAsset) {
-				delete viteAsset.generateBundle;
-			}
-		},
-
 		async generateBundle(_options, bundle) {
 			const promises = [];
 			const mapping = new Map<string, Set<string>>();

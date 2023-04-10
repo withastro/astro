@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc pages in your Astro site",
-  "version": "0.0.3",
+  "version": "0.1.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -21,6 +21,9 @@
   "exports": {
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
+    "./default-config": "./dist/default-config.js",
+    "./config": "./dist/config.js",
+    "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -32,8 +35,13 @@
   },
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",
+    "esbuild": "^0.17.12",
     "gray-matter": "^4.0.3",
+    "kleur": "^4.1.5",
     "zod": "^3.17.3"
+  },
+  "peerDependencies": {
+    "astro": "workspace:^2.2.1"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
@@ -45,6 +53,7 @@
     "devalue": "^4.2.0",
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
+    "rollup": "^3.20.1",
     "vite": "^4.0.3"
   },
   "engines": {

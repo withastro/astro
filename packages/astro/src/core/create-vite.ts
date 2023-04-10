@@ -16,7 +16,7 @@ import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
-import astroHeadPropagationPlugin from '../vite-plugin-head-propagation/index.js';
+import astroHeadPlugin from '../vite-plugin-head/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import { astroInjectEnvTsPlugin } from '../vite-plugin-inject-env-ts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
@@ -27,6 +27,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -119,9 +120,9 @@ export async function createVite(
 			htmlVitePlugin(),
 			jsxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin({ settings }),
-			astroIntegrationsContainerPlugin({ settings, logging }),
+			mode === 'dev' && astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
-			astroHeadPropagationPlugin({ settings }),
+			astroHeadPlugin({ settings }),
 			astroScannerPlugin({ settings }),
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
@@ -175,6 +176,20 @@ export async function createVite(
 			external: [...(mode === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 	};
+
+	// If the user provides a custom assets prefix, make sure assets handled by Vite
+	// are prefixed with it too. This uses one of it's experimental features, but it
+	// has been stable for a long time now.
+	const assetsPrefix = settings.config.build.assetsPrefix;
+	if (assetsPrefix) {
+		commonConfig.experimental = {
+			renderBuiltUrl(filename, { type }) {
+				if (type === 'asset') {
+					return joinPaths(assetsPrefix, filename);
+				}
+			},
+		};
+	}
 
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.

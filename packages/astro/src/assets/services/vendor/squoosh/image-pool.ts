@@ -1,7 +1,7 @@
 import { isMainThread } from 'node:worker_threads';
 import { cpus } from 'os';
 import { fileURLToPath } from 'url';
-import type { OutputFormat } from '../../../types.js';
+import type { ImageOutputFormat } from '../../../types.js';
 import { getModuleURL } from './emscripten-utils.js';
 import type { Operation } from './image.js';
 import * as impl from './impl.js';
@@ -88,7 +88,7 @@ function handleJob(params: JobMessage) {
 export async function processBuffer(
 	buffer: Buffer,
 	operations: Operation[],
-	encoding: OutputFormat,
+	encoding: ImageOutputFormat,
 	quality?: number
 ): Promise<Uint8Array> {
 	// @ts-ignore

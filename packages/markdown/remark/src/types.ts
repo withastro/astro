@@ -68,10 +68,6 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
 	experimentalAssets?: boolean;
-	imageService?: any;
-	assetsDir?: URL;
-	resolveImage?: (path: string) => Promise<string>;
-	getImageMetadata?: any;
 }
 
 export interface MarkdownHeading {
@@ -89,11 +85,12 @@ export interface MarkdownMetadata {
 export interface MarkdownVFile extends VFile {
 	data: {
 		__astroHeadings?: MarkdownHeading[];
+		imagePaths?: Set<string>;
 	};
 }
 
 export interface MarkdownRenderingResult {
 	metadata: MarkdownMetadata;
-	vfile: VFile;
+	vfile: MarkdownVFile;
 	code: string;
 }
