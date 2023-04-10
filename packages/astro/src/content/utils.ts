@@ -23,12 +23,11 @@ import { rootRelativePath } from '../core/util.js';
 
 export const collectionConfigParser = z.union([
 	z.object({
-		type: z.literal('content').default('content'),
+		type: z.literal('content').optional().default('content'),
 		schema: z.any().optional(),
 	}),
 	z.object({
 		type: z.literal('data'),
-		key: z.never(),
 		schema: z.any().optional(),
 	}),
 ]);
@@ -195,6 +194,18 @@ export function getEntryCollectionName({
 	}
 
 	return collectionName;
+}
+
+export function getDataEntryId({
+	entry,
+	contentDir,
+	collection,
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+	const rawId = path.relative(collection, rawRelativePath);
+	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
+
+	return rawIdWithoutFileExt;
 }
 
 export function getContentEntryIdAndSlug({

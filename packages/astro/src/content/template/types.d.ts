@@ -73,7 +73,7 @@ declare module 'astro:content' {
 	type DataCollectionConfig<S extends BaseSchema> = {
 		type: 'data';
 		key?: string;
-		schema?: S;
+		schema?: S | ((context: SchemaContext) => S);
 	};
 
 	export function defineCollection<S extends BaseSchema>(

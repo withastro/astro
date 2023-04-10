@@ -1197,13 +1197,13 @@ type GetContentEntryInfoReturnType = {
 
 export interface DataEntryType {
 	extensions: string[];
-	getEntries(params: {
+	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
-	}): GetEntriesReturnType | Promise<GetEntriesReturnType>;
+	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
 }
 
-export type GetEntriesReturnType = Record<string, unknown>[];
+export type GetDataEntryInfoReturnType = Record<string, unknown>;
 
 export interface AstroSettings {
 	config: AstroConfig;
