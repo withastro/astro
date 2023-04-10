@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 2.2.2
+
+### Patch Changes
+
+- [#6793](https://github.com/withastro/astro/pull/6793) [`1e3873c04`](https://github.com/withastro/astro/commit/1e3873c04abab6c498c93abc06828ecd235569d4) Thanks [@andremralves](https://github.com/andremralves)! - fix: no edge functions deployed to netlify
+
 ## 2.2.1
 
 ### Patch Changes

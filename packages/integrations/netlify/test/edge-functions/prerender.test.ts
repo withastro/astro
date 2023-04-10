@@ -9,7 +9,7 @@ Deno.test({
 	async fn() {
 		let close = await runBuild('./fixtures/prerender/');
 		const { default: handler } = await import(
-			'./fixtures/prerender/.netlify/edge-functions/entry.mjs'
+			'./fixtures/prerender/.netlify/edge-functions/entry.js'
 		);
 		const response = await handler(new Request('http://example.com/index.html'));
 		assertEquals(response, undefined, 'No response because this is an asset');

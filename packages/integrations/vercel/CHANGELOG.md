@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 3.2.3
+
+### Patch Changes
+
+- [#6776](https://github.com/withastro/astro/pull/6776) [`84a464888`](https://github.com/withastro/astro/commit/84a46488846604596378b6640af6428e24d1e526) Thanks [@nblackburn](https://github.com/nblackburn)! - Revert change to environment variable
+
 ## 3.2.2
 
 ### Patch Changes
