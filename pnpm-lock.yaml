@@ -1270,12 +1270,17 @@ importers:
   packages/astro/test/fixtures/alias-tsconfig:
     specifiers:
       '@astrojs/svelte': workspace:*
+      '@test/namespace-package': workspace:*
       astro: workspace:*
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../../../integrations/svelte
+      '@test/namespace-package': link:deps/namespace-package
       astro: link:../../..
       svelte: 3.55.1
+
+  packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package:
+    specifiers: {}
 
   packages/astro/test/fixtures/api-routes:
     specifiers:
