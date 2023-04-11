@@ -52,6 +52,7 @@ describe('Slots', () => {
 		const $ = cheerio.load(html);
 
 		expect($('#override')).to.have.lengthOf(1);
+		expect($('#fallback-2').text()).to.equal('Slotty slot.');
 	});
 
 	it('Slots work with multiple elements', async () => {
