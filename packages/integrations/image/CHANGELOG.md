@@ -1,5 +1,14 @@
 # @astrojs/image
 
+## 0.16.6
+
+### Patch Changes
+
+- [#6773](https://github.com/withastro/astro/pull/6773) [`99479e6b9`](https://github.com/withastro/astro/commit/99479e6b9505dc929997b5c42f4d7b30d54ef074) Thanks [@doganalper](https://github.com/doganalper)! - Make sizes prop optional on Image component
+
+- Updated dependencies [[`60c16db6f`](https://github.com/withastro/astro/commit/60c16db6ff583b0656bc1937814c8bbf06831294), [`c12ca5ece`](https://github.com/withastro/astro/commit/c12ca5ece34beef0fb53f911515a7c752cc2f3ad)]:
+  - astro@2.2.2
+
 ## 0.16.5
 
 ### Patch Changes
