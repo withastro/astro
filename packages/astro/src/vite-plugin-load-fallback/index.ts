@@ -15,7 +15,10 @@ export default function loadFallbackPlugin({
 	root,
 }: LoadFallbackPluginParams): vite.Plugin[] | false {
 	// Only add this plugin if a custom fs implementation is provided.
-	if (!fs || fs === nodeFs) {
+	// Also check for `fs.default` because `import * as fs from 'fs'` will
+	// export as so, which only it's `.default` would === `nodeFs`.
+	// @ts-expect-error check default
+	if (!fs || fs === nodeFs || fs.default === nodeFs) {
 		return false;
 	}
 
@@ -53,12 +56,6 @@ export default function loadFallbackPlugin({
 						}
 					} catch {}
 				}
-
-				let resolved = await this.resolve(id, parent, { skipSelf: true });
-				if (resolved) {
-					return resolved.id;
-				}
-				return slashify(id);
 			},
 			async load(id) {
 				const source = await tryLoadModule(id);
