@@ -20,6 +20,7 @@ export function astroContentVirtualModPlugin({
 }: AstroContentVirtualModPluginParams): Plugin {
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
+	const relDataDir = rootRelativePath(settings.config.root, contentPaths.dataDir);
 
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
@@ -28,11 +29,14 @@ export function astroContentVirtualModPlugin({
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 		.replace('@@CONTENT_DIR@@', relContentDir)
+		.replace('@@DATA_DIR@@', relDataDir)
 		.replace('@@CONTENT_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(contentEntryExts)}`)
-		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(dataEntryExts)}`)
+		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relDataDir}**/*${getExtGlob(dataEntryExts)}`)
 		.replace(
 			'@@RENDER_ENTRY_GLOB_PATH@@',
-			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
+			`${relContentDir}**/*${getExtGlob(
+				contentEntryExts /** data collections excluded since they don't have a `render()` function */
+			)}`
 		);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;

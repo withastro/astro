@@ -26,13 +26,14 @@ export const image = () => {
 };
 
 const contentDir = '@@CONTENT_DIR@@';
+const dataDir = '@@DATA_DIR@@';
 
 const contentEntryGlob = import.meta.glob('@@CONTENT_ENTRY_GLOB_PATH@@', {
 	query: { astroContentCollectionEntry: true },
 });
 const contentCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: contentEntryGlob,
-	contentDir,
+	dir: contentDir,
 });
 
 const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
@@ -40,7 +41,7 @@ const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
 });
 const dataCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: dataEntryGlob,
-	contentDir,
+	dir: dataDir,
 });
 
 let lookupMap = {};
@@ -60,7 +61,7 @@ const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
 });
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
-	contentDir,
+	dir: contentDir,
 });
 
 export const getCollection = createGetCollection({

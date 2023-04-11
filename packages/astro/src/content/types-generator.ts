@@ -22,11 +22,13 @@ import {
 	getEntryCollectionName,
 	getDataEntryExts,
 	getDataEntryId,
+	getCollectionDirByUrl,
 } from './utils.js';
+import { rootRelativePath } from '../core/util.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
-type ContentEvent = { name: ChokidarEvent; entry: URL };
+type ContentEvent = { name: ChokidarEvent; entry: URL; collectionDir: 'content' | 'data' };
 
 type ContentEntryMetadata = { type: 'content'; slug: string };
 type DataEntryMetadata = { type: 'data' };
@@ -45,13 +47,13 @@ type CreateContentGeneratorParams = {
 type EventOpts = { logLevel: 'info' | 'warn' };
 
 type EventWithOptions = {
-	type: ContentEvent;
+	event: ContentEvent;
 	opts: EventOpts | undefined;
 };
 
 class UnsupportedFileTypeError extends Error {}
 
-export async function createContentTypesGenerator({
+export async function createCollectionTypesGenerator({
 	contentConfigObserver,
 	fs,
 	logging,
@@ -70,32 +72,39 @@ export async function createContentTypesGenerator({
 	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
 	async function init(): Promise<
-		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
+		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-dirs' }
 	> {
-		if (!fs.existsSync(contentPaths.contentDir)) {
-			return { typesGenerated: false, reason: 'no-content-dir' };
+		if (!fs.existsSync(contentPaths.contentDir) && !fs.existsSync(contentPaths.dataDir)) {
+			return { typesGenerated: false, reason: 'no-dirs' };
 		}
 
 		events.push({
-			type: { name: 'add', entry: contentPaths.config.url },
+			event: { name: 'add', entry: contentPaths.config.url, collectionDir: 'content' },
 			opts: { logLevel: 'warn' },
 		});
 
-		const globResult = await glob('**', {
-			cwd: fileURLToPath(contentPaths.contentDir),
+		const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir, false);
+		const relDataDir = rootRelativePath(settings.config.root, contentPaths.dataDir, false);
+
+		const globResult = await glob([relContentDir + '**', relDataDir + '**'], {
+			absolute: true,
+			cwd: fileURLToPath(settings.config.root),
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
 			},
 		});
 		const entries = globResult
-			.map((e) => new URL(e, contentPaths.contentDir))
+			.map((e) => pathToFileURL(e))
 			.filter(
 				// Config loading handled first. Avoid running twice.
 				(e) => !e.href.startsWith(contentPaths.config.url.href)
 			);
 		for (const entry of entries) {
-			events.push({ type: { name: 'add', entry }, opts: { logLevel: 'warn' } });
+			events.push({
+				event: { name: 'add', entry, collectionDir: getCollectionDirByUrl(entry, contentPaths)! },
+				opts: { logLevel: 'warn' },
+			});
 		}
 		await runEvents();
 		return { typesGenerated: true };
@@ -132,6 +141,7 @@ export async function createContentTypesGenerator({
 			contentPaths,
 			contentEntryExts,
 			dataEntryExts,
+			event.collectionDir,
 			settings.config.experimental.assets
 		);
 		if (fileType === 'ignored') {
@@ -173,18 +183,20 @@ export async function createContentTypesGenerator({
 		}
 
 		const { entry } = event;
-		const { contentDir } = contentPaths;
+		const collectionDir =
+			event.collectionDir === 'content' ? contentPaths.contentDir : contentPaths.dataDir;
 
-		const collection = getEntryCollectionName({ entry, contentDir });
+		const collection = getEntryCollectionName({
+			entry,
+			dir: collectionDir,
+		});
 		if (collection === undefined) {
 			if (['info', 'warn'].includes(logLevel)) {
 				warn(
 					logging,
 					'content',
 					`${cyan(
-						normalizePath(
-							path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
-						)
+						normalizePath(path.relative(fileURLToPath(collectionDir), fileURLToPath(event.entry)))
 					)} must be nested in a collection directory. Skipping.`
 				);
 			}
@@ -192,7 +204,7 @@ export async function createContentTypesGenerator({
 		}
 
 		if (fileType === 'data') {
-			const id = getDataEntryId({ entry, contentDir, collection });
+			const id = getDataEntryId({ entry, dataDir: contentPaths.dataDir, collection });
 			const collectionKey = JSON.stringify(collection);
 			const entryKey = JSON.stringify(id);
 
@@ -217,7 +229,11 @@ export async function createContentTypesGenerator({
 
 		const contentEntryType = contentEntryConfigByExt.get(path.extname(event.entry.pathname));
 		if (!contentEntryType) return { shouldGenerateTypes: false };
-		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
+		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
+			entry,
+			contentDir: contentPaths.contentDir,
+			collection,
+		});
 
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
@@ -268,16 +284,14 @@ export async function createContentTypesGenerator({
 	}
 
 	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
-		const event = {
-			type: {
-				entry: pathToFileURL(rawEvent.entry),
-				name: rawEvent.name,
-			},
-			opts,
-		};
-		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		const entryUrl = pathToFileURL(rawEvent.entry);
+		const collectionDir = getCollectionDirByUrl(entryUrl, contentPaths);
+		if (!collectionDir) return;
 
-		events.push(event);
+		events.push({
+			event: { name: rawEvent.name, entry: entryUrl, collectionDir: collectionDir },
+			opts,
+		});
 
 		debounceTimeout && clearTimeout(debounceTimeout);
 		const runEventsSafe = async () => {
@@ -297,7 +311,7 @@ export async function createContentTypesGenerator({
 		const eventResponses = [];
 
 		for (const event of events) {
-			const response = await handleEvent(event.type, event.opts);
+			const response = await handleEvent(event.event, event.opts);
 			eventResponses.push(response);
 		}
 

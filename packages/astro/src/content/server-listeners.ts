@@ -6,9 +6,14 @@ import type { ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import { info, warn, type LogOptions } from '../core/logger/core.js';
-import { appendForwardSlash } from '../core/path.js';
-import { createContentTypesGenerator } from './types-generator.js';
-import { getContentPaths, globalContentConfigObserver, type ContentPaths } from './utils.js';
+import { createCollectionTypesGenerator } from './types-generator.js';
+import {
+	getContentPaths,
+	globalContentConfigObserver,
+	type ContentPaths,
+	getCollectionDirByUrl,
+} from './utils.js';
+import { rootRelativePath } from '../core/util.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;
@@ -24,54 +29,79 @@ export async function attachContentServerListeners({
 	settings,
 }: ContentServerListenerParams) {
 	const contentPaths = getContentPaths(settings.config, fs);
+	const { root } = settings.config;
+	const existentDirs = [contentPaths.contentDir, contentPaths.dataDir].filter((p) =>
+		fs.existsSync(p)
+	);
 
-	if (fs.existsSync(contentPaths.contentDir)) {
+	if (existentDirs.length) {
 		info(
 			logging,
 			'content',
-			`Watching ${cyan(
-				contentPaths.contentDir.href.replace(settings.config.root.href, '')
+			`Watching ${bold(
+				cyan(existentDirs.map((dir) => rootRelativePath(root, dir, false)).join(' and '))
 			)} for changes`
 		);
 		const maybeTsConfigStats = getTSConfigStatsWhenAllowJsFalse({ contentPaths, settings });
 		if (maybeTsConfigStats) warnAllowJsIsFalse({ ...maybeTsConfigStats, logging });
 		await attachListeners();
 	} else {
-		viteServer.watcher.on('addDir', contentDirListener);
-		async function contentDirListener(dir: string) {
-			if (appendForwardSlash(pathToFileURL(dir).href) === contentPaths.contentDir.href) {
-				info(logging, 'content', `Content dir found. Watching for changes`);
-				await attachListeners();
-				viteServer.watcher.removeListener('addDir', contentDirListener);
+		viteServer.watcher.on('addDir', dirListeners);
+		// TODO: clean up a bit
+		let attached = false;
+		let foundContentDir = false;
+		let foundDataDir = false;
+		async function dirListeners(dir: string) {
+			const collectionDir = getCollectionDirByUrl(pathToFileURL(dir), contentPaths);
+			if (collectionDir === 'content') foundContentDir = true;
+			if (collectionDir === 'data') foundDataDir = true;
+			if (collectionDir) {
+				info(
+					logging,
+					'content',
+					`Watching ${cyan(
+						rootRelativePath(
+							collectionDir === 'content' ? contentPaths.contentDir : contentPaths.dataDir,
+							root
+						)
+					)} for changes`
+				);
+				if (!attached) {
+					await attachListeners();
+					attached = true;
+				}
+				if (foundContentDir && foundDataDir) {
+					viteServer.watcher.removeListener('addDir', dirListeners);
+				}
 			}
 		}
 	}
 
 	async function attachListeners() {
-		const contentGenerator = await createContentTypesGenerator({
+		const typesGenerator = await createCollectionTypesGenerator({
 			fs,
 			settings,
 			logging,
 			viteServer,
 			contentConfigObserver: globalContentConfigObserver,
 		});
-		await contentGenerator.init();
+		await typesGenerator.init();
 		info(logging, 'content', 'Types generated');
 
 		viteServer.watcher.on('add', (entry) => {
-			contentGenerator.queueEvent({ name: 'add', entry });
+			typesGenerator.queueEvent({ name: 'add', entry });
 		});
 		viteServer.watcher.on('addDir', (entry) =>
-			contentGenerator.queueEvent({ name: 'addDir', entry })
+			typesGenerator.queueEvent({ name: 'addDir', entry })
 		);
 		viteServer.watcher.on('change', (entry) =>
-			contentGenerator.queueEvent({ name: 'change', entry })
+			typesGenerator.queueEvent({ name: 'change', entry })
 		);
 		viteServer.watcher.on('unlink', (entry) => {
-			contentGenerator.queueEvent({ name: 'unlink', entry });
+			typesGenerator.queueEvent({ name: 'unlink', entry });
 		});
 		viteServer.watcher.on('unlinkDir', (entry) =>
-			contentGenerator.queueEvent({ name: 'unlinkDir', entry })
+			typesGenerator.queueEvent({ name: 'unlinkDir', entry })
 		);
 	}
 }

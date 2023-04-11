@@ -19,15 +19,15 @@ type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImpo
 
 export function createCollectionToGlobResultMap({
 	globResult,
-	contentDir,
+	dir,
 }: {
 	globResult: GlobResult;
-	contentDir: string;
+	dir: string;
 }) {
 	const collectionToGlobResultMap: CollectionToEntryMap = {};
 	for (const key in globResult) {
-		const keyRelativeToContentDir = key.replace(new RegExp(`^${contentDir}`), '');
-		const segments = keyRelativeToContentDir.split('/');
+		const keyRelativeToDir = key.replace(new RegExp(`^${dir}`), '');
+		const segments = keyRelativeToDir.split('/');
 		if (segments.length <= 1) continue;
 		const collection = segments[0];
 		collectionToGlobResultMap[collection] ??= {};
