@@ -12,6 +12,7 @@ import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
+import { SourceMapGenerator } from 'source-map';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -113,6 +114,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											...(mdxPluginOpts.recmaPlugins ?? []),
 											() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
 										],
+										SourceMapGenerator: config.vite.build?.sourcemap
+											? SourceMapGenerator
+											: undefined,
 									});
 
 									return {
@@ -168,7 +172,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											import.meta.hot.decline();
 										}`;
 									}
-									return escapeViteEnvReferences(code);
+									return { code: escapeViteEnvReferences(code), map: null };
 								},
 							},
 						] as VitePlugin[],
