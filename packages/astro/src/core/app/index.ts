@@ -35,6 +35,8 @@ export { deserializeManifest } from './common.js';
 import { callMiddleware } from '../middleware/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
+const clientLocalsSymbol = Symbol.for('astro.locals');
+
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -133,6 +135,8 @@ export class App {
 				});
 			}
 		}
+
+		Reflect.set(request, clientLocalsSymbol, {});
 
 		// Use the 404 status code for 404.astro components
 		if (routeData.route === '/404') {

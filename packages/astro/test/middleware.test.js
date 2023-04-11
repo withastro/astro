@@ -2,7 +2,7 @@ import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
-describe.skip('Middleware API', () => {
+describe('Middleware API', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -27,6 +27,22 @@ describe.skip('Middleware API', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 			expect($('p').html()).to.equal('bar');
+		});
+
+		it('should change locals data based on URL', async () => {
+			let html = await fixture.fetch('/').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('p').html()).to.equal('bar');
+
+			html = await fixture.fetch('/lorem').then((res) => res.text());
+			$ = cheerio.load(html);
+			expect($('p').html()).to.equal('ipsum');
+		});
+
+		it('should call a second middleware', async () => {
+			let html = await fixture.fetch('/second').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('p').html()).to.equal('second');
 		});
 	});
 });

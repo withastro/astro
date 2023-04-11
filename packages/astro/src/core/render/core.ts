@@ -116,7 +116,7 @@ export async function renderPage(
 
 	let locals = {};
 	if (apiContext) {
-		if (typeof apiContext.locals !== 'undefined' && !isValueSerializable(apiContext.locals)) {
+		if (!isValueSerializable(apiContext.locals)) {
 			throw new AstroError({
 				...AstroErrorData.LocalsNotSerializable,
 				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname, apiContext.locals),
