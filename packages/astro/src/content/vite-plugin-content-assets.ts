@@ -17,6 +17,7 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { getContentEntryExts } from './utils.js';
+import MagicString from 'magic-string';
 
 function isPropagatedAsset(viteId: string) {
 	const flags = new URLSearchParams(viteId.split('?')[1]);
@@ -39,7 +40,7 @@ export function astroContentAssetPropagationPlugin({
 				devModuleLoader = createViteLoader(server);
 			}
 		},
-		async transform(code, id, options) {
+		async transform(_, id, options) {
 			if (isPropagatedAsset(id)) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
@@ -82,7 +83,15 @@ export function astroContentAssetPropagationPlugin({
 					export const collectedStyles = ${stringifiedStyles};
 					export const collectedScripts = ${stringifiedScripts};
 				`;
-				return { code };
+
+				if (settings.config.vite.build?.sourcemap) {
+					const s = new MagicString(code);
+					return {
+						code: s.toString(),
+						map: s.generateMap(),
+					};
+				}
+				return code;
 			}
 		},
 	};

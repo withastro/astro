@@ -9,6 +9,7 @@ import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
+import MagicString from 'magic-string';
 import {
 	getContentEntryExts,
 	getContentPaths,
@@ -65,7 +66,7 @@ export function astroContentImportPlugin({
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
-			async transform(code, viteId) {
+			async transform(_, viteId) {
 				if (isContentFlagImport(viteId)) {
 					const fileId = viteId.split('?')[0];
 					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
@@ -74,17 +75,24 @@ export function astroContentImportPlugin({
 					});
 
 					const code = escapeViteEnvReferences(`
-export const id = ${JSON.stringify(id)};
-export const collection = ${JSON.stringify(collection)};
-export const slug = ${JSON.stringify(slug)};
-export const body = ${JSON.stringify(body)};
-export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
-export const _internal = {
-	filePath: ${JSON.stringify(_internal.filePath)},
-	rawData: ${JSON.stringify(_internal.rawData)},
-};
-`);
-					return { code };
+						export const id = ${JSON.stringify(id)};
+						export const collection = ${JSON.stringify(collection)};
+						export const slug = ${JSON.stringify(slug)};
+						export const body = ${JSON.stringify(body)};
+						export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+						export const _internal = {
+							filePath: ${JSON.stringify(_internal.filePath)},
+							rawData: ${JSON.stringify(_internal.rawData)},
+						};`);
+
+					if (settings.config.vite.build?.sourcemap) {
+						const s = new MagicString(code);
+						return {
+							code: s.toString(),
+							map: s.generateMap(),
+						};
+					}
+					return code;
 				}
 			},
 			configureServer(viteServer) {
