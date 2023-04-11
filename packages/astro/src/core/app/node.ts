@@ -8,6 +8,7 @@ import { deserializeManifest } from './common.js';
 import { App, type MatchOptions } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Array): Request {
 	const protocol =
@@ -26,6 +27,7 @@ function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Arra
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 	}
+	Reflect.set(request, clientLocalsSymbol, {});
 	return request;
 }
 

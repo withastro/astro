@@ -6,8 +6,8 @@ import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
  *
  * If not middlewares were not set, the function returns an empty array.
  */
-export async function loadMiddleware(moduleLoader: ModuleLoader, basePath: string) {
-	let middlewarePath = basePath + 'src/' + MIDDLEWARE_PATH_SEGMENT_NAME;
+export async function loadMiddleware(moduleLoader: ModuleLoader) {
+	let middlewarePath = 'src/' + MIDDLEWARE_PATH_SEGMENT_NAME;
 	try {
 		const module = await moduleLoader.import(middlewarePath);
 		return module;

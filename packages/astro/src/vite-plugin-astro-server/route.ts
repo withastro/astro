@@ -169,7 +169,7 @@ export async function handleRoute(
 		request,
 		route,
 	};
-	const middleware = await loadMiddleware(env.loader, config.root.href);
+	const middleware = await loadMiddleware(env.loader);
 	if (middleware) {
 		options.middleware = middleware;
 	}

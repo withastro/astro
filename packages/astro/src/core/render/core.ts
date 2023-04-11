@@ -2,14 +2,12 @@ import type { APIContext, ComponentInstance, Params, Props, RouteData } from '..
 import type { LogOptions } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
-
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
-import { isValueSerializable } from '../util.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -118,10 +116,10 @@ export async function renderPage(
 
 	let locals = {};
 	if (apiContext) {
-		if (!isValueSerializable(apiContext.locals)) {
+		if (typeof apiContext.locals !== 'undefined' && !isValueSerializable(apiContext.locals)) {
 			throw new AstroError({
 				...AstroErrorData.LocalsNotSerializable,
-				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname, apiContext.locals),
 			});
 		}
 		locals = apiContext.locals;
@@ -169,4 +167,58 @@ export async function renderPage(
 	}
 
 	return response;
+}
+
+/**
+ * Checks whether any value can is serializable.
+ *
+ * A serializable value contains plain values. For example, `Proxy`, `Set`, `Map`, functions, etc.
+ * are not serializable objects.
+ *
+ * @param object
+ */
+export function isValueSerializable(value: unknown): boolean {
+	let type = typeof value;
+	let plainObject = true;
+	if (type === 'object' && isPlainObject(value)) {
+		for (const [, nestedValue] of Object.entries(value)) {
+			if (!isValueSerializable(nestedValue)) {
+				plainObject = false;
+				break;
+			}
+		}
+	} else {
+		plainObject = false;
+	}
+	let result =
+		value === null ||
+		type === 'string' ||
+		type === 'number' ||
+		type === 'boolean' ||
+		Array.isArray(value) ||
+		plainObject;
+
+	return result;
+}
+
+/**
+ *
+ * From [redux-toolkit](https://github.com/reduxjs/redux-toolkit/blob/master/packages/toolkit/src/isPlainObject.ts)
+ *
+ * Returns true if the passed value is "plain" object, i.e. an object whose
+ * prototype is the root `Object.prototype`. This includes objects created
+ * using object literals, but not for instance for class instances.
+ */
+function isPlainObject(value: unknown): value is object {
+	if (typeof value !== 'object' || value === null) return false;
+
+	let proto = Object.getPrototypeOf(value);
+	if (proto === null) return true;
+
+	let baseProto = proto;
+	while (Object.getPrototypeOf(baseProto) !== null) {
+		baseProto = Object.getPrototypeOf(baseProto);
+	}
+
+	return proto === baseProto;
 }

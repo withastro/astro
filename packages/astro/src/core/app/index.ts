@@ -1,7 +1,10 @@
 import type {
+	AstroMiddlewareInstance,
 	ComponentInstance,
 	EndpointHandler,
+	EndpointOutput,
 	ManifestData,
+	MiddlewareHandler,
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
@@ -9,7 +12,7 @@ import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { call as callEndpoint } from '../endpoint/index.js';
+import { call as callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { removeTrailingForwardSlash } from '../path.js';
@@ -18,6 +21,8 @@ import {
 	createRenderContext,
 	renderPage,
 	type Environment,
+	getParamsAndProps,
+	GetParamsAndPropsError,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
@@ -27,6 +32,8 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
+import { callMiddleware } from '../middleware/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
@@ -191,7 +198,7 @@ export class App {
 		}
 
 		try {
-			const ctx = createRenderContext({
+			const renderContext = createRenderContext({
 				request,
 				origin: url.origin,
 				pathname,
@@ -201,8 +208,38 @@ export class App {
 				route: routeData,
 				status,
 			});
+			const paramsAndPropsResp = await getParamsAndProps({
+				mod: mod as any,
+				route: renderContext.route,
+				routeCache: this.#env.routeCache,
+				pathname: renderContext.pathname,
+				logging: this.#env.logging,
+				ssr: this.#env.ssr,
+			});
 
-			const response = await renderPage(mod, ctx, this.#env);
+			if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
+				throw new AstroError({
+					...AstroErrorData.NoMatchingStaticPathFound,
+					message: AstroErrorData.NoMatchingStaticPathFound.message(renderContext.pathname),
+					hint: renderContext.route?.component
+						? AstroErrorData.NoMatchingStaticPathFound.hint([renderContext.route?.component])
+						: '',
+				});
+			}
+			const [params, props] = paramsAndPropsResp;
+
+			const apiContext = createAPIContext({
+				request: renderContext.request,
+				params,
+				props,
+				site: this.#env.site,
+				adapterName: this.#env.adapterName,
+			});
+			const onRequest = this.#manifest.middleware.onRequest as MiddlewareHandler<Response>;
+			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
+				return renderPage(mod, renderContext, this.#env, apiContext);
+			});
+			// const response = await renderPage(mod, renderContext, this.#env, apiContext);
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
@@ -233,7 +270,14 @@ export class App {
 		});
 
 		// TODO PLT-104 add adapter middleware here
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, undefined);
+
+		const result = await callEndpoint(
+			handler,
+			this.#env,
+			ctx,
+			this.#logging,
+			this.#manifest.middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+		);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

@@ -41,7 +41,8 @@ import { deserializeManifest as _deserializeManifest } from 'astro/app';
 import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
-	renderers: _main.renderers
+	renderers: _main.renderers,
+	middleware: _main.middleware
 });
 _privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
@@ -221,6 +222,10 @@ function buildManifest(
 		renderers: [],
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
+		middleware: {
+			// @ts-expect-error
+			onRequest() {},
+		},
 	};
 
 	return ssrManifest;

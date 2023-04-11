@@ -1,5 +1,4 @@
 import type { APIContext, MiddlewareHandler, MiddlewareResolve } from '../../@types/astro';
-import { renderPage as coreRenderPage } from '../render';
 
 /**
  * Utility function that is in charge of calling the middleware
