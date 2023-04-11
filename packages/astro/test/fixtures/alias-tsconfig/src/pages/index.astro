@@ -1,5 +1,11 @@
 ---
 import Client from '@components/Client.svelte'
+import Foo from 'src/components/Foo.astro';
+import StyleComp from 'src/components/Style.astro';
+import { namespace } from '@test/namespace-package'
+import { foo } from 'src/utils/constants';
+// TODO: support alias in @import https://github.com/withastro/astro/issues/6551
+// import '@styles/main.css';
 ---
 <html lang="en">
   <head>
@@ -10,6 +16,10 @@ import Client from '@components/Client.svelte'
   <body>
     <main>
       <Client client:load />
+      <Foo />
+      <StyleComp />
+      <p id="namespace">{namespace}</p>
+      <p id="constants-foo">{foo}</p>
     </main>
   </body>
 </html>
