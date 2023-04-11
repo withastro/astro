@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.18.3
+
+### Patch Changes
+
+- [#6779](https://github.com/withastro/astro/pull/6779) [`a98f6f418`](https://github.com/withastro/astro/commit/a98f6f418c92261a06ef79624a8c86e288c21eab) Thanks [@matthewp](https://github.com/matthewp)! - Prevent body head content injection in MDX when using layout
+
 ## 0.18.2
 
 ### Patch Changes
