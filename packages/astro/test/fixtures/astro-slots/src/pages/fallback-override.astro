@@ -1,5 +1,6 @@
 ---
 import Fallback from '../components/Fallback.astro';
+import Fallback2 from '../components/Fallback2.astro';
 ---
 
 <html>
@@ -9,8 +10,9 @@ import Fallback from '../components/Fallback.astro';
   <body>
     <div id="fallback">
       <Fallback>
-        <div id="override" />
+        <div id="override">Overridden content</div>
       </Fallback>
+      <Fallback2><div slot="override-2">Slotty slot.</div></Fallback2>
     </div>
   </body>
 </html>
