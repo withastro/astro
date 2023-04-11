@@ -129,20 +129,6 @@ export async function runHookConfigSetup({
 				logging,
 			});
 
-			addContentEntryType({
-				extensions: ['.json'],
-				getEntryInfo({ fileUrl, contents }) {
-					const data = JSON.parse(contents);
-					return {
-						rawData: contents.replace('{\n', ''),
-						data,
-						body: contents,
-						slug: '',
-					};
-				},
-			});
-			console.log('added');
-
 			// Add MDX content entry type to support older `@astrojs/mdx` versions
 			// TODO: remove in next Astro minor release
 			if (
