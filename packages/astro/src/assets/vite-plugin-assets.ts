@@ -222,18 +222,6 @@ export default function assets({
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},
-		},
-		{
-			name: 'astro:assets:wasm',
-			async transform(code, id) {
-				const [path, query] = id.split('?');
-				if (query != 'raw-base64' || !path.endsWith('.wasm')) return null;
-
-				const data = await fs.readFile(path);
-				const hex = data.toString('base64');
-
-				return `export default Buffer.from('${hex}', 'base64');`;
-			},
-		},
+		}
 	];
 }
