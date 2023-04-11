@@ -81,5 +81,18 @@ describe('Head injection w/ MDX', () => {
 			const bodyLinks = $('body link[rel=stylesheet]');
 			expect(bodyLinks).to.have.a.lengthOf(0);
 		});
+
+		it('Injection caused by delayed slots', async () => {
+			const html = await fixture.readFile('/componentwithtext/index.html');
+
+			// Using cheerio here because linkedom doesn't support head tag injection
+			const $ = cheerio.load(html);
+
+			const headLinks = $('head link[rel=stylesheet]');
+			expect(headLinks).to.have.a.lengthOf(1);
+
+			const bodyLinks = $('body link[rel=stylesheet]');
+			expect(bodyLinks).to.have.a.lengthOf(0);
+		});
 	});
 });
