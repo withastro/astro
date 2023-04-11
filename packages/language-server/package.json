@@ -3,6 +3,11 @@
   "version": "0.29.6",
   "author": "withastro",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/language-tools",
+    "directory": "packages/language-server"
+  },
   "type": "commonjs",
   "main": "dist/index.js",
   "bin": {

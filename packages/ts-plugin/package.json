@@ -33,5 +33,10 @@
     "glob": "^8.0.3",
     "mocha": "^9.2.2",
     "typescript": "~4.8.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/language-tools",
+    "directory": "packages/ts-plugin"
   }
 }
