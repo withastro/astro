@@ -86,10 +86,7 @@ export function astroContentAssetPropagationPlugin({
 
 				if (settings.config.vite.build?.sourcemap) {
 					const s = new MagicString(code);
-					return {
-						code: s.toString(),
-						map: s.generateMap(),
-					};
+					return { code: s.toString(), map: s.generateMap() };
 				}
 				return code;
 			}
