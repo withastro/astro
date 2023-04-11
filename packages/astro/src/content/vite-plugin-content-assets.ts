@@ -17,7 +17,6 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { getContentEntryExts } from './utils.js';
-import MagicString from 'magic-string';
 
 function isPropagatedAsset(viteId: string) {
 	const flags = new URLSearchParams(viteId.split('?')[1]);
@@ -84,11 +83,7 @@ export function astroContentAssetPropagationPlugin({
 					export const collectedScripts = ${stringifiedScripts};
 				`;
 
-				if (settings.config.vite.build?.sourcemap) {
-					const s = new MagicString(code);
-					return { code: s.toString(), map: s.generateMap() };
-				}
-				return code;
+				return { code, map: { mappings: '' } };
 			}
 		},
 	};

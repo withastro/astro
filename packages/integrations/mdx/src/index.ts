@@ -1,4 +1,3 @@
-import MagicString from 'magic-string';
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile } from '@mdx-js/mdx';
@@ -173,12 +172,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											import.meta.hot.decline();
 										}`;
 									}
-									code = escapeViteEnvReferences(code);
-									if (config.vite.build?.sourcemap) {
-										const s = new MagicString(code);
-										return { code: s.toString(), map: s.generateMap() };
-									}
-									return code;
+									return { code: escapeViteEnvReferences(code), map: null };
 								},
 							},
 						] as VitePlugin[],

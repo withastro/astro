@@ -9,7 +9,6 @@ import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
-import MagicString from 'magic-string';
 import {
 	getContentEntryExts,
 	getContentPaths,
@@ -85,11 +84,7 @@ export function astroContentImportPlugin({
 							rawData: ${JSON.stringify(_internal.rawData)},
 						};`);
 
-					if (settings.config.vite.build?.sourcemap) {
-						const s = new MagicString(code);
-						return { code: s.toString(), map: s.generateMap() };
-					}
-					return code;
+					return { code, map: { mappings: '' } };
 				}
 			},
 			configureServer(viteServer) {
