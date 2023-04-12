@@ -195,7 +195,7 @@ function isOnIgnoreList(fileName: string) {
  * Return if a file extension is a valid image asset, so we can avoid outputting a warning for them.
  */
 function isImageAsset(fileExt: string) {
-	return [...VALID_INPUT_FORMATS, 'svg'].includes(fileExt);
+	return [...VALID_INPUT_FORMATS, 'svg'].includes(fileExt.slice(1));
 }
 
 function hasUnderscoreBelowContentDirectoryPath(
