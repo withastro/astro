@@ -2450,6 +2450,14 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/custom-assets-name:
+    specifiers:
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/node': link:../../../../integrations/node
+      astro: link:../../..
+
   packages/astro/test/fixtures/custom-elements:
     dependencies:
       '@test/custom-element-renderer':
