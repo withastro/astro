@@ -222,6 +222,6 @@ export default function assets({
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},
-		}
+		},
 	];
 }
