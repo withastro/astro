@@ -167,7 +167,9 @@ export function getEntryInfo({
 export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
-	contentFileExts: string[]
+	contentFileExts: string[],
+	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
+	experimentalAssets: boolean
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
@@ -175,7 +177,7 @@ export function getEntryType(
 	if (
 		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
 		isOnIgnoreList(base) ||
-		isImageAsset(ext)
+		(experimentalAssets && isImageAsset(ext))
 	) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
