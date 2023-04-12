@@ -150,7 +150,6 @@ export function createGetDataEntryById({
 	dataCollectionToEntryMap: CollectionToEntryMap;
 }) {
 	return async function getDataEntryById(collection: string, id: string) {
-		console.log('reading...');
 		const lazyImport =
 			dataCollectionToEntryMap[collection]?.[/*TODO: filePathToIdMap*/ id + '.json'];
 
@@ -249,14 +248,46 @@ export function createReference({
 	dataCollectionToEntryMap: CollectionToEntryMap;
 }) {
 	return function reference(collection: string) {
-		return z.string().transform(async (entryId: string) => {
-			const lazyImport = dataCollectionToEntryMap[collection]?.[entryId + '.json'];
-			if (!lazyImport) {
-				// TODO: AstroError
-				throw new Error(`Reference to non-existent entry ${collection} → ${entryId}`);
+		return z.string().transform(async (entryId: string, ctx) => {
+			const flattenedErrorPath = ctx.path.join('.');
+			const entries = dataCollectionToEntryMap[collection];
+			if (!entries) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
+				});
+				return;
 			}
-			const entry = await lazyImport();
-			return entry.data;
+
+			const lazyImport = entries[entryId + '.json'];
+			if (!lazyImport) {
+				const entryKeys = Object.keys(entries).map((k) =>
+					// TODO: handle hardcoded json extension
+					k.replace(/\.json$/, '')
+				);
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${entryKeys
+						.map((c) => JSON.stringify(c))
+						.join(' | ')}. Received ${JSON.stringify(entryId)}.`,
+				});
+				return;
+			}
+			try {
+				const entry = await lazyImport();
+				return entry.data;
+			} catch (e) {
+				// Catch schema parse errors for referenced content
+				if (e instanceof Error && (e as any).type === 'AstroError') {
+					// TODO: bubble AstroError without crashing the dev server somehow?
+					throw e;
+				} else {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `**${flattenedErrorPath}:** Referenced entry ${collection} → ${entryId} is invalid.`,
+					});
+				}
+			}
 		});
 	};
 }
