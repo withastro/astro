@@ -57,7 +57,7 @@ body:
     id: bug-reproduction
     attributes:
       label: Link to Minimal Reproducible Example
-      description: 'Use [astro.new](https://astro.new) to create a minimal reproduction of the problem. **A minimal reproduction is required** so that others can help debug your issue. If a report is vague (e.g. just a generic error message) and has no reproduction, it may be auto-closed.'
+      description: 'Use [astro.new](https://astro.new) to create a minimal reproduction of the problem. **A minimal reproduction is required** so that others can help debug your issue. If a report is vague (e.g. just a generic error message) and has no reproduction, it may be auto-closed. Not sure how to create a minimal example? [Read our guide](https://docs.astro.build/en/guides/troubleshooting/#creating-minimal-reproductions)'
       placeholder: 'https://stackblitz.com/abcd1234'
     validations:
       required: true
