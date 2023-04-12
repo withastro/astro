@@ -3642,7 +3642,7 @@ importers:
       chai: ^4.3.6
       mocha: ^9.2.2
       sitemap: ^7.1.1
-      xml2js: 0.4.23
+      xml2js: 0.5.0
       zod: ^3.17.3
     dependencies:
       sitemap: 7.1.1
@@ -3652,7 +3652,7 @@ importers:
       astro-scripts: link:../../../scripts
       chai: 4.3.7
       mocha: 9.2.2
-      xml2js: 0.4.23
+      xml2js: 0.5.0
 
   packages/integrations/sitemap/test/fixtures/trailing-slash:
     specifiers:
@@ -17261,6 +17261,14 @@ packages:
 
   /xml2js/0.4.23:
     resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
+    engines: {node: '>=4.0.0'}
+    dependencies:
+      sax: 1.2.4
+      xmlbuilder: 11.0.1
+    dev: true
+
+  /xml2js/0.5.0:
+    resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
     engines: {node: '>=4.0.0'}
     dependencies:
       sax: 1.2.4
