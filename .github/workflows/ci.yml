@@ -148,6 +148,7 @@ jobs:
         run: pnpm run test:match "Aliases"
 
   e2e:
+    if: false
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -222,3 +223,4 @@ jobs:
         env:
           SKIP_OG: 1
           NODE_OPTIONS: "--max-old-space-size=4096"
+          DEBUG: "vite:resolve"

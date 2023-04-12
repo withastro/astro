@@ -22,6 +22,8 @@ export default function loadFallbackPlugin({
 		return false;
 	}
 
+	console.log(fs)
+
 	const tryLoadModule = async (id: string) => {
 		try {
 			// await is necessary for the catch
