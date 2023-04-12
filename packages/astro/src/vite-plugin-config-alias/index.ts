@@ -64,6 +64,9 @@ export default function configAliasVitePlugin({
 	settings: AstroSettings;
 }): VitePlugin | null {
 	const configAlias = getConfigAlias(settings);
+
+	console.log(configAlias)
+	
 	if (!configAlias) return null;
 
 	const plugin: VitePlugin = {
