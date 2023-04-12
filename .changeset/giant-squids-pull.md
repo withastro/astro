@@ -1,5 +1,5 @@
 ---
-'@astrojs/mdx': patch
+'@astrojs/mdx': minor
 '@astrojs/markdown-remark': patch
 ---
 
