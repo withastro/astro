@@ -145,10 +145,9 @@ jobs:
         run: pnpm run build
 
       - name: Test
-        run: pnpm run test:match "Aliases"
+        run: pnpm run test
 
   e2e:
-    if: false
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -189,7 +188,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [windows-latest]
+        OS: [ubuntu-latest, windows-latest]
         NODE_VERSION: [16]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}

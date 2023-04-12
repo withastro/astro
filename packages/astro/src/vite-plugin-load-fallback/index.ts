@@ -14,9 +14,6 @@ export default function loadFallbackPlugin({
 	fs,
 	root,
 }: LoadFallbackPluginParams): vite.Plugin[] | false {
-	// @ts-expect-error check default
-	console.log('test123', !fs, fs === nodeFs, fs.default === nodeFs);
-
 	// Only add this plugin if a custom fs implementation is provided.
 	// Also check for `fs.default` because `import * as fs from 'fs'` will
 	// export as so, which only it's `.default` would === `nodeFs`.
@@ -24,8 +21,6 @@ export default function loadFallbackPlugin({
 	if (!fs || fs === nodeFs || fs.default === nodeFs) {
 		return false;
 	}
-
-	console.log('test456', fs);
 
 	const tryLoadModule = async (id: string) => {
 		try {
@@ -50,7 +45,6 @@ export default function loadFallbackPlugin({
 			name: 'astro:load-fallback',
 			enforce: 'post',
 			async resolveId(id, parent) {
-				console.log('test789', id, fs);
 				// See if this can be loaded from our fs
 				if (parent) {
 					const candidateId = npath.posix.join(npath.posix.dirname(slashify(parent)), id);

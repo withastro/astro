@@ -102,7 +102,7 @@ export async function sync(
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,
-				message: AstroErrorData.GenerateContentTypesError.message(safeError.message + safeError.stack + safeError.toString()),
+				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
 			},
 			{ cause: e }
 		);
