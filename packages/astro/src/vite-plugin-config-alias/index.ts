@@ -73,6 +73,8 @@ export default function configAliasVitePlugin({
 			patchCreateResolver(config, plugin);
 		},
 		async resolveId(id, importer, options) {
+			if (isVirtualId(id)) return;
+
 			// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
 			// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
 			for (const alias of configAlias) {
@@ -131,4 +133,8 @@ function patchCreateResolver(config: ResolvedConfig, prePlugin: VitePlugin) {
 			return resolver.apply(_createResolver, args2);
 		};
 	};
+}
+
+function isVirtualId(id: string) {
+	return id.includes('\0') || id.startsWith('virtual:') || id.startsWith('astro:');
 }
