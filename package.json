@@ -31,8 +31,8 @@
     "organize-imports-cli": "^0.10.0"
   },
   "engines": {
-    "node": "^14.18.0 || >=16.12.0",
-    "pnpm": ">=7.9.5"
+    "node": ">=16.12.0",
+    "pnpm": ">=8.2.0"
   },
-  "packageManager": "pnpm@7.9.5"
+  "packageManager": "pnpm@8.2.0"
 }
