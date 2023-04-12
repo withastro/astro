@@ -16,7 +16,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	if (!baseUrl || !paths) return null;
 
 	// resolve the base url from the configuration file directory
-	const resolvedBaseUrl = normalizePath(path.resolve(path.dirname(tsConfigPath), baseUrl));
+	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), baseUrl);
 
 	const aliases: Alias[] = [];
 
@@ -36,7 +36,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 
 		for (const value of values) {
 			/** String used to replace a matched path. */
-			const replacement = [...path.posix.resolve(resolvedBaseUrl, value)]
+			const replacement = [...normalizePath(path.resolve(resolvedBaseUrl, value))]
 				.map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))
 				.join('');
 
@@ -49,7 +49,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	// - if `baseUrl` exists then all non-relative specifiers are resolved relative to it
 	aliases.push({
 		find: /^(?!\.*\/)(.+)$/,
-		replacement: `${[...resolvedBaseUrl]
+		replacement: `${[...normalizePath(resolvedBaseUrl)]
 			.map((segment) => (segment === '$' ? '$$' : segment))
 			.join('')}/$1`,
 	});
@@ -64,9 +64,6 @@ export default function configAliasVitePlugin({
 	settings: AstroSettings;
 }): VitePlugin | null {
 	const configAlias = getConfigAlias(settings);
-
-	console.log(configAlias)
-	
 	if (!configAlias) return null;
 
 	const plugin: VitePlugin = {
