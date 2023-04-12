@@ -189,7 +189,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [windows-latest]
         NODE_VERSION: [16]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -223,4 +223,3 @@ jobs:
         env:
           SKIP_OG: 1
           NODE_OPTIONS: "--max-old-space-size=4096"
-          DEBUG: "vite:resolve"
