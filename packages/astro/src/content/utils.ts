@@ -4,9 +4,10 @@ import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
-import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
+import { normalizePath, type ViteDevServer, type ErrorPayload as ViteErrorPayload } from 'vite';
 import { z } from 'zod';
 import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
@@ -171,7 +172,11 @@ export function getEntryType(
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) || isOnIgnoreList(base)) {
+	if (
+		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
+		isOnIgnoreList(base) ||
+		isImageAsset(ext)
+	) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
@@ -184,6 +189,13 @@ export function getEntryType(
 
 function isOnIgnoreList(fileName: string) {
 	return ['.DS_Store'].includes(fileName);
+}
+
+/**
+ * Return if a file extension is a valid image asset, so we can avoid outputting a warning for them.
+ */
+function isImageAsset(fileExt: string) {
+	return [...VALID_INPUT_FORMATS, 'svg'].includes(fileExt);
 }
 
 function hasUnderscoreBelowContentDirectoryPath(
