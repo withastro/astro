@@ -12,6 +12,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types';
 import babel from '@babel/core';
 import * as colors from 'kleur/colors';
 import path from 'path';
+import { CONTENT_FLAG, PROPAGATED_ASSET_FLAG } from '../content/index.js';
 import { error } from '../core/logger/core.js';
 import { removeQueryString } from '../core/path.js';
 import { detectImportSource } from './import-source.js';
@@ -104,6 +105,11 @@ interface AstroPluginJSXOptions {
 	logging: LogOptions;
 }
 
+// Format inspired by https://github.com/vitejs/vite/blob/main/packages/vite/src/node/constants.ts#L54
+const SPECIAL_QUERY_REGEX = new RegExp(
+	`[?&](?:worker|sharedworker|raw|url|${CONTENT_FLAG}|${PROPAGATED_ASSET_FLAG})\\b`
+);
+
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
 export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugin {
 	let viteConfig: ResolvedConfig;
@@ -133,6 +139,9 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 		},
 		async transform(code, id, opts) {
 			const ssr = Boolean(opts?.ssr);
+			if (SPECIAL_QUERY_REGEX.test(id)) {
+				return null;
+			}
 			id = removeQueryString(id);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
 				return null;
