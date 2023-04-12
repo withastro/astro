@@ -277,10 +277,17 @@ export function createReference({
 				const entry = await lazyImport();
 				return entry.data;
 			} catch (e) {
-				// Catch schema parse errors for referenced content
+				// Catch schema parse errors for referenced content.
 				if (e instanceof Error && (e as any).type === 'AstroError') {
-					// TODO: bubble AstroError without crashing the dev server somehow?
-					throw e;
+					// `isHoistedAstroError` will be handled where the schema is parsed.
+					// @see "./utils.ts" -> getEntryData()
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						params: {
+							isHoistedAstroError: true,
+							astroError: e,
+						},
+					});
 				} else {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,

@@ -123,28 +123,36 @@ export async function getEntryData(
 		}
 
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await schema.safeParseAsync(entry.unvalidatedData, {
-			errorMap,
+		let formattedError;
+		const parsed = await (schema as z.ZodSchema).safeParseAsync(entry.unvalidatedData, {
+			errorMap(error, ctx) {
+				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
+					formattedError = error.params?.astroError;
+				}
+				return errorMap(error, ctx);
+			},
 		});
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
-			const formattedError = new AstroError({
-				...AstroErrorData.InvalidContentEntryFrontmatterError,
-				message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
-					entry.collection,
-					entry.id,
-					parsed.error
-				),
-				location: {
-					file: entry._internal.filePath,
-					line: getFrontmatterErrorLine(
-						entry._internal.rawData,
-						String(parsed.error.errors[0].path[0])
+			if (!formattedError) {
+				formattedError = new AstroError({
+					...AstroErrorData.InvalidContentEntryFrontmatterError,
+					message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
+						entry.collection,
+						entry.id,
+						parsed.error
 					),
-					column: 0,
-				},
-			});
+					location: {
+						file: entry._internal.filePath,
+						line: getFrontmatterErrorLine(
+							entry._internal.rawData,
+							String(parsed.error.errors[0].path[0])
+						),
+						column: 0,
+					},
+				});
+			}
 			throw formattedError;
 		}
 	}
