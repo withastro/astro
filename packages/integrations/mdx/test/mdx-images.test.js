@@ -26,9 +26,15 @@ describe('MDX Page', () => {
 			const { document } = parseHTML(html);
 
 			const imgs = document.getElementsByTagName('img');
-			expect(imgs.length).to.equal(2);
+			expect(imgs.length).to.equal(4);
+			// Image using a relative path
 			expect(imgs.item(0).src.startsWith('/_image')).to.be.true;
+			// Image using an aliased path
 			expect(imgs.item(1).src.startsWith('/_image')).to.be.true;
+			// Image with title
+			expect(imgs.item(2).title).to.equal('Houston title');
+			// Image with spaces in the path
+			expect(imgs.item(3).src.startsWith('/_image')).to.be.true;
 		});
 	});
 });
