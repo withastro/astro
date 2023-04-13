@@ -4086,16 +4086,19 @@ importers:
         version: 4.1.2
 
   packages/integrations/mdx/test/fixtures/mdx-images:
-    specifiers:
-      '@astrojs/mdx': workspace:*
-      astro: workspace:*
-      react: ^18.2.0
-      react-dom: ^18.2.0
     dependencies:
-      '@astrojs/mdx': link:../../..
-      astro: link:../../../../../astro
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
 
   packages/integrations/mdx/test/fixtures/mdx-infinite-loop:
     dependencies:
