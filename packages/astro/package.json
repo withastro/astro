@@ -158,7 +158,7 @@
     "vite": "^4.2.1",
     "vitefu": "^0.2.4",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.17.3"
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.29.2",
