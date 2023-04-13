@@ -35,7 +35,7 @@ export async function* renderSlot(
 		yield* iterator;
 	}
 
-	if (fallback) {
+	if (fallback && !slotted) {
 		yield* renderSlot(result, fallback);
 	}
 }

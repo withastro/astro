@@ -175,6 +175,8 @@ You can use Vercel middleware to intercept a request and redirect before sending
     ```
 1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
+:::caution[Trying to rewrite?] Currently rewriting a request with middleware only works for static files. :::
+
 ## Troubleshooting
 
 **A few known complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.** By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`.

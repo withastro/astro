@@ -21,9 +21,9 @@ import {
 	type ContentConfig,
 } from './utils.js';
 
-function isContentFlagImport(viteId: string, contentEntryExts: string[]) {
-	const { searchParams, pathname } = new URL(viteId, 'file://');
-	return searchParams.has(CONTENT_FLAG) && contentEntryExts.some((ext) => pathname.endsWith(ext));
+function isContentFlagImport(viteId: string) {
+	const flags = new URLSearchParams(viteId.split('?')[1]);
+	return flags.has(CONTENT_FLAG);
 }
 
 function getContentRendererByViteId(
@@ -65,26 +65,26 @@ export function astroContentImportPlugin({
 	const plugins: Plugin[] = [
 		{
 			name: 'astro:content-imports',
-			async load(viteId) {
-				if (isContentFlagImport(viteId, contentEntryExts)) {
-					const { fileId } = getFileInfo(viteId, settings.config);
+			async transform(_, viteId) {
+				if (isContentFlagImport(viteId)) {
+					const fileId = viteId.split('?')[0];
 					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
 						fileId,
 						pluginContext: this,
 					});
 
 					const code = escapeViteEnvReferences(`
-export const id = ${JSON.stringify(id)};
-export const collection = ${JSON.stringify(collection)};
-export const slug = ${JSON.stringify(slug)};
-export const body = ${JSON.stringify(body)};
-export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
-export const _internal = {
-	filePath: ${JSON.stringify(_internal.filePath)},
-	rawData: ${JSON.stringify(_internal.rawData)},
-};
-`);
-					return { code };
+						export const id = ${JSON.stringify(id)};
+						export const collection = ${JSON.stringify(collection)};
+						export const slug = ${JSON.stringify(slug)};
+						export const body = ${JSON.stringify(body)};
+						export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+						export const _internal = {
+							filePath: ${JSON.stringify(_internal.filePath)},
+							rawData: ${JSON.stringify(_internal.rawData)},
+						};`);
+
+					return { code, map: { mappings: '' } };
 				}
 			},
 			configureServer(viteServer) {
@@ -96,7 +96,7 @@ export const _internal = {
 						// Content modules depend on config, so we need to invalidate them.
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 							if (
-								isContentFlagImport(modUrl, contentEntryExts) ||
+								isContentFlagImport(modUrl) ||
 								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
 								const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
@@ -107,13 +107,6 @@ export const _internal = {
 						}
 					}
 				});
-			},
-			async transform(code, id) {
-				if (isContentFlagImport(id, contentEntryExts)) {
-					// Escape before Rollup internal transform.
-					// Base on MUCH trial-and-error, inspired by MDX integration 2-step transform.
-					return { code: escapeViteEnvReferences(code) };
-				}
 			},
 		},
 	];
