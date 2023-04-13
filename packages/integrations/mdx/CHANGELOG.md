@@ -1,5 +1,16 @@
 # @astrojs/mdx
 
+## 0.19.0
+
+### Minor Changes
+
+- [#6824](https://github.com/withastro/astro/pull/6824) [`2511d58d5`](https://github.com/withastro/astro/commit/2511d58d586af080a78e5ef8a63020b3e17770db) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add support for using optimized and relative images in MDX files with `experimental.assets`
+
+### Patch Changes
+
+- Updated dependencies [[`2511d58d5`](https://github.com/withastro/astro/commit/2511d58d586af080a78e5ef8a63020b3e17770db)]:
+  - @astrojs/markdown-remark@2.1.4
+
 ## 0.18.4
 
 ### Patch Changes
