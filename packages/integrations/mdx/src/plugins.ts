@@ -1,4 +1,4 @@
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds, remarkCollectImages } from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
@@ -16,6 +16,7 @@ import type { VFile } from 'vfile';
 import type { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
+import { remarkImageToComponent } from './remark-images-to-component.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
@@ -99,7 +100,7 @@ export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [];
+	let remarkPlugins: PluggableList = [...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : [])];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {

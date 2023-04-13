@@ -2,9 +2,8 @@ import type { Image } from 'mdast';
 import { visit } from 'unist-util-visit';
 import type { MarkdownVFile } from './types';
 
-export default function toRemarkCollectImages() {
-	return () =>
-		async function (tree: any, vfile: MarkdownVFile) {
+export function remarkCollectImages() {
+	return function (tree: any, vfile: MarkdownVFile) {
 			if (typeof vfile?.path !== 'string') return;
 
 			const imagePaths = new Set<string>();
