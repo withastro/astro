@@ -35,6 +35,12 @@ describe('set:html', () => {
 			expect($('#fetched-html')).to.have.a.lengthOf(1);
 			expect($('#fetched-html').text()).to.equal('works');
 		});
+		it('test Fragment when Fragment is as a slot', async () => {
+			let res = await fixture.fetch('/children');
+			expect(res.status).to.equal(200);
+			let html = await res.text();
+			expect(html).include('Test');
+		})
 	});
 
 	describe('Build', () => {
@@ -77,5 +83,10 @@ describe('set:html', () => {
 			const $ = cheerio.load(html);
 			expect($('#readable-inner')).to.have.a.lengthOf(1);
 		});
+
+		it('test Fragment when Fragment is as a slot', async () => {
+			let res = await fixture.readFile('/children/index.html');
+			expect(res).include('Test');
+		})
 	});
 });
