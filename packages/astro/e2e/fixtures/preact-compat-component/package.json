@@ -1,5 +1,5 @@
 {
-  "name": "@e2e/preact-component",
+  "name": "@e2e/preact-compat-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

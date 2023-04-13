@@ -1,5 +1,5 @@
 {
-  "name": "@test/static-build",
+  "name": "@test/static-build-ssr",
   "version": "0.0.0",
   "dependencies": {
     "@astrojs/node": "workspace:*",
