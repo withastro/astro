@@ -28,8 +28,12 @@ describe('Client only components', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 
-		const href = $('link[rel=stylesheet]').attr('href');
-		const css = await fixture.readFile(href);
+		const stylesheets = await Promise.all(
+			$('link[rel=stylesheet]').map((_, el) => {
+				return fixture.readFile(el.attribs.href);
+			})
+		);
+		const css = stylesheets.join('');
 
 		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
 		expect(css).to.match(/Courier New/, 'Global styles are added');
@@ -87,8 +91,12 @@ describe('Client only components subpath', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 
-		const href = $('link[rel=stylesheet]').attr('href');
-		const css = await fixture.readFile(href.replace(/\/blog/, ''));
+		const stylesheets = await Promise.all(
+			$('link[rel=stylesheet]').map((_, el) => {
+				return fixture.readFile(el.attribs.href.replace(/\/blog/, ''));
+			})
+		);
+		const css = stylesheets.join('');
 
 		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
 		expect(css).to.match(/Courier New/, 'Global styles are added');

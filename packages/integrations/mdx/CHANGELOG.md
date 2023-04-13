@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.18.4
+
+### Patch Changes
+
+- [#6817](https://github.com/withastro/astro/pull/6817) [`f882bc163`](https://github.com/withastro/astro/commit/f882bc1636d5ce1c3b8faae47df36b4dc758045a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix sourcemap warnings when using Content Collections and MDX with the `vite.build.sourcemap` option
+
 ## 0.18.3
 
 ### Patch Changes

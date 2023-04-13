@@ -106,6 +106,25 @@ describe('CSS ordering - import order', () => {
 			expect(idx1).to.be.greaterThan(idx2);
 			expect(idx2).to.be.greaterThan(idx3);
 		});
+
+		it('correctly chunks css import from framework components', async () => {
+			let html = await fixture.readFile('/index.html');
+
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
+			const [, { css }] = content;
+			expect(css).to.not.include(
+				'.client-1{background:red!important}',
+				'CSS from Client2.jsx leaked into index.astro when chunking'
+			);
+		});
+
+		it('dedupe css between astro and framework components', async () => {
+			let html = await fixture.readFile('/dedupe/index.html');
+
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
+			const css = content.map((c) => c.css).join('');
+			expect(css.match(/\.astro-jsx/)?.length).to.eq(1, '.astro-jsx class is duplicated');
+		});
 	});
 
 	describe('Dynamic import', () => {
