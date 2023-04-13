@@ -27,6 +27,7 @@ const fixtures = [
 
 const contentFileExts = ['.md', '.mdx'];
 
+// TODO: Remove `getEntryType` last parameter once `experimental.assets` is no longer experimental
 describe('Content Collections - getEntryType', () => {
 	fixtures.forEach(({ title, contentPaths }) => {
 		describe(title, () => {

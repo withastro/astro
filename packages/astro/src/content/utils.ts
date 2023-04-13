@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import { normalizePath, type ViteDevServer, type ErrorPayload as ViteErrorPayload } from 'vite';
 import { z } from 'zod';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings, ImageInputFormat } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
@@ -197,7 +197,7 @@ function isOnIgnoreList(fileName: string) {
  * Return if a file extension is a valid image asset, so we can avoid outputting a warning for them.
  */
 function isImageAsset(fileExt: string) {
-	return [...VALID_INPUT_FORMATS, 'svg'].includes(fileExt.slice(1));
+	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
 function hasUnderscoreBelowContentDirectoryPath(

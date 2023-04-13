@@ -4,7 +4,7 @@ import type { ImageService } from './services/service.js';
 
 export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
-export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number] | 'svg';
+export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number];
 export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 
 declare global {
