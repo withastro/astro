@@ -18,7 +18,6 @@ describe('srcDir', () => {
 
 		const relPath = $('link').attr('href');
 		const css = await fixture.readFile(relPath);
-		console.log(css);
 		expect(css).to.match(/body{color:green}/);
 	});
 });

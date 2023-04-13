@@ -68,6 +68,12 @@ export const defaultLogging = {
 	level: 'error',
 };
 
+/** @type {import('../src/core/logger/core').LogOptions} */
+export const silentLogging = {
+	dest: nodeLogDestination,
+	level: 'silent',
+};
+
 /**
  * Load Astro fixture
  * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
