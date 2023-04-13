@@ -4,7 +4,7 @@ import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
-import { normalizePath, type ViteDevServer, type ErrorPayload as ViteErrorPayload } from 'vite';
+import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
 import { z } from 'zod';
 import type { AstroConfig, AstroSettings, ImageInputFormat } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';

@@ -10,13 +10,13 @@ import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import {
-	NoCollectionError,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
 	getEntryType,
 	loadContentConfig,
+	NoCollectionError,
 	parseFrontmatter,
 	type ContentConfig,
 	type ContentObservable,

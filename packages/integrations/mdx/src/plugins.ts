@@ -100,7 +100,9 @@ export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : [])];
+	let remarkPlugins: PluggableList = [
+		...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : []),
+	];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {
