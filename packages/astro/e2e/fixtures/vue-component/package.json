@@ -1,5 +1,5 @@
 {
-  "name": "@test/vue-component",
+  "name": "@e2e/vue-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
