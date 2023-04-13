@@ -112,10 +112,12 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest]
         NODE_VERSION: [16, 18]
         include:
           - os: macos-latest
+            NODE_VERSION: 16
+          - os: windows-latest
             NODE_VERSION: 16
       fail-fast: false
     env:
