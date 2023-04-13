@@ -1,6 +1,6 @@
 import path from 'path';
+import { normalizePath, type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
 import type { AstroSettings } from '../@types/astro';
-import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 
 type Alias = {
 	find: RegExp;
