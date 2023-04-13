@@ -92,7 +92,7 @@ export default function configAliasVitePlugin({
 
 /**
  * Vite's `createResolver` is used to resolve various things, including CSS `@import`.
- * However, there's not way to extend this resolver, besides patching it. This function
+ * However, there's no way to extend this resolver, besides patching it. This function
  * patches and adds a Vite plugin whose `resolveId` will be used to resolve before the
  * internal plugins in `createResolver`.
  *
