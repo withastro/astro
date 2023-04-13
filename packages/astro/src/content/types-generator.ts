@@ -23,6 +23,7 @@ import {
 	getDataEntryExts,
 	getDataEntryId,
 	getCollectionDirByUrl,
+	reloadContentConfigObserver,
 } from './utils.js';
 import { rootRelativePath } from '../core/util.js';
 
@@ -148,22 +149,7 @@ export async function createCollectionTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			contentConfigObserver.set({ status: 'loading' });
-			try {
-				const config = await loadContentConfig({ fs, settings, viteServer });
-				if (config) {
-					contentConfigObserver.set({ status: 'loaded', config });
-				} else {
-					contentConfigObserver.set({ status: 'does-not-exist' });
-				}
-			} catch (e) {
-				contentConfigObserver.set({
-					status: 'error',
-					error:
-						e instanceof Error ? e : new AstroError(AstroErrorData.UnknownContentCollectionError),
-				});
-			}
-
+			await reloadContentConfigObserver({ fs, settings, viteServer });
 			return { shouldGenerateTypes: true };
 		}
 		if (fileType === 'unsupported') {

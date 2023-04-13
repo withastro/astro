@@ -398,6 +398,31 @@ export async function loadContentConfig({
 	}
 }
 
+export async function reloadContentConfigObserver({
+	observer = globalContentConfigObserver,
+	...loadContentConfigOpts
+}: {
+	fs: typeof fsMod;
+	settings: AstroSettings;
+	viteServer: ViteDevServer;
+	observer?: ContentObservable;
+}) {
+	observer.set({ status: 'loading' });
+	try {
+		const config = await loadContentConfig(loadContentConfigOpts);
+		if (config) {
+			observer.set({ status: 'loaded', config });
+		} else {
+			observer.set({ status: 'does-not-exist' });
+		}
+	} catch (e) {
+		observer.set({
+			status: 'error',
+			error: e instanceof Error ? e : new AstroError(AstroErrorData.UnknownContentCollectionError),
+		});
+	}
+}
+
 export function getCollectionDirByUrl(
 	url: URL,
 	contentPaths: Pick<ContentPaths, 'contentDir' | 'dataDir'>

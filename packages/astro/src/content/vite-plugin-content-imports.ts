@@ -30,6 +30,8 @@ import {
 	hasContentFlag,
 	type ContentPaths,
 	getDataEntryId,
+	getCollectionDirByUrl,
+	reloadContentConfigObserver,
 } from './utils.js';
 
 function isContentFlagImport(viteId: string) {
@@ -55,6 +57,13 @@ function getContentRendererByViteId(
 }
 
 const CHOKIDAR_MODIFIED_EVENTS = ['add', 'unlink', 'change'];
+/**
+ * If collection entries change, import modules need to be invalidated.
+ * Reasons why:
+ * - 'config' - content imports depend on the config file for parsing schemas
+ * - 'data' | 'content' - the config may depend on collection entries via `reference()`
+ */
+const COLLECTION_TYPES_TO_INVALIDATE_ON = ['data', 'content', 'config'];
 
 export function astroContentImportPlugin({
 	fs,
@@ -126,17 +135,25 @@ export const _internal = {
 			},
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
-					if (
-						CHOKIDAR_MODIFIED_EVENTS.includes(event) &&
-						getEntryType(
+					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
+						const entryType = getEntryType(
 							entry,
 							contentPaths,
 							contentEntryExts,
 							dataEntryExts,
+							getCollectionDirByUrl(pathToFileURL(entry), contentPaths),
 							settings.config.experimental.assets
-						) === 'config'
-					) {
-						// Content modules depend on config, so we need to invalidate them.
+						);
+						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
+
+						// The content config could depend on collection entries via `reference()`.
+						// Reload the config in case of changes.
+						if (entryType === 'content' || entryType === 'data') {
+							await reloadContentConfigObserver({ fs, settings, viteServer });
+						}
+
+						// Invalidate all content imports and `render()` modules.
+						// TODO: trace `reference()` calls for fine-grained invalidation.
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
 							if (
 								hasContentFlag(modUrl, CONTENT_FLAG) ||
