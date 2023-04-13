@@ -64,8 +64,13 @@ export async function callMiddleware<R>(
 			await resolveResolve(responseResult);
 			return middlewarePromise;
 		} else {
-			// Middleware did not call resolve()
-			return await responseFunction();
+			if (typeof value === 'undefined') {
+				// Middleware didn't return anything, so we call the function that should return the response
+				return responseFunction();
+			} else {
+				// Middleware did not call resolve and returned a value
+				return value as R;
+			}
 		}
 	});
 }

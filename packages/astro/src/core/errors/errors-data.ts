@@ -632,11 +632,11 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * TODO [PLT-101] documentation
 	 */
-	LocalsNotAvailable: {
-		title: '`Astro.locals` is not available in current adapter.',
+	LocalsNotAnObject: {
+		title: 'Value assigned to `locals` is not accepted.',
 		code: 3030,
-		message: (adapterName: string) =>
-			`\`Astro.locals\` is not available in the "${adapterName}" adapter. File an issue with the adapter to add support.`,
+		message: `The \`locals\` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.`,
+		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
 
 	/**

@@ -46,7 +46,7 @@ export function createAPIContext({
 	props: Record<string, any>;
 	adapterName?: string;
 }): APIContext {
-	return {
+	const context = {
 		cookies: new AstroCookies(request),
 		request,
 		params,
@@ -62,7 +62,6 @@ export function createAPIContext({
 			});
 		},
 		url: new URL(request.url),
-		// @ts-expect-error
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
@@ -77,8 +76,22 @@ export function createAPIContext({
 
 			return Reflect.get(request, clientAddressSymbol);
 		},
-		locals: Reflect.get(request, clientLocalsSymbol),
-	};
+	} as APIContext;
+
+	// We define a custom property, so we can correctly the value passed to locals
+	Object.defineProperty(context, 'locals', {
+		get() {
+			return Reflect.get(request, clientLocalsSymbol);
+		},
+		set(val) {
+			if (typeof val !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			} else {
+				Reflect.set(request, clientLocalsSymbol, val);
+			}
+		},
+	});
+	return context;
 }
 
 export async function call(
@@ -121,7 +134,7 @@ export async function call(
 		const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
 		response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
 			const result = await renderEndpoint(mod, context, env.ssr);
-			if (!isValueSerializable(context.locals)) {
+			if (env.mode === 'development' && !isValueSerializable(context.locals)) {
 				throw new AstroError({
 					...AstroErrorData.LocalsNotSerializable,
 					message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
