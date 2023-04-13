@@ -2079,10 +2079,10 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-mode-envs:
-    specifiers:
-      astro: workspace:*
     dependencies:
-      astro: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/astro-not-response:
     dependencies:
@@ -2457,12 +2457,13 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/custom-assets-name:
-    specifiers:
-      '@astrojs/node': workspace:*
-      astro: workspace:*
     dependencies:
-      '@astrojs/node': link:../../../../integrations/node
-      astro: link:../../..
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/custom-elements:
     dependencies:
