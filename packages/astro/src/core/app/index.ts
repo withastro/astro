@@ -5,6 +5,7 @@ import type {
 	EndpointOutput,
 	ManifestData,
 	MiddlewareHandler,
+	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
@@ -239,7 +240,7 @@ export class App {
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
-			const onRequest = this.#manifest.middleware.onRequest as MiddlewareHandler<Response>;
+			const onRequest = this.#manifest.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
 				return renderPage(mod, renderContext, this.#env, apiContext);
 			});

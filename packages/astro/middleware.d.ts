@@ -1,3 +1,3 @@
-type MiddlewareHandler = import('./dist/@types/astro.js').MiddlewareHandler;
+type MiddlewareResponseHandler = import('./dist/@types/astro.js').MiddlewareResponseHandler;
 
-type Sequence = (...handlers: MiddlewareHandler[]) => MiddlewareHandler;
+type Sequence = (...handlers: MiddlewareResponseHandler[]) => MiddlewareResponseHandler;

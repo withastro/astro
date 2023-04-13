@@ -119,7 +119,7 @@ export async function renderPage(
 		if (!isValueSerializable(apiContext.locals)) {
 			throw new AstroError({
 				...AstroErrorData.LocalsNotSerializable,
-				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname, apiContext.locals),
+				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
 			});
 		}
 		locals = apiContext.locals;

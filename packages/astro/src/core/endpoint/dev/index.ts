@@ -7,6 +7,9 @@ import type { LogOptions } from '../../logger/core';
 import type { SSROptions } from '../../render/dev';
 import { createRenderContext } from '../../render/index.js';
 import { call as callEndpoint } from '../index.js';
+import { renderEndpoint } from '../../../runtime/server';
+import { isValueSerializable } from '../../render/core';
+import { AstroError, AstroErrorData } from '../../errors';
 
 export async function call(options: SSROptions, logging: LogOptions) {
 	const {

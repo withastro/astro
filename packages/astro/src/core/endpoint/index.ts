@@ -4,6 +4,7 @@ import type {
 	AstroMiddlewareInstance,
 	EndpointHandler,
 	EndpointOutput,
+	MiddlewareEndpointHandler,
 	MiddlewareHandler,
 	Params,
 } from '../../@types/astro';
@@ -14,7 +15,7 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
+import { getParamsAndProps, GetParamsAndPropsError, isValueSerializable } from '../render/core.js';
 import { callMiddleware } from '../middleware/index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -117,9 +118,16 @@ export async function call(
 
 	let response;
 	if (middleware && middleware.onRequest) {
-		const onRequest = middleware.onRequest as MiddlewareHandler<Response | EndpointOutput>;
-		response = await callMiddleware<Response | EndpointOutput>(onRequest, context, () => {
-			return renderEndpoint(mod, context, env.ssr);
+		const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
+		response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
+			const result = await renderEndpoint(mod, context, env.ssr);
+			if (!isValueSerializable(context.locals)) {
+				throw new AstroError({
+					...AstroErrorData.LocalsNotSerializable,
+					message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+				});
+			}
+			return result;
 		});
 	} else {
 		response = await renderEndpoint(mod, context, env.ssr);

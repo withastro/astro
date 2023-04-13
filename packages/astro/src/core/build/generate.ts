@@ -15,6 +15,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 	EndpointOutput,
+	MiddlewareResponseHandler,
 } from '../../@types/astro';
 import {
 	generateImage as generateImageInternal,
@@ -496,7 +497,7 @@ async function generatePath(
 			});
 			// If the user doesn't configure a middleware, the rollup plugin emits a no-op function,
 			// so it's safe to use `callMiddleware` regardless
-			let onRequest = middleware.onRequest as MiddlewareHandler<Response>;
+			const onRequest = middleware.onRequest as MiddlewareResponseHandler;
 			response = await callMiddleware<Response>(onRequest, context, () => {
 				return renderPage(mod, ctx, env, context);
 			});

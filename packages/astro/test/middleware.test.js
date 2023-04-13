@@ -44,5 +44,19 @@ describe('Middleware API', () => {
 			let $ = cheerio.load(html);
 			expect($('p').html()).to.equal('second');
 		});
+
+		it('should successfully redirect to another page', async () => {
+			let html = await fixture.fetch('/redirect').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('p').html()).to.equal('bar');
+			expect($('span').html()).to.equal('Index');
+		});
+
+		it('should successfully create a new response', async () => {
+			let html = await fixture.fetch('/rewrite').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('p').html()).to.be.null;
+			expect($('span').html()).to.equal('New content!!');
+		});
 	});
 });

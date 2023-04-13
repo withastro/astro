@@ -3,7 +3,7 @@ import type {
 	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
-	MiddlewareHandler,
+	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
@@ -220,7 +220,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 				adapterName: options.env.adapterName,
 			});
 
-			const onRequest = options.middleware.onRequest as MiddlewareHandler<Response>;
+			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
 				return coreRenderPage(mod, ctx, options.env, apiContext);
 			});

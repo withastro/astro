@@ -1,4 +1,4 @@
-import type { APIContext, MiddlewareHandler, MiddlewareResolve } from '../../@types/astro';
+import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro';
 
 /**
  * Utility function that is in charge of calling the middleware
@@ -47,7 +47,7 @@ export async function callMiddleware<R>(
 	let resolveCalled = new Promise((resolve) => {
 		resolveCalledResolve = resolve;
 	});
-	const resolve: MiddlewareResolve<R> = () => {
+	const resolve: MiddlewareNext<R> = () => {
 		const response = responseFunction();
 		resolveCalledResolve('resolveCalled');
 		return response;

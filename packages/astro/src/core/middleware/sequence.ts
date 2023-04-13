@@ -9,7 +9,7 @@ export function sequence<R>(...handlers: MiddlewareHandler<R>[]): MiddlewareHand
 	const length = handlers.length;
 	if (!length) {
 		const handler: MiddlewareHandler<R> = (context, resolve) => {
-			return resolve(context);
+			return resolve();
 		};
 		return handler;
 	}
@@ -20,8 +20,12 @@ export function sequence<R>(...handlers: MiddlewareHandler<R>[]): MiddlewareHand
 		function applyHandle(i: number, handleContext: APIContext): Promise<R> {
 			const handle = handlers[i];
 
-			return handle(handleContext, (nextContext) => {
-				return i < length - 1 ? applyHandle(i + 1, nextContext) : resolve(nextContext);
+			return handle(handleContext, () => {
+				if (i < length - 1) {
+					return applyHandle(i + 1, handleContext);
+				} else {
+					return resolve();
+				}
 			});
 		}
 	};

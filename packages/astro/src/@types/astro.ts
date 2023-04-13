@@ -1373,7 +1373,6 @@ export interface Page<T = any> {
 export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | undefined>;
-export type Locals = Record<string, string | undefined>;
 
 export interface AstroAdapter {
 	name: string;
@@ -1386,7 +1385,10 @@ export interface AstroAdapter {
 type Body = string;
 
 // Shared types between `Astro` global and API context object
-interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
+interface AstroSharedContext<
+	Props extends Record<string, any> = Record<string, any>,
+	Locals extends Record<string, any> = Record<string, any>
+> {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
 	 */
@@ -1422,8 +1424,10 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	locals: Locals;
 }
 
-export interface APIContext<Props extends Record<string, any> = Record<string, any>>
-	extends AstroSharedContext<Props> {
+export interface APIContext<
+	Props extends Record<string, any> = Record<string, any>,
+	Locals extends Record<string, any> = Record<string, any>
+> extends AstroSharedContext<Props, Locals> {
 	site: URL | undefined;
 	generator: string;
 	/**
@@ -1453,7 +1457,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextparams)
+	 * [context reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
 	 */
 	params: AstroSharedContext['params'];
 	/**
@@ -1478,7 +1482,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
-	props: AstroSharedContext<Props>['props'];
+	props: AstroSharedContext<Props, Locals>['props'];
 	/**
 	 * Redirect to another page. Only available in SSR builds.
 	 *
@@ -1497,10 +1501,11 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	/**
 	 * TODO documentation
 	 */
-	locals: AstroSharedContext['locals'];
+	locals: AstroSharedContext<Props, Locals>['locals'];
 }
 
 export type Props = Record<string, unknown>;
+export type Locals = Record<string, unknown>;
 
 export interface EndpointOutput {
 	body: Body;
@@ -1586,11 +1591,12 @@ export interface AstroIntegration {
 	};
 }
 
-export type MiddlewareResolve<R> = (context: APIContext) => Promise<R>;
-export type MiddlewareHandler<R> = (
-	context: Readonly<APIContext>,
-	response: MiddlewareResolve<R>
-) => Promise<R>;
+export type MiddlewareNext<R> = () => Promise<R>;
+export type MiddlewareHandler<R> = (context: APIContext, next: MiddlewareNext<R>) => Promise<R>;
+
+export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
+export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
+export type MiddlewareNextResponse = MiddlewareNext<Response>;
 
 // NOTE: when updating this file with other functions,
 // remember to update `plugin-page.ts` too, to add that function as a no-op function.
