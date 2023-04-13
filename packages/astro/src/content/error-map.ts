@@ -23,7 +23,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 				} else {
 					typeOrLiteralErrByPath.set(flattenedErrorPath, {
 						code: unionError.code,
-						received: unionError.received,
+						received: unionError.message,
 						expected: [unionError.expected],
 					});
 				}
@@ -58,7 +58,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 				baseErrorPath,
 				getTypeOrLiteralMsg({
 					code: baseError.code,
-					received: baseError.received,
+					received: baseError.message,
 					expected: [baseError.expected],
 				})
 			),
