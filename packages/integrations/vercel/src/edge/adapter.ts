@@ -4,7 +4,7 @@ import esbuild from 'esbuild';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image.js';
+import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image-service.js';
 import {
 	copyFilesToFunction,
 	getFilesFromFolder,
@@ -56,6 +56,10 @@ export default function vercelEdge({
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+					},
+					image: {
+						service: '@astrojs/vercel/image-service',
+						serviceConfig: images ?? {},
 					},
 				});
 			},
