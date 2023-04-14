@@ -146,7 +146,9 @@ export function getEntryInfo({
 		return new NoCollectionError();
 
 	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '').replace('.mdoc', '');
+	const rawIdWithoutFileExt = rawId
+		.replace(new RegExp(path.extname(rawId) + '$'), '')
+		.replace('.mdoc', '');
 	const rawSlugSegments = rawIdWithoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments

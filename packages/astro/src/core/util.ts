@@ -21,7 +21,8 @@ export function isURL(value: unknown): value is URL {
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
 	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`) && !fileId.includes(`.mdoc.md`)) return true;
+		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`) && !fileId.includes(`.mdoc.md`))
+			return true;
 	}
 	return false;
 }

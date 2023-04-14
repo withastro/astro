@@ -6,7 +6,6 @@ This is a plain `.md` file.
 
 Testing that regular markdown + remark/rehype plugins still works.
 
-
 ## a heading
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ullamcorper eleifend est, eu posuere lorem pharetra sed. Cras ullamcorper laoreet tellus, vel tincidunt mi. Phasellus nisi dolor, eleifend id euismod ac, sagittis ac massa. Suspendisse vulputate, enim sit amet luctus sagittis, est metus maximus nunc, et auctor nibh magna eu odio. Morbi sapien nibh, ullamcorper eu venenatis vel, ornare ut felis. Morbi sodales gravida cursus. Sed ut auctor turpis. Donec feugiat, massa vitae pharetra commodo, tortor felis dictum ante, eu ultricies neque ex in lorem. Quisque ac mauris rhoncus, feugiat turpis vitae, vehicula sapien. Morbi id maximus risus, id congue arcu. Nunc egestas purus sed mauris vulputate vehicula.
@@ -20,7 +19,6 @@ In hac habitasse platea dictumst. Vivamus consectetur dui nec nibh fermentum, in
 Etiam cursus sem et ante rutrum efficitur. Pellentesque dui ipsum, viverra quis ultrices non, auctor in ligula. Nunc ut augue pharetra, sagittis leo ut, semper odio. Praesent vehicula vulputate erat in scelerisque. Integer eget commodo libero, in venenatis neque. Donec vitae arcu sit amet ligula aliquet ornare nec sit amet elit. Proin tincidunt vulputate porttitor. Pellentesque feugiat molestie eros, eget mattis purus venenatis ultrices. Donec velit mi, tincidunt egestas pharetra congue, convallis sed nunc. Pellentesque nec mollis nulla. In molestie vel orci id aliquet. Cras volutpat aliquam lacinia.
 
 ## another heading
-
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ullamcorper eleifend est, eu posuere lorem pharetra sed. Cras ullamcorper laoreet tellus, vel tincidunt mi. Phasellus nisi dolor, eleifend id euismod ac, sagittis ac massa. Suspendisse vulputate, enim sit amet luctus sagittis, est metus maximus nunc, et auctor nibh magna eu odio. Morbi sapien nibh, ullamcorper eu venenatis vel, ornare ut felis. Morbi sodales gravida cursus. Sed ut auctor turpis. Donec feugiat, massa vitae pharetra commodo, tortor felis dictum ante, eu ultricies neque ex in lorem. Quisque ac mauris rhoncus, feugiat turpis vitae, vehicula sapien. Morbi id maximus risus, id congue arcu. Nunc egestas purus sed mauris vulputate vehicula.
 

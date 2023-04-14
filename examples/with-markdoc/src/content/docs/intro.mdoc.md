@@ -5,18 +5,25 @@ title: Welcome to Markdoc 👋
 This simple starter showcases Markdoc with Content Collections. All Markdoc features are supported, including this nifty built-in `{% table %}` tag:
 
 {% table %}
-* Feature
-* Supported
+
+- Feature
+- Supported
+
 ---
-* `.mdoc` in Content Collections
-* ✅
+
+- `.mdoc` in Content Collections
+- ✅
+
 ---
-* Markdoc transform configuration
-* ✅
+
+- Markdoc transform configuration
+- ✅
+
 ---
-* Astro components
-* ✅
-{% /table %}
+
+- Astro components
+- ✅
+  {% /table %}
 
 {% aside title="Code Challenge" type="tip" %}
 
