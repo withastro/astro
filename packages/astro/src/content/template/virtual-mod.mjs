@@ -51,11 +51,7 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 
 let referenceKeyIncr = 0;
 
-/**
- * @param {any} partialConfig
- * @param {'content' | 'data'} type
- */
-function baseDefineCollection(partialConfig, type) {
+function baseDefineCollection({ type = 'content', ...partialConfig }) {
 	// We don't know the collection name since this is defined on the `collections` export.
 	// Generate a unique key for the collection that we can use for lookups.
 	const referenceKey = String(referenceKeyIncr++);
@@ -74,11 +70,11 @@ function baseDefineCollection(partialConfig, type) {
 }
 
 export function defineCollection(config) {
-	return baseDefineCollection(config, 'content');
+	return baseDefineCollection(config);
 }
 
 export function defineDataCollection(config) {
-	return baseDefineCollection(config, 'data');
+	return baseDefineCollection({ type: 'data', ...config });
 }
 
 // TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04

@@ -65,24 +65,29 @@ declare module 'astro:content' {
 	export type SchemaContext = { image: ImageFunction };
 
 	type ContentCollectionConfig<S extends BaseSchema> = {
-		type: 'content';
+		type?: 'content';
 		schema?: S | ((context: SchemaContext) => S);
-		reference(): import('astro/zod').ZodEffects<S>;
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {
 		type: 'data';
 		schema?: S | ((context: SchemaContext) => S);
+	};
+
+	type GeneratedCollectionConfig<S extends BaseSchema> = {
 		reference(): import('astro/zod').ZodEffects<S>;
 	};
 
 	export function defineCollection<S extends BaseSchema>(
-		input: Omit<ContentCollectionConfig<S>, 'type' | 'reference'>
-	): ContentCollectionConfig<S>;
+		input: ContentCollectionConfig<S>
+	): ContentCollectionConfig<S> & GeneratedCollectionConfig<S>;
+	export function defineCollection<S extends BaseSchema>(
+		input: DataCollectionConfig<S>
+	): DataCollectionConfig<S> & GeneratedCollectionConfig<S>;
 
 	export function defineDataCollection<S extends BaseSchema>(
-		input: Omit<DataCollectionConfig<S>, 'type' | 'reference'>
-	): DataCollectionConfig<S>;
+		input: Omit<DataCollectionConfig<S>, 'type'>
+	): DataCollectionConfig<S> & GeneratedCollectionConfig<S>;
 
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
 	type ValidEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<ContentEntryMap[C]>['slug'];
