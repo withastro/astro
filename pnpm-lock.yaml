@@ -420,12 +420,30 @@ importers:
       '@astrojs/markdoc':
         specifier: ^0.1.1
         version: link:../../packages/integrations/markdoc
+      '@astrojs/markdown-remark':
+        specifier: ^2.1.3
+        version: link:../../packages/markdown/remark
       astro:
         specifier: ^2.3.0
         version: link:../../packages/astro
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
+      rehype-autolink-headings:
+        specifier: ^6.1.1
+        version: 6.1.1
+      rehype-external-links:
+        specifier: ^2.0.1
+        version: 2.0.1
+      rehype-slug:
+        specifier: ^5.1.0
+        version: 5.1.0
+      rehype-stringify:
+        specifier: ^9.0.3
+        version: 9.0.3
+      remark-toc:
+        specifier: ^8.0.1
+        version: 8.0.1
 
   examples/with-markdown-plugins:
     dependencies:
@@ -8472,7 +8490,6 @@ packages:
 
   /@types/extend@3.0.1:
     resolution: {integrity: sha512-R1g/VyKFFI2HLC1QGAeTtCBWCo6n75l41OnsVYNbmKG+kempOESaodf6BeJyUM3Q0rKa/NQcTHbB2+66lNnxLw==}
-    dev: true
 
   /@types/fs-extra@8.1.2:
     resolution: {integrity: sha512-SvSrYXfWSc7R4eqnOzbQF4TZmfpNSM9FrSWLU3EUnWBuyZqNBOrv1B1JA3byUDPUl9z4Ab3jeZG2eDdySlgNMg==}
@@ -12529,6 +12546,11 @@ packages:
     resolution: {integrity: sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ==}
     dev: true
 
+  /is-absolute-url@4.0.1:
+    resolution: {integrity: sha512-/51/TKE88Lmm7Gc4/8btclNXWS+g50wXhYJq8HWIBAGUBnoAdRu1aXeh364t/O7wXDAcTJDP8PNuNKWUDWie+A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dev: false
+
   /is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
 
@@ -13458,7 +13480,6 @@ packages:
       mdast-util-to-string: 3.1.0
       unist-util-is: 5.2.1
       unist-util-visit: 4.1.0
-    dev: true
 
   /media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
@@ -15452,6 +15473,17 @@ packages:
       unified: 10.1.2
       unist-util-visit: 4.1.0
 
+  /rehype-external-links@2.0.1:
+    resolution: {integrity: sha512-u2dNypma+ps12SJWlS23zvbqwNx0Hl24t0YHXSM/6FCZj/pqWETCO3WyyrvALv4JYvRtuPjhiv2Lpen15ESqbA==}
+    dependencies:
+      '@types/hast': 2.3.4
+      extend: 3.0.2
+      is-absolute-url: 4.0.1
+      space-separated-tokens: 2.0.2
+      unified: 10.1.2
+      unist-util-visit: 4.1.0
+    dev: false
+
   /rehype-mathjax@4.0.2:
     resolution: {integrity: sha512-9q4Q4icTIbM5RtvQ4XquvEApGV2oDMaSVa5G3DwXomWU4fAPWYcOOt+iQRNaIH3RBMbFF239QbE5K7hm7rxMPQ==}
     dependencies:
@@ -15508,6 +15540,18 @@ packages:
       hast-util-to-string: 2.0.0
       unified: 10.1.2
       unist-util-visit: 4.1.0
+
+  /rehype-slug@5.1.0:
+    resolution: {integrity: sha512-Gf91dJoXneiorNEnn+Phx97CO7oRMrpi+6r155tTxzGuLtm+QrI4cTwCa9e1rtePdL4i9tSO58PeSS6HWfgsiw==}
+    dependencies:
+      '@types/hast': 2.3.4
+      github-slugger: 2.0.0
+      hast-util-has-property: 2.0.1
+      hast-util-heading-rank: 2.1.1
+      hast-util-to-string: 2.0.0
+      unified: 10.1.2
+      unist-util-visit: 4.1.0
+    dev: false
 
   /rehype-stringify@9.0.3:
     resolution: {integrity: sha512-kWiZ1bgyWlgOxpqD5HnxShKAdXtb2IUljn3hQAhySeak6IOQPPt6DeGnsIh4ixm7yKJWzm8TXFuC/lPfcWHJqw==}
@@ -15628,7 +15672,6 @@ packages:
       '@types/mdast': 3.0.10
       mdast-util-toc: 6.1.1
       unified: 10.1.2
-    dev: true
 
   /require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
