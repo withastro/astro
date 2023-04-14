@@ -2,6 +2,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import glob from 'fast-glob';
 import { pathToFileURL } from 'url';
+import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
@@ -20,12 +21,14 @@ export interface VercelServerlessConfig {
 	includeFiles?: string[];
 	excludeFiles?: string[];
 	analytics?: boolean;
+	images?: VercelImageConfig;
 }
 
 export default function vercelServerless({
 	includeFiles,
 	excludeFiles,
 	analytics,
+	images,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -36,9 +39,12 @@ export default function vercelServerless({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
+				throwIfAssetsNotEnabled(config, images);
+
 				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
+
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
@@ -59,7 +65,7 @@ export default function vercelServerless({
 				if (config.output === 'static') {
 					throw new Error(`
 		[@astrojs/vercel] \`output: "server"\` is required to use the serverless adapter.
-	
+
 	`);
 				}
 			},
@@ -115,6 +121,7 @@ export default function vercelServerless({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
+					...(images ? { images: images } : {}),
 				});
 			},
 		},

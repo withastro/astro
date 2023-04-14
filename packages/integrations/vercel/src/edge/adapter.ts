@@ -4,6 +4,7 @@ import esbuild from 'esbuild';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image.js';
 import {
 	copyFilesToFunction,
 	getFilesFromFolder,
@@ -26,11 +27,13 @@ function getAdapter(): AstroAdapter {
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
 	analytics?: boolean;
+	images?: VercelImageConfig;
 }
 
 export default function vercelEdge({
 	includeFiles = [],
 	analytics,
+	images,
 }: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -41,6 +44,8 @@ export default function vercelEdge({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
+				throwIfAssetsNotEnabled(config, images);
+
 				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
@@ -64,7 +69,7 @@ export default function vercelEdge({
 				if (config.output === 'static') {
 					throw new Error(`
 		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
-	
+
 	`);
 				}
 			},
@@ -128,6 +133,7 @@ export default function vercelEdge({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
+					...(images ? { images: images } : {}),
 				});
 			},
 		},
