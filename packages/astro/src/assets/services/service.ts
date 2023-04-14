@@ -1,5 +1,5 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { VALID_INPUT_FORMATS } from '../consts.js';
+import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
@@ -129,13 +129,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 		} else {
-			if (!VALID_INPUT_FORMATS.includes(options.src.format as any)) {
+			if (!VALID_OPTIMIZABLE_FORMATS.includes(options.src.format as any)) {
 				throw new AstroError({
 					...AstroErrorData.UnsupportedImageFormat,
 					message: AstroErrorData.UnsupportedImageFormat.message(
 						options.src.format,
 						options.src.src,
-						VALID_INPUT_FORMATS
+						VALID_OPTIMIZABLE_FORMATS
 					),
 				});
 			}

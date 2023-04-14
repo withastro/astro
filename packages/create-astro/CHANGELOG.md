@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.3
+
+### Patch Changes
+
+- [#6682](https://github.com/withastro/astro/pull/6682) [`335602344`](https://github.com/withastro/astro/commit/33560234437647f2d768578e7b285c858bff7898) Thanks [@andremralves](https://github.com/andremralves)! - add validation for non-printable characters
+
 ## 3.1.2
 
 ### Patch Changes

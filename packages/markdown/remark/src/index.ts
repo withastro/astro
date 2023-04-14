@@ -8,7 +8,7 @@ import type {
 import { toRemarkInitializeAstroData } from './frontmatter-injection.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
-import toRemarkCollectImages from './remark-collect-images.js';
+import { remarkCollectImages } from './remark-collect-images.js';
 import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
@@ -24,6 +24,7 @@ import { VFile } from 'vfile';
 import { rehypeImages } from './rehype-images.js';
 
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
+export { remarkCollectImages } from './remark-collect-images.js';
 export * from './types.js';
 
 export const markdownConfigDefaults: Omit<Required<AstroMarkdownOptions>, 'drafts'> = {
@@ -96,7 +97,7 @@ export async function renderMarkdown(
 
 		if (opts.experimentalAssets) {
 			// Apply later in case user plugins resolve relative image paths
-			parser.use([toRemarkCollectImages()]);
+			parser.use([remarkCollectImages]);
 		}
 	}
 
