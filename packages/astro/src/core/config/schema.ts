@@ -128,6 +128,7 @@ export const AstroConfigSchema = z.object({
 				z.literal('astro/assets/services/squoosh'),
 				z.string(),
 			]),
+			serviceConfig: z.record(z.any()).optional().default({}),
 		})
 		.default({
 			service: 'astro/assets/services/squoosh',

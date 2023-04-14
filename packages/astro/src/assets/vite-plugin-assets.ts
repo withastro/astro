@@ -79,8 +79,12 @@ export default function assets({
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
 					return `
-					export { getImage, getConfiguredImageService, isLocalService } from "astro/assets";
+					export { getConfiguredImageService, isLocalService } from "astro/assets";
+					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
+
+					export const imageServiceConfig = ${JSON.stringify(settings.config.image.serviceConfig)};
+					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
 				`;
 				}
 			},
@@ -116,7 +120,10 @@ export default function assets({
 							}
 						}
 
-						const transform = await globalThis.astroAsset.imageService.parseURL(url);
+						const transform = await globalThis.astroAsset.imageService.parseURL(
+							url,
+							settings.config.image.serviceConfig
+						);
 
 						if (transform === undefined) {
 							error(logging, 'image', `Failed to parse transform for ${url}`);
@@ -127,7 +134,11 @@ export default function assets({
 						let format: string = meta.format;
 
 						if (transform) {
-							const result = await globalThis.astroAsset.imageService.transform(file, transform);
+							const result = await globalThis.astroAsset.imageService.transform(
+								file,
+								transform,
+								settings.config.image.serviceConfig
+							);
 							data = result.data;
 							format = result.format;
 						}
