@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Default.astro';
+import { setTimeout as sleep } from 'node:timers/promises';
+---
+
+<Layout>
+	<div>
+		<h2>Page C</h2>
+		<p>This is fast</p>
+		{sleep(1000)}
+		<p>This is slow</p>
+	</div>
+
+	<nav slot="nav">
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li><a href="/a">Page A</a></li>
+			<li><a href="/b">Page B</a></li>
+			<li><a href="/c" class="active">Page C</a></li>
+		</ul>
+	</nav>
+</Layout>

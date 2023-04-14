@@ -14,6 +14,7 @@ export interface AstroComponentFactory {
 	isAstroComponentFactory?: boolean;
 	moduleId?: string | undefined;
 	propagation?: PropagationHint;
+	hash?: string;
 }
 
 export function isAstroComponentFactory(obj: any): obj is AstroComponentFactory {

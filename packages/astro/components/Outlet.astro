@@ -1,0 +1,14 @@
+---
+interface Props {
+	id: string;
+}
+
+const { id } = Astro.props;
+
+// @ts-ignore untyped internals
+// $$result.outlets.set(id, $$slots.default);
+---
+
+<Fragment set:html={`<!--astro:outlet ${id}-->`} /><slot /><Fragment
+	set:html={`<!--/astro:outlet ${id}-->`}
+/>

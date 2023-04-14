@@ -1,0 +1,10 @@
+---
+const { tab } = Astro.props;
+---
+
+<ul>
+	<li><a class:list={{ active: tab === '1' }} href="/a">Tab 1</a></li>
+	<li><a class:list={{ active: tab === '2' }} href="/a/2">Tab 2</a></li>
+	<li><a class:list={{ active: tab === '3' }} href="/a/3">Tab 3</a></li>
+</ul>
+<div>Tab {tab}</div>

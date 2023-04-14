@@ -67,6 +67,23 @@ async function bufferHeadContent(result: SSRResult) {
 	}
 }
 
+// Recursively calls component instances that might have slots to be propagated up.
+async function bufferSlottedContent(result: SSRResult, outlet: string) {
+	const iterator = result.outletPropagators.entries();
+	let promises = [];
+	while (true) {
+		const { value: [name, slot] = [], done } = iterator.next();
+		if (done) {
+			break;
+		}
+		const returnValue = await slot(result);
+		result.outlets.set(name, returnValue);
+		if (name === outlet) {
+			break;
+		}
+	}
+}
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory | NonAstroPageComponent,
@@ -131,7 +148,66 @@ export async function renderPage(
 		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
 	const factoryReturnValue = await componentFactory(result, props, children);
 	const factoryIsHeadAndContent = isHeadAndContent(factoryReturnValue);
-	if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {
+	if (result._metadata.request.headers.get('x-astro-outlet') && (isRenderTemplateResult(factoryReturnValue)  || factoryIsHeadAndContent)) {
+		const outlet = result._metadata.request.headers.get('x-astro-outlet')!;
+		result.scripts.clear();
+		await bufferSlottedContent(result, outlet);
+
+		if (!result.outlets.get(outlet)) {
+			let init = result.response;
+			let headers = new Headers(init.headers);
+			let response = createResponse(null, { ...init, headers, status: 404 });
+			return response;
+		}
+
+		let init = result.response;
+		let headers = new Headers(init.headers);
+		let body: BodyInit;
+
+		if (streaming) {
+			body = new ReadableStream({
+				start(controller) {
+					async function read() {
+						try {
+							const template = result.outlets.get(outlet);
+							for await (const chunk of renderAstroTemplateResult(template)) {
+								const bytes = chunkToByteArray(result, chunk);
+								controller.enqueue(bytes);
+							}
+							controller.close();
+						} catch (e) {
+							// We don't have a lot of information downstream, and upstream we can't catch the error properly
+							// So let's add the location here
+							if (AstroError.is(e) && !e.loc) {
+								e.setLocation({
+									file: route?.component,
+								});
+							}
+
+							controller.error(e);
+						}
+					}
+					read();
+				},
+			});
+		} else {
+			let iterable = (async function* () {
+				for (const [key, slot] of result.outlets) {
+					yield `<astro-outlet id="${key}">\n`;
+					for await (const chunk of renderAstroTemplateResult(slot)) {
+						const bytes = chunkToByteArray(result, chunk);
+						yield bytes;
+					}
+					yield '\n</astro-outlet>\n\n';
+				}
+			})()
+			body = await iterableToHTMLBytes(result, iterable);
+			headers.set('Content-Length', body.byteLength.toString());
+		}
+
+		let response = createResponse(body, { ...init, headers });
+		return response;
+	} else if (isRenderTemplateResult(factoryReturnValue) || factoryIsHeadAndContent) {
 		// Wait for head content to be buffered up
 		await bufferHeadContent(result);
 		const templateResult = factoryIsHeadAndContent

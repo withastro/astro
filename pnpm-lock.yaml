@@ -375,6 +375,9 @@ importers:
 
   examples/minimal:
     dependencies:
+      '@astrojs/node':
+        specifier: ^5.1.1
+        version: link:../../packages/integrations/node
       astro:
         specifier: ^2.4.1
         version: link:../../packages/astro

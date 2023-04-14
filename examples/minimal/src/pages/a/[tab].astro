@@ -1,0 +1,22 @@
+---
+import Layout from '../../layouts/Default.astro';
+import Tab from '../../component/Tabs.astro';
+const { tab = '' } = Astro.params;
+---
+
+<Layout>
+	<div>
+		<h2>Page A</h2>
+	</div>
+
+	<Tab slot="tabs" tab={tab} />
+
+	<nav slot="nav">
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li><a href="/a" class="active">Page A</a></li>
+			<li><a href="/b">Page B</a></li>
+			<li><a href="/c">Page C</a></li>
+		</ul>
+	</nav>
+</Layout>

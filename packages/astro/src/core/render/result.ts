@@ -163,7 +163,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		links: args.links ?? new Set<SSRElement>(),
 		componentMetadata,
 		propagators: new Map(),
+		outletPropagators: new Map(),
 		extraHead: [],
+		outlets: new Map<string, any>(),
 		scope: 0,
 		cookies,
 		/** This function returns the `Astro` faux-global */
@@ -260,6 +262,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
+			request
 		},
 		response,
 	};

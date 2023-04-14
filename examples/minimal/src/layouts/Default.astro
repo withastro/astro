@@ -1,0 +1,132 @@
+---
+import { Outlet } from 'astro/components';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<header>
+			<h1>My Website</h1>
+		</header>
+
+		<slot name="nav" />
+
+		<main>
+			{() => new Promise((resolve) => setTimeout(resolve, 1000))}
+			<slot />
+			{() => new Promise((resolve) => setTimeout(resolve, 1000))}
+
+			<slot name="tabs" />
+		</main>
+
+		<script>
+			function getOutlets() {
+				const query = "//comment()[contains(., 'astro:outlet')]";
+				const comments = document.evaluate(
+					query,
+					document,
+					null,
+					XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+					null
+				);
+				const outlets: Record<string, Range> = {};
+				let fragment = [];
+				let stack = 0;
+				for (let i = 0; i < comments.snapshotLength; i++) {
+					const comment = comments.snapshotItem(i);
+					const end = comment.textContent?.trim()?.[0] === '/';
+					if (!end) {
+						if (stack === 0) fragment.push(comment);
+						stack++;
+					} else {
+						stack--;
+						if (stack === 0) {
+							const start = fragment[0];
+							const end = comment;
+							const range = new Range();
+							range.setStartAfter(start);
+							range.setEndBefore(end);
+							outlets[start.textContent.replace('astro:outlet', '').trim()] = range;
+							fragment.length = 0;
+						}
+					}
+				}
+
+				return outlets;
+			}
+
+			async function streamToRange(response: Response, range: Range) {
+				if (response.status !== 200) {
+					range.deleteContents();
+					return;
+				}
+				const doc = document.implementation.createHTMLDocument();
+				doc.write('<streaming-root>');
+				const root = doc.querySelector('streaming-root');
+
+				const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+				let init = false;
+				const mo = new MutationObserver((entries) => {
+					if (!init) {
+						range.deleteContents();
+						init = true;
+					}
+					for (const entry of entries) {
+						for (const child of entry.addedNodes) {
+							range.insertNode(child);
+						}
+					}
+				});
+				mo.observe(root, { childList: true });
+
+				let result = await reader.read();
+				while (!result.done) {
+					doc.write(result.value);
+					result = await reader.read();
+				}
+			}
+
+			navigation.addEventListener('navigate', (event) => {
+				event.intercept({
+					async handler() {
+						async function update() {
+							const promises: any[] = [];
+							for (const [outlet, range] of Object.entries(getOutlets())) {
+								promises.push(
+									fetch(event.destination.url, {
+										headers: { 'x-astro-outlet': outlet },
+									}).then((res) => streamToRange(res, range))
+								);
+							}
+							return Promise.all(promises);
+						}
+						// if ('startViewTransition' in document) {
+						// 	await document.startViewTransition(() => update());
+						// } else {
+						await update();
+						// }
+					},
+				});
+			});
+		</script>
+
+		<style is:global>
+			nav ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				gap: 1rem;
+			}
+			a.active {
+				color: red;
+			}
+		</style>
+	</body>
+</html>

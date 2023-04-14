@@ -81,6 +81,12 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
+	if (result._metadata.request.headers.has('x-astro-outlet')) {
+		for (const [name, slot] of Object.entries(slots)) {
+			result.outletPropagators.set(`${factory.hash} ${name}`, slot);
+		}
+		return instance;
+	}
 	if (isAPropagatingComponent(result, factory) && !result.propagators.has(factory)) {
 		result.propagators.set(factory, instance);
 	}
