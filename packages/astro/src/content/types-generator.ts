@@ -31,10 +31,10 @@ type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL; collectionDir: 'content' | 'data' };
 
-type ContentEntryMetadata = { type: 'content'; slug: string };
-type DataEntryMetadata = { type: 'data' };
-type EntryMetadata = ContentEntryMetadata | DataEntryMetadata;
-type CollectionTypes = Record<string, Record<string, EntryMetadata>>;
+type DataEntryMetadata = {};
+type ContentEntryMetadata = { slug: string };
+type ContentCollectionEntryMap = Record<string, Record<string, ContentEntryMetadata>>;
+type DataCollectionEntryMap = Record<string, Record<string, DataEntryMetadata>>;
 
 type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
@@ -61,7 +61,8 @@ export async function createCollectionTypesGenerator({
 	settings,
 	viteServer,
 }: CreateContentGeneratorParams) {
-	const collectionTypes: CollectionTypes = {};
+	const contentCollectionEntryMap: ContentCollectionEntryMap = {};
+	const dataCollectionEntryMap: DataCollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
@@ -124,15 +125,18 @@ export async function createCollectionTypesGenerator({
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
 			const isCollectionEvent = collection.split('/').length === 1;
 			if (!isCollectionEvent) return { shouldGenerateTypes: false };
+
+			const collectionEntryMap =
+				event.collectionDir === 'content' ? contentCollectionEntryMap : dataCollectionEntryMap;
 			switch (event.name) {
 				case 'addDir':
-					addCollection(collectionTypes, JSON.stringify(collection));
+					addCollection(collectionEntryMap, JSON.stringify(collection));
 					if (logLevel === 'info') {
 						info(logging, 'content', `${cyan(collection)} collection added`);
 					}
 					break;
 				case 'unlinkDir':
-					removeCollection(collectionTypes, JSON.stringify(collection));
+					removeCollection(collectionEntryMap, JSON.stringify(collection));
 					break;
 			}
 			return { shouldGenerateTypes: true };
@@ -196,16 +200,19 @@ export async function createCollectionTypesGenerator({
 
 			switch (event.name) {
 				case 'add':
-					if (!(collectionKey in collectionTypes)) {
-						addCollection(collectionTypes, collectionKey);
+					if (!(collectionKey in dataCollectionEntryMap)) {
+						addCollection(dataCollectionEntryMap, collectionKey);
 					}
-					if (!(entryKey in collectionTypes[collectionKey])) {
-						setEntry(collectionTypes, collectionKey, entryKey, { type: 'data' });
+					if (!(entryKey in dataCollectionEntryMap[collectionKey])) {
+						setEntry(dataCollectionEntryMap, collectionKey, entryKey, { type: 'data' });
 					}
 					return { shouldGenerateTypes: true };
 				case 'unlink':
-					if (collectionKey in collectionTypes && entryKey in collectionTypes[collectionKey]) {
-						removeEntry(collectionTypes, collectionKey, entryKey);
+					if (
+						collectionKey in dataCollectionEntryMap &&
+						entryKey in dataCollectionEntryMap[collectionKey]
+					) {
+						removeEntry(dataCollectionEntryMap, collectionKey, entryKey);
 					}
 					return { shouldGenerateTypes: true };
 				case 'change':
@@ -234,16 +241,21 @@ export async function createCollectionTypesGenerator({
 					contentEntryType,
 					fs,
 				});
-				if (!(collectionKey in collectionTypes)) {
-					addCollection(collectionTypes, collectionKey);
+				if (!(collectionKey in contentCollectionEntryMap)) {
+					addCollection(contentCollectionEntryMap, collectionKey);
 				}
-				if (!(entryKey in collectionTypes[collectionKey])) {
-					setEntry(collectionTypes, collectionKey, entryKey, { type: 'content', slug: addedSlug });
+				if (!(entryKey in contentCollectionEntryMap[collectionKey])) {
+					setEntry(contentCollectionEntryMap, collectionKey, entryKey, {
+						slug: addedSlug,
+					});
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
-				if (collectionKey in collectionTypes && entryKey in collectionTypes[collectionKey]) {
-					removeEntry(collectionTypes, collectionKey, entryKey);
+				if (
+					collectionKey in contentCollectionEntryMap &&
+					entryKey in contentCollectionEntryMap[collectionKey]
+				) {
+					removeEntry(contentCollectionEntryMap, collectionKey, entryKey);
 				}
 				return { shouldGenerateTypes: true };
 			case 'change':
@@ -257,10 +269,9 @@ export async function createCollectionTypesGenerator({
 					contentEntryType,
 					fs,
 				});
-				const entryMetadata = collectionTypes[collectionKey]?.[entryKey];
-				if (entryMetadata?.type === 'content' && entryMetadata?.slug !== changedSlug) {
-					setEntry(collectionTypes, collectionKey, entryKey, {
-						type: 'content',
+				const entryMetadata = contentCollectionEntryMap[collectionKey]?.[entryKey];
+				if (entryMetadata?.slug !== changedSlug) {
+					setEntry(contentCollectionEntryMap, collectionKey, entryKey, {
 						slug: changedSlug,
 					});
 					return { shouldGenerateTypes: true };
@@ -321,7 +332,8 @@ export async function createCollectionTypesGenerator({
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
 				fs,
-				contentTypes: collectionTypes,
+				contentCollectionEntryMap,
+				dataCollectionEntryMap,
 				contentPaths,
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
@@ -332,7 +344,8 @@ export async function createCollectionTypesGenerator({
 				warnNonexistentCollections({
 					logging,
 					contentConfig: observable.config,
-					contentTypes: collectionTypes,
+					contentCollectionEntryMap,
+					dataCollectionEntryMap,
 				});
 			}
 		}
@@ -349,63 +362,82 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 	viteServer.moduleGraph.invalidateModule(virtualMod);
 }
 
-function addCollection(contentMap: CollectionTypes, collectionKey: string) {
-	contentMap[collectionKey] = {};
+function addCollection(
+	map: ContentCollectionEntryMap | DataCollectionEntryMap,
+	collectionKey: string
+) {
+	map[collectionKey] = {};
 }
 
-function removeCollection(contentMap: CollectionTypes, collectionKey: string) {
-	delete contentMap[collectionKey];
+function removeCollection(
+	map: ContentCollectionEntryMap | DataCollectionEntryMap,
+	collectionKey: string
+) {
+	delete map[collectionKey];
 }
 
-function setEntry(
-	contentTypes: CollectionTypes,
+function setEntry<C extends ContentCollectionEntryMap | DataCollectionEntryMap>(
+	map: C,
 	collectionKey: string,
 	entryKey: string,
-	metadata: EntryMetadata
+	metadata: C[keyof C][string]
 ) {
-	contentTypes[collectionKey][entryKey] = metadata;
+	map[collectionKey][entryKey] = metadata;
 }
 
-function removeEntry(contentTypes: CollectionTypes, collectionKey: string, entryKey: string) {
-	delete contentTypes[collectionKey][entryKey];
+function removeEntry(
+	map: ContentCollectionEntryMap | DataCollectionEntryMap,
+	collectionKey: string,
+	entryKey: string
+) {
+	delete map[collectionKey][entryKey];
 }
 
 async function writeContentFiles({
 	fs,
 	contentPaths,
-	contentTypes,
+	contentCollectionEntryMap,
+	dataCollectionEntryMap,
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
-	contentTypes: CollectionTypes;
+	contentCollectionEntryMap: ContentCollectionEntryMap;
+	dataCollectionEntryMap: DataCollectionEntryMap;
 	typeTemplateContent: string;
 	contentEntryTypes: ContentEntryType[];
 	contentConfig?: ContentConfig;
 }) {
 	let contentTypesStr = '';
-	const collectionKeys = Object.keys(contentTypes).sort();
-	for (const collectionKey of collectionKeys) {
+	for (const collectionKey of Object.keys(contentCollectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		contentTypesStr += `${collectionKey}: {\n`;
-		const entryKeys = Object.keys(contentTypes[collectionKey]).sort();
+		const entryKeys = Object.keys(contentCollectionEntryMap[collectionKey]).sort();
 		for (const entryKey of entryKeys) {
-			const entryMetadata = contentTypes[collectionKey][entryKey];
+			const entryMetadata = contentCollectionEntryMap[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			if (entryMetadata.type === 'data') {
-				contentTypesStr += `${entryKey}: {\n	type: 'data',\n	id: ${entryKey},\n	collection: ${collectionKey},\n	data: ${dataType}\n},\n`;
-			} else {
-				const renderType = `{ render(): Render[${JSON.stringify(
-					path.extname(JSON.parse(entryKey))
-				)}] }`;
+			const renderType = `{ render(): Render[${JSON.stringify(
+				path.extname(JSON.parse(entryKey))
+			)}] }`;
 
-				const slugType = JSON.stringify(entryMetadata.slug);
-				contentTypesStr += `${entryKey}: {\n  type: 'content',\n	id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n} & ${renderType},\n`;
-			}
+			const slugType = JSON.stringify(entryMetadata.slug);
+			contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
 		}
-		contentTypesStr += `},\n`;
+		contentTypesStr += `};\n`;
+	}
+
+	let dataTypesStr = '';
+	for (const collectionKey of Object.keys(dataCollectionEntryMap).sort()) {
+		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
+		dataTypesStr += `${collectionKey}: {\n`;
+		const entryKeys = Object.keys(dataCollectionEntryMap[collectionKey]).sort();
+		for (const entryKey of entryKeys) {
+			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+			dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+		}
+		dataTypesStr += `};\n`;
 	}
 
 	if (!fs.existsSync(contentPaths.cacheDir)) {
@@ -428,7 +460,8 @@ async function writeContentFiles({
 			typeTemplateContent = contentEntryType.contentModuleTypes + '\n' + typeTemplateContent;
 		}
 	}
-	typeTemplateContent = typeTemplateContent.replace('// @@ENTRY_MAP@@', contentTypesStr);
+	typeTemplateContent = typeTemplateContent.replace('// @@CONTENT_ENTRY_MAP@@', contentTypesStr);
+	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
 		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
@@ -442,15 +475,22 @@ async function writeContentFiles({
 
 function warnNonexistentCollections({
 	contentConfig,
-	contentTypes,
+	contentCollectionEntryMap,
+	dataCollectionEntryMap,
 	logging,
 }: {
 	contentConfig: ContentConfig;
-	contentTypes: CollectionTypes;
+	contentCollectionEntryMap: ContentCollectionEntryMap;
+	dataCollectionEntryMap: DataCollectionEntryMap;
 	logging: LogOptions;
 }) {
 	for (const configuredCollection in contentConfig.collections) {
-		if (!contentTypes[JSON.stringify(configuredCollection)]) {
+		const collectionType = contentConfig.collections[configuredCollection].type;
+		if (
+			(collectionType === 'content' &&
+				!contentCollectionEntryMap[JSON.stringify(configuredCollection)]) ||
+			(collectionType === 'data' && !dataCollectionEntryMap[JSON.stringify(configuredCollection)])
+		) {
 			warn(
 				logging,
 				'content',

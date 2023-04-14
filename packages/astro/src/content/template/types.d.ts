@@ -10,8 +10,7 @@ declare module 'astro:content' {
 
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
-	export type CollectionEntry<C extends keyof typeof entryMap> =
-		(typeof entryMap)[C][keyof (typeof entryMap)[C]];
+	export type CollectionEntry<C extends keyof AnyEntryMap> = AnyEntryMap[C][keyof AnyEntryMap[C]];
 
 	// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
 	/**
@@ -84,16 +83,15 @@ declare module 'astro:content' {
 		input: Omit<DataCollectionConfig<S>, 'type'>
 	): DataCollectionConfig<S>;
 
-	type EntryMapKeys = keyof typeof entryMap;
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
-	type ValidEntrySlug<C extends EntryMapKeys> = AllValuesOf<(typeof entryMap)[C]>['slug'];
+	type ValidEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<ContentEntryMap[C]>['slug'];
 
-	export async function reference<C extends keyof typeof entryMap>(
+	export async function reference<C extends keyof AnyEntryMap>(
 		collection: C
 	): import('astro/zod').ZodEffects<Promise<InferEntrySchema<C>>>;
 
 	export function getEntryBySlug<
-		C extends keyof typeof entryMap,
+		C extends keyof ContentEntryMap,
 		E extends ValidEntrySlug<C> | (string & {})
 	>(
 		collection: C,
@@ -103,37 +101,43 @@ declare module 'astro:content' {
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
 
-	export function getDataEntryById<
-		C extends keyof typeof entryMap,
-		E extends keyof (typeof entryMap)[C]
-	>(collection: C, entryId: E): Promise<CollectionEntry<C>>;
+	export function getDataEntryById<C extends keyof DataEntryMap, E extends keyof DataEntryMap[C]>(
+		collection: C,
+		entryId: E
+	): Promise<CollectionEntry<C>>;
 
-	export function getCollection<C extends keyof typeof entryMap, E extends CollectionEntry<C>>(
+	export function getCollection<C extends keyof ContentEntryMap, E extends CollectionEntry<C>>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => entry is E
 	): Promise<E[]>;
-	export function getCollection<C extends keyof typeof entryMap>(
+	export function getCollection<C extends keyof ContentEntryMap>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => unknown
 	): Promise<CollectionEntry<C>[]>;
 
-	export function getDataCollection<C extends keyof typeof entryMap, E extends CollectionEntry<C>>(
+	export function getDataCollection<C extends keyof DataEntryMap, E extends CollectionEntry<C>>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => entry is E
 	): Promise<E[]>;
-	export function getDataCollection<C extends keyof typeof entryMap>(
+	export function getDataCollection<C extends keyof DataEntryMap>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => unknown
 	): Promise<CollectionEntry<C>[]>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
-	type InferEntrySchema<C extends keyof typeof entryMap> = import('astro/zod').infer<
+	type InferEntrySchema<C extends keyof AnyEntryMap> = import('astro/zod').infer<
 		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
 
-	const entryMap: {
-		// @@ENTRY_MAP@@
+	type ContentEntryMap = {
+		// @@CONTENT_ENTRY_MAP@@
 	};
+
+	type DataEntryMap = {
+		// @@DATA_ENTRY_MAP@@
+	};
+
+	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
 	type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 }
