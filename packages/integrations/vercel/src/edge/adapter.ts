@@ -85,6 +85,13 @@ export default function vercelEdge({
 
 					vite.ssr ||= {};
 					vite.ssr.target ||= 'webworker';
+
+					// Vercel edge runtime is a special webworker-ish environment that supports process.env,
+					// but Vite would replace away `process.env` in webworkers, so we set a define here to prevent it
+					vite.define = {
+						'process.env': 'process.env',
+						...vite.define,
+					};
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
