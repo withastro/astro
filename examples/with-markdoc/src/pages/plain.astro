@@ -4,14 +4,19 @@ import Layout from '../layouts/Layout.astro';
 
 const plain = await getEntryBySlug('docs', 'plain');
 const { Content, headings } = await plain.render();
-
 ---
 
 <Layout title={plain.data.title}>
 	<main>
 		<h1>{plain.data.title}</h1>
 		Table of contents
-		{headings.map(h => (<li><a href={`#${h.slug}`}>{h.text}</a></li>))}
+		{
+			headings.map((h: { slug: string; text: string; depth: number }) => (
+				<li>
+					<a href={`#${h.slug}`}>{h.text}</a>
+				</li>
+			))
+		}
 		<Content />
 	</main>
 </Layout>
