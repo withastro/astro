@@ -243,18 +243,21 @@ async function render({
 }
 
 export function createReference({
-	dataCollectionToEntryMap,
+	getCollectionName,
+	map,
 }: {
-	dataCollectionToEntryMap: CollectionToEntryMap;
+	getCollectionName(): Promise<string>;
+	map: CollectionToEntryMap;
 }) {
-	return function reference(collection: string) {
+	return function reference() {
 		return z.string().transform(async (entryId: string, ctx) => {
+			const collectionName = await getCollectionName();
 			const flattenedErrorPath = ctx.path.join('.');
-			const entries = dataCollectionToEntryMap[collection];
+			const entries = map[collectionName];
 			if (!entries) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
+					message: `**${flattenedErrorPath}:** Reference to ${collectionName} invalid. Collection does not exist or is empty.`,
 				});
 				return;
 			}
@@ -267,7 +270,7 @@ export function createReference({
 				);
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${entryKeys
+					message: `**${flattenedErrorPath}**: Reference to ${collectionName} invalid. Expected ${entryKeys
 						.map((c) => JSON.stringify(c))
 						.join(' | ')}. Received ${JSON.stringify(entryId)}.`,
 				});
@@ -291,7 +294,7 @@ export function createReference({
 				} else {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
-						message: `**${flattenedErrorPath}:** Referenced entry ${collection} → ${entryId} is invalid.`,
+						message: `**${flattenedErrorPath}:** Referenced entry ${collectionName} → ${entryId} is invalid.`,
 					});
 				}
 			}

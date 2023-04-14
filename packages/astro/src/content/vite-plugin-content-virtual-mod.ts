@@ -28,6 +28,10 @@ export function astroContentVirtualModPlugin({
 
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
+		.replace(
+			'@@COLLECTION_NAME_BY_REFERENCE_KEY@@',
+			new URL('reference-map.json', contentPaths.cacheDir).pathname
+		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace('@@DATA_DIR@@', relDataDir)
 		.replace('@@CONTENT_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(contentEntryExts)}`)

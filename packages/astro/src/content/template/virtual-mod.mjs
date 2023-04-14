@@ -10,21 +10,6 @@ import {
 
 export { z } from 'astro/zod';
 
-export function defineCollection(config) {
-	return Object.assign(config, { type: 'content' });
-}
-
-export function defineDataCollection(config) {
-	return Object.assign(config, { type: 'data' });
-}
-
-// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
-export const image = () => {
-	throw new Error(
-		'Importing `image()` from `astro:content` is no longer supported. See https://docs.astro.build/en/guides/assets/#update-content-collections-schemas for our new import instructions.'
-	);
-};
-
 const contentDir = '@@CONTENT_DIR@@';
 const dataDir = '@@DATA_DIR@@';
 
@@ -63,6 +48,45 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
 	dir: contentDir,
 });
+
+let referenceKeyIncr = 0;
+
+/**
+ * @param {any} partialConfig
+ * @param {'content' | 'data'} type
+ */
+function baseDefineCollection(partialConfig, type) {
+	// We don't know the collection name since this is defined on the `collections` export.
+	// Generate a unique key for the collection that we can use for lookups.
+	const referenceKey = String(referenceKeyIncr++);
+	return {
+		...partialConfig,
+		type,
+		reference: createReference({
+			map: type === 'content' ? contentCollectionToEntryMap : dataCollectionToEntryMap,
+			async getCollectionName() {
+				const { default: map } = await import('@@COLLECTION_NAME_BY_REFERENCE_KEY@@');
+				return map[referenceKey];
+			},
+		}),
+		referenceKey,
+	};
+}
+
+export function defineCollection(config) {
+	return baseDefineCollection(config, 'content');
+}
+
+export function defineDataCollection(config) {
+	return baseDefineCollection(config, 'data');
+}
+
+// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
+export const image = () => {
+	throw new Error(
+		'Importing `image()` from `astro:content` is no longer supported. See https://docs.astro.build/en/guides/assets/#update-content-collections-schemas for our new import instructions.'
+	);
+};
 
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,

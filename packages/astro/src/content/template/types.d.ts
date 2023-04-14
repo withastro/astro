@@ -67,20 +67,21 @@ declare module 'astro:content' {
 	type ContentCollectionConfig<S extends BaseSchema> = {
 		type: 'content';
 		schema?: S | ((context: SchemaContext) => S);
+		reference(): import('astro/zod').ZodEffects<S>;
 	};
 
 	type DataCollectionConfig<S extends BaseSchema> = {
 		type: 'data';
-		key?: string;
 		schema?: S | ((context: SchemaContext) => S);
+		reference(): import('astro/zod').ZodEffects<S>;
 	};
 
 	export function defineCollection<S extends BaseSchema>(
-		input: Omit<ContentCollectionConfig<S>, 'type'>
+		input: Omit<ContentCollectionConfig<S>, 'type' | 'reference'>
 	): ContentCollectionConfig<S>;
 
 	export function defineDataCollection<S extends BaseSchema>(
-		input: Omit<DataCollectionConfig<S>, 'type'>
+		input: Omit<DataCollectionConfig<S>, 'type' | 'reference'>
 	): DataCollectionConfig<S>;
 
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;

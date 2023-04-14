@@ -1,12 +1,4 @@
-import { defineCollection, defineDataCollection, z, reference } from 'astro:content';
-
-const blog = defineCollection({
-	schema: z.object({
-		title: z.string(),
-		banner: reference('banners'),
-		author: reference('authors'),
-	}),
-});
+import { defineCollection, defineDataCollection, z } from 'astro:content';
 
 const banners = defineDataCollection({
 	schema: ({ image }) =>
@@ -22,6 +14,14 @@ const authors = defineDataCollection({
 			name: z.string(),
 			avatar: image().optional(),
 		}),
+});
+
+const blog = defineCollection({
+	schema: z.object({
+		title: z.string(),
+		banner: banners.reference(),
+		author: authors.reference(),
+	}),
 });
 
 export const collections = { blog, authors, banners };

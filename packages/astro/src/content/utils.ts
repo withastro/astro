@@ -24,10 +24,12 @@ export const collectionConfigParser = z.union([
 	z.object({
 		type: z.literal('content').optional().default('content'),
 		schema: z.any().optional(),
+		referenceKey: z.string(),
 	}),
 	z.object({
 		type: z.literal('data'),
 		schema: z.any().optional(),
+		referenceKey: z.string(),
 	}),
 ]);
 
@@ -364,6 +366,18 @@ export async function loadContentConfig({
 	}
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
+		let collectionNameByReferenceKey: Record<string, string> = {};
+		for (const [collectionName, collection] of Object.entries(config.data.collections)) {
+			collectionNameByReferenceKey[collection.referenceKey] = collectionName;
+		}
+
+		// We need a way to map collection config references *back* to their collection name.
+		// This generates a JSON map we can import when querying.
+		await fs.promises.writeFile(
+			new URL('reference-map.json', contentPaths.cacheDir),
+			JSON.stringify(collectionNameByReferenceKey)
+		);
+
 		// Check that data collections are properly configured using `defineDataCollection()`.
 		const dataEntryExts = getDataEntryExts(settings);
 
