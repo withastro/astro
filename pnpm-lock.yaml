@@ -2393,7 +2393,7 @@ importers:
 
   packages/astro/test/fixtures/css-assets/packages/font-awesome: {}
 
-  packages/astro/test/fixtures/css-inline:
+  packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
       astro:
         specifier: workspace:*

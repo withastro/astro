@@ -1,5 +1,5 @@
 {
-  "name": "@test/css-inline",
+  "name": "@test/css-import-as-inline",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
