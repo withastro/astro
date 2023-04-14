@@ -31,7 +31,7 @@ describe('Markdoc - Entry prop', () => {
 			const html = await res.text();
 			const { document } = parseHTML(html);
 			expect(document.querySelector('h1')?.textContent).to.equal('Processed by schema: Test entry');
-			expect(document.getElementById('id')?.textContent?.trim()).to.equal('id: entry.mdoc');
+			expect(document.getElementById('id')?.textContent?.trim()).to.equal('id: entry.mdoc.md');
 			expect(document.getElementById('slug')?.textContent?.trim()).to.equal('slug: entry');
 			expect(document.getElementById('collection')?.textContent?.trim()).to.equal(
 				'collection: blog'
@@ -48,7 +48,7 @@ describe('Markdoc - Entry prop', () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 			expect(document.querySelector('h1')?.textContent).to.equal('Processed by schema: Test entry');
-			expect(document.getElementById('id')?.textContent?.trim()).to.equal('id: entry.mdoc');
+			expect(document.getElementById('id')?.textContent?.trim()).to.equal('id: entry.mdoc.md');
 			expect(document.getElementById('slug')?.textContent?.trim()).to.equal('slug: entry');
 			expect(document.getElementById('collection')?.textContent?.trim()).to.equal(
 				'collection: blog'

@@ -5569,7 +5569,7 @@ packages:
     resolution: {integrity: sha512-kkH7sWzKPq0xt3H1n+ghb4xEMP8k0U7XV3kkB+ZGy69kDk2ySFW1qPi06sjKzFY3t1j6XbJSqr4mF9L7CYVyhg==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.18.4
+      '@babel/types': 7.21.4
     dev: false
 
   /@babel/helper-module-imports@7.21.4:
@@ -5717,7 +5717,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
-      '@babel/types': 7.18.4
+      '@babel/types': 7.21.4
     dev: false
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.18.6(@babel/core@7.18.2):
@@ -6793,7 +6793,7 @@ packages:
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/plugin-proposal-unicode-property-regex': 7.18.6(@babel/core@7.18.2)
       '@babel/plugin-transform-dotall-regex': 7.18.6(@babel/core@7.18.2)
-      '@babel/types': 7.18.4
+      '@babel/types': 7.21.4
       esutils: 2.0.3
     dev: false
 

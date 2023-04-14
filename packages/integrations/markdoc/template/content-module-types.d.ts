@@ -1,6 +1,6 @@
 declare module 'astro:content' {
 	interface Render {
-		'.mdoc': Promise<{
+		'.md': Promise<{
 			Content(props: Record<string, any>): import('astro').MarkdownInstance<{}>['Content'];
 		}>;
 	}

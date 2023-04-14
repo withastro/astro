@@ -77,7 +77,7 @@ describe('Markdoc - Content Collections', () => {
 });
 
 const post1Entry = {
-	id: 'post-1.mdoc',
+	id: 'post-1.mdoc.md',
 	slug: 'post-1',
 	collection: 'blog',
 	data: {
@@ -88,7 +88,7 @@ const post1Entry = {
 };
 
 const post2Entry = {
-	id: 'post-2.mdoc',
+	id: 'post-2.mdoc.md',
 	slug: 'post-2',
 	collection: 'blog',
 	data: {
@@ -99,7 +99,7 @@ const post2Entry = {
 };
 
 const post3Entry = {
-	id: 'post-3.mdoc',
+	id: 'post-3.mdoc.md',
 	slug: 'post-3',
 	collection: 'blog',
 	data: {

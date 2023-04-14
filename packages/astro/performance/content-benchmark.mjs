@@ -13,7 +13,7 @@ process.env.ASTRO_PERFORMANCE_BENCHMARK = true;
 const extByFixture = {
 	md: '.md',
 	mdx: '.mdx',
-	mdoc: '.mdoc',
+	mdoc: '.mdoc.md',
 };
 
 async function benchmark({ fixtures, templates, numPosts }) {
@@ -82,7 +82,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 				fixtures,
 				templates: {
 					mdx: 'with-astro-components.mdx',
-					mdoc: 'with-astro-components.mdoc',
+					mdoc: 'with-astro-components.mdoc.md',
 				},
 				numPosts,
 			});
@@ -100,7 +100,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 				fixtures,
 				templates: {
 					mdx: 'with-react-components.mdx',
-					mdoc: 'with-react-components.mdoc',
+					mdoc: 'with-react-components.mdoc.md',
 				},
 				numPosts,
 			});
