@@ -227,6 +227,8 @@ export function createRouteManifest(
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
 
+	const foundInvalidFileExtensions: Set<string> = new Set();
+
 	function walk(
 		fs: typeof nodeFs,
 		dir: string,
@@ -250,6 +252,11 @@ export function createRouteManifest(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
+				if (!foundInvalidFileExtensions.has(ext)) {
+					foundInvalidFileExtensions.add(ext);
+					warn(logging, 'astro', `Invalid file extension for Pages: ${ext}`);
+				}
+
 				return;
 			}
 			const segment = isDir ? basename : name;
