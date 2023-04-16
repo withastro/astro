@@ -98,11 +98,12 @@ export default async function dev(
 
 	await attachContentServerListeners(restart.container);
 
-	listenForShortcuts({
-		container: restart.container,
-		options,
-		settings,
-	});
+	if (process.stdin.isTTY && !process.env.CI)
+		listenForShortcuts({
+			container: restart.container,
+			options,
+			settings,
+		});
 
 	return {
 		address: devServerAddressInfo,
