@@ -74,6 +74,7 @@ export function serverStart({
 		)}`,
 		'  ',
 		serverUrls({ base, host, resolvedUrls }),
+		`  ${dim('┃ press')} ${bold('h')} ${dim('to show help')}`,
 		'  ',
 	];
 	return messages.join('\n');
