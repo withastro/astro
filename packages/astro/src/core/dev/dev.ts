@@ -12,6 +12,7 @@ import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
+import { listenForShortcuts } from './shortcuts.js';
 
 export interface DevOptions {
 	configFlag: string | undefined;
@@ -96,6 +97,12 @@ export default async function dev(
 	}
 
 	await attachContentServerListeners(restart.container);
+
+	listenForShortcuts({
+		container: restart.container,
+		options,
+		settings,
+	});
 
 	return {
 		address: devServerAddressInfo,

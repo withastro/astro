@@ -19,6 +19,7 @@ import type { ZodError } from 'zod';
 import { renderErrorMarkdown } from './errors/dev/utils.js';
 import { AstroError, CompilerError, type ErrorWithMetadata } from './errors/index.js';
 import { emoji, padMultilineString } from './util.js';
+import type { Shortcut } from './dev/shortcuts.js';
 
 const PREFIX_PADDING = 6;
 
@@ -66,6 +67,27 @@ export function serverStart({
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
+
+	const messages = [
+		`  ${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(
+			`${isRestart ? 're' : ''}started in ${Math.round(startupTime)}ms`
+		)}`,
+		'  ',
+		serverUrls({ base, host, resolvedUrls }),
+		'  ',
+	];
+	return messages.join('\n');
+}
+
+export function serverUrls({
+	base,
+	host,
+	resolvedUrls,
+}: {
+	resolvedUrls: ResolvedServerUrls;
+	base: string;
+	host: string | boolean;
+}) {
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
 	const emptyPrefix = ' '.repeat(11);
@@ -86,19 +108,19 @@ export function serverStart({
 		}
 	}
 
-	const messages = [
-		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(
-			`${isRestart ? 're' : ''}started in ${Math.round(startupTime)}ms`
-		)}`,
-		'',
-		...localUrlMessages,
-		...networkUrlMessages,
-		'',
-	];
+	const messages = [...localUrlMessages, ...networkUrlMessages];
 	return messages
 		.filter((msg) => typeof msg === 'string')
 		.map((msg) => `  ${msg}`)
 		.join('\n');
+}
+
+export function printShortcuts(shortcuts: Shortcut[]) {
+	return `  ${bold('Shortcuts')}\n${shortcuts
+		.map(
+			({ description, letter }) => `  ${dim('press')} ${bold(letter)} ${dim(`to ${description}`)}`
+		)
+		.join('\n')}`;
 }
 
 export function telemetryNotice() {
