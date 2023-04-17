@@ -31,6 +31,7 @@ export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
 	base?: string;
+	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
