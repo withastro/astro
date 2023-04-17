@@ -12,7 +12,7 @@ import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -72,11 +72,7 @@ export class App {
 						return bundlePath;
 					}
 					default: {
-						return createAssetLink(
-							bundlePath,
-							manifest.base,
-							manifest.assetsPrefix
-						);
+						return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 					}
 				}
 			},
