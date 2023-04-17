@@ -6,7 +6,6 @@ import {
 	createHeadAndContent,
 	renderComponent,
 	renderScriptElement,
-	renderStyleElement,
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
@@ -152,13 +151,21 @@ async function render({
 				links = '',
 				scripts = '';
 			if (Array.isArray(collectedStyles)) {
-				styles = collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+				styles = collectedStyles
+					.map((style: any) => {
+						return renderUniqueStylesheet(result, {
+							type: 'inline',
+							content: style,
+						});
+					})
+					.join('');
 			}
 			if (Array.isArray(collectedLinks)) {
 				links = collectedLinks
 					.map((link: any) => {
 						return renderUniqueStylesheet(result, {
-							href: prependForwardSlash(link),
+							type: 'external',
+							src: prependForwardSlash(link),
 						});
 					})
 					.join('');
