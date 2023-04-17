@@ -33,6 +33,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 	// stylesheet filenames are kept in here until "post", when they are rendered and ready to be inlined
 	const pagesToCss = new Map<string, Map<string, { order: number; depth: number }>>();
+	const pagesToPropagatedCss = new Map<string, Map<string, Set<string>>>();
 
 	function createNameHash(baseId: string, hashIds: string[]): string {
 		const baseName = baseId ? npath.parse(baseId).name : 'index';
@@ -189,12 +190,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 													const pageData = getPageDataByViteID(internals, pageViteID);
 													if (pageData) {
 														for (const css of meta.importedCss) {
+															const propagatedStyles =
+																pagesToPropagatedCss.get(pageData.moduleSpecifier) ??
+																pagesToPropagatedCss
+																	.set(pageData.moduleSpecifier, new Map())
+																	.get(pageData.moduleSpecifier)!;
+
 															const existingCss =
-																pageData.propagatedStyles.get(pageInfo.id) ?? new Set();
-															pageData.propagatedStyles.set(
-																pageInfo.id,
-																new Set([...existingCss, css])
-															);
+																propagatedStyles.get(pageInfo.id) ??
+																propagatedStyles.set(pageInfo.id, new Set()).get(pageInfo.id)!;
+
+															existingCss.add(css);
 														}
 													}
 												}
@@ -288,6 +294,24 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 						const orderingInfo = pagesToCss.get(pageData.moduleSpecifier)?.get(stylesheet.fileName);
 						if (orderingInfo === undefined) return;
 						pageData.styles.push({ ...orderingInfo, sheet });
+					});
+
+					pages.forEach((pageData) => {
+						const propagatedPaths = pagesToPropagatedCss.get(pageData.moduleSpecifier);
+						if (propagatedPaths === undefined) return;
+						Array.from(propagatedPaths.entries()).forEach(([pageInfoId, css]) => {
+							// return early if sheet does not need to be propagated
+							if (css.has(stylesheet.fileName) !== true) return;
+
+							// return early if the stylesheet needing propagation has already been included
+							if (pageData.styles.some((s) => s.sheet === sheet)) return;
+
+							const propagatedStyles =
+								pageData.propagatedStyles.get(pageInfoId) ??
+								pageData.propagatedStyles.set(pageInfoId, new Set()).get(pageInfoId)!;
+
+							propagatedStyles.add(sheet);
+						});
 					});
 				});
 			},
