@@ -21,6 +21,7 @@ import {
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
+	createAssetLink,
 	createLinkStylesheetElementSet,
 	createModuleScriptElement,
 } from '../render/ssr-element.js';
@@ -71,7 +72,11 @@ export class App {
 						return bundlePath;
 					}
 					default: {
-						return prependForwardSlash(joinPaths(manifest.base, bundlePath));
+						return createAssetLink(
+							bundlePath,
+							manifest.base,
+							manifest.assetsPrefix
+						);
 					}
 				}
 			},

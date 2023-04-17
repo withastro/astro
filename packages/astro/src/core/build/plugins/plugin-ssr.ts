@@ -212,6 +212,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		assetsPrefix: settings.config.build.assetsPrefix,
 		markdown: settings.config.markdown,
 		pageMap: null as any,
 		componentMetadata: Array.from(internals.componentMetadata),
