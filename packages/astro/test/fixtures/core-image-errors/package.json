@@ -1,5 +1,5 @@
 {
-  "name": "@test/core-image",
+  "name": "@test/core-image-errors",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

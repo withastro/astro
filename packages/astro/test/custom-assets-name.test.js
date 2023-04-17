@@ -14,7 +14,7 @@ describe('custom the assets name function', () => {
 	});
 
 	it('It cant find this file cause the node throws an error if the users custom a path that includes the folder path', async () => {
-		const csslength = await fixture.readFile('client/assets/css/a.css')
+		const csslength = await fixture.readFile('client/assets/css/a.css');
 		/** @type {Set<string>} */
 		expect(!!csslength).to.equal(true);
 	});

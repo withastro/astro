@@ -32,7 +32,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 				ecmaVersion: 'latest',
 				sourceType: 'module',
 			});
-			// @ts-expect-error acorn.Node is not assignable to estree.Node
+
 			walk(ast, {
 				enter(node: any) {
 					// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`

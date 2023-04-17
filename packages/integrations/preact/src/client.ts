@@ -35,13 +35,15 @@ export default (element: HTMLElement) =>
 			return h(element.localName, attrs, children);
 		}
 
+		let parent = element.parentNode as Element;
+
 		render(
 			h(
 				Wrapper,
 				null,
 				h(Component, props, children != null ? h(StaticHtml, { value: children }) : children)
 			),
-			element.parentNode!,
+			parent,
 			element
 		);
 	};
