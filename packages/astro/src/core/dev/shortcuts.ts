@@ -20,6 +20,8 @@ export function listenForShortcuts({
 	container: Container;
 	settings: AstroSettings;
 }) {
+	const resolvedUrls = container.viteServer.resolvedUrls || { local: [], network: [] };
+
 	const shortcuts = [
 		{
 			letter: 'r',
@@ -40,7 +42,7 @@ export function listenForShortcuts({
 					options.logging,
 					null,
 					msg.serverUrls({
-						resolvedUrls: container.viteServer.resolvedUrls || { local: [], network: [] },
+						resolvedUrls,
 						host: settings.config.server.host,
 						base: settings.config.base,
 					})
