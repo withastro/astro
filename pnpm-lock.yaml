@@ -407,12 +407,13 @@ importers:
         version: 3.58.0
 
   examples/with-data:
-    specifiers:
-      '@astrojs/markdoc': ^0.1.1
-      astro: ^2.2.0
     dependencies:
-      '@astrojs/markdoc': link:../../packages/integrations/markdoc
-      astro: link:../../packages/astro
+      '@astrojs/markdoc':
+        specifier: ^0.1.1
+        version: link:../../packages/integrations/markdoc
+      astro:
+        specifier: ^2.2.0
+        version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
