@@ -33,7 +33,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 				sourceType: 'module',
 			});
 
-			walk(ast, {
+			walk(ast as any, {
 				enter(node: any) {
 					// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`
 					// Also handle for `Astro2.glob()`
