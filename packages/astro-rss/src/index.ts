@@ -229,7 +229,9 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 			item.author = result.author;
 		}
 		if (typeof result.commentsUrl === 'string') {
-			item.comments = result.commentsUrl;
+			item.comments = isValidURL(result.commentsUrl)
+				? result.commentsUrl
+				: createCanonicalURL(result.commentsUrl, rssOptions.trailingSlash, site).href;
 		}
 		if (result.source) {
 			item.source = parser.parse(
@@ -237,8 +239,11 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 			).source;
 		}
 		if (result.enclosure) {
+			const enclosureURL = isValidURL(result.enclosure.url)
+				? result.enclosure.url
+				: createCanonicalURL(result.enclosure.url, rssOptions.trailingSlash, site).href;
 			item.enclosure = parser.parse(
-				`<enclosure url="${result.enclosure.url}" length="${result.enclosure.length}" type="${result.enclosure.type}"/>`
+				`<enclosure url="${enclosureURL}" length="${result.enclosure.length}" type="${result.enclosure.type}"/>`
 			).enclosure;
 		}
 		return item;

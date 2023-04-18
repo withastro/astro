@@ -40,7 +40,7 @@ export const web1FeedItemWithAllData = {
 		title: 'The Web 1.0 blog',
 	},
 	enclosure: {
-		url: 'http://example.com/podcast.mp3',
+		url: '/podcast.mp3',
 		length: 256,
 		type: 'audio/mpeg',
 	},

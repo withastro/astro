@@ -8,11 +8,11 @@ export const rssSchema = z.object({
 	draft: z.boolean().optional(),
 	categories: z.array(z.string()).optional(),
 	author: z.string().optional(),
-	commentsUrl: z.string().url().optional(),
+	commentsUrl: z.string().optional(),
 	source: z.object({ url: z.string().url(), title: z.string() }).optional(),
 	enclosure: z
 		.object({
-			url: z.string().url(),
+			url: z.string(),
 			length: z.number().positive().int().finite(),
 			type: z.string(),
 		})

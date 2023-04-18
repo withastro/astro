@@ -205,13 +205,13 @@ const item = {
 
 Type: `string (required)`
 
-The `<title>` attribute of the item in the feed.
+The title of the item in the feed.
 
 ### `link`
 
 Type: `string (required)`
 
-The `<link>` attribute of the item in the feed containing the URL of the item on the web.
+The URL of the item on the web.
 
 ### `pubDate`
 
@@ -223,73 +223,102 @@ Indicates when the item was published.
 
 Type: `string (optional)`
 
-If the item is complete within itself, that is you are publishing the full content of the item in the feed, the `description` field may contain the full text (entity-encoded HTML is permitted). If the item is a stub, then the `description` may contain a synopsis of the item.
+A synopsis of your item when you are publishing the full content of the item in the `content` field. The `description` may alternatively be the full content of the item in the feed if you are not using the `content` field (entity-coded HTML is permitted).
 
 ### `content`
 
 Type: `string (optional)`
 
-If you want to supply both a short description and also the full content in an item, set the `content` field to the full, encoded text. See the [recommendations from the RSS spec for how to use and differentiate between `description` and `content`](https://www.rssboard.org/rss-profile#namespace-elements-content-encoded).
+The full text content of the item suitable for presentation as HTML. If used, you should also provide a short article summary in the `description` field.
+
+See the [recommendations from the RSS spec for how to use and differentiate between `description` and `content`](https://www.rssboard.org/rss-profile#namespace-elements-content-encoded).
 
 ### `categories`
 
 Type: `string[] (optional)`
 
-If you use tags or categories to categorize your content, you can add them as the `categories` field. They will be output as multiple `<category>` elements.
+A list of any tags or categories to categorize your content. They will be output as multiple `<category>` elements.
 
 ### `author`
 
 Type: `string (optional)`
 
-Useful for multi-author blogs, the `author` field provides the email address of the person who wrote the item.
+The email address of the item author. This is useful for indicating the author of a post on multi-author blogs.
 
 ### `commentsUrl`
 
 Type: `string (optional)`
 
-The `commentsUrl` defines a URL of a web page that contains comments on the item.
+The URL of a web page that contains comments on the item.
 
 ### `source`
 
 Type: `object (optional)`
 
-Items that are republished from other publications may define a `source` which defines the `title` and `url` of the original feed in which it was published.
+An object that defines the `title` and `url` of the original feed for items that have been republished from another source. Both are required propeties of `source` for proper attribution.
 
-#### `title`
+```js
+const item = {
+	title: "Alpha Centauri: so close you can touch it",
+  link: "/blog/alpha-centuari",
+  pubDate: new Date("2023-06-04"),
+  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
+	source: {
+    title: "The Galactic Times",
+    url: "https://galactictimes.space/feed.xml"
+  }
+}
+```
+
+#### `source.title`
 
 Type: `string (required)`
 
-If you define a `source` you must define that source's `title`. It is the name of the original feed in which the item was published.
+The name of the original feed in which the item was published. (Note that this is the the feed's title, not the individual article title.)
 
-#### `url`
+#### `source.url`
 
 Type: `string (required)`
 
-If you define a `source` you must also define that source's `url` which identifies the URL of the original feed in which the item was published.
+The URL of the original feed in which the item was published.
 
 ### `enclosure`
 
 Type: `object (optional)`
 
-Items that include media as part of the feed, like a podcast, can define an `enclosure` which is made of three required fields, a `url`, `length`, and `type`.
+An object to specify properties for an included media source (e.g. a podcast) with three required values: `url`, `length`, and `type`.
 
-#### `url`
+```js
+const item = {
+	title: "Alpha Centauri: so close you can touch it",
+  link: "/blog/alpha-centuari",
+  pubDate: new Date("2023-06-04"),
+  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
+	enclosure: {
+    url: "/media/alpha-centauri.aac",
+    length: 124568,
+    type: "audio/aac"
+  }
+}
+```
+
+#### `enclosure.url`
 
 Type: `string (required)`
 
-The `url` field for the `enclosure` defines a URL where the media can be found.
+The URL where the media can be found. If the media is hosted outside of your own domain you must provide a full URL.
 
-#### `length`
+#### `enclosure.length`
 
 Type: `number (required)`
 
-The `length` field defines the size of the file found at the `url` in bytes.
+The size of the file found at the `url` in bytes.
 
-#### `type`
+#### `enclosure.type`
 
 Type: `string (required)`
 
-The `type` field defines the MIME type for the media item found at the `url`.
+The [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) for the media item found at the `url`.
 
 ## `rssSchema`
 
