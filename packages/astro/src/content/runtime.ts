@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { z } from 'astro/zod';
+import { ZodIssueCode, string as zodString, type z } from 'zod';
 
 import {
 	createComponent,
@@ -240,13 +240,13 @@ export function createReference({
 	map: CollectionToEntryMap;
 }) {
 	return function reference() {
-		return z.string().transform(async (entryId: string, ctx) => {
+		return zodString().transform(async (entryId: string, ctx) => {
 			const collectionName = await getCollectionName();
 			const flattenedErrorPath = ctx.path.join('.');
 			const entries = map[collectionName];
 			if (!entries) {
 				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
+					code: ZodIssueCode.custom,
 					message: `**${flattenedErrorPath}:** Reference to ${collectionName} invalid. Collection does not exist or is empty.`,
 				});
 				return;
@@ -259,7 +259,7 @@ export function createReference({
 					k.replace(/\.json$/, '')
 				);
 				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
+					code: ZodIssueCode.custom,
 					message: `**${flattenedErrorPath}**: Reference to ${collectionName} invalid. Expected ${entryKeys
 						.map((c) => JSON.stringify(c))
 						.join(' | ')}. Received ${JSON.stringify(entryId)}.`,
@@ -291,7 +291,7 @@ export function createReference({
 					// `isHoistedAstroError` will be handled where the schema is parsed.
 					// @see "./utils.ts" -> getEntryData()
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: ZodIssueCode.custom,
 						params: {
 							isHoistedAstroError: true,
 							astroError: e,
@@ -299,7 +299,7 @@ export function createReference({
 					});
 				} else {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: ZodIssueCode.custom,
 						message: `**${flattenedErrorPath}:** Referenced entry ${collectionName} → ${entryId} is invalid.`,
 					});
 				}
