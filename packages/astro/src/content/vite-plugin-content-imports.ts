@@ -107,6 +107,7 @@ export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
 export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 export const _internal = {
+	type: 'data',
 	filePath: ${JSON.stringify(_internal.filePath)},
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
@@ -126,6 +127,7 @@ export const _internal = {
 						export const body = ${JSON.stringify(body)};
 						export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
 						export const _internal = {
+							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
 							rawData: ${JSON.stringify(_internal.rawData)},
 						};`);

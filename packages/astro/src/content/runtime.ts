@@ -268,7 +268,23 @@ export function createReference({
 			}
 			try {
 				const entry = await lazyImport();
-				return entry.data;
+				if (entry._internal?.type === 'data') {
+					return {
+						id: entry.id,
+						collection: entry.collection,
+						data: entry.data,
+						_internal: entry._internal,
+					};
+				} else {
+					return {
+						id: entry.id,
+						slug: entry.slug,
+						body: entry.body,
+						collection: entry.collection,
+						data: entry.data,
+						_internal: entry._internal,
+					};
+				}
 			} catch (e) {
 				// Catch schema parse errors for referenced content.
 				if (e instanceof Error && (e as any).type === 'AstroError') {

@@ -67,29 +67,42 @@ declare module 'astro:content' {
 	type DataCollectionConfig<S extends BaseSchema> = {
 		type: 'data';
 		schema?: S | ((context: SchemaContext) => S);
+		reference(): import('astro/zod').ZodEffects<
+			import('astro/zod').ZodString,
+			{
+				id: string;
+				collection: string;
+				data: import('astro/zod').infer<S>;
+			}
+		>;
 	};
 
-	type GeneratedCollectionConfig<S extends BaseSchema> = {
-		reference(): import('astro/zod').ZodEffects<S>;
+	type ContentCollectionConfig<S extends BaseSchema> = {
+		type?: 'content';
+		schema?: S | ((context: SchemaContext) => S);
+		reference(): import('astro/zod').ZodEffects<
+			import('astro/zod').ZodString,
+			{
+				id: string;
+				slug: string;
+				collection: string;
+				data: import('astro/zod').infer<S>;
+				body: string;
+				/** Still working on `render()`! Need some changes to our schema serializer. */
+				render: never;
+			}
+		>;
 	};
 
-	type CollectionConfig<S> =
-		| {
-				type?: 'content';
-				schema?: S | ((context: SchemaContext) => S);
-		  }
-		| {
-				type: 'data';
-				schema?: S | ((context: SchemaContext) => S);
-		  };
+	type CollectionConfig<S> = ContentCollectionConfig<S> | DataCollectionConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
-		input: CollectionConfig<S>
-	): CollectionConfig<S> & GeneratedCollectionConfig<S>;
+		input: Omit<CollectionConfig<S>, 'reference'>
+	): CollectionConfig<S>;
 
 	export function defineDataCollection<S extends BaseSchema>(
-		input: Omit<DataCollectionConfig<S>, 'type'>
-	): DataCollectionConfig<S> & GeneratedCollectionConfig<S>;
+		input: Omit<DataCollectionConfig<S>, 'type' | 'reference'>
+	): DataCollectionConfig<S>;
 
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
 	type ValidEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<ContentEntryMap[C]>['slug'];
