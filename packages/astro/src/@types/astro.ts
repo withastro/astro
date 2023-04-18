@@ -441,19 +441,19 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name compact
+	 * @name compressHTML
 	 * @type {boolean}
 	 * @default `true`
 	 * @description
-	 * Set to `true` to enable compact mode. This will remove all whitespace from your final HTMl file, including newlines. This is useful for reducing the size of your final build html bundle
+	 * Set to `true` to enable compressHTML mode. This will remove all whitespace from your final HTMl file, including newlines. This is useful for reducing the size of your final build html bundle
 	 *
 	 * ```js
 	 * {
-	 *   compact: true
+	 *   compressHTML: true
 	 * }
 	 * ```
 	 */
-	compact?: boolean;
+	compressHTML?: boolean;
 
 	/**
 	 * @docs
