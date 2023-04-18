@@ -51,6 +51,13 @@ export interface AstroMarkdownOptions {
 	smartypants?: boolean;
 }
 
+export interface ImageMetadata {
+	src: string;
+	width: number;
+	height: number;
+	type: string;
+}
+
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** @internal */
 	fileURL?: URL;
@@ -58,10 +65,9 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	$?: {
 		scopedClassName: string | null;
 	};
-	/** Used to prevent relative image imports from `src/content/` */
-	contentDir: URL;
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
+	experimentalAssets?: boolean;
 }
 
 export interface MarkdownHeading {
@@ -79,11 +85,12 @@ export interface MarkdownMetadata {
 export interface MarkdownVFile extends VFile {
 	data: {
 		__astroHeadings?: MarkdownHeading[];
+		imagePaths?: Set<string>;
 	};
 }
 
 export interface MarkdownRenderingResult {
 	metadata: MarkdownMetadata;
-	vfile: VFile;
+	vfile: MarkdownVFile;
 	code: string;
 }

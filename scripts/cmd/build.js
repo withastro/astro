@@ -1,9 +1,10 @@
-import esbuild from 'esbuild';
-import svelte from '../utils/svelte-plugin.js';
 import { deleteAsync } from 'del';
+import esbuild from 'esbuild';
+import { copy } from 'esbuild-plugin-copy';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
+import svelte from '../utils/svelte-plugin.js';
 import prebuild from './prebuild.js';
 
 /** @type {import('esbuild').BuildOptions} */
@@ -11,7 +12,7 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node14',
+	target: 'node16',
 	sourcemap: false,
 	sourcesContent: false,
 };
@@ -50,6 +51,7 @@ export default async function build(...args) {
 	const noClean = args.includes('--no-clean-dist');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
+	const copyWASM = args.includes('--copy-wasm');
 
 	const {
 		type = 'module',
@@ -79,15 +81,15 @@ export default async function build(...args) {
 		return;
 	}
 
-	const builder = await esbuild.build({
-		...config,
-		watch: {
-			onRebuild(error, result) {
+	const rebuildPlugin = {
+		name: 'astro:rebuild',
+		setup(build) {
+			build.onEnd(async (result) => {
 				if (prebuilds.length) {
-					prebuild(...prebuilds);
+					await prebuild(...prebuilds);
 				}
 				const date = dt.format(new Date());
-				if (error || (result && result.errors.length)) {
+				if (result && result.errors.length) {
 					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
@@ -97,13 +99,33 @@ export default async function build(...args) {
 					}
 					console.log(dim(`[${date}] `) + green('✔ updated'));
 				}
-			},
+			});
 		},
+	};
+
+	const builder = await esbuild.context({
+		...config,
 		entryPoints,
 		outdir,
 		format,
-		plugins: [svelte({ isDev })],
+		plugins: [
+			rebuildPlugin,
+			svelte({ isDev }),
+			...(copyWASM
+				? [
+						copy({
+							resolveFrom: 'cwd',
+							assets: {
+								from: ['./src/assets/services/vendor/squoosh/**/*.wasm'],
+								to: ['./dist/assets/services/vendor/squoosh'],
+							},
+						}),
+				  ]
+				: []),
+		],
 	});
+
+	await builder.watch();
 
 	process.on('beforeExit', () => {
 		builder.stop && builder.stop();

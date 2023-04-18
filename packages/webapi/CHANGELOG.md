@@ -1,5 +1,23 @@
 # @astrojs/webapi
 
+## 2.1.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
+## 2.0.3
+
+### Patch Changes
+
+- [#6413](https://github.com/withastro/astro/pull/6413) [`0abd1d3e4`](https://github.com/withastro/astro/commit/0abd1d3e42cf7bf5efb8c41f37e011b933fb0629) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use undici's FormData instead of a polyfill
+
+## 2.0.2
+
+### Patch Changes
+
+- [#6355](https://github.com/withastro/astro/pull/6355) [`5aa6580f7`](https://github.com/withastro/astro/commit/5aa6580f775405a4443835bf7eb81f0c65e5aed6) Thanks [@ematipico](https://github.com/ematipico)! - Update `undici` to v5.20.0
+
 ## 2.0.1
 
 ### Patch Changes

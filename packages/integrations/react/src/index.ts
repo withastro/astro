@@ -1,4 +1,4 @@
-import { AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
 
 function getRenderer() {
@@ -66,6 +66,7 @@ function getViteConfiguration() {
 				'@mui/material',
 				'@mui/base',
 				'@babel/runtime',
+				'use-immer',
 			],
 		},
 	};

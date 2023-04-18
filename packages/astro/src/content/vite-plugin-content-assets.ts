@@ -1,76 +1,89 @@
-import npath from 'node:path';
 import { pathToFileURL } from 'url';
 import type { Plugin } from 'vite';
+import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
-import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
-import { AstroBuildPlugin } from '../core/build/plugin.js';
+import { getPageDataByViteID, type BuildInternals } from '../core/build/internal.js';
+import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { StaticBuildOptions } from '../core/build/types';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
-import { prependForwardSlash } from '../core/path.js';
+import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
-	contentFileExts,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
+import { getContentEntryExts } from './utils.js';
 
-function isPropagatedAsset(viteId: string): boolean {
-	const url = new URL(viteId, 'file://');
-	return (
-		url.searchParams.has(PROPAGATED_ASSET_FLAG) &&
-		contentFileExts.some((ext) => url.pathname.endsWith(ext))
-	);
+function isPropagatedAsset(viteId: string) {
+	const flags = new URLSearchParams(viteId.split('?')[1]);
+	return flags.has(PROPAGATED_ASSET_FLAG);
 }
 
-export function astroContentAssetPropagationPlugin({ mode }: { mode: string }): Plugin {
+export function astroContentAssetPropagationPlugin({
+	mode,
+	settings,
+}: {
+	mode: string;
+	settings: AstroSettings;
+}): Plugin {
 	let devModuleLoader: ModuleLoader;
+	const contentEntryExts = getContentEntryExts(settings);
 	return {
 		name: 'astro:content-asset-propagation',
-		enforce: 'pre',
 		configureServer(server) {
 			if (mode === 'dev') {
 				devModuleLoader = createViteLoader(server);
 			}
 		},
-		load(id) {
+		async transform(_, id, options) {
 			if (isPropagatedAsset(id)) {
 				const basePath = id.split('?')[0];
+				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
+
+				// We can access the server in dev,
+				// so resolve collected styles and scripts here.
+				if (options?.ssr && devModuleLoader) {
+					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
+						await devModuleLoader.import(basePath);
+					}
+					const { stylesMap, urls } = await getStylesForURL(
+						pathToFileURL(basePath),
+						devModuleLoader,
+						'development'
+					);
+
+					const hoistedScripts = await getScriptsForURL(
+						pathToFileURL(basePath),
+						settings.config.root,
+						devModuleLoader
+					);
+
+					stringifiedLinks = JSON.stringify([...urls]);
+					stringifiedStyles = JSON.stringify([...stylesMap.values()]);
+					stringifiedScripts = JSON.stringify([...hoistedScripts]);
+				} else {
+					// Otherwise, use placeholders to inject styles and scripts
+					// during the production bundle step.
+					// @see the `astro:content-build-plugin` below.
+					stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
+					stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
+					stringifiedScripts = JSON.stringify(SCRIPTS_PLACEHOLDER);
+				}
+
 				const code = `
 					export async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
-					export const collectedLinks = ${JSON.stringify(LINKS_PLACEHOLDER)};
-					export const collectedStyles = ${JSON.stringify(STYLES_PLACEHOLDER)};
-					export const collectedScripts = ${JSON.stringify(SCRIPTS_PLACEHOLDER)};
+					export const collectedLinks = ${stringifiedLinks};
+					export const collectedStyles = ${stringifiedStyles};
+					export const collectedScripts = ${stringifiedScripts};
 				`;
-				return { code };
-			}
-		},
-		async transform(code, id, options) {
-			if (!options?.ssr) return;
-			if (devModuleLoader && isPropagatedAsset(id)) {
-				const basePath = id.split('?')[0];
-				if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
-					await devModuleLoader.import(basePath);
-				}
-				const { stylesMap, urls } = await getStylesForURL(
-					pathToFileURL(basePath),
-					devModuleLoader,
-					'development'
-				);
 
-				const hoistedScripts = await getScriptsForURL(pathToFileURL(basePath), devModuleLoader);
-
-				return {
-					code: code
-						.replace(JSON.stringify(LINKS_PLACEHOLDER), JSON.stringify([...urls]))
-						.replace(JSON.stringify(STYLES_PLACEHOLDER), JSON.stringify([...stylesMap.values()]))
-						.replace(JSON.stringify(SCRIPTS_PLACEHOLDER), JSON.stringify([...hoistedScripts])),
-				};
+				return { code, map: { mappings: '' } };
 			}
 		},
 	};
@@ -98,8 +111,13 @@ export function astroConfigBuildPlugin(
 			},
 			'build:post': ({ ssrOutputs, clientOutputs, mutate }) => {
 				const outputs = ssrOutputs.flatMap((o) => o.output);
-				const prependBase = (src: string) =>
-					prependForwardSlash(npath.posix.join(options.settings.config.base, src));
+				const prependBase = (src: string) => {
+					if (options.settings.config.build.assetsPrefix) {
+						return joinPaths(options.settings.config.build.assetsPrefix, src);
+					} else {
+						return prependForwardSlash(joinPaths(options.settings.config.base, src));
+					}
+				};
 				for (const chunk of outputs) {
 					if (
 						chunk.type === 'chunk' &&

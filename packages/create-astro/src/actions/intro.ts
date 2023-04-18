@@ -1,4 +1,4 @@
-import { type Context } from './context';
+import type { Context } from './context';
 
 import { color, label } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';

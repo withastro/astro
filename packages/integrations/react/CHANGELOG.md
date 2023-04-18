@@ -1,5 +1,19 @@
 # @astrojs/react
 
+## 2.1.1
+
+### Patch Changes
+
+- [#6698](https://github.com/withastro/astro/pull/6698) [`fc71c3f18`](https://github.com/withastro/astro/commit/fc71c3f18819ac3ad62809a7eeff5fe7840f2c4b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update React README to reference the [new React docs](https://react.dev)
+
+- [#6696](https://github.com/withastro/astro/pull/6696) [`239b9a2fb`](https://github.com/withastro/astro/commit/239b9a2fb864fa785e4150cd8aa833de72dd3517) Thanks [@matthewp](https://github.com/matthewp)! - Add use-immer as a noExternal module
+
+## 2.1.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
 ## 2.0.2
 
 ### Patch Changes

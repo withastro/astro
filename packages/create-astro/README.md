@@ -47,6 +47,7 @@ May be provided in place of prompts
 | `--no` (`-n`) | Skip all prompt by declining defaults. |
 | `--dry-run` | Walk through steps without executing. |
 | `--skip-houston` | Skip Houston animation. |
+| `--typescript <option>` | TypeScript option: `strict` / `strictest` / `relaxed`. |
 
 [examples]: https://github.com/withastro/astro/tree/main/examples
 [typescript]: https://github.com/withastro/astro/tree/main/packages/astro/tsconfigs

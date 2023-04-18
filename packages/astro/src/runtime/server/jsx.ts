@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { SSRResult } from '../../@types/astro.js';
-import { AstroJSX, AstroVNode, isVNode } from '../../jsx-runtime/index.js';
+import type { SSRResult } from '../../@types/astro.js';
+import { AstroJSX, isVNode, type AstroVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
 	HTMLString,
@@ -12,7 +12,6 @@ import {
 } from './index.js';
 import { HTMLParts } from './render/common.js';
 import type { ComponentIterable } from './render/component';
-import { createScopedResult, ScopeFlags } from './render/scope.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -95,8 +94,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				const scoped = createScopedResult(result, ScopeFlags.JSX);
-				const html = markHTMLString(await renderToString(scoped, vnode.type as any, props, slots));
+				const html = markHTMLString(await renderToString(result, vnode.type as any, props, slots));
 				return html;
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
@@ -220,9 +218,25 @@ async function renderElement(
 		`<${tag}${spreadAttributes(props)}${markHTMLString(
 			(children == null || children == '') && voidElementNames.test(tag)
 				? `/>`
-				: `>${children == null ? '' : await renderJSX(result, children)}</${tag}>`
+				: `>${
+						children == null ? '' : await renderJSX(result, prerenderElementChildren(tag, children))
+				  }</${tag}>`
 		)}`
 	);
+}
+
+/**
+ * Pre-render the children with the given `tag` information
+ */
+function prerenderElementChildren(tag: string, children: any) {
+	// For content within <style> and <script> tags that are plain strings, e.g. injected
+	// by remark/rehype plugins, or if a user explicitly does `<script>{'...'}</script>`,
+	// we mark it as an HTML string to prevent the content from being HTML-escaped.
+	if (typeof children === 'string' && (tag === 'style' || tag === 'script')) {
+		return markHTMLString(children);
+	} else {
+		return children;
+	}
 }
 
 /**

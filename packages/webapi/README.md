@@ -108,8 +108,8 @@ The `exclude` option receives a list of WebAPIs to exclude from polyfilling.
 
 ```js
 polyfill(globalThis, {
-	// disables polyfills for setTimeout clearTimeout
-	exclude: 'setTimeout clearTimeout',
+  // disables polyfills for setTimeout clearTimeout
+  exclude: 'setTimeout clearTimeout',
 })
 ```
 
@@ -117,22 +117,22 @@ The `exclude` option accepts shorthands to exclude multiple polyfills. These sho
 
 ```js
 polyfill(globalThis, {
-	// disables polyfills for setTimeout clearTimeout
-	exclude: 'Timeout+',
+  // disables polyfills for setTimeout clearTimeout
+  exclude: 'Timeout+',
 })
 ```
 
 ```js
 polyfill(globalThis, {
-	// disables polyfills for Node, Window, Document, HTMLElement, etc.
-	exclude: 'Node+',
+  // disables polyfills for Node, Window, Document, HTMLElement, etc.
+  exclude: 'Node+',
 })
 ```
 
 ```js
 polyfill(globalThis, {
-	// disables polyfills for Event, EventTarget, Node, Window, Document, HTMLElement, etc.
-	exclude: 'Event+',
+  // disables polyfills for Event, EventTarget, Node, Window, Document, HTMLElement, etc.
+  exclude: 'Event+',
 })
 ```
 
@@ -155,5 +155,3 @@ polyfill(globalThis, {
 Thank you to Jon Neal for his work on the original [webapi](https://github.com/astro-community/webapi) project that this package is forked from. Licensed under the CC0-1.0 License.
 
 Code from [event-target-shim](https://www.npmjs.com/package/event-target-shim) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
-
-Code from [formdata-polyfill](https://www.npmjs.com/package/formdata-polyfill) is licensed under the MIT License (MIT), Copyright Jimmy Wärting.

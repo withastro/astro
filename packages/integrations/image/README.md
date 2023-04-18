@@ -85,7 +85,7 @@ Then, update the integration in your `astro.config.*` file to use the built-in `
 
 __`astro.config.mjs`__
 
-```js ins={3,8}
+```js ins={7}
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
@@ -506,7 +506,7 @@ import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
 export default defineConfig({
-	integrations: [image({
+  integrations: [image({
     // may be useful if your hosting provider allows caching between CI builds
     cacheDir: "./.cache/image"
   })]

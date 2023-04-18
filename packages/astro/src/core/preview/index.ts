@@ -1,22 +1,43 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import { cyan } from 'kleur/colors';
 import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
+import type { Arguments } from 'yargs-parser';
 import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import type { LogOptions } from '../logger/core';
+import { printHelp } from '../messages.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
+	flags?: Arguments;
 }
 
 /** The primary dev action */
 export default async function preview(
 	_settings: AstroSettings,
-	{ logging }: PreviewOptions
-): Promise<PreviewServer> {
+	{ logging, flags }: PreviewOptions
+): Promise<PreviewServer | undefined> {
+	if (flags?.help || flags?.h) {
+		printHelp({
+			commandName: 'astro preview',
+			usage: '[...flags]',
+			tables: {
+				Flags: [
+					['--open', 'Automatically open the app in the browser on server start'],
+					['--help (-h)', 'See all available flags.'],
+				],
+			},
+			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
+				'https://docs.astro.build/en/reference/cli-reference/#astro-preview'
+			)} for more information.`,
+		});
+		return;
+	}
+
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		command: 'preview',

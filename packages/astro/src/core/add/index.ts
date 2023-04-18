@@ -13,11 +13,11 @@ import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath } from '../config/index.js';
 import {
 	defaultTSConfig,
-	frameworkWithTSSettings,
 	presets,
 	updateTSConfigForFramework,
+	type frameworkWithTSSettings,
 } from '../config/tsconfig.js';
-import { debug, info, LogOptions } from '../logger/core.js';
+import { debug, info, type LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
 import { appendForwardSlash } from '../path.js';
@@ -59,6 +59,10 @@ import { vitePreprocess } from '@astrojs/svelte';
 export default {
 	preprocess: vitePreprocess(),
 };
+`;
+const LIT_NPMRC_STUB = `\
+# Lit libraries are required to be hoisted due to dependency issues.
+public-hoist-pattern[]=*lit*
 `;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -144,6 +148,22 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					possibleConfigFiles: ['./svelte.config.js', './svelte.config.cjs', './svelte.config.mjs'],
 					defaultConfigFile: './svelte.config.js',
 					defaultConfigContent: SVELTE_CONFIG_STUB,
+				});
+			}
+			// Some lit dependencies needs to be hoisted, so for strict package managers like pnpm,
+			// we add an .npmrc to hoist them
+			if (
+				integrations.find((integration) => integration.id === 'lit') &&
+				(await preferredPM(fileURLToPath(root)))?.name === 'pnpm'
+			) {
+				await setupIntegrationConfig({
+					root,
+					logging,
+					flags,
+					integrationName: 'Lit',
+					possibleConfigFiles: ['./.npmrc'],
+					defaultConfigFile: './.npmrc',
+					defaultConfigContent: LIT_NPMRC_STUB,
 				});
 			}
 			break;
@@ -457,7 +477,21 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 				return false;
 			}) as t.ObjectProperty | undefined;
 
-			const adapterCall = t.callExpression(adapterId, []);
+			let adapterCall;
+			switch (adapter.id) {
+				// the node adapter requires a mode
+				case 'node': {
+					adapterCall = t.callExpression(adapterId, [
+						t.objectExpression([
+							t.objectProperty(t.identifier('mode'), t.stringLiteral('standalone')),
+						]),
+					]);
+					break;
+				}
+				default: {
+					adapterCall = t.callExpression(adapterId, []);
+				}
+			}
 
 			if (!adapterProp) {
 				configObject.properties.push(t.objectProperty(t.identifier('adapter'), adapterCall));
@@ -493,7 +527,7 @@ async function updateAstroConfig({
 	let output = await generate(ast);
 	const comment = '// https://astro.build/config';
 	const defaultExport = 'export default defineConfig';
-	output = output.replace(` ${comment}`, '');
+	output = output.replace(`\n${comment}`, '');
 	output = output.replace(`${defaultExport}`, `\n${comment}\n${defaultExport}`);
 
 	if (input === output) {

@@ -1,5 +1,40 @@
 # @astrojs/rss
 
+## 2.3.2
+
+### Patch Changes
+
+- [#6614](https://github.com/withastro/astro/pull/6614) [`b1b9b1390`](https://github.com/withastro/astro/commit/b1b9b1390f95c6ae91389eba55f7563b911bccc7) Thanks [@aivarsliepa](https://github.com/aivarsliepa)! - Fixes `RSSOptions` type error when using `strictest` Typescript tsconfig
+
+## 2.3.1
+
+### Patch Changes
+
+- [#6538](https://github.com/withastro/astro/pull/6538) [`400ef26c9`](https://github.com/withastro/astro/commit/400ef26c998a586b29c2f3931e63c1c5801d3bea) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Preserve self-closing tags in `customData` option
+
+## 2.3.0
+
+### Minor Changes
+
+- [#6453](https://github.com/withastro/astro/pull/6453) [`2e362042c`](https://github.com/withastro/astro/commit/2e362042c222298fd6cd80a64c1d7b7f3f608a79) Thanks [@ematipico](https://github.com/ematipico)! - Added `trailingSlash` option to control whether or not the emitted URLs should have trailing slashes.
+
+  ```js
+  import rss from '@astrojs/rss';
+
+  export const get = () =>
+    rss({
+      trailingSlash: false,
+    });
+  ```
+
+  By passing `false`, the emitted links won't have trailing slashes.
+
+## 2.2.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
 ## 2.1.1
 
 ### Patch Changes

@@ -1,16 +1,18 @@
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
 import { compile as mdxCompile } from '@mdx-js/mdx';
-import { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroIntegration } from 'astro';
+import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
+import mdxPlugin, { type Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
+import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import { SourceMapGenerator } from 'source-map';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
-import { getFileInfo, parseFrontmatter } from './utils.js';
+import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
 	extendMarkdownConfig: boolean;
@@ -22,19 +24,47 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkRehype: RemarkRehypeOptions;
 };
 
+type SetupHookParams = HookParameters<'astro:config:setup'> & {
+	// `addPageExtension` and `contentEntryType` are not a public APIs
+	// Add type defs here
+	addPageExtension: (extension: string) => void;
+	addContentEntryType: (contentEntryType: ContentEntryType) => void;
+};
+
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
+			'astro:config:setup': async (params) => {
+				const { updateConfig, config, addPageExtension, addContentEntryType, command } =
+					params as SetupHookParams;
+
 				addPageExtension('.mdx');
+				addContentEntryType({
+					extensions: ['.mdx'],
+					async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+						const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
+						return {
+							data: parsed.data,
+							body: parsed.content,
+							slug: parsed.data.slug,
+							rawData: parsed.matter,
+						};
+					},
+					contentModuleTypes: await fs.readFile(
+						new URL('../template/content-module-types.d.ts', import.meta.url),
+						'utf-8'
+					),
+				});
 
 				const extendMarkdownConfig =
-					partialMdxOptions.extendMarkdownConfig ?? defaultOptions.extendMarkdownConfig;
+					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
 				const mdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: extendMarkdownConfig ? config.markdown : defaultOptions,
+					defaults: markdownConfigToMdxOptions(
+						extendMarkdownConfig ? config.markdown : markdownConfigDefaults
+					),
 				});
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
@@ -84,6 +114,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											...(mdxPluginOpts.recmaPlugins ?? []),
 											() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
 										],
+										SourceMapGenerator: config.vite.build?.sourcemap
+											? SourceMapGenerator
+											: undefined,
 									});
 
 									return {
@@ -112,13 +145,13 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									}
 
 									const { fileUrl, fileId } = getFileInfo(id, config);
-									if (!moduleExports.includes('url')) {
+									if (!moduleExports.find(({ n }) => n === 'url')) {
 										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
 									}
-									if (!moduleExports.includes('file')) {
+									if (!moduleExports.find(({ n }) => n === 'file')) {
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
 									}
-									if (!moduleExports.includes('Content')) {
+									if (!moduleExports.find(({ n }) => n === 'Content')) {
 										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
 										code = code.replace('export default MDXContent;', '');
 										code += `\nexport const Content = (props = {}) => MDXContent({
@@ -131,6 +164,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									// Ensures styles and scripts are injected into a `<head>`
 									// When a layout is not applied
 									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
+									code += `\nContent.moduleId = ${JSON.stringify(id)};`;
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
@@ -138,7 +172,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											import.meta.hot.decline();
 										}`;
 									}
-									return escapeViteEnvReferences(code);
+									return { code: escapeViteEnvReferences(code), map: null };
 								},
 							},
 						] as VitePlugin[],
@@ -149,14 +183,20 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 	};
 }
 
-const defaultOptions: MdxOptions = {
-	...markdownConfigDefaults,
+const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
-	remarkPlugins: [],
-	rehypePlugins: [],
-	remarkRehype: {},
 };
+
+function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefaults): MdxOptions {
+	return {
+		...defaultMdxOptions,
+		...markdownConfig,
+		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
+		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
+		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
+	};
+}
 
 function applyDefaultOptions({
 	options,

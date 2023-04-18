@@ -12,16 +12,32 @@ interface CreateServerOptions {
 	removeBase: (pathname: string) => string;
 }
 
+function parsePathname(pathname: string, host: string | undefined, port: number) {
+	try {
+		const urlPathname = new URL(pathname, `http://${host}:${port}`).pathname;
+		return decodeURI(encodeURI(urlPathname));
+	} catch (err) {
+		return undefined;
+	}
+}
+
 export function createServer(
 	{ client, port, host, removeBase }: CreateServerOptions,
 	handler: http.RequestListener
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
-			let pathname = removeBase(req.url);
+			let pathname: string | undefined = removeBase(req.url);
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
-			pathname = new URL(pathname, `http://${host}:${port}`).pathname;
-			const stream = send(req, encodeURI(decodeURI(pathname)), {
+			const encodedURI = parsePathname(pathname, host, port);
+
+			if (!encodedURI) {
+				res.writeHead(400);
+				res.end('Bad request.');
+				return res;
+			}
+
+			const stream = send(req, encodedURI, {
 				root: fileURLToPath(client),
 				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});

@@ -1,9 +1,9 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	ComponentInstance,
-	PropagationHint,
 	RouteData,
 	SerializedRouteData,
+	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
@@ -31,18 +31,19 @@ export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
 	base?: string;
+	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;
 	assets: Set<string>;
-	propagation: SSRResult['propagation'];
+	componentMetadata: SSRResult['componentMetadata'];
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'propagation'> & {
+export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'componentMetadata'> & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
-	propagation: readonly [string, PropagationHint][];
+	componentMetadata: [string, SSRComponentMetadata][];
 };
 
 export type AdapterCreateExports<T = any> = (

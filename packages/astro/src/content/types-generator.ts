@@ -3,17 +3,14 @@ import { cyan } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { normalizePath, ViteDevServer } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import { normalizePath, type ViteDevServer } from 'vite';
+import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { info, LogOptions, warn } from '../core/logger/core.js';
+import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import {
-	ContentConfig,
-	ContentObservable,
-	ContentPaths,
-	EntryInfo,
+	getContentEntryExts,
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
@@ -21,6 +18,10 @@ import {
 	loadContentConfig,
 	NoCollectionError,
 	parseFrontmatter,
+	type ContentConfig,
+	type ContentObservable,
+	type ContentPaths,
+	type EntryInfo,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -41,6 +42,11 @@ type CreateContentGeneratorParams = {
 
 type EventOpts = { logLevel: 'info' | 'warn' };
 
+type EventWithOptions = {
+	type: ContentEvent;
+	opts: EventOpts | undefined;
+};
+
 class UnsupportedFileTypeError extends Error {}
 
 export async function createContentTypesGenerator({
@@ -52,11 +58,12 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config, fs);
+	const contentEntryExts = getContentEntryExts(settings);
 
-	let events: Promise<{ shouldGenerateTypes: boolean; error?: Error }>[] = [];
+	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 
-	const contentTypesBase = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
+	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
 	async function init(): Promise<
 		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
@@ -65,7 +72,11 @@ export async function createContentTypesGenerator({
 			return { typesGenerated: false, reason: 'no-content-dir' };
 		}
 
-		events.push(handleEvent({ name: 'add', entry: contentPaths.config.url }, { logLevel: 'warn' }));
+		events.push({
+			type: { name: 'add', entry: contentPaths.config.url },
+			opts: { logLevel: 'warn' },
+		});
+
 		const globResult = await glob('**', {
 			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
@@ -80,7 +91,7 @@ export async function createContentTypesGenerator({
 				(e) => !e.href.startsWith(contentPaths.config.url.href)
 			);
 		for (const entry of entries) {
-			events.push(handleEvent({ name: 'add', entry }, { logLevel: 'warn' }));
+			events.push({ type: { name: 'add', entry }, opts: { logLevel: 'warn' } });
 		}
 		await runEvents();
 		return { typesGenerated: true };
@@ -112,7 +123,12 @@ export async function createContentTypesGenerator({
 			}
 			return { shouldGenerateTypes: true };
 		}
-		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths);
+		const fileType = getEntryType(
+			fileURLToPath(event.entry),
+			contentPaths,
+			contentEntryExts,
+			settings.config.experimental.assets
+		);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
@@ -204,23 +220,38 @@ export async function createContentTypesGenerator({
 
 	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
 		const event = {
-			entry: pathToFileURL(rawEvent.entry),
-			name: rawEvent.name,
+			type: {
+				entry: pathToFileURL(rawEvent.entry),
+				name: rawEvent.name,
+			},
+			opts,
 		};
-		if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
 
-		events.push(handleEvent(event, opts));
+		events.push(event);
 
 		debounceTimeout && clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(
-			async () => runEvents(opts),
-			50 /* debounce to batch chokidar events */
-		);
+		const runEventsSafe = async () => {
+			try {
+				await runEvents(opts);
+			} catch {
+				// Prevent frontmatter errors from crashing the server. The errors
+				// are still reported on page reflects as desired.
+				// Errors still crash dev from *starting*.
+			}
+		};
+		debounceTimeout = setTimeout(runEventsSafe, 50 /* debounce to batch chokidar events */);
 	}
 
 	async function runEvents(opts?: EventOpts) {
 		const logLevel = opts?.logLevel ?? 'info';
-		const eventResponses = await Promise.all(events);
+		const eventResponses = [];
+
+		for (const event of events) {
+			const response = await handleEvent(event.type, event.opts);
+			eventResponses.push(response);
+		}
+
 		events = [];
 		let unsupportedFiles = [];
 		for (const response of eventResponses) {
@@ -243,8 +274,9 @@ export async function createContentTypesGenerator({
 				fs,
 				contentTypes,
 				contentPaths,
-				contentTypesBase,
+				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
+				contentEntryTypes: settings.contentEntryTypes,
 			});
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 				warnNonexistentCollections({
@@ -282,7 +314,7 @@ async function parseSlug({
 	// on dev server startup or production build init.
 	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
 	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
-	return getEntrySlug({ ...entryInfo, data: frontmatter });
+	return getEntrySlug({ ...entryInfo, unvalidatedSlug: frontmatter.slug });
 }
 
 function setEntry(
@@ -302,13 +334,15 @@ async function writeContentFiles({
 	fs,
 	contentPaths,
 	contentTypes,
-	contentTypesBase,
+	typeTemplateContent,
+	contentEntryTypes,
 	contentConfig,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
 	contentTypes: ContentTypes;
-	contentTypesBase: string;
+	typeTemplateContent: string;
+	contentEntryTypes: ContentEntryType[];
 	contentConfig?: ContentConfig;
 }) {
 	let contentTypesStr = '';
@@ -320,8 +354,11 @@ async function writeContentFiles({
 		for (const entryKey of entryKeys) {
 			const entryMetadata = contentTypes[collectionKey][entryKey];
 			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+			const renderType = `{ render(): Render[${JSON.stringify(
+				path.extname(JSON.parse(entryKey))
+			)}] }`;
 			const slugType = JSON.stringify(entryMetadata.slug);
-			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n},\n`;
+			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n} & ${renderType},\n`;
 		}
 		contentTypesStr += `},\n`;
 	}
@@ -341,13 +378,21 @@ async function writeContentFiles({
 		configPathRelativeToCacheDir = configPathRelativeToCacheDir.replace(/\.ts$/, '');
 	}
 
-	contentTypesBase = contentTypesBase.replace('// @@ENTRY_MAP@@', contentTypesStr);
-	contentTypesBase = contentTypesBase.replace(
+	for (const contentEntryType of contentEntryTypes) {
+		if (contentEntryType.contentModuleTypes) {
+			typeTemplateContent = contentEntryType.contentModuleTypes + '\n' + typeTemplateContent;
+		}
+	}
+	typeTemplateContent = typeTemplateContent.replace('// @@ENTRY_MAP@@', contentTypesStr);
+	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
 		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
 	);
 
-	await fs.promises.writeFile(new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir), contentTypesBase);
+	await fs.promises.writeFile(
+		new URL(CONTENT_TYPES_FILE, contentPaths.cacheDir),
+		typeTemplateContent
+	);
 }
 
 function warnNonexistentCollections({

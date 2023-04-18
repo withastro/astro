@@ -1,6 +1,6 @@
 {
   "name": "astro-scripts",
-  "version": "0.0.11",
+  "version": "0.0.14",
   "private": true,
   "type": "module",
   "main": "./index.js",
@@ -11,13 +11,14 @@
     "@astrojs/webapi": "workspace:*",
     "adm-zip": "^0.5.9",
     "arg": "^5.0.2",
-    "esbuild": "^0.15.18",
+    "esbuild": "^0.17.12",
     "globby": "^12.2.0",
     "kleur": "^4.1.4",
     "svelte": "^3.48.0",
     "tar": "^6.1.11"
   },
   "devDependencies": {
+    "esbuild-plugin-copy": "^2.0.2",
     "tsconfig-resolver": "^3.0.1"
   }
 }

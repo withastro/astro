@@ -49,8 +49,13 @@ describe('head injection', () => {
 					import { renderEntry } from '../common/head.js';
 					const Head = renderEntry();
 					---
-					<h1>testing</h1>
-					<Head />
+					<html>
+						<head><title>Testing</title></head>
+						<body>
+							<h1>testing</h1>
+							<Head />
+						</body>
+					</html>
 				`,
 			},
 			root

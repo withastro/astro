@@ -1,7 +1,7 @@
-import { type Expression, type Super } from 'estree';
+import type { Expression, Super } from 'estree';
 import Slugger from 'github-slugger';
-import { type MdxTextExpression } from 'mdast-util-mdx-expression';
-import { type Node } from 'unist';
+import type { MdxTextExpression } from 'mdast-util-mdx-expression';
+import type { Node } from 'unist';
 import { visit } from 'unist-util-visit';
 
 import { InvalidAstroDataError, safelyGetAstroData } from './frontmatter-injection.js';

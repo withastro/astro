@@ -1,5 +1,23 @@
 # @astrojs/partytown
 
+## 1.2.0
+
+### Minor Changes
+
+- [#6667](https://github.com/withastro/astro/pull/6667) [`aff53c109`](https://github.com/withastro/astro/commit/aff53c109c4f7b08b6b80e58e9ca5cb481131eb5) Thanks [@thebinarymutant](https://github.com/thebinarymutant)! - Expose more partytown config properties
+
+## 1.1.1
+
+### Patch Changes
+
+- [#6494](https://github.com/withastro/astro/pull/6494) [`a13e9d7e3`](https://github.com/withastro/astro/commit/a13e9d7e33baccf51e7d4815f99b481ad174bc57) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Consistency improvements to several package descriptions
+
+## 1.1.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
 ## 1.0.3
 
 ### Patch Changes

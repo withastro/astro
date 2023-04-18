@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroErrorData } from '../errors-data.js';
-import { AstroError, ErrorWithMetadata } from '../errors.js';
+import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { createSafeError } from '../utils.js';
 import type { SSRLoadedRenderer } from './../../../@types/astro.js';
 import { renderErrorMarkdown } from './utils.js';
@@ -122,6 +122,11 @@ export interface AstroErrorPayload {
 	};
 }
 
+// Shiki does not support `mjs` or `cjs` aliases by default.
+// Map these to `.js` during error highlighting.
+const ALTERNATIVE_JS_EXTS = ['cjs', 'mjs'];
+const ALTERNATIVE_MD_EXTS = ['mdoc'];
+
 /**
  * Generate a payload for Vite's error overlay
  */
@@ -150,9 +155,16 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 		: undefined;
 
 	const highlighter = await getHighlighter({ theme: 'css-variables' });
+	let highlighterLang = err.loc?.file?.split('.').pop();
+	if (ALTERNATIVE_JS_EXTS.includes(highlighterLang ?? '')) {
+		highlighterLang = 'js';
+	}
+	if (ALTERNATIVE_MD_EXTS.includes(highlighterLang ?? '')) {
+		highlighterLang = 'md';
+	}
 	const highlightedCode = err.fullCode
 		? highlighter.codeToHtml(err.fullCode, {
-				lang: err.loc?.file?.split('.').pop(),
+				lang: highlighterLang,
 				lineOptions: err.loc?.line ? [{ line: err.loc.line, classes: ['error-line'] }] : undefined,
 		  })
 		: undefined;

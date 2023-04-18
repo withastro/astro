@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.0.14",
+  "version": "2.3.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -32,6 +32,7 @@
     "./types": "./types.d.ts",
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
+    "./client-image": "./client-image.d.ts",
     "./import-meta": "./import-meta.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
@@ -47,7 +48,13 @@
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
+    "./assets": "./dist/assets/index.js",
+    "./assets/image-endpoint": "./dist/assets/image-endpoint.js",
+    "./assets/services/sharp": "./dist/assets/services/sharp.js",
+    "./assets/services/squoosh": "./dist/assets/services/squoosh.js",
     "./content/internal": "./dist/content/internal.js",
+    "./content/runtime": "./dist/content/runtime.js",
+    "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
@@ -77,6 +84,7 @@
     "env.d.ts",
     "client.d.ts",
     "client-base.d.ts",
+    "client-image.d.ts",
     "import-meta.d.ts",
     "astro-jsx.d.ts",
     "types.d.ts",
@@ -86,11 +94,10 @@
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
-    "postbuild": "astro-scripts copy \"src/**/*.astro\"",
-    "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && tsc && pnpm run postbuild",
+    "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && pnpm run postbuild",
+    "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
+    "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js",
     "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
     "test": "pnpm run test:unit && mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
@@ -99,11 +106,11 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.1.0",
+    "@astrojs/compiler": "^1.3.1",
     "@astrojs/language-server": "^0.28.3",
-    "@astrojs/markdown-remark": "^2.0.1",
-    "@astrojs/telemetry": "^2.0.0",
-    "@astrojs/webapi": "^2.0.1",
+    "@astrojs/markdown-remark": "^2.1.4",
+    "@astrojs/telemetry": "^2.1.0",
+    "@astrojs/webapi": "^2.1.0",
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",
@@ -114,6 +121,7 @@
     "@types/yargs-parser": "^21.0.0",
     "acorn": "^8.8.1",
     "boxen": "^6.2.1",
+    "chokidar": "^3.5.3",
     "ci-info": "^3.3.1",
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
@@ -147,10 +155,10 @@
     "typescript": "*",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2",
-    "vite": "^4.1.2",
+    "vite": "^4.2.1",
     "vitefu": "^0.2.4",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.17.3"
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.29.2",
@@ -173,6 +181,7 @@
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
+    "@types/sharp": "^0.31.1",
     "@types/unist": "^2.0.6",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
@@ -187,9 +196,18 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^3.9.0",
     "sass": "^1.52.2",
+    "sharp": "^0.31.3",
     "srcset-parse": "^1.1.0",
-    "undici": "^5.14.0",
+    "undici": "^5.20.0",
     "unified": "^10.1.2"
+  },
+  "peerDependencies": {
+    "sharp": "^0.31.3"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=16.12.0",

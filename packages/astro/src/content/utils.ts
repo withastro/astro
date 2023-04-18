@@ -3,11 +3,15 @@ import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { ErrorPayload as ViteErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import type { PluginContext } from 'rollup';
+import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
 import { z } from 'zod';
-import { AstroConfig, AstroSettings } from '../@types/astro.js';
+import type { AstroConfig, AstroSettings, ImageInputFormat } from '../@types/astro.js';
+import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { contentFileExts, CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE } from './consts.js';
+import { errorMap } from './error-map.js';
+import { createImage } from './runtime-assets.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -29,15 +33,7 @@ export const contentConfigParser = z.object({
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
-type Entry = {
-	id: string;
-	collection: string;
-	slug: string;
-	data: any;
-	body: string;
-	_internal: { rawData: string; filePath: string };
-};
-
+type EntryInternal = { rawData: string | undefined; filePath: string };
 export type EntryInfo = {
 	id: string;
 	slug: string;
@@ -53,10 +49,10 @@ export function getEntrySlug({
 	id,
 	collection,
 	slug,
-	data: unparsedData,
-}: Pick<Entry, 'id' | 'collection' | 'slug' | 'data'>) {
+	unvalidatedSlug,
+}: EntryInfo & { unvalidatedSlug?: unknown }) {
 	try {
-		return z.string().default(slug).parse(unparsedData.slug);
+		return z.string().default(slug).parse(unvalidatedSlug);
 	} catch {
 		throw new AstroError({
 			...AstroErrorData.InvalidContentEntrySlugError,
@@ -65,36 +61,42 @@ export function getEntrySlug({
 	}
 }
 
-export async function getEntryData(entry: Entry, collectionConfig: CollectionConfig) {
+export async function getEntryData(
+	entry: EntryInfo & { unvalidatedData: Record<string, unknown>; _internal: EntryInternal },
+	collectionConfig: CollectionConfig,
+	pluginContext: PluginContext,
+	settings: AstroSettings
+) {
 	// Remove reserved `slug` field before parsing data
-	let { slug, ...data } = entry.data;
-	if (collectionConfig.schema) {
-		// TODO: remove for 2.0 stable release
-		if (
-			typeof collectionConfig.schema === 'object' &&
-			!('safeParseAsync' in collectionConfig.schema)
-		) {
-			throw new AstroError({
-				title: 'Invalid content collection config',
-				message: `New: Content collection schemas must be Zod objects. Update your collection config to use \`schema: z.object({...})\` instead of \`schema: {...}\`.`,
-				hint: 'See https://docs.astro.build/en/reference/api-reference/#definecollection for an example.',
-				code: 99999,
-			});
+	let { slug, ...data } = entry.unvalidatedData;
+
+	let schema = collectionConfig.schema;
+	if (typeof schema === 'function') {
+		if (!settings.config.experimental.assets) {
+			throw new Error(
+				'The function shape for schema can only be used when `experimental.assets` is enabled.'
+			);
 		}
+
+		schema = schema({
+			image: createImage(settings, pluginContext, entry._internal.filePath),
+		});
+	}
+
+	if (schema) {
 		// Catch reserved `slug` field inside schema
 		// Note: will not warn for `z.union` or `z.intersection` schemas
-		if (
-			typeof collectionConfig.schema === 'object' &&
-			'shape' in collectionConfig.schema &&
-			collectionConfig.schema.shape.slug
-		) {
+		if (typeof schema === 'object' && 'shape' in schema && schema.shape.slug) {
 			throw new AstroError({
 				...AstroErrorData.ContentSchemaContainsSlugError,
 				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
 			});
 		}
+
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await collectionConfig.schema.safeParseAsync(entry.data, { errorMap });
+		const parsed = await schema.safeParseAsync(entry.unvalidatedData, {
+			errorMap,
+		});
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
@@ -118,6 +120,10 @@ export async function getEntryData(entry: Entry, collectionConfig: CollectionCon
 		}
 	}
 	return data;
+}
+
+export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+	return settings.contentEntryTypes.map((t) => t.extensions).flat();
 }
 
 export class NoCollectionError extends Error {}
@@ -160,14 +166,21 @@ export function getEntryInfo({
 
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config'>
+	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
+	contentFileExts: string[],
+	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
+	experimentalAssets: boolean
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreInPath(fileUrl) || isOnIgnoreList(base)) {
+	if (
+		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
+		isOnIgnoreList(base) ||
+		(experimentalAssets && isImageAsset(ext))
+	) {
 		return 'ignored';
-	} else if ((contentFileExts as readonly string[]).includes(ext)) {
+	} else if (contentFileExts.includes(ext)) {
 		return 'content';
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
@@ -180,29 +193,26 @@ function isOnIgnoreList(fileName: string) {
 	return ['.DS_Store'].includes(fileName);
 }
 
-function hasUnderscoreInPath(fileUrl: URL): boolean {
-	const parts = fileUrl.pathname.split('/');
+/**
+ * Return if a file extension is a valid image asset, so we can avoid outputting a warning for them.
+ */
+function isImageAsset(fileExt: string) {
+	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
+}
+
+function hasUnderscoreBelowContentDirectoryPath(
+	fileUrl: URL,
+	contentDir: ContentPaths['contentDir']
+): boolean {
+	const parts = fileUrl.pathname.replace(contentDir.pathname, '').split('/');
 	for (const part of parts) {
 		if (part.startsWith('_')) return true;
 	}
 	return false;
 }
 
-const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
-
-const errorMap: z.ZodErrorMap = (error, ctx) => {
-	if (error.code === 'invalid_type') {
-		const badKeyPath = JSON.stringify(flattenErrorPath(error.path));
-		if (error.received === 'undefined') {
-			return { message: `${badKeyPath} is required.` };
-		} else {
-			return { message: `${badKeyPath} should be ${error.expected}, not ${error.received}.` };
-		}
-	}
-	return { message: ctx.defaultError };
-};
-
-function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string) {
+function getFrontmatterErrorLine(rawFrontmatter: string | undefined, frontmatterKey: string) {
+	if (!rawFrontmatter) return 0;
 	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
 	if (indexOfFrontmatterKey === -1) return 0;
 
@@ -310,9 +320,11 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 
 export type ContentPaths = {
 	contentDir: URL;
+	assetsDir: URL;
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
+	virtualAssetsModTemplate: URL;
 	config: {
 		exists: boolean;
 		url: URL;
@@ -328,8 +340,10 @@ export function getContentPaths(
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
+		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
+		virtualAssetsModTemplate: new URL('virtual-mod-assets.mjs', templateDir),
 		config: configStats,
 	};
 }

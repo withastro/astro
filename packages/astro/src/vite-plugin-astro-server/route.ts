@@ -1,7 +1,11 @@
 import type http from 'http';
 import mime from 'mime';
 import type { AstroSettings, ComponentInstance, ManifestData, RouteData } from '../@types/astro';
-import { ComponentPreload, DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
+import type {
+	ComponentPreload,
+	DevelopmentEnvironment,
+	SSROptions,
+} from '../core/render/dev/index';
 
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
@@ -172,7 +176,7 @@ export async function handleRoute(
 
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
-		const result = await callEndpoint(options);
+		const result = await callEndpoint(options, logging);
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute('/404', env, manifest);
@@ -212,6 +216,6 @@ export async function handleRoute(
 	} else {
 		const result = await renderPage(options);
 		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(result, res);
+		return await writeSSRResult(request, result, res);
 	}
 }

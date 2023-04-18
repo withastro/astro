@@ -3,9 +3,9 @@ import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import {
 	cachedCompilation,
-	CompileResult,
 	invalidateCompilation,
 	isCached,
+	type CompileResult,
 } from '../core/compile/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';

@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity, offsetAt } from '@astrojs/language-server';
+import { DiagnosticSeverity, offsetAt, type Diagnostic } from '@astrojs/language-server';
 import {
 	bgRed,
 	bgWhite,

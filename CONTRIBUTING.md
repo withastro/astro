@@ -38,6 +38,16 @@ pnpm add -g @pnpm/merge-driver
 pnpx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-merge-driver %A %O %B %P" --files pnpm-lock.yaml
 ```
 
+### Using GitHub Codespaces for development
+
+To get started, create a codespace for this repository by clicking this 👇
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro)
+
+Your new codespace will open in a web-based version of Visual Studio Code. All development dependcies will be preinstalled and the tests will run automatically ensuring you've got a green base from which to start working.
+
+**Note**: Dev containers is now an open spec which is supported by [GitHub Codespaces](https://github.com/codespaces) and [other supporting tools](https://containers.dev/supporting).
+
 ### Development
 
 ```shell
@@ -46,6 +56,22 @@ pnpm run dev
 # build the entire project, one time.
 pnpm run build
 ```
+
+**How can I test my changes while contributing to the repository?**
+
+During the development process, you may want to test your changes to ensure they are working as expected. Here are a few ways to do it:
+
+1. Run any of the examples in the `/examples` folder. They are linked to use the local Astro source code, so you can see the effects of your changes.
+
+   ```
+     pnpm --filter @example/minimal run dev
+   ```
+
+2. Write a test and run it. This is useful if you're making a specific fix and want to see if your changes are working as expected.
+
+3. Create a separate project and use your local Astro through [`pnpm link`](https://pnpm.io/cli/link). This is helpful if you're making bigger changes and want to test them in a separate project.
+
+Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
 #### Debugging Vite
 
@@ -111,22 +137,25 @@ pnpm exec changeset
 
 ### Running benchmarks
 
-We have benchmarks to keep performance under control. You can run these by running (from the project root):
+We have benchmarks to keep performance under control. They are located in the `benchmarks` directory, and it exposes a CLI you can use to run them.
+
+You can run all available benchmarks sequentially by running (from the project root):
 
 ```shell
-pnpm run benchmark --filter astro
+pnpm run benchmark
 ```
 
-Which will fail if the performance has regressed by **10%** or more.
-
-To update the times cd into the `packages/astro` folder and run the following:
+To run a specific benchmark only, you can add the name of the benchmark after the command:
 
 ```shell
-node test/benchmark/build.bench.js --save
-node test/benchmark/dev.bench.js --save
+pnpm run benchmark memory
 ```
 
-Which will update the build and dev benchmarks.
+Use `pnpm run benchmark --help` to see all available options.
+
+To run these benchmarks in a PR on GitHub instead of using the CLI, you can comment `!bench`. The benchmarks will run on both the PR branch and the `main` branch, and the results will be posted as a new comment.
+
+To run only a specific benchmark on CI, add its name after the command in your comment, for example, `!bench memory`.
 
 ## Code Structure
 

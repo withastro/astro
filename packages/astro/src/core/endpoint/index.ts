@@ -5,6 +5,7 @@ import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { warn, type LogOptions } from '../logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -50,7 +51,7 @@ function createAPIContext({
 			});
 		},
 		url: new URL(request.url),
-		// @ts-ignore
+		// @ts-expect-error
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
@@ -71,7 +72,8 @@ function createAPIContext({
 export async function call(
 	mod: EndpointHandler,
 	env: Environment,
-	ctx: RenderContext
+	ctx: RenderContext,
+	logging: LogOptions
 ): Promise<EndpointCallResult> {
 	const paramsAndPropsResp = await getParamsAndProps({
 		mod: mod as any,
@@ -109,6 +111,24 @@ export async function call(
 			type: 'response',
 			response,
 		};
+	}
+
+	if (env.ssr && !mod.prerender) {
+		if (response.hasOwnProperty('headers')) {
+			warn(
+				logging,
+				'ssr',
+				'Setting headers is not supported when returning an object. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
+			);
+		}
+
+		if (response.encoding) {
+			warn(
+				logging,
+				'ssr',
+				'`encoding` is ignored in SSR. To return a charset other than UTF-8, please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
+			);
+		}
 	}
 
 	return {

@@ -55,19 +55,24 @@ export function writeHtmlResponse(res: http.ServerResponse, statusCode: number, 
 export async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
 
-	const _headers = Object.fromEntries(headers.entries());
-
-	// Undici 5.19.1 includes a `getSetCookie` helper that returns an array of all the `set-cookies` headers.
-	// Previously, `headers.entries()` would already have those merged, but it seems like this isn't the case anymore, weird.
-	if ((headers as any)['getSetCookie']) {
-		_headers['set-cookie'] = (headers as any).getSetCookie();
-	}
-
 	// Attach any set-cookie headers added via Astro.cookies.set()
 	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
-	if (setCookieHeaders.length) {
-		res.setHeader('Set-Cookie', setCookieHeaders);
+	setCookieHeaders.forEach((cookie) => {
+		headers.append('set-cookie', cookie);
+	});
+
+	const _headers = Object.fromEntries(headers.entries());
+
+	// Undici 5.20.0+ includes a `getSetCookie` helper that returns an array of all the `set-cookies` headers.
+	// Previously, `headers.entries()` would already have these merged, but it seems like this isn't the case anymore.
+	if (headers.has('set-cookie')) {
+		if ('getSetCookie' in headers && typeof headers.getSetCookie === 'function') {
+			_headers['set-cookie'] = headers.getSetCookie();
+		} else {
+			_headers['set-cookie'] = headers.get('set-cookie')!;
+		}
 	}
+
 	res.writeHead(status, _headers);
 	if (body) {
 		if (Symbol.for('astro.responseBody') in webResponse) {
@@ -94,6 +99,11 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	res.end();
 }
 
-export async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
+export async function writeSSRResult(
+	webRequest: Request,
+	webResponse: Response,
+	res: http.ServerResponse
+) {
+	Reflect.set(webRequest, Symbol.for('astro.responseSent'), true);
 	return writeWebResponse(res, webResponse);
 }

@@ -5,10 +5,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { loadTSConfig } from '../core/config/tsconfig.js';
-import { info, LogOptions, warn } from '../core/logger/core.js';
+import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { createContentTypesGenerator } from './types-generator.js';
-import { ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
+import { getContentPaths, globalContentConfigObserver, type ContentPaths } from './utils.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;

@@ -1,4 +1,4 @@
-import http from 'http';
+import type http from 'http';
 import { performance } from 'perf_hooks';
 import enableDestroy from 'server-destroy';
 import { fileURLToPath } from 'url';
@@ -37,6 +37,7 @@ export default async function createStaticPreviewServer(
 				host: settings.config.server.host,
 				port: settings.config.server.port,
 				headers: settings.config.server.headers,
+				open: settings.config.server.open,
 			},
 			plugins: [vitePluginAstroPreview(settings)],
 		});

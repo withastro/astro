@@ -3,7 +3,7 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "ES2021",
-    "module": "ES2020",
+    "module": "ES2022",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "declaration": true,

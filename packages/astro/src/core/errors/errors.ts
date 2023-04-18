@@ -1,5 +1,5 @@
 import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
-import { AstroErrorCodes } from './errors-data.js';
+import type { AstroErrorCodes } from './errors-data.js';
 import { codeFrame } from './printer.js';
 import { getErrorDataByCode } from './utils.js';
 

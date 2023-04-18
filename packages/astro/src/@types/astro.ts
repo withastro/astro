@@ -10,15 +10,18 @@ import type {
 import type * as babel from '@babel/core';
 import type { OutgoingHttpHeaders } from 'http';
 import type { AddressInfo } from 'net';
+import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
+import type { AstroTimer } from '../core/config/timer';
 import type { AstroCookies } from '../core/cookies';
+import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
+import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -27,6 +30,20 @@ export type {
 	RemarkPlugins,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
+export type {
+	ExternalImageService,
+	ImageService,
+	LocalImageService,
+} from '../assets/services/service';
+export type {
+	GetImageResult,
+	ImageInputFormat,
+	ImageMetadata,
+	ImageOutputFormat,
+	ImageQuality,
+	ImageQualityPreset,
+	ImageTransform,
+} from '../assets/types';
 export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
@@ -84,6 +101,8 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	drafts?: boolean;
+	open?: boolean;
+	experimentalAssets?: boolean;
 }
 
 export interface BuildConfig {
@@ -607,6 +626,29 @@ export interface AstroUserConfig {
 		assets?: string;
 		/**
 		 * @docs
+		 * @name build.assetsPrefix
+		 * @type {string}
+		 * @default `undefined`
+		 * @version 2.2.0
+		 * @description
+		 * Specifies the prefix for Astro-generated asset links. This can be used if assets are served from a different domain than the current site.
+		 *
+		 * For example, if this is set to `https://cdn.example.com`, assets will be fetched from `https://cdn.example.com/_astro/...` (regardless of the `base` option).
+		 * You would need to upload the files in `./dist/_astro/` to `https://cdn.example.com/_astro/` to serve the assets.
+		 * The process varies depending on how the third-party domain is hosted.
+		 * To rename the `_astro` path, specify a new directory in `build.assets`.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     assetsPrefix: 'https://cdn.example.com'
+		 *   }
+		 * }
+		 * ```
+		 */
+		assetsPrefix?: string;
+		/**
+		 * @docs
 		 * @name build.serverEntry
 		 * @type {string}
 		 * @default `'entry.mjs'`
@@ -694,6 +736,37 @@ export interface AstroUserConfig {
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Image options
+	 */
+	image?: {
+		/**
+		 * @docs
+		 * @name image.service (Experimental)
+		 * @type {'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string}
+		 * @default `'astro/assets/services/squoosh'`
+		 * @version 2.1.0
+		 * @description
+		 * Set which image service is used for Astro’s experimental assets support.
+		 *
+		 * The value should be a module specifier for the image service to use:
+		 * either one of Astro’s two built-in services, or a third-party implementation.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Enable the Sharp-based image service
+		 *     service: 'astro/assets/services/sharp',
+		 *   },
+		 * }
+		 * ```
+		 */
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		service: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
+	};
 
 	/**
 	 * @docs
@@ -911,13 +984,34 @@ export interface AstroUserConfig {
 	legacy?: object;
 
 	/**
+	 * @docs
 	 * @kind heading
 	 * @name Experimental Flags
 	 * @description
 	 * Astro offers experimental flags to give users early access to new features.
 	 * These flags are not guaranteed to be stable.
 	 */
-	experimental?: object;
+	experimental?: {
+		/**
+		 * @docs
+		 * @name experimental.assets
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.1.0
+		 * @description
+		 * Enable experimental support for optimizing and resizing images. With this enabled, a new `astro:assets` module will be exposed.
+		 *
+		 * To enable this feature, set `experimental.assets` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		assets: true,
+		 * 	},
+		 * }
+		 */
+		assets?: boolean;
+	};
 
 	// Legacy options to be removed
 
@@ -977,12 +1071,52 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	integrations: AstroIntegration[];
 }
 
+export type ContentEntryModule = {
+	id: string;
+	collection: string;
+	slug: string;
+	body: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
+export interface ContentEntryType {
+	extensions: string[];
+	getEntryInfo(params: {
+		fileUrl: URL;
+		contents: string;
+	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	getRenderModule?(
+		this: rollup.PluginContext,
+		params: {
+			viteId: string;
+			entry: ContentEntryModule;
+		}
+	): rollup.LoadResult | Promise<rollup.LoadResult>;
+	contentModuleTypes?: string;
+}
+
+type GetEntryInfoReturnType = {
+	data: Record<string, unknown>;
+	/**
+	 * Used for error hints to point to correct line and location
+	 * Should be the untouched data as read from the file,
+	 * including newlines
+	 */
+	rawData: string;
+	body: string;
+	slug: string;
+};
+
 export interface AstroSettings {
 	config: AstroConfig;
-
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
 	pageExtensions: string[];
+	contentEntryTypes: ContentEntryType[];
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;
@@ -992,6 +1126,7 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	forceDisableTelemetry: boolean;
+	timer: AstroTimer;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -1091,6 +1226,64 @@ export type GetStaticPaths = (
 	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
 	| GetStaticPathsResult
 	| GetStaticPathsResult[];
+
+/**
+ * Infers the shape of the `params` property returned by `getStaticPaths()`.
+ *
+ * @example
+ * ```ts
+ * import type { GetStaticPaths } from 'astro';
+ *
+ * export const getStaticPaths = (() => {
+ *   return results.map((entry) => ({
+ *     params: { slug: entry.slug },
+ *   }));
+ * }) satisfies GetStaticPaths;
+ *
+ * type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+ * //   ^? { slug: string; }
+ *
+ * const { slug } = Astro.params as Params;
+ * ```
+ */
+export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
+	? R extends Array<infer U>
+		? U extends { params: infer P }
+			? P
+			: never
+		: never
+	: never;
+
+/**
+ * Infers the shape of the `props` property returned by `getStaticPaths()`.
+ *
+ * @example
+ * ```ts
+ * import type { GetStaticPaths } from 'astro';
+ *
+ * export const getStaticPaths = (() => {
+ *   return results.map((entry) => ({
+ *     params: { slug: entry.slug },
+ *     props: {
+ *       propA: true,
+ *       propB: 42
+ *     },
+ *   }));
+ * }) satisfies GetStaticPaths;
+ *
+ * type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+ * //   ^? { propA: boolean; propB: number; }
+ *
+ * const { propA, propB } = Astro.props;
+ * ```
+ */
+export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
+	? R extends Array<infer U>
+		? U extends { props: infer P }
+			? P
+			: never
+		: never
+	: never;
 
 export interface HydrateOptions {
 	name: string;
@@ -1376,6 +1569,11 @@ export interface AstroIntegration {
 	};
 }
 
+export interface AstroPluginOptions {
+	settings: AstroSettings;
+	logging: LogOptions;
+}
+
 export type RouteType = 'page' | 'endpoint';
 
 export interface RoutePart {
@@ -1395,6 +1593,7 @@ export interface RouteData {
 	pattern: RegExp;
 	segments: RoutePart[][];
 	type: RouteType;
+	prerender: boolean;
 }
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
@@ -1420,6 +1619,7 @@ export interface SSRMetadata {
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
+	headInTree: boolean;
 }
 
 /**
@@ -1434,11 +1634,16 @@ export interface SSRMetadata {
  */
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
+export type SSRComponentMetadata = {
+	propagation: PropagationHint;
+	containsHead: boolean;
+};
+
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
-	propagation: Map<string, PropagationHint>;
+	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;

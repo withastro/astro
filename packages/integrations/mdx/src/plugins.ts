@@ -1,4 +1,4 @@
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds, remarkCollectImages } from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
@@ -9,20 +9,20 @@ import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
-import { bold, yellow } from 'kleur/colors';
-import type { Image } from 'mdast';
-import { pathToFileURL } from 'node:url';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
-import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import { MdxOptions } from './index.js';
+import type { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
+import { remarkImageToComponent } from './remark-images-to-component.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import { isRelativePath, jsToTreeNode } from './utils.js';
+import { jsToTreeNode } from './utils.js';
+
+// Skip nonessential plugins during performance benchmark runs
+const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 export function recmaInjectImportMetaEnvPlugin({
 	importMetaEnv,
@@ -96,59 +96,34 @@ export function rehypeApplyFrontmatterExport() {
 	};
 }
 
-/**
- * `src/content/` does not support relative image paths.
- * This plugin throws an error if any are found
- */
-function toRemarkContentRelImageError({ srcDir }: { srcDir: URL }) {
-	const contentDir = new URL('content/', srcDir);
-	return function remarkContentRelImageError() {
-		return (tree: any, vfile: VFile) => {
-			const isContentFile = pathToFileURL(vfile.path).href.startsWith(contentDir.href);
-			if (!isContentFile) return;
-
-			const relImagePaths = new Set<string>();
-			visit(tree, 'image', function raiseError(node: Image) {
-				if (isRelativePath(node.url)) {
-					relImagePaths.add(node.url);
-				}
-			});
-			if (relImagePaths.size === 0) return;
-
-			const errorMessage =
-				`Relative image paths are not supported in the content/ directory. Place local images in the public/ directory and use absolute paths (see https://docs.astro.build/en/guides/images/#in-markdown-files):\n` +
-				[...relImagePaths].map((path) => JSON.stringify(path)).join(',\n');
-
-			throw new Error(errorMessage);
-		};
-	};
-}
-
 export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [];
+	let remarkPlugins: PluggableList = [
+		...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : []),
+	];
 
-	if (mdxOptions.gfm) {
-		remarkPlugins.push(remarkGfm);
-	}
-	if (mdxOptions.smartypants) {
-		remarkPlugins.push(remarkSmartypants);
-	}
-
-	remarkPlugins = [...remarkPlugins, ...ignoreStringPlugins(mdxOptions.remarkPlugins)];
-
-	// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
-	if (mdxOptions.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
-	}
-	if (mdxOptions.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
+	if (!isPerformanceBenchmark) {
+		if (mdxOptions.gfm) {
+			remarkPlugins.push(remarkGfm);
+		}
+		if (mdxOptions.smartypants) {
+			remarkPlugins.push(remarkSmartypants);
+		}
 	}
 
-	// Apply last in case user plugins resolve relative image paths
-	remarkPlugins.push(toRemarkContentRelImageError(config));
+	remarkPlugins = [...remarkPlugins, ...mdxOptions.remarkPlugins];
+
+	if (!isPerformanceBenchmark) {
+		// Apply syntax highlighters after user plugins to match `markdown/remark` behavior
+		if (mdxOptions.syntaxHighlight === 'shiki') {
+			remarkPlugins.push([await remarkShiki(mdxOptions.shikiConfig)]);
+		}
+		if (mdxOptions.syntaxHighlight === 'prism') {
+			remarkPlugins.push(remarkPrism);
+		}
+	}
 
 	return remarkPlugins;
 }
@@ -163,37 +138,14 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 
 	rehypePlugins = [
 		...rehypePlugins,
-		...ignoreStringPlugins(mdxOptions.rehypePlugins),
+		...mdxOptions.rehypePlugins,
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		rehypeHeadingIds,
-		rehypeInjectHeadingsExport,
+		...(isPerformanceBenchmark ? [] : [rehypeHeadingIds, rehypeInjectHeadingsExport]),
 		// computed from `astro.data.frontmatter` in VFile data
 		rehypeApplyFrontmatterExport,
 	];
 	return rehypePlugins;
-}
-
-function ignoreStringPlugins(plugins: any[]) {
-	let validPlugins: PluggableList = [];
-	let hasInvalidPlugin = false;
-	for (const plugin of plugins) {
-		if (typeof plugin === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin)} not applied.`));
-			hasInvalidPlugin = true;
-		} else if (Array.isArray(plugin) && typeof plugin[0] === 'string') {
-			console.warn(yellow(`[MDX] ${bold(plugin[0])} not applied.`));
-			hasInvalidPlugin = true;
-		} else {
-			validPlugins.push(plugin);
-		}
-	}
-	if (hasInvalidPlugin) {
-		console.warn(
-			`To inherit Markdown plugins in MDX, please use explicit imports in your config instead of "strings." See Markdown docs: https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`
-		);
-	}
-	return validPlugins;
 }
 
 /**

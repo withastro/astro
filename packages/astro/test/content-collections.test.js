@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
@@ -210,7 +211,22 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			expect(error).to.include('"title" should be string, not number.');
+			expect(error).to.include('**title**: Expected type `"string"`, received "number"');
+		});
+	});
+
+	describe('With empty markdown file', () => {
+		it('Throws the right error', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-md-file/',
+			});
+			let error;
+			try {
+				await fixture.build();
+			} catch (e) {
+				error = e.message;
+			}
+			expect(error).to.include('**title**: Required');
 		});
 	});
 
@@ -222,6 +238,9 @@ describe('Content Collections', () => {
 				root: './fixtures/content-ssr-integration/',
 				output: 'server',
 				adapter: testAdapter(),
+				vite: {
+					plugins: [preventNodeBuiltinDependencyPlugin()],
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

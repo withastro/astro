@@ -1,5 +1,89 @@
 # @astrojs/mdx
 
+## 0.19.0
+
+### Minor Changes
+
+- [#6824](https://github.com/withastro/astro/pull/6824) [`2511d58d5`](https://github.com/withastro/astro/commit/2511d58d586af080a78e5ef8a63020b3e17770db) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add support for using optimized and relative images in MDX files with `experimental.assets`
+
+### Patch Changes
+
+- Updated dependencies [[`2511d58d5`](https://github.com/withastro/astro/commit/2511d58d586af080a78e5ef8a63020b3e17770db)]:
+  - @astrojs/markdown-remark@2.1.4
+
+## 0.18.4
+
+### Patch Changes
+
+- [#6817](https://github.com/withastro/astro/pull/6817) [`f882bc163`](https://github.com/withastro/astro/commit/f882bc1636d5ce1c3b8faae47df36b4dc758045a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix sourcemap warnings when using Content Collections and MDX with the `vite.build.sourcemap` option
+
+## 0.18.3
+
+### Patch Changes
+
+- [#6779](https://github.com/withastro/astro/pull/6779) [`a98f6f418`](https://github.com/withastro/astro/commit/a98f6f418c92261a06ef79624a8c86e288c21eab) Thanks [@matthewp](https://github.com/matthewp)! - Prevent body head content injection in MDX when using layout
+
+## 0.18.2
+
+### Patch Changes
+
+- [#6552](https://github.com/withastro/astro/pull/6552) [`392ba3e4d`](https://github.com/withastro/astro/commit/392ba3e4d55f73ce9194bd94a2243f1aa62af079) Thanks [@bluwy](https://github.com/bluwy)! - Fix integration return type
+
+- Updated dependencies [[`90e5f87d0`](https://github.com/withastro/astro/commit/90e5f87d03215a833bb6ac91f9548670a25ce659), [`f5fddafc2`](https://github.com/withastro/astro/commit/f5fddafc248bb1ef57b7349bfecc25539ae2b5ea)]:
+  - @astrojs/markdown-remark@2.1.1
+
+## 0.18.1
+
+### Patch Changes
+
+- [#6494](https://github.com/withastro/astro/pull/6494) [`a13e9d7e3`](https://github.com/withastro/astro/commit/a13e9d7e33baccf51e7d4815f99b481ad174bc57) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Consistency improvements to several package descriptions
+
+- Updated dependencies [[`a13e9d7e3`](https://github.com/withastro/astro/commit/a13e9d7e33baccf51e7d4815f99b481ad174bc57)]:
+  - @astrojs/prism@2.1.1
+
+## 0.18.0
+
+### Minor Changes
+
+- [#6344](https://github.com/withastro/astro/pull/6344) [`694918a56`](https://github.com/withastro/astro/commit/694918a56b01104831296be0c25456135a63c784) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new experimental flag (`experimental.assets`) to enable our new core Assets story.
+
+  This unlocks a few features:
+
+  - A new built-in image component and JavaScript API to transform and optimize images.
+  - Relative images with automatic optimization in Markdown.
+  - Support for validating assets using content collections.
+  - and more!
+
+  See [Assets (Experimental)](https://docs.astro.build/en/guides/assets/) on our docs site for more information on how to use this feature!
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
+### Patch Changes
+
+- [#6209](https://github.com/withastro/astro/pull/6209) [`fec583909`](https://github.com/withastro/astro/commit/fec583909ab62829dc0c1600e2387979365f2b94) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce the (experimental) `@astrojs/markdoc` integration. This unlocks Markdoc inside your Content Collections, bringing support for Astro and UI components in your content. This also improves Astro core internals to make Content Collections extensible to more file types in the future.
+
+  You can install this integration using the `astro add` command:
+
+  ```
+  astro add markdoc
+  ```
+
+  [Read the `@astrojs/markdoc` documentation](https://docs.astro.build/en/guides/integrations-guide/markdoc/) for usage instructions, and browse the [new `with-markdoc` starter](https://astro.new/with-markdoc) to try for yourself.
+
+- Updated dependencies [[`694918a56`](https://github.com/withastro/astro/commit/694918a56b01104831296be0c25456135a63c784), [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808)]:
+  - @astrojs/markdown-remark@2.1.0
+  - @astrojs/prism@2.1.0
+
+## 0.17.2
+
+### Patch Changes
+
+- [#6296](https://github.com/withastro/astro/pull/6296) [`075b87e8b`](https://github.com/withastro/astro/commit/075b87e8b72a69a608cd2ff1196dc0989e2cf1e1) Thanks [@RaphaelBossek](https://github.com/RaphaelBossek)! - Update to `es-module-lexer@1.1.1`
+
+## 0.17.1
+
+- Updated to es-module-lexer@1.1.1
+
 ## 0.17.0
 
 ### Minor Changes

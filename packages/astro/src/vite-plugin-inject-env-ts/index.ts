@@ -2,10 +2,10 @@ import { bold } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizePath, Plugin } from 'vite';
+import { normalizePath, type Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { getContentPaths, getDotAstroTypeReference } from '../content/index.js';
-import { info, LogOptions } from '../core/logger/core.js';
+import { info, type LogOptions } from '../core/logger/core.js';
 
 export function getEnvTsPath({ srcDir }: { srcDir: URL }) {
 	return new URL('env.d.ts', srcDir);
@@ -48,10 +48,31 @@ export async function setUpEnvTs({
 	);
 
 	if (fs.existsSync(envTsPath)) {
-		// Add `.astro` types reference if none exists
-		if (!fs.existsSync(dotAstroDir)) return;
-
 		let typesEnvContents = await fs.promises.readFile(envTsPath, 'utf-8');
+
+		// TODO: Remove this logic in 3.0, as `astro/client-image` will be merged into `astro/client`
+		if (settings.config.experimental.assets && typesEnvContents.includes('types="astro/client"')) {
+			typesEnvContents = typesEnvContents.replace(
+				'types="astro/client"',
+				'types="astro/client-image"'
+			);
+			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+			info(logging, 'assets', `Added ${bold(envTsPathRelativetoRoot)} types`);
+		} else if (
+			!settings.config.experimental.assets &&
+			typesEnvContents.includes('types="astro/client-image"')
+		) {
+			typesEnvContents = typesEnvContents.replace(
+				'types="astro/client-image"',
+				'types="astro/client"'
+			);
+			await fs.promises.writeFile(envTsPath, typesEnvContents, 'utf-8');
+			info(logging, 'assets', `Removed ${bold(envTsPathRelativetoRoot)} types`);
+		}
+
+		if (!fs.existsSync(dotAstroDir))
+			// Add `.astro` types reference if none exists
+			return;
 		const expectedTypeReference = getDotAstroTypeReference(settings.config);
 
 		if (!typesEnvContents.includes(expectedTypeReference)) {
@@ -62,7 +83,9 @@ export async function setUpEnvTs({
 	} else {
 		// Otherwise, inject the `env.d.ts` file
 		let referenceDefs: string[] = [];
-		if (settings.config.integrations.find((i) => i.name === '@astrojs/image')) {
+		if (settings.config.experimental.assets) {
+			referenceDefs.push('/// <reference types="astro/client-image" />');
+		} else if (settings.config.integrations.find((i) => i.name === '@astrojs/image')) {
 			referenceDefs.push('/// <reference types="@astrojs/image/client" />');
 		} else {
 			referenceDefs.push('/// <reference types="astro/client" />');

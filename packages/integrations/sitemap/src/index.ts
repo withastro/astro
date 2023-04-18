@@ -1,9 +1,9 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import {
 	EnumChangefreq,
-	LinkItem as LinkItemBase,
 	simpleSitemapAndIndex,
-	SitemapItemLoose,
+	type LinkItem as LinkItemBase,
+	type SitemapItemLoose,
 } from 'sitemap';
 import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
@@ -79,6 +79,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					let pageUrls = pages.map((p) => {
+						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+							finalSiteUrl.pathname += '/';
 						const path = finalSiteUrl.pathname + p.pathname;
 						return new URL(path, finalSiteUrl).href;
 					});

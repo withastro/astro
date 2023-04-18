@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
-import { Plugin as VitePlugin, ResolvedConfig, transformWithEsbuild } from 'vite';
+import { type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
 import { isBuildableCSSRequest } from '../../render/dev/util.js';
 import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
@@ -55,7 +55,20 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 		{
 			name: 'astro:rollup-plugin-build-css',
 
+			transform(_, id) {
+				// In the SSR build, styles that are bundled are tracked in `internals.cssChunkModuleIds`.
+				// In the client build, if we're also bundling the same style, return an empty string to
+				// deduplicate the final CSS output.
+				if (options.target === 'client' && internals.cssChunkModuleIds.has(id)) {
+					return '';
+				}
+			},
+
 			outputOptions(outputOptions) {
+				// Skip in client builds as its module graph doesn't have reference to Astro pages
+				// to be able to chunk based on it's related top-level pages.
+				if (options.target === 'client') return;
+
 				const assetFileNames = outputOptions.assetFileNames;
 				const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 				const createNameForParentPages = namingIncludesHash
@@ -131,17 +144,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								if (options.target === 'server') {
 									for (const id of Object.keys(c.modules)) {
 										internals.cssChunkModuleIds.add(id);
-									}
-								}
-								// In the client build, we bail if the chunk is a duplicated CSS chunk tracked from
-								// above. We remove all the importedCss to prevent emitting the CSS asset.
-								if (options.target === 'client') {
-									if (Object.keys(c.modules).every((id) => internals.cssChunkModuleIds.has(id))) {
-										for (const importedCssImport of meta.importedCss) {
-											delete bundle[importedCssImport];
-											meta.importedCss.delete(importedCssImport);
-										}
-										return;
 									}
 								}
 
@@ -227,36 +229,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					if (cssChunk) {
 						for (const pageData of eachPageData(internals)) {
 							pageData.css.set(cssChunk.fileName, { depth: -1, order: -1 });
-						}
-					}
-				}
-			},
-		},
-		{
-			name: 'astro:rollup-plugin-build-css-minify',
-			enforce: 'post',
-			async generateBundle(_outputOptions, bundle) {
-				// Minify CSS in each bundle ourselves, since server builds are not minified
-				// so that the JS is debuggable. Since you cannot configure vite:css-post to minify
-				// we need to do it ourselves.
-				if (options.target === 'server') {
-					for (const [, output] of Object.entries(bundle)) {
-						if (output.type === 'asset') {
-							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
-								const cssTarget = settings.config.vite.build?.cssTarget;
-								const minify = settings.config.vite.build?.minify !== false;
-								const { code: minifiedCSS } = await transformWithEsbuild(
-									output.source,
-									output.name,
-									{
-										loader: 'css',
-										minify,
-										target: cssTarget || undefined,
-										sourcemap: false,
-									}
-								);
-								output.source = minifiedCSS;
-							}
 						}
 					}
 				}

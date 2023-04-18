@@ -8,10 +8,6 @@ const test = testFactory({
 // TODO: configure playwright to handle web component APIs
 // https://github.com/microsoft/playwright/issues/14241
 test.describe('Lit components', () => {
-	test.beforeAll(() => {
-		delete globalThis.window;
-	});
-
 	test.describe('Development', () => {
 		let devServer;
 		const t = test.extend({});
@@ -158,7 +154,6 @@ test.describe('Lit components', () => {
 		const t = test.extend({});
 
 		t.beforeAll(async ({ astro }) => {
-			delete globalThis.window;
 			// Playwright's Node version doesn't have these functions, so stub them.
 			process.stdout.clearLine = () => {};
 			process.stdout.cursorTo = () => {};

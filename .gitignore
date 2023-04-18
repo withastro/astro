@@ -6,6 +6,8 @@ dist/
 _site/
 scripts/smoke/*-main/
 scripts/memory/project/src/pages/
+benchmark/projects/
+benchmark/results/
 *.log
 package-lock.json
 .turbo/
@@ -28,3 +30,4 @@ packages/integrations/**/.netlify/
 # ignore content collection generated files
 packages/**/test/**/fixtures/**/.astro/
 packages/**/test/**/fixtures/**/env.d.ts
+packages/**/e2e/**/fixtures/**/env.d.ts

@@ -1,5 +1,4 @@
 import './server-shim.js';
-import '@lit-labs/ssr/lib/render-lit-html.js';
 import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
 import * as parse5 from 'parse5';
 
@@ -60,9 +59,18 @@ function* render(Component, attrs, slots) {
 	yield `<${tagName}${shouldDeferHydration ? ' defer-hydration' : ''}`;
 	yield* instance.renderAttributes();
 	yield `>`;
-	const shadowContents = instance.renderShadow({});
+	const shadowContents = instance.renderShadow({
+		elementRenderers: [LitElementRenderer],
+		customElementInstanceStack: [instance],
+		customElementHostStack: [],
+		deferHydration: false,
+	});
 	if (shadowContents !== undefined) {
-		yield '<template shadowroot="open" shadowrootmode="open">';
+		const { mode = 'open', delegatesFocus } = instance.shadowRootOptions ?? {};
+		// `delegatesFocus` is intentionally allowed to coerce to boolean to
+		// match web platform behavior.
+		const delegatesfocusAttr = delegatesFocus ? ' shadowrootdelegatesfocus' : '';
+		yield `<template shadowroot="${mode}" shadowrootmode="${mode}"${delegatesfocusAttr}>`;
 		yield* shadowContents;
 		yield '</template>';
 	}

@@ -1,4 +1,4 @@
-import * as http from 'http';
+import type * as http from 'http';
 import type { AddressInfo } from 'net';
 import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
 
@@ -8,12 +8,11 @@ import {
 	runHookConfigDone,
 	runHookConfigSetup,
 	runHookServerDone,
-	runHookServerSetup,
 	runHookServerStart,
 } from '../../integrations/index.js';
 import { createDefaultDevSettings, resolveRoot } from '../config/index.js';
 import { createVite } from '../create-vite.js';
-import { LogOptions } from '../logger/core.js';
+import type { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
 import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -71,7 +70,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		logging,
 		isRestart,
 	});
-	const { host, headers } = settings.config.server;
+	const { host, headers, open } = settings.config.server;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
@@ -82,21 +81,15 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
-			server: { host, headers },
+			server: { host, headers, open },
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
-			define: {
-				'import.meta.env.BASE_URL': settings.config.base
-					? JSON.stringify(settings.config.base)
-					: 'undefined',
-			},
 		},
-		{ settings, logging, mode: 'dev', fs }
+		{ settings, logging, mode: 'dev', command: 'dev', fs }
 	);
 	await runHookConfigDone({ settings, logging });
 	const viteServer = await vite.createServer(viteConfig);
-	runHookServerSetup({ config: settings.config, server: viteServer, logging });
 
 	const container: Container = {
 		configFlag: params.configFlag,

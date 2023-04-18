@@ -7,8 +7,8 @@ import OS from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
-import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
-import { isRemoteImage } from '../utils/paths.js';
+import { debug, info, warn, type LoggerLevel } from '../utils/logger.js';
+import { isRemoteImage, prependForwardSlash } from '../utils/paths.js';
 import { ImageCache } from './cache.js';
 
 async function loadLocalImage(src: string | URL) {
@@ -30,10 +30,11 @@ async function loadLocalImage(src: string | URL) {
 }
 
 function webToCachePolicyRequest({ url, method, headers: _headers }: Request): CachePolicy.Request {
-	const headers: CachePolicy.Headers = {};
-	for (const [key, value] of _headers) {
-		headers[key] = value;
-	}
+	let headers: CachePolicy.Headers = {};
+	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
+	try {
+		headers = Object.fromEntries(_headers.entries());
+	} catch {}
 	return {
 		method,
 		url,
@@ -42,10 +43,11 @@ function webToCachePolicyRequest({ url, method, headers: _headers }: Request): C
 }
 
 function webToCachePolicyResponse({ status, headers: _headers }: Response): CachePolicy.Response {
-	const headers: CachePolicy.Headers = {};
-	for (const [key, value] of _headers) {
-		headers[key] = value;
-	}
+	let headers: CachePolicy.Headers = {};
+	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
+	try {
+		headers = Object.fromEntries(_headers.entries());
+	} catch {}
 	return {
 		status,
 		headers,
@@ -133,10 +135,15 @@ export async function ssgBuild({
 		// tracks the cache duration for the original source image
 		let expires = 0;
 
-		// Vite will prefix a hashed image with the base path, we need to strip this
-		// off to find the actual file relative to /dist
-		if (config.base && src.startsWith(config.base)) {
-			src = src.substring(config.base.length - 1);
+		// Strip leading assetsPrefix or base added by addStaticImage
+		if (config.build.assetsPrefix) {
+			if (src.startsWith(config.build.assetsPrefix)) {
+				src = prependForwardSlash(src.slice(config.build.assetsPrefix.length));
+			}
+		} else if (config.base) {
+			if (src.startsWith(config.base)) {
+				src = prependForwardSlash(src.slice(config.base.length));
+			}
 		}
 
 		if (isRemoteImage(src)) {

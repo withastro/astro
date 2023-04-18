@@ -5,31 +5,32 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
-import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { error } from '../logger/core.js';
-import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { error, type LogOptions } from '../logger/core.js';
+import { removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
 	createRenderContext,
-	Environment,
 	renderPage,
+	type Environment,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
+	createAssetLink,
 	createLinkStylesheetElementSet,
 	createModuleScriptElement,
 } from '../render/ssr-element.js';
-import { matchAssets, matchRoute } from '../routing/match.js';
+import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
+const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
@@ -71,7 +72,7 @@ export class App {
 						return bundlePath;
 					}
 					default: {
-						return prependForwardSlash(joinPaths(manifest.base, bundlePath));
+						return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 					}
 				}
 			},
@@ -100,11 +101,12 @@ export class App {
 		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
-			const asset = matchAssets(routeData, this.#manifest.assets);
-			if (asset) return undefined;
+			if (routeData.prerender) return undefined;
 			return routeData;
 		} else if (matchNotFound) {
-			return matchRoute('/404', this.#manifestData);
+			const notFoundRouteData = matchRoute('/404', this.#manifestData);
+			if (notFoundRouteData?.prerender) return undefined;
+			return notFoundRouteData;
 		} else {
 			return undefined;
 		}
@@ -193,7 +195,7 @@ export class App {
 				request,
 				origin: url.origin,
 				pathname,
-				propagation: this.#manifest.propagation,
+				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
 				links,
 				route: routeData,
@@ -201,6 +203,7 @@ export class App {
 			});
 
 			const response = await renderPage(mod, ctx, this.#env);
+			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
@@ -229,7 +232,7 @@ export class App {
 			status,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

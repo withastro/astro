@@ -11,9 +11,7 @@ export interface ErrorData {
 	hint?: string | ((...params: any) => string);
 }
 
-// TODO: Replace with `satisfies` once TS 4.9 is out
-const defineErrors = <T extends Record<string, ErrorData>>(errs: T) => errs;
-export const AstroErrorData = defineErrors({
+export const AstroErrorData = {
 	/**
 	 * @docs
 	 * @kind heading
@@ -75,7 +73,7 @@ export const AstroErrorData = defineErrors({
 	 * @description
 	 * The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/) is enabled.
 	 *
-	 * To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
+	 * To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/guides/client-side-scripts/) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
 	 */
 	StaticClientAddressNotAvailable: {
 		title: '`Astro.clientAddress` is not available in static mode.',
@@ -454,6 +452,182 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * - [Image component](https://docs.astro.build/en/guides/assets/#image--astroassets)
+	 * - [Image component#alt](https://docs.astro.build/en/guides/assets/#alt-required)
+	 * @description
+	 * The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
+	 *
+	 * If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set `alt=""` so that screen readers know to ignore the image.
+	 */
+	ImageMissingAlt: {
+		title: 'Missing alt property.',
+		code: 3022,
+		message: 'The alt property is required.',
+		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Image Service API](https://docs.astro.build/en/reference/image-service-reference/)
+	 * @description
+	 * There was an error while loading the configured image service. This can be caused by various factors, such as your image service not properly exporting a compatible object in its default export, or an incorrect path.
+	 *
+	 * If you believe that your service is properly configured and this error is wrong, please [open an issue](https://astro.build/issues/).
+	 */
+	InvalidImageService: {
+		title: 'Error while loading image service.',
+		code: 3023,
+		message:
+			'There was an error loading the configured image service. Please see the stack trace for more information.',
+	},
+	/**
+	 * @docs
+	 * @message
+	 * Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are always required in order to avoid cumulative layout shift (CLS).
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * - [Image component#width-and-height](https://docs.astro.build/en/guides/assets/#width-and-height)
+	 * @description
+	 * For remote images, `width` and `height` cannot be inferred from the original file. As such, in order to avoid CLS, those two properties are always required.
+	 *
+	 * If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).
+	 */
+	MissingImageDimension: {
+		title: 'Missing image dimensions',
+		code: 3024,
+		message: (missingDimension: 'width' | 'height' | 'both', imageURL: string) =>
+			`Missing ${
+				missingDimension === 'both'
+					? 'width and height attributes'
+					: `${missingDimension} attribute`
+			} for ${imageURL}. When using remote images, both dimensions are always required in order to avoid CLS.`,
+		hint: 'If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).',
+	},
+	/**
+	 * @docs
+	 * @description
+	 * The built-in image services do not currently support optimizing all image formats.
+	 *
+	 * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
+	 * ```astro
+	 * ---
+	 * import rocket from '../assets/images/rocket.svg'
+	 * ---
+	 *
+	 * <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
+	 * ```
+	 */
+	UnsupportedImageFormat: {
+		title: 'Unsupported image format',
+		code: 3025,
+		message: (format: string, imagePath: string, supportedFormats: readonly string[]) =>
+			`Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
+				', '
+			)} are supported for optimization.`,
+		hint: "If you do not need optimization, using an `img` tag directly instead of the `Image` component might be what you're looking for.",
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+	 * @description
+	 * The endpoint is prerendered with an `undefined` param so the generated path will collide with another route.
+	 *
+	 * If you cannot prevent passing `undefined`, then an additional extension can be added to the endpoint file name to generate the file with a different name. For example, renaming `pages/api/[slug].ts` to `pages/api/[slug].json.ts`.
+	 */
+	PrerenderDynamicEndpointPathCollide: {
+		title: 'Prerendered dynamic endpoint has path collision.',
+		code: 3026,
+		message: (pathname: string) =>
+			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. ` +
+			`Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, ` +
+			`or add an additional extension to the endpoint's filename.`,
+		hint: (filename: string) =>
+			`Rename \`${filename}\` to \`${filename.replace(/\.(js|ts)/, (m) => `.json` + m)}\``,
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * An image's `src` property is not valid. The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
+	 *
+	 * ```astro
+	 * ---
+	 * import { Image } from "astro:assets";
+	 * import myImage from "../assets/my_image.png";
+	 * ---
+	 *
+	 * <Image src={myImage} alt="..." />
+	 * <Image src="https://example.com/logo.png" width={300} height={300} alt="..." />
+	 * ```
+	 *
+	 * In most cases, this error happens when the value passed to `src` is undefined.
+	 */
+	ExpectedImage: {
+		title: 'Expected src to be an image.',
+		code: 3027,
+		message: (options: string) =>
+			`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
+		hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * `getImage()`'s first parameter should be an object with the different properties to apply to your image.
+	 *
+	 * ```ts
+	 * import { getImage } from "astro:assets";
+	 * import myImage from "../assets/my_image.png";
+	 *
+	 * const optimizedImage = await getImage({src: myImage, width: 300, height: 300});
+	 * ```
+	 *
+	 * In most cases, this error happens because parameters were passed directly instead of inside an object.
+	 */
+	ExpectedImageOptions: {
+		title: 'Expected image options.',
+		code: 3028,
+		message: (options: string) =>
+			`Expected getImage() parameter to be an object. Received \`${options}\`.`,
+	},
+	/**
+	 * @docs
+	 * @message
+	 * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * Astro could not find an image you included in your Markdown content. Usually, this is simply caused by a typo in the path.
+	 *
+	 * Images in Markdown are relative to the current file. To refer to an image that is located in the same folder as the `.md` file, the path should start with `./`
+	 */
+	MarkdownImageNotFound: {
+		title: 'Image not found.',
+		code: 3029,
+		message: (imagePath: string, fullImagePath: string | undefined) =>
+			`Could not find requested image \`${imagePath}\`${
+				fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
+			}`,
+		hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
+	},
+	/**
+	 * @docs
+	 * @description
+	 * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
+	 */
+	ResponseSentError: {
+		title: 'Unable to set response',
+		code: 3030,
+		message: 'The response has already been sent to the browser and cannot be altered.',
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
@@ -654,7 +828,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	GenerateContentTypesError: {
 		title: 'Failed to generate content types.',
 		code: 8001,
-		message: '`astro sync` command failed to generate content collection types.',
+		message: (errorMessage: string) =>
+			`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
 		hint: 'Check your `src/content/config.*` file for typos.',
 	},
 	/**
@@ -693,7 +868,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 9001,
 		message: (collection: string, entryId: string, error: ZodError) => {
 			return [
-				`${String(collection)} → ${String(entryId)} frontmatter does not match collection schema.`,
+				`**${String(collection)} → ${String(
+					entryId
+				)}** frontmatter does not match collection schema.`,
 				...error.errors.map((zodError) => zodError.message),
 			].join('\n');
 		},
@@ -739,7 +916,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Unknown Error.',
 		code: 99999,
 	},
-} as const);
+} as const satisfies Record<string, ErrorData>;
 
 type ValueOf<T> = T[keyof T];
 export type AstroErrorCodes = ValueOf<{

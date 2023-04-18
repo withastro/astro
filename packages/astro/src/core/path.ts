@@ -64,3 +64,7 @@ export function removeQueryString(path: string) {
 	const index = path.lastIndexOf('?');
 	return index > 0 ? path.substring(0, index) : path;
 }
+
+export function isRemotePath(src: string) {
+	return /^(http|ftp|https):?\/\//.test(src) || src.startsWith('data:');
+}

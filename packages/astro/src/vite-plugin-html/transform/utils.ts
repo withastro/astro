@@ -1,5 +1,5 @@
 import type { Element } from 'hast';
-import MagicString from 'magic-string';
+import type MagicString from 'magic-string';
 
 const splitAttrsTokenizer = /([\$\{\}\@a-z0-9_\:\-]*)\s*?=\s*?(['"]?)(.*?)\2\s+/gim;
 

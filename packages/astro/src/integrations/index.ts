@@ -3,18 +3,20 @@ import type { AddressInfo } from 'net';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
-import {
+import type {
 	AstroConfig,
 	AstroRenderer,
 	AstroSettings,
 	BuildConfig,
+	ContentEntryType,
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
-import { info, LogOptions } from '../core/logger/core.js';
+import { info, type LogOptions } from '../core/logger/core.js';
+import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -95,21 +97,46 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 			};
-			// Semi-private `addPageExtension` hook
+
+			// ---
+			// Public, intentionally undocumented hooks - not subject to semver.
+			// Intended for internal integrations (ex. `@astrojs/mdx`),
+			// though accessible to integration authors if discovered.
+
 			function addPageExtension(...input: (string | string[])[]) {
 				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
 				updatedSettings.pageExtensions.push(...exts);
 			}
+			function addContentEntryType(contentEntryType: ContentEntryType) {
+				updatedSettings.contentEntryTypes.push(contentEntryType);
+			}
+
 			Object.defineProperty(hooks, 'addPageExtension', {
 				value: addPageExtension,
 				writable: false,
 				enumerable: false,
 			});
+			Object.defineProperty(hooks, 'addContentEntryType', {
+				value: addContentEntryType,
+				writable: false,
+				enumerable: false,
+			});
+			// ---
+
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:config:setup'](hooks),
 				logging,
 			});
+
+			// Add MDX content entry type to support older `@astrojs/mdx` versions
+			// TODO: remove in next Astro minor release
+			if (
+				integration.name === '@astrojs/mdx' &&
+				!updatedSettings.contentEntryTypes.find((c) => c.extensions.includes('.mdx'))
+			) {
+				addContentEntryType(mdxContentEntryType);
+			}
 		}
 	}
 

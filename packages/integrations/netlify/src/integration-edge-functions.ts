@@ -122,6 +122,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 					build: {
 						client: outDir,
 						server: new URL('./.netlify/edge-functions/', config.root),
+						// Netlify expects .js and will always interpret as ESM
 						serverEntry: 'entry.js',
 					},
 				});

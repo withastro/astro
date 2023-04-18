@@ -1,5 +1,49 @@
 # create-astro
 
+## 3.1.3
+
+### Patch Changes
+
+- [#6682](https://github.com/withastro/astro/pull/6682) [`335602344`](https://github.com/withastro/astro/commit/33560234437647f2d768578e7b285c858bff7898) Thanks [@andremralves](https://github.com/andremralves)! - add validation for non-printable characters
+
+## 3.1.2
+
+### Patch Changes
+
+- [#6677](https://github.com/withastro/astro/pull/6677) [`4a3262060`](https://github.com/withastro/astro/commit/4a32620600966ea89ddb5e1669d89a53e85ccf9a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Log an error when passing a `--template` that does not exist
+
+## 3.1.1
+
+### Patch Changes
+
+- [#6594](https://github.com/withastro/astro/pull/6594) [`a661907b4`](https://github.com/withastro/astro/commit/a661907b40e76aa56e7d7bd7e745bb16456b13e7) Thanks [@btea](https://github.com/btea)! - wrap `projectDir` in quotes if it contains spaces
+
+## 3.1.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
+## 3.0.5
+
+### Patch Changes
+
+- [#6375](https://github.com/withastro/astro/pull/6375) [`754c5ca9a`](https://github.com/withastro/astro/commit/754c5ca9aa93d4e8674059ce79f6b694c147db83) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Respect original `package.json` indentation
+
+## 3.0.4
+
+### Patch Changes
+
+- [#6352](https://github.com/withastro/astro/pull/6352) [`c87c16cfa`](https://github.com/withastro/astro/commit/c87c16cfaddea3a05af87c3258d57ef1a31516f7) Thanks [@SerekKiri](https://github.com/SerekKiri)! - Add missing flags to help command
+
+## 3.0.3
+
+### Patch Changes
+
+- [#6314](https://github.com/withastro/astro/pull/6314) [`7f61e8fe3`](https://github.com/withastro/astro/commit/7f61e8fe36b62a1833180c18b6f4304e9a01fce4) Thanks [@MilesPernicious](https://github.com/MilesPernicious)! - Prompt for git initialization last, so all configurations can get added to the initial commit
+
+- [#6294](https://github.com/withastro/astro/pull/6294) [`d0dbee872`](https://github.com/withastro/astro/commit/d0dbee872fd09800fba644ccbf4011ce01149706) Thanks [@liruifengv](https://github.com/liruifengv)! - `create-astro` help info add `--typescript` flag
+
 ## 3.0.2
 
 ### Patch Changes

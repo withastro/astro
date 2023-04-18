@@ -1,5 +1,17 @@
 # @astrojs/turbolinks
 
+## 0.2.1
+
+### Patch Changes
+
+- [#6419](https://github.com/withastro/astro/pull/6419) [`0de08773f`](https://github.com/withastro/astro/commit/0de08773f30cef0e131e42f2068ff56f826b41c0) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Make Tailwind & Turbolinks integration descriptions more consistent
+
+## 0.2.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
 ## 0.1.5
 
 ### Patch Changes

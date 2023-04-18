@@ -45,7 +45,11 @@ describe('Astro.cookies', () => {
 				method: 'POST',
 			});
 			expect(response.status).to.equal(200);
-			expect(response.headers.has('set-cookie')).to.equal(true);
+			// Bug in 18.14.1 where `set-cookie` will not be defined
+			// Should be fixed in 18.14.2
+			if (process.versions.node !== '18.14.1') {
+				expect(response.headers.has('set-cookie')).to.equal(true);
+			}
 		});
 	});
 

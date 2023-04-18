@@ -1,5 +1,29 @@
 # @astrojs/sitemap
 
+## 1.2.2
+
+### Patch Changes
+
+- [#6658](https://github.com/withastro/astro/pull/6658) [`1ec1df126`](https://github.com/withastro/astro/commit/1ec1df12641290ec8b3a417a6284fd8d752c02bf) Thanks [@andremralves](https://github.com/andremralves)! - Fix sitemap generation with a base path
+
+## 1.2.1
+
+### Patch Changes
+
+- [#6494](https://github.com/withastro/astro/pull/6494) [`a13e9d7e3`](https://github.com/withastro/astro/commit/a13e9d7e33baccf51e7d4815f99b481ad174bc57) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Consistency improvements to several package descriptions
+
+## 1.2.0
+
+### Minor Changes
+
+- [#6213](https://github.com/withastro/astro/pull/6213) [`afbbc4d5b`](https://github.com/withastro/astro/commit/afbbc4d5bfafc1779bac00b41c2a1cb1c90f2808) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated compilation settings to disable downlevelling for Node 14
+
+## 1.1.0
+
+### Minor Changes
+
+- [#6262](https://github.com/withastro/astro/pull/6262) [`4fcefa34f`](https://github.com/withastro/astro/commit/4fcefa34f979e23b8c48940b5a5da57fdabc32a4) Thanks [@vic1707](https://github.com/vic1707)! - update `ChangeFreq` to support typescript configurations with string literal or predefined value.
+
 ## 1.0.1
 
 ### Patch Changes
