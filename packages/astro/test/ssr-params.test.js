@@ -26,4 +26,16 @@ describe('Astro.params in SSR', () => {
 		const $ = cheerio.load(html);
 		expect($('.category').text()).to.equal('food');
 	});
+
+	describe('Non-english characters in the URL', () => {
+		it('Params are passed to component', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/users/houston/東西/food');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			expect($('.category').text()).to.equal('food');
+		});
+	});
 });

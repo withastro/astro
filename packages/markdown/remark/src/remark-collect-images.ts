@@ -2,18 +2,17 @@ import type { Image } from 'mdast';
 import { visit } from 'unist-util-visit';
 import type { MarkdownVFile } from './types';
 
-export default function toRemarkCollectImages() {
-	return () =>
-		async function (tree: any, vfile: MarkdownVFile) {
-			if (typeof vfile?.path !== 'string') return;
+export function remarkCollectImages() {
+	return function (tree: any, vfile: MarkdownVFile) {
+		if (typeof vfile?.path !== 'string') return;
 
-			const imagePaths = new Set<string>();
-			visit(tree, 'image', (node: Image) => {
-				if (shouldOptimizeImage(node.url)) imagePaths.add(node.url);
-			});
+		const imagePaths = new Set<string>();
+		visit(tree, 'image', (node: Image) => {
+			if (shouldOptimizeImage(node.url)) imagePaths.add(node.url);
+		});
 
-			vfile.data.imagePaths = imagePaths;
-		};
+		vfile.data.imagePaths = imagePaths;
+	};
 }
 
 function shouldOptimizeImage(src: string) {

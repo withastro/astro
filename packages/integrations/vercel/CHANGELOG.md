@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 3.2.4
+
+### Patch Changes
+
+- [#6841](https://github.com/withastro/astro/pull/6841) [`2e3125e18`](https://github.com/withastro/astro/commit/2e3125e18063dd23080d380c93c1b709bb59e413) Thanks [@bluwy](https://github.com/bluwy)! - Fix vercel edge private environment variables usage
+
+- [#6840](https://github.com/withastro/astro/pull/6840) [`00a2e1d7c`](https://github.com/withastro/astro/commit/00a2e1d7c74cf253dcad729624246dd59138eb7c) Thanks [@delucis](https://github.com/delucis)! - Fix warning syntax in README
+
 ## 3.2.3
 
 ### Patch Changes

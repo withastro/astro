@@ -25,7 +25,7 @@ export function createImage(
 					fatal: true,
 				});
 
-				return z.NEVER;
+				return z.never();
 			}
 
 			return metadata;

@@ -91,7 +91,12 @@ export function astroContentImportPlugin({
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (
 						CHOKIDAR_MODIFIED_EVENTS.includes(event) &&
-						getEntryType(entry, contentPaths, contentEntryExts) === 'config'
+						getEntryType(
+							entry,
+							contentPaths,
+							contentEntryExts,
+							settings.config.experimental.assets
+						) === 'config'
 					) {
 						// Content modules depend on config, so we need to invalidate them.
 						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
