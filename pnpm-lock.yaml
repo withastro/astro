@@ -27,9 +27,6 @@ importers:
       '@changesets/cli':
         specifier: 2.23.0
         version: 2.23.0(patch_hash=kcozqtpxuwjzskw6zg5royevn4)
-      '@octokit/action':
-        specifier: ^3.18.1
-        version: 3.18.1
       '@types/node':
         specifier: ^18.7.21
         version: 18.7.21
@@ -39,9 +36,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^5.58.0
         version: 5.58.0(eslint@8.38.0)(typescript@5.0.2)
-      del:
-        specifier: ^7.0.0
-        version: 7.0.0
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
@@ -57,9 +51,6 @@ importers:
       eslint-plugin-prettier:
         specifier: ^4.2.1
         version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.7)
-      execa:
-        specifier: ^6.1.0
-        version: 6.1.0
       only-allow:
         specifier: ^1.1.1
         version: 1.1.1
@@ -5061,9 +5052,18 @@ importers:
         specifier: ^6.1.11
         version: 6.1.11
     devDependencies:
+      '@octokit/action':
+        specifier: ^3.18.1
+        version: 3.18.1
+      del:
+        specifier: ^7.0.0
+        version: 7.0.0
       esbuild-plugin-copy:
         specifier: ^2.0.2
         version: 2.0.2(esbuild@0.17.12)
+      execa:
+        specifier: ^6.1.0
+        version: 6.1.0
       tsconfig-resolver:
         specifier: ^3.0.1
         version: 3.0.1
@@ -8364,7 +8364,7 @@ packages:
   /@ts-morph/common@0.16.0:
     resolution: {integrity: sha512-SgJpzkTgZKLKqQniCjLaE3c2L2sdL7UShvmTmPBejAKd2OKV/yfMpQ2IWpAuA+VY5wy7PkSUaEObIqEK6afFuw==}
     dependencies:
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       minimatch: 5.1.6
       mkdirp: 1.0.4
       path-browserify: 1.0.1
@@ -12003,7 +12003,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       glob: 7.2.3
       ignore: 5.2.4
       merge2: 1.4.1
@@ -12016,7 +12016,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
@@ -12039,7 +12039,7 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 4.0.0

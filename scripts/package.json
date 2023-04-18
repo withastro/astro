@@ -18,6 +18,9 @@
     "tar": "^6.1.11"
   },
   "devDependencies": {
+    "@octokit/action": "^3.18.1",
+    "del": "^7.0.0",
+    "execa": "^6.1.0",
     "esbuild-plugin-copy": "^2.0.2",
     "tsconfig-resolver": "^3.0.1"
   }
