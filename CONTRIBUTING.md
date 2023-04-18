@@ -7,7 +7,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ## Quick Guide
 
-### Prerequisite
+### Prerequisites
 
 ```shell
 node: "^>=16.12.0"
@@ -17,7 +17,7 @@ pnpm: "^8.2.0"
 
 ### Setting up your local repo
 
-Astro uses pnpm workspaces, so you should **always run `pnpm install` from the top-level project directory.** Running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
+Astro uses pnpm workspaces, so you should **always run `pnpm install` from the top-level project directory**. Running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
 
 ```shell
 git clone && cd ...
