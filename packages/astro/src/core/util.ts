@@ -158,7 +158,11 @@ export function rootRelativePath(root: URL, idOrUrl: URL | string) {
 	} else {
 		id = idOrUrl;
 	}
-	return prependForwardSlash(id.slice(normalizePath(fileURLToPath(root)).length));
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	if (id.startsWith(normalizedRoot)) {
+		return id.slice(normalizedRoot.length);
+	}
+	return id;
 }
 
 export function emoji(char: string, fallback: string) {
