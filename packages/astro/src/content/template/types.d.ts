@@ -64,11 +64,6 @@ declare module 'astro:content' {
 
 	export type SchemaContext = { image: ImageFunction };
 
-	type ContentCollectionConfig<S extends BaseSchema> = {
-		type?: 'content';
-		schema?: S | ((context: SchemaContext) => S);
-	};
-
 	type DataCollectionConfig<S extends BaseSchema> = {
 		type: 'data';
 		schema?: S | ((context: SchemaContext) => S);
@@ -78,12 +73,19 @@ declare module 'astro:content' {
 		reference(): import('astro/zod').ZodEffects<S>;
 	};
 
+	type CollectionConfig<S> =
+		| {
+				type?: 'content';
+				schema?: S | ((context: SchemaContext) => S);
+		  }
+		| {
+				type: 'data';
+				schema?: S | ((context: SchemaContext) => S);
+		  };
+
 	export function defineCollection<S extends BaseSchema>(
-		input: ContentCollectionConfig<S>
-	): ContentCollectionConfig<S> & GeneratedCollectionConfig<S>;
-	export function defineCollection<S extends BaseSchema>(
-		input: DataCollectionConfig<S>
-	): DataCollectionConfig<S> & GeneratedCollectionConfig<S>;
+		input: CollectionConfig<S>
+	): CollectionConfig<S> & GeneratedCollectionConfig<S>;
 
 	export function defineDataCollection<S extends BaseSchema>(
 		input: Omit<DataCollectionConfig<S>, 'type'>
