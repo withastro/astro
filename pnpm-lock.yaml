@@ -2399,11 +2399,23 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/css-inline-stylesheets:
+  packages/astro/test/fixtures/css-inline-stylesheets/always:
     dependencies:
       astro:
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/auto:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/never:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
 
   packages/astro/test/fixtures/css-no-code-split:
     dependencies:
