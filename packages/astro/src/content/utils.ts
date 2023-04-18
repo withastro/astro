@@ -205,8 +205,16 @@ export function getDataEntryId({
 	const rawRelativePath = path.relative(fileURLToPath(dataDir), fileURLToPath(entry));
 	const rawId = path.relative(collection, rawRelativePath);
 	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
+	const rawSegments = rawIdWithoutFileExt.split(path.sep);
 
-	return rawIdWithoutFileExt;
+	const id = rawSegments
+		// Slugify each route segment to handle capitalization and spaces.
+		// Note: using `slug` instead of `new Slugger()` means no slug deduping.
+		.map((segment) => githubSlug(segment))
+		.join('/')
+		.replace(/\/index$/, '');
+
+	return id;
 }
 
 export function getContentEntryIdAndSlug({
