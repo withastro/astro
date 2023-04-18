@@ -230,7 +230,7 @@ git reset --hard
 
 By default, every package with a changeset will be released. If you only want to target a smaller subset of packages for release, you can consider clearing out the `.changesets` directory to replace all existing changesets with a single changeset of only the packages that you want to release. Just be sure not to commit or push this to `main`, since it will destroy existing changesets that you will still want to eventually release.
 
-Full documentation: <https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md>
+Full documentation: https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md
 
 ### Releasing `astro@next` (aka "prerelease mode")
 
@@ -238,7 +238,7 @@ Sometimes, the repo will enter into "prerelease mode". In prerelease mode, our n
 
 While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`. To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#releasing-astrolatest-while-in-prerelease-mode).
 
-Full documentation: <https://github.com/changesets/changesets/blob/main/docs/prereleases.md>
+Full documentation: https://github.com/changesets/changesets/blob/main/docs/prereleases.md
 
 ### Entering prerelease mode
 
@@ -271,7 +271,7 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Run `pnpm exec release` to publish your new release.
 1. Run `git push && git push --tags` to push your new release to GitHub.
 1. Run `git push release/0.X:latest` to push your release branch to `latest`.
-1. Go to <https://github.com/withastro/astro/releases/new> and create a new release. Copy the new changelog entry from <https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md>.
+1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 
 ## Documentation
