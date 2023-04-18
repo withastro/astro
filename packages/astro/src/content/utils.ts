@@ -247,7 +247,7 @@ export function getEntryType(
 	dataFileExts: string[],
 	collectionDir?: 'content' | 'data',
 	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
-	experimentalAssets: boolean = false
+	experimentalAssets = false
 ): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);

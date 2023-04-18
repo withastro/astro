@@ -5,14 +5,12 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentPaths,
 	getEntryType,
-	loadContentConfig,
 	getContentEntryIdAndSlug,
 	getEntrySlug,
 	type ContentConfig,
@@ -31,7 +29,7 @@ type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL; collectionDir: 'content' | 'data' };
 
-type DataEntryMetadata = {};
+type DataEntryMetadata = Record<string, never>;
 type ContentEntryMetadata = { slug: string };
 type ContentCollectionEntryMap = Record<string, Record<string, ContentEntryMetadata>>;
 type DataCollectionEntryMap = Record<string, Record<string, DataEntryMetadata>>;
@@ -204,7 +202,7 @@ export async function createCollectionTypesGenerator({
 						addCollection(dataCollectionEntryMap, collectionKey);
 					}
 					if (!(entryKey in dataCollectionEntryMap[collectionKey])) {
-						setEntry(dataCollectionEntryMap, collectionKey, entryKey, { type: 'data' });
+						setEntry(dataCollectionEntryMap, collectionKey, entryKey, {});
 					}
 					return { shouldGenerateTypes: true };
 				case 'unlink':
