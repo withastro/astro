@@ -2,6 +2,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
+import { exposeEnv } from '../lib/env.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
 
@@ -24,10 +25,14 @@ export default function vercelStatic({ analytics }: VercelStaticConfig = {}): As
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = new URL('./static/', getVercelOutput(config.root));
+				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
 						format: 'directory',
+					},
+					vite: {
+						define: viteDefine,
 					},
 				});
 			},
