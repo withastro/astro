@@ -11,11 +11,6 @@ on:
       - ".vscode/**"
       - "**/*.md"
 
-env:
-  # 7 GiB by default on GitHub, setting to 6 GiB
-  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-  NODE_OPTIONS: --max-old-space-size=6144
-
 # Automatically cancel older in-progress jobs on the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
@@ -29,6 +24,9 @@ env:
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   FORCE_COLOR: true
   ASTRO_TELEMETRY_DISABLED: true
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
 
 jobs:
   lint:
