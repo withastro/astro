@@ -112,7 +112,7 @@ Type: `RSSFeedItem[] (required)`
 
 A list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
 
-When providing a formatted RSS item list, see the [`RSSFeedItem` type reference below](#rssfeeditem).
+When providing a formatted RSS item list, see the [`RSSFeedItem` type reference](#rssfeeditem).
 
 ### drafts
 
@@ -187,7 +187,7 @@ export const get = () => rss({
 
 ## `RSSFeedItem`
 
-An `RSSFeedItem` is a single item in the list of items in your feed. It represents a story, with `link`, `title` and `pubDate` fields. There are further optional fields defined below. You can also check the definitions for the fields in the [RSS spec](https://validator.w3.org/feed/docs/rss2.html#ltpubdategtSubelementOfLtitemgt).
+An `RSSFeedItem` is a single item in the list of items in your feed. It represents a story, with `link`, `title`, and `pubDate` fields. There are further optional fields defined below. You can also check the definitions for the fields in the [RSS spec](https://validator.w3.org/feed/docs/rss2.html#ltpubdategtSubelementOfLtitemgt).
 
 An example feed item might look like:
 
@@ -255,7 +255,7 @@ The URL of a web page that contains comments on the item.
 
 Type: `object (optional)`
 
-An object that defines the `title` and `url` of the original feed for items that have been republished from another source. Both are required propeties of `source` for proper attribution.
+An object that defines the `title` and `url` of the original feed for items that have been republished from another source. Both are required properties of `source` for proper attribution.
 
 ```js
 const item = {
@@ -274,7 +274,7 @@ const item = {
 
 Type: `string (required)`
 
-The name of the original feed in which the item was published. (Note that this is the the feed's title, not the individual article title.)
+The name of the original feed in which the item was published. (Note that this is the feed's title, not the individual article title.)
 
 #### `source.url`
 
