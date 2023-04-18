@@ -1,1 +1,1 @@
-export { sequence } from './dist/core/middleware/index.js';
+export { sequence, defineMiddleware } from './dist/core/middleware/index.js';

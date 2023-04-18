@@ -1,13 +1,9 @@
-import type { APIContext, MiddlewareNext } from './src/@types/astro';
-
-type MiddlewareResponseHandler = import('./dist/@types/astro.js').MiddlewareResponseHandler;
+import type { APIContext, MiddlewareNext, MiddlewareResponseHandler } from './src/@types/astro';
 
 /**
  * Utility function to join multiple middleware functions together
  */
-export declare function sequence(
-	...handlers: MiddlewareResponseHandler[]
-): MiddlewareResponseHandler;
+export function sequence(...handlers: MiddlewareResponseHandler[]): MiddlewareResponseHandler;
 
 /**
  * Utility function to quickly type a middleware
@@ -23,6 +19,4 @@ export declare function sequence(
  * })
  * ```
  */
-export declare function defineMiddleware(
-	fn: (context: APIContext, next: MiddlewareNext<Response>) => Promise<Response | void>
-): (context: APIContext, next: MiddlewareNext<Response>) => Promise<Response | void>;
+export function defineMiddleware(fn: MiddlewareResponseHandler): MiddlewareResponseHandler;
