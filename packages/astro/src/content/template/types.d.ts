@@ -114,20 +114,11 @@ declare module 'astro:content' {
 		entryId: E
 	): Promise<CollectionEntry<C>>;
 
-	export function getCollection<C extends keyof ContentEntryMap, E extends CollectionEntry<C>>(
+	export function getCollection<C extends keyof AnyEntryMap, E extends CollectionEntry<C>>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => entry is E
 	): Promise<E[]>;
-	export function getCollection<C extends keyof ContentEntryMap>(
-		collection: C,
-		filter?: (entry: CollectionEntry<C>) => unknown
-	): Promise<CollectionEntry<C>[]>;
-
-	export function getDataCollection<C extends keyof DataEntryMap, E extends CollectionEntry<C>>(
-		collection: C,
-		filter?: (entry: CollectionEntry<C>) => entry is E
-	): Promise<E[]>;
-	export function getDataCollection<C extends keyof DataEntryMap>(
+	export function getCollection<C extends keyof AnyEntryMap>(
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => unknown
 	): Promise<CollectionEntry<C>[]>;

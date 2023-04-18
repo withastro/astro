@@ -2,7 +2,6 @@
 import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
-	createGetDataCollection,
 	createGetEntryBySlug,
 	createGetDataEntryById,
 	createReference,
@@ -91,6 +90,7 @@ export const getCollection = createGetCollection({
 
 export const getDataCollection = createGetDataCollection({
 	dataCollectionToEntryMap,
+	collectionToRenderEntryMap,
 });
 
 export const getEntryBySlug = createGetEntryBySlug({

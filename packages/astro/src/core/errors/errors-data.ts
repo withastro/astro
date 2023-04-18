@@ -1000,6 +1000,22 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
+	/**
+	 * @docs
+	 * @see
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * @description
+	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 */
+	CollectionDoesNotExistError: {
+		title: 'Collection does not exist',
+		code: 9004,
+		message: (collection: string) => {
+			return `The collection **${collection}** does not exist. Ensure a collection directory with this name exists.`;
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
+	},
+
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',

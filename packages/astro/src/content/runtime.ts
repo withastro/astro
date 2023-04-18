@@ -39,13 +39,30 @@ export function createCollectionToGlobResultMap({
 const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
 	contentCollectionToEntryMap,
+	dataCollectionToEntryMap,
 	getRenderEntryImport,
 }: {
 	contentCollectionToEntryMap: CollectionToEntryMap;
+	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
-		const lazyImports = Object.values(contentCollectionToEntryMap[collection] ?? {});
+		let type: 'content' | 'data';
+		if (collection in contentCollectionToEntryMap) {
+			type = 'content';
+		} else if (collection in dataCollectionToEntryMap) {
+			type = 'data';
+		} else {
+			throw new AstroError({
+				...AstroErrorData.CollectionDoesNotExistError,
+				message: AstroErrorData.CollectionDoesNotExistError.message(collection),
+			});
+		}
+		const lazyImports = Object.values(
+			type === 'content'
+				? contentCollectionToEntryMap[collection]
+				: dataCollectionToEntryMap[collection]
+		);
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
@@ -55,53 +72,26 @@ export function createGetCollection({
 			entries = await Promise.all(
 				lazyImports.map(async (lazyImport) => {
 					const entry = await lazyImport();
-					return {
-						id: entry.id,
-						slug: entry.slug,
-						body: entry.body,
-						collection: entry.collection,
-						data: entry.data,
-						async render() {
-							return render({
-								collection: entry.collection,
+					return type === 'content'
+						? {
 								id: entry.id,
-								renderEntryImport: await getRenderEntryImport(collection, entry.slug),
-							});
-						},
-					};
-				})
-			);
-			cacheEntriesByCollection.set(collection, entries);
-		}
-		if (typeof filter === 'function') {
-			return entries.filter(filter);
-		} else {
-			return entries;
-		}
-	};
-}
-
-export function createGetDataCollection({
-	dataCollectionToEntryMap,
-}: {
-	dataCollectionToEntryMap: CollectionToEntryMap;
-}) {
-	return async function getDataCollection(collection: string, filter?: (entry: any) => unknown) {
-		const lazyImports = Object.values(dataCollectionToEntryMap[collection] ?? {});
-		let entries: any[] = [];
-		// Cache `getCollection()` calls in production only
-		// prevents stale cache in development
-		if (import.meta.env.PROD && cacheEntriesByCollection.has(collection)) {
-			entries = cacheEntriesByCollection.get(collection)!;
-		} else {
-			entries = await Promise.all(
-				lazyImports.map(async (lazyImport) => {
-					const entry = await lazyImport();
-					return {
-						id: entry.id,
-						collection: entry.collection,
-						data: entry.data,
-					};
+								slug: entry.slug,
+								body: entry.body,
+								collection: entry.collection,
+								data: entry.data,
+								async render() {
+									return render({
+										collection: entry.collection,
+										id: entry.id,
+										renderEntryImport: await getRenderEntryImport(collection, entry.id),
+									});
+								},
+						  }
+						: {
+								id: entry.id,
+								collection: entry.collection,
+								data: entry.data,
+						  };
 				})
 			);
 			cacheEntriesByCollection.set(collection, entries);
