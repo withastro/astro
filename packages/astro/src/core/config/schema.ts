@@ -37,6 +37,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {},
 	experimental: {
 		assets: false,
+		middleware: false,
 	},
 };
 
@@ -183,6 +184,7 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
+			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 		})
 		.optional()
 		.default({}),

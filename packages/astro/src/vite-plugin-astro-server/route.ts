@@ -169,9 +169,11 @@ export async function handleRoute(
 		request,
 		route,
 	};
-	const middleware = await loadMiddleware(env.loader);
-	if (middleware) {
-		options.middleware = middleware;
+	if (env.settings.config.experimental.middleware) {
+		const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
+		if (middleware) {
+			options.middleware = middleware;
+		}
 	}
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
