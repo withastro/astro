@@ -600,6 +600,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message
+	 * Could not find requested image `IMAGE_PATH` at `FULL_IMAGE_PATH`.
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
 	 * @description
@@ -615,6 +617,16 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 				fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
 			}`,
 		hint: 'This is often caused by a typo in the image path. Please make sure the file exists, and is spelled correctly.',
+	},
+	/**
+	 * @docs
+	 * @description
+	 * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
+	 */
+	ResponseSentError: {
+		title: 'Unable to set response',
+		code: 3030,
+		message: 'The response has already been sent to the browser and cannot be altered.',
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
@@ -816,7 +828,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	GenerateContentTypesError: {
 		title: 'Failed to generate content types.',
 		code: 8001,
-		message: '`astro sync` command failed to generate content collection types.',
+		message: (errorMessage: string) =>
+			`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
 		hint: 'Check your `src/content/config.*` file for typos.',
 	},
 	/**

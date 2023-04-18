@@ -123,7 +123,12 @@ export async function createContentTypesGenerator({
 			}
 			return { shouldGenerateTypes: true };
 		}
-		const fileType = getEntryType(fileURLToPath(event.entry), contentPaths, contentEntryExts);
+		const fileType = getEntryType(
+			fileURLToPath(event.entry),
+			contentPaths,
+			contentEntryExts,
+			settings.config.experimental.assets
+		);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}

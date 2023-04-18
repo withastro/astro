@@ -584,6 +584,7 @@ class ErrorOverlay extends HTMLElement {
 		super();
 		this.root = this.attachShadow({ mode: 'open' });
 		this.root.innerHTML = overlayTemplate;
+		this.dir = 'ltr';
 
 		// theme toggle logic
 		const themeToggle = this.root.querySelector<HTMLInputElement>('.theme-toggle-checkbox');
@@ -637,7 +638,8 @@ class ErrorOverlay extends HTMLElement {
 			const codeContent = code.querySelector<HTMLDivElement>('#code-content');
 
 			if (codeHeader) {
-				const cleanFile = err.loc.file.split('/').slice(-2).join('/');
+				const separator = err.loc.file.includes('/') ? '/' : '\\';
+				const cleanFile = err.loc.file.split(separator).slice(-2).join('/');
 				const fileLocation = [cleanFile, err.loc.line, err.loc.column].filter(Boolean).join(':');
 				const absoluteFileLocation = [err.loc.file, err.loc.line, err.loc.column]
 					.filter(Boolean)

@@ -1,7 +1,7 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { VALID_INPUT_FORMATS } from '../consts.js';
+import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
-import type { ImageTransform, OutputFormat } from '../types.js';
+import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -71,7 +71,7 @@ export interface LocalImageService extends SharedServiceProps {
 	transform: (
 		inputBuffer: Buffer,
 		transform: LocalImageTransform
-	) => Promise<{ data: Buffer; format: OutputFormat }>;
+	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
 export type BaseServiceTransform = {
@@ -129,13 +129,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 		} else {
-			if (!VALID_INPUT_FORMATS.includes(options.src.format as any)) {
+			if (!VALID_OPTIMIZABLE_FORMATS.includes(options.src.format as any)) {
 				throw new AstroError({
 					...AstroErrorData.UnsupportedImageFormat,
 					message: AstroErrorData.UnsupportedImageFormat.message(
 						options.src.format,
 						options.src.src,
-						VALID_INPUT_FORMATS
+						VALID_OPTIMIZABLE_FORMATS
 					),
 				});
 			}
@@ -204,7 +204,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			src: params.get('href')!,
 			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
 			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
-			format: params.get('f') as OutputFormat,
+			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
 		};
 

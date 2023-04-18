@@ -3,6 +3,7 @@ import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import {
@@ -148,6 +149,9 @@ async function ssrBuild(
 		logLevel: opts.viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
+			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
+			// as the CSS generated are used and served to the client.
+			cssMinify: viteConfig.build?.minify == null ? true : !!viteConfig.build?.minify,
 			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: false,
@@ -173,6 +177,7 @@ async function ssrBuild(
 				},
 			},
 			ssr: true,
+			ssrEmitAssets: true,
 			// improve build performance
 			minify: false,
 			modulePreload: { polyfill: false },
@@ -380,12 +385,14 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 	});
 
 	if (files.length > 0) {
-		// Make the directory
-		await fs.promises.mkdir(clientAssets, { recursive: true });
 		await Promise.all(
 			files.map(async (filename) => {
 				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
 				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
+				const dir = new URL(path.parse(clientUrl.href).dir);
+				// It can't find this file because the user defines a custom path
+				// that includes the folder paths in `assetFileNames
+				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
 				return fs.promises.rename(currentUrl, clientUrl);
 			})
 		);

@@ -1,5 +1,5 @@
 {
-  "name": "@test/css-order-import",
+  "name": "@test/css-order-dynamic-import",
   "dependencies": {
     "astro": "workspace:*"
   }

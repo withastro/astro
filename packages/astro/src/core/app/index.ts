@@ -12,7 +12,7 @@ import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -21,6 +21,7 @@ import {
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
+	createAssetLink,
 	createLinkStylesheetElementSet,
 	createModuleScriptElement,
 } from '../render/ssr-element.js';
@@ -29,6 +30,7 @@ export { deserializeManifest } from './common.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
+const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
@@ -70,7 +72,7 @@ export class App {
 						return bundlePath;
 					}
 					default: {
-						return prependForwardSlash(joinPaths(manifest.base, bundlePath));
+						return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 					}
 				}
 			},
@@ -201,6 +203,7 @@ export class App {
 			});
 
 			const response = await renderPage(mod, ctx, this.#env);
+			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));

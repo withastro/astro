@@ -3,7 +3,6 @@ import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
-import { copyWasmFiles } from './vendor/squoosh/copy-wasm.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
@@ -131,7 +130,11 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					// Doing this here makes sure that base is ignored when building
 					// staticImages to /dist, but the rendered HTML will include the
 					// base prefix for `src`.
-					return prependForwardSlash(joinPaths(_config.base, _buildConfig.assets, filename));
+					if (_config.build.assetsPrefix) {
+						return joinPaths(_config.build.assetsPrefix, _buildConfig.assets, filename);
+					} else {
+						return prependForwardSlash(joinPaths(_config.base, _buildConfig.assets, filename));
+					}
 				}
 
 				// Helpers for building static images should only be available for SSG
@@ -142,13 +145,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			'astro:build:generated': async ({ dir }) => {
 				// for SSG builds, build all requested image transforms to dist
 				const loader = globalThis?.astroImage?.loader;
-
-				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					// For the Squoosh service, copy all wasm files to dist/chunks.
-					// Because the default loader is dynamically imported (above),
-					// Vite will bundle squoosh to dist/chunks and expect to find the wasm files there
-					await copyWasmFiles(new URL('./chunks', dir));
-				}
 
 				if (loader && 'transform' in loader && staticImages.size > 0) {
 					const cacheDir = !!resolvedOptions.cacheDir
@@ -163,11 +159,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						logLevel: resolvedOptions.logLevel,
 						cacheDir,
 					});
-				}
-			},
-			'astro:build:ssr': async () => {
-				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(new URL('./chunks/', _buildConfig.server));
 				}
 			},
 		},

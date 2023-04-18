@@ -3,14 +3,15 @@ import matter from 'gray-matter';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { EmitFile, PluginContext } from 'rollup';
+import type { PluginContext } from 'rollup';
 import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
 import { z } from 'zod';
-import type { AstroConfig, AstroSettings } from '../@types/astro.js';
-import { emitESMImage } from '../assets/utils/emitAsset.js';
+import type { AstroConfig, AstroSettings, ImageInputFormat } from '../@types/astro.js';
+import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
+import { createImage } from './runtime-assets.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -33,7 +34,6 @@ export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
-
 export type EntryInfo = {
 	id: string;
 	slug: string;
@@ -44,31 +44,6 @@ export const msg = {
 	collectionConfigMissing: (collection: string) =>
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
-
-/**
- * Mutate (arf) the entryData to reroute assets to their final paths
- */
-export async function patchAssets(
-	frontmatterEntry: Record<string, any>,
-	watchMode: boolean,
-	fileEmitter: EmitFile,
-	astroSettings: AstroSettings
-) {
-	for (const key of Object.keys(frontmatterEntry)) {
-		if (typeof frontmatterEntry[key] === 'object' && frontmatterEntry[key] !== null) {
-			if (frontmatterEntry[key]['__astro_asset']) {
-				frontmatterEntry[key] = await emitESMImage(
-					frontmatterEntry[key].src,
-					watchMode,
-					fileEmitter,
-					astroSettings
-				);
-			} else {
-				await patchAssets(frontmatterEntry[key], watchMode, fileEmitter, astroSettings);
-			}
-		}
-	}
-}
 
 export function getEntrySlug({
 	id,
@@ -89,71 +64,37 @@ export function getEntrySlug({
 export async function getEntryData(
 	entry: EntryInfo & { unvalidatedData: Record<string, unknown>; _internal: EntryInternal },
 	collectionConfig: CollectionConfig,
-	resolver: (idToResolve: string) => ReturnType<PluginContext['resolve']>
+	pluginContext: PluginContext,
+	settings: AstroSettings
 ) {
 	// Remove reserved `slug` field before parsing data
 	let { slug, ...data } = entry.unvalidatedData;
-	if (collectionConfig.schema) {
-		// TODO: remove for 2.0 stable release
-		if (
-			typeof collectionConfig.schema === 'object' &&
-			!('safeParseAsync' in collectionConfig.schema)
-		) {
-			throw new AstroError({
-				title: 'Invalid content collection config',
-				message: `New: Content collection schemas must be Zod objects. Update your collection config to use \`schema: z.object({...})\` instead of \`schema: {...}\`.`,
-				hint: 'See https://docs.astro.build/en/reference/api-reference/#definecollection for an example.',
-				code: 99999,
-			});
+
+	let schema = collectionConfig.schema;
+	if (typeof schema === 'function') {
+		if (!settings.config.experimental.assets) {
+			throw new Error(
+				'The function shape for schema can only be used when `experimental.assets` is enabled.'
+			);
 		}
+
+		schema = schema({
+			image: createImage(settings, pluginContext, entry._internal.filePath),
+		});
+	}
+
+	if (schema) {
 		// Catch reserved `slug` field inside schema
 		// Note: will not warn for `z.union` or `z.intersection` schemas
-		if (
-			typeof collectionConfig.schema === 'object' &&
-			'shape' in collectionConfig.schema &&
-			collectionConfig.schema.shape.slug
-		) {
+		if (typeof schema === 'object' && 'shape' in schema && schema.shape.slug) {
 			throw new AstroError({
 				...AstroErrorData.ContentSchemaContainsSlugError,
 				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
 			});
 		}
 
-		/**
-		 * Resolve all the images referred to in the frontmatter from the file requesting them
-		 */
-		async function preprocessAssetPaths(object: Record<string, any>) {
-			if (typeof object !== 'object' || object === null) return;
-
-			for (let [schemaName, schema] of Object.entries<any>(object)) {
-				if (schema._def.description === '__image') {
-					object[schemaName] = z.preprocess(
-						async (value: unknown) => {
-							if (!value || typeof value !== 'string') return value;
-							return (
-								(await resolver(value))?.id ??
-								path.join(path.dirname(entry._internal.filePath), value)
-							);
-						},
-						schema,
-						{ description: '__image' }
-					);
-				} else if ('shape' in schema) {
-					await preprocessAssetPaths(schema.shape);
-				} else if ('unwrap' in schema) {
-					const unwrapped = schema.unwrap().shape;
-
-					if (unwrapped) {
-						await preprocessAssetPaths(unwrapped);
-					}
-				}
-			}
-		}
-
-		await preprocessAssetPaths(collectionConfig.schema.shape);
-
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await collectionConfig.schema.safeParseAsync(entry.unvalidatedData, {
+		const parsed = await schema.safeParseAsync(entry.unvalidatedData, {
 			errorMap,
 		});
 		if (parsed.success) {
@@ -226,12 +167,18 @@ export function getEntryInfo({
 export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
-	contentFileExts: string[]
+	contentFileExts: string[],
+	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
+	experimentalAssets: boolean
 ): 'content' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
-	if (hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) || isOnIgnoreList(base)) {
+	if (
+		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
+		isOnIgnoreList(base) ||
+		(experimentalAssets && isImageAsset(ext))
+	) {
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
@@ -244,6 +191,13 @@ export function getEntryType(
 
 function isOnIgnoreList(fileName: string) {
 	return ['.DS_Store'].includes(fileName);
+}
+
+/**
+ * Return if a file extension is a valid image asset, so we can avoid outputting a warning for them.
+ */
+function isImageAsset(fileExt: string) {
+	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
 function hasUnderscoreBelowContentDirectoryPath(

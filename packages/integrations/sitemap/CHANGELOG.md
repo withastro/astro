@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 1.2.2
+
+### Patch Changes
+
+- [#6658](https://github.com/withastro/astro/pull/6658) [`1ec1df126`](https://github.com/withastro/astro/commit/1ec1df12641290ec8b3a417a6284fd8d752c02bf) Thanks [@andremralves](https://github.com/andremralves)! - Fix sitemap generation with a base path
+
 ## 1.2.1
 
 ### Patch Changes

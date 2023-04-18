@@ -5,7 +5,9 @@ import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
 import type { ESBuildTransformResult } from 'vite';
+import { normalizePath } from 'vite';
 import type { SSRError } from '../../../@types/astro.js';
+import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
@@ -32,10 +34,15 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 		// - We'll fail to show the file's content in the browser
 		// - We'll fail to show the code frame in the terminal
 		// - The "Open in Editor" button won't work
+
+		// Normalize the paths so that we can correctly detect if it's absolute on any platform
+		const normalizedFile = normalizePath(error.loc?.file || '');
+		const normalizedRootFolder = removeLeadingForwardSlashWindows(rootFolder?.pathname || '');
+
 		if (
 			error.loc?.file &&
 			rootFolder &&
-			(!error.loc.file.startsWith(rootFolder.pathname) || !isAbsolute(error.loc.file))
+			(!normalizedFile?.startsWith(normalizedRootFolder) || !isAbsolute(normalizedFile))
 		) {
 			error.loc.file = join(fileURLToPath(rootFolder), error.loc.file);
 		}

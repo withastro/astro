@@ -24,6 +24,9 @@ export async function projectName(ctx: Pick<Context, 'cwd' | 'prompt' | 'project
 				if (!isEmpty(value)) {
 					return `Directory is not empty!`;
 				}
+				// Check for non-printable characters
+				if (value.match(/[^\x20-\x7E]/g) !== null)
+					return `Invalid non-printable character present!`;
 				return true;
 			},
 		});

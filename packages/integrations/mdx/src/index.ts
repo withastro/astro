@@ -8,6 +8,7 @@ import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import { SourceMapGenerator } from 'source-map';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
@@ -113,6 +114,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											...(mdxPluginOpts.recmaPlugins ?? []),
 											() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
 										],
+										SourceMapGenerator: config.vite.build?.sourcemap
+											? SourceMapGenerator
+											: undefined,
 									});
 
 									return {
@@ -160,6 +164,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									// Ensures styles and scripts are injected into a `<head>`
 									// When a layout is not applied
 									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
+									code += `\nContent.moduleId = ${JSON.stringify(id)};`;
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
@@ -167,7 +172,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											import.meta.hot.decline();
 										}`;
 									}
-									return escapeViteEnvReferences(code);
+									return { code: escapeViteEnvReferences(code), map: null };
 								},
 							},
 						] as VitePlugin[],

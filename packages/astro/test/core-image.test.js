@@ -97,6 +97,13 @@ describe('astro:image', () => {
 				expect(res.status).to.equal(200);
 			});
 
+			it('returns proper content-type', async () => {
+				let $img = $('#local img');
+				let src = $img.attr('src');
+				let res = await fixture.fetch(src);
+				expect(res.headers.get('content-type')).to.equal('image/webp');
+			});
+
 			it('errors on unsupported formats', async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/unsupported-format');
@@ -211,6 +218,19 @@ describe('astro:image', () => {
 				let $img = $('img');
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
 			});
+
+			it('properly handles remote images', async () => {
+				let res = await fixture.fetch('/httpImage');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(2);
+				const remoteUrls = ['https://example.com/image.png', '/image.png'];
+				$img.each((index, element) => {
+					expect(element.attribs['src']).to.equal(remoteUrls[index]);
+				});
+			});
 		});
 
 		describe('getImage', () => {
@@ -243,12 +263,25 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(4);
+				expect($img).to.have.a.lengthOf(7);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
 				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+			});
+
+			it('has proper source for refined image', () => {
+				let $img = $('#refined-image img');
+				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+			});
+
+			it('has proper sources for array of images', () => {
+				let $img = $('#array-of-images img');
+				const imgsSrcs = [];
+				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				expect($img).to.have.a.lengthOf(2);
+				expect(imgsSrcs.every((img) => img.startsWith('/src/'))).to.be.true;
 			});
 
 			it('has proper attributes for optimized image through getImage', () => {
@@ -345,7 +378,7 @@ describe('astro:image', () => {
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/blog/one');
-			const text = await res.text();
+			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('does not exist. Is the path correct?');
@@ -354,7 +387,7 @@ describe('astro:image', () => {
 		it('properly error image in Markdown content is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/post');
-			const text = await res.text();
+			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('Could not find requested image');

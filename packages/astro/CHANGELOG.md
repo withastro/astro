@@ -1,5 +1,129 @@
 # astro
 
+## 2.3.0
+
+### Minor Changes
+
+- [#6816](https://github.com/withastro/astro/pull/6816) [`8539eb164`](https://github.com/withastro/astro/commit/8539eb1643864ae7e0f5a080915cd75535f7101b) Thanks [@bluwy](https://github.com/bluwy)! - Support tsconfig aliases in CSS `@import`
+
+### Patch Changes
+
+- [#6544](https://github.com/withastro/astro/pull/6544) [`a9c22994e`](https://github.com/withastro/astro/commit/a9c22994e41f92a586d8946988d29e3c62148778) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Correctly generate directories for assets when users customise the output via rollup options.
+
+- [#6825](https://github.com/withastro/astro/pull/6825) [`948a6d7be`](https://github.com/withastro/astro/commit/948a6d7be0c76fd1dd8550270bd29821075f799c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning when using images inside the `src/content` folder with `experimental.assets`
+
+- Updated dependencies [[`2511d58d5`](https://github.com/withastro/astro/commit/2511d58d586af080a78e5ef8a63020b3e17770db)]:
+  - @astrojs/markdown-remark@2.1.4
+
+## 2.2.3
+
+### Patch Changes
+
+- [#6765](https://github.com/withastro/astro/pull/6765) [`6c09ac03b`](https://github.com/withastro/astro/commit/6c09ac03bf8f77ca9c1279dce570e0dcf3d439e3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Properly include the needed WASM files for the Squoosh service for Netlify and Vercel in SSR
+
+- [#6817](https://github.com/withastro/astro/pull/6817) [`f882bc163`](https://github.com/withastro/astro/commit/f882bc1636d5ce1c3b8faae47df36b4dc758045a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix sourcemap warnings when using Content Collections and MDX with the `vite.build.sourcemap` option
+
+- [#6819](https://github.com/withastro/astro/pull/6819) [`76dd53e3f`](https://github.com/withastro/astro/commit/76dd53e3f69d596754795710a457a1e570a3bad4) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Fix fallback content showing unexpectedly in some cases
+
+- [#6582](https://github.com/withastro/astro/pull/6582) [`7653cf9e9`](https://github.com/withastro/astro/commit/7653cf9e9fedc6edc6038603248351e276191c3a) Thanks [@bluwy](https://github.com/bluwy)! - Fix CSS chunking and deduping between multiple Astro files and framework components
+
+## 2.2.2
+
+### Patch Changes
+
+- [#6811](https://github.com/withastro/astro/pull/6811) [`60c16db6f`](https://github.com/withastro/astro/commit/60c16db6ff583b0656bc1937814c8bbf06831294) Thanks [@bluwy](https://github.com/bluwy)! - Fix check CLI fs load fallback behaviour
+
+- [#6782](https://github.com/withastro/astro/pull/6782) [`c12ca5ece`](https://github.com/withastro/astro/commit/c12ca5ece34beef0fb53f911515a7c752cc2f3ad) Thanks [@amirhhashemi](https://github.com/amirhhashemi)! - Force error overlay direction to be LTR
+
+## 2.2.1
+
+### Patch Changes
+
+- [#6766](https://github.com/withastro/astro/pull/6766) [`72fed684a`](https://github.com/withastro/astro/commit/72fed684a35f00d80c69bcf6e8af297fed0294fe) Thanks [@Xetera](https://github.com/Xetera)! - Exporting the ImageFunction in astro:content and grouping it under a SchemaContext
+
+- [#6772](https://github.com/withastro/astro/pull/6772) [`45bff6fcc`](https://github.com/withastro/astro/commit/45bff6fccb3f5c71ff24c1ceb48cd532196c90f6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Allow `import.meta.env` values of `0`, `1`, `true`, and `false` to be used for `export const prerender` statements
+
+- [#6770](https://github.com/withastro/astro/pull/6770) [`52d7a4a01`](https://github.com/withastro/astro/commit/52d7a4a011a3bb722b522fffd88c5fe9a519a196) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated types to match newer Vite versions
+
+- [#6774](https://github.com/withastro/astro/pull/6774) [`9e88e0f23`](https://github.com/withastro/astro/commit/9e88e0f23c5913c07f7e3e96fa0555219ef710dc) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: remove old `slug()` type from `defineCollection()` helper
+
+- [#6775](https://github.com/withastro/astro/pull/6775) [`fa84f1a7d`](https://github.com/withastro/astro/commit/fa84f1a7d2c290479c75199f16e8de489036d7ea) Thanks [@matthewp](https://github.com/matthewp)! - Support streaming inside of slots
+
+- [#6779](https://github.com/withastro/astro/pull/6779) [`a98f6f418`](https://github.com/withastro/astro/commit/a98f6f418c92261a06ef79624a8c86e288c21eab) Thanks [@matthewp](https://github.com/matthewp)! - Prevent body head content injection in MDX when using layout
+
+- [#6781](https://github.com/withastro/astro/pull/6781) [`7f74326b7`](https://github.com/withastro/astro/commit/7f74326b762bfc174ebe8e37ae03733563e4214f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `astro:server:setup` middlewares not applying. This resolves an issue with the Partytown integration in dev.
+
+## 2.2.0
+
+### Minor Changes
+
+- [#6703](https://github.com/withastro/astro/pull/6703) [`a1108e037`](https://github.com/withastro/astro/commit/a1108e037115cdb67d03505286c7d3a4fc2a1ff5) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Move `image()` to come from `schema` instead to fix it not working with refine and inside complex types
+
+  **Migration**:
+
+  Remove the `image` import from `astro:content`, and instead use a function to generate your schema, like such:
+
+  ```ts
+  import { defineCollection, z } from 'astro:content';
+
+  defineCollection({
+    schema: ({ image }) =>
+      z.object({
+        image: image().refine((img) => img.width >= 200, {
+          message: 'image too small',
+        }),
+      }),
+  });
+  ```
+
+- [#6714](https://github.com/withastro/astro/pull/6714) [`ff0430786`](https://github.com/withastro/astro/commit/ff043078630e678348ae4f4757b3015b3b862c16) Thanks [@bluwy](https://github.com/bluwy)! - Add `build.assetsPrefix` option for CDN support. If set, all Astro-generated asset links will be prefixed with it. For example, setting it to `https://cdn.example.com` would generate `https://cdn.example.com/_astro/penguin.123456.png` links.
+
+  Also adds `import.meta.env.ASSETS_PREFIX` environment variable that can be used to manually create asset links not handled by Astro.
+
+### Patch Changes
+
+- [#6753](https://github.com/withastro/astro/pull/6753) [`489dd8d69`](https://github.com/withastro/astro/commit/489dd8d69cdd9d7c243cf8bec96051a914984b9c) Thanks [@bluwy](https://github.com/bluwy)! - Fix `getViteConfig` return type
+
+- [#6744](https://github.com/withastro/astro/pull/6744) [`a1a4f45b5`](https://github.com/withastro/astro/commit/a1a4f45b51a80215fa7598da83bd0d9c5acd20d2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix remote images in Markdown throwing errors when using `experimental.assets`
+
+- [#6762](https://github.com/withastro/astro/pull/6762) [`8b88e4cf1`](https://github.com/withastro/astro/commit/8b88e4cf15c8bea7942b3985380164e0edf7250b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improved error message when an error was encountered while generating types
+
+- [#6719](https://github.com/withastro/astro/pull/6719) [`d54cbe413`](https://github.com/withastro/astro/commit/d54cbe41349e55f8544212ad9320705f07325920) Thanks [@matthewp](https://github.com/matthewp)! - Better errors for when response is already sent
+
+  This adds clearer error messaging when a Response has already been sent to the browser and the developer attempts to use:
+
+  - Astro.cookies.set
+  - Astro.redirect
+
+- [#6741](https://github.com/withastro/astro/pull/6741) [`4c347ab51`](https://github.com/withastro/astro/commit/4c347ab51e46f2319d614f8577fe502e3dc816e2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix content-type header being wrong in dev on images from `astro:assets`
+
+- [#6739](https://github.com/withastro/astro/pull/6739) [`2f2e572e9`](https://github.com/withastro/astro/commit/2f2e572e937fd25451bbc78a05d55b7caa1ca3ec) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added more types and utilities exports related to `astro:assets` to help building custom image components and image services
+
+- [#6759](https://github.com/withastro/astro/pull/6759) [`7116c021a`](https://github.com/withastro/astro/commit/7116c021a39eac15a6e1264dfbd11bef0f5d618a) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade to Vite 4.2
+
+- Updated dependencies [[`a1a4f45b5`](https://github.com/withastro/astro/commit/a1a4f45b51a80215fa7598da83bd0d9c5acd20d2)]:
+  - @astrojs/markdown-remark@2.1.3
+
+## 2.1.9
+
+### Patch Changes
+
+- [#6693](https://github.com/withastro/astro/pull/6693) [`c0b7864a4`](https://github.com/withastro/astro/commit/c0b7864a41dd9f31e5a588208d1ff806d4edf047) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: avoid calling `astro:server:setup` integration hook in production
+
+- [#6676](https://github.com/withastro/astro/pull/6676) [`5e33c51a9`](https://github.com/withastro/astro/commit/5e33c51a9c3c3b731a33f2c4a020a36d1471b78b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix next and previous links for index routes when using pagination
+
+- [#6717](https://github.com/withastro/astro/pull/6717) [`c2d4ae1cb`](https://github.com/withastro/astro/commit/c2d4ae1cbed622b2fadeb1fe8cc8bbed5f5adc8f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Dynamically import check command to improve startup speed and prevent Astro from crashing due to language-server stuff
+
+- [#6679](https://github.com/withastro/astro/pull/6679) [`08e92f4f8`](https://github.com/withastro/astro/commit/08e92f4f8ece50e377af5b0caca4ad789e0f23c1) Thanks [@fcFn](https://github.com/fcFn)! - Fix incorrect path to file in error overlay on Win
+
+- [#6649](https://github.com/withastro/astro/pull/6649) [`f0b732d32`](https://github.com/withastro/astro/commit/f0b732d326c609208f30485b9805a84a321a870e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improve error handling when using `astro:assets`
+
+- [#6710](https://github.com/withastro/astro/pull/6710) [`a0bdf4ce2`](https://github.com/withastro/astro/commit/a0bdf4ce2f36a0ce7045dc9f96c15dc7d9204c47) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix multiple Image / getImage calls with the same image causing multiple duplicate images to be generated
+
+- [#6711](https://github.com/withastro/astro/pull/6711) [`c04ea0d43`](https://github.com/withastro/astro/commit/c04ea0d43cc2aa8ebe520a1def19dd89828cf662) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix InferGetStaticParamsType and InferGetStaticPropsType not working when getStaticPaths wasn't async
+
+- [#6701](https://github.com/withastro/astro/pull/6701) [`46ecf4662`](https://github.com/withastro/astro/commit/46ecf466281450caedff5915cecde7a9fe3fdde0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Remove unnecessary `.wasm` files inside build output when possible
+
 ## 2.1.8
 
 ### Patch Changes

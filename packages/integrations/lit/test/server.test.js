@@ -90,6 +90,30 @@ describe('renderToStaticMarkup', () => {
 		expect($(`${tagName} template`).text()).to.contain(`Hello ${prop1}`);
 	});
 
+	it('should render nested components', async () => {
+		const tagName = 'parent-component';
+		const childTagName = 'child-component';
+		customElements.define(
+			childTagName,
+			class extends LitElement {
+				render() {
+					return html`<p>child</p>`;
+				}
+			}
+		);
+		customElements.define(
+			tagName,
+			class extends LitElement {
+				render() {
+					return html`<child-component></child-component>`;
+				}
+			}
+		);
+		const render = await renderToStaticMarkup(tagName);
+		const $ = cheerio.load(render.html);
+		expect($(`${tagName} template`).text()).to.contain('child');
+	});
+
 	it('should render DSD attributes based on shadowRootOptions', async () => {
 		const tagName = 'shadow-root-options-component';
 		customElements.define(

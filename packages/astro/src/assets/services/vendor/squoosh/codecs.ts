@@ -1,5 +1,4 @@
-import { promises as fsp } from 'node:fs'
-import { getModuleURL, instantiateEmscriptenWasm, pathify } from './emscripten-utils.js'
+import { instantiateEmscriptenWasm } from './emscripten-utils.js'
 
 interface DecodeModule extends EmscriptenWasm.Module {
   decode: (data: Uint8Array) => ImageData
@@ -35,52 +34,47 @@ export interface RotateOptions {
 
 // MozJPEG
 import type { MozJPEGModule as MozJPEGEncodeModule } from './mozjpeg/mozjpeg_enc'
-// @ts-ignore
-import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
-const mozEncWasm = new URL('./mozjpeg/mozjpeg_node_enc.wasm', getModuleURL(import.meta.url))
-// @ts-ignore
 import mozDec from './mozjpeg/mozjpeg_node_dec.js'
-const mozDecWasm = new URL('./mozjpeg/mozjpeg_node_dec.wasm', getModuleURL(import.meta.url))
+import mozDecWasm from './mozjpeg/mozjpeg_node_dec.wasm.js'
+
+import mozEnc from './mozjpeg/mozjpeg_node_enc.js'
+import mozEncWasm from './mozjpeg/mozjpeg_node_enc.wasm.js'
 
 // WebP
 import type { WebPModule as WebPEncodeModule } from './webp/webp_enc'
-// @ts-ignore
-import webpEnc from './webp/webp_node_enc.js'
-const webpEncWasm = new URL('./webp/webp_node_enc.wasm', getModuleURL(import.meta.url))
-// @ts-ignore
 import webpDec from './webp/webp_node_dec.js'
-const webpDecWasm = new URL('./webp/webp_node_dec.wasm', getModuleURL(import.meta.url))
+import webpDecWasm from './webp/webp_node_dec.wasm.js'
+
+import webpEnc from './webp/webp_node_enc.js'
+import webpEncWasm from './webp/webp_node_enc.wasm.js'
 
 // AVIF
 import type { AVIFModule as AVIFEncodeModule } from './avif/avif_enc'
-// @ts-ignore
-import avifEnc from './avif/avif_node_enc.js'
-const avifEncWasm = new URL('./avif/avif_node_enc.wasm', getModuleURL(import.meta.url))
-// @ts-ignore
 import avifDec from './avif/avif_node_dec.js'
-const avifDecWasm = new URL('./avif/avif_node_dec.wasm', getModuleURL(import.meta.url))
+import avifDecWasm from './avif/avif_node_dec.wasm.js'
+
+import avifEnc from './avif/avif_node_enc.js'
+import avifEncWasm from './avif/avif_node_enc.wasm.js'
 
 // PNG
-// @ts-ignore
 import * as pngEncDec from './png/squoosh_png.js'
-const pngEncDecWasm = new URL('./png/squoosh_png_bg.wasm', getModuleURL(import.meta.url))
+import pngEncDecWasm from './png/squoosh_png_bg.wasm.js'
+
 const pngEncDecInit = () =>
-  pngEncDec.default(fsp.readFile(pathify(pngEncDecWasm.toString())))
+  pngEncDec.default(pngEncDecWasm)
 
 // OxiPNG
-// @ts-ignore
 import * as oxipng from './png/squoosh_oxipng.js'
-const oxipngWasm = new URL('./png/squoosh_oxipng_bg.wasm', getModuleURL(import.meta.url))
-const oxipngInit = () => oxipng.default(fsp.readFile(pathify(oxipngWasm.toString())))
+import oxipngWasm from './png/squoosh_oxipng_bg.wasm.js'
+const oxipngInit = () => oxipng.default(oxipngWasm)
 
 // Resize
-// @ts-ignore
 import * as resize from './resize/squoosh_resize.js'
-const resizeWasm = new URL('./resize/squoosh_resize_bg.wasm', getModuleURL(import.meta.url))
-const resizeInit = () => resize.default(fsp.readFile(pathify(resizeWasm.toString())))
+import resizeWasm from './resize/squoosh_resize_bg.wasm.js'
+const resizeInit = () => resize.default(resizeWasm)
 
 // rotate
-const rotateWasm = new URL('./rotate/rotate.wasm', getModuleURL(import.meta.url))
+import rotateWasm from './rotate/rotate.wasm.js'
 
 // Our decoders currently rely on a `ImageData` global.
 import ImageData from './image_data.js'
@@ -187,7 +181,7 @@ export const preprocessors = {
         const sameDimensions = degrees === 0 || degrees === 180
         const size = width * height * 4
         const instance = (
-          await WebAssembly.instantiate(await fsp.readFile(pathify(rotateWasm.toString())))
+          await WebAssembly.instantiate(rotateWasm)
         ).instance as RotateModuleInstance
         const { memory } = instance.exports
         const additionalPagesNeeded = Math.ceil(
@@ -218,11 +212,11 @@ export const codecs = {
     extension: 'jpg',
     detectors: [/^\xFF\xD8\xFF/],
     dec: () =>
-      instantiateEmscriptenWasm(mozDec as DecodeModuleFactory, mozDecWasm.toString()),
+      instantiateEmscriptenWasm(mozDec as DecodeModuleFactory, mozDecWasm),
     enc: () =>
       instantiateEmscriptenWasm(
         mozEnc as EmscriptenWasm.ModuleFactory<MozJPEGEncodeModule>,
-        mozEncWasm.toString()
+        mozEncWasm
       ),
     defaultEncoderOptions: {
       quality: 75,
@@ -253,11 +247,11 @@ export const codecs = {
     extension: 'webp',
     detectors: [/^RIFF....WEBPVP8[LX ]/s],
     dec: () =>
-      instantiateEmscriptenWasm(webpDec as DecodeModuleFactory, webpDecWasm.toString()),
+      instantiateEmscriptenWasm(webpDec as DecodeModuleFactory, webpDecWasm),
     enc: () =>
       instantiateEmscriptenWasm(
         webpEnc as EmscriptenWasm.ModuleFactory<WebPEncodeModule>,
-        webpEncWasm.toString()
+        webpEncWasm
       ),
     defaultEncoderOptions: {
       quality: 75,
@@ -300,11 +294,11 @@ export const codecs = {
     // eslint-disable-next-line no-control-regex
     detectors: [/^\x00\x00\x00 ftypavif\x00\x00\x00\x00/],
     dec: () =>
-      instantiateEmscriptenWasm(avifDec as DecodeModuleFactory, avifDecWasm.toString()),
+      instantiateEmscriptenWasm(avifDec as DecodeModuleFactory, avifDecWasm),
     enc: async () => {
       return instantiateEmscriptenWasm(
         avifEnc as EmscriptenWasm.ModuleFactory<AVIFEncodeModule>,
-        avifEncWasm.toString()
+        avifEncWasm
       )
     },
     defaultEncoderOptions: {

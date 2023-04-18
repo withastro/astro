@@ -1,4 +1,5 @@
 import type { AstroInstance } from 'astro';
+import { Fragment } from 'astro/jsx-runtime';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
@@ -44,9 +45,16 @@ export const ComponentNode = createComponent({
 	propagation: 'none',
 });
 
-export function createTreeNode(node: RenderableTreeNode): TreeNode {
+export function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]): TreeNode {
 	if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
+	} else if (Array.isArray(node)) {
+		return {
+			type: 'component',
+			component: Fragment,
+			props: {},
+			children: node.map((child) => createTreeNode(child)),
+		};
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return { type: 'text', content: '' };
 	}

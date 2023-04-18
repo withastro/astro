@@ -1,4 +1,4 @@
-import mime from 'mime';
+import mime from 'mime/lite.js';
 import type { APIRoute } from '../@types/astro.js';
 import { isRemotePath } from '../core/path.js';
 import { getConfiguredImageService } from './internal.js';
@@ -54,7 +54,7 @@ export const get: APIRoute = async ({ request }) => {
 		return new Response(data, {
 			status: 200,
 			headers: {
-				'Content-Type': mime.getType(format) || '',
+				'Content-Type': mime.getType(format) ?? `image/${format}`,
 				'Cache-Control': 'public, max-age=31536000',
 				ETag: etag(data.toString()),
 				Date: new Date().toUTCString(),
