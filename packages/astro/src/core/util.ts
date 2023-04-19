@@ -160,9 +160,9 @@ export function rootRelativePath(root: URL, idOrUrl: URL | string) {
 	}
 	const normalizedRoot = normalizePath(fileURLToPath(root));
 	if (id.startsWith(normalizedRoot)) {
-		id = id.slice(normalizedRoot.length);
+		return prependForwardSlash(id.slice(normalizedRoot.length));
 	}
-	return prependForwardSlash(id);
+	return id;
 }
 
 export function emoji(char: string, fallback: string) {
