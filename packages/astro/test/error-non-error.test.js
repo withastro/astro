@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, silentLogging } from './test-utils.js';
 
 describe('Can handle errors that are not instanceof Error', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -12,7 +12,9 @@ describe('Can handle errors that are not instanceof Error', () => {
 		fixture = await loadFixture({
 			root: './fixtures/error-non-error',
 		});
-		devServer = await fixture.startDevServer();
+		devServer = await fixture.startDevServer({
+			logging: silentLogging
+		});
 	});
 
 	after(async () => {
