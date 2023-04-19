@@ -13,7 +13,7 @@ describe('Can handle errors that are not instanceof Error', () => {
 			root: './fixtures/error-non-error',
 		});
 		devServer = await fixture.startDevServer({
-			logging: silentLogging
+			logging: silentLogging,
 		});
 	});
 
