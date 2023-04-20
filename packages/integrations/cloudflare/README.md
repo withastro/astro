@@ -108,15 +108,14 @@ By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists
 
 ## Troubleshooting
 
-If you run into issues
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
-Meaningful error messages
+### Meaningful error messages
 
-Currently errors during running your application in wrangler are not very useful, due to minification of your code. For better debugging you can add `vite.build.minify = false` setting to your `astro.config.js`
+Currently, errors during running your application in Wrangler are not very useful, due to the minification of your code. For better debugging, you can add `vite.build.minify = false` setting to your `astro.config.js`
 
 ```
 export default defineConfig({
