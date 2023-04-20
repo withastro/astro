@@ -160,7 +160,7 @@ export function rootRelativePath(root: URL, idOrUrl: URL | string) {
 	}
 	const normalizedRoot = normalizePath(fileURLToPath(root));
 	if (id.startsWith(normalizedRoot)) {
-		return id.slice(normalizedRoot.length);
+		id = id.slice(normalizedRoot.length);
 	}
 	return prependForwardSlash(id);
 }
