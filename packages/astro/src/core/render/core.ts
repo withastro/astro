@@ -32,7 +32,9 @@ export async function getParamsAndProps(
 	let pageProps: Props;
 	if (route && !route.pathname) {
 		if (route.params.length) {
-			const paramsMatch = route.pattern.exec(pathname);
+			// The RegExp pattern expects a decoded string, but the pathname is encoded
+			// when the URL contains non-English characters.
+			const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
 			if (paramsMatch) {
 				params = getParams(route.params)(paramsMatch);
 
