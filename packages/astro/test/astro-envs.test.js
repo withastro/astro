@@ -53,7 +53,6 @@ describe('Environment Variables', () => {
 
 		it('includes public env in client-side JS', async () => {
 			let dirs = await fixture.readdir('/_astro');
-			console.log(dirs);
 			let found = false;
 
 			// Look in all of the .js files to see if the public env is inlined.
