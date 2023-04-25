@@ -620,10 +620,7 @@ describe('astro:image', () => {
 					assets: true,
 				},
 				image: {
-					service: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)),
-					serviceConfig: {
-						foo: 'bar',
-					},
+					service: { entrypoint: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)), config: {foo: 'bar'} }
 				},
 			});
 			devServer = await fixture.startDevServer();

@@ -38,7 +38,7 @@ export default function assets({
 	const adapterName = settings.config.adapter?.name;
 	if (
 		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
-			settings.config.image.service
+			settings.config.image.service.entrypoint
 		) &&
 		adapterName &&
 		UNSUPPORTED_ADAPTERS.has(adapterName)
@@ -70,7 +70,7 @@ export default function assets({
 			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
-					return await this.resolve(settings.config.image.service);
+					return await this.resolve(settings.config.image.service.entrypoint);
 				}
 				if (id === VIRTUAL_MODULE_ID) {
 					return resolvedVirtualModuleId;
@@ -83,7 +83,7 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 
-					export const imageServiceConfig = ${JSON.stringify(settings.config.image.serviceConfig)};
+					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
 					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
 				`;
 				}
@@ -122,7 +122,7 @@ export default function assets({
 
 						const transform = await globalThis.astroAsset.imageService.parseURL(
 							url,
-							settings.config.image.serviceConfig
+							settings.config.image.service.config
 						);
 
 						if (transform === undefined) {
@@ -137,7 +137,7 @@ export default function assets({
 							const result = await globalThis.astroAsset.imageService.transform(
 								file,
 								transform,
-								settings.config.image.serviceConfig
+								settings.config.image.service.config
 							);
 							data = result.data;
 							format = result.format;
@@ -166,7 +166,7 @@ export default function assets({
 						>();
 					}
 
-					const hash = hashTransform(options, settings.config.image.service);
+					const hash = hashTransform(options, settings.config.image.service.entrypoint);
 
 					let filePath: string;
 					if (globalThis.astroAsset.staticImages.has(hash)) {

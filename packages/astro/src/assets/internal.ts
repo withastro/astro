@@ -131,7 +131,7 @@ export async function generateImage(
 	const resultData = await imageService.transform(
 		fileData,
 		{ ...options, src: originalImagePath },
-		buildOpts.settings.config.image.serviceConfig
+		buildOpts.settings.config.image.service.config
 	);
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
