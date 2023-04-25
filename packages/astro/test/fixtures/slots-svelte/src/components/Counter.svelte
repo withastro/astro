@@ -28,7 +28,4 @@
     margin-top: 2em;
     place-items: center;
   }
-  .message {
-    text-align: center;
-  }
 </style>

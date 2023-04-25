@@ -98,6 +98,17 @@ describe('Assets Prefix - Server', () => {
 		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
 	});
 
+	it('react component astro-island should import from assetsPrefix', async () => {
+		const request = new Request('http://example.com/custom-base/');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const island = $('astro-island');
+		expect(island.attr('component-url')).to.match(assetsPrefixRegex);
+		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
+	});
+
 	it('markdown image src start with assetsPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/markdown/');
 		const response = await app.render(request);
