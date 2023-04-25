@@ -4,7 +4,7 @@ import esbuild from 'esbuild';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image-service.js';
+import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
 import {
 	copyFilesToFunction,
 	getFilesFromFolder,

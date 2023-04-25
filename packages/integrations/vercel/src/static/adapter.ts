@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image-service.js';
+import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 

@@ -2,7 +2,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import glob from 'fast-glob';
 import { pathToFileURL } from 'url';
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image-service.js';
+import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
