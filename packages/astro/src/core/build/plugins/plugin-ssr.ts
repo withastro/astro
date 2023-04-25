@@ -28,7 +28,7 @@ export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter):
 		options(opts) {
 			return addRollupInput(opts, [virtualModuleId]);
 		},
-		resolveId(id, parent) {
+		resolveId(id) {
 			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
