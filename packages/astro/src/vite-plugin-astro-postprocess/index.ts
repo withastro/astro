@@ -33,6 +33,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 				sourceType: 'module',
 			});
 
+			// @ts-expect-error
 			walk(ast, {
 				enter(node: any) {
 					// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`
