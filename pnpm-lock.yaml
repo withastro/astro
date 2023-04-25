@@ -2390,7 +2390,7 @@ importers:
 
   packages/astro/test/fixtures/css-assets:
     dependencies:
-      '@astrojs/test-font-awesome-package':
+      '@test/astro-font-awesome-package':
         specifier: file:packages/font-awesome
         version: file:packages/astro/test/fixtures/css-assets/packages/font-awesome
       astro:
@@ -2743,10 +2743,10 @@ importers:
 
   packages/astro/test/fixtures/multiple-renderers:
     dependencies:
-      '@astrojs/renderer-one':
+      '@test/astro-renderer-one':
         specifier: file:./renderers/one
         version: file:packages/astro/test/fixtures/multiple-renderers/renderers/one
-      '@astrojs/renderer-two':
+      '@test/astro-renderer-two':
         specifier: file:./renderers/two
         version: file:packages/astro/test/fixtures/multiple-renderers/renderers/two
       astro:
@@ -17985,19 +17985,19 @@ packages:
 
   file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
     resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
-    name: '@astrojs/test-font-awesome-package'
+    name: '@test/astro-font-awesome-package'
     version: 0.0.1
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/one:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/one, type: directory}
-    name: '@astrojs/renderer-one'
+    name: '@test/astro-renderer-one'
     version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/two:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
-    name: '@astrojs/renderer-two'
+    name: '@test/astro-renderer-two'
     version: 1.0.0
     dev: false
 

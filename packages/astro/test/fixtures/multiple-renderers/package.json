@@ -2,7 +2,7 @@
   "name": "@test/multiple-renderers",
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/renderer-one": "file:./renderers/one",
-    "@astrojs/renderer-two": "file:./renderers/two"
+    "@test/astro-renderer-one": "file:./renderers/one",
+    "@test/astro-renderer-two": "file:./renderers/two"
   }
 }
