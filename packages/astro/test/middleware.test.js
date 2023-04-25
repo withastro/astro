@@ -46,7 +46,10 @@ describe('Middleware API', () => {
 		});
 
 		it('should successfully redirect to another page', async () => {
-			let html = await fixture.fetch('/redirect').then((res) => res.text());
+			let html = await fixture.fetch('/redirect').then((res) => {
+				expect(res.status).to.equal(200);
+				return res.text();
+			});
 			let $ = cheerio.load(html);
 			expect($('p').html()).to.equal('bar');
 			expect($('span').html()).to.equal('Index');
@@ -57,6 +60,31 @@ describe('Middleware API', () => {
 			let $ = cheerio.load(html);
 			expect($('p').html()).to.be.null;
 			expect($('span').html()).to.equal('New content!!');
+		});
+
+		it('should return a new response that is a 500', async () => {
+			await fixture.fetch('/broken').then((res) => {
+				expect(res.status).to.equal(500);
+				return res.text();
+			});
+		});
+
+		it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
+			let html = await fixture.fetch('/not-interested').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('p').html()).to.equal('Not interested');
+		});
+
+		it('should throw an error when locals are not serializable', async () => {
+			let html = await fixture.fetch('/broken-locals').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('title').html()).to.equal('LocalsNotSerializable');
+		});
+
+		it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
+			let html = await fixture.fetch('/does-nothing').then((res) => res.text());
+			let $ = cheerio.load(html);
+			expect($('title').html()).to.equal('MiddlewareNoDataReturned');
 		});
 	});
 });
