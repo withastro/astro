@@ -1,4 +1,5 @@
 import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**
  * Utility function that is in charge of calling the middleware
@@ -43,34 +44,46 @@ export async function callMiddleware<R>(
 		resolveResolve = resolve;
 	});
 
-	let resolveCalledResolve: any;
-	let resolveCalled = new Promise((resolve) => {
-		resolveCalledResolve = resolve;
-	});
-	const resolve: MiddlewareNext<R> = () => {
-		const response = responseFunction();
-		resolveCalledResolve('resolveCalled');
-		return response;
+	let nextCalled = false;
+	const next: MiddlewareNext<R> = async () => {
+		nextCalled = true;
+		return await responseFunction();
 	};
 
-	let middlewarePromise = onRequest(apiContext, resolve);
+	let middlewarePromise = onRequest(apiContext, next);
 
-	return await Promise.race([middlewarePromise, resolveCalled]).then(async (value) => {
-		if (value === 'resolveCalled') {
-			// Middleware called resolve()
-			// render the page and then pass back to middleware
-			// for post-processing
-			const responseResult = await responseFunction();
-			await resolveResolve(responseResult);
-			return middlewarePromise;
-		} else {
-			if (typeof value === 'undefined') {
-				// Middleware didn't return anything, so we call the function that should return the response
-				return responseFunction();
-			} else {
-				// Middleware did not call resolve and returned a value
+	return await Promise.resolve(middlewarePromise).then(async (value) => {
+		// first we check if `next` was called
+		if (nextCalled) {
+			/**
+			 * Then we check if a value is returned. If so, we need to return the value returned by the
+			 * middleware.
+			 * e.g.
+			 * ```js
+			 * 	const response = await next();
+			 * 	const new Response(null, { status: 500, headers: response.headers });
+			 * ```
+			 */
+			if (typeof value !== 'undefined') {
 				return value as R;
+			} else {
+				/**
+				 * Here we handle the case where `next` was called and returned nothing.
+				 */
+				const responseResult = await responseFunction();
+				return responseResult;
 			}
+		} else if (typeof value === 'undefined') {
+			/**
+			 * There might be cases where `next` isn't called and the middleware **must** return
+			 * something.
+			 *
+			 * If not thing is returned, then we raise an Astro error.
+			 */
+			throw new AstroError(AstroErrorData.MiddlewareNoDataReturned);
+		} else {
+			// Middleware did not call resolve and returned a value
+			return value as R;
 		}
 	});
 }

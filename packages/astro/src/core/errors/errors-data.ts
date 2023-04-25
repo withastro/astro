@@ -632,9 +632,18 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * TODO [PLT-101] documentation
 	 */
+	MiddlewareNoDataReturned: {
+		title: "The middleware didn't return a response or called `next`",
+		code: 3031,
+		message: 'The middleware needs to return a `Response` object or call the `next` function.',
+	},
+
+	/**
+	 * TODO [PLT-101] documentation
+	 */
 	LocalsNotAnObject: {
 		title: 'Value assigned to `locals` is not accepted.',
-		code: 3030,
+		code: 3032,
 		message: `The \`locals\` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.`,
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
@@ -644,7 +653,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	LocalsNotSerializable: {
 		title: '`Astro.locals` are not serializable.',
-		code: 3031,
+		code: 3033,
 		message: (href: string) => {
 			return `The information stored in \`Astro.locals\` are not serializable when visiting "${href}" path.\nMake sure you store only data that are serializable.`;
 		},
