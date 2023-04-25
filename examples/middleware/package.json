@@ -1,0 +1,23 @@
+{
+  "name": "@example/middleware",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "server": "node dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "astro": "workspace:*",
+    "svelte": "^3.48.0",
+    "@astrojs/node": "workspace:*",
+    "concurrently": "^7.2.1",
+    "unocss": "^0.15.6",
+    "vite-imagetools": "^4.0.4",
+    "html-minifier": "^4.0.0"
+  }
+}

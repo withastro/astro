@@ -1612,7 +1612,10 @@ export interface AstroIntegration {
 }
 
 export type MiddlewareNext<R> = () => Promise<R>;
-export type MiddlewareHandler<R> = (context: APIContext, next: MiddlewareNext<R>) => Promise<R>;
+export type MiddlewareHandler<R> = (
+	context: APIContext,
+	next: MiddlewareNext<R>
+) => Promise<R | void> | void | R;
 
 export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
 export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
