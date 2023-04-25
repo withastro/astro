@@ -630,30 +630,88 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 
 	/**
-	 * TODO [PLT-101] documentation
+	 * @docs
+	 * @description
+	 * Thrown when a middleware doesn't return anything or doesn't call the `next` function.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, _) => {
+	 * 	// doesn't return anything or doesn't call next
+	 * 	context.locals.someData = false;
+	 * });
+	 * ```
 	 */
-	MiddlewareNoDataReturned: {
+	MiddlewareNoDataOrNextCalled: {
 		title: "The middleware didn't return a response or called `next`",
 		code: 3031,
 		message: 'The middleware needs to return a `Response` object or call the `next` function.',
 	},
 
 	/**
-	 * TODO [PLT-101] documentation
+	 * @docs
+	 * @description
+	 * Thrown in development mode, when a middleware return something that is not a `Response`
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware(() => {
+	 *   return "string"
+	 * });
+	 * ```
+	 */
+	MiddlewareNotAResponse: {
+		title: 'The middleware returned something that is not a `Response`',
+		code: 3032,
+		message:
+			'When returning something from a middleware, you must return a valid `Response`. Failing doing so would cause errors..',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 *
+	 * Thrown in development mode, when `locals` are overridden with something that is not an object
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals = 1541;
+	 *   return next();
+	 * });
+	 * ```
 	 */
 	LocalsNotAnObject: {
 		title: 'Value assigned to `locals` is not accepted.',
-		code: 3032,
+		code: 3033,
 		message: `The \`locals\` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.`,
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
 
 	/**
-	 * TODO [PLT-101] documentation
+	 * @docs
+	 * @description
+	 * Thrown in development mode, when a user attempts to store in `local` something that is not serializable.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals = {
+	 *     foo() {
+	 *       alert("Hello world!")
+	 *     }
+	 *   };
+	 *   return next();
+	 * });
+	 * ```
 	 */
 	LocalsNotSerializable: {
 		title: '`Astro.locals` are not serializable.',
-		code: 3033,
+		code: 3034,
 		message: (href: string) => {
 			return `The information stored in \`Astro.locals\` are not serializable when visiting "${href}" path.\nMake sure you store only data that are serializable.`;
 		},

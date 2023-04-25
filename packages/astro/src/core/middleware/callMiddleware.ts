@@ -65,6 +65,9 @@ export async function callMiddleware<R>(
 			 * ```
 			 */
 			if (typeof value !== 'undefined') {
+				if (value instanceof Response == false) {
+					throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
+				}
 				return value as R;
 			} else {
 				/**
@@ -80,7 +83,9 @@ export async function callMiddleware<R>(
 			 *
 			 * If not thing is returned, then we raise an Astro error.
 			 */
-			throw new AstroError(AstroErrorData.MiddlewareNoDataReturned);
+			throw new AstroError(AstroErrorData.MiddlewareNoDataOrNextCalled);
+		} else if (value instanceof Response == false) {
+			throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
 		} else {
 			// Middleware did not call resolve and returned a value
 			return value as R;
