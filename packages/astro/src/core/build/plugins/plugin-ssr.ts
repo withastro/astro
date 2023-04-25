@@ -13,7 +13,11 @@ import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { eachPageData, sortedStylesheets } from '../internal.js';
+import {
+	eachPageData,
+	cssOrder,
+	mergeInlineCss,
+} from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
@@ -200,9 +204,12 @@ function buildManifest(
 
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links: [] = [];
-		const styles = sortedStylesheets(pageData).map((s) =>
-			s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s
-		);
+
+		const styles = pageData.styles
+			.sort(cssOrder)
+			.map(({ sheet }) => sheet)
+			.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
+			.reduce(mergeInlineCss, []);
 
 		routes.push({
 			file: '',

@@ -16,7 +16,7 @@ export function renderUniqueStylesheet(result: SSRResult, sheet: StylesheetAsset
 	}
 
 	if (sheet.type === 'inline') {
-		if (Array.from(result.styles).some((s) => s.children === sheet.content)) return '';
+		if (Array.from(result.styles).some((s) => s.children.includes(sheet.content))) return '';
 		return renderElement('style', { props: { type: 'text/css' }, children: sheet.content });
 	}
 }

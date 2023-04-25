@@ -47,7 +47,12 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent, sortedStylesheets } from './internal.js';
+import {
+	eachPageData,
+	getPageDataByComponent,
+	cssOrder,
+	mergeInlineCss,
+} from './internal.js';
 import type {
 	PageBuildData,
 	SingleFileBuiltModule,
@@ -170,7 +175,10 @@ async function generatePage(
 	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 	const linkIds: [] = [];
 	const scripts = pageInfo?.hoistedScript ?? null;
-	const styles = sortedStylesheets(pageData);
+	const styles = pageData.styles
+		.sort(cssOrder)
+		.map(({ sheet }) => sheet)
+		.reduce(mergeInlineCss, []);
 
 	const pageModule = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;

@@ -1,5 +1,5 @@
 import type { Rollup } from 'vite';
-import type { PageBuildData, ViteID } from './types';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 import type { SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
@@ -224,39 +224,54 @@ export function hasPrerenderedPages(internals: BuildInternals) {
 	return false;
 }
 
+interface OrderInfo {
+	depth: number;
+	order: number;
+}
+
 /**
  * Sort a page's CSS by depth. A higher depth means that the CSS comes from shared subcomponents.
  * A lower depth means it comes directly from the top-level page.
  * The return of this function is an array of CSS paths, with shared CSS on top
  * and page-level CSS on bottom.
  */
-export function sortedStylesheets(pageData: PageBuildData) {
-	return pageData.styles
-		.sort((a, b) => {
-			let depthA = a.depth,
-				depthB = b.depth,
-				orderA = a.order,
-				orderB = b.order;
+export function cssOrder(a: OrderInfo, b: OrderInfo) {
+	let depthA = a.depth,
+		depthB = b.depth,
+		orderA = a.order,
+		orderB = b.order;
 
-			if (orderA === -1 && orderB >= 0) {
-				return 1;
-			} else if (orderB === -1 && orderA >= 0) {
-				return -1;
-			} else if (orderA > orderB) {
-				return 1;
-			} else if (orderA < orderB) {
-				return -1;
-			} else {
-				if (depthA === -1) {
-					return -1;
-				} else if (depthB === -1) {
-					return 1;
-				} else {
-					return depthA > depthB ? -1 : 1;
-				}
-			}
-		})
-		.map(({ sheet }) => sheet);
+	if (orderA === -1 && orderB >= 0) {
+		return 1;
+	} else if (orderB === -1 && orderA >= 0) {
+		return -1;
+	} else if (orderA > orderB) {
+		return 1;
+	} else if (orderA < orderB) {
+		return -1;
+	} else {
+		if (depthA === -1) {
+			return -1;
+		} else if (depthB === -1) {
+			return 1;
+		} else {
+			return depthA > depthB ? -1 : 1;
+		}
+	}
+}
+
+export function mergeInlineCss(
+	acc: Array<StylesheetAsset>,
+	current: StylesheetAsset
+): Array<StylesheetAsset> {
+	const lastAdded = acc.at(acc.length - 1);
+	const lastWasInline = lastAdded?.type === 'inline';
+	const currentIsInline = current?.type === 'inline';
+	if (lastWasInline && currentIsInline) {
+		const merged = { type: 'inline' as const, content: lastAdded.content + current.content };
+		return [...acc.slice(0, acc.length - 1), merged];
+	}
+	return [...acc, current];
 }
 
 export function isHoistedScript(internals: BuildInternals, id: string): boolean {

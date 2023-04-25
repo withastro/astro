@@ -250,11 +250,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				pages.forEach((pageData) => {
 					const orderingInfo = pagesToCss.get(pageData.moduleSpecifier)?.get(stylesheet.fileName);
-					if (orderingInfo === undefined) return;
-					pageData.styles.push({ ...orderingInfo, sheet });
-				});
+					if (orderingInfo !== undefined) return pageData.styles.push({ ...orderingInfo, sheet });
 
-				pages.forEach((pageData) => {
 					const propagatedPaths = pagesToPropagatedCss.get(pageData.moduleSpecifier);
 					if (propagatedPaths === undefined) return;
 					Array.from(propagatedPaths.entries()).forEach(([pageInfoId, css]) => {
