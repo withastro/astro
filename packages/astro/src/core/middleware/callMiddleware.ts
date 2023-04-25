@@ -2,31 +2,32 @@ import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**
- * Utility function that is in charge of calling the middleware
+ * Utility function that is in charge of calling the middleware.
  *
- * It accepts a `R` generic, which usually the `Response` returned.
- * It is a generic because endpoints can return a different response.
+ * It accepts a `R` generic, which usually is the `Response` returned.
+ * It is a generic because endpoints can return a different payload.
  *
- * When calling a middleware, we provide a `resolve` function, this function might or
- * might not be called. Because of that, we use a `Promise.race` to understand which
- * promise is resolved first.
+ * When calling a middleware, we provide a `next` function, this function might or
+ * might not be called.
  *
- * If `resolve` is called first, we resolve the `responseFunction` and we pass that response
- * as resolved value to `resolve`. Finally, we resolve the middleware.
- * This logic covers examples like:
+ * A middleware, to behave correctly, can:
+ * - return a `Response`;
+ * - call `next`;
+ *
+ * Failing doing so will result an error. A middleware can call `next` and do not return a
+ * response. A middleware can not call `next` and return a new `Response` from scratch (maybe with a redirect).
  *
  * ```js
- * const onRequest = async (context, resolve) => {
- *   const response = await resolve(context);
+ * const onRequest = async (context, next) => {
+ *   const response = await next(context);
  *   return response;
  * }
  * ```
  *
- * If the middleware is called first, we return the response without fancy logic. This covers cases like:
- *
  * ```js
- * const onRequest = async (context, _) => {
+ * const onRequest = async (context, next) => {
  *   context.locals = "foo";
+ *   next();
  * }
  * ```
  *

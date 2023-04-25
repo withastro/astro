@@ -244,7 +244,6 @@ export class App {
 			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
 				return renderPage(mod, renderContext, this.#env, apiContext);
 			});
-			// const response = await renderPage(mod, renderContext, this.#env, apiContext);
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
@@ -273,8 +272,6 @@ export class App {
 			route: routeData,
 			status,
 		});
-
-		// TODO PLT-104 add adapter middleware here
 
 		const result = await callEndpoint(
 			handler,
