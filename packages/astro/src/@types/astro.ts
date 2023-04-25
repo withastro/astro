@@ -335,6 +335,12 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
+export interface ImageServiceConfig {
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
+	config?: Record<string, any>;
+}
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -765,11 +771,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		service: {
-			// eslint-disable-next-line @typescript-eslint/ban-types
-			entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
-			config?: Record<string, any>;
-		};
+		service: ImageServiceConfig;
 	};
 
 	/**
