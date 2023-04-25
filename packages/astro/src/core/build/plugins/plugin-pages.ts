@@ -27,7 +27,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let middlewareId = null;
 				if (opts.settings.config.experimental.middleware) {
 					middlewareId = await this.resolve(
-						`./${opts.settings.config.srcDir}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
+						`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
 					);
 				}
 
