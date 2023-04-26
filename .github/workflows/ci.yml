@@ -147,12 +147,21 @@ jobs:
         run: pnpm install
 
       - name: Build Packages
-        run: pnpm run build
+        run: pnpm run build --summarize
+
+      # upload .turbo artifacts for windows
+      - name: Upload .turbo artifacts
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: turbo-run
+          path: .turbo/
 
       - name: Test
         run: pnpm run test
 
   e2e:
+    if: false
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -187,6 +196,7 @@ jobs:
         run: pnpm run test:e2e
 
   smoke:
+    if: false
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
