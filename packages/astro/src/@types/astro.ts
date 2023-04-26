@@ -1406,10 +1406,7 @@ export interface AstroAdapter {
 type Body = string;
 
 // Shared types between `Astro` global and API context object
-interface AstroSharedContext<
-	Props extends Record<string, any> = Record<string, any>,
-	Locals extends Record<string, any> = Record<string, any>
-> {
+interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
 	 */
@@ -1442,13 +1439,11 @@ interface AstroSharedContext<
 	/**
 	 * TODO documentation
 	 */
-	locals: Locals;
+	locals: AstroMiddleware.Locals;
 }
 
-export interface APIContext<
-	Props extends Record<string, any> = Record<string, any>,
-	Locals extends Record<string, any> = Record<string, any>
-> extends AstroSharedContext<Props, Locals> {
+export interface APIContext<Props extends Record<string, any> = Record<string, any>>
+	extends AstroSharedContext<Props> {
 	site: URL | undefined;
 	generator: string;
 	/**
@@ -1503,7 +1498,7 @@ export interface APIContext<
 	 *
 	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
-	props: AstroSharedContext<Props, Locals>['props'];
+	props: AstroSharedContext<Props>['props'];
 	/**
 	 * Redirect to another page. Only available in SSR builds.
 	 *
@@ -1522,11 +1517,10 @@ export interface APIContext<
 	/**
 	 * TODO documentation
 	 */
-	locals: AstroSharedContext<Props, Locals>['locals'];
+	locals: AstroMiddleware.Locals;
 }
 
 export type Props = Record<string, unknown>;
-export type Locals = Record<string, unknown>;
 
 export interface EndpointOutput {
 	body: Body;
@@ -1616,7 +1610,7 @@ export type MiddlewareNext<R> = () => Promise<R>;
 export type MiddlewareHandler<R> = (
 	context: APIContext,
 	next: MiddlewareNext<R>
-) => Promise<R | void> | void | R;
+) => Promise<R> | Promise<void> | void;
 
 export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
 export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
@@ -1743,4 +1737,8 @@ export type CreatePreviewServer = (
 
 export interface PreviewModule {
 	default: CreatePreviewServer;
+}
+
+export declare namespace AstroMiddleware {
+	export interface Locals {}
 }

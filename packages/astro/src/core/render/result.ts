@@ -2,13 +2,13 @@ import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
-	Locals,
 	Params,
 	Props,
 	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
+	AstroMiddleware,
 } from '../../@types/astro';
 import {
 	renderSlotToString,
@@ -51,7 +51,7 @@ export interface CreateResultArgs {
 	componentMetadata?: SSRResult['componentMetadata'];
 	request: Request;
 	status: number;
-	locals: Locals;
+	locals: AstroMiddleware.Locals;
 }
 
 function getFunctionExpression(slot: any) {
