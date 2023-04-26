@@ -232,8 +232,8 @@ interface OrderInfo {
 /**
  * Sort a page's CSS by depth. A higher depth means that the CSS comes from shared subcomponents.
  * A lower depth means it comes directly from the top-level page.
- * The return of this function is an array of CSS paths, with shared CSS on top
- * and page-level CSS on bottom.
+ * Can be used to sort stylesheets so that shared rules come first
+ * and page-specific rules come after.
  */
 export function cssOrder(a: OrderInfo, b: OrderInfo) {
 	let depthA = a.depth,
