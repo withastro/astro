@@ -8,7 +8,7 @@ import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentPaths,
 	getEntryInfo,
@@ -21,7 +21,6 @@ import {
 	type ContentObservable,
 	type ContentPaths,
 	type EntryInfo,
-	updateLookupMaps,
 	getContentEntryConfigByExtMap,
 } from './utils.js';
 
@@ -280,12 +279,7 @@ export async function createContentTypesGenerator({
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
 			});
-			await updateLookupMaps({
-				contentEntryConfigByExt,
-				contentPaths,
-				root: settings.config.root,
-				fs,
-			});
+			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 				warnNonexistentCollections({
 					logging,
@@ -296,6 +290,15 @@ export async function createContentTypesGenerator({
 		}
 	}
 	return { init, queueEvent };
+}
+
+// The virtual module contains a lookup map from slugs to content imports.
+// Invalidate whenever content types change.
+function invalidateVirtualMod(viteServer: ViteDevServer) {
+	const virtualMod = viteServer.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
+	if (!virtualMod) return;
+
+	viteServer.moduleGraph.invalidateModule(virtualMod);
 }
 
 function addCollection(contentMap: ContentTypes, collectionKey: string) {

@@ -388,7 +388,7 @@ function search(fs: typeof fsMod, srcDir: URL) {
 	return { exists: false, url: paths[0] };
 }
 
-export async function updateLookupMaps({
+export async function getStringifiedLookupMap({
 	contentPaths,
 	contentEntryConfigByExt,
 	root,
@@ -434,10 +434,7 @@ export async function updateLookupMaps({
 		filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
 	}
 
-	await fs.promises.writeFile(
-		new URL('lookup-map.json', contentPaths.cacheDir),
-		JSON.stringify(filePathByLookupId, null, 2)
-	);
+	return JSON.stringify(filePathByLookupId);
 }
 
 export function getExtGlob(exts: string[]) {
