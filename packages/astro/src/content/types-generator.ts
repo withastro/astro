@@ -10,7 +10,6 @@ import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import {
-	getContentEntryExts,
 	getContentPaths,
 	getEntryInfo,
 	getEntrySlug,
@@ -23,6 +22,7 @@ import {
 	type ContentPaths,
 	type EntryInfo,
 	updateLookupMaps,
+	getContentEntryConfigByExtMap,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -59,7 +59,8 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams) {
 	const contentTypes: ContentTypes = {};
 	const contentPaths = getContentPaths(settings.config, fs);
-	const contentEntryExts = getContentEntryExts(settings);
+	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 
 	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -280,7 +281,7 @@ export async function createContentTypesGenerator({
 				contentEntryTypes: settings.contentEntryTypes,
 			});
 			await updateLookupMaps({
-				contentEntryExts,
+				contentEntryConfigByExt,
 				contentPaths,
 				root: settings.config.root,
 				fs,
@@ -308,7 +309,7 @@ function removeCollection(contentMap: ContentTypes, collectionKey: string) {
 async function parseSlug({
 	fs,
 	event,
-	entryInfo,
+	entryInfo: { id, collection, slug: generatedSlug },
 }: {
 	fs: typeof fsMod;
 	event: ContentEvent;
@@ -321,7 +322,7 @@ async function parseSlug({
 	// on dev server startup or production build init.
 	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
 	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
-	return getEntrySlug({ ...entryInfo, unvalidatedSlug: frontmatter.slug });
+	return getEntrySlug({ id, collection, generatedSlug, frontmatterSlug: frontmatter.slug });
 }
 
 function setEntry(
