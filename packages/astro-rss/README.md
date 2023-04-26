@@ -112,24 +112,7 @@ Type: `RSSFeedItem[] (required)`
 
 A list of formatted RSS feed items. See [Astro's RSS items documentation](https://docs.astro.build/en/guides/rss/#generating-items) for usage examples to choose the best option for you.
 
-When providing a formatted RSS item list, see the `RSSFeedItem` type reference below:
-
-```ts
-type RSSFeedItem = {
-  /** Link to item */
-  link: string;
-  /** Title of item */
-  title: string;
-  /** Publication date of item */
-  pubDate: Date;
-  /** Item description */
-  description?: string;
-  /** Full content of the item, should be valid HTML */
-  content?: string;
-  /** Append some other XML-valid data to this item */
-  customData?: string;
-};
-```
+When providing a formatted RSS item list, see the [`RSSFeedItem` type reference](#rssfeeditem).
 
 ### drafts
 
@@ -201,6 +184,141 @@ export const get = () => rss({
   trailingSlash: false
 });
 ```
+
+## `RSSFeedItem`
+
+An `RSSFeedItem` is a single item in the list of items in your feed. It represents a story, with `link`, `title`, and `pubDate` fields. There are further optional fields defined below. You can also check the definitions for the fields in the [RSS spec](https://validator.w3.org/feed/docs/rss2.html#ltpubdategtSubelementOfLtitemgt).
+
+An example feed item might look like:
+
+```js
+const item = {
+  title: "Alpha Centauri: so close you can touch it",
+  link: "/blog/alpha-centuari",
+  pubDate: new Date("2023-06-04"),
+  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
+  categories: ["stars", "space"]
+}
+```
+
+### `title`
+
+Type: `string (required)`
+
+The title of the item in the feed.
+
+### `link`
+
+Type: `string (required)`
+
+The URL of the item on the web.
+
+### `pubDate`
+
+Type: `Date (required)`
+
+Indicates when the item was published.
+
+### `description`
+
+Type: `string (optional)`
+
+A synopsis of your item when you are publishing the full content of the item in the `content` field. The `description` may alternatively be the full content of the item in the feed if you are not using the `content` field (entity-coded HTML is permitted).
+
+### `content`
+
+Type: `string (optional)`
+
+The full text content of the item suitable for presentation as HTML. If used, you should also provide a short article summary in the `description` field.
+
+See the [recommendations from the RSS spec for how to use and differentiate between `description` and `content`](https://www.rssboard.org/rss-profile#namespace-elements-content-encoded).
+
+### `categories`
+
+Type: `string[] (optional)`
+
+A list of any tags or categories to categorize your content. They will be output as multiple `<category>` elements.
+
+### `author`
+
+Type: `string (optional)`
+
+The email address of the item author. This is useful for indicating the author of a post on multi-author blogs.
+
+### `commentsUrl`
+
+Type: `string (optional)`
+
+The URL of a web page that contains comments on the item.
+
+### `source`
+
+Type: `object (optional)`
+
+An object that defines the `title` and `url` of the original feed for items that have been republished from another source. Both are required properties of `source` for proper attribution.
+
+```js
+const item = {
+	title: "Alpha Centauri: so close you can touch it",
+  link: "/blog/alpha-centuari",
+  pubDate: new Date("2023-06-04"),
+  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
+	source: {
+    title: "The Galactic Times",
+    url: "https://galactictimes.space/feed.xml"
+  }
+}
+```
+
+#### `source.title`
+
+Type: `string (required)`
+
+The name of the original feed in which the item was published. (Note that this is the feed's title, not the individual article title.)
+
+#### `source.url`
+
+Type: `string (required)`
+
+The URL of the original feed in which the item was published.
+
+### `enclosure`
+
+Type: `object (optional)`
+
+An object to specify properties for an included media source (e.g. a podcast) with three required values: `url`, `length`, and `type`.
+
+```js
+const item = {
+	title: "Alpha Centauri: so close you can touch it",
+  link: "/blog/alpha-centuari",
+  pubDate: new Date("2023-06-04"),
+  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
+	enclosure: {
+    url: "/media/alpha-centauri.aac",
+    length: 124568,
+    type: "audio/aac"
+  }
+}
+```
+
+#### `enclosure.url`
+
+Type: `string (required)`
+
+The URL where the media can be found. If the media is hosted outside of your own domain you must provide a full URL.
+
+#### `enclosure.length`
+
+Type: `number (required)`
+
+The size of the file found at the `url` in bytes.
+
+#### `enclosure.type`
+
+Type: `string (required)`
+
+The [MIME type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types) for the media item found at the `url`.
 
 ## `rssSchema`
 
