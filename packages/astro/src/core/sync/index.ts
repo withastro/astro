@@ -66,7 +66,7 @@ export async function sync(
 		await createVite(
 			{
 				server: { middlewareMode: true, hmr: false },
-				optimizeDeps: { entries: [] },
+				optimizeDeps: { disabled: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
