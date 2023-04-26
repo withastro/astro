@@ -81,29 +81,18 @@ export function createGetCollection({
 }
 
 export function createGetEntryBySlug({
-	getCollection,
+	getEntryImport,
 	getRenderEntryImport,
 }: {
-	getCollection: ReturnType<typeof createGetCollection>;
+	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
-		// This is not an optimized lookup. Should look into an O(1) implementation
-		// as it's probably that people will have very large collections.
-		const entries = await getCollection(collection);
-		let candidate: (typeof entries)[number] | undefined = undefined;
-		for (let entry of entries) {
-			if (entry.slug === slug) {
-				candidate = entry;
-				break;
-			}
-		}
+		const entryImport = await getEntryImport(collection, slug);
+		if (typeof entryImport !== 'function') return undefined;
 
-		if (typeof candidate === 'undefined') {
-			return undefined;
-		}
+		const entry = await entryImport();
 
-		const entry = candidate;
 		return {
 			id: entry.id,
 			slug: entry.slug,
@@ -114,7 +103,7 @@ export function createGetEntryBySlug({
 				return render({
 					collection: entry.collection,
 					id: entry.id,
-					renderEntryImport: await getRenderEntryImport(collection, entry.slug),
+					renderEntryImport: await getRenderEntryImport(collection, slug),
 				});
 			},
 		};
