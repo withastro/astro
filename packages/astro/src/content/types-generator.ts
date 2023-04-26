@@ -22,6 +22,7 @@ import {
 	type ContentObservable,
 	type ContentPaths,
 	type EntryInfo,
+	updateLookupMaps,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -277,6 +278,12 @@ export async function createContentTypesGenerator({
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
+			});
+			await updateLookupMaps({
+				contentEntryExts,
+				contentPaths,
+				root: settings.config.root,
+				fs,
 			});
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 				warnNonexistentCollections({

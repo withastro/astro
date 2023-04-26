@@ -151,18 +151,15 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
-export function rootRelativePath(root: URL, idOrUrl: URL | string) {
+export function rootRelativePath(root: URL, idOrUrl: URL | string, prependSlash = true) {
 	let id: string;
 	if (typeof idOrUrl !== 'string') {
 		id = unwrapId(viteID(idOrUrl));
 	} else {
 		id = idOrUrl;
 	}
-	const normalizedRoot = normalizePath(fileURLToPath(root));
-	if (id.startsWith(normalizedRoot)) {
-		id = id.slice(normalizedRoot.length);
-	}
-	return prependForwardSlash(id);
+	id = id.slice(normalizePath(fileURLToPath(root)).length);
+	return prependSlash ? prependForwardSlash(id) : id;
 }
 
 export function emoji(char: string, fallback: string) {

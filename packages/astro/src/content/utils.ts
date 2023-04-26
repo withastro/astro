@@ -1,3 +1,4 @@
+import glob, { type Options as FastGlobOptions } from 'fast-glob';
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import fsMod from 'node:fs';
@@ -12,6 +13,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
+import { rootRelativePath } from '../core/util.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -129,16 +131,23 @@ export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryT
 export class NoCollectionError extends Error {}
 
 export function getEntryInfo(
-	params: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: true }
+	params: Pick<ContentPaths, 'contentDir'> & {
+		entry: string | URL;
+		allowFilesOutsideCollection?: true;
+	}
 ): EntryInfo;
 export function getEntryInfo({
 	entry,
 	contentDir,
 	allowFilesOutsideCollection = false,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: boolean }):
-	| EntryInfo
-	| NoCollectionError {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+}: Pick<ContentPaths, 'contentDir'> & {
+	entry: string | URL;
+	allowFilesOutsideCollection?: boolean;
+}): EntryInfo | NoCollectionError {
+	const rawRelativePath = path.relative(
+		fileURLToPath(contentDir),
+		typeof entry === 'string' ? entry : fileURLToPath(entry)
+	);
 	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
 	const isOutsideCollection = rawCollection === '..' || rawCollection === '.';
 
@@ -357,4 +366,52 @@ function search(fs: typeof fsMod, srcDir: URL) {
 		}
 	}
 	return { exists: false, url: paths[0] };
+}
+
+export async function updateLookupMaps({
+	contentPaths,
+	contentEntryExts,
+	root,
+	fs,
+}: {
+	contentEntryExts: string[];
+	contentPaths: Pick<ContentPaths, 'contentDir' | 'cacheDir'>;
+	root: URL;
+	fs: typeof fsMod;
+}) {
+	const { contentDir } = contentPaths;
+	const globOpts: FastGlobOptions = {
+		absolute: false,
+		cwd: fileURLToPath(root),
+		fs: {
+			readdir: fs.readdir.bind(fs),
+			readdirSync: fs.readdirSync.bind(fs),
+		},
+	};
+
+	const relContentDir = rootRelativePath(root, contentDir, false);
+	const contentGlob = await glob(`${relContentDir}/**/*${getExtGlob(contentEntryExts)}`, globOpts);
+	let filePathByLookupId: {
+		[collection: string]: Record<string, string>;
+	} = {};
+
+	for (const filePath of contentGlob) {
+		const info = getEntryInfo({ contentDir, entry: filePath });
+		if (info instanceof NoCollectionError) continue;
+		filePathByLookupId[info.collection] ??= {};
+		// TODO: frontmatter slugs
+		filePathByLookupId[info.collection][info.slug] = '/' + filePath;
+	}
+
+	await fs.promises.writeFile(
+		new URL('lookup-map.json', contentPaths.cacheDir),
+		JSON.stringify(filePathByLookupId, null, 2)
+	);
+}
+
+export function getExtGlob(exts: string[]) {
+	return exts.length === 1
+		? // Wrapping {...} breaks when there is only one extension
+		  exts[0]
+		: `{${exts.join(',')}}`;
 }
