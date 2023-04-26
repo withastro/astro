@@ -66,7 +66,6 @@ export function createRequest({
 		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
 
-	// TODO: PLT-104 check if this needs to be set in another adapters?
 	Reflect.set(request, clientLocalsSymbol, {});
 
 	return request;

@@ -1739,6 +1739,8 @@ export interface PreviewModule {
 	default: CreatePreviewServer;
 }
 
-export declare namespace AstroMiddleware {
-	export interface Locals {}
+export declare module AstroMiddleware {
+	export interface Locals {
+		[key: string]: unknown;
+	}
 }
