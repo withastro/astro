@@ -232,10 +232,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      # Reset lockfile changes so that Turbo can reuse the old build cache
-      - name: Reset lockfile changes
-        run: git reset --hard
-
       - name: Build Packages
         run: pnpm run build
 
