@@ -40,7 +40,7 @@ export function astroContentAssetPropagationPlugin({
 				if (!resolvedBase) return;
 				const base = resolvedBase.id;
 
-				for (const { extensions, handlePropagation } of settings.contentEntryTypes) {
+				for (const { extensions, handlePropagation = true } of settings.contentEntryTypes) {
 					if (handlePropagation && extensions.includes(extname(base))) {
 						return `${base}?${PROPAGATED_ASSET_FLAG}`;
 					}
