@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
 
 const status = Astro.response.status;
 let redirectMessage;
@@ -19,10 +18,10 @@ if (status === 301) {
 		{redirectMessage}
 		<form action="/api/login" method="POST">
 			<label>
-				Username: <input type="text" minLength="1" id="username" name="username" />
+				Username: <input type="text" minlength="1" id="username" name="username" />
 			</label>
 			<label>
-				Password: <input type="password" minLength="1" id="password" name="password" />
+				Password: <input type="password" minlength="1" id="password" name="password" />
 				
 			</label>
 

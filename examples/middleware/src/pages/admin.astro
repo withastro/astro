@@ -1,11 +1,7 @@
 ---
-import Card from "../components/Card.astro";
 import Layout from "../layouts/Layout.astro";
 const user = Astro.locals.user;
 ---
-
-
-
 <Layout title="Welcome back!!">
 	<main>
 		<h1>Welcome back <span class="text-gradient">{user.name} {user.surname}</span></h1>
