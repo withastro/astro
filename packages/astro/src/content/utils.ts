@@ -2,12 +2,17 @@ import glob, { type Options as FastGlobOptions } from 'fast-glob';
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import fsMod from 'node:fs';
-import path from 'node:path';
+import path, { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
 import { z } from 'zod';
-import type { AstroConfig, AstroSettings, ImageInputFormat } from '../@types/astro.js';
+import type {
+	AstroConfig,
+	AstroSettings,
+	ContentEntryType,
+	ImageInputFormat,
+} from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
@@ -50,11 +55,16 @@ export const msg = {
 export function getEntrySlug({
 	id,
 	collection,
-	slug,
-	unvalidatedSlug,
-}: EntryInfo & { unvalidatedSlug?: unknown }) {
+	generatedSlug,
+	frontmatterSlug,
+}: {
+	id: string;
+	collection: string;
+	generatedSlug: string;
+	frontmatterSlug?: unknown;
+}) {
 	try {
-		return z.string().default(slug).parse(unvalidatedSlug);
+		return z.string().default(generatedSlug).parse(frontmatterSlug);
 	} catch {
 		throw new AstroError({
 			...AstroErrorData.InvalidContentEntrySlugError,
@@ -126,6 +136,16 @@ export async function getEntryData(
 
 export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
 	return settings.contentEntryTypes.map((t) => t.extensions).flat();
+}
+
+export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+	const map: Map<string, ContentEntryType> = new Map();
+	for (const entryType of settings.contentEntryTypes) {
+		for (const ext of entryType.extensions) {
+			map.set(ext, entryType);
+		}
+	}
+	return map;
 }
 
 export class NoCollectionError extends Error {}
@@ -370,18 +390,18 @@ function search(fs: typeof fsMod, srcDir: URL) {
 
 export async function updateLookupMaps({
 	contentPaths,
-	contentEntryExts,
+	contentEntryConfigByExt,
 	root,
 	fs,
 }: {
-	contentEntryExts: string[];
+	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
 	contentPaths: Pick<ContentPaths, 'contentDir' | 'cacheDir'>;
 	root: URL;
 	fs: typeof fsMod;
 }) {
 	const { contentDir } = contentPaths;
 	const globOpts: FastGlobOptions = {
-		absolute: false,
+		absolute: true,
 		cwd: fileURLToPath(root),
 		fs: {
 			readdir: fs.readdir.bind(fs),
@@ -390,7 +410,10 @@ export async function updateLookupMaps({
 	};
 
 	const relContentDir = rootRelativePath(root, contentDir, false);
-	const contentGlob = await glob(`${relContentDir}/**/*${getExtGlob(contentEntryExts)}`, globOpts);
+	const contentGlob = await glob(
+		`${relContentDir}**/*${getExtGlob([...contentEntryConfigByExt.keys()])}`,
+		globOpts
+	);
 	let filePathByLookupId: {
 		[collection: string]: Record<string, string>;
 	} = {};
@@ -398,9 +421,17 @@ export async function updateLookupMaps({
 	for (const filePath of contentGlob) {
 		const info = getEntryInfo({ contentDir, entry: filePath });
 		if (info instanceof NoCollectionError) continue;
-		filePathByLookupId[info.collection] ??= {};
-		// TODO: frontmatter slugs
-		filePathByLookupId[info.collection][info.slug] = '/' + filePath;
+		const contentEntryConfig = contentEntryConfigByExt.get(extname(filePath));
+		if (!contentEntryConfig) continue;
+
+		const { id, collection, slug: generatedSlug } = info;
+		filePathByLookupId[collection] ??= {};
+		const { slug: frontmatterSlug } = await contentEntryConfig.getEntryInfo({
+			fileUrl: pathToFileURL(filePath),
+			contents: await fs.promises.readFile(filePath, 'utf-8'),
+		});
+		const slug = getEntrySlug({ id, collection, generatedSlug, frontmatterSlug });
+		filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
 	}
 
 	await fs.promises.writeFile(
