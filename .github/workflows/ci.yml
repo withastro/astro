@@ -89,7 +89,7 @@ jobs:
     steps:
       # Disable crlf so all OS can share the same Turbo cache
       # https://github.com/actions/checkout/issues/135
-      - name: Prepare git
+      - name: Disable git crlf
         run: git config --global core.autocrlf false
 
       - name: Checkout
@@ -130,7 +130,7 @@ jobs:
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
-      - name: Prepare git
+      - name: Disable git crlf
         run: git config --global core.autocrlf false
 
       - name: Checkout
@@ -172,7 +172,7 @@ jobs:
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
-      - name: Prepare git
+      - name: Disable git crlf
         run: git config --global core.autocrlf false
 
       - name: Checkout
@@ -208,7 +208,7 @@ jobs:
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
-      - name: Prepare git
+      - name: Disable git crlf
         run: git config --global core.autocrlf false
 
       - name: Checkout
