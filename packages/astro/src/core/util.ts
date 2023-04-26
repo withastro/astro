@@ -158,7 +158,10 @@ export function rootRelativePath(root: URL, idOrUrl: URL | string, prependSlash 
 	} else {
 		id = idOrUrl;
 	}
-	id = id.slice(normalizePath(fileURLToPath(root)).length);
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	if (id.startsWith(normalizedRoot)) {
+		id = id.slice(normalizedRoot.length);
+	}
 	return prependSlash ? prependForwardSlash(id) : id;
 }
 
