@@ -1,14 +1,21 @@
 ---
-
+import Aside from './aside.astro'
+import Page from './page.astro'
 ---
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>minimum html</title>
+		<style>
+			.body{
+				background: red;
+			}
+		</style>
   </head>
   <body>
-    <main>
-    </main>
+		<Aside/>
+    <main></main>
+		<Page></Page>
   </body>
 </html>
