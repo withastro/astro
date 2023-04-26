@@ -31,7 +31,11 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
+				const {
+					config: astroConfig,
+					updateConfig,
+					addContentEntryType,
+				} = params as SetupHookParams;
 
 				const configLoadResult = await loadMarkdocConfig(astroConfig);
 				const userMarkdocConfig = configLoadResult?.config ?? {};
@@ -126,6 +130,27 @@ export const Content = createComponent({
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+				});
+
+				updateConfig({
+					vite: {
+						plugins: [
+							{
+								name: '@astrojs/markdoc:astro-propagated-assets',
+								enforce: 'pre',
+								// Astro component styles and scripts should only be injected
+								// When a given Markdoc file actually uses that component.
+								// Add the `astroPropagatedAssets` flag to inject only when rendered.
+								resolveId(this: rollup.TransformPluginContext, id: string, importer: string) {
+									if (importer === configLoadResult?.fileUrl.pathname && id.endsWith('.astro')) {
+										return this.resolve(id + '?astroPropagatedAssets', importer, {
+											skipSelf: true,
+										});
+									}
+								},
+							},
+						],
+					},
 				});
 			},
 		},

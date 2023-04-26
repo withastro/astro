@@ -1,5 +1,5 @@
 import { defineMarkdocConfig } from '@astrojs/markdoc/config';
-import Aside from './src/components/Aside.astro?astroPropagatedAssets';
+import Aside from './src/components/Aside.astro';
 
 export default defineMarkdocConfig({
 	tags: {

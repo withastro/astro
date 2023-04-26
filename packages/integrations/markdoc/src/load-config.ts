@@ -63,7 +63,7 @@ async function bundleConfigFile({
 			{
 				name: 'stub-astro-imports',
 				setup(build) {
-					build.onResolve({ filter: /.*\.astro\?astroPropagatedAssets$/ }, () => {
+					build.onResolve({ filter: /.*\.astro$/ }, () => {
 						return {
 							// Stub with an unused default export
 							path: 'data:text/javascript,export default true',
