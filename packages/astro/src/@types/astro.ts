@@ -1739,8 +1739,8 @@ export interface PreviewModule {
 	default: CreatePreviewServer;
 }
 
-export declare module AstroMiddleware {
-	export interface Locals {
-		[key: string]: unknown;
-	}
+// eslint-disable-next-line  @typescript-eslint/no-namespace
+export declare namespace AstroMiddleware {
+	// eslint-disable-next-line  @typescript-eslint/no-empty-interface
+	export interface Locals {}
 }
