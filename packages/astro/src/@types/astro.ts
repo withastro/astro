@@ -1437,7 +1437,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
 
 	/**
-	 * TODO documentation
+	 * Object accessed via Astro middleware
 	 */
 	locals: AstroMiddleware.Locals;
 }

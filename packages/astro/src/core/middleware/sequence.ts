@@ -1,5 +1,6 @@
-import type { APIContext, MiddlewareHandler, MiddlewareResponseHandler } from '../../@types/astro';
+import type { APIContext, MiddlewareResponseHandler } from '../../@types/astro';
 import { defineMiddleware } from './index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**
  * From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
@@ -28,10 +29,10 @@ export function sequence(...handlers: MiddlewareResponseHandler[]): MiddlewareRe
 						if (applyHandleResult) {
 							return applyHandleResult;
 						} else {
-							return next();
+							throw new AstroError(AstroErrorData.MiddlewareNoDataOrNextCalled);
 						}
 					} else {
-						return next();
+						throw new AstroError(AstroErrorData.MiddlewareNoDataOrNextCalled);
 					}
 				} else {
 					return next();

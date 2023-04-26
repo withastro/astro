@@ -81,7 +81,7 @@ describe('Middleware API', () => {
 		it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
 			let html = await fixture.fetch('/does-nothing').then((res) => res.text());
 			let $ = cheerio.load(html);
-			expect($('title').html()).to.equal('MiddlewareNoDataReturned');
+			expect($('title').html()).to.equal('MiddlewareNoDataOrNextCalled');
 		});
 	});
 
