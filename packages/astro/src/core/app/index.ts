@@ -240,10 +240,19 @@ export class App {
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
-			const onRequest = this.#manifest.middleware.onRequest as MiddlewareResponseHandler;
-			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
-				return renderPage(mod, renderContext, this.#env, apiContext);
-			});
+			const onRequest = this.#manifest.middleware?.onRequest;
+			let response;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage(mod, renderContext, this.#env, apiContext);
+					}
+				);
+			} else {
+				response = await renderPage(mod, renderContext, this.#env, apiContext);
+			}
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {

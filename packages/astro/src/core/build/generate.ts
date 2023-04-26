@@ -345,7 +345,7 @@ async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
 	gopts: GeneratePathOptions,
-	middleware: AstroMiddlewareInstance<unknown>
+	middleware?: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
 	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
@@ -495,12 +495,19 @@ async function generatePath(
 				site: env.site,
 				adapterName: env.adapterName,
 			});
-			// If the user doesn't configure a middleware, the rollup plugin emits a no-op function,
-			// so it's safe to use `callMiddleware` regardless
-			const onRequest = middleware.onRequest as MiddlewareResponseHandler;
-			response = await callMiddleware<Response>(onRequest, context, () => {
-				return renderPage(mod, ctx, env, context);
-			});
+
+			const onRequest = middleware?.onRequest;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					onRequest as MiddlewareResponseHandler,
+					context,
+					() => {
+						return renderPage(mod, ctx, env, context);
+					}
+				);
+			} else {
+				response = await renderPage(mod, ctx, env, context);
+			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;

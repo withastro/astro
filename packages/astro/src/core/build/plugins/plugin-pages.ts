@@ -58,9 +58,7 @@ ${middlewareId ? `import * as _middleware from "${middlewareId.id}";` : ''}
 
 export const pageMap = new Map([${importMap}]);
 export const renderers = [${rendererItems}];
-export const middleware = ${
-					middlewareId ? '_middleware' : '{ onRequest(_, next) {return next()} }'
-				};
+${middlewareId ? `export const middleware = _middleware;` : ''}
 `;
 
 				return def;
