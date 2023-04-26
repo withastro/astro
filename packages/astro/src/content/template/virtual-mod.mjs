@@ -28,13 +28,13 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
-function createGlobLookup(entryGlob) {
+function createGlobLookup(glob) {
 	return async (collection, lookupId) => {
 		const { default: lookupMap } = await import('@@LOOKUP_MAP_PATH@@');
 		const filePath = lookupMap[collection]?.[lookupId];
 
 		if (!filePath) return undefined;
-		return entryGlob[collection][filePath];
+		return glob[collection][filePath];
 	};
 }
 
