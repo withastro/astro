@@ -52,6 +52,6 @@ export const getCollection = createGetCollection({
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
-	getCollection,
+	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
