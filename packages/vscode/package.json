@@ -83,6 +83,12 @@
     "directory": "packages/vscode"
   },
   "contributes": {
+    "snippets": [
+      {
+        "scope": "astro",
+        "path": "./languages/astro.code-snippets"
+      }
+    ],
     "typescriptServerPlugins": [
       {
         "name": "@astrojs/ts-plugin",
