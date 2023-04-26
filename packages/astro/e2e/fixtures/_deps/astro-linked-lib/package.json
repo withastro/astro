@@ -5,6 +5,9 @@
   "exports": {
     ".": {
       "astro": "./Component.astro"
+    },
+    "./HoistedScript": {
+      "astro": "./HoistedScript.astro"
     }
   },
   "dependencies": {
