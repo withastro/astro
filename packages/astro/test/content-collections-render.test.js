@@ -50,7 +50,7 @@ describe('Content Collections - render()', () => {
 
 			$('style').each((_, styleEl) => {
 				const textContent = styleEl.children[0].data;
-				expect(set).to.not.contain(href);
+				expect(set).to.not.contain(textContent);
 				set.add(textContent);
 			});
 		});
@@ -146,15 +146,13 @@ describe('Content Collections - render()', () => {
 
 			$('link[rel=stylesheet]').each((_, linkEl) => {
 				const href = linkEl.attribs.href;
-				const isDuplicate = set.has(href);
-				expect(isDuplicate).to.equal(false);
+				expect(set).to.not.contain(href);
 				set.add(href);
 			});
 
 			$('style').each((_, styleEl) => {
 				const textContent = styleEl.children[0].data;
-				const isDuplicate = set.has(textContent);
-				expect(isDuplicate).to.equal(false);
+				expect(set).to.not.contain(textContent);
 				set.add(textContent);
 			});
 		});
