@@ -20,11 +20,6 @@ import {
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
 
-function isPropagatedAsset(viteId: string) {
-	const flags = new URLSearchParams(viteId.split('?')[1]);
-	return flags.has(PROPAGATED_ASSET_FLAG);
-}
-
 export function astroContentAssetPropagationPlugin({
 	mode,
 	settings,
@@ -61,7 +56,7 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		async transform(_, id, options) {
-			if (isPropagatedAsset(id)) {
+			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
 
