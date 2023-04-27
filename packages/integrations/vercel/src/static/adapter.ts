@@ -33,8 +33,9 @@ export default function vercelStatic({
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 
+        const outDir = new URL('./static/', getVercelOutput(config.root));
 				updateConfig({
-					outdir: new URL('./static/', getVercelOutput(config.root)),
+					outDir,
 					build: {
 						format: 'directory',
 					},

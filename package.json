@@ -8,19 +8,21 @@
   },
   "scripts": {
     "release": "pnpm run build && changeset publish",
-    "build": "turbo run build --output-logs=new-only --no-deps --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
-    "build:ci": "turbo run build:ci --output-logs=new-only --no-deps --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:examples": "turbo run build --filter=\"@example/*\"",
-    "dev": "turbo run dev --no-deps --no-cache --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "dev": "turbo run dev --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
     "format:code": "prettier -w . --cache --plugin-search-dir=.",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
-    "test": "turbo run test --output-logs=new-only --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
+    "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
-    "test:smoke": "turbo run build --filter=\"@example/*\" --filter=\"docs\" --output-logs=new-only --concurrency=1",
+    "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
+    "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
+    "test:smoke:docs": "turbo run build --filter=docs",
     "test:check-examples": "node ./scripts/smoke/check.js",
-    "test:vite-ci": "turbo run test --filter=astro --output-logs=new-only --no-deps --concurrency=1",
+    "test:vite-ci": "turbo run test --filter=astro",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "astro-benchmark",
@@ -28,17 +30,6 @@
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
-  "workspaces": [
-    "packages/markdown/*",
-    "packages/integrations/*",
-    "packages/*",
-    "examples/*",
-    "examples/component/demo",
-    "scripts",
-    "packages/astro/test/fixtures/component-library-shared",
-    "packages/astro/test/fixtures/custom-elements/my-component-lib",
-    "packages/astro/test/fixtures/static build/pkg"
-  ],
   "engines": {
     "node": ">=16.12.0",
     "pnpm": ">=8.2.0"
@@ -99,7 +90,7 @@
     "prettier-plugin-astro": "^0.8.0",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "1.2.5",
+    "turbo": "^1.9.3",
     "typescript": "~5.0.2"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/renderer-two",
+  "name": "@test/astro-renderer-two",
   "version": "1.0.0",
   "main": "index.mjs"
 }

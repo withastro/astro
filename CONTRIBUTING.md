@@ -7,17 +7,17 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ## Quick Guide
 
-### Prerequisite
+### Prerequisites
 
 ```shell
-node: "^14.18.0 || >=16.12.0"
-pnpm: "^7.9.5"
+node: "^>=16.12.0"
+pnpm: "^8.2.0"
 # otherwise, your build will fail
 ```
 
 ### Setting up your local repo
 
-Astro uses pnpm workspaces, so you should **always run `pnpm install` from the top-level project directory.** running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
+Astro uses pnpm workspaces, so you should **always run `pnpm install` from the top-level project directory**. Running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
 
 ```shell
 git clone && cd ...
@@ -35,7 +35,7 @@ To automatically handle merge conflicts in `pnpm-lock.yaml`, you should run the 
 
 ```shell
 pnpm add -g @pnpm/merge-driver
-pnpx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-merge-driver %A %O %B %P" --files pnpm-lock.yaml
+pnpm dlx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-merge-driver %A %O %B %P" --files pnpm-lock.yaml
 ```
 
 ### Using GitHub Codespaces for development
@@ -44,7 +44,7 @@ To get started, create a codespace for this repository by clicking this 👇
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro)
 
-Your new codespace will open in a web-based version of Visual Studio Code. All development dependcies will be preinstalled and the tests will run automatically ensuring you've got a green base from which to start working.
+Your new codespace will open in a web-based version of Visual Studio Code. All development dependencies will be preinstalled, and the tests will run automatically ensuring you've got a green base from which to start working.
 
 **Note**: Dev containers is now an open spec which is supported by [GitHub Codespaces](https://github.com/codespaces) and [other supporting tools](https://containers.dev/supporting).
 
@@ -63,7 +63,7 @@ During the development process, you may want to test your changes to ensure they
 
 1. Run any of the examples in the `/examples` folder. They are linked to use the local Astro source code, so you can see the effects of your changes.
 
-   ```
+   ```shell
      pnpm --filter @example/minimal run dev
    ```
 
@@ -77,7 +77,7 @@ Overall, it's up to personal preference which method to use. For smaller changes
 
 You can debug vite by prefixing any command with `DEBUG` like so:
 
-```
+```shell
 DEBUG=vite:* astro dev        # debug everything in Vite
 DEBUG=vite:[name] astro dev   # debug specific process, e.g. "vite:deps" or "vite:transform"
 ```
@@ -168,7 +168,7 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
   - `core/`: Code that executes **in the top-level scope** (in Node). Within, you’ll find code that powers the `astro build` and `astro dev` commands, as well as top-level SSR code.
   - `runtime/`: Code that executes **in different scopes** (i.e. not in a pure Node context). You’ll have to think about code differently here.
     - `client/`: Code that executes **in the browser.** Astro’s partial hydration code lives here, and only browser-compatible code can be used.
-    - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently from `core/` and may have to be structured differently.
+    - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently of `core/` and may have to be structured differently.
   - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
 
 ### Thinking about SSR
@@ -198,7 +198,7 @@ By default, `create-astro` and [astro.new](https://astro.new) point to this bran
 
 ## Releasing Astro
 
-_Note: Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core-maintainer) can release new versions of Astro._
+_Note: Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core) can release new versions of Astro._
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
@@ -230,15 +230,15 @@ git reset --hard
 
 By default, every package with a changeset will be released. If you only want to target a smaller subset of packages for release, you can consider clearing out the `.changesets` directory to replace all existing changesets with a single changeset of only the packages that you want to release. Just be sure not to commit or push this to `main`, since it will destroy existing changesets that you will still want to eventually release.
 
-Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
+Full documentation: https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md
 
 ### Releasing `astro@next` (aka "prerelease mode")
 
 Sometimes, the repo will enter into "prerelease mode". In prerelease mode, our normal release process will publish npm versions under the `next` dist-tag, instead of the default `latest` tag. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
 
-While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`. To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#user-content-releasing-astrolatest-while-in-prerelease-mode).
+While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`. To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#releasing-astrolatest-while-in-prerelease-mode).
 
-Full documentation: https://github.com/atlassian/changesets/blob/main/docs/prereleases.md
+Full documentation: https://github.com/changesets/changesets/blob/main/docs/prereleases.md
 
 ### Entering prerelease mode
 

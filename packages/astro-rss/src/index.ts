@@ -47,6 +47,16 @@ type RSSFeedItem = {
 	customData?: z.infer<typeof rssSchema>['customData'];
 	/** Whether draft or not */
 	draft?: z.infer<typeof rssSchema>['draft'];
+	/** Categories or tags related to the item */
+	categories?: z.infer<typeof rssSchema>['categories'];
+	/** The item author's email address */
+	author?: z.infer<typeof rssSchema>['author'];
+	/** A URL of a page for comments related to the item */
+	commentsUrl?: z.infer<typeof rssSchema>['commentsUrl'];
+	/** The RSS channel that the item came from */
+	source?: z.infer<typeof rssSchema>['source'];
+	/** A media object that belongs to the item */
+	enclosure?: z.infer<typeof rssSchema>['enclosure'];
 };
 
 type ValidatedRSSFeedItem = z.infer<typeof rssFeedItemValidator>;
@@ -148,6 +158,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		// when using `customData`
 		// https://github.com/withastro/astro/issues/5794
 		suppressEmptyNode: true,
+		suppressBooleanAttributes: false,
 	};
 	const parser = new XMLParser(xmlOptions);
 	const root: any = { '?xml': { '@_version': '1.0', '@_encoding': 'UTF-8' } };
@@ -196,7 +207,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		const item: any = {
 			title: result.title,
 			link: itemLink,
-			guid: itemLink,
+			guid: { '#text': itemLink, '@_isPermaLink': 'true' },
 		};
 		if (result.description) {
 			item.description = result.description;
@@ -210,6 +221,30 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		}
 		if (typeof result.customData === 'string') {
 			Object.assign(item, parser.parse(`<item>${result.customData}</item>`).item);
+		}
+		if (Array.isArray(result.categories)) {
+			item.category = result.categories;
+		}
+		if (typeof result.author === 'string') {
+			item.author = result.author;
+		}
+		if (typeof result.commentsUrl === 'string') {
+			item.comments = isValidURL(result.commentsUrl)
+				? result.commentsUrl
+				: createCanonicalURL(result.commentsUrl, rssOptions.trailingSlash, site).href;
+		}
+		if (result.source) {
+			item.source = parser.parse(
+				`<source url="${result.source.url}">${result.source.title}</source>`
+			).source;
+		}
+		if (result.enclosure) {
+			const enclosureURL = isValidURL(result.enclosure.url)
+				? result.enclosure.url
+				: createCanonicalURL(result.enclosure.url, rssOptions.trailingSlash, site).href;
+			item.enclosure = parser.parse(
+				`<enclosure url="${enclosureURL}" length="${result.enclosure.length}" type="${result.enclosure.type}"/>`
+			).enclosure;
 		}
 		return item;
 	});

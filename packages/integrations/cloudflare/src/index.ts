@@ -103,7 +103,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					minify: true,
+					minify: _config.vite?.build?.minify !== false,
 					banner: {
 						js: SHIM,
 					},
