@@ -412,7 +412,7 @@ importers:
         specifier: ^0.1.1
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^2.2.0
+        specifier: ^2.3.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
