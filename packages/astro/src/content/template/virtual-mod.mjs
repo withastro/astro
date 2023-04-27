@@ -88,11 +88,6 @@ export const getCollection = createGetCollection({
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
 
-export const getDataCollection = createGetDataCollection({
-	dataCollectionToEntryMap,
-	collectionToRenderEntryMap,
-});
-
 export const getEntryBySlug = createGetEntryBySlug({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
