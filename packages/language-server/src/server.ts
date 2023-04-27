@@ -25,7 +25,14 @@ import { PluginHost } from './plugins/PluginHost';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
 import { LanguageServiceManager } from './plugins/typescript/LanguageServiceManager';
 import { getSemanticTokenLegend } from './plugins/typescript/utils';
-import { debounceThrottle, getAstroInstall, isAstroWorkspace, normalizeUri, urlToPath } from './utils';
+import {
+	debounceThrottle,
+	getAstroInstall,
+	isAstroWorkspace,
+	normalizeUri,
+	urlToPath,
+	getWorkspacePnpPath,
+} from './utils';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
 	new vscode.RequestType('html/tag');
@@ -46,11 +53,21 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 	let hasConfigurationCapability = false;
 
 	connection.onInitialize((params: vscode.InitializeParams) => {
+		let isPnpInit = false;
+		const canRequirePnp = params.initializationOptions?.canRequirePnp ?? false;
 		const environment: 'node' | 'browser' = params.initializationOptions?.environment ?? 'node';
 		const workspaceUris = params.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [params.rootUri ?? ''];
 
 		workspaceUris.forEach((uri) => {
 			uri = urlToPath(uri) as string;
+			if (canRequirePnp && !isPnpInit) {
+				const possiblePnpPath = getWorkspacePnpPath(uri);
+
+				if (possiblePnpPath) {
+					require(possiblePnpPath).setup();
+					isPnpInit = true;
+				}
+			}
 
 			// If the workspace is not an Astro project, we shouldn't warn about not finding Astro
 			// Unless the extension enabled itself in an untitled workspace, in which case the warning is valid
