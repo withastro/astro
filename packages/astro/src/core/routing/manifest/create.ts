@@ -323,6 +323,8 @@ export function createRouteManifest(
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
 
+				const isPrender =
+					settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
 				routes.push({
 					route,
 					type: item.isPage ? 'page' : 'endpoint',
@@ -332,7 +334,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: false,
+					prerender: isPrender,
 				});
 			}
 		});
