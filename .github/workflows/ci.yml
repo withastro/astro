@@ -239,7 +239,11 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
+      - name: Remove docs translations except for English and Korean
+        run: find smoke/docs/src/content/docs ! -name 'en' ! -name 'ko' -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+
       - name: Test
         run: pnpm run test:smoke
         env:
-          SKIP_OG: 1
+          SKIP_OG: true
+          PUBLIC_TWO_LANG: true
