@@ -202,6 +202,7 @@ export async function createContentTypesGenerator({
 					fileUrl: event.entry,
 					contentEntryType,
 					fs,
+					invalidateCache: true,
 				});
 				if (!(collectionKey in contentTypes)) {
 					addCollection(contentTypes, collectionKey);
@@ -225,6 +226,7 @@ export async function createContentTypesGenerator({
 					fileUrl: event.entry,
 					contentEntryType,
 					fs,
+					invalidateCache: true,
 				});
 				if (contentTypes[collectionKey]?.[entryKey]?.slug !== changedSlug) {
 					setEntry(contentTypes, collectionKey, entryKey, changedSlug);
