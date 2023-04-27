@@ -1,5 +1,11 @@
 # astro
 
+## 2.3.2
+
+### Patch Changes
+
+- [#6920](https://github.com/withastro/astro/pull/6920) [`b89042553`](https://github.com/withastro/astro/commit/b89042553ec45d5f6bc71747e0f3470ba969e679) Thanks [@bluwy](https://github.com/bluwy)! - Fix tsconfig alias baseUrl handling for "." and ".." imports
+
 ## 2.3.1
 
 ### Patch Changes
