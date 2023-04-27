@@ -1,6 +1,7 @@
 import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { PageOptions } from '../vite-plugin-astro/types.js';
+import type { AstroSettings } from '../@types/astro.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
@@ -34,7 +35,14 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
-export async function scan(code: string, id: string): Promise<PageOptions> {
+export async function scan(
+	code: string,
+	id: string,
+	settings: AstroSettings
+): Promise<PageOptions> {
+	const isHydbridOutput =
+		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
+
 	if (!includesExport(code)) return {};
 	if (!didInit) {
 		await eslexer.init;
@@ -61,7 +69,7 @@ export async function scan(code: string, id: string): Promise<PageOptions> {
 			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
-					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix),
+					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, isHydbridOutput),
 					location: { file: id },
 				});
 			} else {

@@ -24,7 +24,7 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const pageOptions = await scan(code, id);
+			const pageOptions = await scan(code, id, settings);
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
 			return {
