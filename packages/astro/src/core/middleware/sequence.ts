@@ -21,19 +21,12 @@ export function sequence(...handlers: MiddlewareResponseHandler[]): MiddlewareRe
 
 		function applyHandle(i: number, handleContext: APIContext) {
 			const handle = handlers[i];
+			// @ts-expect-error
+			// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually
+			// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.
 			const result = handle(handleContext, async () => {
 				if (i < length - 1) {
-					const applyHandlePromise = applyHandle(i + 1, handleContext);
-					if (applyHandlePromise) {
-						const applyHandleResult = await applyHandlePromise;
-						if (applyHandleResult) {
-							return applyHandleResult;
-						} else {
-							throw new AstroError(AstroErrorData.MiddlewareNoDataOrNextCalled);
-						}
-					} else {
-						throw new AstroError(AstroErrorData.MiddlewareNoDataOrNextCalled);
-					}
+					return applyHandle(i + 1, handleContext);
 				} else {
 					return next();
 				}
