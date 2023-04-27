@@ -442,7 +442,6 @@ export async function getStringifiedLookupMap({
 	return JSON.stringify(filePathByLookupId);
 }
 
-const frontmatterSlugCache = new Map<string, string>();
 /**
  * Check for slug in content entry frontmatter and validate the type,
  * falling back to the `generatedSlug` if none is found.
@@ -454,7 +453,6 @@ export async function getEntrySlug({
 	contentEntryType,
 	fileUrl,
 	fs,
-	invalidateCache = false,
 }: {
 	fs: typeof fsMod;
 	id: string;
@@ -462,16 +460,11 @@ export async function getEntrySlug({
 	generatedSlug: string;
 	fileUrl: URL;
 	contentEntryType: Pick<ContentEntryType, 'getEntryInfo'>;
-	invalidateCache?: boolean;
 }) {
-	if (!frontmatterSlugCache.has(id) || invalidateCache) {
-		const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
-			fileUrl,
-			contents: await fs.promises.readFile(fileUrl, 'utf-8'),
-		});
-		frontmatterSlugCache.set(id, frontmatterSlug);
-	}
-	const frontmatterSlug = frontmatterSlugCache.get(id);
+	const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
+		fileUrl,
+		contents: await fs.promises.readFile(fileUrl, 'utf-8'),
+	});
 	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
 }
 
