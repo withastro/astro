@@ -6,14 +6,14 @@ export { type LocalImageProps, type RemoteImageProps } from './types.js';
 export { emitESMImage } from './utils/emitAsset.js';
 export { imageMetadata } from './utils/metadata.js';
 
-export function getSharpImageService(): ImageServiceConfig {
+export function sharpImageService(): ImageServiceConfig {
 	return {
 		entrypoint: 'astro/assets/services/sharp',
 		config: {},
 	};
 }
 
-export function getSquooshImageService(): ImageServiceConfig {
+export function squooshImageService(): ImageServiceConfig {
 	return {
 		entrypoint: 'astro/assets/services/squoosh',
 		config: {},
