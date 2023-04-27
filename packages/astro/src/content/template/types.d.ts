@@ -100,10 +100,6 @@ declare module 'astro:content' {
 		input: Omit<CollectionConfig<S>, 'reference'>
 	): CollectionConfig<S>;
 
-	export function defineDataCollection<S extends BaseSchema>(
-		input: Omit<DataCollectionConfig<S>, 'type' | 'reference'>
-	): DataCollectionConfig<S>;
-
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
 	type ValidEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<ContentEntryMap[C]>['slug'];
 
