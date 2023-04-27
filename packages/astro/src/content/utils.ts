@@ -418,21 +418,23 @@ export async function getStringifiedLookupMap({
 		[collection: string]: Record<string, string>;
 	} = {};
 
-	for (const filePath of contentGlob) {
-		const info = getEntryInfo({ contentDir, entry: filePath });
-		if (info instanceof NoCollectionError) continue;
-		const contentEntryConfig = contentEntryConfigByExt.get(extname(filePath));
-		if (!contentEntryConfig) continue;
+	await Promise.all(
+		contentGlob.map(async (filePath) => {
+			const info = getEntryInfo({ contentDir, entry: filePath });
+			if (info instanceof NoCollectionError) return;
+			const contentEntryConfig = contentEntryConfigByExt.get(extname(filePath));
+			if (!contentEntryConfig) return;
 
-		const { id, collection, slug: generatedSlug } = info;
-		filePathByLookupId[collection] ??= {};
-		const { slug: frontmatterSlug } = await contentEntryConfig.getEntryInfo({
-			fileUrl: pathToFileURL(filePath),
-			contents: await fs.promises.readFile(filePath, 'utf-8'),
-		});
-		const slug = getEntrySlug({ id, collection, generatedSlug, frontmatterSlug });
-		filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
-	}
+			const { id, collection, slug: generatedSlug } = info;
+			filePathByLookupId[collection] ??= {};
+			const { slug: frontmatterSlug } = await contentEntryConfig.getEntryInfo({
+				fileUrl: pathToFileURL(filePath),
+				contents: await fs.promises.readFile(filePath, 'utf-8'),
+			});
+			const slug = getEntrySlug({ id, collection, generatedSlug, frontmatterSlug });
+			filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
+		})
+	);
 
 	return JSON.stringify(filePathByLookupId);
 }
