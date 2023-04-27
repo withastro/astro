@@ -192,3 +192,42 @@ describe('MDX headings with frontmatter', () => {
 		);
 	});
 });
+
+describe('MDX headings with HTML', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/mdx-get-headings/', import.meta.url),
+			integrations: [mdx()],
+		});
+
+		await fixture.build();
+	});
+
+	it('adds anchor IDs to headings', async () => {
+		const html = await fixture.readFile('/test-html/index.html');
+		const { document } = parseHTML(html);
+
+		expect(document.querySelector('h1').id).to.equal('heading-test');
+		expect(document.querySelector('h2').id).to.equal('subsection-2');
+		expect(document.querySelector('h3').id).to.equal('subsection-3');
+		expect(document.querySelector('h4').id).to.equal('subsection-4');
+		expect(document.querySelector('h5').id).to.equal('subsection-5');
+		expect(document.querySelector('h6').id).to.equal('subsection-6');
+	});
+
+	it('generates correct getHeadings() export', async () => {
+		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
+		expect(JSON.stringify(headingsByPage['./test-html.mdx'])).to.equal(
+			JSON.stringify([
+				{ depth: 1, slug: 'heading-test', text: 'Heading test' },
+				{ depth: 2, slug: 'subsection-2', text: 'Subsection 2' },
+				{ depth: 3, slug: 'subsection-3', text: 'Subsection 3' },
+				{ depth: 4, slug: 'subsection-4', text: 'Subsection 4' },
+				{ depth: 5, slug: 'subsection-5', text: 'Subsection 5' },
+				{ depth: 6, slug: 'subsection-6', text: 'Subsection 6' },
+			])
+		);
+	});
+});

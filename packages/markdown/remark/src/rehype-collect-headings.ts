@@ -3,9 +3,14 @@ import Slugger from 'github-slugger';
 import type { MdxTextExpression } from 'mdast-util-mdx-expression';
 import type { Node } from 'unist';
 import { visit } from 'unist-util-visit';
-
 import { InvalidAstroDataError, safelyGetAstroData } from './frontmatter-injection.js';
 import type { MarkdownAstroData, MarkdownHeading, MarkdownVFile, RehypePlugin } from './types.js';
+import type { Element } from 'hast';
+import type {
+	MdxJsxAttribute,
+	MdxJsxFlowElementHast,
+	MdxJsxTextElementHast,
+} from 'mdast-util-mdx-jsx';
 
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
 const codeTagNames = new Set(['code', 'pre']);
@@ -17,9 +22,9 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 		const isMDX = isMDXFile(file);
 		const astroData = safelyGetAstroData(file.data);
 		visit(tree, (node) => {
-			if (node.type !== 'element') return;
-			const { tagName } = node;
-			if (tagName[0] !== 'h') return;
+			if (!(node.type === 'element' || node.type === 'mdxJsxFlowElement')) return;
+			const tagName = extractTagNameFromNode(node);
+			if (tagName === null || tagName[0] !== 'h') return;
 			const [_, level] = tagName.match(/h([0-6])/) ?? [];
 			if (!level) return;
 			const depth = Number.parseInt(level);
@@ -35,34 +40,65 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 					}
 				}
 				if (rawNodeTypes.has(child.type)) {
-					if (isMDX || codeTagNames.has(parent.tagName)) {
-						let value = child.value;
-						if (isMdxTextExpression(child) && !(astroData instanceof InvalidAstroDataError)) {
-							const frontmatterPath = getMdxFrontmatterVariablePath(child);
-							if (Array.isArray(frontmatterPath) && frontmatterPath.length > 0) {
-								const frontmatterValue = getMdxFrontmatterVariableValue(astroData, frontmatterPath);
-								if (typeof frontmatterValue === 'string') {
-									value = frontmatterValue;
+					const parentTagName = extractTagNameFromNode(parent);
+					if (parentTagName) {
+						if (isMDX || codeTagNames.has(parentTagName)) {
+							let value;
+							if (child.type == 'raw') {
+								value = child.value;
+							} else if (child.type == 'text') {
+								value = child.value;
+							} else if (child.type == 'mdxTextExpression') {
+								value = child.value;
+							}
+							if (isMdxTextExpression(child) && !(astroData instanceof InvalidAstroDataError)) {
+								const frontmatterPath = getMdxFrontmatterVariablePath(child);
+								if (Array.isArray(frontmatterPath) && frontmatterPath.length > 0) {
+									const frontmatterValue = getMdxFrontmatterVariableValue(
+										astroData,
+										frontmatterPath
+									);
+									if (typeof frontmatterValue === 'string') {
+										value = frontmatterValue;
+									}
 								}
 							}
+							text += value;
+						} else {
+							if (typeof (child as any).value !== 'undefined') {
+								text += (child as any).value.replace(/\{/g, '${');
+							}
 						}
-						text += value;
-					} else {
-						text += child.value.replace(/\{/g, '${');
 					}
 				}
 			});
 
-			node.properties = node.properties || {};
-			if (typeof node.properties.id !== 'string') {
+			if (nodeIsElement(node)) {
+				node.properties = node.properties || {};
+				if (typeof node.properties.id !== 'string') {
+					let slug = slugger.slug(text);
+
+					if (slug.endsWith('-')) slug = slug.slice(0, -1);
+
+					node.properties.id = slug;
+				}
+
+				headings.push({ depth, slug: node.properties.id, text });
+			} else if (nodeIsJsxFlowElement(node)) {
+				node.attributes = node.attributes || {};
 				let slug = slugger.slug(text);
 
 				if (slug.endsWith('-')) slug = slug.slice(0, -1);
 
-				node.properties.id = slug;
-			}
+				const attribute: MdxJsxAttribute = {
+					type: 'mdxJsxAttribute',
+					value: slug,
+					name: 'id',
+				};
+				node.attributes.push(attribute);
 
-			headings.push({ depth, slug: node.properties.id, text });
+				headings.push({ depth, slug, text });
+			}
 		});
 
 		file.data.__astroHeadings = headings;
@@ -127,3 +163,33 @@ function isMdxTextExpression(node: Node): node is MdxTextExpression {
 
 type MdxFrontmatterVariableValue =
 	MarkdownAstroData['frontmatter'][keyof MarkdownAstroData['frontmatter']];
+
+function nodeIsJsxFlowElement(node: any): node is MdxJsxFlowElementHast {
+	if (node.type === 'mdxJsxFlowElement') {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function nodeIsElement(node: any): node is Element {
+	if (node.type === 'element') {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function extractTagNameFromNode(
+	node: Element | MdxJsxFlowElementHast | MdxJsxTextElementHast
+): string | null {
+	if (nodeIsJsxFlowElement(node)) {
+		return node.name;
+	} else if (nodeIsElement(node)) {
+		return node.tagName;
+	} else {
+		return null;
+	}
+}
+
+function extractRawValue(node: unknown) {}
