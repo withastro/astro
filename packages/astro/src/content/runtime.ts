@@ -88,7 +88,7 @@ export function createGetEntryBySlug({
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
-		const entryImport = getEntryImport(collection, slug);
+		const entryImport = await getEntryImport(collection, slug);
 		if (typeof entryImport !== 'function') return undefined;
 
 		const entry = await entryImport();
