@@ -45,12 +45,9 @@ export default function vercelServerless({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
-				throwIfAssetsNotEnabled(config, images);
-
 				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
-
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
@@ -63,6 +60,7 @@ export default function vercelServerless({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
+				throwIfAssetsNotEnabled(config, images);
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;

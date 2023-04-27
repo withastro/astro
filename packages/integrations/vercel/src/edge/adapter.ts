@@ -50,8 +50,6 @@ export default function vercelEdge({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ command, config, updateConfig, injectScript }) => {
-				throwIfAssetsNotEnabled(config, images);
-
 				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
@@ -67,6 +65,7 @@ export default function vercelEdge({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
+				throwIfAssetsNotEnabled(config, images);
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;

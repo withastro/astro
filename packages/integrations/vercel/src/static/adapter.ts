@@ -1,6 +1,10 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { getImageConfig, throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
+import {
+	getImageConfig,
+	throwIfAssetsNotEnabled,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
@@ -27,13 +31,10 @@ export default function vercelStatic({
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': ({ command, config, injectScript, updateConfig }) => {
-				throwIfAssetsNotEnabled(config, images);
-
 				if (command === 'build' && analytics) {
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
-
-        const outDir = new URL('./static/', getVercelOutput(config.root));
+				const outDir = new URL('./static/', getVercelOutput(config.root));
 				updateConfig({
 					outDir,
 					build: {
@@ -43,6 +44,7 @@ export default function vercelStatic({
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
+				throwIfAssetsNotEnabled(config, images);
 				setAdapter(getAdapter());
 				_config = config;
 
