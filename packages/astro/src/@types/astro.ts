@@ -1,3 +1,4 @@
+import './app.js';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -1439,7 +1440,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Object accessed via Astro middleware
 	 */
-	locals: AstroMiddleware.Locals;
+	locals: App.Locals;
 }
 
 export interface APIContext<Props extends Record<string, any> = Record<string, any>>
@@ -1515,9 +1516,29 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	redirect: AstroSharedContext['redirect'];
 
 	/**
-	 * TODO documentation
+	 * Object accessed via Astro middleware.
+	 *
+	 * Example usage:
+	 *
+	 * ```ts
+	 * // src/middleware.ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 *
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals.greeting = "Hello!";
+	 *   next();
+	 * });
+	 * ```
+	 * Inside the an astro file:
+	 * ```astro
+	 * ---
+	 * // index.astro
+	 * const greeting = Astro.locals.greeting;
+	 * ---
+	 * <h1>{greeting}</h1>
+	 * ```
 	 */
-	locals: AstroMiddleware.Locals;
+	locals: App.Locals;
 }
 
 export type Props = Record<string, unknown>;
@@ -1737,12 +1758,4 @@ export type CreatePreviewServer = (
 
 export interface PreviewModule {
 	default: CreatePreviewServer;
-}
-
-declare global {
-	// eslint-disable-next-line  @typescript-eslint/no-namespace
-	export namespace AstroMiddleware {
-		// eslint-disable-next-line  @typescript-eslint/no-empty-interface
-		export interface Locals {}
-	}
 }

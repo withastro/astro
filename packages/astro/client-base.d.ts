@@ -387,3 +387,9 @@ declare module '*?inline' {
 	const src: string;
 	export default src;
 }
+
+// eslint-disable-next-line  @typescript-eslint/no-namespace
+export namespace App {
+	// eslint-disable-next-line  @typescript-eslint/no-empty-interface
+	export interface Locals {}
+}

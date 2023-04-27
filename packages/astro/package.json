@@ -67,7 +67,7 @@
     },
     "./middleware": {
       "default": "./middleware.mjs",
-      "types": ""
+      "types": "./middleware.d.ts"
     }
   },
   "imports": {

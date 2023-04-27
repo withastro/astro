@@ -50,7 +50,7 @@ export interface CreateResultArgs {
 	componentMetadata?: SSRResult['componentMetadata'];
 	request: Request;
 	status: number;
-	locals: AstroMiddleware.Locals;
+	locals: App.Locals;
 }
 
 function getFunctionExpression(slot: any) {
