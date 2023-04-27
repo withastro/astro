@@ -2,7 +2,11 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import glob from 'fast-glob';
 import { pathToFileURL } from 'url';
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
+import {
+	getImageConfig,
+	throwIfAssetsNotEnabled,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
@@ -21,7 +25,8 @@ export interface VercelServerlessConfig {
 	includeFiles?: string[];
 	excludeFiles?: string[];
 	analytics?: boolean;
-	images?: VercelImageConfig;
+	images?: boolean;
+	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelServerless({
@@ -29,6 +34,7 @@ export default function vercelServerless({
 	excludeFiles,
 	analytics,
 	images,
+	imagesConfig,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -53,10 +59,7 @@ export default function vercelServerless({
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
 					},
-					image: {
-						service: '@astrojs/vercel/image-service',
-						serviceConfig: images ?? {},
-					},
+					...getImageConfig(images, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {

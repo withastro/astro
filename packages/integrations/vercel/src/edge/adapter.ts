@@ -4,7 +4,11 @@ import esbuild from 'esbuild';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
+import {
+	getImageConfig,
+	throwIfAssetsNotEnabled,
+	type VercelImageConfig,
+} from '../image/shared.js';
 import {
 	copyFilesToFunction,
 	getFilesFromFolder,
@@ -27,13 +31,15 @@ function getAdapter(): AstroAdapter {
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
 	analytics?: boolean;
-	images?: VercelImageConfig;
+	images?: boolean;
+	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelEdge({
 	includeFiles = [],
 	analytics,
 	images,
+	imagesConfig,
 }: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -57,10 +63,7 @@ export default function vercelEdge({
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
 					},
-					image: {
-						service: '@astrojs/vercel/image-service',
-						serviceConfig: images ?? {},
-					},
+					...getImageConfig(images, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {

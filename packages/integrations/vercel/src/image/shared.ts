@@ -1,5 +1,8 @@
-import type { AstroConfig, ImageQualityPreset, ImageTransform } from 'astro';
+import type { AstroConfig, ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
 
+export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
+	return typeof src === 'object';
+}
 // https://vercel.com/docs/build-output-api/v3/configuration#images
 type ImageFormat = 'image/avif' | 'image/webp';
 
@@ -49,15 +52,34 @@ export const qualityTable: Record<ImageQualityPreset, number> = {
 };
 
 // TODO: Remove once Astro 3.0 is out and `experimental.assets` is no longer needed
-export function throwIfAssetsNotEnabled(
-	config: AstroConfig,
-	imageConfig: VercelImageConfig | undefined
-) {
-	if (!config.experimental.assets && imageConfig) {
+export function throwIfAssetsNotEnabled(config: AstroConfig, images: boolean | undefined) {
+	if (!config.experimental.assets && images) {
 		throw new Error(
 			`Using the Vercel Image Optimization API requires \`experimental.assets\` to be enabled. See https://docs.astro.build/en/guides/assets/ for more information.`
 		);
 	}
+}
+
+export function getImageConfig(
+	images: boolean | undefined,
+	imagesConfig: VercelImageConfig | undefined,
+	command: string
+) {
+	if (images) {
+		return {
+			image: {
+				service:
+					command === 'dev'
+						? '@astrojs/vercel/dev-image-service'
+						: '@astrojs/vercel/build-image-service',
+				serviceConfig: imagesConfig ?? {
+					sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+				},
+			},
+		};
+	}
+
+	return {};
 }
 
 export function sharedValidateOptions(
@@ -71,27 +93,44 @@ export function sharedValidateOptions(
 		mode === 'development' &&
 		(!vercelImageOptions.sizes || vercelImageOptions.sizes.length === 0)
 	) {
-		console.warn('Vercel Image Optimization requires at least one size to be configured.');
+		throw new Error('Vercel Image Optimization requires at least one size to be configured.');
 	}
 
 	const configuredWidths = vercelImageOptions.sizes.sort((a, b) => a - b);
-	const largestWidth = configuredWidths.at(-1);
 
+	// The logic for finding the perfect width is a bit confusing, here it goes:
+	// For images where no width has been specified:
+	// - For local, imported images, fallback to nearest width we can find in our configured
+	// - For remote images, that's an error, width is always required.
+	// For images where a width has been specified:
+	// - If the width that the user asked for isn't in `sizes`, then fallback to the nearest one, but save the width
+	// 	the user asked for so we can put it on the `img` tag later.
+	// - Otherwise, just use as-is.
+	// The end goal is:
+	// - The size on the page is always the one the user asked for or the base image's size
+	// - The actual size of the image file is always one of `sizes`, either the one the user asked for or the nearest to it
 	if (!options.width) {
-		options.width = largestWidth;
+		const src = options.src;
+		if (isESMImportedImage(src)) {
+			const nearestWidth = configuredWidths.reduce((prev, curr) => {
+				return Math.abs(curr - src.width) < Math.abs(prev - src.width) ? curr : prev;
+			});
+
+			// Use the image's base width to inform the `width` and `height` on the `img` tag
+			options.inputtedWidth = src.width;
+			options.width = nearestWidth;
+		} else {
+			throw new Error(`Missing \`width\` parameter for remote image ${options.src}`);
+		}
 	} else {
 		if (!configuredWidths.includes(options.width)) {
 			const nearestWidth = configuredWidths.reduce((prev, curr) => {
 				return Math.abs(curr - options.width!) < Math.abs(prev - options.width!) ? curr : prev;
 			});
 
+			// Save the width the user asked for to inform the `width` and `height` on the `img` tag
+			options.inputtedWidth = options.width;
 			options.width = nearestWidth;
-
-			if (mode === 'development') {
-				console.warn(
-					`Width ${options.width} is currently missing from your Vercel Image Optimization configuration. Falling back to ${nearestWidth}.}`
-				);
-			}
 		}
 	}
 

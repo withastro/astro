@@ -1,18 +1,35 @@
 import type { LocalImageService } from 'astro';
+// @ts-expect-error
+import squooshService from 'astro/assets/services/squoosh';
 import { sharedValidateOptions } from './shared';
 
 const service: LocalImageService = {
-	validateOptions: (options) => sharedValidateOptions(options, {}, 'development'),
+	validateOptions: (options) =>
+		sharedValidateOptions(
+			options,
+			{ sizes: [640, 750, 828, 1080, 1200], domains: [] },
+			'development'
+		),
+	getHTMLAttributes(options) {
+		const { inputtedWidth, ...props } = options;
+
+		// If `validateOptions` returned a different width than the one of the image, use it for attributes
+		if (inputtedWidth) {
+			props.width = inputtedWidth;
+		}
+
+		return squooshService.getHTMLAttributes(props);
+	},
 	getURL(options) {
 		const fileSrc = typeof options.src === 'string' ? options.src : options.src.src;
 
 		const searchParams = new URLSearchParams();
-		searchParams.append('url', fileSrc);
+		searchParams.append('href', fileSrc);
 
 		options.width && searchParams.append('w', options.width.toString());
 		options.quality && searchParams.append('q', options.quality.toString());
 
-		return '/_image' + searchParams;
+		return '/_image?' + searchParams;
 	},
 	parseURL(url) {
 		const params = url.searchParams;
@@ -28,6 +45,16 @@ const service: LocalImageService = {
 		};
 
 		return transform;
+	},
+	transform(inputBuffer, transform) {
+		// NOTE: Hardcoding webp here isn't accurate to how the Vercel Image Optimization API works, normally what we should
+		// do is setup a custom endpoint that sniff the user's accept-content header and serve the proper format based on the
+		// user's Vercel config. However, that's: a lot of work for: not much. The dev service is inaccurate to the prod service
+		// in many more ways, this is one of the less offending cases and is, imo, okay, erika - 2023-04-27
+		transform.format = 'webp';
+
+		// The base Squoosh service works the same way as the Vercel Image Optimization API, so it's a safe fallback in local
+		return squooshService.transform(inputBuffer, transform);
 	},
 };
 

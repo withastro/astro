@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
+import { getImageConfig, throwIfAssetsNotEnabled, type VercelImageConfig } from '../image/shared.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
@@ -12,12 +12,14 @@ function getAdapter(): AstroAdapter {
 
 export interface VercelStaticConfig {
 	analytics?: boolean;
-	images?: VercelImageConfig;
+	images?: boolean;
+	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelStatic({
 	analytics,
 	images,
+	imagesConfig,
 }: VercelStaticConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 
@@ -36,10 +38,7 @@ export default function vercelStatic({
 					build: {
 						format: 'directory',
 					},
-					image: {
-						service: '@astrojs/vercel/image-service',
-						serviceConfig: images ?? {},
-					},
+					...getImageConfig(images, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
