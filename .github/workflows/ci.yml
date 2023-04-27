@@ -49,9 +49,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Status
-        run: git status
-
       # Lint autofix cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
       - name: Lint (External)
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner.login != github.repository_owner }}
@@ -79,17 +76,22 @@ jobs:
       - name: Format Check
         run: pnpm run format --check
 
-  # Build primes out build caches for Turbo
+  # Build primes out Turbo build cache and pnpm cache
   build:
     name: "Build: ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 3
     strategy:
       matrix:
-        OS: [ubuntu-latest]
+        OS: [ubuntu-latest, windows-latest]
         NODE_VERSION: [16]
       fail-fast: true
     steps:
+      # Disable crlf so all OS can share the same Turbo cache
+      # https://github.com/actions/checkout/issues/135
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -105,7 +107,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      # Only build in ubuntu as windows can share the build cache
       - name: Build Packages
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: pnpm run build
 
   test:
@@ -126,6 +130,9 @@ jobs:
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -165,6 +172,9 @@ jobs:
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -198,6 +208,9 @@ jobs:
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -218,6 +231,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      # Reset lockfile changes so that Turbo can reuse the old build cache
+      - name: Reset lockfile changes
+        run: git reset --hard
 
       - name: Build Packages
         run: pnpm run build
