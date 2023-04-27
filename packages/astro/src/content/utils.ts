@@ -52,7 +52,7 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function getEntrySlug({
+export function parseEntrySlug({
 	id,
 	collection,
 	generatedSlug,
@@ -422,21 +422,50 @@ export async function getStringifiedLookupMap({
 		contentGlob.map(async (filePath) => {
 			const info = getEntryInfo({ contentDir, entry: filePath });
 			if (info instanceof NoCollectionError) return;
-			const contentEntryConfig = contentEntryConfigByExt.get(extname(filePath));
-			if (!contentEntryConfig) return;
+			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+			if (!contentEntryType) return;
 
 			const { id, collection, slug: generatedSlug } = info;
 			filePathByLookupId[collection] ??= {};
-			const { slug: frontmatterSlug } = await contentEntryConfig.getEntryInfo({
+			const slug = await getEntrySlug({
+				id,
+				collection,
+				generatedSlug,
+				fs,
 				fileUrl: pathToFileURL(filePath),
-				contents: await fs.promises.readFile(filePath, 'utf-8'),
+				contentEntryType,
 			});
-			const slug = getEntrySlug({ id, collection, generatedSlug, frontmatterSlug });
 			filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
 		})
 	);
 
 	return JSON.stringify(filePathByLookupId);
+}
+
+/**
+ * Check for slug in content entry frontmatter and validate the type,
+ * falling back to the `generatedSlug` if none is found.
+ */
+export async function getEntrySlug({
+	id,
+	collection,
+	generatedSlug,
+	contentEntryType,
+	fileUrl,
+	fs,
+}: {
+	fs: typeof fsMod;
+	id: string;
+	collection: string;
+	generatedSlug: string;
+	fileUrl: URL;
+	contentEntryType: Pick<ContentEntryType, 'getEntryInfo'>;
+}) {
+	const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
+		fileUrl,
+		contents: await fs.promises.readFile(fileUrl, 'utf-8'),
+	});
+	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
 }
 
 export function getExtGlob(exts: string[]) {

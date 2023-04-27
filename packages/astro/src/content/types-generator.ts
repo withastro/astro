@@ -12,16 +12,15 @@ import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentPaths,
 	getEntryInfo,
-	getEntrySlug,
 	getEntryType,
 	loadContentConfig,
 	NoCollectionError,
-	parseFrontmatter,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
 	type EntryInfo,
 	getContentEntryConfigByExtMap,
+	getEntrySlug,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -187,14 +186,23 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, collection } = entryInfo;
+		const { id, collection, slug: generatedSlug } = entryInfo;
+		const contentEntryType = contentEntryConfigByExt.get(path.extname(event.entry.pathname));
+		if (!contentEntryType) return { shouldGenerateTypes: false };
 
 		const collectionKey = JSON.stringify(collection);
 		const entryKey = JSON.stringify(id);
 
 		switch (event.name) {
 			case 'add':
-				const addedSlug = await parseSlug({ fs, event, entryInfo });
+				const addedSlug = await getEntrySlug({
+					generatedSlug,
+					id,
+					collection,
+					fileUrl: event.entry,
+					contentEntryType,
+					fs,
+				});
 				if (!(collectionKey in contentTypes)) {
 					addCollection(contentTypes, collectionKey);
 				}
@@ -210,7 +218,14 @@ export async function createContentTypesGenerator({
 			case 'change':
 				// User may modify `slug` in their frontmatter.
 				// Only regen types if this change is detected.
-				const changedSlug = await parseSlug({ fs, event, entryInfo });
+				const changedSlug = await getEntrySlug({
+					generatedSlug,
+					id,
+					collection,
+					fileUrl: event.entry,
+					contentEntryType,
+					fs,
+				});
 				if (contentTypes[collectionKey]?.[entryKey]?.slug !== changedSlug) {
 					setEntry(contentTypes, collectionKey, entryKey, changedSlug);
 					return { shouldGenerateTypes: true };
@@ -307,25 +322,6 @@ function addCollection(contentMap: ContentTypes, collectionKey: string) {
 
 function removeCollection(contentMap: ContentTypes, collectionKey: string) {
 	delete contentMap[collectionKey];
-}
-
-async function parseSlug({
-	fs,
-	event,
-	entryInfo: { id, collection, slug: generatedSlug },
-}: {
-	fs: typeof fsMod;
-	event: ContentEvent;
-	entryInfo: EntryInfo;
-}) {
-	// `slug` may be present in entry frontmatter.
-	// This should be respected by the generated `slug` type!
-	// Parse frontmatter and retrieve `slug` value for this.
-	// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
-	// on dev server startup or production build init.
-	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
-	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
-	return getEntrySlug({ id, collection, generatedSlug, frontmatterSlug: frontmatter.slug });
 }
 
 function setEntry(
