@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.4.5
+
+### Patch Changes
+
+- 8ff8bdf: Update compiler version to fix Windows mapping issue
+
 ## 0.4.4
 
 ### Patch Changes

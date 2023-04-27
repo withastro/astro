@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.29.8
+
+### Patch Changes
+
+- 8ff8bdf: Update compiler version to fix Windows mapping issue
+
 ## 0.29.6
 
 ### Patch Changes

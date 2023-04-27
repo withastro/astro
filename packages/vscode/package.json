@@ -23,7 +23,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "0.29.7",
+  "version": "0.29.8",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -50,12 +50,12 @@
   "dependencies": {
     "@astrojs/compiler": "^1.3.2",
     "synckit": "0.8.4",
-    "@astrojs/ts-plugin": "0.4.4",
+    "@astrojs/ts-plugin": "0.4.5",
     "prettier": "^2.8.8",
     "prettier-plugin-astro": "^0.8.0"
   },
   "devDependencies": {
-    "@astrojs/language-server": "0.29.6",
+    "@astrojs/language-server": "0.29.8",
     "@types/mocha": "^9.1.0",
     "@types/vscode": "^1.67.0",
     "@vscode/test-electron": "^2.1.3",

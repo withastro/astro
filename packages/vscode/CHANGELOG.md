@@ -1,5 +1,14 @@
 # astro-vscode
 
+## 0.29.8
+
+### Patch Changes
+
+- 53ad6ce: Add file template snippets when opening a new file
+- 8ff8bdf: Update compiler version to fix Windows mapping issue
+- Updated dependencies [8ff8bdf]
+  - @astrojs/ts-plugin@0.4.5
+
 ## 0.29.7
 
 ### Patch Changes
