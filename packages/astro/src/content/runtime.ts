@@ -11,9 +11,10 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 
-type GlobResult = Record<string, () => Promise<any>>;
+type LazyImport = () => Promise<any>;
+type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
-type GetEntryImport = (collection: string, lookupId: string) => () => Promise<any>;
+type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -63,7 +64,7 @@ export function createGetCollection({
 							return render({
 								collection: entry.collection,
 								id: entry.id,
-								renderEntryImport: getRenderEntryImport(collection, entry.slug),
+								renderEntryImport: await getRenderEntryImport(collection, entry.slug),
 							});
 						},
 					};
@@ -116,7 +117,7 @@ async function render({
 }: {
 	collection: string;
 	id: string;
-	renderEntryImport?: ReturnType<GetEntryImport>;
+	renderEntryImport?: LazyImport;
 }) {
 	const UnexpectedRenderError = new AstroError({
 		...AstroErrorData.UnknownContentCollectionError,
