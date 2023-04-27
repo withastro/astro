@@ -335,6 +335,12 @@ export interface ViteUserConfig extends vite.UserConfig {
 	ssr?: vite.SSROptions;
 }
 
+export interface ImageServiceConfig {
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
+	config?: Record<string, any>;
+}
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -746,26 +752,26 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name image.service (Experimental)
-		 * @type {'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string}
-		 * @default `'astro/assets/services/squoosh'`
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | string, config: Record<string, any>}}
+		 * @default `{entrypoint: 'astro/assets/services/squoosh', config?: {}}`
 		 * @version 2.1.0
 		 * @description
 		 * Set which image service is used for Astro’s experimental assets support.
 		 *
-		 * The value should be a module specifier for the image service to use:
-		 * either one of Astro’s two built-in services, or a third-party implementation.
+		 * The value should be an object with an entrypoint for the image service to use and optionally, a config object to pass to the service.
+		 *
+		 * The service entrypoint can be either one of the included services, or a third-party package.
 		 *
 		 * ```js
 		 * {
 		 *   image: {
 		 *     // Example: Enable the Sharp-based image service
-		 *     service: 'astro/assets/services/sharp',
+		 *     service: { entrypoint: 'astro/assets/services/sharp' },
 		 *   },
 		 * }
 		 * ```
 		 */
-		// eslint-disable-next-line @typescript-eslint/ban-types
-		service: 'astro/assets/services/sharp' | 'astro/assets/services/squoosh' | (string & {});
+		service: ImageServiceConfig;
 	};
 
 	/**
