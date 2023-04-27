@@ -30,6 +30,11 @@
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
+  "workspaces": [
+    "packages/markdown/*",
+    "packages/integrations/*",
+    "packages/*"
+  ],
   "engines": {
     "node": ">=16.12.0",
     "pnpm": ">=8.2.0"

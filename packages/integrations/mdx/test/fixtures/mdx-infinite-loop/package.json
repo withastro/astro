@@ -1,6 +1,7 @@
 {
   "name": "@test/mdx-infinite-loop",
   "type": "module",
+  "private": true,
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
     "@astrojs/preact": "workspace:*",

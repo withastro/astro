@@ -1,1 +1,4 @@
-{"name": "@test/create-astro-not-empty"}
+{
+  "name": "@test/create-astro-not-empty",
+  "private": true
+}
