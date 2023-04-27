@@ -242,4 +242,5 @@ jobs:
       - name: Test
         run: pnpm run test:smoke
         env:
-          SKIP_OG: 1
+          SKIP_OG: true
+          PUBLIC_TWO_LANG: true
