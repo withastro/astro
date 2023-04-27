@@ -28,10 +28,10 @@ import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import {
 	debounceThrottle,
 	getAstroInstall,
+	getWorkspacePnpPath,
 	isAstroWorkspace,
 	normalizeUri,
 	urlToPath,
-	getWorkspacePnpPath,
 } from './utils';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
