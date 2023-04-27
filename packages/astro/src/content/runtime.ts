@@ -63,7 +63,7 @@ export function createGetCollection({
 							return render({
 								collection: entry.collection,
 								id: entry.id,
-								renderEntryImport: await getRenderEntryImport(collection, entry.slug),
+								renderEntryImport: getRenderEntryImport(collection, entry.slug),
 							});
 						},
 					};
