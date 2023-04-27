@@ -16,7 +16,6 @@ import {
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
-import { getContentEntryExts } from './utils.js';
 
 function isPropagatedAsset(viteId: string) {
 	const flags = new URLSearchParams(viteId.split('?')[1]);
@@ -31,7 +30,6 @@ export function astroContentAssetPropagationPlugin({
 	settings: AstroSettings;
 }): Plugin {
 	let devModuleLoader: ModuleLoader;
-	const contentEntryExts = getContentEntryExts(settings);
 	return {
 		name: 'astro:content-asset-propagation',
 		configureServer(server) {
