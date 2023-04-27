@@ -14,7 +14,7 @@ import {
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
-	getEntrySlug,
+	parseEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
 	NoCollectionError,
@@ -221,7 +221,7 @@ export function astroContentImportPlugin({
 		const _internal = { filePath: fileId, rawData: rawData };
 		// TODO: move slug calculation to the start of the build
 		// to generate a performant lookup map for `getEntryBySlug`
-		const slug = getEntrySlug({
+		const slug = parseEntrySlug({
 			id,
 			collection,
 			generatedSlug,
