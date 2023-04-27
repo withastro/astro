@@ -33,21 +33,19 @@ export function astroContentAssetPropagationPlugin({
 		enforce: 'pre',
 		async resolveId(id, importer, opts) {
 			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
-				const resolvedBase = await this.resolve(id.split('?')[0], importer, {
-					skipSelf: true,
-					...opts,
-				});
-				if (!resolvedBase) return;
-				const base = resolvedBase.id;
+				const base = id.split('?')[0];
 
 				for (const { extensions, handlePropagation = true } of settings.contentEntryTypes) {
 					if (handlePropagation && extensions.includes(extname(base))) {
-						return `${base}?${PROPAGATED_ASSET_FLAG}`;
+						return this.resolve(`${base}?${PROPAGATED_ASSET_FLAG}`, importer, {
+							skipSelf: true,
+							...opts,
+						});
 					}
 				}
 				// Resolve to the base id (no content flags)
 				// if Astro doesn't need to handle propagation.
-				return base;
+				return this.resolve(base, importer, { skipSelf: true, ...opts });
 			}
 		},
 		configureServer(server) {
@@ -56,7 +54,7 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		async transform(_, id, options) {
-			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
+			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
 
