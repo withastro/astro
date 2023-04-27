@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/hydration-race/',
+	root: new URL('./fixtures/hydration-race/', import.meta.url),
 });
 
 let devServer;

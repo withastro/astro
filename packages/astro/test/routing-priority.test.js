@@ -133,7 +133,7 @@ describe('Routing priority', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/routing-priority/',
+				root: new URL('./fixtures/routing-priority/', import.meta.url),
 			});
 			await fixture.build();
 		});
@@ -173,7 +173,7 @@ describe('Routing priority', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/routing-priority/',
+				root: new URL('./fixtures/routing-priority/', import.meta.url),
 			});
 
 			devServer = await fixture.startDevServer();

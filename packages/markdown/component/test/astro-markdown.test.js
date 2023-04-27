@@ -7,7 +7,7 @@ describe('Astro Markdown', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-markdown/',
+			root: new URL('./fixtures/astro-markdown/', import.meta.url),
 		});
 		await fixture.build();
 	});

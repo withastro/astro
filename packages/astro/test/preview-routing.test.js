@@ -11,7 +11,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4000/', import.meta.url),
 					build: {
@@ -70,7 +70,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4001/', import.meta.url),
 					trailingSlash: 'always',
@@ -130,7 +130,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002/', import.meta.url),
 					trailingSlash: 'ignore',
@@ -192,7 +192,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4003/', import.meta.url),
 					build: {
@@ -251,7 +251,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4004/', import.meta.url),
 					build: {
@@ -314,7 +314,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4005/', import.meta.url),
 					build: {
@@ -377,7 +377,7 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 					base: '/blog',
 					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4006/', import.meta.url),
 					build: {

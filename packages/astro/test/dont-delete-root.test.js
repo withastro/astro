@@ -10,7 +10,7 @@ describe('outDir set to project root', async () => {
 	let error;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/dont-delete-me/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/dont-delete-me/', import.meta.url) });
 		try {
 			await fixture.build();
 		} catch (err) {

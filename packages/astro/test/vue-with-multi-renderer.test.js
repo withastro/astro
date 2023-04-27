@@ -7,7 +7,7 @@ describe('Vue with multi-renderer', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/vue-with-multi-renderer/',
+			root: new URL('./fixtures/vue-with-multi-renderer/', import.meta.url),
 		});
 	});
 

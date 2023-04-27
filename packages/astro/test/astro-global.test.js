@@ -7,7 +7,7 @@ describe('Astro Global', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-global/',
+			root: new URL('./fixtures/astro-global/', import.meta.url),
 			site: 'https://mysite.dev/blog/',
 			base: '/blog',
 		});
@@ -86,7 +86,7 @@ describe('Astro Global Defaults', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-global/',
+			root: new URL('./fixtures/astro-global/', import.meta.url),
 		});
 	});
 

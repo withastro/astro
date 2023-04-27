@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/invalidate-script-deps/',
+	root: new URL('./fixtures/invalidate-script-deps/', import.meta.url),
 });
 
 let devServer;

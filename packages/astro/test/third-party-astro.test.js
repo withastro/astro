@@ -7,7 +7,7 @@ describe('third-party .astro component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/third-party-astro/',
+			root: new URL('./fixtures/third-party-astro/', import.meta.url),
 		});
 	});
 

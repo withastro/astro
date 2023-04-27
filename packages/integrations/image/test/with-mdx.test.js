@@ -10,7 +10,7 @@ describe('Images in MDX - build', function () {
 	let html;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/with-mdx/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/with-mdx/', import.meta.url) });
 		await fixture.build();
 
 		html = await fixture.readFile('/index.html');

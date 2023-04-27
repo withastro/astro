@@ -8,7 +8,7 @@ describe('Preact compat component', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/preact-compat-component/',
+				root: new URL('./fixtures/preact-compat-component/', import.meta.url),
 			});
 			await fixture.startDevServer();
 		});
@@ -26,7 +26,7 @@ describe('Preact compat component', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/preact-compat-component/',
+				root: new URL('./fixtures/preact-compat-component/', import.meta.url),
 			});
 			await fixture.build();
 		});

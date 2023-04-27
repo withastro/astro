@@ -5,7 +5,7 @@ describe('Public', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-public/', import.meta.url) });
 		await fixture.build();
 	});
 

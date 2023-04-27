@@ -11,7 +11,7 @@ describe('PostCSS', function () {
 	before(async () => {
 		this.timeout(45000); // test needs a little more time in CI
 		fixture = await loadFixture({
-			root: './fixtures/postcss',
+			root: new URL('./fixtures/postcss/', import.meta.url),
 		});
 		await fixture.build();
 

@@ -9,7 +9,7 @@ describe('Astro Markdown', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: FIXTURE_ROOT,
+			root: new URL(FIXTURE_ROOT, import.meta.url),
 		});
 		await fixture.build();
 	});
@@ -40,7 +40,7 @@ describe('Astro Markdown', () => {
 
 		it('handles Prism', async () => {
 			const prismFixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				markdown: {
 					syntaxHighlight: 'prism',
 				},

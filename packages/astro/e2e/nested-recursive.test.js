@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/nested-recursive/' });
+		const fixture = await loadFixture({ root: new URL('./fixtures/nested-recursive/', import.meta.url) });
 		await use(fixture);
 	},
 });

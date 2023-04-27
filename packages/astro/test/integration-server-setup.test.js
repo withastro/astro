@@ -8,7 +8,7 @@ describe('Integration server setup', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/integration-server-setup/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/integration-server-setup/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 

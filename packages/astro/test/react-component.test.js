@@ -7,7 +7,7 @@ let fixture;
 describe('React Components', () => {
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/react-component/',
+			root: new URL('./fixtures/react-component/', import.meta.url),
 		});
 	});
 

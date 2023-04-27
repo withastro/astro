@@ -10,7 +10,7 @@ let fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/config-vite-css-target/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/config-vite-css-target/', import.meta.url) });
 	});
 
 	describe('build', () => {

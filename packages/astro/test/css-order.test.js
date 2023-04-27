@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('CSS production ordering', () => {
 	function getLinks(html) {
@@ -29,7 +29,7 @@ describe('CSS production ordering', () => {
 		let staticCSS, serverCSS;
 
 		const commonConfig = Object.freeze({
-			root: './fixtures/css-order/',
+			root: new URL('./fixtures/css-order/', import.meta.url),
 		});
 
 		before(async () => {
@@ -49,7 +49,7 @@ describe('CSS production ordering', () => {
 			});
 			await fixture.build();
 
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/one');
 			const response = await app.render(request);
 			serverHTML = await response.text();
@@ -74,7 +74,7 @@ describe('CSS production ordering', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/css-order/',
+				root: new URL('./fixtures/css-order/', import.meta.url),
 			});
 			await fixture.build();
 		});

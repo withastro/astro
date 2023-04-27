@@ -6,7 +6,7 @@ describe('Object style', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-object-style/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-object-style/', import.meta.url) });
 		await fixture.build();
 	});
 

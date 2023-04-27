@@ -11,7 +11,7 @@ describe('Errors in JavaScript', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/error-bad-js',
+			root: new URL('./fixtures/error-bad-js/', import.meta.url),
 			vite: {
 				logLevel: 'silent',
 			},

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-script-style-raw/', import.meta.url);
+const FIXTURE_ROOT = './fixtures/mdx-script-style-raw/';
 
 describe('MDX script style raw', () => {
 	describe('dev', () => {
@@ -12,7 +12,7 @@ describe('MDX script style raw', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				integrations: [mdx()],
 			});
 			devServer = await fixture.startDevServer();
@@ -46,7 +46,7 @@ describe('MDX script style raw', () => {
 	describe('build', () => {
 		it('works with with raw script and style strings', async () => {
 			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				integrations: [mdx()],
 			});
 			await fixture.build();

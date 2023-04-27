@@ -7,7 +7,7 @@ describe('Integration addPageExtension', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/integration-add-page-extension/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/integration-add-page-extension/', import.meta.url) });
 		await fixture.build();
 	});
 

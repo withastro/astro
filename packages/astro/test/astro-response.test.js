@@ -10,7 +10,7 @@ describe('Returning responses', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-response/',
+			root: new URL('./fixtures/astro-response/', import.meta.url),
 		});
 
 		devServer = await fixture.startDevServer();

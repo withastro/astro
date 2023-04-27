@@ -8,7 +8,7 @@ describe('test URIs beginning with a dot', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/well-known-locations/',
+			root: new URL('./fixtures/well-known-locations/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});

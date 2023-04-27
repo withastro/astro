@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('SSR Assets', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -8,7 +8,7 @@ describe('SSR Assets', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-assets/',
+			root: new URL('./fixtures/ssr-assets/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -16,9 +16,9 @@ describe('SSR Assets', () => {
 	});
 
 	it('Do not have to implement getStaticPaths', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { manifest } = await fixture.loadTestAdapterApp();
 		/** @type {Set<string>} */
-		const assets = app.manifest.assets;
+		const assets = manifest.assets;
 		expect(assets.size).to.equal(1);
 		expect(Array.from(assets)[0].endsWith('.css')).to.be.true;
 	});

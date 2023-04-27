@@ -8,7 +8,7 @@ describe('Environment Variables', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-envs/',
+			root: new URL('./fixtures/astro-envs/', import.meta.url),
 		});
 	});
 

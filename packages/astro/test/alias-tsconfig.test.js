@@ -29,7 +29,7 @@ describe('Aliases with tsconfig.json', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/alias-tsconfig/',
+			root: new URL('./fixtures/alias-tsconfig/', import.meta.url),
 		});
 	});
 

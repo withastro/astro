@@ -6,7 +6,7 @@ describe('API routes', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/api-routes/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/api-routes/', import.meta.url) });
 		await fixture.build();
 	});
 

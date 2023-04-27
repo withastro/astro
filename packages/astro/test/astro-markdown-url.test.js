@@ -8,7 +8,7 @@ describe('Astro Markdown URL', () => {
 
 		it('trailingSlash: always', async () => {
 			let fixture = await loadFixture({
-				root: './fixtures/astro-markdown-url/',
+				root: new URL('./fixtures/astro-markdown-url/', import.meta.url),
 				outDir: new URL('./fixtures/astro-markdown-url/with-subpath-always/', import.meta.url),
 				base: '/my-cool-base',
 				trailingSlash: 'always',
@@ -23,7 +23,7 @@ describe('Astro Markdown URL', () => {
 
 		it('trailingSlash: never', async () => {
 			let fixture = await loadFixture({
-				root: './fixtures/astro-markdown-url/',
+				root: new URL('./fixtures/astro-markdown-url/', import.meta.url),
 				outDir: new URL('./fixtures/astro-markdown-url/with-subpath-never/', import.meta.url),
 				base: '/my-cool-base',
 				trailingSlash: 'never',
@@ -38,7 +38,7 @@ describe('Astro Markdown URL', () => {
 
 		it('trailingSlash: ignore', async () => {
 			let fixture = await loadFixture({
-				root: './fixtures/astro-markdown-url/',
+				root: new URL('./fixtures/astro-markdown-url/', import.meta.url),
 				outDir: new URL('./fixtures/astro-markdown-url/with-subpath-ignore/', import.meta.url),
 				base: '/my-cool-base',
 				trailingSlash: 'ignore',
@@ -57,7 +57,7 @@ describe('Astro Markdown URL', () => {
 
 		it('trailingSlash: always', async () => {
 			let fixture = await loadFixture({
-				root: './fixtures/astro-markdown-url/',
+				root: new URL('./fixtures/astro-markdown-url/', import.meta.url),
 				outDir: new URL('./fixtures/astro-markdown-url/without-subpath-always/', import.meta.url),
 				trailingSlash: 'always',
 			});
@@ -71,7 +71,7 @@ describe('Astro Markdown URL', () => {
 
 		it('trailingSlash: never', async () => {
 			let fixture = await loadFixture({
-				root: './fixtures/astro-markdown-url/',
+				root: new URL('./fixtures/astro-markdown-url/', import.meta.url),
 				outDir: new URL('./fixtures/astro-markdown-url/without-subpath-never/', import.meta.url),
 				trailingSlash: 'never',
 			});
@@ -85,7 +85,7 @@ describe('Astro Markdown URL', () => {
 
 		it('trailingSlash: ignore', async () => {
 			let fixture = await loadFixture({
-				root: './fixtures/astro-markdown-url/',
+				root: new URL('./fixtures/astro-markdown-url/', import.meta.url),
 				outDir: new URL('./fixtures/astro-markdown-url/without-subpath-ignore/', import.meta.url),
 				trailingSlash: 'ignore',
 			});

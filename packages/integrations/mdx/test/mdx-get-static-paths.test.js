@@ -4,14 +4,14 @@ import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import * as cheerio from 'cheerio';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-get-static-paths', import.meta.url);
+const FIXTURE_ROOT = './fixtures/mdx-get-static-paths';
 
 describe('getStaticPaths', () => {
 	/** @type {import('astro/test/test-utils').Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: FIXTURE_ROOT,
+			root: new URL(FIXTURE_ROOT, import.meta.url),
 			integrations: [mdx()],
 		});
 		await fixture.build();

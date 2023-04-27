@@ -8,7 +8,7 @@ let fixture;
 
 describe('Image rotation', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/rotation/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/rotation/', import.meta.url) });
 	});
 
 	function verifyImage(pathname, expected) {

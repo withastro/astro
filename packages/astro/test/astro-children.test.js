@@ -6,7 +6,7 @@ describe('Component children', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-children/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-children/', import.meta.url) });
 		await fixture.build();
 	});
 

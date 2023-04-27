@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import * as cheerio from 'cheerio';
 
@@ -11,7 +11,7 @@ describe('Astro.clientAddress', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/client-address/',
+				root: new URL('./fixtures/client-address/', import.meta.url),
 				output: 'server',
 				adapter: testAdapter(),
 			});
@@ -23,7 +23,7 @@ describe('Astro.clientAddress', () => {
 			});
 
 			it('Can get the address', async () => {
-				const app = await fixture.loadTestAdapterApp();
+				const { manifest, app } = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/');
 				const response = await app.render(request);
 				const html = await response.text();
@@ -64,7 +64,7 @@ describe('Astro.clientAddress', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/client-address/',
+				root: new URL('./fixtures/client-address/', import.meta.url),
 				output: 'server',
 				adapter: testAdapter({ provideAddress: false }),
 			});
@@ -72,7 +72,7 @@ describe('Astro.clientAddress', () => {
 		});
 
 		it('Gets an error message', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			expect(response.status).to.equal(500);
@@ -85,7 +85,7 @@ describe('Astro.clientAddress', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/client-address/',
+				root: new URL('./fixtures/client-address/', import.meta.url),
 				output: 'static',
 			});
 		});

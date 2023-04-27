@@ -7,7 +7,7 @@ describe('Assets in CSS', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-assets/',
+			root: new URL('./fixtures/css-assets/', import.meta.url),
 			vite: {
 				build: {
 					assetsInlineLimit: 0,

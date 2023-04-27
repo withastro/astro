@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
 
-const { test, createTests } = prepareTestFactory({ root: './fixtures/svelte-component/' });
+const { test, createTests } = prepareTestFactory({ root: new URL('./fixtures/svelte-component/', import.meta.url) });
 
 const config = {
 	componentFilePath: './src/components/SvelteComponent.svelte',

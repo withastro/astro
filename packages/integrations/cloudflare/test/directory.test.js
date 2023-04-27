@@ -8,7 +8,7 @@ describe('mode: "directory"', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basics/',
+			root: new URL('./fixtures/basics/', import.meta.url),
 			output: 'server',
 			adapter: cloudflare({ mode: 'directory' }),
 		});

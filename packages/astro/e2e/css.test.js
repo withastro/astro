@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { getColor, isWindows, testFactory } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/css/',
+	root: new URL('./fixtures/css/', import.meta.url),
 });
 
 let devServer;

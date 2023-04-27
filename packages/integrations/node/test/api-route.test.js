@@ -8,7 +8,7 @@ describe('API routes', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/api-route/',
+			root: new URL('./fixtures/api-route/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'middleware' }),
 		});

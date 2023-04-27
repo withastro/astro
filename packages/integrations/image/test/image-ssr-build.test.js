@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from '../../../astro/test/test-adapter.js';
+import testAdapter from '../../../astro/dist/testing/ssr-adapter.js'
 
 describe('SSR images - build', async function () {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic-image/',
+			root: new URL('./fixtures/basic-image/', import.meta.url),
 			adapter: testAdapter({ streaming: false }),
 			output: 'server',
 		});
@@ -92,7 +92,7 @@ describe('SSR images - build', async function () {
 		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { manifest, app } = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
@@ -124,7 +124,7 @@ describe('SSR images with subpath - build', function () {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic-image/',
+			root: new URL('./fixtures/basic-image/', import.meta.url),
 			adapter: testAdapter({ streaming: false }),
 			output: 'server',
 			base: '/docs',
@@ -214,7 +214,7 @@ describe('SSR images with subpath - build', function () {
 		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/docs/');
 			const response = await app.render(request);

@@ -9,7 +9,7 @@ describe('URL protocol', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/url-protocol/',
+			root: new URL('./fixtures/url-protocol/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});

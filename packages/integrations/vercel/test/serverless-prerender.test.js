@@ -7,7 +7,7 @@ describe('Serverless prerender', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/serverless-prerender/',
+			root: new URL('./fixtures/serverless-prerender/', import.meta.url),
 		});
 	});
 

@@ -7,7 +7,7 @@ describe('Custom 404 Markdown', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-md/',
+			root: new URL('./fixtures/custom-404-md/', import.meta.url),
 		});
 	});
 

@@ -9,7 +9,7 @@ describe('Not returning responses', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-not-response/',
+			root: new URL('./fixtures/astro-not-response/', import.meta.url),
 		});
 
 		devServer = await fixture.startDevServer();

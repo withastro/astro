@@ -1,18 +1,22 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
+import prefetch from "../dist/index.js";
 
-const test = testFactory({ root: './fixtures/basic-prefetch/' });
+const test = testFactory({
+	root: new URL('./fixtures/basic-prefetch/', import.meta.url),
+	integrations: [
+	  prefetch(),
+  ],
+});
 
 test.describe('Basic prefetch', () => {
 	test.describe('dev', () => {
-		let devServer;
-
 		test.beforeEach(async ({ astro }) => {
-			devServer = await astro.startDevServer();
+			await astro.startDevServer();
 		});
 
-		test.afterEach(async () => {
-			await devServer.stop();
+		test.afterEach(async ({ astro }) => {
+			await astro.stopDevServer();
 		});
 
 		test.describe('prefetches rel="prefetch" links', () => {
@@ -40,16 +44,14 @@ test.describe('Basic prefetch', () => {
 	});
 
 	test.describe('build', () => {
-		let previewServer;
-
 		test.beforeAll(async ({ astro }) => {
 			await astro.build();
-			previewServer = await astro.preview();
+			await astro.startPreviewServer();
 		});
 
 		// important: close preview server (free up port and connection)
-		test.afterAll(async () => {
-			await previewServer.stop();
+		test.afterAll(async ({ astro }) => {
+			await astro.stopPreviewServer();
 		});
 
 		test.describe('prefetches rel="prefetch" links', () => {

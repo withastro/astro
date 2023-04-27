@@ -2,14 +2,14 @@ import * as devalue from 'devalue';
 import * as cheerio from 'cheerio';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
-import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
+import { preventNodeBuiltinDependencyPlugin } from '../dist/testing/plugins.js';
 
 describe('Content Collections', () => {
 	describe('Query', () => {
 		let fixture;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-collections/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/content-collections/', import.meta.url) });
 			await fixture.build();
 		});
 
@@ -159,7 +159,7 @@ describe('Content Collections', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/content-static-paths-integration/', import.meta.url) });
 			await fixture.build();
 		});
 
@@ -190,7 +190,7 @@ describe('Content Collections', () => {
 
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
-			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
+			const fixture = await loadFixture({ root: new URL('./fixtures/content with spaces in folder name/', import.meta.url) });
 			let error = null;
 			try {
 				await fixture.build();
@@ -203,7 +203,7 @@ describe('Content Collections', () => {
 	describe('With config.mjs', () => {
 		it("Errors when frontmatter doesn't match schema", async () => {
 			const fixture = await loadFixture({
-				root: './fixtures/content-collections-with-config-mjs/',
+				root: new URL('./fixtures/content-collections-with-config-mjs/', import.meta.url),
 			});
 			let error;
 			try {
@@ -218,7 +218,7 @@ describe('Content Collections', () => {
 	describe('With empty markdown file', () => {
 		it('Throws the right error', async () => {
 			const fixture = await loadFixture({
-				root: './fixtures/content-collections-empty-md-file/',
+				root: new URL('./fixtures/content-collections-empty-md-file/', import.meta.url),
 			});
 			let error;
 			try {
@@ -235,7 +235,7 @@ describe('Content Collections', () => {
 
 		before(async () => {
 			const fixture = await loadFixture({
-				root: './fixtures/content-ssr-integration/',
+				root: new URL('./fixtures/content-ssr-integration/', import.meta.url),
 				output: 'server',
 				adapter: testAdapter(),
 				vite: {
@@ -243,7 +243,7 @@ describe('Content Collections', () => {
 				},
 			});
 			await fixture.build();
-			app = await fixture.loadTestAdapterApp();
+			app = (await fixture.loadTestAdapterApp())['app'];
 		});
 
 		it('Responds 200 for expected pages', async () => {
@@ -282,7 +282,7 @@ describe('Content Collections', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/content-collections-base/',
+				root: new URL('./fixtures/content-collections-base/', import.meta.url),
 			});
 			await fixture.build();
 		});

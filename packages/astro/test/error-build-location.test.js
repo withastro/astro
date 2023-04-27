@@ -7,7 +7,7 @@ describe('Errors information in build', () => {
 
 	it('includes the file where the error happened', async () => {
 		fixture = await loadFixture({
-			root: './fixtures/error-build-location',
+			root: new URL('./fixtures/error-build-location/', import.meta.url),
 		});
 
 		let errorContent;

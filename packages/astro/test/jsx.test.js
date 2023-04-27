@@ -7,7 +7,7 @@ describe('jsx-runtime', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/jsx/',
+			root: new URL('./fixtures/jsx/', import.meta.url),
 		});
 		await fixture.build();
 	});

@@ -9,7 +9,7 @@ const errorMessage =
 /** TODO: enable the test once missing alt text throws an error instead of a console warning */
 describe.skip('SSG picture without alt text', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/no-alt-text-picture/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/no-alt-text-picture/', import.meta.url) });
 	});
 
 	it('throws during build', async () => {

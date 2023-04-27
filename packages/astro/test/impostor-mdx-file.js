@@ -6,7 +6,7 @@ let fixture;
 describe('Impostor MDX File', () => {
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/impostor-mdx-file/',
+			root: new URL('./fixtures/impostor-mdx-file/', import.meta.url),
 		});
 	});
 	if (isWindows) return;

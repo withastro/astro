@@ -7,7 +7,7 @@ describe('Aliases', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/alias/',
+			root: new URL('./fixtures/alias/', import.meta.url),
 		});
 	});
 

@@ -6,7 +6,7 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 import remarkToc from 'remark-toc';
 import { visit as estreeVisit } from 'estree-util-visit';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
+const FIXTURE_ROOT = './fixtures/mdx-plugins/';
 const FILE = '/with-plugins/index.html';
 
 describe('MDX plugins', () => {
@@ -195,7 +195,7 @@ describe('MDX plugins', () => {
 
 async function buildFixture(config) {
 	const fixture = await loadFixture({
-		root: FIXTURE_ROOT,
+		root: new URL(FIXTURE_ROOT, import.meta.url),
 		...config,
 	});
 	await fixture.build();

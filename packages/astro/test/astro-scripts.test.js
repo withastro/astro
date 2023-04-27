@@ -8,7 +8,7 @@ describe('Scripts (hoisted and not)', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/astro-scripts/',
+				root: new URL('./fixtures/astro-scripts/', import.meta.url),
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -109,7 +109,7 @@ describe('Scripts (hoisted and not)', () => {
 			let fixture;
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/astro-scripts/',
+					root: new URL('./fixtures/astro-scripts/', import.meta.url),
 				});
 				await fixture.build();
 			});
@@ -138,7 +138,7 @@ describe('Scripts (hoisted and not)', () => {
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/astro-scripts/',
+				root: new URL('./fixtures/astro-scripts/', import.meta.url),
 				vite: {
 					build: {
 						assetsInlineLimit: 0,

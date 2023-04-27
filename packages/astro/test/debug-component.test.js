@@ -14,7 +14,7 @@ describe('<Debug />', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/debug-component/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/debug-component/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 

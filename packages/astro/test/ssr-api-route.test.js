@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { File, FormData } from 'undici';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('API routes in SSR', () => {
@@ -9,7 +9,7 @@ describe('API routes in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-api-route/',
+			root: new URL('./fixtures/ssr-api-route/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -17,7 +17,7 @@ describe('API routes in SSR', () => {
 	});
 
 	it('Basic pages work', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
@@ -25,7 +25,7 @@ describe('API routes in SSR', () => {
 	});
 
 	it('Can load the API route too', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/food.json');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
@@ -36,7 +36,7 @@ describe('API routes in SSR', () => {
 	});
 
 	it('Has valid api context', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/context/any');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);

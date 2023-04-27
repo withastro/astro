@@ -7,7 +7,7 @@ describe('HTML Slots', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/html-slots/',
+			root: new URL('./fixtures/html-slots/', import.meta.url),
 		});
 	});
 

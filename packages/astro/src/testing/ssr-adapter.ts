@@ -1,10 +1,15 @@
-import { viteID } from '../dist/core/util.js';
+import { viteID } from '../core/util.js';
+import type { AstroAdapter, AstroIntegration } from "../@types/astro";
+import type { LoadResult } from "rollup";
 
 /**
  *
  * @returns {import('../src/@types/astro').AstroIntegration}
  */
-export default function ({ provideAddress = true, extendAdapter } = { provideAddress: true }) {
+export default function testSSRAdapter({provideAddress, extendAdapter}: {
+	provideAddress: boolean,
+	extendAdapter?: Omit<AstroAdapter, "name" | "serverEntrypoint" | "exports">
+} = { provideAddress: true }): AstroIntegration {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -13,7 +18,7 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 					vite: {
 						plugins: [
 							{
-								resolveId(id) {
+								resolveId(id: string): string | undefined {
 									if (id === '@my-ssr') {
 										return id;
 									} else if (id === 'astro/app') {
@@ -21,7 +26,8 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 										return viteId;
 									}
 								},
-								load(id) {
+								/** https://rollupjs.org/plugin-development/#load */
+								load(id: string): LoadResult {
 									if (id === '@my-ssr') {
 										return `
 											import { App } from 'astro/app';
@@ -46,8 +52,14 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 													return super.render(request, routeData);
 												}
 											}
-											
-											export function createExports(manifest) {
+											/**
+											 * _createExports()_ is called by @astrojs/vite-plugin-astro-ssr in 'packages/astro/src/core/build/plugins/plugin-ssr.ts'.
+											 * Which return values of _createExports()_ are exported defines the _setAdapter()_ call in 'astro:config:done'.
+											 * The exported values are proceed by _loadTestAdapterApp()_ as returned by _loadFixture()_
+											 * in 'packages/astro/src/testing/utils.ts'.
+											 * We export _manifest_ explicit because it's private property in MyApp/App class.
+											 */
+											export function createExports(manifest, args) {
 												return {
 													manifest,
 													createApp: (streaming) => new MyApp(manifest, streaming)
@@ -61,7 +73,7 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 					},
 				});
 			},
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({setAdapter}: { setAdapter: (adapter: AstroAdapter) => void }) => {
 				setAdapter({
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',

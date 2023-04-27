@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Astro.params in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,7 +9,7 @@ describe('Astro.params in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-params/',
+			root: new URL('./fixtures/ssr-params/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 			base: '/users/houston/',
@@ -18,7 +18,7 @@ describe('Astro.params in SSR', () => {
 	});
 
 	it('Params are passed to component', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/users/houston/food');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
@@ -29,7 +29,7 @@ describe('Astro.params in SSR', () => {
 
 	describe('Non-english characters in the URL', () => {
 		it('Params are passed to component', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/users/houston/東西/food');
 			const response = await app.render(request);
 			expect(response.status).to.equal(200);

@@ -10,7 +10,7 @@ describe('Can handle errors that are not instanceof Error', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/error-non-error',
+			root: new URL('./fixtures/error-non-error/', import.meta.url),
 		});
 		devServer = await fixture.startDevServer({
 			logging: silentLogging,

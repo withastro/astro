@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('AstroConfig - config.output', () => {
 	describe(`output: 'server'`, () => {
@@ -12,7 +12,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: new URL('./fixtures/astro-basic/', import.meta.url),
 					adapter: testAdapter(),
 					output: 'server',
 				});
@@ -20,7 +20,7 @@ describe('AstroConfig - config.output', () => {
 			});
 
 			it('Builds an SSR-able app', async () => {
-				const app = await fixture.loadTestAdapterApp();
+				const { manifest, app } = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/');
 				const response = await app.render(request);
 				expect(response.status).to.equal(200);
@@ -37,7 +37,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: new URL('./fixtures/astro-basic/', import.meta.url),
 					output: 'server',
 				});
 			});
@@ -65,7 +65,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: new URL('./fixtures/astro-basic/', import.meta.url),
 					output: 'static',
 				});
 				await fixture.build();
@@ -89,7 +89,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: new URL('./fixtures/astro-basic/', import.meta.url),
 					adapter: testAdapter(),
 					output: 'server',
 				});

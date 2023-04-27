@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-frontmatter-injection/', import.meta.url);
+const FIXTURE_ROOT = './fixtures/mdx-frontmatter-injection/';
 
 describe('MDX frontmatter injection', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: FIXTURE_ROOT,
+			root: new URL(FIXTURE_ROOT, import.meta.url),
 		});
 		await fixture.build();
 	});

@@ -7,7 +7,7 @@ describe('Custom Elements', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-elements/',
+			root: new URL('./fixtures/custom-elements/', import.meta.url),
 			experimental: {
 				integrations: true,
 			},

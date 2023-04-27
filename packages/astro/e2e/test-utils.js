@@ -1,35 +1,8 @@
-import { test as testBase, expect } from '@playwright/test';
-import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
+import { default as globalTestFactory } from '../dist/testing/playwright-factory.js';
+export { loadFixture, isWindows } from '../test/test-utils.js';
 
-export const isWindows = process.platform === 'win32';
-
-export function loadFixture(inlineConfig) {
-	if (!inlineConfig || !inlineConfig.root)
-		throw new Error("Must provide { root: './fixtures/...' }");
-
-	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
-	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
-	return baseLoadFixture({
-		...inlineConfig,
-		root: new URL(inlineConfig.root, import.meta.url).toString(),
-	});
-}
-
-export function testFactory(inlineConfig) {
-	let fixture;
-
-	const test = testBase.extend({
-		astro: async ({}, use) => {
-			fixture = fixture || (await loadFixture(inlineConfig));
-			await use(fixture);
-		},
-	});
-
-	test.afterEach(() => {
-		fixture.resetAllFiles();
-	});
-
-	return test;
+export function testFactory(/** @type {import('../dist/@types/astro.js').AstroConfig} */ astroConfig) {
+	return globalTestFactory(astroConfig, true);
 }
 
 /**

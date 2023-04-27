@@ -7,7 +7,7 @@ describe('srcDir', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/root-srcdir-css/',
+			root: new URL('./fixtures/root-srcdir-css/', import.meta.url),
 		});
 		await fixture.build();
 	});

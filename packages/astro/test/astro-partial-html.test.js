@@ -8,7 +8,7 @@ describe('Partial HTML', async () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-partial-html/',
+			root: new URL('./fixtures/astro-partial-html/', import.meta.url),
 		});
 		devServer = await fixture.startDevServer();
 	});

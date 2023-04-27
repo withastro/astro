@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import { isWindows, loadFixture, streamAsyncIterator } from './test-utils.js';
 
 describe('Streaming', () => {
@@ -13,7 +13,7 @@ describe('Streaming', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/streaming/',
+			root: new URL('./fixtures/streaming/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 		});
@@ -58,7 +58,7 @@ describe('Streaming', () => {
 		});
 
 		it('Can get the full html body', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
@@ -68,7 +68,7 @@ describe('Streaming', () => {
 		});
 
 		it('Body is chunked', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			let chunks = [];
@@ -89,7 +89,7 @@ describe('Streaming disabled', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/streaming/',
+			root: new URL('./fixtures/streaming/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 			server: {
@@ -130,7 +130,7 @@ describe('Streaming disabled', () => {
 		});
 
 		it('Can get the full html body', async () => {
-			const app = await fixture.loadTestAdapterApp(false);
+			const { app } = await fixture.loadTestAdapterApp({streaming: false});
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 

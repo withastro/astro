@@ -8,7 +8,7 @@ describe('prerender getStaticPaths - build calls', () => {
 		globalThis.isCalledOnce = false;
 
 		const fixture = await loadFixture({
-			root: './fixtures/ssr-prerender-get-static-paths/',
+			root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 			base: '/blog',
 		});
@@ -29,7 +29,7 @@ describe('prerender getStaticPaths - dev calls', () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
 
-		fixture = await loadFixture({ root: './fixtures/ssr-prerender-get-static-paths/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -57,7 +57,7 @@ describe('prerender getStaticPaths - 404 behavior', () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
 
-		fixture = await loadFixture({ root: './fixtures/ssr-prerender-get-static-paths/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -97,7 +97,7 @@ describe('prerender getStaticPaths - route params type validation', () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
 
-		fixture = await loadFixture({ root: './fixtures/ssr-prerender-get-static-paths/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -132,7 +132,7 @@ describe('prerender getStaticPaths - numeric route params', () => {
 		globalThis.isCalledOnce = false;
 
 		fixture = await loadFixture({
-			root: './fixtures/ssr-prerender-get-static-paths/',
+			root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 		});
 		devServer = await fixture.startDevServer();
@@ -168,7 +168,7 @@ describe('prerender getStaticPaths - Astro.url', () => {
 		globalThis.isCalledOnce = false;
 
 		fixture = await loadFixture({
-			root: './fixtures/ssr-prerender-get-static-paths/',
+			root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 		});
 		await fixture.build();
@@ -190,7 +190,7 @@ describe('prerender getStaticPaths - props', () => {
 		globalThis.isCalledOnce = false;
 
 		fixture = await loadFixture({
-			root: './fixtures/ssr-prerender-get-static-paths/',
+			root: new URL('./fixtures/ssr-prerender-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 		});
 		await fixture.build();

@@ -5,7 +5,7 @@ import { loadFixture } from './test-utils.js';
 describe('astro sync', () => {
 	let fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-collections/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/content-collections/', import.meta.url) });
 	});
 
 	it('Writes types to `.astro`', async () => {

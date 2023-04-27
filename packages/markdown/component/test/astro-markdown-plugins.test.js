@@ -8,7 +8,7 @@ describe('Astro Markdown plugins', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-markdown-plugins/',
+			root: new URL('./fixtures/astro-markdown-plugins/', import.meta.url),
 			markdown: {
 				remarkPlugins: [
 					'remark-code-titles',

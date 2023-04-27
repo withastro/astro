@@ -15,7 +15,7 @@ describe('Static build: vite plugins included when required', () => {
 	before(async () => {
 		/** @type {import('./test-utils').Fixture} */
 		const fixture = await loadFixture({
-			root: './fixtures/astro pages/',
+			root: new URL('./fixtures/astro pages/', import.meta.url),
 			integrations: [
 				{
 					name: '@astrojs/prepare-vite-plugins',

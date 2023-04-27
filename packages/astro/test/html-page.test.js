@@ -7,7 +7,7 @@ describe('HTML Page', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/html-page/',
+			root: new URL('./fixtures/html-page/', import.meta.url),
 		});
 	});
 

@@ -9,7 +9,7 @@ describe('API routes', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/bad-urls/',
+			root: new URL('./fixtures/bad-urls/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});

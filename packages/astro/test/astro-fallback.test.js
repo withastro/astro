@@ -7,7 +7,7 @@ describe('Dynamic component fallback', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-fallback',
+			root: new URL('./fixtures/astro-fallback/', import.meta.url),
 		});
 		await fixture.build();
 	});

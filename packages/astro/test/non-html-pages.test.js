@@ -5,7 +5,7 @@ describe('Non-HTML Pages', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/non-html-pages/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/non-html-pages/', import.meta.url) });
 		await fixture.build();
 	});
 

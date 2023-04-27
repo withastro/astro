@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Astro.cookies', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,7 +9,7 @@ describe('Astro.cookies', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-cookies/',
+			root: new URL('./fixtures/astro-cookies/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -57,7 +57,7 @@ describe('Astro.cookies', () => {
 		let app;
 		before(async () => {
 			await fixture.build();
-			app = await fixture.loadTestAdapterApp();
+			app = (await fixture.loadTestAdapterApp())['app'];
 		});
 
 		async function fetchResponse(path, requestInit) {

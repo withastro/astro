@@ -8,7 +8,7 @@ describe('Integration buildConfig hook', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-request/',
+			root: new URL('./fixtures/ssr-request/', import.meta.url),
 			output: 'server',
 			adapter: {
 				name: 'my-ssr-adapter',

@@ -6,7 +6,7 @@ describe('<Code>', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-component-code/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-component-code/', import.meta.url) });
 		await fixture.build();
 	});
 

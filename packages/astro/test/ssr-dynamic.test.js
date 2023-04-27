@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Dynamic pages in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,7 +9,7 @@ describe('Dynamic pages in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-dynamic/',
+			root: new URL('./fixtures/ssr-dynamic/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -17,13 +17,13 @@ describe('Dynamic pages in SSR', () => {
 	});
 
 	async function matchRoute(path) {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('https://example.com' + path);
 		return app.match(request);
 	}
 
 	async function fetchHTML(path) {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com' + path);
 		const response = await app.render(request);
 		const html = await response.text();
@@ -31,7 +31,7 @@ describe('Dynamic pages in SSR', () => {
 	}
 
 	async function fetchJSON(path) {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com' + path);
 		const response = await app.render(request);
 		const json = await response.json();

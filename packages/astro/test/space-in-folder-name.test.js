@@ -7,7 +7,7 @@ describe('Projects with a space in the folder name', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/space in folder name/app/',
+			root: new URL('./fixtures/space in folder name/app/', import.meta.url),
 		});
 	});
 

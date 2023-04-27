@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 const describe = isWindows ? global.describe.skip : global.describe;
 
@@ -12,7 +12,7 @@ describe('Content Collections - render()', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/content/',
+				root: new URL('./fixtures/content/', import.meta.url),
 			});
 			await fixture.build();
 		});
@@ -85,14 +85,14 @@ describe('Content Collections - render()', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				output: 'server',
-				root: './fixtures/content/',
+				root: new URL('./fixtures/content/', import.meta.url),
 				adapter: testAdapter(),
 			});
 			await fixture.build();
 		});
 
 		it('Includes CSS for rendered entry', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/launch-week');
 			const response = await app.render(request);
 			const html = await response.text();
@@ -106,7 +106,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Exclude CSS for non-rendered entries', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
@@ -117,7 +117,7 @@ describe('Content Collections - render()', () => {
 		});
 
 		it('Applies MDX components export', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/launch-week-components-export');
 			const response = await app.render(request);
 			const html = await response.text();
@@ -136,7 +136,7 @@ describe('Content Collections - render()', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/content/',
+				root: new URL('./fixtures/content/', import.meta.url),
 			});
 			devServer = await fixture.startDevServer();
 		});

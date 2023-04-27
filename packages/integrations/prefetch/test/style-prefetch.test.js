@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/style-prefetch/' });
+const test = testFactory({ root: new URL('./fixtures/style-prefetch/', import.meta.url) });
 
 test.describe('Style prefetch', () => {
 	test.describe('dev', () => {

@@ -7,7 +7,7 @@ describe('CSS ordering - import order with layouts', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-order-layout/',
+			root: new URL('./fixtures/css-order-layout/', import.meta.url),
 		});
 	});
 

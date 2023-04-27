@@ -25,6 +25,8 @@
     "test:vite-ci": "turbo run test --filter=astro",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
+    "test:e2e:report": "cd packages/astro && pnpm run test:e2e:report",
+    "test:e2e:debug": "cd packages/astro && pnpm run test:e2e:debug",
     "benchmark": "astro-benchmark",
     "lint": "eslint --cache .",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",

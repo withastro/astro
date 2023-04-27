@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Astro.redirect', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -8,7 +8,7 @@ describe('Astro.redirect', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-redirect/',
+			root: new URL('./fixtures/ssr-redirect/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -16,7 +16,7 @@ describe('Astro.redirect', () => {
 	});
 
 	it('Returns a 302 status', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/secret');
 		const response = await app.render(request);
 		expect(response.status).to.equal(302);
@@ -24,7 +24,7 @@ describe('Astro.redirect', () => {
 	});
 
 	it('Warns when used inside a component', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/late');
 		const response = await app.render(request);
 		try {

@@ -8,7 +8,7 @@ describe('Dynamic endpoint collision', () => {
 		let errorMsg;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/dynamic-endpoint-collision/',
+				root: new URL('./fixtures/dynamic-endpoint-collision/', import.meta.url),
 			});
 			try {
 				await fixture.build();
@@ -28,7 +28,7 @@ describe('Dynamic endpoint collision', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/dynamic-endpoint-collision/',
+				root: new URL('./fixtures/dynamic-endpoint-collision/', import.meta.url),
 			});
 
 			devServer = await fixture.startDevServer({

@@ -7,7 +7,7 @@ describe('Static build: pages routes have distURL', () => {
 	before(async () => {
 		/** @type {import('./test-utils').Fixture} */
 		const fixture = await loadFixture({
-			root: './fixtures/astro pages/',
+			root: new URL('./fixtures/astro pages/', import.meta.url),
 			integrations: [
 				{
 					name: '@astrojs/distURL',

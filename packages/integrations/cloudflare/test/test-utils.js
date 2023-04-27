@@ -1,15 +1,7 @@
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 
-export { fixLineEndings } from '../../../astro/test/test-utils.js';
-
-export function loadFixture(config) {
-	if (config?.root) {
-		config.root = new URL(config.root, import.meta.url);
-	}
-	return baseLoadFixture(config);
-}
+export { loadFixture, fixLineEndings } from '../../../astro/test/test-utils.js';
 
 const wranglerPath = fileURLToPath(
 	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)

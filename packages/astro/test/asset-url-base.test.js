@@ -10,7 +10,7 @@ describe('Asset URL resolution in build', () => {
 		describe('with site', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/asset-url-base/',
+					root: new URL('./fixtures/asset-url-base/', import.meta.url),
 					site: 'http://example.com/sub/path/',
 				});
 				await fixture.build();
@@ -27,7 +27,7 @@ describe('Asset URL resolution in build', () => {
 		describe('with site and base', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/asset-url-base/',
+					root: new URL('./fixtures/asset-url-base/', import.meta.url),
 					site: 'http://example.com/sub/path/',
 					base: '/another/base/',
 				});

@@ -7,7 +7,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/normal/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/normal/', import.meta.url) });
 			await fixture.build();
 		});
 
@@ -37,7 +37,7 @@ describe('Astro Markdown Shiki', () => {
 			let fixture;
 
 			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/themes-integrated/' });
+				fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/themes-integrated/', import.meta.url) });
 				await fixture.build();
 			});
 
@@ -55,7 +55,7 @@ describe('Astro Markdown Shiki', () => {
 			let fixture;
 
 			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/themes-custom/' });
+				fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/themes-custom/', import.meta.url) });
 				await fixture.build();
 			});
 
@@ -74,7 +74,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/langs/', import.meta.url) });
 			await fixture.build();
 		});
 
@@ -102,7 +102,7 @@ describe('Astro Markdown Shiki', () => {
 			let fixture;
 
 			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-true/' });
+				fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/wrap-true/', import.meta.url) });
 				await fixture.build();
 			});
 
@@ -121,7 +121,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-false/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/wrap-false/', import.meta.url) });
 			await fixture.build();
 		});
 
@@ -139,7 +139,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-null/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/astro-markdown-shiki/wrap-null/', import.meta.url) });
 			await fixture.build();
 		});
 

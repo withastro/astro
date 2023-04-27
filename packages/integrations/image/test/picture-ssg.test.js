@@ -17,7 +17,7 @@ describe('SSG pictures - dev', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-picture/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/basic-picture/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 		const html = await fixture.fetch('/').then((res) => res.text());
 		$ = cheerio.load(html);
@@ -118,7 +118,7 @@ describe('SSG pictures with subpath - dev', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-picture/', base: '/docs' });
+		fixture = await loadFixture({ root: new URL('./fixtures/basic-picture/', import.meta.url), base: '/docs' });
 		devServer = await fixture.startDevServer();
 		const html = await fixture.fetch('/docs/').then((res) => res.text());
 		$ = cheerio.load(html);
@@ -206,7 +206,7 @@ describe('SSG pictures - build', function () {
 	let html;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-picture/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/basic-picture/', import.meta.url) });
 		await fixture.build();
 
 		html = await fixture.readFile('/index.html');
@@ -320,7 +320,7 @@ describe('SSG pictures with subpath - build', function () {
 	let html;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-picture/', base: '/docs' });
+		fixture = await loadFixture({ root: new URL('./fixtures/basic-picture/', import.meta.url), base: '/docs' });
 		await fixture.build();
 
 		html = await fixture.readFile('/index.html');
@@ -421,7 +421,7 @@ describe('SSG pictures others - build', function () {
 	let html;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-picture/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/basic-picture/', import.meta.url) });
 		await fixture.build();
 
 		html = await fixture.readFile('/index.html');

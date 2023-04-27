@@ -25,7 +25,7 @@ describe('CSS Bundling', function () {
 	describe('defaults', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/astro-css-bundling/',
+				root: new URL('./fixtures/astro-css-bundling/', import.meta.url),
 			});
 			await fixture.build({ mode: 'production' });
 		});
@@ -74,7 +74,7 @@ describe('CSS Bundling', function () {
 	describe('using custom assetFileNames config', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/astro-css-bundling/',
+				root: new URL('./fixtures/astro-css-bundling/', import.meta.url),
 
 				vite: {
 					build: {

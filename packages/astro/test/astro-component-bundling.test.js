@@ -5,7 +5,7 @@ describe('Component bundling', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-component-bundling/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-component-bundling/', import.meta.url) });
 		await fixture.build();
 	});
 

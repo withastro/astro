@@ -8,7 +8,7 @@ describe('Client only components', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-client-only/',
+			root: new URL('./fixtures/astro-client-only/', import.meta.url),
 		});
 		await fixture.build();
 	});
@@ -71,7 +71,7 @@ describe('Client only components subpath', () => {
 		fixture = await loadFixture({
 			site: 'https://site.com',
 			base: '/blog',
-			root: './fixtures/astro-client-only/',
+			root: new URL('./fixtures/astro-client-only/', import.meta.url),
 		});
 		await fixture.build();
 	});

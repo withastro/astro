@@ -6,7 +6,7 @@ describe('Loading virtual Astro files', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/virtual-astro-file/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/virtual-astro-file/', import.meta.url) });
 		await fixture.build();
 	});
 

@@ -7,7 +7,7 @@ describe('Slots with client: directives', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-slot-with-client/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-slot-with-client/', import.meta.url) });
 		await fixture.build();
 	});
 

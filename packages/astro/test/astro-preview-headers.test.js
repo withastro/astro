@@ -10,7 +10,7 @@ describe('Astro preview headers', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-preview-headers/',
+			root: new URL('./fixtures/astro-preview-headers/', import.meta.url),
 			server: {
 				headers,
 			},

@@ -7,7 +7,7 @@ describe('custom the assets name function', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-assets-name/',
+			root: new URL('./fixtures/custom-assets-name/', import.meta.url),
 			output: 'server',
 		});
 		await fixture.build();

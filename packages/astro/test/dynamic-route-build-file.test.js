@@ -8,7 +8,7 @@ describe('build.format=file with dynamic routes', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/dynamic-route-build-file',
+			root: new URL('./fixtures/dynamic-route-build-file/', import.meta.url),
 			build: {
 				format: 'file',
 			},

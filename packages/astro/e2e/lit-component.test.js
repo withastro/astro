@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/lit-component/',
+	root: new URL('./fixtures/lit-component/', import.meta.url),
 });
 
 // TODO: configure playwright to handle web component APIs

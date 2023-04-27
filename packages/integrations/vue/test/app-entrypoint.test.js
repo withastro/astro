@@ -7,7 +7,7 @@ describe('App Entrypoint', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/app-entrypoint/',
+			root: new URL('./fixtures/app-entrypoint/', import.meta.url),
 		});
 		await fixture.build();
 	});

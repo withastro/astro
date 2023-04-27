@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 const assetsPrefix = 'http://localhost:4321';
@@ -12,7 +12,7 @@ describe('Assets Prefix - Static', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix/',
+			root: new URL('./fixtures/astro-assets-prefix/', import.meta.url),
 		});
 		await fixture.build();
 	});
@@ -68,12 +68,12 @@ describe('Assets Prefix - Server', () => {
 
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix/',
+			root: new URL('./fixtures/astro-assets-prefix/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
+		app = (await fixture.loadTestAdapterApp())['app'];
 	});
 
 	it('all stylesheets should start with assetPrefix', async () => {

@@ -7,7 +7,7 @@ describe('Head in its own component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-head/',
+			root: new URL('./fixtures/astro-head/', import.meta.url),
 			site: 'https://mysite.dev/',
 			base: '/blog',
 		});

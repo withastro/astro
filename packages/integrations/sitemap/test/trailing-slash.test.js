@@ -9,7 +9,7 @@ describe('Trailing slash', () => {
 		describe('build.format: directory', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/trailing-slash/',
+					root: new URL('./fixtures/trailing-slash/', import.meta.url),
 					trailingSlash: 'ignore',
 					build: {
 						format: 'directory',
@@ -28,7 +28,7 @@ describe('Trailing slash', () => {
 		describe('build.format: file', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/trailing-slash/',
+					root: new URL('./fixtures/trailing-slash/', import.meta.url),
 					trailingSlash: 'ignore',
 					build: {
 						format: 'file',
@@ -48,7 +48,7 @@ describe('Trailing slash', () => {
 	describe('trailingSlash: never', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/trailing-slash/',
+				root: new URL('./fixtures/trailing-slash/', import.meta.url),
 				trailingSlash: 'never',
 			});
 			await fixture.build();
@@ -62,7 +62,7 @@ describe('Trailing slash', () => {
 		describe('with base path', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/trailing-slash/',
+					root: new URL('./fixtures/trailing-slash/', import.meta.url),
 					trailingSlash: 'never',
 					base: '/base',
 				});
@@ -80,7 +80,7 @@ describe('Trailing slash', () => {
 	describe('trailingSlash: always', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/trailing-slash/',
+				root: new URL('./fixtures/trailing-slash/', import.meta.url),
 				trailingSlash: 'always',
 			});
 			await fixture.build();
@@ -94,7 +94,7 @@ describe('Trailing slash', () => {
 		describe('with base path', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/trailing-slash/',
+					root: new URL('./fixtures/trailing-slash/', import.meta.url),
 					trailingSlash: 'always',
 					base: '/base',
 				});

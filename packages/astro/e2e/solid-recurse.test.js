@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/solid-recurse/' });
+const test = testFactory({ root: new URL('./fixtures/solid-recurse/', import.meta.url) });
 
 let devServer;
 

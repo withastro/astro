@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import { preact } from './fixtures/before-hydration/deps.mjs';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('build assets (static)', () => {
 	describe('with default configuration', () => {
@@ -11,7 +11,7 @@ describe('build assets (static)', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/build-assets/',
+				root: new URL('./fixtures/build-assets/', import.meta.url),
 				integrations: [preact()],
 			});
 			await fixture.build();
@@ -53,7 +53,7 @@ describe('build assets (static)', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/build-assets/',
+				root: new URL('./fixtures/build-assets/', import.meta.url),
 				integrations: [preact()],
 				build: {
 					assets: 'custom-assets',
@@ -93,7 +93,7 @@ describe('build assets (server)', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/build-assets/',
+				root: new URL('./fixtures/build-assets/', import.meta.url),
 				integrations: [preact()],
 				adapter: testAdapter(),
 			});
@@ -136,7 +136,7 @@ describe('build assets (server)', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/build-assets/',
+				root: new URL('./fixtures/build-assets/', import.meta.url),
 				integrations: [preact()],
 				build: {
 					assets: 'custom-assets',

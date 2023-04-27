@@ -9,7 +9,7 @@ describe('Development Routing', () => {
 		let devServer;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/without-site-config/' });
+			fixture = await loadFixture({ root: new URL('./fixtures/without-site-config/', import.meta.url) });
 			devServer = await fixture.startDevServer({
 				logging: silentLogging,
 			});
@@ -58,7 +58,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/with-subpath-no-trailing-slash/',
+				root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 				outDir: './dist-4007',
 				site: 'http://example.com/',
 			});
@@ -98,7 +98,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/with-subpath-no-trailing-slash/',
+				root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 				outDir: './dist-4008',
 				site: 'http://example.com',
 				base: '/blog',
@@ -149,7 +149,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/with-subpath-no-trailing-slash/',
+				root: new URL('./fixtures/with-subpath-no-trailing-slash/', import.meta.url),
 				base: '/blog',
 				outDir: './dist-4009',
 			});
@@ -199,7 +199,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/with-endpoint-routes/',
+				root: new URL('./fixtures/with-endpoint-routes/', import.meta.url),
 				site: 'http://example.com/',
 			});
 			devServer = await fixture.startDevServer();
@@ -294,7 +294,7 @@ describe('Development Routing', () => {
 				build: {
 					format: 'file',
 				},
-				root: './fixtures/without-site-config/',
+				root: new URL('./fixtures/without-site-config/', import.meta.url),
 				site: 'http://example.com/',
 			});
 			devServer = await fixture.startDevServer();

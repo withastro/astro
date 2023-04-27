@@ -7,7 +7,7 @@ describe('CSS ordering - import order', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-order-import/',
+			root: new URL('./fixtures/css-order-import/', import.meta.url),
 		});
 	});
 
@@ -132,7 +132,7 @@ describe('CSS ordering - import order', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/css-order-dynamic-import/',
+				root: new URL('./fixtures/css-order-dynamic-import/', import.meta.url),
 			});
 			await fixture.build();
 		});

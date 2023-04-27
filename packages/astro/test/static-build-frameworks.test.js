@@ -11,7 +11,7 @@ describe('Static build - frameworks', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/static-build-frameworks/',
+			root: new URL('./fixtures/static-build-frameworks/', import.meta.url),
 		});
 		await fixture.build();
 	});

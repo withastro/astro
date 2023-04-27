@@ -7,7 +7,7 @@ describe('Svelte component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/svelte-component/',
+			root: new URL('./fixtures/svelte-component/', import.meta.url),
 		});
 	});
 

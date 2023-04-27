@@ -7,7 +7,7 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/get-static-paths-pages/',
+			root: new URL('./fixtures/get-static-paths-pages/', import.meta.url),
 			site: 'https://mysite.dev/',
 		});
 		await fixture.build();

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import * as cheerio from 'cheerio';
 
 describe('astro:ssr-manifest', () => {
@@ -9,7 +9,7 @@ describe('astro:ssr-manifest', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-manifest/',
+			root: new URL('./fixtures/ssr-manifest/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -17,7 +17,7 @@ describe('astro:ssr-manifest', () => {
 	});
 
 	it('works', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();

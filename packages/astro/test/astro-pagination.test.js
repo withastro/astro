@@ -7,7 +7,7 @@ describe('Pagination', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-pagination/',
+			root: new URL('./fixtures/astro-pagination/', import.meta.url),
 			site: 'https://mysite.dev/',
 			base: '/blog',
 		});

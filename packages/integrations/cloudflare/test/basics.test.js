@@ -8,7 +8,7 @@ describe.skip('Basic app', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basics/',
+			root: new URL('./fixtures/basics/', import.meta.url),
 		});
 		await fixture.build();
 	});

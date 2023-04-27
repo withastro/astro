@@ -6,7 +6,7 @@ describe('Re-exported astro components with client components', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/reexport-astro-containing-client-component/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/reexport-astro-containing-client-component/', import.meta.url) });
 		await fixture.build();
 	});
 

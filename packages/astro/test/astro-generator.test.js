@@ -7,7 +7,7 @@ describe('Astro generator', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-generator/',
+			root: new URL('./fixtures/astro-generator/', import.meta.url),
 		});
 		await fixture.build();
 	});

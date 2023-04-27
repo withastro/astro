@@ -7,7 +7,7 @@ describe('Tailwind', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/tailwindcss/',
+			root: new URL('./fixtures/tailwindcss/', import.meta.url),
 		});
 	});
 

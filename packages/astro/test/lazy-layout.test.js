@@ -7,7 +7,7 @@ describe('Lazily imported layouts', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/lazy-layout/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/lazy-layout/', import.meta.url) });
 		await fixture.build();
 	});
 

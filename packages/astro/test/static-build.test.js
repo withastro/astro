@@ -33,7 +33,7 @@ describe('Static build', () => {
 		};
 
 		fixture = await loadFixture({
-			root: './fixtures/static-build/',
+			root: new URL('./fixtures/static-build/', import.meta.url),
 		});
 		await fixture.build({ logging });
 	});
@@ -188,7 +188,7 @@ describe('Static build', () => {
 describe('Static build SSR', () => {
 	it('Copies public files', async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/static-build-ssr/',
+			root: new URL('./fixtures/static-build-ssr/', import.meta.url),
 		});
 		await fixture.build();
 

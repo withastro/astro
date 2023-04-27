@@ -6,7 +6,7 @@ describe('Pages', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro pages/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro pages/', import.meta.url) });
 		await fixture.build();
 	});
 

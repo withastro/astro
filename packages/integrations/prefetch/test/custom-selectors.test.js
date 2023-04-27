@@ -3,7 +3,7 @@ import { testFactory } from './test-utils.js';
 import prefetch from '../dist/index.js';
 
 const test = testFactory({
-	root: './fixtures/basic-prefetch/',
+	root: new URL('./fixtures/basic-prefetch/', import.meta.url),
 	integrations: [
 		prefetch({
 			selector: 'a[href="/contact"]',

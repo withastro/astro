@@ -1,5 +1,6 @@
 export {
 	createDefaultDevConfig,
+	mergeConfig,
 	openConfig,
 	resolveConfigPath,
 	resolveFlags,

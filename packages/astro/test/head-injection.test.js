@@ -8,7 +8,7 @@ describe('Head injection', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/head-injection/',
+			root: new URL('./fixtures/head-injection/', import.meta.url),
 		});
 	});
 

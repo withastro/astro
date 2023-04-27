@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { getColor, testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/astro-component/' });
+const test = testFactory({ root: new URL('./fixtures/astro-component/', import.meta.url) });
 
 let devServer;
 

@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
-import testAdapter from '../../../astro/test/test-adapter.js';
+import testAdapter from '../../../astro/dist/testing/ssr-adapter.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const toAstroImage = (relpath) =>
@@ -16,7 +16,7 @@ describe('SSR images - dev', function () {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic-image/',
+			root: new URL('./fixtures/basic-image/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 		});
@@ -151,7 +151,7 @@ describe('SSR images with subpath - dev', function () {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic-image/',
+			root: new URL('./fixtures/basic-image/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 			base: '/docs',

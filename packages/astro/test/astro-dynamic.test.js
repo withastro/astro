@@ -7,7 +7,7 @@ describe('Dynamic components', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-dynamic/',
+			root: new URL('./fixtures/astro-dynamic/', import.meta.url),
 		});
 		await fixture.build();
 	});
@@ -47,7 +47,7 @@ describe('Dynamic components subpath', () => {
 		fixture = await loadFixture({
 			site: 'https://site.com',
 			base: '/blog',
-			root: './fixtures/astro-dynamic/',
+			root: new URL('./fixtures/astro-dynamic/', import.meta.url),
 		});
 		await fixture.build();
 	});

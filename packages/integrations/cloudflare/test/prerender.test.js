@@ -7,7 +7,7 @@ describe('Prerendering', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/prerender/',
+			root: new URL('./fixtures/prerender/', import.meta.url),
 		});
 		await fixture.build();
 	});

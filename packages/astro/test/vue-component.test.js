@@ -7,7 +7,7 @@ describe('Vue component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/vue-component/',
+			root: new URL('./fixtures/vue-component/', import.meta.url),
 		});
 	});
 

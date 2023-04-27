@@ -7,7 +7,7 @@ describe('Solid component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/solid-component/',
+			root: new URL('./fixtures/solid-component/', import.meta.url),
 		});
 	});
 

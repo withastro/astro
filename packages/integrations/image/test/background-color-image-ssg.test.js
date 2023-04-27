@@ -10,7 +10,7 @@ describe('SSG image with background - dev', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/background-color-image/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/background-color-image/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 		const html = await fixture.fetch('/').then((res) => res.text());
 		$ = cheerio.load(html);
@@ -63,7 +63,7 @@ describe('SSG image with background - build', function () {
 	let html;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/background-color-image/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/background-color-image/', import.meta.url) });
 		await fixture.build();
 
 		html = await fixture.readFile('/index.html');

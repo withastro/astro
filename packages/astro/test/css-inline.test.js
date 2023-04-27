@@ -6,7 +6,7 @@ describe('Importing raw/inlined CSS', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/css-inline/',
+			root: new URL('./fixtures/css-inline/', import.meta.url),
 		});
 	});
 	describe('Build', () => {

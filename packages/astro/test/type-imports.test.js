@@ -5,7 +5,7 @@ describe('Type Imports', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/type-imports' });
+		fixture = await loadFixture({ root: new URL('./fixtures/type-imports', import.meta.url) });
 		await fixture.build();
 	});
 

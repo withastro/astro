@@ -8,7 +8,7 @@ describe('404 page', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('./fixtures/404/', import.meta.url).toString(),
+			root: new URL('./fixtures/404/', import.meta.url),
 			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/404/dist/', import.meta.url),

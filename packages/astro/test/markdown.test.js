@@ -8,7 +8,7 @@ describe('Markdown tests', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/markdown/',
+			root: new URL('./fixtures/markdown/', import.meta.url),
 		});
 	});
 

@@ -9,7 +9,7 @@ describe('Assets Prefix', function () {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/assets-prefix/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/assets-prefix/', import.meta.url) });
 		await fixture.build();
 	});
 

@@ -8,7 +8,7 @@ describe('set:html', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/set-html/',
+			root: new URL('./fixtures/set-html/', import.meta.url),
 		});
 	});
 

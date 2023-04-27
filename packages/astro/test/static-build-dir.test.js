@@ -8,7 +8,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 	let checkGeneratedDir;
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/static-build-dir/',
+			root: new URL('./fixtures/static-build-dir/', import.meta.url),
 			integrations: [
 				{
 					name: '@astrojs/dir',

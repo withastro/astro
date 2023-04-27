@@ -8,7 +8,7 @@ describe('build.format', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/page-format/',
+				root: new URL('./fixtures/page-format/', import.meta.url),
 			});
 		});
 
@@ -30,7 +30,7 @@ describe('build.format', () => {
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/page-format/',
+				root: new URL('./fixtures/page-format/', import.meta.url),
 				build: {
 					format: 'file',
 				},

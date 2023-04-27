@@ -8,7 +8,7 @@ describe('Astro Markdown - frontmatter injection', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: FIXTURE_ROOT,
+			root: new URL(FIXTURE_ROOT, import.meta.url),
 		});
 		await fixture.build();
 	});

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('astro:image', () => {
@@ -17,7 +17,7 @@ describe('astro:image', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image/',
+				root: new URL('./fixtures/core-image/', import.meta.url),
 				experimental: {
 					assets: true,
 				},
@@ -332,7 +332,7 @@ describe('astro:image', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image-errors/',
+				root: new URL('./fixtures/core-image-errors/', import.meta.url),
 				experimental: {
 					assets: true,
 				},
@@ -397,7 +397,7 @@ describe('astro:image', () => {
 	describe('support base option correctly', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image-base/',
+				root: new URL('./fixtures/core-image-base/', import.meta.url),
 				experimental: {
 					assets: true,
 				},
@@ -450,7 +450,7 @@ describe('astro:image', () => {
 	describe('build ssg', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image-ssg/',
+				root: new URL('./fixtures/core-image-ssg/', import.meta.url),
 				experimental: {
 					assets: true,
 				},
@@ -574,7 +574,7 @@ describe('astro:image', () => {
 	describe('prod ssr', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image-ssr/',
+				root: new URL('./fixtures/core-image-ssr/', import.meta.url),
 				output: 'server',
 				adapter: testAdapter(),
 				experimental: {
@@ -589,7 +589,7 @@ describe('astro:image', () => {
 		// image and we do not have an HTTP server in these tests. We either need
 		// to start one, or find another way to tell the image service how to load these files.
 		it.skip('dynamic route images are built at response time', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			let request = new Request('http://example.com/');
 			let response = await app.render(request);
 			expect(response.status).to.equal(200);
@@ -615,7 +615,7 @@ describe('astro:image', () => {
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image/',
+				root: new URL('./fixtures/core-image/', import.meta.url),
 				experimental: {
 					assets: true,
 				},

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import { preact } from './fixtures/before-hydration/deps.mjs';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Astro Scripts before-hydration', () => {
 	describe('SSG', () => {
@@ -12,7 +12,7 @@ describe('Astro Scripts before-hydration', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/before-hydration/',
+					root: new URL('./fixtures/before-hydration/', import.meta.url),
 					integrations: [
 						preact(),
 						{
@@ -66,7 +66,7 @@ describe('Astro Scripts before-hydration', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/before-hydration/',
+					root: new URL('./fixtures/before-hydration/', import.meta.url),
 				});
 			});
 
@@ -111,7 +111,7 @@ describe('Astro Scripts before-hydration', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/before-hydration/',
+					root: new URL('./fixtures/before-hydration/', import.meta.url),
 					output: 'server',
 					adapter: testAdapter(),
 					integrations: [
@@ -134,7 +134,7 @@ describe('Astro Scripts before-hydration', () => {
 				});
 
 				it('Is included in the astro-island', async () => {
-					let app = await fixture.loadTestAdapterApp();
+					let { app: app } = await fixture.loadTestAdapterApp();
 					let request = new Request('http://example.com/');
 					let response = await app.render(request);
 					let html = await response.text();
@@ -150,7 +150,7 @@ describe('Astro Scripts before-hydration', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/before-hydration/',
+					root: new URL('./fixtures/before-hydration/', import.meta.url),
 					output: 'server',
 					adapter: testAdapter(),
 				});
@@ -162,7 +162,7 @@ describe('Astro Scripts before-hydration', () => {
 				});
 
 				it('Does not include before-hydration-url on the astro-island', async () => {
-					let app = await fixture.loadTestAdapterApp();
+					let { app: app } = await fixture.loadTestAdapterApp();
 					let request = new Request('http://example.com/');
 					let response = await app.render(request);
 					let html = await response.text();

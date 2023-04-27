@@ -7,7 +7,7 @@ describe('HTML Escape', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/html-escape/',
+			root: new URL('./fixtures/html-escape/', import.meta.url),
 		});
 	});
 

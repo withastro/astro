@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 import * as cheerio from 'cheerio';
 
 describe('404 and 500 pages', () => {
@@ -9,7 +9,7 @@ describe('404 and 500 pages', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-api-route-custom-404/',
+			root: new URL('./fixtures/ssr-api-route-custom-404/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -42,7 +42,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('404 page returned when a route does not match', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/some/fake/route');
 			const response = await app.render(request);
 			expect(response.status).to.equal(404);
@@ -52,7 +52,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('404 page returned when a route does not match and passing routeData', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/some/fake/route');
 			const routeData = app.match(request, { matchNotFound: true });
 			const response = await app.render(request, routeData);
@@ -63,7 +63,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('500 page returned when there is an error', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/causes-error');
 			const response = await app.render(request);
 			expect(response.status).to.equal(500);
@@ -73,7 +73,7 @@ describe('404 and 500 pages', () => {
 		});
 
 		it('Returns 404 when hitting an API route with the wrong method', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/api/route', {
 				method: 'PUT',
 			});

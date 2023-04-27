@@ -6,7 +6,7 @@ describe('Attributes', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-attrs/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-attrs/', import.meta.url) });
 		await fixture.build();
 	});
 

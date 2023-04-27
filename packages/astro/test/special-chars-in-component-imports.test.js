@@ -18,7 +18,7 @@ describe('Special chars in component import paths', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/special-chars-in-component-imports/',
+			root: new URL('./fixtures/special-chars-in-component-imports/', import.meta.url),
 		});
 	});
 

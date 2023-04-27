@@ -16,7 +16,7 @@ describe('LitElement test', function () {
 			return;
 		}
 		fixture = await loadFixture({
-			root: './fixtures/lit-element/',
+			root: new URL('./fixtures/lit-element/', import.meta.url),
 		});
 		await fixture.build();
 	});

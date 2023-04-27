@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/multiple-frameworks/' });
+const test = testFactory({ root: new URL('./fixtures/multiple-frameworks/', import.meta.url) });
 
 let devServer;
 

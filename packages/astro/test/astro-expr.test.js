@@ -7,7 +7,7 @@ describe('Expressions', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-expr/',
+			root: new URL('./fixtures/astro-expr/', import.meta.url),
 		});
 		await fixture.build();
 	});

@@ -6,13 +6,13 @@ import remarkMath from 'remark-math';
 import rehypeMathjaxSvg from 'rehype-mathjax';
 import rehypeMathjaxChtml from 'rehype-mathjax/chtml.js';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-math/', import.meta.url);
+const FIXTURE_ROOT = './fixtures/mdx-math/';
 
 describe('MDX math', () => {
 	describe('mathjax', () => {
 		it('works with svg', async () => {
 			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				markdown: {
 					remarkPlugins: [remarkMath],
 					rehypePlugins: [rehypeMathjaxSvg],
@@ -33,7 +33,7 @@ describe('MDX math', () => {
 
 		it('works with chtml', async () => {
 			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				markdown: {
 					remarkPlugins: [remarkMath],
 					rehypePlugins: [

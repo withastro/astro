@@ -12,7 +12,7 @@ describe('Component Libraries', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/component-library/',
+			root: new URL('./fixtures/component-library/', import.meta.url),
 		});
 	});
 

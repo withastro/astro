@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('SSR with Large Array and client rendering', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,7 +9,7 @@ describe('SSR with Large Array and client rendering', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/large-array/',
+			root: new URL('./fixtures/large-array/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -17,7 +17,7 @@ describe('SSR with Large Array and client rendering', () => {
 	});
 
 	it('Using response.arrayBuffer() gets the right HTML', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const data = await response.arrayBuffer();

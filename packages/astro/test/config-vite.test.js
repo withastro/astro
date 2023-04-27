@@ -6,7 +6,7 @@ describe('Vite Config', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/config-vite/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/config-vite/', import.meta.url) });
 		await fixture.build();
 	});
 

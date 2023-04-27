@@ -28,7 +28,7 @@ describe('astro cli', () => {
 
 		/** @type {import('./test-utils').Fixture} */
 		const fixture = await loadFixture({
-			root: './fixtures/astro-check-watch/',
+			root: new URL('./fixtures/astro-check-watch/', import.meta.url),
 		});
 		const logs = [];
 

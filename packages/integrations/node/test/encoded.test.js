@@ -8,7 +8,7 @@ describe('Encoded Pathname', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/encoded/',
+			root: new URL('./fixtures/encoded/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'middleware' }),
 		});

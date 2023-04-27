@@ -5,7 +5,7 @@ import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
 
 async function buildFixture(config) {
 	const fixture = await loadFixture({
-		root: './fixtures/astro-markdown-plugins/',
+		root: new URL('./fixtures/astro-markdown-plugins/', import.meta.url),
 		...config,
 	});
 	await fixture.build();

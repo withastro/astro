@@ -7,7 +7,7 @@ describe('Missing output config', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/no-output/',
+			root: new URL('./fixtures/no-output/', import.meta.url),
 		});
 	});
 

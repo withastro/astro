@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from '../../../astro/test/test-adapter.js';
+import testAdapter from '../../../astro/dist/testing/ssr-adapter.js';
 
 let fixture;
 
 describe('SSR image with background', function () {
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/background-color-image/',
-			adapter: testAdapter({ streaming: false }),
+			root: new URL('./fixtures/background-color-image/', import.meta.url),
+			adapter: testAdapter(),
 			output: 'server',
 		});
 		await fixture.build();
@@ -95,7 +95,7 @@ describe('SSR image with background', function () {
 		},
 	].forEach(({ title, id, query }) => {
 		it(title, async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp({ streaming: false });
 
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);

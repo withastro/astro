@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('SSR: prerender 404', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -8,7 +8,7 @@ describe('SSR: prerender 404', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-prerender-404/',
+			root: new URL('./fixtures/ssr-prerender-404/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 			experimental: {
@@ -20,7 +20,7 @@ describe('SSR: prerender 404', () => {
 
 	describe('Prerendering', () => {
 		it('Prerendered 404.astro page is not rendered', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/non-existent-page');
 			const response = await app.render(request);
 			expect(response.status).to.equal(404);

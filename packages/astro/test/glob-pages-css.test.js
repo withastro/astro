@@ -7,7 +7,7 @@ describe('Astro.glob on pages/ directory', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/glob-pages-css/',
+			root: new URL('./fixtures/glob-pages-css/', import.meta.url),
 		});
 		await fixture.build();
 	});

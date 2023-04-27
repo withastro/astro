@@ -6,7 +6,7 @@ describe('getImage', function () {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/get-image-remote/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/get-image-remote/', import.meta.url) });
 		await fixture.build();
 	});
 

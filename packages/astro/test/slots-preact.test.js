@@ -6,7 +6,7 @@ describe('Slots: Preact', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/slots-preact/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/slots-preact/', import.meta.url) });
 		await fixture.build();
 	});
 

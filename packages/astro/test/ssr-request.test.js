@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Using Astro.request in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,7 +9,7 @@ describe('Using Astro.request in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-request/',
+			root: new URL('./fixtures/ssr-request/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 			base: '/subpath/',
@@ -33,7 +33,7 @@ describe('Using Astro.request in SSR', () => {
 	});
 
 	it('Gets the request passed in', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/subpath/request');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
@@ -48,7 +48,7 @@ describe('Using Astro.request in SSR', () => {
 	});
 
 	it('CSS assets have their base prefix', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		let request = new Request('http://example.com/subpath/request');
 		let response = await app.render(request);
 		expect(response.status).to.equal(200);
@@ -67,7 +67,7 @@ describe('Using Astro.request in SSR', () => {
 	});
 
 	it('script assets have their base prefix', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		let request = new Request('http://example.com/subpath/request');
 		let response = await app.render(request);
 		expect(response.status).to.equal(200);
@@ -88,7 +88,7 @@ describe('Using Astro.request in SSR', () => {
 	});
 
 	it('assets can be fetched', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/subpath/cars.json');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);

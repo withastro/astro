@@ -7,7 +7,7 @@ describe('vite.build.cssCodeSplit: false', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/css-no-code-split/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/css-no-code-split/', import.meta.url) });
 		await fixture.build();
 	});
 

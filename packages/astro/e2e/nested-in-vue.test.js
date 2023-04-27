@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/nested-in-vue/' });
+const test = testFactory({ root: new URL('./fixtures/nested-in-vue/', import.meta.url) });
 
 let devServer;
 

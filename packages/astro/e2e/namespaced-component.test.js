@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/namespaced-component/',
+	root: new URL('./fixtures/namespaced-component/', import.meta.url),
 });
 
 let devServer;

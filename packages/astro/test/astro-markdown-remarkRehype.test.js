@@ -7,7 +7,7 @@ describe('Astro Markdown without remark-rehype config', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-markdown-remarkRehype/',
+			root: new URL('./fixtures/astro-markdown-remarkRehype/', import.meta.url),
 		});
 		await fixture.build();
 	});
@@ -24,7 +24,7 @@ describe('Astro Markdown with remark-rehype config', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-markdown-remarkRehype/',
+			root: new URL('./fixtures/astro-markdown-remarkRehype/', import.meta.url),
 			markdown: {
 				remarkRehype: {
 					footnoteLabel: 'Catatan kaki',

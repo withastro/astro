@@ -8,7 +8,7 @@ describe('Multiple renderers', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/multiple-renderers/',
+			root: new URL('./fixtures/multiple-renderers/', import.meta.url),
 		});
 		await fixture.build();
 	});

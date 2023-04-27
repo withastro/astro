@@ -7,7 +7,7 @@ describe('Custom 404', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404/',
+			root: new URL('./fixtures/custom-404/', import.meta.url),
 			site: 'http://example.com',
 		});
 	});

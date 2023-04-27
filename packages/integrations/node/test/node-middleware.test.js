@@ -7,7 +7,7 @@ describe('test 404 cant load', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/node-middleware/',
+			root: new URL('./fixtures/node-middleware/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});

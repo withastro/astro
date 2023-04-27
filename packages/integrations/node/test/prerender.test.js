@@ -12,7 +12,7 @@ describe('Prerendering', () => {
 	before(async () => {
 		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		fixture = await loadFixture({
-			root: './fixtures/prerender/',
+			root: new URL('./fixtures/prerender/', import.meta.url),
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});

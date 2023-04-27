@@ -6,13 +6,13 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 import shikiTwoslash from 'remark-shiki-twoslash';
 import rehypePrettyCode from 'rehype-pretty-code';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
+const FIXTURE_ROOT = './fixtures/mdx-syntax-hightlighting/';
 
 describe('MDX syntax highlighting', () => {
 	describe('shiki', () => {
 		it('works', async () => {
 			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				markdown: {
 					syntaxHighlight: 'shiki',
 				},
@@ -30,7 +30,7 @@ describe('MDX syntax highlighting', () => {
 
 		it('respects markdown.shikiConfig.theme', async () => {
 			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				markdown: {
 					syntaxHighlight: 'shiki',
 					shikiConfig: {
@@ -53,7 +53,7 @@ describe('MDX syntax highlighting', () => {
 	describe('prism', () => {
 		it('works', async () => {
 			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
+				root: new URL(FIXTURE_ROOT, import.meta.url),
 				markdown: {
 					syntaxHighlight: 'prism',
 				},
@@ -71,7 +71,7 @@ describe('MDX syntax highlighting', () => {
 		for (const extendMarkdownConfig of [true, false]) {
 			it(`respects syntaxHighlight when extendMarkdownConfig = ${extendMarkdownConfig}`, async () => {
 				const fixture = await loadFixture({
-					root: FIXTURE_ROOT,
+					root: new URL(FIXTURE_ROOT, import.meta.url),
 					markdown: {
 						syntaxHighlight: 'shiki',
 					},
@@ -97,7 +97,7 @@ describe('MDX syntax highlighting', () => {
 
 	it('supports custom highlighter - shiki-twoslash', async () => {
 		const fixture = await loadFixture({
-			root: FIXTURE_ROOT,
+			root: new URL(FIXTURE_ROOT, import.meta.url),
 			markdown: {
 				syntaxHighlight: false,
 			},
@@ -118,7 +118,7 @@ describe('MDX syntax highlighting', () => {
 
 	it('supports custom highlighter - rehype-pretty-code', async () => {
 		const fixture = await loadFixture({
-			root: FIXTURE_ROOT,
+			root: new URL(FIXTURE_ROOT, import.meta.url),
 			markdown: {
 				syntaxHighlight: false,
 			},

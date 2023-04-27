@@ -8,7 +8,7 @@ describe('getStaticPaths - build calls', () => {
 		globalThis.isCalledOnce = false;
 
 		const fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root: new URL('./fixtures/astro-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 			base: '/blog',
 		});
@@ -29,7 +29,7 @@ describe('getStaticPaths - dev calls', () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
 
-		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-get-static-paths/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -57,7 +57,7 @@ describe('getStaticPaths - 404 behavior', () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
 
-		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-get-static-paths/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -93,7 +93,7 @@ describe('getStaticPaths - route params type validation', () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
 
-		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-get-static-paths/', import.meta.url) });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -128,7 +128,7 @@ describe('getStaticPaths - numeric route params', () => {
 		globalThis.isCalledOnce = false;
 
 		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root: new URL('./fixtures/astro-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 		});
 		devServer = await fixture.startDevServer();
@@ -164,7 +164,7 @@ describe('getStaticPaths - Astro.url', () => {
 		globalThis.isCalledOnce = false;
 
 		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root: new URL('./fixtures/astro-get-static-paths/', import.meta.url),
 			site: 'https://mysite.dev/',
 		});
 		await fixture.build();

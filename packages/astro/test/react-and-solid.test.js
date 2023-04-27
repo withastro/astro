@@ -7,7 +7,7 @@ describe('Solid app with some React components', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/react-and-solid/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/react-and-solid/', import.meta.url) });
 		await fixture.build();
 	});
 

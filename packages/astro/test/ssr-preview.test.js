@@ -1,5 +1,5 @@
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('SSR Preview', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -7,7 +7,7 @@ describe('SSR Preview', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-preview/',
+			root: new URL('./fixtures/ssr-preview/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter({ extendAdapter: { previewEntrypoint: './preview.mjs' } }),
 		});

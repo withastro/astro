@@ -6,7 +6,7 @@ describe('Non-ASCII Path Test', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/non-ascii-path/测试/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/non-ascii-path/测试/', import.meta.url) });
 		await fixture.build();
 	});
 

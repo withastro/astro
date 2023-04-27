@@ -12,7 +12,7 @@ describe('Assets', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets/',
+			root: new URL('./fixtures/astro-assets/', import.meta.url),
 		});
 		await fixture.build();
 	});

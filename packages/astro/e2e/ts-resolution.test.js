@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/ts-resolution/' });
+const test = testFactory({ root: new URL('./fixtures/ts-resolution/', import.meta.url) });
 
 function runTest(it) {
 	it('client:idle', async ({ page, astro }) => {

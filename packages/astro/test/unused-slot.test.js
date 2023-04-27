@@ -6,7 +6,7 @@ describe('Unused slot', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/unused-slot/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/unused-slot/', import.meta.url) });
 		await fixture.build();
 	});
 

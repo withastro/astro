@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Using Astro.response in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -8,7 +8,7 @@ describe('Using Astro.response in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-response/',
+			root: new URL('./fixtures/ssr-response/', import.meta.url),
 			adapter: testAdapter(),
 			output: 'server',
 		});
@@ -16,21 +16,21 @@ describe('Using Astro.response in SSR', () => {
 	});
 
 	it('Can set the status', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/status-code');
 		const response = await app.render(request);
 		expect(response.status).to.equal(404);
 	});
 
 	it('Can set the statusText', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/status-code');
 		const response = await app.render(request);
 		expect(response.statusText).to.equal('Oops');
 	});
 
 	it('Can add headers', async () => {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/some-header');
 		const response = await app.render(request);
 		const headers = response.headers;

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from '../dist/testing/ssr-adapter.js';
 
 describe('Hoisted scripts in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,7 +9,7 @@ describe('Hoisted scripts in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-hoisted-script/',
+			root: new URL('./fixtures/ssr-hoisted-script/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -17,7 +17,7 @@ describe('Hoisted scripts in SSR', () => {
 	});
 
 	async function fetchHTML(path) {
-		const app = await fixture.loadTestAdapterApp();
+		const { app } = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com' + path);
 		const response = await app.render(request);
 		const html = await response.text();
@@ -35,7 +35,7 @@ describe('Hoisted scripts in SSR', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/ssr-hoisted-script/',
+				root: new URL('./fixtures/ssr-hoisted-script/', import.meta.url),
 				output: 'server',
 				adapter: testAdapter(),
 				base,

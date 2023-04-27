@@ -6,7 +6,7 @@ import { loadFixture } from './test-utils.js';
 let fixture;
 
 before(async () => {
-  fixture = await loadFixture({ root: './fixtures/astro-external-files/' });
+  fixture = await loadFixture({ root: new URL('./fixtures/astro-external-files/', import.meta.url) });
   await fixture.build();
 });
 

@@ -1,6 +1,6 @@
 import { prepareTestFactory } from './shared-component-tests.js';
 import { expect } from '@playwright/test';
-const { test, createTests } = prepareTestFactory({ root: './fixtures/vue-component/' });
+const { test, createTests } = prepareTestFactory({ root: new URL('./fixtures/vue-component/', import.meta.url) });
 
 const config = {
 	componentFilePath: './src/components/VueComponent.vue',

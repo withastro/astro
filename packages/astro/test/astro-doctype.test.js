@@ -6,7 +6,7 @@ describe('Doctype', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-doctype/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-doctype/', import.meta.url) });
 		await fixture.build();
 	});
 

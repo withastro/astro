@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { testFactory, getErrorOverlayContent } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/error-sass/',
+	root: new URL('./fixtures/error-sass/', import.meta.url),
 });
 
 let devServer;

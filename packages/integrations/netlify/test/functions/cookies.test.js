@@ -10,7 +10,7 @@ describe('Cookies', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('./fixtures/cookies/', import.meta.url).toString(),
+			root: new URL('./fixtures/cookies/', import.meta.url),
 			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/cookies/dist/', import.meta.url),

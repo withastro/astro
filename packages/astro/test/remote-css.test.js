@@ -7,7 +7,7 @@ describe('Remote CSS', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/remote-css/',
+			root: new URL('./fixtures/remote-css/', import.meta.url),
 		});
 		await fixture.build();
 	});

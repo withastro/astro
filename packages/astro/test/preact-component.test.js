@@ -8,7 +8,7 @@ describe('Preact component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/preact-component/',
+			root: new URL('./fixtures/preact-component/', import.meta.url),
 		});
 		await fixture.build();
 	});

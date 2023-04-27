@@ -7,7 +7,7 @@ describe('HTML Component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/html-component/',
+			root: new URL('./fixtures/html-component/', import.meta.url),
 		});
 	});
 

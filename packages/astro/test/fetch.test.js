@@ -6,7 +6,7 @@ describe('Global Fetch', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/fetch/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/fetch/', import.meta.url) });
 		await fixture.build();
 	});
 

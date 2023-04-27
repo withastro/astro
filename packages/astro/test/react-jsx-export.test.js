@@ -33,7 +33,7 @@ describe('react-jsx-export', () => {
 			level: 'warn',
 		};
 		fixture = await loadFixture({
-			root: './fixtures/react-jsx-export/',
+			root: new URL('./fixtures/react-jsx-export/', import.meta.url),
 		});
 		await fixture.build({ logging });
 	});

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
-import testAdapter from '../../../astro/test/test-adapter.js';
+import testAdapter from '../../../astro/dist/testing/ssr-adapter.js'
 
 let fixture;
 
@@ -11,7 +11,7 @@ const errorMessage =
 describe.skip('SSR picture without alt text', function () {
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/no-alt-text-picture/',
+			root: new URL('./fixtures/no-alt-text-picture/', import.meta.url),
 			adapter: testAdapter({ streaming: false }),
 			output: 'server',
 		});
@@ -20,7 +20,7 @@ describe.skip('SSR picture without alt text', function () {
 
 	it('throws during build', async () => {
 		try {
-			const app = await fixture.loadTestAdapterApp();
+			const { app } = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			await response.text();

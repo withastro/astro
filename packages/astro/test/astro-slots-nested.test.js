@@ -6,7 +6,7 @@ describe('Nested Slots', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-slots-nested/' });
+		fixture = await loadFixture({ root: new URL('./fixtures/astro-slots-nested/', import.meta.url) });
 		await fixture.build();
 	});
 

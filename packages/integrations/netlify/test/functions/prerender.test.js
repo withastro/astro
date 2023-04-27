@@ -8,7 +8,7 @@ describe('Mixed Prerendering with SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('./fixtures/prerender/', import.meta.url).toString(),
+			root: new URL('./fixtures/prerender/', import.meta.url),
 			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/prerender/dist/', import.meta.url),
