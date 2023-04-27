@@ -95,7 +95,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// A URL for the final build path after renaming
 				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
-				await esbuild.build({
+        await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
 					entryPoints: [entryPath],
@@ -103,7 +103,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					minify: true,
+					minify: _config.vite?.build?.minify !== false,
 					banner: {
 						js: SHIM,
 					},
