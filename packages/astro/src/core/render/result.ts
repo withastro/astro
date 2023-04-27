@@ -8,7 +8,6 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
-	AstroMiddleware,
 } from '../../@types/astro';
 import {
 	renderSlotToString,
