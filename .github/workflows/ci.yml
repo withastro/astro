@@ -240,7 +240,7 @@ jobs:
         run: pnpm run build
 
       - name: Remove docs translations except for English and Korean
-        run: find ./smoke/docs/src/content/docs ! -name 'en' ! -name 'ko' -type d -depth 1 -exec rm -rf {} +
+        run: find smoke/docs/src/content/docs ! -name 'en' ! -name 'ko' -type d -depth 1 -exec rm -rf {} +
 
       - name: Test
         run: pnpm run test:smoke
