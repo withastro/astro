@@ -67,54 +67,33 @@ declare module 'astro:content' {
 	type DataCollectionConfig<S extends BaseSchema> = {
 		type: 'data';
 		schema?: S | ((context: SchemaContext) => S);
-		reference(): import('astro/zod').ZodEffects<
-			import('astro/zod').ZodString,
-			{
-				id: string;
-				collection: string;
-				data: import('astro/zod').infer<S>;
-			}
-		>;
 	};
 
 	type ContentCollectionConfig<S extends BaseSchema> = {
 		type?: 'content';
 		schema?: S | ((context: SchemaContext) => S);
-		reference(): import('astro/zod').ZodEffects<
-			import('astro/zod').ZodString,
-			{
-				id: string;
-				slug: string;
-				collection: string;
-				data: import('astro/zod').infer<S>;
-				body: string;
-				/** Still working on `render()`! Need some changes to our schema serializer. */
-				render: never;
-			}
-		>;
 	};
 
 	type CollectionConfig<S> = ContentCollectionConfig<S> | DataCollectionConfig<S>;
 
 	export function defineCollection<S extends BaseSchema>(
-		input: Omit<CollectionConfig<S>, 'reference'>
+		input: CollectionConfig<S>
 	): CollectionConfig<S>;
 
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
-	type ValidEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<ContentEntryMap[C]>['slug'];
-
-	export async function reference<C extends keyof AnyEntryMap>(
-		collection: C
-	): import('astro/zod').ZodEffects<Promise<InferEntrySchema<C>>>;
+	type ValidContentEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<
+		ContentEntryMap[C]
+	>['slug'];
+	type ValidDataEntryId<C extends keyof DataEntryMap> = keyof DataEntryMap[C];
 
 	export function getEntryBySlug<
 		C extends keyof ContentEntryMap,
-		E extends ValidEntrySlug<C> | (string & {})
+		E extends ValidContentEntrySlug<C> | (string & {})
 	>(
 		collection: C,
 		// Note that this has to accept a regular string too, for SSR
 		entrySlug: E
-	): E extends ValidEntrySlug<C>
+	): E extends ValidContentEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
 
@@ -131,6 +110,26 @@ declare module 'astro:content' {
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => unknown
 	): Promise<CollectionEntry<C>[]>;
+
+	export function getEntry<
+		C extends keyof DataEntryMap,
+		E extends keyof DataEntryMap[C] | (string & {})
+	>({
+		collection: C,
+		id: E,
+	}): E extends keyof DataEntryMap[C]
+		? Promise<DataEntryMap[C][E]>
+		: Promise<CollectionEntry<C> | undefined>;
+
+	// Allow generic `string` type to avoid type errors in the config
+	// before `astro sync` is run.
+	// Invalid collections names will be caught at build time.
+	export function reference<C extends keyof AnyEntryMap | (string & {})>(
+		collection: C
+	): import('astro/zod').ZodEffects<{
+		collection: C;
+		id: C extends keyof AnyEntryMap ? keyof AnyEntryMap[C] : string;
+	}>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
 	type InferEntrySchema<C extends keyof AnyEntryMap> = import('astro/zod').infer<

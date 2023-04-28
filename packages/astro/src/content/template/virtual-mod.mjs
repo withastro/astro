@@ -3,6 +3,7 @@ import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
 	createGetEntryBySlug,
+	createGetEntry,
 	createGetDataEntryById,
 	createReference,
 } from 'astro/content/runtime';
@@ -48,32 +49,9 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	dir: contentDir,
 });
 
-let referenceKeyIncr = 0;
-
-function baseDefineCollection({ type = 'content', ...partialConfig }) {
-	// We don't know the collection name since this is defined on the `collections` export.
-	// Generate a unique key for the collection that we can use for lookups.
-	const referenceKey = String(referenceKeyIncr++);
-	return {
-		...partialConfig,
-		type,
-		reference: createReference({
-			lookupMap,
-			async getCollectionName() {
-				const { default: map } = await import('@@COLLECTION_NAME_BY_REFERENCE_KEY@@');
-				return map[referenceKey];
-			},
-		}),
-		referenceKey,
-	};
-}
-
 export function defineCollection(config) {
-	return baseDefineCollection(config);
-}
-
-export function defineDataCollection(config) {
-	return baseDefineCollection({ type: 'data', ...config });
+	if (!config.type) config.type = 'content';
+	return config;
 }
 
 // TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
@@ -96,3 +74,10 @@ export const getEntryBySlug = createGetEntryBySlug({
 export const getDataEntryById = createGetDataEntryById({
 	dataCollectionToEntryMap,
 });
+
+export const getEntry = createGetEntry({
+	getEntryImport: createGlobLookup({ ...contentCollectionToEntryMap, ...dataCollectionToEntryMap }),
+	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+});
+
+export const reference = createReference({ lookupMap });

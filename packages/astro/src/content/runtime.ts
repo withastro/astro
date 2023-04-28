@@ -16,6 +16,7 @@ type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
+type LookupMap = { [collectionName: string]: { [lookupId: string]: string } };
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -155,6 +156,65 @@ export function createGetDataEntryById({
 	};
 }
 
+export function createGetEntry({
+	getEntryImport,
+	getRenderEntryImport,
+}: {
+	getEntryImport: GetEntryImport;
+	getRenderEntryImport: GetEntryImport;
+}) {
+	console.log('okay');
+	return async function getEntry(
+		collectionOrLookupObject:
+			| string
+			| { collection: string; id: string }
+			| { collection: string; slug: string },
+		lookupId?: string
+	) {
+		let collection: string, id: string;
+		if (typeof collectionOrLookupObject === 'string') {
+			collection = collectionOrLookupObject;
+			id = lookupId!;
+		} else {
+			collection = collectionOrLookupObject.collection;
+			id =
+				'id' in collectionOrLookupObject
+					? collectionOrLookupObject.id
+					: collectionOrLookupObject.slug;
+		}
+
+		const entryImport = await getEntryImport(collection, id);
+		console.log({ id, collection, entryImport });
+		if (typeof entryImport !== 'function') return undefined;
+
+		const entry = await entryImport();
+
+		if (entry._internal.type === 'content') {
+			return {
+				id: entry.id,
+				slug: entry.slug,
+				body: entry.body,
+				collection: entry.collection,
+				data: entry.data,
+				async render() {
+					return render({
+						collection: entry.collection,
+						id: entry.id,
+						renderEntryImport: await getRenderEntryImport(collection, id),
+					});
+				},
+			};
+		} else if (entry._internal.type === 'data') {
+			return {
+				id: entry.id,
+				collection: entry.collection,
+				data: entry.data,
+			};
+		}
+		return undefined;
+	};
+}
+
 async function render({
 	collection,
 	id,
@@ -232,16 +292,9 @@ async function render({
 	};
 }
 
-export function createReference({
-	getCollectionName,
-	lookupMap,
-}: {
-	getCollectionName(): Promise<string>;
-	lookupMap: { [collectionName: string]: { [lookupId: string]: string } };
-}) {
-	return function reference() {
-		return zodString().transform(async (id: string, ctx) => {
-			const collection = await getCollectionName();
+export function createReference({ lookupMap }: { lookupMap: LookupMap }) {
+	return function reference(collection: string) {
+		return zodString().transform((id: string, ctx) => {
 			const flattenedErrorPath = ctx.path.join('.');
 			const lookupIds = lookupMap[collection];
 			if (!lookupIds) {

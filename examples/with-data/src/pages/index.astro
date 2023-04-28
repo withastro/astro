@@ -1,9 +1,11 @@
 ---
 import { Image } from 'astro:assets';
-import { getEntryBySlug } from 'astro:content';
+import { getEntryBySlug, getEntry } from 'astro:content';
 
 const welcomePost = await getEntryBySlug('blog', 'welcome');
 const { Content } = await welcomePost.render();
+const author = await getEntry(welcomePost.data.author);
+const banner = await getEntry(welcomePost.data.banner);
 ---
 
 <html lang="en">
@@ -15,7 +17,8 @@ const { Content } = await welcomePost.render();
 		<title>Astro</title>
 	</head>
 	<body>
-		<Image {...welcomePost.data.banner} />
+		<Image {...banner.data} />
+		<p>{author.data.name}</p>
 		<Content />
 	</body>
 </html>
