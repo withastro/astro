@@ -48,7 +48,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	// - `baseUrl` changes the way non-relative specifiers are resolved
 	// - if `baseUrl` exists then all non-relative specifiers are resolved relative to it
 	aliases.push({
-		find: /^(?!\.*\/|\w:)(.+)$/,
+		find: /^(?!\.*\/|\.*$|\w:)(.+)$/,
 		replacement: `${[...normalizePath(resolvedBaseUrl)]
 			.map((segment) => (segment === '$' ? '$$' : segment))
 			.join('')}/$1`,

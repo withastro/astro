@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 2.4.0
+
+### Minor Changes
+
+- [#6707](https://github.com/withastro/astro/pull/6707) [`4ea716e56`](https://github.com/withastro/astro/commit/4ea716e5692d23361e9301330ce52733b3d05b01) Thanks [@philnash](https://github.com/philnash)! - Added extra elements to the RSS items, including categories and enclosure
+
 ## 2.3.2
 
 ### Patch Changes
