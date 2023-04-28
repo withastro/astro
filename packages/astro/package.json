@@ -146,7 +146,7 @@
     "rehype": "^12.0.1",
     "semver": "^7.3.8",
     "server-destroy": "^1.0.1",
-    "shiki": "^0.11.1",
+    "shiki": "^0.14.1",
     "slash": "^4.0.0",
     "string-width": "^5.1.2",
     "strip-ansi": "^7.0.1",
