@@ -27,9 +27,6 @@ importers:
       '@changesets/cli':
         specifier: 2.23.0
         version: 2.23.0(patch_hash=kcozqtpxuwjzskw6zg5royevn4)
-      '@octokit/action':
-        specifier: ^3.18.1
-        version: 3.18.1
       '@types/node':
         specifier: ^18.7.21
         version: 18.7.21
@@ -39,9 +36,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^5.58.0
         version: 5.58.0(eslint@8.38.0)(typescript@5.0.2)
-      del:
-        specifier: ^7.0.0
-        version: 7.0.0
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
@@ -57,9 +51,6 @@ importers:
       eslint-plugin-prettier:
         specifier: ^4.2.1
         version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.7)
-      execa:
-        specifier: ^6.1.0
-        version: 6.1.0
       only-allow:
         specifier: ^1.1.1
         version: 1.1.1
@@ -72,9 +63,6 @@ importers:
       prettier-plugin-astro:
         specifier: ^0.8.0
         version: 0.8.0
-      pretty-bytes:
-        specifier: ^6.0.0
-        version: 6.0.0
       tiny-glob:
         specifier: ^0.2.9
         version: 0.2.9
@@ -5039,9 +5027,6 @@ importers:
       '@astrojs/webapi':
         specifier: workspace:*
         version: link:../packages/webapi
-      adm-zip:
-        specifier: ^0.5.9
-        version: 0.5.9
       arg:
         specifier: ^5.0.2
         version: 5.0.2
@@ -5061,9 +5046,18 @@ importers:
         specifier: ^6.1.11
         version: 6.1.11
     devDependencies:
+      '@octokit/action':
+        specifier: ^3.18.1
+        version: 3.18.1
+      del:
+        specifier: ^7.0.0
+        version: 7.0.0
       esbuild-plugin-copy:
         specifier: ^2.0.2
         version: 2.0.2(esbuild@0.17.12)
+      execa:
+        specifier: ^6.1.0
+        version: 6.1.0
       tsconfig-resolver:
         specifier: ^3.0.1
         version: 3.0.1
@@ -8364,7 +8358,7 @@ packages:
   /@ts-morph/common@0.16.0:
     resolution: {integrity: sha512-SgJpzkTgZKLKqQniCjLaE3c2L2sdL7UShvmTmPBejAKd2OKV/yfMpQ2IWpAuA+VY5wy7PkSUaEObIqEK6afFuw==}
     dependencies:
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       minimatch: 5.1.6
       mkdirp: 1.0.4
       path-browserify: 1.0.1
@@ -9316,11 +9310,6 @@ packages:
     resolution: {integrity: sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
-
-  /adm-zip@0.5.9:
-    resolution: {integrity: sha512-s+3fXLkeeLjZ2kLjCBwQufpI5fuN+kIGBxu6530nVQZGVol0d7Y/M88/xw9HGGUcJjKf8LutN3VPRUBq6N7Ajg==}
-    engines: {node: '>=6.0'}
-    dev: false
 
   /agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
@@ -12003,7 +11992,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       glob: 7.2.3
       ignore: 5.2.4
       merge2: 1.4.1
@@ -12016,7 +12005,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
@@ -12039,7 +12028,7 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 4.0.0
@@ -15195,6 +15184,7 @@ packages:
   /pretty-bytes@6.0.0:
     resolution: {integrity: sha512-6UqkYefdogmzqAZWzJ7laYeJnaXDy2/J+ZqiiMtS7t7OfpXWTlaeGMwX8U6EFvPV/YWWEKRkS8hKS4k60WHTOg==}
     engines: {node: ^14.13.1 || >=16.0.0}
+    dev: false
 
   /pretty-format@3.8.0:
     resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
