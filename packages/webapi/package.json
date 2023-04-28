@@ -50,7 +50,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "dependencies": {
-    "undici": "5.20.0"
+    "undici": "^5.22.0"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
