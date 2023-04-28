@@ -22,9 +22,10 @@ let code = `\
  * This file is prebuilt from packages/astro/scripts/shiki-gen-themes.mjs
  * Do not edit this directly, but instead edit that file and rerun it to generate this file.
  */
-`;
 
-code += `\n// prettier-ignore\nexport const themes = {`;
+// prettier-ignore
+export const themes = {`;
+
 for (const [key, imp] of themeImports) {
 	code += `\n\t'${key}': () => ${imp},`;
 }
