@@ -16,7 +16,7 @@ const service: LocalImageService = {
 
 		return squooshService.getHTMLAttributes(props, serviceOptions);
 	},
-	getURL(options, serviceOptions) {
+	getURL(options) {
 		const fileSrc = typeof options.src === 'string' ? options.src : options.src.src;
 
 		const searchParams = new URLSearchParams();
