@@ -800,8 +800,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       undici:
-        specifier: ^5.20.0
-        version: 5.20.0
+        specifier: ^5.22.0
+        version: 5.22.0
       unified:
         specifier: ^10.1.2
         version: 10.1.2
@@ -4291,8 +4291,8 @@ importers:
         specifier: ^1.11.0
         version: 1.11.0
       undici:
-        specifier: ^5.20.0
-        version: 5.20.0
+        specifier: ^5.22.0
+        version: 5.22.0
 
   packages/integrations/node/test/fixtures/api-route:
     dependencies:
@@ -4939,8 +4939,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       undici:
-        specifier: ^5.20.0
-        version: 5.20.0
+        specifier: ^5.22.0
+        version: 5.22.0
       which-pm-runs:
         specifier: ^1.1.0
         version: 1.1.0
@@ -4970,8 +4970,8 @@ importers:
   packages/webapi:
     dependencies:
       undici:
-        specifier: 5.20.0
-        version: 5.20.0
+        specifier: ^5.22.0
+        version: 5.22.0
     devDependencies:
       '@rollup/plugin-alias':
         specifier: ^3.1.9
@@ -16884,6 +16884,13 @@ packages:
   /undici@5.20.0:
     resolution: {integrity: sha512-J3j60dYzuo6Eevbawwp1sdg16k5Tf768bxYK4TUJRH7cBM4kFCbf3mOnM/0E3vQYXvpxITbbWmBafaDbxLDz3g==}
     engines: {node: '>=12.18'}
+    dependencies:
+      busboy: 1.6.0
+    dev: true
+
+  /undici@5.22.0:
+    resolution: {integrity: sha512-fR9RXCc+6Dxav4P9VV/sp5w3eFiSdOjJYsbtWfd4s5L5C4ogyuVpdKIVHeW0vV1MloM65/f7W45nR9ZxwVdyiA==}
+    engines: {node: '>=14.0'}
     dependencies:
       busboy: 1.6.0
 
