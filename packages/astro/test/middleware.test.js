@@ -1,7 +1,7 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
+import nodejs from '../../integrations/node/dist/index.js';
 
 describe('Middleware API in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -87,18 +87,17 @@ describe('Middleware API in DEV mode', () => {
 describe('Middleware API in PROD mode', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('./test-utils').PreviewServer} */
 	let previewServer;
 
 	before(async () => {
-		try {
-			fixture = await loadFixture({
-				root: './fixtures/middleware/',
-			});
-			await fixture.build();
-			previewServer = await fixture.preview();
-		} catch (e) {
-			console.log(e);
-		}
+		fixture = await loadFixture({
+			root: './fixtures/middleware/',
+			output: 'server',
+			adapter: nodejs({ mode: 'standalone' }),
+		});
+		await fixture.build();
+		previewServer = await fixture.preview();
 	});
 
 	// important: close preview server (free up port and connection)
