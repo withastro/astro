@@ -30,7 +30,6 @@ import {
 	hasContentFlag,
 	type ContentPaths,
 	getDataEntryId,
-	getCollectionDirByUrl,
 	reloadContentConfigObserver,
 } from './utils.js';
 
@@ -143,7 +142,6 @@ export const _internal = {
 							contentPaths,
 							contentEntryExts,
 							dataEntryExts,
-							getCollectionDirByUrl(pathToFileURL(entry), contentPaths),
 							settings.config.experimental.assets
 						);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
