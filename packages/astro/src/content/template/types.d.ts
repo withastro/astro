@@ -180,10 +180,7 @@ declare module 'astro:content' {
 	// Invalid collection names will be caught at build time.
 	export function reference<C extends string>(
 		collection: C
-	): import('astro/zod').ZodEffects<
-		import('astro/zod').ZodString,
-		{ collection: string; id: string }
-	>;
+	): import('astro/zod').ZodEffects<import('astro/zod').ZodString, never>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
 	type InferEntrySchema<C extends keyof AnyEntryMap> = import('astro/zod').infer<
