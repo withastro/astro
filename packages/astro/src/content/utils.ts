@@ -362,12 +362,10 @@ export async function loadContentConfig({
 	} catch (e) {
 		throw e;
 	}
-	console.log({ unparsedConfig });
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
 		return config.data;
 	} else {
-		console.log('error', config.error);
 		return undefined;
 	}
 }
