@@ -117,7 +117,7 @@ You can also check our [Astro Integration Documentation][astro-integration] for 
 
 Currently, errors during running your application in Wrangler are not very useful, due to the minification of your code. For better debugging, you can add `vite.build.minify = false` setting to your `astro.config.js`
 
-```
+```js
 export default defineConfig({
 	adapter: cloudflare(),
 	output: 'server',
