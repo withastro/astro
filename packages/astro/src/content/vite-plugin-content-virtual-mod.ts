@@ -58,6 +58,7 @@ export function astroContentVirtualModPlugin({
 				fs: fsMod,
 				contentPaths,
 				contentEntryConfigByExt,
+				dataEntryExts,
 				root: settings.config.root,
 			});
 

@@ -534,15 +534,17 @@ function search(fs: typeof fsMod, srcDir: URL) {
 export async function getStringifiedLookupMap({
 	contentPaths,
 	contentEntryConfigByExt,
+	dataEntryExts,
 	root,
 	fs,
 }: {
 	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
-	contentPaths: Pick<ContentPaths, 'contentDir' | 'cacheDir'>;
+	dataEntryExts: string[];
+	contentPaths: Pick<ContentPaths, 'contentDir' | 'dataDir' | 'cacheDir'>;
 	root: URL;
 	fs: typeof fsMod;
 }) {
-	const { contentDir } = contentPaths;
+	const { contentDir, dataDir } = contentPaths;
 	const globOpts: FastGlobOptions = {
 		absolute: true,
 		cwd: fileURLToPath(root),
@@ -552,14 +554,14 @@ export async function getStringifiedLookupMap({
 		},
 	};
 
+	let filePathByLookupId: {
+		[collection: string]: Record<string, string>;
+	} = {};
 	const relContentDir = rootRelativePath(root, contentDir, false);
 	const contentGlob = await glob(
 		`${relContentDir}**/*${getExtGlob([...contentEntryConfigByExt.keys()])}`,
 		globOpts
 	);
-	let filePathByLookupId: {
-		[collection: string]: Record<string, string>;
-	} = {};
 
 	await Promise.all(
 		contentGlob.map(async (filePath) => {
@@ -586,6 +588,26 @@ export async function getStringifiedLookupMap({
 				contentEntryType,
 			});
 			filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
+		})
+	);
+
+	const relDataDir = rootRelativePath(root, dataDir, false);
+	const dataGlob = await glob(`${relDataDir}**/*${getExtGlob(dataEntryExts)}`, globOpts);
+	await Promise.all(
+		dataGlob.map(async (filePath) => {
+			const collection = getEntryCollectionName({
+				dir: dataDir,
+				entry: pathToFileURL(filePath),
+			});
+			if (!collection) return;
+
+			const id = getDataEntryId({
+				entry: pathToFileURL(filePath),
+				dataDir,
+				collection,
+			});
+			filePathByLookupId[collection] ??= {};
+			filePathByLookupId[collection][id] = rootRelativePath(root, filePath);
 		})
 	);
 
