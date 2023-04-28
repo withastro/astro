@@ -34,7 +34,7 @@ let lookupMap = {};
 
 function createGlobLookup(glob) {
 	return async (collection, lookupId) => {
-		const filePath = lookupMap[collection]?.[lookupId];
+		const filePath = lookupMap[collection]?.entries[lookupId];
 
 		if (!filePath) return undefined;
 		return glob[collection][filePath];

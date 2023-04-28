@@ -84,7 +84,6 @@ declare module 'astro:content' {
 	type ValidContentEntrySlug<C extends keyof ContentEntryMap> = AllValuesOf<
 		ContentEntryMap[C]
 	>['slug'];
-	type ValidDataEntryId<C extends keyof DataEntryMap> = keyof DataEntryMap[C];
 
 	export function getEntryBySlug<
 		C extends keyof ContentEntryMap,
@@ -116,7 +115,7 @@ declare module 'astro:content' {
 		E extends keyof ValidContentEntrySlug<C> | (string & {})
 	>(params: {
 		collection: C;
-		id: E;
+		slug: E;
 	}): E extends keyof ValidContentEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
@@ -129,18 +128,43 @@ declare module 'astro:content' {
 	}): E extends keyof DataEntryMap[C]
 		? Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
+	export function getEntry<
+		C extends keyof ContentEntryMap,
+		E extends keyof ValidContentEntrySlug<C> | (string & {})
+	>(
+		collection: C,
+		slug: E
+	): E extends keyof ValidContentEntrySlug<C>
+		? Promise<CollectionEntry<C>>
+		: Promise<CollectionEntry<C> | undefined>;
+	export function getEntry<
+		C extends keyof DataEntryMap,
+		E extends keyof DataEntryMap[C] | (string & {})
+	>(
+		collection: C,
+		id: E
+	): E extends keyof DataEntryMap[C]
+		? Promise<DataEntryMap[C][E]>
+		: Promise<CollectionEntry<C> | undefined>;
 
 	export function reference<C extends keyof AnyEntryMap | (string & {})>(
 		collection: C
 	): import('astro/zod').ZodEffects<
 		import('astro/zod').ZodString,
-		{
-			collection: C;
-			// Allow generic `string` type to avoid type errors
-			// in the config before `astro sync` is run.
-			// Invalid collection names will be caught at build time.
-			id: C extends keyof AnyEntryMap ? keyof AnyEntryMap[C] : string;
-		}
+		C extends keyof ContentEntryMap
+			? {
+					collection: C;
+					slug: ValidContentEntrySlug<C>;
+			  }
+			: C extends keyof DataEntryMap
+			? {
+					collection: C;
+					id: keyof DataEntryMap[C];
+			  }
+			: // Allow generic `string` type to avoid type errors
+			  // in the config before `astro sync` is run.
+			  // Invalid collection names will be caught at build time.
+			  { collection: string; id: string }
 	>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;

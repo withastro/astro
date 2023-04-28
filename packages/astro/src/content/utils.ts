@@ -491,6 +491,10 @@ function search(fs: typeof fsMod, srcDir: URL) {
 	return { exists: false, url: paths[0] };
 }
 
+export type ContentLookupMap = {
+	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
+};
+
 export async function getStringifiedLookupMap({
 	contentPaths,
 	contentEntryConfigByExt,
@@ -514,9 +518,7 @@ export async function getStringifiedLookupMap({
 		},
 	};
 
-	let filePathByLookupId: {
-		[collection: string]: Record<string, string>;
-	} = {};
+	let lookupMap: ContentLookupMap = {};
 	const relContentDir = rootRelativePath(root, contentDir, false);
 	const contentGlob = await glob(
 		`${relContentDir}**/*${getExtGlob([...contentEntryConfigByExt.keys()])}`,
@@ -538,7 +540,7 @@ export async function getStringifiedLookupMap({
 				contentDir,
 				collection,
 			});
-			filePathByLookupId[collection] ??= {};
+			lookupMap[collection] ??= { type: 'content', entries: {} };
 			const slug = await getEntrySlug({
 				id,
 				collection,
@@ -547,7 +549,7 @@ export async function getStringifiedLookupMap({
 				fileUrl: pathToFileURL(filePath),
 				contentEntryType,
 			});
-			filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
+			lookupMap[collection].entries[slug] = rootRelativePath(root, filePath);
 		})
 	);
 
@@ -566,12 +568,12 @@ export async function getStringifiedLookupMap({
 				dataDir,
 				collection,
 			});
-			filePathByLookupId[collection] ??= {};
-			filePathByLookupId[collection][id] = rootRelativePath(root, filePath);
+			lookupMap[collection] ??= { type: 'data', entries: {} };
+			lookupMap[collection].entries[id] = rootRelativePath(root, filePath);
 		})
 	);
 
-	return JSON.stringify(filePathByLookupId);
+	return JSON.stringify(lookupMap);
 }
 
 /**

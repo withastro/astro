@@ -1,7 +1,6 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import { ZodIssueCode, string as zodString, type z } from 'zod';
-
 import {
 	createComponent,
 	createHeadAndContent,
@@ -11,12 +10,12 @@ import {
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import type { ContentLookupMap } from './utils.js';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
 type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
-type LookupMap = { [collectionName: string]: { [lookupId: string]: string } };
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -292,12 +291,11 @@ async function render({
 	};
 }
 
-export function createReference({ lookupMap }: { lookupMap: LookupMap }) {
+export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
 	return function reference(collection: string) {
-		return zodString().transform((id: string, ctx) => {
+		return zodString().transform((lookupId: string, ctx) => {
 			const flattenedErrorPath = ctx.path.join('.');
-			const lookupIds = lookupMap[collection];
-			if (!lookupIds) {
+			if (!lookupMap[collection]) {
 				ctx.addIssue({
 					code: ZodIssueCode.custom,
 					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
@@ -305,20 +303,25 @@ export function createReference({ lookupMap }: { lookupMap: LookupMap }) {
 				return;
 			}
 
-			const entry = lookupIds[id];
+			const { type, entries } = lookupMap[collection];
+			const entry = entries[lookupId];
 
 			if (!entry) {
 				ctx.addIssue({
 					code: ZodIssueCode.custom,
 					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
-						lookupIds
+						entries
 					)
 						.map((c) => JSON.stringify(c))
-						.join(' | ')}. Received ${JSON.stringify(id)}.`,
+						.join(' | ')}. Received ${JSON.stringify(lookupId)}.`,
 				});
 				return;
 			}
-			return { id, collection };
+			// Content is still indentified by slugs, so map to a `slug` key for consistency.
+			if (type === 'content') {
+				return { slug: lookupId, collection };
+			}
+			return { id: lookupId, collection };
 		});
 	};
 }
