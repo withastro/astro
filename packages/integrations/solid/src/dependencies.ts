@@ -8,7 +8,7 @@ export async function getSolidPkgsConfig(isBuild: boolean, astroConfig: AstroCon
 		isBuild,
 		viteUserConfig: astroConfig.vite,
 		isFrameworkPkgByJson(pkgJson) {
-			return containsSolidField(pkgJson.exports || {});
+			return containsSolidField(pkgJson.exports || {}) || !!(pkgJson.peerDependencies || {})['solid-js'];
 		},
 	});
 }
