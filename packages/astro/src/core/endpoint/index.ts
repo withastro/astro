@@ -5,7 +5,6 @@ import type {
 	EndpointHandler,
 	EndpointOutput,
 	MiddlewareEndpointHandler,
-	MiddlewareHandler,
 	Params,
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
@@ -129,21 +128,26 @@ export async function call(
 		adapterName: env.adapterName,
 	});
 
-	let response;
+	let response = await renderEndpoint(mod, context, env.ssr);
 	if (middleware && middleware.onRequest) {
-		const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
-		response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
-			const result = await renderEndpoint(mod, context, env.ssr);
-			if (env.mode === 'development' && !isValueSerializable(context.locals)) {
-				throw new AstroError({
-					...AstroErrorData.LocalsNotSerializable,
-					message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
-				});
-			}
-			return result;
-		});
-	} else {
-		response = await renderEndpoint(mod, context, env.ssr);
+		if (response.body === null) {
+			const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
+			response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
+				if (env.mode === 'development' && !isValueSerializable(context.locals)) {
+					throw new AstroError({
+						...AstroErrorData.LocalsNotSerializable,
+						message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+					});
+				}
+				return response;
+			});
+		} else {
+			warn(
+				env.logging,
+				'middleware',
+				"Middleware doesn't work for endpoints that return a simple body. The middleware will be disabled for this page."
+			);
+		}
 	}
 
 	if (response instanceof Response) {
