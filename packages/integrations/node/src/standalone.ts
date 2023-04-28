@@ -30,7 +30,7 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 		return '127.0.0.1';
 	} else if (host === true) {
 		// If passed --host in the CLI without arguments
-		return getNetworkAddress(); // undefined typically means 0.0.0.0 or :: (listen on all IPs)
+		return undefined; // undefined typically means 0.0.0.0 or :: (listen on all IPs)
 	} else {
 		return host;
 	}
