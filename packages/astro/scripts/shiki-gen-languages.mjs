@@ -15,8 +15,8 @@ let code = `\
 
 import { BUNDLED_LANGUAGES } from 'shiki';
 
-function handleLang(grammar, lang) {
-	const lang = BUNDLED_LANGUAGES.find((l) => l.id === lang);
+function handleLang(grammar, language) {
+	const lang = BUNDLED_LANGUAGES.find((l) => l.id === language);
 	if (lang) {
 		return {
 			...lang,
