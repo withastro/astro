@@ -1,12 +1,12 @@
 ---
 import { Image } from 'astro:assets';
-import { getEntryBySlug, getEntry } from 'astro:content';
+import { getEntry, getEntries } from 'astro:content';
 
-const welcomePost = await getEntryBySlug('blog', 'welcome');
+const welcomePost = await getEntry('blog', 'welcome');
 const { Content } = await welcomePost.render();
 const author = await getEntry(welcomePost.data.author);
 const banner = await getEntry(welcomePost.data.banner);
-const relatedPosts = await Promise.all(welcomePost.data.relatedPosts!.map((p) => getEntry(p)));
+const relatedPosts = await getEntries(welcomePost.data.relatedPosts ?? []);
 ---
 
 <html lang="en">
