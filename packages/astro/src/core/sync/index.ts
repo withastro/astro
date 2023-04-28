@@ -4,7 +4,7 @@ import { performance } from 'node:perf_hooks';
 import { createServer } from 'vite';
 import type { Arguments } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
-import { createCollectionTypesGenerator } from '../../content/index.js';
+import { createContentTypesGenerator } from '../../content/index.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { runHookConfigSetup } from '../../integrations/index.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
@@ -75,7 +75,7 @@ export async function sync(
 	);
 
 	try {
-		const contentTypesGenerator = await createCollectionTypesGenerator({
+		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logging,
 			fs,
@@ -91,7 +91,7 @@ export async function sync(
 
 		if (typesResult.typesGenerated === false) {
 			switch (typesResult.reason) {
-				case 'no-dirs':
+				case 'no-content-dir':
 				default:
 					info(logging, 'content', 'No content directory found. Skipping type generation.');
 					return 0;

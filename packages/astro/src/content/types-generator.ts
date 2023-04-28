@@ -20,19 +20,30 @@ import {
 	getEntryCollectionName,
 	getDataEntryExts,
 	getDataEntryId,
-	getCollectionDirByUrl,
 	reloadContentConfigObserver,
 } from './utils.js';
-import { rootRelativePath } from '../core/util.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
-type ContentEvent = { name: ChokidarEvent; entry: URL; collectionDir: 'content' | 'data' };
+type ContentEvent = { name: ChokidarEvent; entry: URL };
 
 type DataEntryMetadata = Record<string, never>;
 type ContentEntryMetadata = { slug: string };
-type ContentCollectionEntryMap = Record<string, Record<string, ContentEntryMetadata>>;
-type DataCollectionEntryMap = Record<string, Record<string, DataEntryMetadata>>;
+type CollectionEntryMap = {
+	[collection: string]:
+		| {
+				type: 'unknown';
+				entries: Record<string, never>;
+		  }
+		| {
+				type: 'content';
+				entries: Record<string, ContentEntryMetadata>;
+		  }
+		| {
+				type: 'data';
+				entries: Record<string, DataEntryMetadata>;
+		  };
+};
 
 type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
@@ -46,21 +57,20 @@ type CreateContentGeneratorParams = {
 type EventOpts = { logLevel: 'info' | 'warn' };
 
 type EventWithOptions = {
-	event: ContentEvent;
+	type: ContentEvent;
 	opts: EventOpts | undefined;
 };
 
 class UnsupportedFileTypeError extends Error {}
 
-export async function createCollectionTypesGenerator({
+export async function createContentTypesGenerator({
 	contentConfigObserver,
 	fs,
 	logging,
 	settings,
 	viteServer,
 }: CreateContentGeneratorParams) {
-	const contentCollectionEntryMap: ContentCollectionEntryMap = {};
-	const dataCollectionEntryMap: DataCollectionEntryMap = {};
+	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
@@ -72,39 +82,32 @@ export async function createCollectionTypesGenerator({
 	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
 	async function init(): Promise<
-		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-dirs' }
+		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
 	> {
-		if (!fs.existsSync(contentPaths.contentDir) && !fs.existsSync(contentPaths.dataDir)) {
-			return { typesGenerated: false, reason: 'no-dirs' };
+		if (!fs.existsSync(contentPaths.contentDir)) {
+			return { typesGenerated: false, reason: 'no-content-dir' };
 		}
 
 		events.push({
-			event: { name: 'add', entry: contentPaths.config.url, collectionDir: 'content' },
+			type: { name: 'add', entry: contentPaths.config.url },
 			opts: { logLevel: 'warn' },
 		});
 
-		const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir, false);
-		const relDataDir = rootRelativePath(settings.config.root, contentPaths.dataDir, false);
-
-		const globResult = await glob([relContentDir + '**', relDataDir + '**'], {
-			absolute: true,
-			cwd: fileURLToPath(settings.config.root),
+		const globResult = await glob('**', {
+			cwd: fileURLToPath(contentPaths.contentDir),
 			fs: {
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
 			},
 		});
 		const entries = globResult
-			.map((e) => pathToFileURL(e))
+			.map((e) => new URL(e, contentPaths.contentDir))
 			.filter(
 				// Config loading handled first. Avoid running twice.
 				(e) => !e.href.startsWith(contentPaths.config.url.href)
 			);
 		for (const entry of entries) {
-			events.push({
-				event: { name: 'add', entry, collectionDir: getCollectionDirByUrl(entry, contentPaths)! },
-				opts: { logLevel: 'warn' },
-			});
+			events.push({ type: { name: 'add', entry }, opts: { logLevel: 'warn' } });
 		}
 		await runEvents();
 		return { typesGenerated: true };
@@ -124,17 +127,15 @@ export async function createCollectionTypesGenerator({
 			const isCollectionEvent = collection.split('/').length === 1;
 			if (!isCollectionEvent) return { shouldGenerateTypes: false };
 
-			const collectionEntryMap =
-				event.collectionDir === 'content' ? contentCollectionEntryMap : dataCollectionEntryMap;
 			switch (event.name) {
 				case 'addDir':
-					addCollection(collectionEntryMap, JSON.stringify(collection));
+					collectionEntryMap[JSON.stringify(collection)] = { type: 'unknown', entries: {} };
 					if (logLevel === 'info') {
 						info(logging, 'content', `${cyan(collection)} collection added`);
 					}
 					break;
 				case 'unlinkDir':
-					removeCollection(collectionEntryMap, JSON.stringify(collection));
+					delete collectionEntryMap[JSON.stringify(collection)];
 					break;
 			}
 			return { shouldGenerateTypes: true };
@@ -144,7 +145,6 @@ export async function createCollectionTypesGenerator({
 			contentPaths,
 			contentEntryExts,
 			dataEntryExts,
-			event.collectionDir,
 			settings.config.experimental.assets
 		);
 		if (fileType === 'ignored') {
@@ -171,20 +171,18 @@ export async function createCollectionTypesGenerator({
 		}
 
 		const { entry } = event;
-		const collectionDir =
-			event.collectionDir === 'content' ? contentPaths.contentDir : contentPaths.dataDir;
+		const { contentDir } = contentPaths;
 
-		const collection = getEntryCollectionName({
-			entry,
-			dir: collectionDir,
-		});
+		const collection = getEntryCollectionName({ entry, contentDir });
 		if (collection === undefined) {
 			if (['info', 'warn'].includes(logLevel)) {
 				warn(
 					logging,
 					'content',
 					`${cyan(
-						normalizePath(path.relative(fileURLToPath(collectionDir), fileURLToPath(event.entry)))
+						normalizePath(
+							path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
+						)
 					)} must be nested in a collection directory. Skipping.`
 				);
 			}
@@ -192,25 +190,35 @@ export async function createCollectionTypesGenerator({
 		}
 
 		if (fileType === 'data') {
-			const id = getDataEntryId({ entry, dataDir: contentPaths.dataDir, collection });
+			const id = getDataEntryId({ entry, contentDir, collection });
 			const collectionKey = JSON.stringify(collection);
 			const entryKey = JSON.stringify(id);
 
 			switch (event.name) {
 				case 'add':
-					if (!(collectionKey in dataCollectionEntryMap)) {
-						addCollection(dataCollectionEntryMap, collectionKey);
+					if (!(collectionKey in collectionEntryMap)) {
+						collectionEntryMap[collectionKey] = { type: 'data', entries: {} };
 					}
-					if (!(entryKey in dataCollectionEntryMap[collectionKey])) {
-						setEntry(dataCollectionEntryMap, collectionKey, entryKey, {});
+					const collectionInfo = collectionEntryMap[collectionKey];
+					if (collectionInfo.type === 'content') {
+						// TODO: AstroError
+						throw new Error(
+							`${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`
+						);
+					}
+					if (!(entryKey in collectionEntryMap[collectionKey])) {
+						collectionEntryMap[collectionKey] = {
+							type: 'data',
+							entries: { ...collectionInfo.entries, [entryKey]: {} },
+						};
 					}
 					return { shouldGenerateTypes: true };
 				case 'unlink':
 					if (
-						collectionKey in dataCollectionEntryMap &&
-						entryKey in dataCollectionEntryMap[collectionKey]
+						collectionKey in collectionEntryMap &&
+						entryKey in collectionEntryMap[collectionKey].entries
 					) {
-						removeEntry(dataCollectionEntryMap, collectionKey, entryKey);
+						delete collectionEntryMap[collectionKey].entries[entryKey];
 					}
 					return { shouldGenerateTypes: true };
 				case 'change':
@@ -220,13 +228,19 @@ export async function createCollectionTypesGenerator({
 
 		const contentEntryType = contentEntryConfigByExt.get(path.extname(event.entry.pathname));
 		if (!contentEntryType) return { shouldGenerateTypes: false };
-		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({
-			entry,
-			contentDir: contentPaths.contentDir,
-			collection,
-		});
+		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
 
 		const collectionKey = JSON.stringify(collection);
+		if (!(collectionKey in collectionEntryMap)) {
+			collectionEntryMap[collectionKey] = { type: 'content', entries: {} };
+		}
+		const collectionInfo = collectionEntryMap[collectionKey];
+		if (collectionInfo.type === 'data') {
+			// TODO: AstroError
+			throw new Error(
+				`${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`
+			);
+		}
 		const entryKey = JSON.stringify(id);
 
 		switch (event.name) {
@@ -239,21 +253,19 @@ export async function createCollectionTypesGenerator({
 					contentEntryType,
 					fs,
 				});
-				if (!(collectionKey in contentCollectionEntryMap)) {
-					addCollection(contentCollectionEntryMap, collectionKey);
-				}
-				if (!(entryKey in contentCollectionEntryMap[collectionKey])) {
-					setEntry(contentCollectionEntryMap, collectionKey, entryKey, {
-						slug: addedSlug,
-					});
+				if (!(entryKey in collectionEntryMap[collectionKey].entries)) {
+					collectionEntryMap[collectionKey] = {
+						type: 'content',
+						entries: { ...collectionInfo.entries, [entryKey]: { slug: addedSlug } },
+					};
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
 				if (
-					collectionKey in contentCollectionEntryMap &&
-					entryKey in contentCollectionEntryMap[collectionKey]
+					collectionKey in collectionEntryMap &&
+					entryKey in collectionEntryMap[collectionKey].entries
 				) {
-					removeEntry(contentCollectionEntryMap, collectionKey, entryKey);
+					delete collectionEntryMap[collectionKey].entries[entryKey];
 				}
 				return { shouldGenerateTypes: true };
 			case 'change':
@@ -267,11 +279,9 @@ export async function createCollectionTypesGenerator({
 					contentEntryType,
 					fs,
 				});
-				const entryMetadata = contentCollectionEntryMap[collectionKey]?.[entryKey];
+				const entryMetadata = collectionInfo.entries[entryKey];
 				if (entryMetadata?.slug !== changedSlug) {
-					setEntry(contentCollectionEntryMap, collectionKey, entryKey, {
-						slug: changedSlug,
-					});
+					collectionInfo.entries[entryKey].slug = changedSlug;
 					return { shouldGenerateTypes: true };
 				}
 				return { shouldGenerateTypes: false };
@@ -279,14 +289,16 @@ export async function createCollectionTypesGenerator({
 	}
 
 	function queueEvent(rawEvent: RawContentEvent, opts?: EventOpts) {
-		const entryUrl = pathToFileURL(rawEvent.entry);
-		const collectionDir = getCollectionDirByUrl(entryUrl, contentPaths);
-		if (!collectionDir) return;
-
-		events.push({
-			event: { name: rawEvent.name, entry: entryUrl, collectionDir: collectionDir },
+		const event = {
+			type: {
+				entry: pathToFileURL(rawEvent.entry),
+				name: rawEvent.name,
+			},
 			opts,
-		});
+		};
+		if (!event.type.entry.pathname.startsWith(contentPaths.contentDir.pathname)) return;
+
+		events.push(event);
 
 		debounceTimeout && clearTimeout(debounceTimeout);
 		const runEventsSafe = async () => {
@@ -306,7 +318,7 @@ export async function createCollectionTypesGenerator({
 		const eventResponses = [];
 
 		for (const event of events) {
-			const response = await handleEvent(event.event, event.opts);
+			const response = await handleEvent(event.type, event.opts);
 			eventResponses.push(response);
 		}
 
@@ -330,8 +342,7 @@ export async function createCollectionTypesGenerator({
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
 				fs,
-				contentCollectionEntryMap,
-				dataCollectionEntryMap,
+				collectionEntryMap,
 				contentPaths,
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
@@ -342,8 +353,7 @@ export async function createCollectionTypesGenerator({
 				warnNonexistentCollections({
 					logging,
 					contentConfig: observable.config,
-					contentCollectionEntryMap,
-					dataCollectionEntryMap,
+					collectionEntryMap,
 				});
 			}
 		}
@@ -360,82 +370,59 @@ function invalidateVirtualMod(viteServer: ViteDevServer) {
 	viteServer.moduleGraph.invalidateModule(virtualMod);
 }
 
-function addCollection(
-	map: ContentCollectionEntryMap | DataCollectionEntryMap,
-	collectionKey: string
-) {
-	map[collectionKey] = {};
-}
-
-function removeCollection(
-	map: ContentCollectionEntryMap | DataCollectionEntryMap,
-	collectionKey: string
-) {
-	delete map[collectionKey];
-}
-
-function setEntry<C extends ContentCollectionEntryMap | DataCollectionEntryMap>(
-	map: C,
-	collectionKey: string,
-	entryKey: string,
-	metadata: C[keyof C][string]
-) {
-	map[collectionKey][entryKey] = metadata;
-}
-
-function removeEntry(
-	map: ContentCollectionEntryMap | DataCollectionEntryMap,
-	collectionKey: string,
-	entryKey: string
-) {
-	delete map[collectionKey][entryKey];
-}
-
 async function writeContentFiles({
 	fs,
 	contentPaths,
-	contentCollectionEntryMap,
-	dataCollectionEntryMap,
+	collectionEntryMap,
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
-	contentCollectionEntryMap: ContentCollectionEntryMap;
-	dataCollectionEntryMap: DataCollectionEntryMap;
+	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
 	contentEntryTypes: ContentEntryType[];
 	contentConfig?: ContentConfig;
 }) {
 	let contentTypesStr = '';
-	for (const collectionKey of Object.keys(contentCollectionEntryMap).sort()) {
-		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
-		contentTypesStr += `${collectionKey}: {\n`;
-		const entryKeys = Object.keys(contentCollectionEntryMap[collectionKey]).sort();
-		for (const entryKey of entryKeys) {
-			const entryMetadata = contentCollectionEntryMap[collectionKey][entryKey];
-			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			const renderType = `{ render(): Render[${JSON.stringify(
-				path.extname(JSON.parse(entryKey))
-			)}] }`;
-
-			const slugType = JSON.stringify(entryMetadata.slug);
-			contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
-		}
-		contentTypesStr += `};\n`;
-	}
-
 	let dataTypesStr = '';
-	for (const collectionKey of Object.keys(dataCollectionEntryMap).sort()) {
+	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
-		dataTypesStr += `${collectionKey}: {\n`;
-		const entryKeys = Object.keys(dataCollectionEntryMap[collectionKey]).sort();
-		for (const entryKey of entryKeys) {
-			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+		const collection = collectionEntryMap[collectionKey];
+		if (collectionConfig?.type && collection.type !== collectionConfig.type) {
+			// TODO: AstroError
+			throw new Error(
+				`${collectionKey} contains ${collection.type} entries, but is configured as ${collectionConfig.type}.`
+			);
 		}
-		dataTypesStr += `};\n`;
+		switch (collection.type) {
+			case 'content':
+				contentTypesStr += `${collectionKey}: {\n`;
+				for (const entryKey of Object.keys(collection.entries).sort()) {
+					const entryMetadata = collection.entries[entryKey];
+					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+					const renderType = `{ render(): Render[${JSON.stringify(
+						path.extname(JSON.parse(entryKey))
+					)}] }`;
+
+					const slugType = JSON.stringify(entryMetadata.slug);
+					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
+				}
+				contentTypesStr += `};\n`;
+				break;
+			case 'data':
+			// Add empty / unknown collections to the data type map by default
+			// This ensures `getCollection('empty-collection')` doesn't raise a type error
+			case 'unknown':
+				dataTypesStr += `${collectionKey}: {\n`;
+				for (const entryKey of Object.keys(collection.entries).sort()) {
+					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+				}
+				dataTypesStr += `};\n`;
+				break;
+		}
 	}
 
 	if (!fs.existsSync(contentPaths.cacheDir)) {
@@ -473,22 +460,15 @@ async function writeContentFiles({
 
 function warnNonexistentCollections({
 	contentConfig,
-	contentCollectionEntryMap,
-	dataCollectionEntryMap,
+	collectionEntryMap,
 	logging,
 }: {
 	contentConfig: ContentConfig;
-	contentCollectionEntryMap: ContentCollectionEntryMap;
-	dataCollectionEntryMap: DataCollectionEntryMap;
+	collectionEntryMap: CollectionEntryMap;
 	logging: LogOptions;
 }) {
 	for (const configuredCollection in contentConfig.collections) {
-		const collectionType = contentConfig.collections[configuredCollection].type;
-		if (
-			(collectionType === 'content' &&
-				!contentCollectionEntryMap[JSON.stringify(configuredCollection)]) ||
-			(collectionType === 'data' && !dataCollectionEntryMap[JSON.stringify(configuredCollection)])
-		) {
+		if (!collectionEntryMap[JSON.stringify(configuredCollection)]) {
 			warn(
 				logging,
 				'content',

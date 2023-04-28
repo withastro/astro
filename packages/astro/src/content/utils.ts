@@ -177,9 +177,12 @@ export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'con
 	return map;
 }
 
-export function getEntryCollectionName({ dir, entry }: { dir: URL; entry: string | URL }) {
+export function getEntryCollectionName({
+	contentDir,
+	entry,
+}: Pick<ContentPaths, 'contentDir'> & { entry: string | URL }) {
 	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
-	const rawRelativePath = path.relative(fileURLToPath(dir), entryPath);
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
 	const collectionName = path.dirname(rawRelativePath).split(path.sep).shift() ?? '';
 	const isOutsideCollection =
 		collectionName === '' || collectionName === '..' || collectionName === '.';
@@ -193,14 +196,10 @@ export function getEntryCollectionName({ dir, entry }: { dir: URL; entry: string
 
 export function getDataEntryId({
 	entry,
-	dataDir,
+	contentDir,
 	collection,
-}: {
-	dataDir: URL;
-	entry: URL;
-	collection: string;
-}): string {
-	const rawRelativePath = path.relative(fileURLToPath(dataDir), fileURLToPath(entry));
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
 	const rawId = path.relative(collection, rawRelativePath);
 	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
 
@@ -211,11 +210,7 @@ export function getContentEntryIdAndSlug({
 	entry,
 	contentDir,
 	collection,
-}: {
-	contentDir: URL;
-	entry: URL;
-	collection: string;
-}): {
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): {
 	id: string;
 	slug: string;
 } {
@@ -240,10 +235,9 @@ export function getContentEntryIdAndSlug({
 
 export function getEntryType(
 	entryPath: string,
-	paths: Pick<ContentPaths, 'config' | 'contentDir' | 'dataDir'>,
+	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
 	contentFileExts: string[],
 	dataFileExts: string[],
-	collectionDir?: 'content' | 'data',
 	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
 	experimentalAssets = false
 ): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
@@ -251,18 +245,14 @@ export function getEntryType(
 	const fileUrl = pathToFileURL(entryPath);
 
 	if (
-		(experimentalAssets && isImageAsset(ext)) ||
-		(collectionDir &&
-			(hasUnderscoreBelowDirectoryPath(
-				fileUrl,
-				collectionDir === 'content' ? paths.contentDir : paths.dataDir
-			) ||
-				isOnIgnoreList(base)))
+		hasUnderscoreBelowContentDirectoryPath(fileUrl, paths.contentDir) ||
+		isOnIgnoreList(base) ||
+		(experimentalAssets && isImageAsset(ext))
 	) {
 		return 'ignored';
-	} else if (contentFileExts.includes(ext) && collectionDir === 'content') {
+	} else if (contentFileExts.includes(ext)) {
 		return 'content';
-	} else if (dataFileExts.includes(ext) && collectionDir === 'data') {
+	} else if (dataFileExts.includes(ext)) {
 		return 'data';
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
@@ -282,8 +272,11 @@ function isImageAsset(fileExt: string) {
 	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
-function hasUnderscoreBelowDirectoryPath(fileUrl: URL, dir: URL): boolean {
-	const parts = fileUrl.pathname.replace(dir.pathname, '').split('/');
+function hasUnderscoreBelowContentDirectoryPath(
+	fileUrl: URL,
+	contentDir: ContentPaths['contentDir']
+): boolean {
+	const parts = fileUrl.pathname.replace(contentDir.pathname, '').split('/');
 	for (const part of parts) {
 		if (part.startsWith('_')) return true;
 	}
@@ -334,7 +327,7 @@ export const globalContentConfigObserver = contentObservable({ status: 'init' })
 const InvalidDataCollectionConfigError = {
 	...AstroErrorData.UnknownContentCollectionError,
 	message: (dataExtsStringified: string, collection: string) =>
-		`Found a non-data collection with ${dataExtsStringified} files: **${collection}.** To make this a data collection, 1) move to \`src/data/\`, and 2) use the \`defineDataCollection()\` helper or add \`type: 'data'\` to your collection config.`,
+		`Found a non-data collection with ${dataExtsStringified} files: **${collection}.** To make this a data collection, use the \`defineDataCollection()\` helper or add \`type: 'data'\` to your collection config.`,
 };
 
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]) {
@@ -395,18 +388,6 @@ export async function reloadContentConfigObserver({
 	}
 }
 
-export function getCollectionDirByUrl(
-	url: URL,
-	contentPaths: Pick<ContentPaths, 'contentDir' | 'dataDir'>
-): 'content' | 'data' | undefined {
-	if (url.href.startsWith(contentPaths.contentDir.href)) {
-		return 'content';
-	} else if (url.href.startsWith(contentPaths.dataDir.href)) {
-		return 'data';
-	}
-	return undefined;
-}
-
 type ContentCtx =
 	| { status: 'init' }
 	| { status: 'loading' }
@@ -448,7 +429,6 @@ export function contentObservable(initialCtx: ContentCtx): ContentObservable {
 
 export type ContentPaths = {
 	contentDir: URL;
-	dataDir: URL;
 	assetsDir: URL;
 	cacheDir: URL;
 	typesTemplate: URL;
@@ -469,7 +449,6 @@ export function getContentPaths(
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
-		dataDir: new URL('./data/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
 		typesTemplate: new URL('types.d.ts', templateDir),
 		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
@@ -494,7 +473,7 @@ export type ContentLookupMap = {
 };
 
 export async function getStringifiedLookupMap({
-	contentPaths,
+	contentDir,
 	contentEntryConfigByExt,
 	dataEntryExts,
 	root,
@@ -502,11 +481,10 @@ export async function getStringifiedLookupMap({
 }: {
 	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
 	dataEntryExts: string[];
-	contentPaths: Pick<ContentPaths, 'contentDir' | 'dataDir' | 'cacheDir'>;
+	contentDir: URL;
 	root: URL;
 	fs: typeof fsMod;
 }) {
-	const { contentDir, dataDir } = contentPaths;
 	const globOpts: FastGlobOptions = {
 		absolute: true,
 		cwd: fileURLToPath(root),
@@ -527,10 +505,7 @@ export async function getStringifiedLookupMap({
 		contentGlob.map(async (filePath) => {
 			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
 			if (!contentEntryType) return;
-			const collection = getEntryCollectionName({
-				dir: contentDir,
-				entry: pathToFileURL(filePath),
-			});
+			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
 			if (!collection) return;
 
 			const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
@@ -551,19 +526,18 @@ export async function getStringifiedLookupMap({
 		})
 	);
 
-	const relDataDir = rootRelativePath(root, dataDir, false);
-	const dataGlob = await glob(`${relDataDir}**/*${getExtGlob(dataEntryExts)}`, globOpts);
+	const dataGlob = await glob(`${relContentDir}**/*${getExtGlob(dataEntryExts)}`, globOpts);
 	await Promise.all(
 		dataGlob.map(async (filePath) => {
 			const collection = getEntryCollectionName({
-				dir: dataDir,
+				contentDir,
 				entry: pathToFileURL(filePath),
 			});
 			if (!collection) return;
 
 			const id = getDataEntryId({
 				entry: pathToFileURL(filePath),
-				dataDir,
+				contentDir,
 				collection,
 			});
 			lookupMap[collection] ??= { type: 'data', entries: {} };
