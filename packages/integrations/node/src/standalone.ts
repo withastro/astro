@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from './http-server.js';
 import middleware from './nodeMiddleware.js';
+import { getNetworkAddress } from './get-network-address.js'
 import type { Options } from './types';
 
 function resolvePaths(options: Options) {
@@ -29,7 +30,7 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 		return '127.0.0.1';
 	} else if (host === true) {
 		// If passed --host in the CLI without arguments
-		return undefined; // undefined typically means 0.0.0.0 or :: (listen on all IPs)
+		return getNetworkAddress(); // undefined typically means 0.0.0.0 or :: (listen on all IPs)
 	} else {
 		return host;
 	}

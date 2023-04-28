@@ -9,6 +9,9 @@ describe('URL protocol', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
+			server: {
+				host: true
+		},
 			root: './fixtures/url-protocol/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
@@ -16,6 +19,19 @@ describe('URL protocol', () => {
 		await fixture.build();
 	});
 
+	describe('test preview when host is true', async () => {
+		let devPreview;
+
+		before(async () => {
+			devPreview = await fixture.preview();
+			
+		});
+		it('test host is true ', () => {
+			const host = devPreview.host
+			const ishost = () => host.startsWith('127') ||  host.startsWith('loc')
+			expect(!ishost()).eq(true)
+		});
+	})
 	it('return http when non-secure', async () => {
 		const { handler } = await import('./fixtures/url-protocol/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({

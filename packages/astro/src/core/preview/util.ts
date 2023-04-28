@@ -1,10 +1,12 @@
+import { getNetworkAddress } from './get-network-address.js'
+
 export function getResolvedHostForHttpServer(host: string | boolean) {
 	if (host === false) {
 		// Use a secure default
 		return 'localhost';
 	} else if (host === true) {
 		// If passed --host in the CLI without arguments
-		return undefined; // undefined typically means 0.0.0.0 or :: (listen on all IPs)
+		return getNetworkAddress(); // undefined typically means 0.0.0.0 or :: (listen on all IPs)
 	} else {
 		return host;
 	}
@@ -17,3 +19,4 @@ export function stripBase(path: string, base: string): string {
 	const baseWithSlash = base.endsWith('/') ? base : base + '/';
 	return path.replace(RegExp('^' + baseWithSlash), '/');
 }
+
