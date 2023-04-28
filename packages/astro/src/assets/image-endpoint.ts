@@ -4,6 +4,8 @@ import { isRemotePath } from '../core/path.js';
 import { getConfiguredImageService } from './internal.js';
 import { isLocalService } from './services/service.js';
 import { etag } from './utils/etag.js';
+// @ts-expect-error
+import { imageServiceConfig } from 'astro:assets';
 
 async function loadRemoteImage(src: URL) {
 	try {
@@ -31,7 +33,7 @@ export const get: APIRoute = async ({ request }) => {
 		}
 
 		const url = new URL(request.url);
-		const transform = await imageService.parseURL(url);
+		const transform = await imageService.parseURL(url, imageServiceConfig);
 
 		if (!transform || !transform.src) {
 			throw new Error('Incorrect transform returned by `parseURL`');
@@ -49,7 +51,11 @@ export const get: APIRoute = async ({ request }) => {
 			return new Response('Not Found', { status: 404 });
 		}
 
-		const { data, format } = await imageService.transform(inputBuffer, transform);
+		const { data, format } = await imageService.transform(
+			inputBuffer,
+			transform,
+			imageServiceConfig
+		);
 
 		return new Response(data, {
 			status: 200,

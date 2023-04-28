@@ -620,7 +620,12 @@ describe('astro:image', () => {
 					assets: true,
 				},
 				image: {
-					service: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)),
+					service: {
+						entrypoint: fileURLToPath(
+							new URL('./fixtures/core-image/service.mjs', import.meta.url)
+						),
+						config: { foo: 'bar' },
+					},
 				},
 			});
 			devServer = await fixture.startDevServer();
@@ -640,6 +645,14 @@ describe('astro:image', () => {
 
 			const $ = cheerio.load(html);
 			expect($('img').attr('data-service')).to.equal('my-custom-service');
+		});
+
+		it('gets service config', async () => {
+			const response = await fixture.fetch('/');
+			const html = await response.text();
+
+			const $ = cheerio.load(html);
+			expect($('#local img').attr('data-service-config')).to.equal('bar');
 		});
 	});
 });
