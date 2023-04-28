@@ -22,6 +22,7 @@ import {
 	getDataEntryId,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { AstroError } from '../core/errors/errors.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -123,6 +124,7 @@ export async function createContentTypesGenerator({
 			const collection = normalizePath(
 				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
 			);
+			const collectionKey = JSON.stringify(collection);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
 			const isCollectionEvent = collection.split('/').length === 1;
 			if (!isCollectionEvent) return { shouldGenerateTypes: false };
@@ -135,7 +137,9 @@ export async function createContentTypesGenerator({
 					}
 					break;
 				case 'unlinkDir':
-					delete collectionEntryMap[JSON.stringify(collection)];
+					if (collectionKey in collectionEntryMap) {
+						delete collectionEntryMap[JSON.stringify(collection)];
+					}
 					break;
 			}
 			return { shouldGenerateTypes: true };
@@ -201,10 +205,10 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						// TODO: AstroError
-						throw new Error(
-							`${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`
-						);
+						throw new AstroError({
+							code: 99999,
+							message: `${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`,
+						});
 					}
 					if (!(entryKey in collectionEntryMap[collectionKey])) {
 						collectionEntryMap[collectionKey] = {
@@ -236,10 +240,10 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			// TODO: AstroError
-			throw new Error(
-				`${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`
-			);
+			throw new AstroError({
+				code: 99999,
+				message: `${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`,
+			});
 		}
 		const entryKey = JSON.stringify(id);
 
@@ -391,10 +395,14 @@ async function writeContentFiles({
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
 		if (collectionConfig?.type && collection.type !== collectionConfig.type) {
-			// TODO: AstroError
-			throw new Error(
-				`${collectionKey} contains ${collection.type} entries, but is configured as ${collectionConfig.type}.`
-			);
+			throw new AstroError({
+				code: 99999,
+				message: `${collectionKey} contains ${collection.type} entries, but is configured as a ${collectionConfig.type} collection.`,
+				hint:
+					collection.type === 'data'
+						? "Try adding `type: 'data'` to your collection config."
+						: undefined,
+			});
 		}
 		switch (collection.type) {
 			case 'content':
