@@ -6,6 +6,7 @@ const welcomePost = await getEntryBySlug('blog', 'welcome');
 const { Content } = await welcomePost.render();
 const author = await getEntry(welcomePost.data.author);
 const banner = await getEntry(welcomePost.data.banner);
+const relatedPosts = await Promise.all(welcomePost.data.relatedPosts!.map((p) => getEntry(p)));
 ---
 
 <html lang="en">
@@ -20,5 +21,15 @@ const banner = await getEntry(welcomePost.data.banner);
 		<Image {...banner.data} />
 		<p>{author.data.name}</p>
 		<Content />
+		<h2>Related posts</h2>
+		<ul>
+			{
+				relatedPosts.map((post) => (
+					<li>
+						<a href={`/blog/${post.slug}`}>{post.data.title}</a>
+					</li>
+				))
+			}
+		</ul>
 	</body>
 </html>

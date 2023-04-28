@@ -23,6 +23,7 @@ const blog = defineCollection({
 		title: z.string(),
 		banner: reference('banners'),
 		author: reference('authors'),
+		relatedPosts: z.array(reference('blog')).optional(),
 	}),
 });
 
