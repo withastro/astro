@@ -162,7 +162,6 @@ export function createGetEntry({
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 }) {
-	console.log('okay');
 	return async function getEntry(
 		collectionOrLookupObject:
 			| string
@@ -211,6 +210,14 @@ export function createGetEntry({
 			};
 		}
 		return undefined;
+	};
+}
+
+export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
+	return async function getEntries(
+		entries: { collection: string; id: string }[] | { collection: string; slug: string }[]
+	) {
+		return Promise.all(entries.map((e) => getEntry(e)));
 	};
 }
 

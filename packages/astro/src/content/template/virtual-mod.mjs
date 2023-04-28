@@ -4,6 +4,7 @@ import {
 	createGetCollection,
 	createGetEntryBySlug,
 	createGetEntry,
+	createGetEntries,
 	createGetDataEntryById,
 	createReference,
 } from 'astro/content/runtime';
@@ -29,6 +30,7 @@ const dataCollectionToEntryMap = createCollectionToGlobResultMap({
 	dir: dataDir,
 });
 
+const collectionToEntryMap = { ...contentCollectionToEntryMap, ...dataCollectionToEntryMap };
 let lookupMap = {};
 /* @@LOOKUP_MAP_ASSIGNMENT@@ */
 
@@ -76,8 +78,10 @@ export const getDataEntryById = createGetDataEntryById({
 });
 
 export const getEntry = createGetEntry({
-	getEntryImport: createGlobLookup({ ...contentCollectionToEntryMap, ...dataCollectionToEntryMap }),
+	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
+
+export const getEntries = createGetEntries(getEntry);
 
 export const reference = createReference({ lookupMap });

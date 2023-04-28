@@ -147,6 +147,20 @@ declare module 'astro:content' {
 		? Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
 
+	/** Resolve an array of entry references from the same collection */
+	export function getEntries<C extends keyof ContentEntryMap>(
+		entries: {
+			collection: C;
+			slug: ValidContentEntrySlug<C>;
+		}[]
+	): Promise<CollectionEntry<C>[]>;
+	export function getEntries<C extends keyof DataEntryMap>(
+		entries: {
+			collection: C;
+			id: keyof DataEntryMap[C];
+		}[]
+	): Promise<CollectionEntry<C>[]>;
+
 	export function reference<C extends keyof AnyEntryMap | (string & {})>(
 		collection: C
 	): import('astro/zod').ZodEffects<
