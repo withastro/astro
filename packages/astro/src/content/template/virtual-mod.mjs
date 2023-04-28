@@ -58,7 +58,7 @@ function baseDefineCollection({ type = 'content', ...partialConfig }) {
 		...partialConfig,
 		type,
 		reference: createReference({
-			map: type === 'content' ? contentCollectionToEntryMap : dataCollectionToEntryMap,
+			lookupMap,
 			async getCollectionName() {
 				const { default: map } = await import('@@COLLECTION_NAME_BY_REFERENCE_KEY@@');
 				return map[referenceKey];
@@ -94,9 +94,5 @@ export const getEntryBySlug = createGetEntryBySlug({
 });
 
 export const getDataEntryById = createGetDataEntryById({
-	dataCollectionToEntryMap,
-});
-
-export const reference = createReference({
 	dataCollectionToEntryMap,
 });

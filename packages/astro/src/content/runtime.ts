@@ -234,76 +234,38 @@ async function render({
 
 export function createReference({
 	getCollectionName,
-	map,
+	lookupMap,
 }: {
 	getCollectionName(): Promise<string>;
-	map: CollectionToEntryMap;
+	lookupMap: { [collectionName: string]: { [lookupId: string]: string } };
 }) {
 	return function reference() {
-		return zodString().transform(async (entryId: string, ctx) => {
-			const collectionName = await getCollectionName();
+		return zodString().transform(async (id: string, ctx) => {
+			const collection = await getCollectionName();
 			const flattenedErrorPath = ctx.path.join('.');
-			const entries = map[collectionName];
-			if (!entries) {
+			const lookupIds = lookupMap[collection];
+			if (!lookupIds) {
 				ctx.addIssue({
 					code: ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}:** Reference to ${collectionName} invalid. Collection does not exist or is empty.`,
+					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
 				});
 				return;
 			}
 
-			const lazyImport = entries[entryId + '.json'];
-			if (!lazyImport) {
-				const entryKeys = Object.keys(entries).map((k) =>
-					// TODO: handle hardcoded json extension
-					k.replace(/\.json$/, '')
-				);
+			const entry = lookupIds[id];
+
+			if (!entry) {
 				ctx.addIssue({
 					code: ZodIssueCode.custom,
-					message: `**${flattenedErrorPath}**: Reference to ${collectionName} invalid. Expected ${entryKeys
+					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
+						lookupIds
+					)
 						.map((c) => JSON.stringify(c))
-						.join(' | ')}. Received ${JSON.stringify(entryId)}.`,
+						.join(' | ')}. Received ${JSON.stringify(id)}.`,
 				});
 				return;
 			}
-			try {
-				const entry = await lazyImport();
-				if (entry._internal?.type === 'data') {
-					return {
-						id: entry.id,
-						collection: entry.collection,
-						data: entry.data,
-						_internal: entry._internal,
-					};
-				} else {
-					return {
-						id: entry.id,
-						slug: entry.slug,
-						body: entry.body,
-						collection: entry.collection,
-						data: entry.data,
-						_internal: entry._internal,
-					};
-				}
-			} catch (e) {
-				// Catch schema parse errors for referenced content.
-				if (e instanceof Error && (e as any).type === 'AstroError') {
-					// `isHoistedAstroError` will be handled where the schema is parsed.
-					// @see "./utils.ts" -> getEntryData()
-					ctx.addIssue({
-						code: ZodIssueCode.custom,
-						params: {
-							isHoistedAstroError: true,
-							astroError: e,
-						},
-					});
-				} else {
-					ctx.addIssue({
-						code: ZodIssueCode.custom,
-						message: `**${flattenedErrorPath}:** Referenced entry ${collectionName} → ${entryId} is invalid.`,
-					});
-				}
-			}
+			return { id, collection };
 		});
 	};
 }
