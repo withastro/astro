@@ -1,5 +1,5 @@
 diff --git a/dist/cli.cjs.dev.js b/dist/cli.cjs.dev.js
-index 5511d0c05d3b7472876dcc8410e938ccf612654f..aa75e3982b68e1226ba1877a7f32017e517480f5 100644
+index 73ab02a861b1f5a8e1bf10984340a0a6b1518b15..2309d78fb1ff07428bc76136d9eb4f4d8d6571cc 100644
 --- a/dist/cli.cjs.dev.js
 +++ b/dist/cli.cjs.dev.js
 @@ -279,6 +279,9 @@ async function confirmMajorRelease(pkgJSON) {

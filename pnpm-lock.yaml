@@ -6,9 +6,9 @@ overrides:
 packageExtensionsChecksum: 01871422d489547c532184effb134b35
 
 patchedDependencies:
-  '@changesets/cli@2.23.0':
-    hash: kcozqtpxuwjzskw6zg5royevn4
-    path: patches/@changesets__cli@2.23.0.patch
+  '@changesets/cli@2.26.1':
+    hash: rpibscpwt2erpjuy2wpxneagme
+    path: patches/@changesets__cli@2.26.1.patch
 
 importers:
 
@@ -22,11 +22,11 @@ importers:
         version: link:benchmark
     devDependencies:
       '@changesets/changelog-github':
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.4.8
+        version: 0.4.8
       '@changesets/cli':
-        specifier: 2.23.0
-        version: 2.23.0(patch_hash=kcozqtpxuwjzskw6zg5royevn4)
+        specifier: 2.26.1
+        version: 2.26.1(patch_hash=rpibscpwt2erpjuy2wpxneagme)
       '@types/node':
         specifier: ^18.7.21
         version: 18.7.21
@@ -6908,8 +6908,8 @@ packages:
       '@changesets/types': 5.2.1
     dev: true
 
-  /@changesets/changelog-github@0.4.4:
-    resolution: {integrity: sha512-htSILqCkyYtTB5/LoVKwx7GCJQGxAiBcYbfUKWiz/QoDARuM01owYtMXhV6/iytJZq/Dqqz3PjMZUNB4MphpbQ==}
+  /@changesets/changelog-github@0.4.8:
+    resolution: {integrity: sha512-jR1DHibkMAb5v/8ym77E4AMNWZKB5NPzw5a5Wtqm1JepAuIF+hrKp2u04NKM14oBZhHglkCfrla9uq8ORnK/dw==}
     dependencies:
       '@changesets/get-github-info': 0.5.2
       '@changesets/types': 5.2.1
@@ -6918,8 +6918,8 @@ packages:
       - encoding
     dev: true
 
-  /@changesets/cli@2.23.0(patch_hash=kcozqtpxuwjzskw6zg5royevn4):
-    resolution: {integrity: sha512-Gi3tMi0Vr6eNd8GX6q73tbOm9XOzGfuLEm4PYVeWG2neg5DlRGNOjYwrFULJ/An3N9MHtHn4r5h1Qvnju9Ijug==}
+  /@changesets/cli@2.26.1(patch_hash=rpibscpwt2erpjuy2wpxneagme):
+    resolution: {integrity: sha512-XnTa+b51vt057fyAudvDKGB0Sh72xutQZNAdXkCqPBKO2zvs2yYZx5hFZj1u9cbtpwM6Sxtcr02/FQJfZOzemQ==}
     hasBin: true
     dependencies:
       '@babel/runtime': 7.21.0
@@ -6930,12 +6930,12 @@ packages:
       '@changesets/errors': 0.1.4
       '@changesets/get-dependents-graph': 1.3.5
       '@changesets/get-release-plan': 3.0.16
-      '@changesets/git': 1.5.0
+      '@changesets/git': 2.0.0
       '@changesets/logger': 0.0.5
       '@changesets/pre': 1.0.14
       '@changesets/read': 0.5.9
       '@changesets/types': 5.2.1
-      '@changesets/write': 0.1.9
+      '@changesets/write': 0.2.3
       '@manypkg/get-packages': 1.1.3
       '@types/is-ci': 3.0.0
       '@types/semver': 6.2.3
@@ -7011,17 +7011,6 @@ packages:
     resolution: {integrity: sha512-SVqwYs5pULYjYT4op21F2pVbcrca4qA/bAA3FmFXKMN7Y+HcO8sbZUTx3TAy2VXulP2FACd1aC7f2nTuqSPbqg==}
     dev: true
 
-  /@changesets/git@1.5.0:
-    resolution: {integrity: sha512-Xo8AT2G7rQJSwV87c8PwMm6BAc98BnufRMsML7m7Iw8Or18WFvFmxqG5aOL5PBvhgq9KrKvaeIBNIymracSuHg==}
-    dependencies:
-      '@babel/runtime': 7.21.0
-      '@changesets/errors': 0.1.4
-      '@changesets/types': 5.2.1
-      '@manypkg/get-packages': 1.1.3
-      is-subdir: 1.2.0
-      spawndamnit: 2.0.0
-    dev: true
-
   /@changesets/git@2.0.0:
     resolution: {integrity: sha512-enUVEWbiqUTxqSnmesyJGWfzd51PY4H7mH9yUw0hPVpZBJ6tQZFMU3F3mT/t9OJ/GjyiM4770i+sehAn6ymx6A==}
     dependencies:
@@ -7078,14 +7067,14 @@ packages:
     resolution: {integrity: sha512-myLfHbVOqaq9UtUKqR/nZA/OY7xFjQMdfgfqeZIBK4d0hA6pgxArvdv8M+6NUzzBsjWLOtvApv8YHr4qM+Kpfg==}
     dev: true
 
-  /@changesets/write@0.1.9:
-    resolution: {integrity: sha512-E90ZrsrfJVOOQaP3Mm5Xd7uDwBAqq3z5paVEavTHKA8wxi7NAL8CmjgbGxSFuiP7ubnJA2BuHlrdE4z86voGOg==}
+  /@changesets/write@0.2.3:
+    resolution: {integrity: sha512-Dbamr7AIMvslKnNYsLFafaVORx4H0pvCA2MHqgtNCySMe1blImEyAEOzDmcgKAkgz4+uwoLz7demIrX+JBr/Xw==}
     dependencies:
       '@babel/runtime': 7.21.0
       '@changesets/types': 5.2.1
       fs-extra: 7.0.1
       human-id: 1.0.2
-      prettier: 1.19.1
+      prettier: 2.8.7
     dev: true
 
   /@cloudflare/kv-asset-handler@0.2.0:
@@ -8358,7 +8347,7 @@ packages:
   /@ts-morph/common@0.16.0:
     resolution: {integrity: sha512-SgJpzkTgZKLKqQniCjLaE3c2L2sdL7UShvmTmPBejAKd2OKV/yfMpQ2IWpAuA+VY5wy7PkSUaEObIqEK6afFuw==}
     dependencies:
-      fast-glob: 3.2.12
+      fast-glob: 3.2.11
       minimatch: 5.1.6
       mkdirp: 1.0.4
       path-browserify: 1.0.1
@@ -11992,7 +11981,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.12
+      fast-glob: 3.2.11
       glob: 7.2.3
       ignore: 5.2.4
       merge2: 1.4.1
@@ -12005,7 +11994,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.12
+      fast-glob: 3.2.11
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
@@ -15163,12 +15152,6 @@ packages:
       prettier: 2.8.7
       sass-formatter: 0.7.6
       synckit: 0.8.5
-    dev: true
-
-  /prettier@1.19.1:
-    resolution: {integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==}
-    engines: {node: '>=4'}
-    hasBin: true
     dev: true
 
   /prettier@2.8.7:
