@@ -35,11 +35,12 @@ interface MatchedRoute {
 	mod: ComponentInstance;
 }
 
-function getCustom404Route({ config }: AstroSettings, manifest: ManifestData) {
-	// For Windows compat, use relative page paths to match the 404 route
-	const relPages = resolvePages(config).href.replace(config.root.href, '');
-	const pattern = new RegExp(`${appendForwardSlash(relPages)}404.(astro|md)`);
-	return manifest.routes.find((r) => r.component.match(pattern));
+function getCustom404Route(
+	{ config }: AstroSettings,
+	manifest: ManifestData
+): RouteData | undefined {
+	const pathname = config.trailingSlash === 'always' ? '/404/' : '/404';
+	return manifest.routes.find((r) => r.pattern.test(pathname));
 }
 
 export async function matchRoute(
