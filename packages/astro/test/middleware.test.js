@@ -3,14 +3,14 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import nodejs from '../../integrations/node/dist/index.js';
 
-describe('Middleware API in DEV mode', () => {
+describe('Middleware in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/middleware/',
+			root: './fixtures/middleware-dev/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -84,7 +84,7 @@ describe('Middleware API in DEV mode', () => {
 	});
 });
 
-describe('Middleware API in PROD mode', () => {
+describe('Middleware in PROD mode, SSG', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	/** @type {import('./test-utils').PreviewServer} */
@@ -92,7 +92,37 @@ describe('Middleware API in PROD mode', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/middleware/',
+			root: './fixtures/middleware-ssg/',
+		});
+		await fixture.build();
+	});
+
+	it('should render locals data', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		expect($('p').html()).to.equal('bar');
+	});
+
+	it('should change locals data based on URL', async () => {
+		let html = await fixture.readFile('/index.html');
+		let $ = cheerio.load(html);
+		expect($('p').html()).to.equal('bar');
+
+		html = await fixture.readFile('/second/index.html');
+		$ = cheerio.load(html);
+		expect($('p').html()).to.equal('second');
+	});
+});
+
+describe('Middleware API in PROD mode, SSR', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils').PreviewServer} */
+	let previewServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-dev/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 		});
