@@ -2,8 +2,9 @@ import type { ExternalImageService } from 'astro';
 import { isESMImportedImage, sharedValidateOptions } from './shared';
 
 const service: ExternalImageService = {
-	validateOptions: (options) => sharedValidateOptions(options, {}, 'production'),
-	getHTMLAttributes(options) {
+	validateOptions: (options, serviceOptions) =>
+		sharedValidateOptions(options, serviceOptions, 'production'),
+	getHTMLAttributes(options, serviceOptions) {
 		const { inputtedWidth, ...props } = options;
 
 		// If `validateOptions` returned a different width than the one of the image, use it for attributes
@@ -38,7 +39,7 @@ const service: ExternalImageService = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getURL(options) {
+	getURL(options, serviceOptions) {
 		const fileSrc =
 			typeof options.src === 'string' ? options.src : removeLeadingForwardSlash(options.src.src);
 
