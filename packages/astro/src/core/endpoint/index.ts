@@ -144,7 +144,12 @@ function isRedirect(statusCode: number) {
 }
 
 export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (config.output !== 'server' && isRedirect(response.status)) {
+	if (
+		config.output !== 'server' &&
+		!config.experimental.hybridOutput &&
+		config.output !== 'hybrid' &&
+		isRedirect(response.status)
+	) {
 		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 	}
 }

@@ -16,7 +16,9 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 
 		adapter: undefined,
 		injectedRoutes:
-			config.experimental.assets && config.output === 'server'
+			config.experimental.assets &&
+			(config.output === 'server' ||
+				(config.experimental.hybridOutput && config.output === 'hybrid'))
 				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
 				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],

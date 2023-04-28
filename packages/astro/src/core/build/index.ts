@@ -1,6 +1,11 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroSettings, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
+import type {
+	AstroConfig,
+	AstroSettings,
+	BuildConfig,
+	ManifestData,
+	RuntimeMode,
+} from '../../@types/astro';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -14,7 +19,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { debug, info, levels, timerMessage } from '../logger/core.js';
+import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -126,6 +131,21 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
 		this.validateConfig();
 
+		const astroConfig = this.settings.config;
+		const hybridOutputBadlyConfigured = astroConfig.experimental.hybridOutput
+			? astroConfig.output !== 'hybrid'
+			: astroConfig.output === 'hybrid';
+
+		if (hybridOutputBadlyConfigured) {
+			warn(
+				this.logging,
+				'build',
+				`The "output" config option must be set to "hybrid" and "experimental.hybridOutput" must be set to true to use the hybrid output mode. Falling back to "static" output mode.`
+			);
+			astroConfig.output = 'static';
+			this.settings.adapter = undefined;
+		}
+
 		info(this.logging, 'build', `output target: ${colors.green(this.settings.config.output)}`);
 		if (this.settings.adapter) {
 			info(this.logging, 'build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
@@ -233,7 +253,7 @@ class AstroBuilder {
 		logging: LogOptions;
 		timeStart: number;
 		pageCount: number;
-		buildMode: 'static' | 'server';
+		buildMode: AstroConfig['output'];
 	}) {
 		const total = getTimeStat(timeStart, performance.now());
 

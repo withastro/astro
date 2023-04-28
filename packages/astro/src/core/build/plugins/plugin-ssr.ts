@@ -228,12 +228,15 @@ export function pluginSSR(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const ssr = options.settings.config.output === 'server';
+	const ssr =
+		options.settings.config.output === 'server' ||
+		(options.settings.config.experimental.hybridOutput &&
+			options.settings.config.output === 'hybrid');
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
-				let vitePlugin = ssr ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
+				let vitePlugin = true ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
 
 				return {
 					enforce: 'after-user-plugins',

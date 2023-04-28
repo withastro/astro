@@ -85,7 +85,9 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server';
+	const ssr =
+		opts.settings.config.output === 'server' ||
+		(opts.settings.config.experimental.hybridOutput && opts.settings.config.output === 'hybrid'); // hybrid mode is essentially SSR with prerender by default
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
@@ -217,7 +219,10 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server',
+			ssr:
+				opts.settings.config.output === 'server' ||
+				(opts.settings.config.experimental.hybridOutput &&
+					opts.settings.config.output === 'hybrid'),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -381,7 +386,9 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server';
+	const ssr =
+		settings.config.output === 'server' ||
+		(settings.config.experimental.hybridOutput && settings.config.output === 'hybrid');
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,

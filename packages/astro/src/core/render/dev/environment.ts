@@ -28,7 +28,9 @@ export function createDevelopmentEnvironment(
 		resolve: createResolve(loader, settings.config.root),
 		routeCache: new RouteCache(logging, mode),
 		site: settings.config.site,
-		ssr: settings.config.output === 'server',
+		ssr:
+			settings.config.output === 'server' ||
+			(settings.config.experimental.hybridOutput && settings.config.output === 'hybrid'),
 		streaming: true,
 		telemetry: Boolean(settings.forceDisableTelemetry),
 	});

@@ -108,7 +108,11 @@ export async function generateImage(
 	const imageService = (await getConfiguredImageService()) as LocalImageService;
 
 	let serverRoot: URL, clientRoot: URL;
-	if (buildOpts.settings.config.output === 'server') {
+	if (
+		buildOpts.settings.config.output === 'server' ||
+		(buildOpts.settings.config.experimental.hybridOutput &&
+			buildOpts.settings.config.output === 'hybrid')
+	) {
 		serverRoot = buildOpts.settings.config.build.server;
 		clientRoot = buildOpts.settings.config.build.client;
 	} else {
