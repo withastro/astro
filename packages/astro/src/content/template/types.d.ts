@@ -112,17 +112,17 @@ declare module 'astro:content' {
 
 	export function getEntry<
 		C extends keyof ContentEntryMap,
-		E extends keyof ValidContentEntrySlug<C> | (string & {})
-	>(params: {
+		E extends ValidContentEntrySlug<C> | (string & {})
+	>(entry: {
 		collection: C;
 		slug: E;
-	}): E extends keyof ValidContentEntrySlug<C>
+	}): E extends ValidContentEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
 	export function getEntry<
 		C extends keyof DataEntryMap,
 		E extends keyof DataEntryMap[C] | (string & {})
-	>(params: {
+	>(entry: {
 		collection: C;
 		id: E;
 	}): E extends keyof DataEntryMap[C]
@@ -130,11 +130,11 @@ declare module 'astro:content' {
 		: Promise<CollectionEntry<C> | undefined>;
 	export function getEntry<
 		C extends keyof ContentEntryMap,
-		E extends keyof ValidContentEntrySlug<C> | (string & {})
+		E extends ValidContentEntrySlug<C> | (string & {})
 	>(
 		collection: C,
 		slug: E
-	): E extends keyof ValidContentEntrySlug<C>
+	): E extends ValidContentEntrySlug<C>
 		? Promise<CollectionEntry<C>>
 		: Promise<CollectionEntry<C> | undefined>;
 	export function getEntry<
