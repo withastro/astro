@@ -161,7 +161,7 @@ declare module 'astro:content' {
 		}[]
 	): Promise<CollectionEntry<C>[]>;
 
-	export function reference<C extends keyof AnyEntryMap | (string & {})>(
+	export function reference<C extends keyof AnyEntryMap>(
 		collection: C
 	): import('astro/zod').ZodEffects<
 		import('astro/zod').ZodString,
@@ -170,15 +170,19 @@ declare module 'astro:content' {
 					collection: C;
 					slug: ValidContentEntrySlug<C>;
 			  }
-			: C extends keyof DataEntryMap
-			? {
+			: {
 					collection: C;
 					id: keyof DataEntryMap[C];
 			  }
-			: // Allow generic `string` type to avoid type errors
-			  // in the config before `astro sync` is run.
-			  // Invalid collection names will be caught at build time.
-			  { collection: string; id: string }
+	>;
+	// Allow generic `string` to avoid excessive type errors in the config
+	// if `dev` is not running to update as you edit.
+	// Invalid collection names will be caught at build time.
+	export function reference<C extends string>(
+		collection: C
+	): import('astro/zod').ZodEffects<
+		import('astro/zod').ZodString,
+		{ collection: string; id: string }
 	>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
