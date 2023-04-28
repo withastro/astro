@@ -9,9 +9,6 @@ describe('Image', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/image/',
-			experimental: {
-				assets: true,
-			},
 		});
 		await fixture.build();
 	});

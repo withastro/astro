@@ -17,13 +17,13 @@ function getAdapter(): AstroAdapter {
 
 export interface VercelStaticConfig {
 	analytics?: boolean;
-	images?: boolean;
+	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelStatic({
 	analytics,
-	images,
+	imageService,
 	imagesConfig,
 }: VercelStaticConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -41,11 +41,11 @@ export default function vercelStatic({
 					build: {
 						format: 'directory',
 					},
-					...getImageConfig(images, imagesConfig, command),
+					...getImageConfig(imageService, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, images);
+				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 
@@ -65,7 +65,9 @@ export default function vercelStatic({
 				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
 					version: 3,
 					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }],
-					...(images ? { images: imagesConfig ? imagesConfig : defaultImageConfig } : {}),
+					...(imageService || imagesConfig
+						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						: {}),
 				});
 			},
 		},

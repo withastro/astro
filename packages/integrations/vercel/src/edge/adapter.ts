@@ -32,14 +32,14 @@ function getAdapter(): AstroAdapter {
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
 	analytics?: boolean;
-	images?: boolean;
+	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelEdge({
 	includeFiles = [],
 	analytics,
-	images,
+	imageService,
 	imagesConfig,
 }: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -62,11 +62,11 @@ export default function vercelEdge({
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
 					},
-					...getImageConfig(images, imagesConfig, command),
+					...getImageConfig(imageService, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				throwIfAssetsNotEnabled(config, images);
+				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;
@@ -147,7 +147,9 @@ export default function vercelEdge({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
-					...(images ? { images: imagesConfig ? imagesConfig : defaultImageConfig } : {}),
+					...(imageService || imagesConfig
+						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						: {}),
 				});
 			},
 		},

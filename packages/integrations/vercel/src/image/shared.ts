@@ -57,10 +57,10 @@ export const qualityTable: Record<ImageQualityPreset, number> = {
 };
 
 // TODO: Remove once Astro 3.0 is out and `experimental.assets` is no longer needed
-export function throwIfAssetsNotEnabled(config: AstroConfig, images: boolean | undefined) {
-	if (!config.experimental.assets && images) {
+export function throwIfAssetsNotEnabled(config: AstroConfig, imageService: boolean | undefined) {
+	if (!config.experimental.assets && imageService) {
 		throw new Error(
-			`Using the Vercel Image Optimization API requires \`experimental.assets\` to be enabled. See https://docs.astro.build/en/guides/assets/ for more information.`
+			`Using the Vercel Image Optimization-powered image service requires \`experimental.assets\` to be enabled. See https://docs.astro.build/en/guides/assets/ for more information.`
 		);
 	}
 }
