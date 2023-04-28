@@ -121,15 +121,18 @@ declare module 'astro:content' {
 		? Promise<DataEntryMap[C][E]>
 		: Promise<CollectionEntry<C> | undefined>;
 
-	// Allow generic `string` type to avoid type errors in the config
-	// before `astro sync` is run.
-	// Invalid collections names will be caught at build time.
 	export function reference<C extends keyof AnyEntryMap | (string & {})>(
 		collection: C
-	): import('astro/zod').ZodEffects<{
-		collection: C;
-		id: C extends keyof AnyEntryMap ? keyof AnyEntryMap[C] : string;
-	}>;
+	): import('astro/zod').ZodEffects<
+		import('astro/zod').ZodString,
+		{
+			collection: C;
+			// Allow generic `string` type to avoid type errors
+			// in the config before `astro sync` is run.
+			// Invalid collection names will be caught at build time.
+			id: C extends keyof AnyEntryMap ? keyof AnyEntryMap[C] : string;
+		}
+	>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
 	type InferEntrySchema<C extends keyof AnyEntryMap> = import('astro/zod').infer<
