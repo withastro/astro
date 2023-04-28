@@ -198,7 +198,7 @@
     "sass": "^1.52.2",
     "sharp": "^0.31.3",
     "srcset-parse": "^1.1.0",
-    "undici": "^5.20.0",
+    "undici": "^5.22.0",
     "unified": "^10.1.2"
   },
   "peerDependencies": {

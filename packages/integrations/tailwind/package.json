@@ -28,15 +28,15 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@proload/core": "^0.3.2",
-    "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14",
+    "@proload/core": "^0.3.3",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.23",
     "postcss-load-config": "^4.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "tailwindcss": "^3.0.24",
+    "tailwindcss": "^3.3.2",
     "vite": "^4.3.1"
   },
   "peerDependencies": {
