@@ -3,6 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import glob from 'fast-glob';
 import { pathToFileURL } from 'url';
 import {
+	defaultImageConfig,
 	getImageConfig,
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
@@ -126,7 +127,7 @@ export default function vercelServerless({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
-					...(images ? { images: images } : {}),
+					...(images ? { images: imagesConfig ? imagesConfig : defaultImageConfig } : {}),
 				});
 			},
 		},

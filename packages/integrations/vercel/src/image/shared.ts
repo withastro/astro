@@ -1,5 +1,10 @@
 import type { AstroConfig, ImageMetadata, ImageQualityPreset, ImageTransform } from 'astro';
 
+export const defaultImageConfig: VercelImageConfig = {
+	sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+	domains: [],
+};
+
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
 }
@@ -68,12 +73,12 @@ export function getImageConfig(
 	if (images) {
 		return {
 			image: {
-				service:
-					command === 'dev'
-						? '@astrojs/vercel/dev-image-service'
-						: '@astrojs/vercel/build-image-service',
-				serviceConfig: imagesConfig ?? {
-					sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+				service: {
+					entrypoint:
+						command === 'dev'
+							? '@astrojs/vercel/dev-image-service'
+							: '@astrojs/vercel/build-image-service',
+					config: imagesConfig ? imagesConfig : defaultImageConfig,
 				},
 			},
 		};

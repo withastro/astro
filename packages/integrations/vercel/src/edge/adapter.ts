@@ -5,6 +5,7 @@ import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+	defaultImageConfig,
 	getImageConfig,
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
@@ -146,7 +147,7 @@ export default function vercelEdge({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
-					...(images ? { images: images } : {}),
+					...(images ? { images: imagesConfig ? imagesConfig : defaultImageConfig } : {}),
 				});
 			},
 		},

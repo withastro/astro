@@ -1,6 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
 import {
+	defaultImageConfig,
 	getImageConfig,
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
@@ -64,7 +65,7 @@ export default function vercelStatic({
 				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
 					version: 3,
 					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }],
-					...(images ? { images: images } : {}),
+					...(images ? { images: imagesConfig ? imagesConfig : defaultImageConfig } : {}),
 				});
 			},
 		},
