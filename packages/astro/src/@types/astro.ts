@@ -1,4 +1,3 @@
-import './app.js';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
