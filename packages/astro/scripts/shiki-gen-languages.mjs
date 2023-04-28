@@ -4,7 +4,7 @@ const dir = await fs.promises.readdir('packages/astro/node_modules/shiki/languag
 
 const langImports = dir.map((f) => {
 	const key = f.slice(0, f.indexOf('.tmLanguage.json'));
-	return [key, `import('shiki/languages/${f}').then(handleLang)`];
+	return [key, `import('shiki/languages/${f}').then((mod) => handleLang(mod.default, '${key}'))`];
 });
 
 let code = `\
@@ -15,8 +15,8 @@ let code = `\
 
 import { BUNDLED_LANGUAGES } from 'shiki';
 
-function handleLang(mod) {
-	const lang = BUNDLED_LANGUAGES.find((l) => l.id === mod.default);
+function handleLang(grammar, lang) {
+	const lang = BUNDLED_LANGUAGES.find((l) => l.id === lang);
 	if (lang) {
 		return {
 			...lang,
