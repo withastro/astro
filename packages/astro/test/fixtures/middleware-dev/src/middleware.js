@@ -7,7 +7,7 @@ const first = defineMiddleware(async (context, next) => {
 		return new Response('<span>New content!!</span>', {
 			status: 200,
 		});
-	} else if (context.request.url.includes('/broken')) {
+	} else if (context.request.url.includes('/broken-500')) {
 		return new Response(null, {
 			status: 500,
 		});
@@ -32,7 +32,7 @@ const third = defineMiddleware(async (context, next) => {
 			fn() {},
 		};
 	} else if (context.request.url.includes('/does-nothing')) {
-		// return undefined;
+		return undefined;
 	}
 	next();
 });
