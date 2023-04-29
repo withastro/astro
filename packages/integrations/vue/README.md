@@ -16,7 +16,7 @@ To install `@astrojs/vue`, run the following from your project directory and fol
 
 ```sh
 # Using NPM
-npx astro add vue
+npx astro add vue -y
 # Using Yarn
 yarn astro add vue
 # Using PNPM
