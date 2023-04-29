@@ -24,7 +24,8 @@ export async function handleRequest(
 	const { settings, loader: moduleLoader } = env;
 	const { config } = settings;
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${req.headers.host}`;
-	const buildingToSSR = config.output === 'server';
+	const buildingToSSR =
+		config.output === 'server' || (config.experimental.hybridOutput && config.output === 'hybrid');
 
 	const url = new URL(origin + req.url);
 	let pathname: string;
