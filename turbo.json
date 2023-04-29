@@ -1,28 +1,42 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  "baseBranch": "origin/main",
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"]
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
+      "outputMode": "new-only"
     },
     "build:ci": {
       "dependsOn": ["^build:ci"],
-      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"]
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
+      "outputMode": "new-only"
     },
     "dev": {
       "cache": false
     },
     "test": {
-      "outputs": [],
-      "dependsOn": ["$RUNNER_OS", "$NODE_VERSION"]
-    },
-    "benchmark": {
-      "dependsOn": ["^build"],
-      "outputs": []
-    },
-    "lint": {
-      "outputs": []
+      "env": ["RUNNER_OS", "NODE_VERSION"],
+      "outputMode": "new-only"
     }
   }
 }

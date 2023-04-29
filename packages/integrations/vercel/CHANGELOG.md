@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.2.5
+
+### Patch Changes
+
+- [#6874](https://github.com/withastro/astro/pull/6874) [`43230b2ca`](https://github.com/withastro/astro/commit/43230b2cac6c28e0412b77d32f06db416fca8560) Thanks [@nblackburn](https://github.com/nblackburn)! - Refactor static adapter to use updateConfig method
+
+- Updated dependencies [[`4c7ba4da0`](https://github.com/withastro/astro/commit/4c7ba4da084d7508df91cbac03c2b099a8301e2b), [`b6154d2d5`](https://github.com/withastro/astro/commit/b6154d2d57bfb77767a3ccf9e91c1ae4051c81bc), [`1f2699461`](https://github.com/withastro/astro/commit/1f2699461d4cdcc8007ae47ebff74ace62eee058), [`edabf01b4`](https://github.com/withastro/astro/commit/edabf01b44d8c99da160973cd0f779e0a0b93cd7), [`0afff3274`](https://github.com/withastro/astro/commit/0afff32741247bc4c6709a30fc83787f58ec02b7)]:
+  - astro@2.3.1
+
 ## 3.2.4
 
 ### Patch Changes
