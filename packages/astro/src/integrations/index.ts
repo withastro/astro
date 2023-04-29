@@ -308,7 +308,10 @@ export async function runHookBuildGenerated({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+	const dir =
+		config.output === 'server' || (config.experimental.hybridOutput && config.output === 'hybrid')
+			? buildConfig.client
+			: config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
@@ -334,7 +337,10 @@ export async function runHookBuildDone({
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
-	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+	const dir =
+		config.output === 'server' || (config.experimental.hybridOutput && config.output === 'hybrid')
+			? buildConfig.client
+			: config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {

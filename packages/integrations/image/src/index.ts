@@ -84,7 +84,11 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					vite: getViteConfiguration(command === 'dev'),
 				});
 
-				if (command === 'dev' || config.output === 'server') {
+				if (
+					command === 'dev' ||
+					config.output === 'server' ||
+					(config.experimental.hybridOutput && config.output === 'hybrid')
+				) {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
 						entryPoint: '@astrojs/image/endpoint',

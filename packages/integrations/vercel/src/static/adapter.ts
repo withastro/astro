@@ -35,7 +35,10 @@ export default function vercelStatic({ analytics }: VercelStaticConfig = {}): As
 				setAdapter(getAdapter());
 				_config = config;
 
-				if (config.output === 'server') {
+				if (
+					config.output === 'server' ||
+					(config.experimental.hybridOutput && config.output === 'hybrid')
+				) {
 					throw new Error(`${PACKAGE_NAME} should be used with output: 'static'`);
 				}
 			},
