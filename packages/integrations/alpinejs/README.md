@@ -18,7 +18,7 @@ The `astro add` command-line tool automates the installation for you. Run one of
 
 ```sh
 # Using NPM
-npx astro add alpinejs
+npx astro add alpinejs -y
 # Using Yarn
 yarn astro add alpinejs
 # Using PNPM
