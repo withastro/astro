@@ -27,16 +27,9 @@ export function vitePluginPrerender(
 							opts.settings.config.experimental.hybridOutput &&
 							opts.settings.config.output === 'hybrid';
 
-						if (isHybridOutput) {
-							if (isMarkedAsPrerender !== false) {
-								pageInfo.route.prerender = true;
-								return 'prerender';
-							}
-						} else {
-							if (isMarkedAsPrerender && !isHybridOutput) {
-								pageInfo.route.prerender = true;
-								return 'prerender';
-							}
+						if (isMarkedAsPrerender && (!isHybridOutput || isMarkedAsPrerender !== false)) {
+							pageInfo.route.prerender = true;
+							return 'prerender';
 						}
 
 						// dynamic pages should all go in their own chunk in the pages/* directory
