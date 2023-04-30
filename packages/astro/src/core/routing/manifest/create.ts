@@ -226,6 +226,8 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
+	const isPrenderDefault =
+		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
 
 	function walk(
 		fs: typeof nodeFs,
@@ -322,9 +324,6 @@ export function createRouteManifest(
 				const route = `/${segments
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
-
-				const isPrender =
-					settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
 				routes.push({
 					route,
 					type: item.isPage ? 'page' : 'endpoint',
@@ -334,7 +333,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: isPrender,
+					prerender: isPrenderDefault,
 				});
 			}
 		});
@@ -410,7 +409,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: false,
+				prerender: isPrenderDefault,
 			});
 		});
 
