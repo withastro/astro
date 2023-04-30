@@ -40,7 +40,11 @@ export async function scan(
 	id: string,
 	settings: AstroSettings
 ): Promise<PageOptions> {
-	if (!includesExport(code)) return {};
+	const isHydbridOutput =
+		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
+	if (!includesExport(code)) {
+		return isHydbridOutput ? { prerender: true } : {};
+	}
 	if (!didInit) {
 		await eslexer.init;
 		didInit = true;
@@ -48,8 +52,6 @@ export async function scan(
 
 	const [_, exports] = eslexer.parse(code, id);
 	let pageOptions: PageOptions = {};
-	const isHydbridOutput =
-		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
 		if (BOOLEAN_EXPORTS.has(name)) {
