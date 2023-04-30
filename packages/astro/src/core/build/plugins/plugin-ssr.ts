@@ -236,7 +236,7 @@ export function pluginSSR(
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
-				let vitePlugin = true ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
+				let vitePlugin = ssr ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
 
 				return {
 					enforce: 'after-user-plugins',
