@@ -22,10 +22,23 @@ export function vitePluginPrerender(
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						if (meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
-							pageInfo.route.prerender = true;
-							return 'prerender';
+						const isMarkedAsPrerender = meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender;
+						const isHybridOutput =
+							opts.settings.config.experimental.hybridOutput &&
+							opts.settings.config.output === 'hybrid';
+
+						if (isHybridOutput) {
+							if (isMarkedAsPrerender !== false) {
+								pageInfo.route.prerender = true;
+								return 'prerender';
+							}
+						} else {
+							if (isMarkedAsPrerender && !isHybridOutput) {
+								pageInfo.route.prerender = true;
+								return 'prerender';
+							}
 						}
+
 						// dynamic pages should all go in their own chunk in the pages/* directory
 						return `pages/all`;
 					}
