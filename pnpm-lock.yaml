@@ -748,9 +748,6 @@ importers:
       '@types/server-destroy':
         specifier: ^1.0.1
         version: 1.0.1
-      '@types/sharp':
-        specifier: ^0.31.1
-        version: 0.31.1
       '@types/unist':
         specifier: ^2.0.6
         version: 2.0.6
@@ -794,8 +791,8 @@ importers:
         specifier: ^1.52.2
         version: 1.52.2
       sharp:
-        specifier: ^0.31.3
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
@@ -3612,9 +3609,6 @@ importers:
       '@types/mime':
         specifier: ^2.0.3
         version: 2.0.3
-      '@types/sharp':
-        specifier: ^0.30.5
-        version: 0.30.5
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -3637,8 +3631,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
       vite:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@18.7.21)(sass@1.52.2)
@@ -3664,8 +3658,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/basic-image:
     dependencies:
@@ -3679,8 +3673,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/basic-picture:
     dependencies:
@@ -3694,8 +3688,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/get-image-remote:
     dependencies:
@@ -3706,8 +3700,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/no-alt-text-image:
     dependencies:
@@ -3721,8 +3715,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/no-alt-text-picture:
     dependencies:
@@ -3736,8 +3730,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/rotation:
     dependencies:
@@ -3751,8 +3745,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/squoosh-service:
     dependencies:
@@ -3781,8 +3775,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/lit:
     dependencies:
@@ -7704,7 +7698,7 @@ packages:
       nopt: 5.0.0
       npmlog: 5.0.1
       rimraf: 3.0.2
-      semver: 7.3.8
+      semver: 7.5.0
       tar: 6.1.11
     transitivePeerDependencies:
       - encoding
@@ -8718,18 +8712,6 @@ packages:
       '@types/node': 18.7.21
     dev: true
 
-  /@types/sharp@0.30.5:
-    resolution: {integrity: sha512-EhO29617AIBqxoVtpd1qdBanWpspk/kD2B6qTFRJ31Q23Rdf+DNU1xlHSwtqvwq1vgOqBwq1i38SX+HGCymIQg==}
-    dependencies:
-      '@types/node': 18.7.21
-    dev: true
-
-  /@types/sharp@0.31.1:
-    resolution: {integrity: sha512-5nWwamN9ZFHXaYEincMSuza8nNfOof8nmO+mcI+Agx1uMUk4/pQnNIcix+9rLPXzKrm1pS34+6WRDbDV0Jn7ag==}
-    dependencies:
-      '@types/node': 18.7.21
-    dev: true
-
   /@types/stack-trace@0.0.29:
     resolution: {integrity: sha512-TgfOX+mGY/NyNxJLIbDWrO9DjGoVSW9+aB8H2yy1fy32jsvxijhmyJI9fDFgvz3YP4lvJaq9DzdR/M1bOgVc9g==}
     dev: true
@@ -8858,7 +8840,7 @@ packages:
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.3.8
+      semver: 7.5.0
       tsutils: 3.21.0(typescript@5.0.2)
       typescript: 5.0.2
     transitivePeerDependencies:
@@ -8879,7 +8861,7 @@ packages:
       '@typescript-eslint/typescript-estree': 5.58.0(typescript@5.0.2)
       eslint: 8.38.0
       eslint-scope: 5.1.1
-      semver: 7.3.8
+      semver: 7.5.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9809,7 +9791,7 @@ packages:
   /builtins@5.0.1:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
-      semver: 7.3.8
+      semver: 7.5.0
     dev: true
 
   /busboy@1.6.0:
@@ -14124,10 +14106,14 @@ packages:
     resolution: {integrity: sha512-jAlSOFR1Bls963NmFwxeQkNTzqjUF0NThm8Le7eRIRGzFUVJuMOFZDLv5Y30W/Oaw+KEebEJLAigwO9gQHoEmw==}
     engines: {node: '>=10'}
     dependencies:
-      semver: 7.3.8
+      semver: 7.5.0
 
   /node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
+    dev: false
+
+  /node-addon-api@6.1.0:
+    resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
 
   /node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
@@ -14259,7 +14245,7 @@ packages:
     dependencies:
       execa: 6.1.0
       parse-package-name: 1.0.0
-      semver: 7.3.8
+      semver: 7.5.0
       validate-npm-package-name: 4.0.0
     dev: true
 
@@ -15871,6 +15857,13 @@ packages:
     dependencies:
       lru-cache: 6.0.0
 
+  /semver@7.5.0:
+    resolution: {integrity: sha512-+XC0AD/R7Q2mPSRuy2Id0+CGTZ98+8f+KvwirxOKIEyid+XSx6HbC63p+O4IndTHuX5Z+JxQ0TghCkO5Cg/2HA==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      lru-cache: 6.0.0
+
   /send@0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
     engines: {node: '>= 0.8.0'}
@@ -15925,7 +15918,22 @@ packages:
       detect-libc: 2.0.1
       node-addon-api: 5.1.0
       prebuild-install: 7.1.1
-      semver: 7.3.8
+      semver: 7.5.0
+      simple-get: 4.0.1
+      tar-fs: 2.1.1
+      tunnel-agent: 0.6.0
+    dev: false
+
+  /sharp@0.32.1:
+    resolution: {integrity: sha512-kQTFtj7ldpUqSe8kDxoGLZc1rnMFU0AO2pqbX6pLy3b7Oj8ivJIdoKNwxHVQG2HN6XpHPJqCSM2nsma2gOXvOg==}
+    engines: {node: '>=14.15.0'}
+    requiresBuild: true
+    dependencies:
+      color: 4.2.3
+      detect-libc: 2.0.1
+      node-addon-api: 6.1.0
+      prebuild-install: 7.1.1
+      semver: 7.5.0
       simple-get: 4.0.1
       tar-fs: 2.1.1
       tunnel-agent: 0.6.0

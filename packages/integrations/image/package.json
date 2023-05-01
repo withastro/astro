@@ -51,7 +51,6 @@
   "devDependencies": {
     "@types/http-cache-semantics": "^4.0.1",
     "@types/mime": "^2.0.3",
-    "@types/sharp": "^0.30.5",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
@@ -59,7 +58,7 @@
     "fast-glob": "^3.2.11",
     "mocha": "^9.2.2",
     "rollup-plugin-copy": "^3.4.0",
-    "sharp": "^0.31.0",
+    "sharp": "^0.32.1",
     "vite": "^4.3.1"
   },
   "peerDependencies": {
