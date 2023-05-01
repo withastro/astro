@@ -529,8 +529,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-scopedStyleStrategy-20230403145814
-        version: 0.0.0-scopedStyleStrategy-20230403145814
+        specifier: 0.0.0-scopedStyleStrategy-20230501165917
+        version: 0.0.0-scopedStyleStrategy-20230501165917
       '@astrojs/language-server':
         specifier: ^1.0.0
         version: 1.0.0
@@ -5296,8 +5296,8 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@0.0.0-scopedStyleStrategy-20230403145814:
-    resolution: {integrity: sha512-pE2qqrguBCW8z+cL5kOd3LqlwEp5WDo6zs6epON57F4SsH6XaJH7NeaDvOc6I7I5PXH8OsB4agkmaMbH0cGWIQ==}
+  /@astrojs/compiler@0.0.0-scopedStyleStrategy-20230501165917:
+    resolution: {integrity: sha512-CDG4N2+Ew2YlfMfQFpXg6h23SvekBAxwNsw5DEPK5VltOLjobOQRQba+5D+whzmMQ543SzwvVQ765625Qy13kA==}
     dev: false
 
   /@astrojs/compiler@1.3.2:
