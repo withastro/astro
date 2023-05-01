@@ -7,8 +7,9 @@ const service = {
   getURL(options) {
 		return squoosh.getURL(options);
   },
-	getHTMLAttributes(options) {
+	getHTMLAttributes(options, serviceConfig) {
 		options['data-service'] = 'my-custom-service';
+		options['data-service-config'] = serviceConfig.foo;
 		return squoosh.getHTMLAttributes(options);
 	},
   parseURL(url) {

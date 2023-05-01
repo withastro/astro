@@ -1,9 +1,6 @@
-// @ts-expect-error
 import { runBuild } from './test-utils.ts';
-// @ts-expect-error
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
-// @ts-expect-error
 Deno.test({
 	// TODO: debug why build cannot be found in "await import"
 	ignore: true,

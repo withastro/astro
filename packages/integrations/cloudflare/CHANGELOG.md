@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 6.2.3
+
+### Patch Changes
+
+- [#6222](https://github.com/withastro/astro/pull/6222) [`081b2402c`](https://github.com/withastro/astro/commit/081b2402cfb48b5eb8dbd02664d8af2f7c798edf) Thanks [@AirBorne04](https://github.com/AirBorne04)! - add option to compile unminified code
+
+- Updated dependencies [[`b89042553`](https://github.com/withastro/astro/commit/b89042553ec45d5f6bc71747e0f3470ba969e679)]:
+  - astro@2.3.2
+
 ## 6.2.2
 
 ### Patch Changes

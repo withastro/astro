@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@astrojs/webapi": "workspace:*",
-    "adm-zip": "^0.5.9",
     "arg": "^5.0.2",
     "esbuild": "^0.17.12",
     "globby": "^12.2.0",
@@ -18,6 +17,9 @@
     "tar": "^6.1.11"
   },
   "devDependencies": {
+    "@octokit/action": "^3.18.1",
+    "del": "^7.0.0",
+    "execa": "^6.1.0",
     "esbuild-plugin-copy": "^2.0.2",
     "tsconfig-resolver": "^3.0.1"
   }

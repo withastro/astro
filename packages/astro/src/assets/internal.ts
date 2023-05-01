@@ -45,7 +45,10 @@ export async function getConfiguredImageService(): Promise<ImageService> {
  *
  * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
  */
-export async function getImage(options: ImageTransform): Promise<GetImageResult> {
+export async function getImage(
+	options: ImageTransform,
+	serviceConfig: Record<string, any>
+): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
 			...AstroErrorData.ExpectedImageOptions,
@@ -54,9 +57,11 @@ export async function getImage(options: ImageTransform): Promise<GetImageResult>
 	}
 
 	const service = await getConfiguredImageService();
-	const validatedOptions = service.validateOptions ? service.validateOptions(options) : options;
+	const validatedOptions = service.validateOptions
+		? service.validateOptions(options, serviceConfig)
+		: options;
 
-	let imageURL = service.getURL(validatedOptions);
+	let imageURL = service.getURL(validatedOptions, serviceConfig);
 
 	// In build and for local services, we need to collect the requested parameters so we can generate the final images
 	if (isLocalService(service) && globalThis.astroAsset.addStaticImage) {
@@ -68,7 +73,9 @@ export async function getImage(options: ImageTransform): Promise<GetImageResult>
 		options: validatedOptions,
 		src: imageURL,
 		attributes:
-			service.getHTMLAttributes !== undefined ? service.getHTMLAttributes(validatedOptions) : {},
+			service.getHTMLAttributes !== undefined
+				? service.getHTMLAttributes(validatedOptions, serviceConfig)
+				: {},
 	};
 }
 
@@ -121,7 +128,11 @@ export async function generateImage(
 			serverRoot
 		)
 	);
-	const resultData = await imageService.transform(fileData, { ...options, src: originalImagePath });
+	const resultData = await imageService.transform(
+		fileData,
+		{ ...options, src: originalImagePath },
+		buildOpts.settings.config.image.service.config
+	);
 
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
