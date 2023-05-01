@@ -56,7 +56,8 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 				res.write(chunk);
 			}
 		} catch(err: any) {
-			res.write(err + '');
+			console.error(err?.stack || err?.message || String(err))
+			res.write('Internal server error');
 		}
 	}
 	res.end();
