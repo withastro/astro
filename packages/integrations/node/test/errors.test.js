@@ -27,7 +27,7 @@ describe('Errors', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
-			expect($('p').text().trim()).to.equal('Error in the stream');
+			expect($('p').text().trim()).to.equal('Internal server error');
 		});
 	});
 });
