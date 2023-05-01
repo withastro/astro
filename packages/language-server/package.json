@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "0.29.8",
+  "version": "1.0.0",
   "author": "withastro",
   "license": "MIT",
   "repository": {

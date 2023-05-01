@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 1.0.0
+
+### Major Changes
+
+- 39a7669: 1.0! This release includes no new changes by itself, but symbolize the official release of what was previously the pre-release version of the extension. For changelogs, please refer to the changelog from `0.29.0` to now.
+
+### Minor Changes
+
+- c54458c: Add ability to resolve `astro` in pnp workspace
+
 ## 0.29.8
 
 ### Patch Changes
