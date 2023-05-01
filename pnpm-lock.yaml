@@ -529,8 +529,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-scopedStyleStrategy-20230501165917
-        version: 0.0.0-scopedStyleStrategy-20230501165917
+        specifier: ^1.4.0
+        version: 1.4.0
       '@astrojs/language-server':
         specifier: ^1.0.0
         version: 1.0.0
@@ -5296,18 +5296,14 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@0.0.0-scopedStyleStrategy-20230501165917:
-    resolution: {integrity: sha512-CDG4N2+Ew2YlfMfQFpXg6h23SvekBAxwNsw5DEPK5VltOLjobOQRQba+5D+whzmMQ543SzwvVQ765625Qy13kA==}
-    dev: false
-
-  /@astrojs/compiler@1.3.2:
-    resolution: {integrity: sha512-W/2Mdsq75ruK31dPVlXLdvAoknYDcm6+zXiFToSzQWI7wZqqR+51XTFgx90ojYbefk7z4VOJSVtZBz2pA82F5A==}
+  /@astrojs/compiler@1.4.0:
+    resolution: {integrity: sha512-Vav3a32Ct+omowV9X9kDM2ghWAvFdjZkv5BdvBjZCKYbFVT6//IZApDIVbHI1UPuLuD2sKyLWx2T+E7clqUJdg==}
 
   /@astrojs/language-server@1.0.0:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
     dependencies:
-      '@astrojs/compiler': 1.3.2
+      '@astrojs/compiler': 1.4.0
       '@jridgewell/trace-mapping': 0.3.17
       '@vscode/emmet-helper': 2.8.6
       events: 3.3.0
@@ -15187,7 +15183,7 @@ packages:
     resolution: {integrity: sha512-kt9wk33J7HvFGwFaHb8piwy4zbUmabC8Nu+qCw493jhe96YkpjscqGBPy4nJ9TPy9pd7+kEx1zM81rp+MIdrXg==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.3.2
+      '@astrojs/compiler': 1.4.0
       prettier: 2.8.8
       sass-formatter: 0.7.5
       synckit: 0.8.5
