@@ -181,7 +181,6 @@
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
-    "@types/sharp": "^0.31.1",
     "@types/unist": "^2.0.6",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
@@ -196,13 +195,13 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^3.9.0",
     "sass": "^1.52.2",
-    "sharp": "^0.31.3",
+    "sharp": "^0.32.1",
     "srcset-parse": "^1.1.0",
     "undici": "^5.22.0",
     "unified": "^10.1.2"
   },
   "peerDependencies": {
-    "sharp": "^0.31.3"
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {
