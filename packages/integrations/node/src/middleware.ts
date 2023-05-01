@@ -55,8 +55,8 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 			for await (const chunk of responseIterator(webResponse) as unknown as Readable) {
 				res.write(chunk);
 			}
-		} catch(err: any) {
-			console.error(err?.stack || err?.message || String(err))
+		} catch (err: any) {
+			console.error(err?.stack || err?.message || String(err));
 			res.write('Internal server error');
 		}
 	}
