@@ -112,6 +112,7 @@ export default defineConfig({
 
 **Type:** `VercelImageConfig`<br>
 **Available for:** Edge, Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
 
 Configuration options for [Vercel's Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel's image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters.
 
@@ -134,6 +135,7 @@ export default defineConfig({
 
 **Type:** `boolean`<br>
 **Available for:** Edge, Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
 
 When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
 
