@@ -568,7 +568,7 @@ importers:
         specifier: ^21.0.0
         version: 21.0.0
       acorn:
-        specifier: ^8.8.1
+        specifier: ^8.8.2
         version: 8.8.2
       boxen:
         specifier: ^6.2.1
@@ -601,8 +601,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.1
       estree-walker:
-        specifier: ^3.0.1
-        version: 3.0.3
+        specifier: 3.0.0
+        version: 3.0.0
       execa:
         specifier: ^6.1.0
         version: 6.1.0
@@ -7981,7 +7981,7 @@ packages:
       estree-util-build-jsx: 2.2.2
       estree-util-is-identifier-name: 2.1.0
       estree-util-to-js: 1.2.0
-      estree-walker: 3.0.3
+      estree-walker: 3.0.0
       hast-util-to-estree: 2.3.0
       markdown-extensions: 1.1.1
       periscopic: 3.1.0
@@ -11501,7 +11501,7 @@ packages:
     dependencies:
       '@types/estree-jsx': 1.0.0
       estree-util-is-identifier-name: 2.1.0
-      estree-walker: 3.0.3
+      estree-walker: 3.0.0
     dev: false
 
   /estree-util-is-identifier-name@2.1.0:
@@ -11533,10 +11533,8 @@ packages:
   /estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
 
-  /estree-walker@3.0.3:
-    resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
-    dependencies:
-      '@types/estree': 1.0.0
+  /estree-walker@3.0.0:
+    resolution: {integrity: sha512-s6ceX0NFiU/vKPiKvFdR83U1Zffu7upwZsGwpoqfg5rbbq1l50WQ5hCeIvM6E6oD4shUHCYMsiFPns4Jk0YfMQ==}
     dev: false
 
   /esutils@2.0.3:
@@ -14667,7 +14665,7 @@ packages:
     resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
     dependencies:
       '@types/estree': 1.0.0
-      estree-walker: 3.0.3
+      estree-walker: 3.0.0
       is-reference: 3.0.1
     dev: false
 
