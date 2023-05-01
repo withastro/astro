@@ -538,10 +538,10 @@ importers:
         specifier: ^2.1.4
         version: link:../markdown/remark
       '@astrojs/telemetry':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../telemetry
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../webapi
       '@babel/core':
         specifier: ^7.18.2
@@ -4184,7 +4184,7 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../../webapi
       '@netlify/functions':
         specifier: ^1.0.0
@@ -4269,7 +4269,7 @@ importers:
   packages/integrations/node:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../../webapi
       send:
         specifier: ^0.18.0
@@ -4615,7 +4615,7 @@ importers:
   packages/integrations/vercel:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../../webapi
       '@vercel/analytics':
         specifier: ^0.1.8

@@ -1,5 +1,15 @@
 # @astrojs/node
 
+## 5.1.2
+
+### Patch Changes
+
+- [#6935](https://github.com/withastro/astro/pull/6935) [`c405cef64`](https://github.com/withastro/astro/commit/c405cef64711a7b6a480e8b4068cd2bf3cf889a9) Thanks [@matthewp](https://github.com/matthewp)! - Catch errors that occur within the stream in the Node adapter
+
+- Updated dependencies [[`a98df9374`](https://github.com/withastro/astro/commit/a98df9374dec65c678fa47319cb1481b1af123e2), [`ac57b5549`](https://github.com/withastro/astro/commit/ac57b5549f828a17bdbebdaca7ace075307a3c9d), [`50975f2ea`](https://github.com/withastro/astro/commit/50975f2ea3a59f9e023cc631a9372c0c7986eec9), [`ebae1eaf8`](https://github.com/withastro/astro/commit/ebae1eaf87f49399036033c673b513338f7d9c42), [`dc062f669`](https://github.com/withastro/astro/commit/dc062f6695ce577dc569781fc0678c903012c336)]:
+  - astro@2.3.3
+  - @astrojs/webapi@2.1.1
+
 ## 5.1.1
 
 ### Patch Changes
