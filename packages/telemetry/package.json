@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/telemetry",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "types": "./dist/types/index.d.ts",
   "author": "withastro",
