@@ -216,28 +216,12 @@ export function* eachPageData(internals: BuildInternals) {
 }
 
 export function hasPrerenderedPages(internals: BuildInternals) {
-	for (const id of internals.pagesByViteID.keys()) {
-		if (internals.pageOptionsByPage.get(id)?.prerender) {
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.prerender) {
 			return true;
 		}
 	}
 	return false;
-}
-
-export function* eachPrerenderedPageData(internals: BuildInternals) {
-	for (const [id, pageData] of internals.pagesByViteID.entries()) {
-		if (internals.pageOptionsByPage.get(id)?.prerender) {
-			yield pageData;
-		}
-	}
-}
-
-export function* eachServerPageData(internals: BuildInternals) {
-	for (const [id, pageData] of internals.pagesByViteID.entries()) {
-		if (!internals.pageOptionsByPage.get(id)?.prerender) {
-			yield pageData;
-		}
-	}
 }
 
 /**

@@ -39,12 +39,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import {
-	eachPageData,
-	eachPrerenderedPageData,
-	getPageDataByComponent,
-	sortedCSS,
-} from './internal.js';
+import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -99,8 +94,9 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const builtPaths = new Set<string>();
 
 	if (ssr) {
-		for (const pageData of eachPrerenderedPageData(internals)) {
-			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		for (const pageData of eachPageData(internals)) {
+			if (pageData.route.prerender)
+				await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}
 	} else {
 		for (const pageData of eachPageData(internals)) {
