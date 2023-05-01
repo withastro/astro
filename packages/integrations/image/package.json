@@ -63,7 +63,7 @@
   },
   "peerDependencies": {
     "astro": "workspace:^2.3.2",
-    "sharp": ">=0.32.0"
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {

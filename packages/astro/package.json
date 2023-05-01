@@ -201,7 +201,7 @@
     "unified": "^10.1.2"
   },
   "peerDependencies": {
-    "sharp": ">=0.32.0"
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {
