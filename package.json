@@ -88,7 +88,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "prettier-plugin-astro": "^0.8.0",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.9.3",
