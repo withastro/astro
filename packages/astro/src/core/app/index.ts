@@ -284,7 +284,7 @@ export class App {
 			this.#env,
 			ctx,
 			this.#logging,
-			this.#manifest.middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+			this.#manifest.middleware
 		);
 
 		if (result.type === 'response') {

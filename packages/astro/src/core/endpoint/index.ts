@@ -93,12 +93,12 @@ export function createAPIContext({
 	return context;
 }
 
-export async function call(
+export async function call<MiddlewareResult = Response | EndpointOutput>(
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
 	logging: LogOptions,
-	middleware?: AstroMiddlewareInstance<Response | EndpointOutput> | undefined
+	middleware?: AstroMiddlewareInstance<MiddlewareResult> | undefined
 ): Promise<EndpointCallResult> {
 	const [params, props] = await getParamsAndPropsOrThrow({
 		options: {
