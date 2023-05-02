@@ -12,13 +12,13 @@ describe('Integrations can hook into the prerendering decision', () => {
 			['astro:build:setup']({ pages, target }) {
 				if (target !== 'client') return;
 				// this page has `export const prerender = true`
-				pages.get('src/pages/static.astro').route.prerender = false
-				
+				pages.get('src/pages/static.astro').route.prerender = false;
+
 				// this page does not
-				pages.get('src/pages/not-prerendered.astro').route.prerender = true
-			}
-		}
-	}
+				pages.get('src/pages/not-prerendered.astro').route.prerender = true;
+			},
+		},
+	};
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -29,7 +29,7 @@ describe('Integrations can hook into the prerendering decision', () => {
 		});
 		await fixture.build();
 	});
-	
+
 	it('An integration can override the prerender flag', async () => {
 		// test adapter only hosts dynamic routes
 		// /static is expected to become dynamic
