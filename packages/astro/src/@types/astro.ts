@@ -1578,7 +1578,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
-export type HookIntegrationParameters<
+export type HookParameters<
 	Hook extends keyof AstroIntegration['hooks'],
 	Fn = AstroIntegration['hooks'][Hook]
 > = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;

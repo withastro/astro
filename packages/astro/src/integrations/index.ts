@@ -9,7 +9,7 @@ import type {
 	AstroSettings,
 	BuildConfig,
 	ContentEntryType,
-	HookIntegrationParameters,
+	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
@@ -70,7 +70,7 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 		if (integration.hooks?.['astro:config:setup']) {
-			const hooks: HookIntegrationParameters<'astro:config:setup'> = {
+			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
 				isRestart,
