@@ -90,7 +90,7 @@ describe('Astro Markdown Shiki', () => {
 
 			const unknownLang = $('.line').last().html();
 			expect(unknownLang).to.be.equal(
-				'<span style="color: #c9d1d9">This language does not exist</span>'
+				'<span style="color: #e1e4e8">This language does not exist</span>'
 			);
 		});
 	});
