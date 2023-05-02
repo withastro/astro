@@ -3,7 +3,9 @@
 declare module 'astro:assets' {
 	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
 	type AstroAssets = {
-		getImage: typeof import('./dist/assets/index.js').getImage;
+		getImage: (
+			options: import('./dist/assets/types.js').ImageTransform
+		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
