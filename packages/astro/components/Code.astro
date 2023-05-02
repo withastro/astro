@@ -70,7 +70,7 @@ const html = renderToHtml(tokens, {
 		pre({ className, style, children }) {
 			// Swap to `code` tag if inline
 			const tag = inline ? 'code' : 'pre';
-			// Replace "shiki" class naming with "astro"
+			// Replace "shiki" class naming with "astro-code"
 			className = className.replace(/shiki/g, 'astro-code');
 			// Handle code wrapping
 			// if wrap=null, do nothing.
