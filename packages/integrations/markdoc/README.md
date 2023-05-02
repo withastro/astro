@@ -91,7 +91,7 @@ const { Content } = await entry.render();
 <Content />
 ```
 > **Note**
-> The `<Content />` component renders your Markdown content within `<article></article>`. This may affect CSS and styling of your content.
+> The `<Content />` component renders your Markdoc content within `<article></article>`. This may affect CSS and styling of your content.
 
 📚 See the [Astro Content Collection docs][astro-content-collections] for more information.
 
