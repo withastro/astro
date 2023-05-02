@@ -112,7 +112,9 @@ describe('Middleware API in PROD mode, SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter(),
+			adapter: testAdapter({
+				// exports: ['manifest', 'createApp', 'middleware'],
+			}),
 		});
 		await fixture.build();
 	});
@@ -122,7 +124,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
-		console.log(html);
 		const $ = cheerio.load(html);
 		expect($('p').html()).to.equal('bar');
 	});

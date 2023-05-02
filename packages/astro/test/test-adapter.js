@@ -51,8 +51,8 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 											export function createExports(manifest) {
 												return {
 													manifest,
-													createApp: (streaming) => new MyApp(manifest, streaming),
-													middleware: (_, next) => {next()}
+													createApp: (streaming) => new MyApp(manifest, streaming)
+													
 												};
 											}
 										`;
@@ -67,7 +67,7 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 				setAdapter({
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
-					exports: ['manifest', 'createApp', 'middleware'],
+					exports: ['manifest', 'createApp'],
 					...extendAdapter,
 				});
 			},
