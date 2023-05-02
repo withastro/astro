@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': minor
 ---
 
-Change esbuild.platform to 'node' to correctly resolve conditional package exports
+Change esbuild.platform to 'neutral' to correctly resolve conditional package exports
