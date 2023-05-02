@@ -22,6 +22,32 @@ export const enum GetParamsAndPropsError {
 	NoMatchingStaticPath,
 }
 
+export type GetParamsAndPropsOrThrow = {
+	options: GetParamsAndPropsOptions;
+	context: RenderContext;
+};
+
+/**
+ * It retrieves `Params` and `Props`, or throws an error
+ * if they are not correctly retrieved.
+ */
+export async function getParamsAndPropsOrThrow({
+	options,
+	context,
+}: GetParamsAndPropsOrThrow): Promise<[Params, Props]> {
+	let paramsAndPropsResp = await getParamsAndProps(options);
+	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
+		throw new AstroError({
+			...AstroErrorData.NoMatchingStaticPathFound,
+			message: AstroErrorData.NoMatchingStaticPathFound.message(context.pathname),
+			hint: context.route?.component
+				? AstroErrorData.NoMatchingStaticPathFound.hint([context.route?.component])
+				: '',
+		});
+	}
+	return paramsAndPropsResp;
+}
+
 export async function getParamsAndProps(
 	opts: GetParamsAndPropsOptions
 ): Promise<[Params, Props] | GetParamsAndPropsError> {
@@ -83,32 +109,25 @@ export async function getParamsAndProps(
 	return [params, pageProps];
 }
 
-export async function renderPage(
-	mod: ComponentInstance,
-	ctx: RenderContext,
-	env: Environment,
-	apiContext?: APIContext
-) {
-	const paramsAndPropsRes = await getParamsAndProps({
-		logging: env.logging,
-		mod,
-		route: ctx.route,
-		routeCache: env.routeCache,
-		pathname: ctx.pathname,
-		ssr: env.ssr,
-	});
+export async function renderPageWithParamsAndProps() {}
 
-	if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-		throw new AstroError({
-			...AstroErrorData.NoMatchingStaticPathFound,
-			message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
-			hint: ctx.route?.component
-				? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
-				: '',
-		});
-	}
-	const [params, pageProps] = paramsAndPropsRes;
+export type RenderPage = {
+	mod: ComponentInstance;
+	renderContext: RenderContext;
+	env: Environment;
+	apiContext?: APIContext;
+	props: Props;
+	params: Params;
+};
 
+export async function renderPage({
+	mod,
+	renderContext,
+	env,
+	apiContext,
+	params,
+	props,
+}: RenderPage) {
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)
@@ -119,45 +138,45 @@ export async function renderPage(
 		if (env.mode === 'development' && !isValueSerializable(apiContext.locals)) {
 			throw new AstroError({
 				...AstroErrorData.LocalsNotSerializable,
-				message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+				message: AstroErrorData.LocalsNotSerializable.message(renderContext.pathname),
 			});
 		}
 		locals = apiContext.locals;
 	}
 	const result = createResult({
 		adapterName: env.adapterName,
-		links: ctx.links,
-		styles: ctx.styles,
+		links: renderContext.links,
+		styles: renderContext.styles,
 		logging: env.logging,
 		markdown: env.markdown,
 		mode: env.mode,
-		origin: ctx.origin,
+		origin: renderContext.origin,
 		params,
-		props: pageProps,
-		pathname: ctx.pathname,
-		componentMetadata: ctx.componentMetadata,
+		props,
+		pathname: renderContext.pathname,
+		componentMetadata: renderContext.componentMetadata,
 		resolve: env.resolve,
 		renderers: env.renderers,
-		request: ctx.request,
+		request: renderContext.request,
 		site: env.site,
-		scripts: ctx.scripts,
+		scripts: renderContext.scripts,
 		ssr: env.ssr,
-		status: ctx.status ?? 200,
+		status: renderContext.status ?? 200,
 		locals,
 	});
 
 	// Support `export const components` for `MDX` pages
 	if (typeof (mod as any).components === 'object') {
-		Object.assign(pageProps, { components: (mod as any).components });
+		Object.assign(props, { components: (mod as any).components });
 	}
 
 	let response = await runtimeRenderPage(
 		result,
 		Component,
-		pageProps,
+		props,
 		null,
 		env.streaming,
-		ctx.route
+		renderContext.route
 	);
 
 	// If there is an Astro.cookies instance, attach it to the response so that

@@ -12,6 +12,7 @@ import {
 	createRenderContext,
 	renderPage,
 	loadRenderer,
+	getParamsAndPropsOrThrow,
 } from '../../../dist/core/render/index.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { defaultLogging as logging } from '../../test-utils.js';
@@ -47,7 +48,25 @@ describe('core/render', () => {
 			});
 
 			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
+			const mod = createAstroModule(Page);
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					logging: env.logging,
+					mod,
+					route: ctx.route,
+					routeCache: env.routeCache,
+					pathname: ctx.pathname,
+					ssr: env.ssr,
+				},
+				context: ctx,
+			});
+			const response = await renderPage({
+				mod,
+				renderContext: ctx,
+				env,
+				params,
+				props,
+			});
 
 			expect(response.status).to.equal(200);
 
@@ -86,7 +105,25 @@ describe('core/render', () => {
 			});
 
 			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
+			const mod = createAstroModule(Page);
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					logging: env.logging,
+					mod,
+					route: ctx.route,
+					routeCache: env.routeCache,
+					pathname: ctx.pathname,
+					ssr: env.ssr,
+				},
+				context: ctx,
+			});
+			const response = await renderPage({
+				mod,
+				renderContext: ctx,
+				env,
+				params,
+				props,
+			});
 
 			expect(response.status).to.equal(200);
 
@@ -106,7 +143,25 @@ describe('core/render', () => {
 			});
 
 			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
+			const mod = createAstroModule(Page);
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					logging: env.logging,
+					mod,
+					route: ctx.route,
+					routeCache: env.routeCache,
+					pathname: ctx.pathname,
+					ssr: env.ssr,
+				},
+				context: ctx,
+			});
+			const response = await renderPage({
+				mod,
+				renderContext: ctx,
+				env,
+				params,
+				props,
+			});
 
 			try {
 				await response.text();

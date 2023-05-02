@@ -21,8 +21,7 @@ import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
 import {
 	createRenderContext,
-	getParamsAndProps,
-	GetParamsAndPropsError,
+	getParamsAndPropsOrThrow,
 	renderPage as coreRenderPage,
 } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
@@ -31,7 +30,7 @@ import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
 import { createAPIContext } from '../../endpoint/index.js';
-import { sequence, callMiddleware } from '../../middleware/index.js';
+import { callMiddleware } from '../../middleware/index.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 
@@ -178,7 +177,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		filePath: options.filePath,
 	});
 
-	const ctx = createRenderContext({
+	const renderContext = createRenderContext({
 		request: options.request,
 		origin: options.origin,
 		pathname: options.pathname,
@@ -189,44 +188,34 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		route: options.route,
 	});
 
-	if (options.middleware) {
-		const { env } = options;
-		const paramsAndPropsRes = await getParamsAndProps({
+	const { env } = options;
+	const [params, props] = await getParamsAndPropsOrThrow({
+		options: {
 			logging: env.logging,
 			mod,
-			route: ctx.route,
+			route: renderContext.route,
 			routeCache: env.routeCache,
-			pathname: ctx.pathname,
+			pathname: renderContext.pathname,
 			ssr: env.ssr,
-		});
-
-		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-			throw new AstroError({
-				...AstroErrorData.NoMatchingStaticPathFound,
-				message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
-				hint: ctx.route?.component
-					? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
-					: '',
-			});
-		}
-
+		},
+		context: renderContext,
+	});
+	if (options.middleware) {
 		if (options.middleware && options.middleware.onRequest) {
-			const [params, pageProps] = paramsAndPropsRes;
-
 			const apiContext = createAPIContext({
 				request: options.request,
 				params,
-				props: pageProps,
+				props,
 				adapterName: options.env.adapterName,
 			});
 
 			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
-				return coreRenderPage(mod, ctx, options.env, apiContext);
+				return coreRenderPage({ mod, renderContext, env: options.env, apiContext, params, props });
 			});
 
 			return response;
 		}
 	}
-	return await coreRenderPage(mod, ctx, options.env); // NOTE: without "await", errors won’t get caught below
+	return await coreRenderPage({ mod, renderContext, env: options.env, params, props }); // NOTE: without "await", errors won’t get caught below
 }

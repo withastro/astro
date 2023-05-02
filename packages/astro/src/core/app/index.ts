@@ -4,7 +4,6 @@ import type {
 	EndpointHandler,
 	EndpointOutput,
 	ManifestData,
-	MiddlewareHandler,
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
@@ -22,8 +21,7 @@ import {
 	createRenderContext,
 	renderPage,
 	type Environment,
-	getParamsAndProps,
-	GetParamsAndPropsError,
+	getParamsAndPropsOrThrow,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
@@ -34,7 +32,6 @@ import {
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
 import { callMiddleware } from '../middleware/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -213,25 +210,18 @@ export class App {
 				route: routeData,
 				status,
 			});
-			const paramsAndPropsResp = await getParamsAndProps({
-				mod: mod as any,
-				route: renderContext.route,
-				routeCache: this.#env.routeCache,
-				pathname: renderContext.pathname,
-				logging: this.#env.logging,
-				ssr: this.#env.ssr,
-			});
 
-			if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
-				throw new AstroError({
-					...AstroErrorData.NoMatchingStaticPathFound,
-					message: AstroErrorData.NoMatchingStaticPathFound.message(renderContext.pathname),
-					hint: renderContext.route?.component
-						? AstroErrorData.NoMatchingStaticPathFound.hint([renderContext.route?.component])
-						: '',
-				});
-			}
-			const [params, props] = paramsAndPropsResp;
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					mod: mod as any,
+					route: renderContext.route,
+					routeCache: this.#env.routeCache,
+					pathname: renderContext.pathname,
+					logging: this.#env.logging,
+					ssr: this.#env.ssr,
+				},
+				context: renderContext,
+			});
 
 			const apiContext = createAPIContext({
 				request: renderContext.request,
@@ -247,11 +237,18 @@ export class App {
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage(mod, renderContext, this.#env, apiContext);
+						return renderPage({ mod, renderContext, env: this.#env, apiContext, props, params });
 					}
 				);
 			} else {
-				response = await renderPage(mod, renderContext, this.#env, apiContext);
+				response = await renderPage({
+					mod,
+					renderContext,
+					env: this.#env,
+					apiContext,
+					props,
+					params,
+				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
 			return response;

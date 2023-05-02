@@ -12,6 +12,7 @@ import {
 import {
 	createBasicEnvironment,
 	createRenderContext,
+	getParamsAndPropsOrThrow,
 	renderPage,
 } from '../../../dist/core/render/index.js';
 import { defaultLogging as logging } from '../../test-utils.js';
@@ -101,7 +102,24 @@ describe('core/render', () => {
 			});
 			const PageModule = createAstroModule(Page);
 
-			const response = await renderPage(PageModule, ctx, env);
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					logging: env.logging,
+					mod: PageModule,
+					route: ctx.route,
+					routeCache: env.routeCache,
+					pathname: ctx.pathname,
+					ssr: env.ssr,
+				},
+				context: ctx,
+			});
+			const response = await renderPage({
+				mod: PageModule,
+				renderContext: ctx,
+				env,
+				params,
+				props,
+			});
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -179,8 +197,24 @@ describe('core/render', () => {
 			});
 			const PageModule = createAstroModule(Page);
 
-			const response = await renderPage(PageModule, ctx, env);
-
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					logging: env.logging,
+					mod: PageModule,
+					route: ctx.route,
+					routeCache: env.routeCache,
+					pathname: ctx.pathname,
+					ssr: env.ssr,
+				},
+				context: ctx,
+			});
+			const response = await renderPage({
+				mod: PageModule,
+				renderContext: ctx,
+				env,
+				params,
+				props,
+			});
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
@@ -224,8 +258,24 @@ describe('core/render', () => {
 			});
 			const PageModule = createAstroModule(Page);
 
-			const response = await renderPage(PageModule, ctx, env);
-
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					logging: env.logging,
+					mod: PageModule,
+					route: ctx.route,
+					routeCache: env.routeCache,
+					pathname: ctx.pathname,
+					ssr: env.ssr,
+				},
+				context: ctx,
+			});
+			const response = await renderPage({
+				mod: PageModule,
+				renderContext: ctx,
+				env,
+				params,
+				props,
+			});
 			const html = await response.text();
 			const $ = cheerio.load(html);
 

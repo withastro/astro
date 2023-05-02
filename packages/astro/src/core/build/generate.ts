@@ -38,9 +38,8 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import {
 	createEnvironment,
+	getParamsAndPropsOrThrow,
 	createRenderContext,
-	getParamsAndProps,
-	GetParamsAndPropsError,
 	renderPage,
 } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -432,7 +431,7 @@ async function generatePath(
 		streaming: true,
 	});
 
-	const ctx = createRenderContext({
+	const renderContext = createRenderContext({
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
@@ -450,7 +449,7 @@ async function generatePath(
 		const result = await callEndpoint(
 			endpointHandler,
 			env,
-			ctx,
+			renderContext,
 			logging,
 			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
 		);
@@ -468,28 +467,20 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			const paramsAndPropsResp = await getParamsAndProps({
-				mod: mod as any,
-				route: ctx.route,
-				routeCache: env.routeCache,
-				pathname: ctx.pathname,
-				logging: env.logging,
-				ssr: env.ssr,
+			const [params, props] = await getParamsAndPropsOrThrow({
+				options: {
+					mod: mod as any,
+					route: renderContext.route,
+					routeCache: env.routeCache,
+					pathname: renderContext.pathname,
+					logging: env.logging,
+					ssr: env.ssr,
+				},
+				context: renderContext,
 			});
 
-			if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
-				throw new AstroError({
-					...AstroErrorData.NoMatchingStaticPathFound,
-					message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
-					hint: ctx.route?.component
-						? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
-						: '',
-				});
-			}
-			const [params, props] = paramsAndPropsResp;
-
-			const context = createAPIContext({
-				request: ctx.request,
+			const apiContext = createAPIContext({
+				request: renderContext.request,
 				params,
 				props,
 				site: env.site,
@@ -500,13 +491,13 @@ async function generatePath(
 			if (onRequest) {
 				response = await callMiddleware<Response>(
 					onRequest as MiddlewareResponseHandler,
-					context,
+					apiContext,
 					() => {
-						return renderPage(mod, ctx, env, context);
+						return renderPage({ mod, renderContext, env, apiContext, params, props });
 					}
 				);
 			} else {
-				response = await renderPage(mod, ctx, env, context);
+				response = await renderPage({ mod, renderContext, env, apiContext, params, props });
 			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
