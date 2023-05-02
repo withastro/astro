@@ -17,7 +17,7 @@ import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import { loadMiddleware } from '../core/middleware/index.js';
+import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any

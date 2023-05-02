@@ -15,7 +15,7 @@ import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { getParamsAndPropsOrThrow, isValueSerializable } from '../render/core.js';
-import { callMiddleware } from '../middleware/index.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');

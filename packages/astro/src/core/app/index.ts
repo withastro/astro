@@ -31,7 +31,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
-import { callMiddleware } from '../middleware/index.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

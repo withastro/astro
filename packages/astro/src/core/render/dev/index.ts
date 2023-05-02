@@ -30,7 +30,7 @@ import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
 import { createAPIContext } from '../../endpoint/index.js';
-import { callMiddleware } from '../../middleware/index.js';
+import { callMiddleware } from '../../middleware/callMiddleware.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 

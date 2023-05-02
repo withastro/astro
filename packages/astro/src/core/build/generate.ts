@@ -55,7 +55,7 @@ import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { callMiddleware } from '../middleware/index.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
