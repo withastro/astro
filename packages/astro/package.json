@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -106,11 +106,11 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.3.1",
-    "@astrojs/language-server": "^0.28.3",
+    "@astrojs/compiler": "^1.3.2",
+    "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.1.4",
-    "@astrojs/telemetry": "^2.1.0",
-    "@astrojs/webapi": "^2.1.0",
+    "@astrojs/telemetry": "^2.1.1",
+    "@astrojs/webapi": "^2.1.1",
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",
@@ -181,7 +181,6 @@
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
-    "@types/sharp": "^0.31.1",
     "@types/unist": "^2.0.6",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
@@ -196,13 +195,13 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^3.9.0",
     "sass": "^1.52.2",
-    "sharp": "^0.31.3",
+    "sharp": "^0.32.1",
     "srcset-parse": "^1.1.0",
     "undici": "^5.22.0",
     "unified": "^10.1.2"
   },
   "peerDependencies": {
-    "sharp": "^0.31.3"
+    "sharp": ">=0.31.0"
   },
   "peerDependenciesMeta": {
     "sharp": {

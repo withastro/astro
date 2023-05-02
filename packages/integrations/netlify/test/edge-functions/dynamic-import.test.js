@@ -1,9 +1,6 @@
-// @ts-ignore
 import { runBuild, runApp } from './test-utils.ts';
-// @ts-ignore
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
-// @ts-ignore
 Deno.test({
 	name: 'Dynamic imports',
 	async fn() {

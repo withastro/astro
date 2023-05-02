@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 2.1.2
+
+### Patch Changes
+
+- [#6933](https://github.com/withastro/astro/pull/6933) [`649d70934`](https://github.com/withastro/astro/commit/649d70934e709bb1aa6e5e7583b12fa1703377cb) Thanks [@matthewp](https://github.com/matthewp)! - Automatically configure redoc
+
 ## 2.1.1
 
 ### Patch Changes

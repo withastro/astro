@@ -158,6 +158,68 @@ describe('dev container', () => {
 		);
 	});
 
+	it('Serves injected 404 route for any 404', async () => {
+		const fs = createFs(
+			{
+				'/src/components/404.astro': `<h1>Custom 404</h1>`,
+				'/src/pages/page.astro': `<h1>Regular page</h1>`,
+			},
+			root
+		);
+
+		await runInContainer(
+			{
+				fs,
+				root,
+				userConfig: {
+					output: 'server',
+					integrations: [
+						{
+							name: '@astrojs/test-integration',
+							hooks: {
+								'astro:config:setup': ({ injectRoute }) => {
+									injectRoute({
+										pattern: '/404',
+										entryPoint: './src/components/404.astro',
+									});
+								},
+							},
+						},
+					],
+				},
+			},
+			async (container) => {
+				{
+					// Regular pages are served as expected.
+					const r = createRequestAndResponse({ method: 'GET', url: '/page' });
+					container.handle(r.req, r.res);
+					await r.done;
+					const doc = await r.text();
+					expect(doc).to.match(/<h1>Regular page<\/h1>/);
+					expect(r.res.statusCode).to.equal(200);
+				}
+				{
+					// `/404` serves the custom 404 page as expected.
+					const r = createRequestAndResponse({ method: 'GET', url: '/404' });
+					container.handle(r.req, r.res);
+					await r.done;
+					const doc = await r.text();
+					expect(doc).to.match(/<h1>Custom 404<\/h1>/);
+					expect(r.res.statusCode).to.equal(200);
+				}
+				{
+					// A non-existent page also serves the custom 404 page.
+					const r = createRequestAndResponse({ method: 'GET', url: '/other-page' });
+					container.handle(r.req, r.res);
+					await r.done;
+					const doc = await r.text();
+					expect(doc).to.match(/<h1>Custom 404<\/h1>/);
+					expect(r.res.statusCode).to.equal(200);
+				}
+			}
+		);
+	});
+
 	it('items in public/ are not available from root when using a base', async () => {
 		await runInContainer(
 			{

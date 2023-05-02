@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 2.1.1
+
+### Patch Changes
+
+- [#6929](https://github.com/withastro/astro/pull/6929) [`ac57b5549`](https://github.com/withastro/astro/commit/ac57b5549f828a17bdbebdaca7ace075307a3c9d) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade undici to v5.22.0
+
 ## 2.1.0
 
 ### Minor Changes
