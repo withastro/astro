@@ -100,4 +100,14 @@ describe('<Code>', () => {
 		expect($('#lang > pre')).to.have.lengthOf(1);
 		expect($('#lang > pre > code span').length).to.equal(3);
 	});
+
+	it('<Code inline> has no pre tag', async () => {
+		let html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+		const codeEl = $('.astro-code');
+
+		expect(codeEl.prop('tagName')).to.eq('CODE');
+		expect(codeEl.attr('style')).to.include('background-color:');
+		expect($('pre')).to.have.lengthOf(0);
+	});
 });
