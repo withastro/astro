@@ -1528,10 +1528,10 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *   next();
 	 * });
 	 * ```
-	 * Inside the an astro file:
+	 * Inside a `.astro` file:
 	 * ```astro
 	 * ---
-	 * // index.astro
+	 * // src/pages/index.astro
 	 * const greeting = Astro.locals.greeting;
 	 * ---
 	 * <h1>{greeting}</h1>
