@@ -13,7 +13,7 @@ import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from '../internal.js';
+import { eachPageData, sortedCSS } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
@@ -142,7 +142,8 @@ function buildManifest(
 		}
 	};
 
-	for (const pageData of eachPrerenderedPageData(internals)) {
+	for (const pageData of eachPageData(internals)) {
+		if (!pageData.route.prerender) continue;
 		if (!pageData.route.pathname) continue;
 
 		const outFolder = getOutFolder(
@@ -166,7 +167,8 @@ function buildManifest(
 		staticFiles.push(file);
 	}
 
-	for (const pageData of eachServerPageData(internals)) {
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.prerender) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			const hoistedValue = pageData.hoistedScript.value;

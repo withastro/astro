@@ -119,7 +119,7 @@ export function astroContentImportPlugin({
 	if (settings.contentEntryTypes.some((t) => t.getRenderModule)) {
 		plugins.push({
 			name: 'astro:content-render-imports',
-			async load(viteId) {
+			async transform(_, viteId) {
 				const contentRenderer = getContentRendererByViteId(viteId, settings);
 				if (!contentRenderer) return;
 
