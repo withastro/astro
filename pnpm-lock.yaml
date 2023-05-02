@@ -4639,9 +4639,21 @@ importers:
       chai:
         specifier: ^4.3.6
         version: 4.3.6
+      cheerio:
+        specifier: ^1.0.0-rc.11
+        version: 1.0.0-rc.11
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+
+  packages/integrations/vercel/test/fixtures/image:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/no-output:
     dependencies:
