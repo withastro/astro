@@ -42,6 +42,7 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 														return new Response(data);
 													}
 
+													Reflect.set(request, Symbol.for('astro.locals'), {});
 													${provideAddress ? `request[Symbol.for('astro.clientAddress')] = '0.0.0.0';` : ''}
 													return super.render(request, routeData);
 												}
@@ -50,7 +51,8 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 											export function createExports(manifest) {
 												return {
 													manifest,
-													createApp: (streaming) => new MyApp(manifest, streaming)
+													createApp: (streaming) => new MyApp(manifest, streaming),
+													middleware: (_, next) => {next()}
 												};
 											}
 										`;
@@ -65,7 +67,7 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 				setAdapter({
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
-					exports: ['manifest', 'createApp'],
+					exports: ['manifest', 'createApp', 'middleware'],
 					...extendAdapter,
 				});
 			},

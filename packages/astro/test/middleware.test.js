@@ -1,7 +1,7 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import nodejs from '../../integrations/node/dist/index.js';
+import testAdapter from './test-adapter.js';
 
 describe('Middleware in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -104,98 +104,98 @@ describe('Middleware in PROD mode, SSG', () => {
 	});
 });
 
-describe.skip('Middleware API in PROD mode, SSR', () => {
+describe('Middleware API in PROD mode, SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').PreviewServer} */
-	let previewServer;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
-		previewServer = await fixture.preview();
-	});
-
-	// important: close preview server (free up port and connection)
-	after(async () => {
-		await previewServer.stop();
 	});
 
 	it('should render locals data', async () => {
-		const html = await fixture.fetch('/').then((res) => res.text());
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/');
+		const response = await app.render(request);
+		const html = await response.text();
+		console.log(html);
 		const $ = cheerio.load(html);
 		expect($('p').html()).to.equal('bar');
 	});
 
 	it('should change locals data based on URL', async () => {
-		let html = await fixture.fetch('/').then((res) => res.text());
+		const app = await fixture.loadTestAdapterApp();
+		let response = await app.render(new Request('http://example.com/'));
+		let html = await response.text();
 		let $ = cheerio.load(html);
 		expect($('p').html()).to.equal('bar');
 
-		html = await fixture.fetch('/lorem').then((res) => res.text());
+		response = await app.render(new Request('http://example.com/lorem'));
+		html = await response.text();
 		$ = cheerio.load(html);
 		expect($('p').html()).to.equal('ipsum');
 	});
 
 	it('should successfully redirect to another page', async () => {
-		let html = await fixture.fetch('/redirect').then((res) => {
-			expect(res.status).to.equal(200);
-			return res.text();
-		});
-		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
-		expect($('span').html()).to.equal('Index');
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/redirect');
+		const response = await app.render(request);
+		expect(response.status).to.equal(302);
 	});
 
 	it('should call a second middleware', async () => {
-		let html = await fixture.fetch('/second').then((res) => res.text());
-		let $ = cheerio.load(html);
+		const app = await fixture.loadTestAdapterApp();
+		const response = await app.render(new Request('http://example.com/second'));
+		const html = await response.text();
+		const $ = cheerio.load(html);
 		expect($('p').html()).to.equal('second');
 	});
 
-	it('should successfully redirect to another page', async () => {
-		let html = await fixture.fetch('/redirect').then((res) => {
-			expect(res.status).to.equal(200);
-			return res.text();
-		});
-		let $ = cheerio.load(html);
-		expect($('p').html()).to.equal('bar');
-		expect($('span').html()).to.equal('Index');
-	});
-
 	it('should successfully create a new response', async () => {
-		let html = await fixture.fetch('/rewrite').then((res) => res.text());
-		let $ = cheerio.load(html);
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/rewrite');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 		expect($('p').html()).to.be.null;
 		expect($('span').html()).to.equal('New content!!');
 	});
 
 	it('should return a new response that is a 500', async () => {
-		await fixture.fetch('/broken-500').then((res) => {
-			expect(res.status).to.equal(500);
-			return res.text();
-		});
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/broken-500');
+		const response = await app.render(request);
+		expect(response.status).to.equal(500);
 	});
 
 	it('should successfully render a page if the middleware calls only next() and returns nothing', async () => {
-		let html = await fixture.fetch('/not-interested').then((res) => res.text());
-		let $ = cheerio.load(html);
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/not-interested');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 		expect($('p').html()).to.equal('Not interested');
 	});
 
 	it('should NOT throw an error when locals are not serializable', async () => {
-		let html = await fixture.fetch('/broken-locals').then((res) => res.text());
-		let $ = cheerio.load(html);
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/broken-locals');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 		expect($('title').html()).to.not.equal('LocalsNotSerializable');
 	});
 
 	it("should throws an error when the middleware doesn't call next or doesn't return a response", async () => {
-		let html = await fixture.fetch('/does-nothing').then((res) => res.text());
-		let $ = cheerio.load(html);
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/does-nothing');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
 		expect($('title').html()).to.not.equal('MiddlewareNoDataReturned');
 	});
 });

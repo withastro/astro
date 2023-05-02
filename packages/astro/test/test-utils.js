@@ -231,7 +231,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
-			const { createApp, manifest } = await import(url);
+			const { createApp, manifest, middleware } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
