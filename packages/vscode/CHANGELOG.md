@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 1.0.2
+
+### Patch Changes
+
+- 4c1534b: Improve stability related to converting files to TSX
+- Updated dependencies [4c1534b]
+  - @astrojs/ts-plugin@1.0.2
+
 ## 1.0.0
 
 ### Major Changes
