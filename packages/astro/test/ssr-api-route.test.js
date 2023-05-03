@@ -97,11 +97,12 @@ describe('API routes in SSR', () => {
 
 		it('Can set multiple headers of the same type', async () => {
 			const response = await new Promise(resolve => {
-				let { address: host, port } = devServer.address;
+				let { port } = devServer.address;
+				let host = '0.0.0.0';
 				let socket = new net.Socket();
-				socket.connect(port, 'localhost');
+				socket.connect(port, host);
 				socket.on('connect', () => {
-					let rawRequest = `POST /login HTTP/1.1\r\nHost: ${'localhost'}\r\n\r\n`;
+					let rawRequest = `POST /login HTTP/1.1\r\nHost: ${host}\r\n\r\n`;
 					socket.write(rawRequest);
 				});
 
