@@ -57,7 +57,7 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
 	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
-	if(setCookieHeaders.length) {
+	if (setCookieHeaders.length) {
 		// Always use `res.setHeader` because headers.append causes them to be concatenated.
 		res.setHeader('set-cookie', setCookieHeaders);
 	}

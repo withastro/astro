@@ -96,7 +96,7 @@ describe('API routes in SSR', () => {
 		});
 
 		it('Can set multiple headers of the same type', async () => {
-			const response = await new Promise(resolve => {
+			const response = await new Promise((resolve) => {
 				let { port } = devServer.address;
 				let host = 'localhost';
 				let socket = new net.Socket();
@@ -107,8 +107,8 @@ describe('API routes in SSR', () => {
 				});
 
 				let rawResponse = '';
-				socket.setEncoding('utf-8')
-				socket.on('data', chunk => {
+				socket.setEncoding('utf-8');
+				socket.on('data', (chunk) => {
 					rawResponse += chunk.toString();
 					socket.destroy();
 				});
@@ -119,11 +119,11 @@ describe('API routes in SSR', () => {
 
 			let count = 0;
 			let exp = /set-cookie\:/g;
-			while(exp.exec(response)) {
+			while (exp.exec(response)) {
 				count++;
 			}
 
-			expect(count).to.equal(2, 'Found two seperate set-cookie response headers')
+			expect(count).to.equal(2, 'Found two seperate set-cookie response headers');
 		});
 	});
 });
