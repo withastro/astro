@@ -37,6 +37,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
+    "@astrojs/node": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",

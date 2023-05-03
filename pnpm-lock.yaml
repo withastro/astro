@@ -4505,6 +4505,9 @@ importers:
         specifier: ^3.17.3
         version: 3.20.6
     devDependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../node
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -4520,6 +4523,15 @@ importers:
       xml2js:
         specifier: 0.5.0
         version: 0.5.0
+
+  packages/integrations/sitemap/test/fixtures/ssr:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/sitemap/test/fixtures/trailing-slash:
     dependencies:
