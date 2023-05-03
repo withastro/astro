@@ -1,23 +1,23 @@
 import type http from 'http';
 import mime from 'mime';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro';
-import type {
-	ComponentPreload,
-	DevelopmentEnvironment,
-	SSROptions,
-} from '../core/render/dev/index';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
+import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
+import type {
+	ComponentPreload,
+	DevelopmentEnvironment,
+	SSROptions,
+} from '../core/render/dev/index';
 import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any

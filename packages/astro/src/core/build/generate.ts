@@ -9,12 +9,12 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
+	EndpointOutput,
 	ImageTransform,
+	MiddlewareResponseHandler,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
-	EndpointOutput,
-	MiddlewareResponseHandler,
 } from '../../@types/astro';
 import {
 	generateImage as generateImageInternal,
@@ -33,8 +33,9 @@ import {
 	createAPIContext,
 	throwIfRedirectNotAllowed,
 } from '../endpoint/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
@@ -49,7 +50,6 @@ import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (

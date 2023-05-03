@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 const status = Astro.response.status;
 let redirectMessage;
 if (status === 301) {
-	redirectMessage = "Your session is finished, please login again"
+	redirectMessage = 'Your session is finished, please login again';
 }
 ---
 
@@ -22,7 +22,6 @@ if (status === 301) {
 			</label>
 			<label>
 				Password: <input type="password" minlength="1" id="password" name="password" />
-				
 			</label>
 
 			<button>Submit</button>

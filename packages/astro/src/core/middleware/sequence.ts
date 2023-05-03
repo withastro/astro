@@ -1,9 +1,8 @@
 import type { APIContext, MiddlewareResponseHandler } from '../../@types/astro';
 import { defineMiddleware } from './index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 
+// From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
- * From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
  *
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */

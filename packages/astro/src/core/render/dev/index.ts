@@ -9,8 +9,10 @@ import type {
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { createAPIContext } from '../../endpoint/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
+import { callMiddleware } from '../../middleware/callMiddleware.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
@@ -19,8 +21,6 @@ import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
-import { createAPIContext } from '../../endpoint/index.js';
-import { callMiddleware } from '../../middleware/callMiddleware.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 

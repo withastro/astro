@@ -3,8 +3,8 @@ export type { RenderContext } from './context.js';
 export {
 	getParamsAndProps,
 	GetParamsAndPropsError,
-	renderPage,
 	getParamsAndPropsOrThrow,
+	renderPage,
 } from './core.js';
 export type { Environment } from './environment';
 export { createBasicEnvironment, createEnvironment } from './environment.js';

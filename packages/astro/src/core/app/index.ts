@@ -1,8 +1,6 @@
 import type {
-	AstroMiddlewareInstance,
 	ComponentInstance,
 	EndpointHandler,
-	EndpointOutput,
 	ManifestData,
 	MiddlewareResponseHandler,
 	RouteData,
@@ -15,13 +13,13 @@ import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js
 import { call as callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 import { removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
 	createRenderContext,
 	renderPage,
 	type Environment,
-	getParamsAndPropsOrThrow,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
@@ -31,7 +29,6 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

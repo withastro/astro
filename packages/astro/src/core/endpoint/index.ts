@@ -14,8 +14,8 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
-import { isValueSerializable } from '../render/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
+import { isValueSerializable } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
