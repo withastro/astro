@@ -101,7 +101,7 @@ describe('API routes in SSR', () => {
 				let socket = new net.Socket();
 				socket.connect(port, 'localhost');
 				socket.on('connect', () => {
-					let rawRequest = `POST /login HTTP/1.1\r\nHost: ${host}\r\n\r\n`;
+					let rawRequest = `POST /login HTTP/1.1\r\nHost: ${'localhost'}\r\n\r\n`;
 					socket.write(rawRequest);
 				});
 
