@@ -4,7 +4,7 @@
 
 Implements a new class-based scoping strategy
 
-This implements the [Scoping RFC](https://github.com/withastro/roadmap/pull/543), providing a way to opt-in to increased style specificity for Astro component styles.
+This implements the [Scoping RFC](https://github.com/withastro/roadmap/pull/543), providing a way to opt in to increased style specificity for Astro component styles.
 
 This prevents bugs where global styles override Astro component styles due to CSS ordering and the use of element selectors.
 
