@@ -16,13 +16,12 @@ describe('createAstroModuleLoader', () => {
 		const resolveStub = sinon.stub().returns(<ts.ResolvedModuleWithFailedLookupLocations>{
 			resolvedModule,
 		});
-		sinon.replace(ts, 'resolveModuleName', resolveStub);
 
 		const astroSys = <any>'astroSys';
 		sinon.stub(aSys, 'createAstroSys').returns(astroSys);
 
 		const compilerOptions: ts.CompilerOptions = { strict: true, paths: { '/@/*': [] } };
-		const moduleResolver = createAstroModuleLoader(getAstroSnapshotStub, compilerOptions, ts);
+		const moduleResolver = createAstroModuleLoader(getAstroSnapshotStub, compilerOptions, ts, resolveStub);
 
 		return {
 			getAstroSnapshotStub,

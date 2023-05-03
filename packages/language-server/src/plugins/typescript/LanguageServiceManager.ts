@@ -1,12 +1,13 @@
+import type ts from 'typescript';
 import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import type { ConfigManager } from '../../core/config';
 import type { AstroDocument, DocumentManager } from '../../core/documents';
 import { debounceSameArg, normalizePath, pathToUrl } from '../../utils';
 import {
-	forAllLanguageServices,
-	getLanguageService,
 	LanguageServiceContainer,
 	LanguageServiceDocumentContext,
+	forAllLanguageServices,
+	getLanguageService,
 } from './language-service';
 import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';

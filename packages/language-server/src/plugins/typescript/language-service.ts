@@ -1,4 +1,5 @@
 import { dirname, resolve } from 'path';
+import type ts from 'typescript';
 import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';

@@ -1,3 +1,4 @@
+import type ts from 'typescript';
 import type { FunctionDeclaration, FunctionTypeNode } from 'typescript';
 import { getLanguageService } from 'vscode-html-languageservice';
 import {

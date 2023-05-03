@@ -1,3 +1,4 @@
+import type ts from 'typescript';
 import { CancellationToken, DiagnosticSeverity } from 'vscode-languageserver';
 import { Diagnostic, DiagnosticTag } from 'vscode-languageserver-types';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
@@ -155,6 +156,8 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 				return DiagnosticSeverity.Hint;
 			case this.ts.DiagnosticCategory.Message:
 				return DiagnosticSeverity.Information;
+			default:
+				return DiagnosticSeverity.Error;
 		}
 	}
 }

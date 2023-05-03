@@ -3,7 +3,7 @@ import { URI, Utils } from 'vscode-uri';
 import type { AstroDocument } from '../../../core/documents';
 import { importSvelteIntegration, importVueIntegration } from '../../../importPackage';
 import { toPascalCase } from '../../../utils';
-import astro2tsx from '../astro2tsx';
+import { astro2tsx } from '../astro2tsx';
 import {
 	FrameworkExt,
 	getFrameworkFromFilePath,

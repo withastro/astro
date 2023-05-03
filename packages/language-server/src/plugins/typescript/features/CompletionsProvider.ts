@@ -1,4 +1,4 @@
-import type ts from 'typescript/lib/tsserverlibrary';
+import type ts from 'typescript';
 import {
 	CancellationToken,
 	CompletionContext,

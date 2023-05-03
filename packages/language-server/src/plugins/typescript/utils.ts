@@ -1,15 +1,16 @@
 import { dirname, extname } from 'path';
+import type ts from 'typescript';
 import type { Node } from 'vscode-html-languageservice';
 import {
 	CompletionItemKind,
 	Position,
 	Range,
 	SemanticTokenModifiers,
-	SemanticTokensLegend,
 	SemanticTokenTypes,
+	SemanticTokensLegend,
 	SymbolKind,
 } from 'vscode-languageserver';
-import { AstroDocument, mapRangeToOriginal, TagInformation } from '../../core/documents';
+import { AstroDocument, TagInformation, mapRangeToOriginal } from '../../core/documents';
 import { pathToUrl } from '../../utils';
 import type { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
 

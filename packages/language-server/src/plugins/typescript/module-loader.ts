@@ -1,3 +1,4 @@
+import type ts from 'typescript';
 import type { ResolvedModule } from 'typescript';
 import { getLastPartOfPath } from '../../utils';
 import { createAstroSys } from './astro-sys';
@@ -126,9 +127,12 @@ class ImpliedNodeFormatResolver {
 export function createAstroModuleLoader(
 	getSnapshot: (fileName: string) => DocumentSnapshot,
 	compilerOptions: ts.CompilerOptions,
-	ts: typeof import('typescript/lib/tsserverlibrary')
+	ts: typeof import('typescript/lib/tsserverlibrary'),
+	/* For tests */
+	tsResolveModuleName?: typeof ts.resolveModuleName
 ) {
 	const astroSys = createAstroSys(getSnapshot, ts);
+	const tsResolver = tsResolveModuleName ? tsResolveModuleName : ts.resolveModuleName;
 	const moduleCache = new ModuleResolutionCache();
 	const impliedNodeFormatResolver = new ImpliedNodeFormatResolver(ts);
 
@@ -177,7 +181,7 @@ export function createAstroModuleLoader(
 		// Delegate to the TS resolver first.
 		// If that does not bring up anything, try the Astro Module loader
 		// which is able to deal with .astro and other frameworks files.
-		const tsResolvedModule = ts.resolveModuleName(
+		const tsResolvedModule = tsResolver(
 			name,
 			containingFile,
 			compilerOptions,
@@ -190,7 +194,7 @@ export function createAstroModuleLoader(
 			return tsResolvedModule;
 		}
 
-		const astroResolvedModule = ts.resolveModuleName(
+		const astroResolvedModule = tsResolver(
 			name,
 			containingFile,
 			compilerOptions,

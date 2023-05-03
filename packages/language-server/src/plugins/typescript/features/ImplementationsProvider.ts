@@ -1,3 +1,4 @@
+import type ts from 'typescript';
 import { Location, Position } from 'vscode-languageserver-types';
 import { AstroDocument, mapRangeToOriginal, mapScriptSpanStartToSnapshot } from '../../../core/documents';
 import { isNotNullOrUndefined, pathToUrl } from '../../../utils';

@@ -7,6 +7,7 @@
  * adopted from https://github.com/microsoft/vscode/blob/10722887b8629f90cc38ee7d90d54e8246dc895f/extensions/typescript-language-features/src/utils/previewer.ts
  */
 
+import type ts from 'typescript';
 import { isNotNullOrUndefined } from '../../utils';
 
 function replaceLinks(text: string): string {

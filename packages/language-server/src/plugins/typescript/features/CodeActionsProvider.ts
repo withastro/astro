@@ -1,3 +1,4 @@
+import type ts from 'typescript';
 import type { CodeFixAction, FileTextChanges } from 'typescript';
 import type { CancellationToken } from 'vscode-languageserver';
 import {

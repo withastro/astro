@@ -1,16 +1,17 @@
 import { DiagnosticMessage } from '@astrojs/compiler/types';
 import { EncodedSourceMap, TraceMap } from '@jridgewell/trace-mapping';
+import type ts from 'typescript';
 import { DiagnosticSeverity, Position, TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import {
 	AstroDocument,
 	DocumentMapper,
 	FragmentMapper,
-	getLineOffsets,
 	IdentityMapper,
-	offsetAt,
-	positionAt,
 	SourceMapDocumentMapper,
 	TagInformation,
+	getLineOffsets,
+	offsetAt,
+	positionAt,
 } from '../../../core/documents';
 import { pathToUrl } from '../../../utils';
 

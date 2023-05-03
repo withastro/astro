@@ -1,3 +1,4 @@
+import type ts from 'typescript';
 import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
 import { ensureRealFilePath, isVirtualFilePath } from './utils';
 
