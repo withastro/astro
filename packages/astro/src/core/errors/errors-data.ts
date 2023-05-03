@@ -632,27 +632,27 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @description
-	 * Thrown when a middleware doesn't return anything or doesn't call the `next` function.
+	 * Thrown when the middleware does not return any data or call the `next` function.
 	 *
 	 * For example:
 	 * ```ts
 	 * import {defineMiddleware} from "astro/middleware";
 	 * export const onRequest = defineMiddleware((context, _) => {
-	 * 	// doesn't return anything or doesn't call next
+	 * 	// doesn't return anything or call `next`
 	 * 	context.locals.someData = false;
 	 * });
 	 * ```
 	 */
 	MiddlewareNoDataOrNextCalled: {
-		title: "The middleware didn't return a response or called `next`",
+		title: "The middleware didn't return a response or call `next`",
 		code: 3031,
-		message: 'The middleware needs to return a `Response` object or call the `next` function.',
+		message: 'The middleware needs to either return a `Response` object or call the `next` function.',
 	},
 
 	/**
 	 * @docs
 	 * @description
-	 * Thrown in development mode, when a middleware return something that is not a `Response`
+	 * Thrown in development mode when middleware returns something that is not a `Response` object.
 	 *
 	 * For example:
 	 * ```ts
@@ -663,10 +663,10 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	MiddlewareNotAResponse: {
-		title: 'The middleware returned something that is not a `Response`',
+		title: 'The middleware returned something that is not a `Response` object',
 		code: 3032,
 		message:
-			'When returning something from a middleware, you must return a valid `Response`. Failing doing so would cause errors..',
+			'Any data returned from middleware must be a valid `Response` object.',
 	},
 
 	/**
