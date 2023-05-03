@@ -38,7 +38,7 @@ describe('scopedStyleStrategy', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/scoped-style-strategy/',
-				scopedStyleStrategy: 'class'
+				scopedStyleStrategy: 'class',
 			});
 			await fixture.build();
 
