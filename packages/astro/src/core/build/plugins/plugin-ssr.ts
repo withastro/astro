@@ -13,11 +13,7 @@ import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import {
-	eachPageData,
-	cssOrder,
-	mergeInlineCss,
-} from '../internal.js';
+import { cssOrder, eachPageData, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';

@@ -40,19 +40,14 @@ import { createEnvironment, createRenderContext, renderPage } from '../render/in
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
-	createStylesheetElementSet,
 	createModuleScriptsSet,
+	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import {
-	eachPageData,
-	getPageDataByComponent,
-	cssOrder,
-	mergeInlineCss,
-} from './internal.js';
+import { cssOrder, eachPageData, getPageDataByComponent, mergeInlineCss } from './internal.js';
 import type {
 	PageBuildData,
 	SingleFileBuiltModule,

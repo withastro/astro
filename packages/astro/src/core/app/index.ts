@@ -24,8 +24,8 @@ import {
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
-	createStylesheetElementSet,
 	createModuleScriptElement,
+	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';

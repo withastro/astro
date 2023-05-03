@@ -1055,7 +1055,7 @@ export interface AstroUserConfig {
 		 * }
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
-		
+
 		/**
 		 * @docs
 		 * @name experimental.middleware

@@ -58,8 +58,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	let resolvedConfig: ResolvedConfig;
 
 	// stylesheet filenames are kept in here until "post", when they are rendered and ready to be inlined
-	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {}
-	const pagesToPropagatedCss: Record<string, Record<string, Set<string>>> = {}
+	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
+	const pagesToPropagatedCss: Record<string, Record<string, Set<string>>> = {};
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
@@ -129,7 +129,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					for (const id of Object.keys(chunk.modules)) {
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
 							for (const importedCssImport of meta.importedCss) {
-								const cssToInfoRecord = pagesToCss[pageData.moduleSpecifier] ??= {}
+								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
 							}
 						}
@@ -155,8 +155,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								if (pageData === undefined) continue;
 
 								for (const css of meta.importedCss) {
-									const propagatedStyles = pagesToPropagatedCss[pageData.moduleSpecifier] ??= {}
-									const existingCss = propagatedStyles[pageInfo.id] ??= new Set();
+									const propagatedStyles = (pagesToPropagatedCss[pageData.moduleSpecifier] ??= {});
+									const existingCss = (propagatedStyles[pageInfo.id] ??= new Set());
 
 									existingCss.add(css);
 								}
@@ -194,7 +194,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			);
 			if (cssChunk === undefined) return;
 			for (const pageData of eachPageData(internals)) {
-				const cssToInfoMap = pagesToCss[pageData.moduleSpecifier] ??= {};
+				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
 				cssToInfoMap[cssChunk.fileName] = { depth: -1, order: -1 };
 			}
 		},
@@ -312,7 +312,7 @@ function appendCSSToPage(
 				cssInfo.order = order;
 			}
 		} else {
-			const cssToInfoRecord = pagesToCss[pageData.moduleSpecifier] ??= {};
+			const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 			cssToInfoRecord[importedCssImport] = { depth, order };
 		}
 	}

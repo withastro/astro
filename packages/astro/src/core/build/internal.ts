@@ -272,7 +272,7 @@ export function mergeInlineCss(
 		acc[acc.length - 1] = merged;
 		return acc;
 	}
-	acc.push(current)
+	acc.push(current);
 	return acc;
 }
 
