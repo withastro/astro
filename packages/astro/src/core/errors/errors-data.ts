@@ -695,7 +695,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @description
-	 * Thrown in development mode, when a user attempts to store in `local` something that is not serializable.
+	 * Thrown in development mode when a user attempts to store something that is not serializable in `locals`.
 	 *
 	 * For example:
 	 * ```ts
@@ -711,7 +711,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	LocalsNotSerializable: {
-		title: '`Astro.locals` are not serializable.',
+		title: '`Astro.locals` is not serializable',
 		code: 3034,
 		message: (href: string) => {
 			return `The information stored in \`Astro.locals\` are not serializable when visiting "${href}" path.\nMake sure you store only data that are serializable.`;
