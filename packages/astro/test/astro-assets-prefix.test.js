@@ -63,6 +63,29 @@ describe('Assets Prefix - Static', () => {
 	});
 });
 
+describe('Assets Prefix - Static with path prefix', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-assets-prefix/',
+			build: {
+				assetsPrefix: '/starting-slash',
+			},
+		});
+		await fixture.build();
+	});
+
+	it('all stylesheets should start with assetPrefix', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const stylesheets = $('link[rel="stylesheet"]');
+		stylesheets.each((i, el) => {
+			expect(el.attribs.href).to.match(/^\/starting-slash\/.*/);
+		});
+	});
+});
+
 describe('Assets Prefix - Server', () => {
 	let app;
 
@@ -98,6 +121,17 @@ describe('Assets Prefix - Server', () => {
 		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
 	});
 
+	it('react component astro-island should import from assetsPrefix', async () => {
+		const request = new Request('http://example.com/custom-base/');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const island = $('astro-island');
+		expect(island.attr('component-url')).to.match(assetsPrefixRegex);
+		expect(island.attr('renderer-url')).to.match(assetsPrefixRegex);
+	});
+
 	it('markdown image src start with assetsPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/markdown/');
 		const response = await app.render(request);
@@ -106,5 +140,34 @@ describe('Assets Prefix - Server', () => {
 		const $ = cheerio.load(html);
 		const imgAsset = $('img');
 		expect(imgAsset.attr('src')).to.match(assetsPrefixRegex);
+	});
+});
+
+describe('Assets Prefix - Server with path prefix', () => {
+	let app;
+
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/astro-assets-prefix/',
+			output: 'server',
+			adapter: testAdapter(),
+			build: {
+				assetsPrefix: '/starting-slash',
+			},
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('all stylesheets should start with assetPrefix', async () => {
+		const request = new Request('http://example.com/custom-base/');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const stylesheets = $('link[rel="stylesheet"]');
+		stylesheets.each((i, el) => {
+			expect(el.attribs.href).to.match(/^\/starting-slash\/.*/);
+		});
 	});
 });

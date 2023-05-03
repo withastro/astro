@@ -68,6 +68,12 @@ export const defaultLogging = {
 	level: 'error',
 };
 
+/** @type {import('../src/core/logger/core').LogOptions} */
+export const silentLogging = {
+	dest: nodeLogDestination,
+	level: 'silent',
+};
+
 /**
  * Load Astro fixture
  * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
@@ -181,7 +187,19 @@ export async function loadFixture(inlineConfig) {
 		},
 		config,
 		resolveUrl,
-		fetch: (url, init) => fetch(resolveUrl(url), init),
+		fetch: async (url, init) => {
+			const resolvedUrl = resolveUrl(url);
+			try {
+				return await fetch(resolvedUrl, init);
+			} catch (err) {
+				// undici throws a vague error when it fails, so we log the url here to easily debug it
+				if (err.message?.includes('fetch failed')) {
+					console.error(`[astro test] failed to fetch ${resolvedUrl}`);
+					console.error(err);
+				}
+				throw err;
+			}
+		},
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
 			const previewServer = await preview(settings, {

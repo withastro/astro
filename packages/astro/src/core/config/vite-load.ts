@@ -11,7 +11,7 @@ export interface ViteLoader {
 async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLoader> {
 	const viteServer = await vite.createServer({
 		server: { middlewareMode: true, hmr: false },
-		optimizeDeps: { entries: [] },
+		optimizeDeps: { disabled: true },
 		clearScreen: false,
 		appType: 'custom',
 		ssr: {

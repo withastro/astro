@@ -1,5 +1,23 @@
 # @astrojs/cloudflare
 
+## 6.2.4
+
+### Patch Changes
+
+- [#6925](https://github.com/withastro/astro/pull/6925) [`d11d18595`](https://github.com/withastro/astro/commit/d11d1859518f9fdc94390aab9be29f8667bb27cb) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Fix missing code language in Cloudflare README
+
+- Updated dependencies [[`a98df9374`](https://github.com/withastro/astro/commit/a98df9374dec65c678fa47319cb1481b1af123e2), [`50975f2ea`](https://github.com/withastro/astro/commit/50975f2ea3a59f9e023cc631a9372c0c7986eec9), [`ebae1eaf8`](https://github.com/withastro/astro/commit/ebae1eaf87f49399036033c673b513338f7d9c42), [`dc062f669`](https://github.com/withastro/astro/commit/dc062f6695ce577dc569781fc0678c903012c336)]:
+  - astro@2.3.3
+
+## 6.2.3
+
+### Patch Changes
+
+- [#6222](https://github.com/withastro/astro/pull/6222) [`081b2402c`](https://github.com/withastro/astro/commit/081b2402cfb48b5eb8dbd02664d8af2f7c798edf) Thanks [@AirBorne04](https://github.com/AirBorne04)! - add option to compile unminified code
+
+- Updated dependencies [[`b89042553`](https://github.com/withastro/astro/commit/b89042553ec45d5f6bc71747e0f3470ba969e679)]:
+  - astro@2.3.2
+
 ## 6.2.2
 
 ### Patch Changes

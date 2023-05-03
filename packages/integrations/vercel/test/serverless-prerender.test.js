@@ -1,5 +1,5 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import { loadFixture } from './test-utils.js';
 
 describe('Serverless prerender', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -13,6 +13,6 @@ describe('Serverless prerender', () => {
 
 	it('build successful', async () => {
 		await fixture.build();
-		expect(fixture.readFile('/static/index.html')).to.be.ok;
+		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
 	});
 });

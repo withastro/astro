@@ -7,6 +7,6 @@
     "@astrojs/mdx": "workspace:*",
     "@astrojs/node": "workspace:*",
     "astro": "workspace:*",
-    "sharp": "^0.31.0"
+    "sharp": "^0.32.1"
   }
 }

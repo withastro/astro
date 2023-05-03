@@ -1,5 +1,6 @@
 {
   "name": "@test/mdx-namespace",
+  "private": true,
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
     "@astrojs/react": "workspace:*",

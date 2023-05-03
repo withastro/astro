@@ -39,12 +39,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import {
-	eachPageData,
-	eachPrerenderedPageData,
-	getPageDataByComponent,
-	sortedCSS,
-} from './internal.js';
+import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -89,7 +84,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
-	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
+	if (ssr && !hasPrerenderedPages(internals)) return;
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
@@ -98,9 +93,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	if (opts.settings.config.output === 'server') {
-		for (const pageData of eachPrerenderedPageData(internals)) {
-			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+	if (ssr) {
+		for (const pageData of eachPageData(internals)) {
+			if (pageData.route.prerender)
+				await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}
 	} else {
 		for (const pageData of eachPageData(internals)) {

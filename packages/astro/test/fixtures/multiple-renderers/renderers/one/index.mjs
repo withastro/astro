@@ -7,7 +7,7 @@ export default function() {
 				addRenderer({
 					name: 'renderer-one',
 					clientEntrypoint: null,
-					serverEntrypoint: '@astrojs/renderer-one/server.mjs',
+					serverEntrypoint: '@test/astro-renderer-one/server.mjs',
 				});
 			}
 		}
