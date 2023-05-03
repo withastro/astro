@@ -673,7 +673,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @docs
 	 * @description
 	 *
-	 * Thrown in development mode, when `locals` are overridden with something that is not an object
+	 * Thrown in development mode when `locals` is overwritten with something that is not an object
 	 *
 	 * For example:
 	 * ```ts
@@ -685,9 +685,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	LocalsNotAnObject: {
-		title: 'Value assigned to `locals` is not accepted.',
+		title: 'Value assigned to `locals` is not accepted',
 		code: 3033,
-		message: `The \`locals\` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.`,
+		message: '`\locals\` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
 
