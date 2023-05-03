@@ -714,7 +714,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: '`Astro.locals` is not serializable',
 		code: 3034,
 		message: (href: string) => {
-			return `The information stored in \`Astro.locals\` are not serializable when visiting "${href}" path.\nMake sure you store only data that are serializable.`;
+			return `The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`;
 		},
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
