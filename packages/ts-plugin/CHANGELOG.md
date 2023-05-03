@@ -1,11 +1,5 @@
 # @astrojs/ts-plugin
 
-## 1.0.2
-
-### Patch Changes
-
-- 4c1534b: Improve stability related to converting files to TSX
-
 ## 1.0.0
 
 ### Major Changes
