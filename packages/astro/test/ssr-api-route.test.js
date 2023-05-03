@@ -98,7 +98,7 @@ describe('API routes in SSR', () => {
 		it('Can set multiple headers of the same type', async () => {
 			const response = await new Promise(resolve => {
 				let { port } = devServer.address;
-				let host = '0.0.0.0';
+				let host = 'localhost';
 				let socket = new net.Socket();
 				socket.connect(port, host);
 				socket.on('connect', () => {
