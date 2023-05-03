@@ -13,7 +13,11 @@ import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { eachPageData, sortedCSS } from '../internal.js';
+import {
+	eachPageData,
+	cssOrder,
+	mergeInlineCss,
+} from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
@@ -171,6 +175,7 @@ function buildManifest(
 			file,
 			links: [],
 			scripts: [],
+			styles: [],
 			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
 		});
 		staticFiles.push(file);
@@ -197,7 +202,14 @@ function buildManifest(
 			});
 		}
 
-		const links = sortedCSS(pageData).map((pth) => prefixAssetPath(pth));
+		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+		const links: [] = [];
+
+		const styles = pageData.styles
+			.sort(cssOrder)
+			.map(({ sheet }) => sheet)
+			.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
+			.reduce(mergeInlineCss, []);
 
 		routes.push({
 			file: '',
@@ -208,6 +220,7 @@ function buildManifest(
 					.filter((script) => script.stage === 'head-inline')
 					.map(({ stage, content }) => ({ stage, children: content })),
 			],
+			styles,
 			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
 		});
 	}

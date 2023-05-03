@@ -17,14 +17,18 @@ export type ComponentPath = string;
 export type ViteID = string;
 export type PageOutput = AstroConfig['output'];
 
+export type StylesheetAsset =
+	| { type: 'inline'; content: string }
+	| { type: 'external'; src: string };
+
 export interface PageBuildData {
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	css: Map<string, { depth: number; order: number }>;
-	propagatedStyles: Map<string, Set<string>>;
+	propagatedStyles: Map<string, Set<StylesheetAsset>>;
 	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
+	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 

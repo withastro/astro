@@ -40,15 +40,25 @@ import { createEnvironment, createRenderContext, renderPage } from '../render/in
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
-	createLinkStylesheetElementSet,
+	createStylesheetElementSet,
 	createModuleScriptsSet,
 } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
-import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
+import {
+	eachPageData,
+	getPageDataByComponent,
+	cssOrder,
+	mergeInlineCss,
+} from './internal.js';
+import type {
+	PageBuildData,
+	SingleFileBuiltModule,
+	StaticBuildOptions,
+	StylesheetAsset,
+} from './types';
 import { getTimeStat } from './util.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
@@ -161,8 +171,14 @@ async function generatePage(
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
-	const linkIds: string[] = sortedCSS(pageData);
+
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const linkIds: [] = [];
 	const scripts = pageInfo?.hoistedScript ?? null;
+	const styles = pageData.styles
+		.sort(cssOrder)
+		.map(({ sheet }) => sheet)
+		.reduce(mergeInlineCss, []);
 
 	const pageModule = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;
@@ -183,6 +199,7 @@ async function generatePage(
 		internals,
 		linkIds,
 		scripts,
+		styles,
 		mod: pageModule,
 		renderers,
 	};
@@ -273,6 +290,7 @@ interface GeneratePathOptions {
 	internals: BuildInternals;
 	linkIds: string[];
 	scripts: { type: 'inline' | 'external'; value: string } | null;
+	styles: StylesheetAsset[];
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }
@@ -341,7 +359,15 @@ async function generatePath(
 	middleware?: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
+	const {
+		mod,
+		internals,
+		linkIds,
+		scripts: hoistedScripts,
+		styles: _styles,
+		pageData,
+		renderers,
+	} = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -350,13 +376,15 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const links = createLinkStylesheetElementSet(
-		linkIds,
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const links = new Set<never>();
+	const scripts = createModuleScriptsSet(
+		hoistedScripts ? [hoistedScripts] : [],
 		settings.config.base,
 		settings.config.build.assetsPrefix
 	);
-	const scripts = createModuleScriptsSet(
-		hoistedScripts ? [hoistedScripts] : [],
+	const styles = createStylesheetElementSet(
+		_styles,
 		settings.config.base,
 		settings.config.build.assetsPrefix
 	);
@@ -431,6 +459,7 @@ async function generatePath(
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		componentMetadata: internals.componentMetadata,
 		scripts,
+		styles,
 		links,
 		route: pageData.route,
 		env,

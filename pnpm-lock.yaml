@@ -2408,11 +2408,29 @@ importers:
 
   packages/astro/test/fixtures/css-assets/packages/font-awesome: {}
 
-  packages/astro/test/fixtures/css-inline:
+  packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/always:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/auto:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/never:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
 
   packages/astro/test/fixtures/css-no-code-split:
     dependencies:

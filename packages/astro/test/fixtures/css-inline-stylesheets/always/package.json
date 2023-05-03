@@ -1,5 +1,5 @@
 {
-  "name": "@test/css-inline",
+  "name": "@test/css-inline-stylesheets-always",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
