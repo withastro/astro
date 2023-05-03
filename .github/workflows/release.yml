@@ -42,7 +42,7 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/vscode
         run: |
-          sleep 5s
+          sleep 60s
           rm -rf node_modules
           npm i
           npm run build:grammar
