@@ -3,7 +3,26 @@
 declare module 'astro:assets' {
 	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
 	type AstroAssets = {
-		getImage: typeof import('./dist/assets/index.js').getImage;
+		// getImage's type here is different from the internal function since the Vite module implicitly pass the service config
+		/**
+		 * Get an optimized image and the necessary attributes to render it.
+		 *
+		 * **Example**
+		 * ```astro
+		 * ---
+		 * import { getImage } from 'astro:assets';
+		 * import originalImage from '../assets/image.png';
+		 *
+		 * const optimizedImage = await getImage({src: originalImage, width: 1280 });
+		 * ---
+		 * <img src={optimizedImage.src} {...optimizedImage.attributes} />
+		 * ```
+		 *
+		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
+		 */
+		getImage: (
+			options: import('./dist/assets/types.js').ImageTransform
+		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
