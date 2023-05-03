@@ -5,10 +5,13 @@ import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
+	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
+	EndpointOutput,
 	ImageTransform,
+	MiddlewareResponseHandler,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
@@ -25,9 +28,14 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import {
+	call as callEndpoint,
+	createAPIContext,
+	throwIfRedirectNotAllowed,
+} from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
@@ -157,6 +165,7 @@ async function generatePage(
 	const scripts = pageInfo?.hoistedScript ?? null;
 
 	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const middleware = ssrEntry.middleware;
 
 	if (!pageModule) {
 		throw new Error(
@@ -186,7 +195,7 @@ async function generatePage(
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions);
+		await generatePath(path, opts, generationOptions, middleware);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -328,7 +337,8 @@ function getUrlForPath(
 async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
-	gopts: GeneratePathOptions
+	gopts: GeneratePathOptions,
+	middleware?: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
 	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
@@ -414,7 +424,8 @@ async function generatePath(
 		ssr,
 		streaming: true,
 	});
-	const ctx = createRenderContext({
+
+	const renderContext = await createRenderContext({
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
@@ -422,13 +433,22 @@ async function generatePath(
 		scripts,
 		links,
 		route: pageData.route,
+		env,
+		mod,
 	});
 
 	let body: string | Uint8Array;
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
-		const result = await callEndpoint(endpointHandler, env, ctx, logging);
+
+		const result = await callEndpoint(
+			endpointHandler,
+			env,
+			renderContext,
+			logging,
+			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+		);
 
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
@@ -443,7 +463,26 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			response = await renderPage(mod, ctx, env);
+			const apiContext = createAPIContext({
+				request: renderContext.request,
+				params: renderContext.params,
+				props: renderContext.props,
+				site: env.site,
+				adapterName: env.adapterName,
+			});
+
+			const onRequest = middleware?.onRequest;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage({ mod, renderContext, env, apiContext });
+					}
+				);
+			} else {
+				response = await renderPage({ mod, renderContext, env, apiContext });
+			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;

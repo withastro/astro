@@ -2,6 +2,7 @@ import type {
 	ComponentInstance,
 	EndpointHandler,
 	ManifestData,
+	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
@@ -9,9 +10,10 @@ import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { call as callEndpoint } from '../endpoint/index.js';
+import { call as callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 import { removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
@@ -27,6 +29,8 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
+
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
@@ -127,6 +131,8 @@ export class App {
 			}
 		}
 
+		Reflect.set(request, clientLocalsSymbol, {});
+
 		// Use the 404 status code for 404.astro components
 		if (routeData.route === '/404') {
 			defaultStatus = 404;
@@ -191,7 +197,7 @@ export class App {
 		}
 
 		try {
-			const ctx = createRenderContext({
+			const renderContext = await createRenderContext({
 				request,
 				origin: url.origin,
 				pathname,
@@ -200,9 +206,35 @@ export class App {
 				links,
 				route: routeData,
 				status,
+				mod: mod as any,
+				env: this.#env,
 			});
 
-			const response = await renderPage(mod, ctx, this.#env);
+			const apiContext = createAPIContext({
+				request: renderContext.request,
+				params: renderContext.params,
+				props: renderContext.props,
+				site: this.#env.site,
+				adapterName: this.#env.adapterName,
+			});
+			const onRequest = this.#manifest.middleware?.onRequest;
+			let response;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage({ mod, renderContext, env: this.#env, apiContext });
+					}
+				);
+			} else {
+				response = await renderPage({
+					mod,
+					renderContext,
+					env: this.#env,
+					apiContext,
+				});
+			}
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
@@ -224,15 +256,23 @@ export class App {
 		const pathname = '/' + this.removeBase(url.pathname);
 		const handler = mod as unknown as EndpointHandler;
 
-		const ctx = createRenderContext({
+		const ctx = await createRenderContext({
 			request,
 			origin: url.origin,
 			pathname,
 			route: routeData,
 			status,
+			env: this.#env,
+			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging);
+		const result = await callEndpoint(
+			handler,
+			this.#env,
+			ctx,
+			this.#logging,
+			this.#manifest.middleware
+		);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

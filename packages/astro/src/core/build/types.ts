@@ -1,6 +1,7 @@
 import type { default as vite, InlineConfig } from 'vite';
 import type {
 	AstroConfig,
+	AstroMiddlewareInstance,
 	AstroSettings,
 	BuildConfig,
 	ComponentInstance,
@@ -44,6 +45,7 @@ export interface StaticBuildOptions {
 
 export interface SingleFileBuiltModule {
 	pageMap: Map<ComponentPath, ComponentInstance>;
+	middleware: AstroMiddlewareInstance<unknown>;
 	renderers: SSRLoadedRenderer[];
 }
 

@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter } from '../../../@types/astro';
+import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types';
@@ -21,7 +21,11 @@ const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
-export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
+export function vitePluginSSR(
+	internals: BuildInternals,
+	adapter: AstroAdapter,
+	config: AstroConfig
+): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',
@@ -35,13 +39,18 @@ export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter):
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
+				let middleware = '';
+				if (config.experimental?.middleware === true) {
+					middleware = 'middleware: _main.middleware';
+				}
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
-	renderers: _main.renderers
+	renderers: _main.renderers,
+	${middleware}
 });
 _privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
@@ -235,7 +244,9 @@ export function pluginSSR(
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
-				let vitePlugin = ssr ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
+				let vitePlugin = ssr
+					? vitePluginSSR(internals, options.settings.adapter!, options.settings.config)
+					: undefined;
 
 				return {
 					enforce: 'after-user-plugins',
