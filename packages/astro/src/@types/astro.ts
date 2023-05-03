@@ -501,7 +501,7 @@ export interface AstroUserConfig {
 	 * @type {('where' | 'class')}
 	 * @default `'where'`
 	 * @description
-	 * @version 2.3.5
+	 * @version 2.4
 	 *
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
 	 *   - `'where'` - Use `:where` selectors, causing no specifity increase.
