@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { File, FormData } from 'undici';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+import net from 'net';
 
 describe('API routes in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -95,11 +96,34 @@ describe('API routes in SSR', () => {
 		});
 
 		it('Can set multiple headers of the same type', async () => {
-			const response = await fixture.fetch('/login', {
-				method: 'POST',
+			const response = await new Promise(resolve => {
+				let { port } = devServer.address;
+				let host = 'localhost';
+				let socket = new net.Socket();
+				socket.connect(port, host);
+				socket.on('connect', () => {
+					let rawRequest = `POST /login HTTP/1.1\r\nHost: ${host}\r\n\r\n`;
+					socket.write(rawRequest);
+				});
+
+				let rawResponse = '';
+				socket.setEncoding('utf-8')
+				socket.on('data', chunk => {
+					rawResponse += chunk.toString();
+					socket.destroy();
+				});
+				socket.on('close', () => {
+					resolve(rawResponse);
+				});
 			});
-			const setCookie = response.headers.get('set-cookie');
-			expect(setCookie).to.equal('foo=foo; HttpOnly, bar=bar; HttpOnly');
+
+			let count = 0;
+			let exp = /set-cookie\:/g;
+			while(exp.exec(response)) {
+				count++;
+			}
+
+			expect(count).to.equal(2, 'Found two seperate set-cookie response headers')
 		});
 	});
 });
