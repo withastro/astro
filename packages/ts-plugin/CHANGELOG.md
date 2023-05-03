@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.0.4
+
+### Patch Changes
+
+- eaefe96: Fix packaging error
+
 ## 1.0.3
 
 ### Patch Changes

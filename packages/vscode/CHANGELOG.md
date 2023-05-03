@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 1.0.4
+
+### Patch Changes
+
+- eaefe96: Fix packaging error
+- Updated dependencies [eaefe96]
+  - @astrojs/ts-plugin@1.0.4
+
 ## 1.0.3
 
 ### Patch Changes
