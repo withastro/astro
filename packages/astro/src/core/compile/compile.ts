@@ -42,6 +42,7 @@ export async function compile({
 			sourcemap: 'both',
 			internalURL: 'astro/server/index.js',
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
+			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			preprocessStyle: createStylePreprocessor({
 				filename,
