@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 1.0.1
+
+### Patch Changes
+
+- a36a97f: Improve stability related to converting files to TSX
+
 ## 1.0.0
 
 ### Major Changes
