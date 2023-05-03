@@ -13,6 +13,9 @@ function isAlreadyHydrated(element) {
 export default (element) =>
 	(Component, props, { default: children, ...slotted }, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
+		const renderOptions = {
+			identifierPrefix: element.getAttribute('prefix')
+		}
 		for (const [key, value] of Object.entries(slotted)) {
 			props[key] = createElement(StaticHtml, { value, name: key });
 		}
@@ -28,10 +31,10 @@ export default (element) =>
 		}
 		if (client === 'only') {
 			return startTransition(() => {
-				createRoot(element).render(componentEl);
+				createRoot(element, renderOptions).render(componentEl);
 			});
 		}
 		return startTransition(() => {
-			hydrateRoot(element, componentEl);
+			hydrateRoot(element, componentEl, renderOptions);
 		});
 	};
