@@ -24,7 +24,6 @@ import {
 import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';
 import type { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
-import type { LanguageServiceManager } from './LanguageServiceManager';
 import { astro2tsx } from './astro2tsx';
 import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { CompletionItemData, CompletionsProviderImpl } from './features/CompletionsProvider';
@@ -41,6 +40,7 @@ import { RenameProviderImpl } from './features/RenameProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { TypeDefinitionsProviderImpl } from './features/TypeDefinitionsProvider';
+import type { LanguageServiceManager } from './LanguageServiceManager';
 import { getScriptKindFromFileName, isAstroFilePath, isFrameworkFilePath } from './utils';
 
 export class TypeScriptPlugin implements Plugin {

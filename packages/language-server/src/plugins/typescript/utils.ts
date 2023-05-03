@@ -6,11 +6,11 @@ import {
 	Position,
 	Range,
 	SemanticTokenModifiers,
-	SemanticTokenTypes,
 	SemanticTokensLegend,
+	SemanticTokenTypes,
 	SymbolKind,
 } from 'vscode-languageserver';
-import { AstroDocument, TagInformation, mapRangeToOriginal } from '../../core/documents';
+import { AstroDocument, mapRangeToOriginal, TagInformation } from '../../core/documents';
 import { pathToUrl } from '../../utils';
 import type { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
 

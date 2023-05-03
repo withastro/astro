@@ -6,12 +6,12 @@ import {
 	AstroDocument,
 	DocumentMapper,
 	FragmentMapper,
-	IdentityMapper,
-	SourceMapDocumentMapper,
-	TagInformation,
 	getLineOffsets,
+	IdentityMapper,
 	offsetAt,
 	positionAt,
+	SourceMapDocumentMapper,
+	TagInformation,
 } from '../../../core/documents';
 import { pathToUrl } from '../../../utils';
 

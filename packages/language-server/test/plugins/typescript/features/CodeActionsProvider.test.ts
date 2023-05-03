@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import ts from 'typescript/lib/tsserverlibrary';
 import { CodeActionKind, Position, Range, TextDocumentEdit } from 'vscode-languageserver-types';
-import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import {
 	CodeActionsProviderImpl,
 	sortImportKind,
 } from '../../../../src/plugins/typescript/features/CodeActionsProvider';
+import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../utils';
 
 const newLine = ts.sys.newLine;
