@@ -122,7 +122,7 @@ function renderComponentsChecks(html) {
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
 	expect(pre).to.not.be.null;
-	expect(pre.className).to.equal('astro-code');
+	expect(pre.className).to.equal('astro-code github-dark');
 }
 
 /** @param {string} html */
