@@ -200,7 +200,7 @@ export class App {
 		}
 
 		try {
-			const renderContext = createRenderContext({
+			const renderContext = await createRenderContext({
 				request,
 				origin: url.origin,
 				pathname,
@@ -209,24 +209,14 @@ export class App {
 				links,
 				route: routeData,
 				status,
-			});
-
-			const [params, props] = await getParamsAndPropsOrThrow({
-				options: {
-					mod: mod as any,
-					route: renderContext.route,
-					routeCache: this.#env.routeCache,
-					pathname: renderContext.pathname,
-					logging: this.#env.logging,
-					ssr: this.#env.ssr,
-				},
-				context: renderContext,
+				mod: mod as any,
+				env: this.#env,
 			});
 
 			const apiContext = createAPIContext({
 				request: renderContext.request,
-				params,
-				props,
+				params: renderContext.params,
+				props: renderContext.props,
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
@@ -237,7 +227,7 @@ export class App {
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, apiContext, props, params });
+						return renderPage({ mod, renderContext, env: this.#env, apiContext });
 					}
 				);
 			} else {
@@ -246,8 +236,6 @@ export class App {
 					renderContext,
 					env: this.#env,
 					apiContext,
-					props,
-					params,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
@@ -271,12 +259,14 @@ export class App {
 		const pathname = '/' + this.removeBase(url.pathname);
 		const handler = mod as unknown as EndpointHandler;
 
-		const ctx = createRenderContext({
+		const ctx = await createRenderContext({
 			request,
 			origin: url.origin,
 			pathname,
 			route: routeData,
 			status,
+			env: this.#env,
+			mod: handler as any,
 		});
 
 		const result = await callEndpoint(

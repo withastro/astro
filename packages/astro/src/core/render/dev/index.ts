@@ -10,20 +10,10 @@ import type {
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
-import {
-	AggregateError,
-	AstroError,
-	AstroErrorData,
-	CSSError,
-	MarkdownError,
-} from '../../errors/index.js';
+import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
-import {
-	createRenderContext,
-	getParamsAndPropsOrThrow,
-	renderPage as coreRenderPage,
-} from '../index.js';
+import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
@@ -176,8 +166,9 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		env: options.env,
 		filePath: options.filePath,
 	});
+	const { env } = options;
 
-	const renderContext = createRenderContext({
+	const renderContext = await createRenderContext({
 		request: options.request,
 		origin: options.origin,
 		pathname: options.pathname,
@@ -186,36 +177,25 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		styles,
 		componentMetadata: metadata,
 		route: options.route,
-	});
-
-	const { env } = options;
-	const [params, props] = await getParamsAndPropsOrThrow({
-		options: {
-			logging: env.logging,
-			mod,
-			route: renderContext.route,
-			routeCache: env.routeCache,
-			pathname: renderContext.pathname,
-			ssr: env.ssr,
-		},
-		context: renderContext,
+		mod,
+		env,
 	});
 	if (options.middleware) {
 		if (options.middleware && options.middleware.onRequest) {
 			const apiContext = createAPIContext({
 				request: options.request,
-				params,
-				props,
+				params: renderContext.params,
+				props: renderContext.props,
 				adapterName: options.env.adapterName,
 			});
 
 			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
-				return coreRenderPage({ mod, renderContext, env: options.env, apiContext, params, props });
+				return coreRenderPage({ mod, renderContext, env: options.env, apiContext });
 			});
 
 			return response;
 		}
 	}
-	return await coreRenderPage({ mod, renderContext, env: options.env, params, props }); // NOTE: without "await", errors won’t get caught below
+	return await coreRenderPage({ mod, renderContext, env: options.env }); // NOTE: without "await", errors won’t get caught below
 }

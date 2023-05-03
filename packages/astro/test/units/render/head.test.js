@@ -12,7 +12,6 @@ import {
 import {
 	createBasicEnvironment,
 	createRenderContext,
-	getParamsAndPropsOrThrow,
 	renderPage,
 } from '../../../dist/core/render/index.js';
 import { defaultLogging as logging } from '../../test-utils.js';
@@ -96,29 +95,20 @@ describe('core/render', () => {
 				)}`;
 			});
 
-			const ctx = createRenderContext({
+			const PageModule = createAstroModule(Page);
+			const ctx = await createRenderContext({
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
+				mod: PageModule,
+				env,
 			});
-			const PageModule = createAstroModule(Page);
 
-			const [params, props] = await getParamsAndPropsOrThrow({
-				options: {
-					logging: env.logging,
-					mod: PageModule,
-					route: ctx.route,
-					routeCache: env.routeCache,
-					pathname: ctx.pathname,
-					ssr: env.ssr,
-				},
-				context: ctx,
-			});
 			const response = await renderPage({
 				mod: PageModule,
 				renderContext: ctx,
 				env,
-				params,
-				props,
+				params: ctx.params,
+				props: ctx.props,
 			});
 
 			const html = await response.text();
@@ -191,29 +181,20 @@ describe('core/render', () => {
 				)}`;
 			});
 
-			const ctx = createRenderContext({
+			const PageModule = createAstroModule(Page);
+			const ctx = await createRenderContext({
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
+				env,
+				mod: PageModule,
 			});
-			const PageModule = createAstroModule(Page);
 
-			const [params, props] = await getParamsAndPropsOrThrow({
-				options: {
-					logging: env.logging,
-					mod: PageModule,
-					route: ctx.route,
-					routeCache: env.routeCache,
-					pathname: ctx.pathname,
-					ssr: env.ssr,
-				},
-				context: ctx,
-			});
 			const response = await renderPage({
 				mod: PageModule,
 				renderContext: ctx,
 				env,
-				params,
-				props,
+				params: ctx.params,
+				props: ctx.props,
 			});
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -252,29 +233,20 @@ describe('core/render', () => {
 				)}`;
 			});
 
-			const ctx = createRenderContext({
+			const PageModule = createAstroModule(Page);
+			const ctx = await createRenderContext({
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
+				env,
+				mod: PageModule,
 			});
-			const PageModule = createAstroModule(Page);
 
-			const [params, props] = await getParamsAndPropsOrThrow({
-				options: {
-					logging: env.logging,
-					mod: PageModule,
-					route: ctx.route,
-					routeCache: env.routeCache,
-					pathname: ctx.pathname,
-					ssr: env.ssr,
-				},
-				context: ctx,
-			});
 			const response = await renderPage({
 				mod: PageModule,
 				renderContext: ctx,
 				env,
-				params,
-				props,
+				params: ctx.params,
+				props: ctx.props,
 			});
 			const html = await response.text();
 			const $ = cheerio.load(html);

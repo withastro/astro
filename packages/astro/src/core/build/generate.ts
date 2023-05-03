@@ -10,7 +10,6 @@ import type {
 	ComponentInstance,
 	EndpointHandler,
 	ImageTransform,
-	MiddlewareHandler,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
@@ -36,12 +35,7 @@ import {
 } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import {
-	createEnvironment,
-	getParamsAndPropsOrThrow,
-	createRenderContext,
-	renderPage,
-} from '../render/index.js';
+import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -431,7 +425,7 @@ async function generatePath(
 		streaming: true,
 	});
 
-	const renderContext = createRenderContext({
+	const renderContext = await createRenderContext({
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
@@ -439,6 +433,8 @@ async function generatePath(
 		scripts,
 		links,
 		route: pageData.route,
+		env,
+		mod,
 	});
 
 	let body: string | Uint8Array;
@@ -467,22 +463,10 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			const [params, props] = await getParamsAndPropsOrThrow({
-				options: {
-					mod: mod as any,
-					route: renderContext.route,
-					routeCache: env.routeCache,
-					pathname: renderContext.pathname,
-					logging: env.logging,
-					ssr: env.ssr,
-				},
-				context: renderContext,
-			});
-
 			const apiContext = createAPIContext({
 				request: renderContext.request,
-				params,
-				props,
+				params: renderContext.params,
+				props: renderContext.props,
 				site: env.site,
 				adapterName: env.adapterName,
 			});
@@ -493,11 +477,11 @@ async function generatePath(
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env, apiContext, params, props });
+						return renderPage({ mod, renderContext, env, apiContext });
 					}
 				);
 			} else {
-				response = await renderPage({ mod, renderContext, env, apiContext, params, props });
+				response = await renderPage({ mod, renderContext, env, apiContext });
 			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {

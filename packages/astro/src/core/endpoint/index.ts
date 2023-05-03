@@ -14,7 +14,7 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
-import { getParamsAndPropsOrThrow, isValueSerializable } from '../render/core.js';
+import { isValueSerializable } from '../render/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -100,22 +100,10 @@ export async function call<MiddlewareResult = Response | EndpointOutput>(
 	logging: LogOptions,
 	middleware?: AstroMiddlewareInstance<MiddlewareResult> | undefined
 ): Promise<EndpointCallResult> {
-	const [params, props] = await getParamsAndPropsOrThrow({
-		options: {
-			mod: mod as any,
-			route: ctx.route,
-			routeCache: env.routeCache,
-			pathname: ctx.pathname,
-			logging: env.logging,
-			ssr: env.ssr,
-		},
-		context: ctx,
-	});
-
 	const context = createAPIContext({
 		request: ctx.request,
-		params,
-		props,
+		params: ctx.params,
+		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
 	});

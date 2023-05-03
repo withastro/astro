@@ -22,26 +22,20 @@ export const enum GetParamsAndPropsError {
 	NoMatchingStaticPath,
 }
 
-export type GetParamsAndPropsOrThrow = {
-	options: GetParamsAndPropsOptions;
-	context: RenderContext;
-};
-
 /**
  * It retrieves `Params` and `Props`, or throws an error
  * if they are not correctly retrieved.
  */
-export async function getParamsAndPropsOrThrow({
-	options,
-	context,
-}: GetParamsAndPropsOrThrow): Promise<[Params, Props]> {
+export async function getParamsAndPropsOrThrow(
+	options: GetParamsAndPropsOptions
+): Promise<[Params, Props]> {
 	let paramsAndPropsResp = await getParamsAndProps(options);
 	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,
-			message: AstroErrorData.NoMatchingStaticPathFound.message(context.pathname),
-			hint: context.route?.component
-				? AstroErrorData.NoMatchingStaticPathFound.hint([context.route?.component])
+			message: AstroErrorData.NoMatchingStaticPathFound.message(options.pathname),
+			hint: options.route?.component
+				? AstroErrorData.NoMatchingStaticPathFound.hint([options.route?.component])
 				: '',
 		});
 	}
@@ -109,25 +103,14 @@ export async function getParamsAndProps(
 	return [params, pageProps];
 }
 
-export async function renderPageWithParamsAndProps() {}
-
 export type RenderPage = {
 	mod: ComponentInstance;
 	renderContext: RenderContext;
 	env: Environment;
 	apiContext?: APIContext;
-	props: Props;
-	params: Params;
 };
 
-export async function renderPage({
-	mod,
-	renderContext,
-	env,
-	apiContext,
-	params,
-	props,
-}: RenderPage) {
+export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)
@@ -151,8 +134,8 @@ export async function renderPage({
 		markdown: env.markdown,
 		mode: env.mode,
 		origin: renderContext.origin,
-		params,
-		props,
+		params: renderContext.params,
+		props: renderContext.props,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,
 		resolve: env.resolve,
@@ -167,13 +150,13 @@ export async function renderPage({
 
 	// Support `export const components` for `MDX` pages
 	if (typeof (mod as any).components === 'object') {
-		Object.assign(props, { components: (mod as any).components });
+		Object.assign(renderContext.props, { components: (mod as any).components });
 	}
 
 	let response = await runtimeRenderPage(
 		result,
 		Component,
-		props,
+		renderContext.props,
 		null,
 		env.streaming,
 		renderContext.route
