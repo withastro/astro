@@ -18,4 +18,4 @@ export default defineConfig({
 });
 ```
 
-Note that the 0-specifity `:where` pseudo-selector is still used as the default strategy. The intent is to change `'class'` to be the default in 3.0.
+Note that the 0-specificity `:where` pseudo-selector is still the default strategy. The intent is to change `'class'` to be the default in 3.0.
