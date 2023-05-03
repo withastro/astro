@@ -646,7 +646,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	MiddlewareNoDataOrNextCalled: {
 		title: "The middleware didn't return a response or call `next`",
 		code: 3031,
-		message: 'The middleware needs to either return a `Response` object or call the `next` function.',
+		message:
+			'The middleware needs to either return a `Response` object or call the `next` function.',
 	},
 
 	/**
@@ -665,8 +666,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	MiddlewareNotAResponse: {
 		title: 'The middleware returned something that is not a `Response` object',
 		code: 3032,
-		message:
-			'Any data returned from middleware must be a valid `Response` object.',
+		message: 'Any data returned from middleware must be a valid `Response` object.',
 	},
 
 	/**
@@ -687,7 +687,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	LocalsNotAnObject: {
 		title: 'Value assigned to `locals` is not accepted',
 		code: 3033,
-		message: '`\locals\` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
+		message:
+			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
 
