@@ -269,9 +269,11 @@ export function mergeInlineCss(
 	const currentIsInline = current?.type === 'inline';
 	if (lastWasInline && currentIsInline) {
 		const merged = { type: 'inline' as const, content: lastAdded.content + current.content };
-		return [...acc.slice(0, acc.length - 1), merged];
+		acc[acc.length - 1] = merged;
+		return acc;
 	}
-	return [...acc, current];
+	acc.push(current)
+	return acc;
 }
 
 export function isHoistedScript(internals: BuildInternals, id: string): boolean {
