@@ -99,7 +99,7 @@ describe('API routes in SSR', () => {
 			const response = await new Promise(resolve => {
 				let { address: host, port } = devServer.address;
 				let socket = new net.Socket();
-				socket.connect(port, host);
+				socket.connect(port, 'localhost');
 				socket.on('connect', () => {
 					let rawRequest = `POST /login HTTP/1.1\r\nHost: ${host}\r\n\r\n`;
 					socket.write(rawRequest);
