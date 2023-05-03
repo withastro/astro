@@ -44,7 +44,7 @@
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
     "remark-smartypants": "^2.0.0",
-    "shiki": "^0.11.1",
+    "shiki": "^0.14.1",
     "source-map": "^0.7.4",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2"
