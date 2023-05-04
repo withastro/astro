@@ -56,7 +56,7 @@ describe('React Components', () => {
 			// test 11: Should generate unique React.useId per island
 			const islandsWithId = $('.react-use-id');
 			expect(islandsWithId).to.have.lengthOf(2);
-			expect($(islandsWithId[0]).attr('id')).to.not.equal($(islandsWithId[1]).attr('id'))
+			expect($(islandsWithId[0]).attr('id')).to.not.equal($(islandsWithId[1]).attr('id'));
 		});
 
 		it('Can load Vue', async () => {

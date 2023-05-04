@@ -61,7 +61,7 @@ async function getNodeWritable() {
 async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
 	let prefix;
 	if (this && this.result) {
-		prefix = incrementId(this.result)
+		prefix = incrementId(this.result);
 	}
 	const attrs = { prefix };
 
@@ -82,8 +82,8 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	}
 	const vnode = React.createElement(Component, newProps);
 	const renderOptions = {
-		identifierPrefix: prefix
-	}
+		identifierPrefix: prefix,
+	};
 	let html;
 	if (metadata && metadata.hydrate) {
 		if ('renderToReadableStream' in ReactDOM) {

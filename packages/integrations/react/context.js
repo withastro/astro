@@ -17,7 +17,7 @@ function getContext(rendererContextResult) {
 }
 
 export function incrementId(rendererContextResult) {
-	const ctx = getContext(rendererContextResult)
+	const ctx = getContext(rendererContextResult);
 	const id = ctx.id;
 	ctx.currentIndex++;
 	return id;
