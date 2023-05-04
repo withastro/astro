@@ -1,6 +1,6 @@
 ---
 import { CollectionEntry, getCollection } from 'astro:content';
-
+import H3 from './H3.astro'
 // Test for recursive `getCollection()` calls
 const blog = await getCollection('blog');
 
@@ -23,6 +23,7 @@ const {
 	</head>
 	<body data-layout-prop="true">
 		<h1>{title}</h1>
+		<H3>H3 inserted in the layout</H3>
 		<nav>
 			<ul>
 				{blog.map((post) => (

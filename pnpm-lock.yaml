@@ -50,7 +50,7 @@ importers:
         version: 2.6.0
       eslint-plugin-prettier:
         specifier: ^4.2.1
-        version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.7)
+        version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.8)
       only-allow:
         specifier: ^1.1.1
         version: 1.1.1
@@ -58,8 +58,8 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0
       prettier:
-        specifier: ^2.8.7
-        version: 2.8.7
+        specifier: ^2.8.8
+        version: 2.8.8
       prettier-plugin-astro:
         specifier: ^0.8.0
         version: 0.8.0
@@ -361,6 +361,30 @@ importers:
         specifier: ^2.3.2
         version: link:../../packages/astro
 
+  examples/middleware:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      concurrently:
+        specifier: ^7.2.1
+        version: 7.2.1
+      html-minifier:
+        specifier: ^4.0.0
+        version: 4.0.0
+      svelte:
+        specifier: ^3.48.0
+        version: 3.58.0
+      unocss:
+        specifier: ^0.15.6
+        version: 0.15.6
+      vite-imagetools:
+        specifier: ^4.0.4
+        version: 4.0.4
+
   examples/minimal:
     dependencies:
       astro:
@@ -529,19 +553,19 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.3.1
-        version: 1.3.1
+        specifier: ^1.4.0
+        version: 1.4.0
       '@astrojs/language-server':
-        specifier: ^0.28.3
-        version: 0.28.3
+        specifier: ^1.0.0
+        version: 1.0.0
       '@astrojs/markdown-remark':
         specifier: ^2.1.4
         version: link:../markdown/remark
       '@astrojs/telemetry':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../telemetry
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../webapi
       '@babel/core':
         specifier: ^7.18.2
@@ -568,8 +592,8 @@ importers:
         specifier: ^21.0.0
         version: 21.0.0
       acorn:
-        specifier: ^8.8.1
-        version: 8.8.1
+        specifier: ^8.8.2
+        version: 8.8.2
       boxen:
         specifier: ^6.2.1
         version: 6.2.1
@@ -601,8 +625,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.1
       estree-walker:
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: 3.0.0
+        version: 3.0.0
       execa:
         specifier: ^6.1.0
         version: 6.1.0
@@ -649,8 +673,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       shiki:
-        specifier: ^0.11.1
-        version: 0.11.1
+        specifier: ^0.14.1
+        version: 0.14.1
       slash:
         specifier: ^4.0.0
         version: 4.0.0
@@ -748,9 +772,6 @@ importers:
       '@types/server-destroy':
         specifier: ^1.0.1
         version: 1.0.1
-      '@types/sharp':
-        specifier: ^0.31.1
-        version: 0.31.1
       '@types/unist':
         specifier: ^2.0.6
         version: 2.0.6
@@ -794,8 +815,8 @@ importers:
         specifier: ^1.52.2
         version: 1.52.2
       sharp:
-        specifier: ^0.31.3
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
       srcset-parse:
         specifier: ^1.1.0
         version: 1.1.0
@@ -2387,11 +2408,29 @@ importers:
 
   packages/astro/test/fixtures/css-assets/packages/font-awesome: {}
 
-  packages/astro/test/fixtures/css-inline:
+  packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/always:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/auto:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
+  packages/astro/test/fixtures/css-inline-stylesheets/never:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
 
   packages/astro/test/fixtures/css-no-code-split:
     dependencies:
@@ -2433,6 +2472,18 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/custom-404:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-404-html:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-404-injected:
     dependencies:
       astro:
         specifier: workspace:*
@@ -2729,7 +2780,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/minification-html:
+  packages/astro/test/fixtures/middleware-dev:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/middleware-ssg:
     dependencies:
       astro:
         specifier: workspace:*
@@ -2940,6 +2997,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/routing-priority:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/scoped-style-strategy:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3606,9 +3669,6 @@ importers:
       '@types/mime':
         specifier: ^2.0.3
         version: 2.0.3
-      '@types/sharp':
-        specifier: ^0.30.5
-        version: 0.30.5
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -3631,8 +3691,8 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
       vite:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@18.7.21)(sass@1.52.2)
@@ -3658,8 +3718,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/basic-image:
     dependencies:
@@ -3673,8 +3733,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/basic-picture:
     dependencies:
@@ -3688,8 +3748,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/get-image-remote:
     dependencies:
@@ -3700,8 +3760,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/no-alt-text-image:
     dependencies:
@@ -3715,8 +3775,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/no-alt-text-picture:
     dependencies:
@@ -3730,8 +3790,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/rotation:
     dependencies:
@@ -3745,8 +3805,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/image/test/fixtures/squoosh-service:
     dependencies:
@@ -3775,8 +3835,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       sharp:
-        specifier: ^0.31.0
-        version: 0.31.3
+        specifier: ^0.32.1
+        version: 0.32.1
 
   packages/integrations/lit:
     dependencies:
@@ -3919,8 +3979,8 @@ importers:
         version: link:../../../../../astro
     devDependencies:
       shiki:
-        specifier: ^0.11.1
-        version: 0.11.1
+        specifier: ^0.14.1
+        version: 0.14.1
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
     dependencies:
@@ -3976,8 +4036,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       shiki:
-        specifier: ^0.11.1
-        version: 0.11.1
+        specifier: ^0.14.1
+        version: 0.14.1
       source-map:
         specifier: ^0.7.4
         version: 0.7.4
@@ -4038,7 +4098,7 @@ importers:
         version: 4.0.2
       rehype-pretty-code:
         specifier: ^0.4.0
-        version: 0.4.0(shiki@0.11.1)
+        version: 0.4.0(shiki@0.14.1)
       remark-math:
         specifier: ^5.1.1
         version: 5.1.1
@@ -4178,7 +4238,7 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../../webapi
       '@netlify/functions':
         specifier: ^1.0.0
@@ -4263,7 +4323,7 @@ importers:
   packages/integrations/node:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../../webapi
       send:
         specifier: ^0.18.0
@@ -4319,6 +4379,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/encoded:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/errors:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
@@ -4490,6 +4559,9 @@ importers:
         specifier: ^3.17.3
         version: 3.20.6
     devDependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../node
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -4505,6 +4577,15 @@ importers:
       xml2js:
         specifier: 0.5.0
         version: 0.5.0
+
+  packages/integrations/sitemap/test/fixtures/ssr:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/sitemap/test/fixtures/trailing-slash:
     dependencies:
@@ -4600,7 +4681,7 @@ importers:
   packages/integrations/vercel:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.0
+        specifier: ^2.1.1
         version: link:../../webapi
       '@vercel/analytics':
         specifier: ^0.1.8
@@ -4630,9 +4711,21 @@ importers:
       chai:
         specifier: ^4.3.6
         version: 4.3.6
+      cheerio:
+        specifier: ^1.0.0-rc.11
+        version: 1.0.0-rc.11
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+
+  packages/integrations/vercel/test/fixtures/image:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/no-output:
     dependencies:
@@ -4878,8 +4971,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       shiki:
-        specifier: ^0.11.1
-        version: 0.11.1
+        specifier: ^0.14.1
+        version: 0.14.1
       unified:
         specifier: ^10.1.2
         version: 10.1.2
@@ -5314,22 +5407,20 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@0.31.4:
-    resolution: {integrity: sha512-6bBFeDTtPOn4jZaiD3p0f05MEGQL9pw2Zbfj546oFETNmjJFWO3nzHz6/m+P53calknCvyVzZ5YhoBLIvzn5iw==}
-    dev: false
+  /@astrojs/compiler@1.4.0:
+    resolution: {integrity: sha512-Vav3a32Ct+omowV9X9kDM2ghWAvFdjZkv5BdvBjZCKYbFVT6//IZApDIVbHI1UPuLuD2sKyLWx2T+E7clqUJdg==}
 
-  /@astrojs/compiler@1.3.1:
-    resolution: {integrity: sha512-xV/3r+Hrfpr4ECfJjRjeaMkJvU73KiOADowHjhkqidfNPVAWPzbqw1KePXuMK1TjzMvoAVE7E163oqfH3lDwSw==}
-
-  /@astrojs/language-server@0.28.3:
-    resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}
+  /@astrojs/language-server@1.0.0:
+    resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
     dependencies:
+      '@astrojs/compiler': 1.4.0
+      '@jridgewell/trace-mapping': 0.3.18
       '@vscode/emmet-helper': 2.8.6
       events: 3.3.0
-      prettier: 2.8.7
-      prettier-plugin-astro: 0.7.2
-      source-map: 0.7.4
+      prettier: 2.8.8
+      prettier-plugin-astro: 0.8.0
+      synckit: 0.8.5
       vscode-css-languageservice: 6.2.4
       vscode-html-languageservice: 5.0.4
       vscode-languageserver: 8.1.0
@@ -6896,7 +6987,7 @@ packages:
       fs-extra: 7.0.1
       lodash.startcase: 4.4.0
       outdent: 0.5.0
-      prettier: 2.8.7
+      prettier: 2.8.8
       resolve-from: 5.0.0
       semver: 5.7.1
     dev: true
@@ -7084,7 +7175,7 @@ packages:
       '@changesets/types': 5.2.1
       fs-extra: 7.0.1
       human-id: 1.0.2
-      prettier: 2.8.7
+      prettier: 2.8.8
     dev: true
 
   /@cloudflare/kv-asset-handler@0.2.0:
@@ -7691,7 +7782,7 @@ packages:
       nopt: 5.0.0
       npmlog: 5.0.1
       rimraf: 3.0.2
-      semver: 7.3.8
+      semver: 7.5.0
       tar: 6.1.11
     transitivePeerDependencies:
       - encoding
@@ -7721,7 +7812,7 @@ packages:
       estree-util-build-jsx: 2.2.2
       estree-util-is-identifier-name: 2.1.0
       estree-util-to-js: 1.2.0
-      estree-walker: 3.0.1
+      estree-walker: 3.0.0
       hast-util-to-estree: 2.3.2
       markdown-extensions: 1.1.1
       periscopic: 3.1.0
@@ -8705,18 +8796,6 @@ packages:
       '@types/node': 18.7.21
     dev: true
 
-  /@types/sharp@0.30.5:
-    resolution: {integrity: sha512-EhO29617AIBqxoVtpd1qdBanWpspk/kD2B6qTFRJ31Q23Rdf+DNU1xlHSwtqvwq1vgOqBwq1i38SX+HGCymIQg==}
-    dependencies:
-      '@types/node': 18.7.21
-    dev: true
-
-  /@types/sharp@0.31.1:
-    resolution: {integrity: sha512-5nWwamN9ZFHXaYEincMSuza8nNfOof8nmO+mcI+Agx1uMUk4/pQnNIcix+9rLPXzKrm1pS34+6WRDbDV0Jn7ag==}
-    dependencies:
-      '@types/node': 18.7.21
-    dev: true
-
   /@types/stack-trace@0.0.29:
     resolution: {integrity: sha512-TgfOX+mGY/NyNxJLIbDWrO9DjGoVSW9+aB8H2yy1fy32jsvxijhmyJI9fDFgvz3YP4lvJaq9DzdR/M1bOgVc9g==}
     dev: true
@@ -8845,7 +8924,7 @@ packages:
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.3.8
+      semver: 7.5.0
       tsutils: 3.21.0(typescript@5.0.2)
       typescript: 5.0.2
     transitivePeerDependencies:
@@ -8866,7 +8945,7 @@ packages:
       '@typescript-eslint/typescript-estree': 5.58.0(typescript@5.0.2)
       eslint: 8.38.0
       eslint-scope: 5.1.1
-      semver: 7.3.8
+      semver: 7.5.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -8925,7 +9004,7 @@ packages:
       chokidar: 3.5.3
       colorette: 2.0.19
       consola: 2.15.3
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       pathe: 0.2.0
     dev: false
 
@@ -9017,7 +9096,7 @@ packages:
     hasBin: true
     dependencies:
       '@mapbox/node-pre-gyp': 1.0.10
-      acorn: 8.8.1
+      acorn: 8.8.2
       async-sema: 3.1.1
       bindings: 1.5.0
       estree-walker: 2.0.2
@@ -9272,12 +9351,12 @@ packages:
       acorn-walk: 7.2.0
     dev: true
 
-  /acorn-jsx@5.3.2(acorn@8.8.1):
+  /acorn-jsx@5.3.2(acorn@8.8.2):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      acorn: 8.8.1
+      acorn: 8.8.2
 
   /acorn-walk@7.2.0:
     resolution: {integrity: sha512-OPdCF6GsMIP+Az+aWfAAOEt2/+iVDKE7oy6lJ098aoe59oAmK76qV6Gw60SbZ8jHuG2wH058GF4pLFbYamYrVA==}
@@ -9297,6 +9376,12 @@ packages:
 
   /acorn@8.8.1:
     resolution: {integrity: sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+    dev: false
+
+  /acorn@8.8.2:
+    resolution: {integrity: sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -9387,6 +9472,9 @@ packages:
   /ansi-regex@6.0.1:
     resolution: {integrity: sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==}
     engines: {node: '>=12'}
+
+  /ansi-sequence-parser@1.1.0:
+    resolution: {integrity: sha512-lEm8mt52to2fT8GhciPCGeCXACSz2UwIN4X2e2LJSnZ5uAbn2/dsYdOmUXq0AtWS5cpAupysIneExOgH0Vd2TQ==}
 
   /ansi-styles@3.2.1:
     resolution: {integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==}
@@ -9796,7 +9884,7 @@ packages:
   /builtins@5.0.1:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
-      semver: 7.3.8
+      semver: 7.5.0
     dev: true
 
   /busboy@1.6.0:
@@ -9825,6 +9913,13 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
     dev: true
+
+  /camel-case@3.0.0:
+    resolution: {integrity: sha512-+MbKztAYHXPr1jNTSKQF52VpcFjwY5RkR7fxksV8Doo4KAYc5Fl4UJRgthBbTmEx8C54DqahhbLJkDwjI3PI/w==}
+    dependencies:
+      no-case: 2.3.2
+      upper-case: 1.1.3
+    dev: false
 
   /camelcase-css@2.0.1:
     resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
@@ -9989,6 +10084,13 @@ packages:
 
   /ci-info@3.3.1:
     resolution: {integrity: sha512-SXgeMX9VwDe7iFFaEWkA5AstuER9YKqy4EhHqr4DVqkwmD9rpVimkMKWHdjn30Ja45txyjhSn63lVX69eVCckg==}
+
+  /clean-css@4.2.4:
+    resolution: {integrity: sha512-EJUDT7nDVFDvaQgAo2G/PJvxmp1o/c6iXLbswsBbUFXi1Nr+AjA2cKmfbKDMjMvzEe75g3P6JkaDDAKk96A85A==}
+    engines: {node: '>= 4.0'}
+    dependencies:
+      source-map: 0.6.1
+    dev: false
 
   /clean-stack@4.2.0:
     resolution: {integrity: sha512-LYv6XPxoyODi36Dp976riBtSY27VmFo+MKqEU9QCCWyTrdEPDog+RWA7xQWHi6Vbp61j5c4cdzzX1NidnwtUWg==}
@@ -11307,7 +11409,7 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: true
 
-  /eslint-plugin-prettier@4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.7):
+  /eslint-plugin-prettier@4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.8):
     resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -11320,7 +11422,7 @@ packages:
     dependencies:
       eslint: 8.38.0
       eslint-config-prettier: 8.8.0(eslint@8.38.0)
-      prettier: 2.8.7
+      prettier: 2.8.8
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -11403,8 +11505,8 @@ packages:
     resolution: {integrity: sha512-5yxtHSZXRSW5pvv3hAlXM5+/Oswi1AUFqBmbibKb5s6bp3rGIDkyXU6xCoyuuLhijr4SFwPrXRoZjz0AZDN9tg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.8.1
-      acorn-jsx: 5.3.2(acorn@8.8.1)
+      acorn: 8.8.2
+      acorn-jsx: 5.3.2(acorn@8.8.2)
       eslint-visitor-keys: 3.4.0
     dev: true
 
@@ -11448,7 +11550,7 @@ packages:
     dependencies:
       '@types/estree-jsx': 1.0.0
       estree-util-is-identifier-name: 2.1.0
-      estree-walker: 3.0.1
+      estree-walker: 3.0.0
     dev: false
 
   /estree-util-is-identifier-name@2.1.0:
@@ -11479,8 +11581,8 @@ packages:
   /estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
 
-  /estree-walker@3.0.1:
-    resolution: {integrity: sha512-woY0RUD87WzMBUiZLx8NsYr23N5BKsOMZHhu2hoNRVh6NXGfoiT1KOL8G3UHlJAnEDGmfa5ubNA/AacfG+Kb0g==}
+  /estree-walker@3.0.0:
+    resolution: {integrity: sha512-s6ceX0NFiU/vKPiKvFdR83U1Zffu7upwZsGwpoqfg5rbbq1l50WQ5hCeIvM6E6oD4shUHCYMsiFPns4Jk0YfMQ==}
     dev: false
 
   /esutils@2.0.3:
@@ -12326,6 +12428,20 @@ packages:
   /html-escaper@3.0.3:
     resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
 
+  /html-minifier@4.0.0:
+    resolution: {integrity: sha512-aoGxanpFPLg7MkIl/DDFYtb0iWz7jMFGqFhvEDZga6/4QTjneiD8I/NXL1x5aaoCp7FSIT6h/OhykDdPsbtMig==}
+    engines: {node: '>=6'}
+    hasBin: true
+    dependencies:
+      camel-case: 3.0.0
+      clean-css: 4.2.4
+      commander: 2.20.3
+      he: 1.2.0
+      param-case: 2.1.1
+      relateurl: 0.2.7
+      uglify-js: 3.17.4
+    dev: false
+
   /html-rewriter-wasm@0.4.1:
     resolution: {integrity: sha512-lNovG8CMCCmcVB1Q7xggMSf7tqPCijZXaH4gL6iE8BFghdQCbaY5Met9i1x2Ex8m/cZHDUtXK9H6/znKamRP8Q==}
     dev: true
@@ -12853,7 +12969,7 @@ packages:
         optional: true
     dependencies:
       abab: 2.0.6
-      acorn: 8.8.1
+      acorn: 8.8.2
       acorn-globals: 6.0.0
       cssom: 0.5.0
       cssstyle: 2.3.0
@@ -13154,6 +13270,10 @@ packages:
     resolution: {integrity: sha512-RaPMZKiMy8/JruncMU5Bt6na1eftNoo++R4Y+N2FrxkDVTrGvcyzFTsaGif4QTeKESheMGegbhw6iUAq+5A8zA==}
     dependencies:
       get-func-name: 2.0.0
+
+  /lower-case@1.1.4:
+    resolution: {integrity: sha512-2Fgx1Ycm599x+WGpIYwJOvsjmXFzTSc34IwDWALRA/8AopUKAVPwfJ+h5+f85BCp0PWmmJcWzEpxOpoXycMpdA==}
+    dev: false
 
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -13670,8 +13790,8 @@ packages:
   /micromark-extension-mdxjs@1.0.0:
     resolution: {integrity: sha512-TZZRZgeHvtgm+IhtgC2+uDMR7h8eTKF0QUX9YsgoL9+bADBpBY6SiLvWqnBlLbCEevITmTqmEuY3FoxMKVs1rQ==}
     dependencies:
-      acorn: 8.8.1
-      acorn-jsx: 5.3.2(acorn@8.8.1)
+      acorn: 8.8.2
+      acorn-jsx: 5.3.2(acorn@8.8.2)
       micromark-extension-mdx-expression: 1.0.4
       micromark-extension-mdx-jsx: 1.0.3
       micromark-extension-mdx-md: 1.0.0
@@ -14100,6 +14220,12 @@ packages:
       '@types/nlcst': 1.0.0
     dev: false
 
+  /no-case@2.3.2:
+    resolution: {integrity: sha512-rmTZ9kz+f3rCvK2TD1Ue/oZlns7OGoIWP4fc3llxxRXlOkHKoWPPWJOfFYpITabSow43QJbRIoHQXtt10VldyQ==}
+    dependencies:
+      lower-case: 1.1.4
+    dev: false
+
   /no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
@@ -14111,10 +14237,14 @@ packages:
     resolution: {integrity: sha512-jAlSOFR1Bls963NmFwxeQkNTzqjUF0NThm8Le7eRIRGzFUVJuMOFZDLv5Y30W/Oaw+KEebEJLAigwO9gQHoEmw==}
     engines: {node: '>=10'}
     dependencies:
-      semver: 7.3.8
+      semver: 7.5.0
 
   /node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
+    dev: false
+
+  /node-addon-api@6.1.0:
+    resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
 
   /node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
@@ -14246,7 +14376,7 @@ packages:
     dependencies:
       execa: 6.1.0
       parse-package-name: 1.0.0
-      semver: 7.3.8
+      semver: 7.5.0
       validate-npm-package-name: 4.0.0
     dev: true
 
@@ -14471,6 +14601,12 @@ packages:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
     dev: false
 
+  /param-case@2.1.1:
+    resolution: {integrity: sha512-eQE845L6ot89sk2N8liD8HAuH4ca6Vvr7VWAWwt7+kvvG5aBcPmmphQ68JsEG2qa9n1TykS2DLeMt363AAH8/w==}
+    dependencies:
+      no-case: 2.3.2
+    dev: false
+
   /parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -14613,7 +14749,7 @@ packages:
     resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
     dependencies:
       '@types/estree': 1.0.0
-      estree-walker: 3.0.1
+      estree-walker: 3.0.0
       is-reference: 3.0.1
     dev: false
 
@@ -15129,28 +15265,17 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-astro@0.7.2:
-    resolution: {integrity: sha512-mmifnkG160BtC727gqoimoxnZT/dwr8ASxpoGGl6EHevhfblSOeu+pwH1LAm5Qu1MynizktztFujHHaijLCkww==}
-    engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
-    dependencies:
-      '@astrojs/compiler': 0.31.4
-      prettier: 2.8.7
-      sass-formatter: 0.7.6
-      synckit: 0.8.5
-    dev: false
-
   /prettier-plugin-astro@0.8.0:
     resolution: {integrity: sha512-kt9wk33J7HvFGwFaHb8piwy4zbUmabC8Nu+qCw493jhe96YkpjscqGBPy4nJ9TPy9pd7+kEx1zM81rp+MIdrXg==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.3.1
-      prettier: 2.8.7
+      '@astrojs/compiler': 1.4.0
+      prettier: 2.8.8
       sass-formatter: 0.7.6
       synckit: 0.8.5
-    dev: true
 
-  /prettier@2.8.7:
-    resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
+  /prettier@2.8.8:
+    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
 
@@ -15454,14 +15579,14 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /rehype-pretty-code@0.4.0(shiki@0.11.1):
+  /rehype-pretty-code@0.4.0(shiki@0.14.1):
     resolution: {integrity: sha512-Bp91nfo4blpgCXlvGP1hsG+kRFfjqBVU09o1RFcnNA62u+iIzJiJRGzpfBj4FaItq7CEQL5ASGB7vLxN5xCvyA==}
     engines: {node: ^12.16.0 || >=13.2.0}
     peerDependencies:
       shiki: '*'
     dependencies:
       parse-numeric-range: 1.3.0
-      shiki: 0.11.1
+      shiki: 0.14.1
     dev: true
 
   /rehype-raw@6.1.1:
@@ -15508,6 +15633,11 @@ packages:
 
   /reinterval@1.1.0:
     resolution: {integrity: sha512-QIRet3SYrGp0HUHO88jVskiG6seqUGC5iAG7AwI/BV4ypGcuqk9Du6YQBUOUqm9c8pw1eyLoIaONifRua1lsEQ==}
+    dev: false
+
+  /relateurl@0.2.7:
+    resolution: {integrity: sha512-G08Dxvm4iDN3MLM0EsP62EDV9IuhXPR6blNz6Utcp7zyV3tr4HVNINt6MpaRWbxoOHT3Q7YN2P+jaHX8vUbgog==}
+    engines: {node: '>= 0.10'}
     dev: false
 
   /remark-code-titles@0.1.2:
@@ -15869,6 +15999,13 @@ packages:
     dependencies:
       lru-cache: 6.0.0
 
+  /semver@7.5.0:
+    resolution: {integrity: sha512-+XC0AD/R7Q2mPSRuy2Id0+CGTZ98+8f+KvwirxOKIEyid+XSx6HbC63p+O4IndTHuX5Z+JxQ0TghCkO5Cg/2HA==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      lru-cache: 6.0.0
+
   /send@0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
     engines: {node: '>= 0.8.0'}
@@ -15923,7 +16060,22 @@ packages:
       detect-libc: 2.0.1
       node-addon-api: 5.1.0
       prebuild-install: 7.1.1
-      semver: 7.3.8
+      semver: 7.5.0
+      simple-get: 4.0.1
+      tar-fs: 2.1.1
+      tunnel-agent: 0.6.0
+    dev: false
+
+  /sharp@0.32.1:
+    resolution: {integrity: sha512-kQTFtj7ldpUqSe8kDxoGLZc1rnMFU0AO2pqbX6pLy3b7Oj8ivJIdoKNwxHVQG2HN6XpHPJqCSM2nsma2gOXvOg==}
+    engines: {node: '>=14.15.0'}
+    requiresBuild: true
+    dependencies:
+      color: 4.2.3
+      detect-libc: 2.0.1
+      node-addon-api: 6.1.0
+      prebuild-install: 7.1.1
+      semver: 7.5.0
       simple-get: 4.0.1
       tar-fs: 2.1.1
       tunnel-agent: 0.6.0
@@ -15972,12 +16124,13 @@ packages:
       vscode-textmate: 5.2.0
     dev: true
 
-  /shiki@0.11.1:
-    resolution: {integrity: sha512-EugY9VASFuDqOexOgXR18ZV+TbFrQHeCpEYaXamO+SZlsnT/2LxuLBX25GGtIrwaEVFXUAbUQ601SWE2rMwWHA==}
+  /shiki@0.14.1:
+    resolution: {integrity: sha512-+Jz4nBkCBe0mEDqo1eKRcCdjRtrCjozmcbTUjbPTX7OOJfEbTZzlUWlZtGe3Gb5oV1/jnojhG//YZc3rs9zSEw==}
     dependencies:
+      ansi-sequence-parser: 1.1.0
       jsonc-parser: 3.2.0
       vscode-oniguruma: 1.7.0
-      vscode-textmate: 6.0.0
+      vscode-textmate: 8.0.0
 
   /side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -16549,7 +16702,7 @@ packages:
     hasBin: true
     dependencies:
       '@jridgewell/source-map': 0.3.3
-      acorn: 8.8.1
+      acorn: 8.8.2
       commander: 2.20.3
       source-map-support: 0.5.21
     dev: false
@@ -16873,6 +17026,12 @@ packages:
     engines: {node: '>=12.20'}
     hasBin: true
 
+  /uglify-js@3.17.4:
+    resolution: {integrity: sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==}
+    engines: {node: '>=0.8.0'}
+    hasBin: true
+    dev: false
+
   /uhyphen@0.1.0:
     resolution: {integrity: sha512-o0QVGuFg24FK765Qdd5kk0zU/U4dEsCtN/GSiwNI9i8xsSVtjIAOdTaVhLwZ1nrbWxFVMxNDDl+9fednsOMsBw==}
     dev: true
@@ -17112,6 +17271,10 @@ packages:
       escalade: 3.1.1
       picocolors: 1.0.0
 
+  /upper-case@1.1.3:
+    resolution: {integrity: sha512-WRbjgmYzgXkCV7zNVpy5YgrHgbBv126rMALQQMrmzOVC4GM2waQ9x7xtm8VU+1yF2kWyPzI9zbZ48n4vSxwfSA==}
+    dev: false
+
   /uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
@@ -17344,7 +17507,7 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
     dependencies:
-      acorn: 8.8.1
+      acorn: 8.8.2
       acorn-walk: 8.2.0
     dev: true
 
@@ -17400,8 +17563,8 @@ packages:
     resolution: {integrity: sha512-Uw5ooOQxRASHgu6C7GVvUxisKXfSgW4oFlO+aa+PAkgmH89O3CXxEEzNRNtHSqtXFTl0nAC1uYj0GMSH27uwtQ==}
     dev: true
 
-  /vscode-textmate@6.0.0:
-    resolution: {integrity: sha512-gu73tuZfJgu+mvCSy4UZwd2JXykjK9zAZsfmDeut5dx/1a7FeTk0XwJsSuqQn+cuMCGVbIBfl+s53X4T19DnzQ==}
+  /vscode-textmate@8.0.0:
+    resolution: {integrity: sha512-AFbieoL7a5LMqcnOF04ji+rpXadgOXnZsxQr//r83kLPr7biP7am3g9zbaZIaBGwBRWeSvoMD4mgPdX3e4NWBg==}
 
   /vscode-uri@2.1.2:
     resolution: {integrity: sha512-8TEXQxlldWAuIODdukIb+TR5s+9Ds40eSJrw+1iDDA9IFORPjMELarNQE3myz5XIkWWpdprmJjm1/SxMlWOC8A==}

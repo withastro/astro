@@ -103,6 +103,7 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
+	experimentalMiddleware?: boolean;
 }
 
 export interface BuildConfig {
@@ -510,6 +511,23 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	trailingSlash?: 'always' | 'never' | 'ignore';
+
+	/**
+	 * @docs
+	 * @name scopedStyleStrategy
+	 * @type {('where' | 'class')}
+	 * @default `'where'`
+	 * @description
+	 * @version 2.4
+	 *
+	 * Specify the strategy used for scoping styles within Astro components. Choose from:
+	 *   - `'where'` - Use `:where` selectors, causing no specifity increase.
+	 *   - `'class'` - Use class-based selectors, causing a +1 specifity increase.
+	 *
+	 * Using `'class'` is helpful when you want to ensure that element selectors within an Astro component override global style defaults (e.g. from a global stylesheet).
+	 * Using `'where'` gives you more control over specifity, but requires that you use higher-specifity selectors, layers, and other tools to control which selectors are applied.
+	 */
+	scopedStyleStrategy?: 'where' | 'class';
 
 	/**
 	 * @docs
@@ -1034,6 +1052,46 @@ export interface AstroUserConfig {
 		 * }
 		 */
 		assets?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.inlineStylesheets
+		 * @type {('always' | 'auto' | 'never')}
+		 * @default `never`
+		 * @description
+		 * Control whether styles are sent to the browser in a separate css file or inlined into <style> tags. Choose from the following options:
+		 *  - `'always'` - all styles are inlined into <style> tags
+		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
+		 *  - `'never'` - all styles are sent in external stylesheets
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		inlineStylesheets: `auto`,
+		 * 	},
+		 * }
+		 */
+		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name experimental.middleware
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.4.0
+		 * @description
+		 * Enable experimental support for Astro middleware.
+		 *
+		 * To enable this feature, set `experimental.middleware` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		middleware: true,
+		 * 	},
+		 * }
+		 */
+		middleware?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1431,6 +1489,11 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	 * Redirect to another page (**SSR Only**).
 	 */
 	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
+
+	/**
+	 * Object accessed via Astro middleware
+	 */
+	locals: App.Locals;
 }
 
 export interface APIContext<Props extends Record<string, any> = Record<string, any>>
@@ -1464,7 +1527,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * }
 	 * ```
 	 *
-	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextparams)
+	 * [context reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
 	 */
 	params: AstroSharedContext['params'];
 	/**
@@ -1504,6 +1567,31 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
+
+	/**
+	 * Object accessed via Astro middleware.
+	 *
+	 * Example usage:
+	 *
+	 * ```ts
+	 * // src/middleware.ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 *
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals.greeting = "Hello!";
+	 *   next();
+	 * });
+	 * ```
+	 * Inside a `.astro` file:
+	 * ```astro
+	 * ---
+	 * // src/pages/index.astro
+	 * const greeting = Astro.locals.greeting;
+	 * ---
+	 * <h1>{greeting}</h1>
+	 * ```
+	 */
+	locals: App.Locals;
 }
 
 export type Props = Record<string, unknown>;
@@ -1591,6 +1679,22 @@ export interface AstroIntegration {
 		}) => void | Promise<void>;
 	};
 }
+
+export type MiddlewareNext<R> = () => Promise<R>;
+export type MiddlewareHandler<R> = (
+	context: APIContext,
+	next: MiddlewareNext<R>
+) => Promise<R> | Promise<void> | void;
+
+export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
+export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
+export type MiddlewareNextResponse = MiddlewareNext<Response>;
+
+// NOTE: when updating this file with other functions,
+// remember to update `plugin-page.ts` too, to add that function as a no-op function.
+export type AstroMiddlewareInstance<R> = {
+	onRequest?: MiddlewareHandler<R>;
+};
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;

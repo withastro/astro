@@ -8,7 +8,6 @@ export function createCanonicalURL(
 	base?: string
 ): URL {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
-	pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
 	if (trailingSlash === false) {
 		// remove the trailing slash
 		pathname = pathname.replace(/(\/+)?$/, '');
