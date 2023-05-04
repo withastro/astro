@@ -96,10 +96,19 @@ export async function generateImage(
 		return undefined;
 	}
 
+	let useCache = true;
 	const assetsCacheDir = new URL('assets/', buildOpts.settings.config.cacheDir);
 
 	// Ensure that the cache directory exists
-	await fs.promises.mkdir(assetsCacheDir, { recursive: true });
+	try {
+		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
+	} catch (err) {
+		console.error(
+			'An error was encountered while creating the cache directory. Proceeding without caching. Error: ',
+			err
+		);
+		useCache = false;
+	}
 
 	let serverRoot: URL, clientRoot: URL;
 	if (buildOpts.settings.config.output === 'server') {
@@ -145,8 +154,21 @@ export async function generateImage(
 	);
 
 	await fs.promises.mkdir(finalFolderURL, { recursive: true });
-	await fs.promises.writeFile(cachedFileURL, resultData.data);
-	await fs.promises.copyFile(cachedFileURL, finalFileURL);
+
+	if (useCache) {
+		try {
+			await fs.promises.writeFile(cachedFileURL, resultData.data);
+			await fs.promises.copyFile(cachedFileURL, finalFileURL);
+		} catch (e) {
+			console.error(
+				`There was an error creating the cache entry for ${filepath}. Attempting to write directly to output directory. Error: `,
+				e
+			);
+			await fs.promises.writeFile(finalFileURL, resultData.data);
+		}
+	} else {
+		await fs.promises.writeFile(finalFileURL, resultData.data);
+	}
 
 	return {
 		cached: false,
