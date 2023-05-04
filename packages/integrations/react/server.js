@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
+import { incrementId } from './context.js';
 
 const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
@@ -58,6 +59,12 @@ async function getNodeWritable() {
 }
 
 async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
+	let prefix;
+	if (this && this.result) {
+		prefix = incrementId(this.result)
+	}
+	const attrs = { prefix };
+
 	delete props['class'];
 	const slots = {};
 	for (const [key, value] of Object.entries(slotted)) {
@@ -74,29 +81,33 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		newProps.children = React.createElement(StaticHtml, { value: newChildren });
 	}
 	const vnode = React.createElement(Component, newProps);
+	const renderOptions = {
+		identifierPrefix: prefix
+	}
 	let html;
 	if (metadata && metadata.hydrate) {
 		if ('renderToReadableStream' in ReactDOM) {
-			html = await renderToReadableStreamAsync(vnode);
+			html = await renderToReadableStreamAsync(vnode, renderOptions);
 		} else {
-			html = await renderToPipeableStreamAsync(vnode);
+			html = await renderToPipeableStreamAsync(vnode, renderOptions);
 		}
 	} else {
 		if ('renderToReadableStream' in ReactDOM) {
-			html = await renderToReadableStreamAsync(vnode);
+			html = await renderToReadableStreamAsync(vnode, renderOptions);
 		} else {
-			html = await renderToStaticNodeStreamAsync(vnode);
+			html = await renderToStaticNodeStreamAsync(vnode, renderOptions);
 		}
 	}
-	return { html };
+	return { html, attrs };
 }
 
-async function renderToPipeableStreamAsync(vnode) {
+async function renderToPipeableStreamAsync(vnode, options) {
 	const Writable = await getNodeWritable();
 	let html = '';
 	return new Promise((resolve, reject) => {
 		let error = undefined;
 		let stream = ReactDOM.renderToPipeableStream(vnode, {
+			...options,
 			onError(err) {
 				error = err;
 				reject(error);
@@ -118,11 +129,11 @@ async function renderToPipeableStreamAsync(vnode) {
 	});
 }
 
-async function renderToStaticNodeStreamAsync(vnode) {
+async function renderToStaticNodeStreamAsync(vnode, options) {
 	const Writable = await getNodeWritable();
 	let html = '';
 	return new Promise((resolve, reject) => {
-		let stream = ReactDOM.renderToStaticNodeStream(vnode);
+		let stream = ReactDOM.renderToStaticNodeStream(vnode, options);
 		stream.on('error', (err) => {
 			reject(err);
 		});
@@ -164,8 +175,8 @@ async function readResult(stream) {
 	}
 }
 
-async function renderToReadableStreamAsync(vnode) {
-	return await readResult(await ReactDOM.renderToReadableStream(vnode));
+async function renderToReadableStreamAsync(vnode, options) {
+	return await readResult(await ReactDOM.renderToReadableStream(vnode, options));
 }
 
 export default {
