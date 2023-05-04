@@ -559,7 +559,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@astrojs/markdown-remark':
-        specifier: ^2.1.4
+        specifier: ^2.2.0
         version: link:../markdown/remark
       '@astrojs/telemetry':
         specifier: ^2.1.1
@@ -3994,7 +3994,7 @@ importers:
   packages/integrations/mdx:
     dependencies:
       '@astrojs/markdown-remark':
-        specifier: ^2.1.4
+        specifier: ^2.2.0
         version: link:../../markdown/remark
       '@astrojs/prism':
         specifier: ^2.1.1

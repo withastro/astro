@@ -50,7 +50,7 @@
     "vue": "^3.2.37"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.3.4",
+    "astro": "workspace:^2.4.0",
     "vue": "^3.2.30"
   },
   "engines": {

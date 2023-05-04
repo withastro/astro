@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,7 +30,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^2.1.4",
+    "@astrojs/markdown-remark": "^2.2.0",
     "@astrojs/prism": "^2.1.1",
     "@mdx-js/mdx": "^2.3.0",
     "@mdx-js/rollup": "^2.3.0",
