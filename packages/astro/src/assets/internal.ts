@@ -96,8 +96,10 @@ export async function generateImage(
 		return undefined;
 	}
 
+	const assetsCacheDir = new URL('assets/', buildOpts.settings.config.cacheDir);
+
 	// Ensure that the cache directory exists
-	await fs.promises.mkdir(buildOpts.settings.config.cacheDir, { recursive: true });
+	await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 
 	let serverRoot: URL, clientRoot: URL;
 	if (buildOpts.settings.config.output === 'server') {
@@ -107,9 +109,10 @@ export async function generateImage(
 		serverRoot = buildOpts.settings.config.outDir;
 		clientRoot = buildOpts.settings.config.outDir;
 	}
+
 	const finalFileURL = new URL('.' + filepath, clientRoot);
 	const finalFolderURL = new URL('./', finalFileURL);
-	const cachedFileURL = new URL(basename(filepath), buildOpts.settings.config.cacheDir);
+	const cachedFileURL = new URL(basename(filepath), assetsCacheDir);
 
 	try {
 		await fs.promises.copyFile(cachedFileURL, finalFileURL);

@@ -579,14 +579,14 @@ describe('astro:image', () => {
 			const generatedImages = (await fixture.glob('_astro/**/*.webp')).map((path) =>
 				basename(path)
 			);
-			const cachedImages = (await fixture.glob('../node_modules/.astro/**/*.webp')).map((path) =>
-				basename(path)
+			const cachedImages = (await fixture.glob('../node_modules/.astro/assets/**/*.webp')).map(
+				(path) => basename(path)
 			);
 
 			expect(generatedImages).to.deep.equal(cachedImages);
 		});
 
-		it('uses cache entries ssss', async () => {
+		it('uses cache entries', async () => {
 			const logs = [];
 			const logging = {
 				dest: {
