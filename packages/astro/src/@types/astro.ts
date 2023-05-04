@@ -434,7 +434,7 @@ export interface AstroUserConfig {
 	 * @name cacheDir
 	 * @type {string}
 	 * @default `"./node_modules/.astro"`
-	 * @description Set the directory used to cache build artifacts to. Files in this directory will be used in subsequent builds to speed up the build time.
+	 * @description Set the directory for caching build artifacts. Files in this directory will be used in subsequent builds to speed up the build time.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
