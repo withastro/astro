@@ -1,5 +1,11 @@
 # astro
 
+## 2.4.1
+
+### Patch Changes
+
+- [#6995](https://github.com/withastro/astro/pull/6995) [`71332cf96`](https://github.com/withastro/astro/commit/71332cf9697755884e5e2e63d6d2499cc2c5edd1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Move sharpImageService and squooshImageService functions to `astro/config` so they can be imported
+
 ## 2.4.0
 
 ### Minor Changes
