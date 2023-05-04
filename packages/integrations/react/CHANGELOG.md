@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 2.1.3
+
+### Patch Changes
+
+- [#6976](https://github.com/withastro/astro/pull/6976) [`ca329bbca`](https://github.com/withastro/astro/commit/ca329bbcae7a6075af4f428f6f64466e9d152c8f) Thanks [@SudoCat](https://github.com/SudoCat)! - Prevent ID collisions in React.useId
+
 ## 2.1.2
 
 ### Patch Changes
