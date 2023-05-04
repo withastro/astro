@@ -1050,6 +1050,7 @@ export interface AstroUserConfig {
 		 *		assets: true,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		assets?: boolean;
 
@@ -1070,6 +1071,7 @@ export interface AstroUserConfig {
 		 *		inlineStylesheets: `auto`,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
 
@@ -1090,6 +1092,7 @@ export interface AstroUserConfig {
 		 *		middleware: true,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		middleware?: boolean;
 	};
