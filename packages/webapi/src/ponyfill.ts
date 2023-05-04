@@ -14,6 +14,7 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'node:stream/web' // Remove when Node 16 is dropped for Node 18.
+import { webcrypto as crypto } from 'node:crypto' // Remove when Node 18 is dropped for Node 20
 import { fetch, File, FormData, Headers, Request, Response } from 'undici' // Remove when Node 16 is dropped for Node 18.
 import { URLPattern } from 'urlpattern-polyfill'
 import {
@@ -133,6 +134,7 @@ export {
 	cancelAnimationFrame,
 	cancelIdleCallback,
 	clearTimeout,
+	crypto,
 	fetch,
 	requestAnimationFrame,
 	requestIdleCallback,
