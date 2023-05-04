@@ -452,7 +452,8 @@ export interface AstroUserConfig {
 	 * @type {boolean}
 	 * @default `true`
 	 * @description
-	 * Set to `true` to enable compressHTML mode. This will remove all whitespace from your final HTMl file, including newlines. This is useful for reducing the size of your final build html bundle
+	 * Astro removes all whitespace from your final HTML file, including line breaks, by default. This is useful for reducing the size of your final build's HTML bundle. 
+	 * To disable this, set the `compressHTML` flag to `false`.
 	 *
 	 * ```js
 	 * {
