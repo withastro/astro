@@ -106,9 +106,9 @@ When importing React component libraries, in order to swap out the `react` and `
 ```js
 // package.json
 {
-  "overrides": {
-    "react": "npm:@preact/compat@latest",
-    "react-dom": "npm:@preact/compat@latest"
+  "dependencies": {
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat",
   }
 }
 ```
