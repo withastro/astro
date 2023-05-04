@@ -73,12 +73,19 @@ export function getStaticImageList(): Iterable<
 	return globalThis.astroAsset.staticImages?.entries();
 }
 
-interface GenerationData {
+interface GenerationDataUncached {
+	cached: false;
 	weight: {
 		before: number;
 		after: number;
 	};
 }
+
+interface GenerationDataCached {
+	cached: true;
+}
+
+type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 export async function generateImage(
 	buildOpts: StaticBuildOptions,
@@ -89,7 +96,8 @@ export async function generateImage(
 		return undefined;
 	}
 
-	const imageService = (await getConfiguredImageService()) as LocalImageService;
+	// Ensure that the cache directory exists
+	await fs.promises.mkdir(buildOpts.settings.config.cacheDir, { recursive: true });
 
 	let serverRoot: URL, clientRoot: URL;
 	if (buildOpts.settings.config.output === 'server') {
@@ -98,6 +106,19 @@ export async function generateImage(
 	} else {
 		serverRoot = buildOpts.settings.config.outDir;
 		clientRoot = buildOpts.settings.config.outDir;
+	}
+	const finalFileURL = new URL('.' + filepath, clientRoot);
+	const finalFolderURL = new URL('./', finalFileURL);
+	const cachedFileURL = new URL(basename(filepath), buildOpts.settings.config.cacheDir);
+
+	try {
+		await fs.promises.copyFile(cachedFileURL, finalFileURL);
+
+		return {
+			cached: true,
+		};
+	} catch (e) {
+		// no-op
 	}
 
 	// The original file's path (the `src` attribute of the ESM imported image passed by the user)
@@ -112,19 +133,20 @@ export async function generateImage(
 			serverRoot
 		)
 	);
+
+	const imageService = (await getConfiguredImageService()) as LocalImageService;
 	const resultData = await imageService.transform(
 		fileData,
 		{ ...options, src: originalImagePath },
 		buildOpts.settings.config.image.service.config
 	);
 
-	const finalFileURL = new URL('.' + filepath, clientRoot);
-	const finalFolderURL = new URL('./', finalFileURL);
-
 	await fs.promises.mkdir(finalFolderURL, { recursive: true });
-	await fs.promises.writeFile(finalFileURL, resultData.data);
+	await fs.promises.writeFile(cachedFileURL, resultData.data);
+	await fs.promises.copyFile(cachedFileURL, finalFileURL);
 
 	return {
+		cached: false,
 		weight: {
 			before: Math.trunc(fileData.byteLength / 1024),
 			after: Math.trunc(resultData.data.byteLength / 1024),
