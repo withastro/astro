@@ -12,12 +12,12 @@
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "astro": "workspace:*",
-    "svelte": "^3.48.0",
     "@astrojs/node": "workspace:*",
-    "concurrently": "^7.2.1",
+    "astro": "workspace:*",
+    "concurrently": "^7.6.0",
+    "html-minifier": "^4.0.0",
+    "svelte": "^3.58.0",
     "unocss": "^0.15.6",
-    "vite-imagetools": "^4.0.4",
-    "html-minifier": "^4.0.0"
+    "vite-imagetools": "^4.0.19"
   }
 }
