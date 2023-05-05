@@ -2771,6 +2771,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/middleware-tailwind:
+    dependencies:
+      '@astrojs/tailwind':
+        specifier: workspace:*
+        version: link:../../../../integrations/tailwind
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/multiple-renderers:
     dependencies:
       '@test/astro-renderer-one':
