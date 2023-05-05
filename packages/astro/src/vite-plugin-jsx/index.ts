@@ -190,8 +190,20 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
 			if (id.endsWith('.mdx')) {
+				const { code: jsxCode } = await transformWithEsbuild(code, id, {
+					loader: getEsbuildLoader(id),
+					jsx: 'preserve',
+					sourcemap: 'inline',
+					tsconfigRaw: {
+						compilerOptions: {
+							// Ensure client:only imports are treeshaken
+							// TODO: investigate if this can be shaken manually instead of through esbuild
+							importsNotUsedAsValues: 'remove',
+						},
+					},
+				});
 				return transformJSX({
-					code,
+					code: jsxCode,
 					id,
 					renderer: astroJSXRenderer,
 					mode,
