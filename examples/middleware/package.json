@@ -12,12 +12,8 @@
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "workspace:*",
-    "astro": "workspace:*",
-    "concurrently": "^7.6.0",
-    "html-minifier": "^4.0.0",
-    "svelte": "^3.58.0",
-    "unocss": "^0.15.6",
-    "vite-imagetools": "^4.0.19"
+    "@astrojs/node": "^5.1.2",
+    "astro": "^2.4.1",
+    "html-minifier": "^4.0.0"
   }
 }

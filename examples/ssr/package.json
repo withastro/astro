@@ -15,9 +15,6 @@
     "@astrojs/node": "^5.1.2",
     "@astrojs/svelte": "^2.1.1",
     "astro": "^2.4.1",
-    "concurrently": "^7.6.0",
-    "svelte": "^3.58.0",
-    "unocss": "^0.15.6",
-    "vite-imagetools": "^4.0.19"
+    "svelte": "^3.58.0"
   }
 }
