@@ -112,7 +112,7 @@ export async function call<MiddlewareResult = Response | EndpointOutput>(
 	if (middleware && middleware.onRequest) {
 		if (response.body === null) {
 			const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
-			response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
+			response = await callMiddleware<Response | EndpointOutput>(onRequest, context, env.logging,async () => {
 				if (env.mode === 'development' && !isValueSerializable(context.locals)) {
 					throw new AstroError({
 						...AstroErrorData.LocalsNotSerializable,

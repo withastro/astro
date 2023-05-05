@@ -1,5 +1,7 @@
 import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { warn} from "../logger/core.js"
+import type {LogOptions} from "../logger/core"
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -38,7 +40,8 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 export async function callMiddleware<R>(
 	onRequest: MiddlewareHandler<R>,
 	apiContext: APIContext,
-	responseFunction: () => Promise<R>
+	logOptions: LogOptions,
+	responseFunction: () => Promise<R>,
 ): Promise<Response | R> {
 	let resolveResolve: any;
 	new Promise((resolve) => {
@@ -46,9 +49,11 @@ export async function callMiddleware<R>(
 	});
 
 	let nextCalled = false;
+	let responseFunctionPromise: Promise<R> | undefined = undefined;
 	const next: MiddlewareNext<R> = async () => {
 		nextCalled = true;
-		return await responseFunction();
+		responseFunctionPromise = responseFunction();
+		return responseFunctionPromise;
 	};
 
 	let middlewarePromise = onRequest(apiContext, next);
@@ -71,11 +76,15 @@ export async function callMiddleware<R>(
 				}
 				return value as R;
 			} else {
+				warn(logOptions, "middleware", "Calling `next()` without returning anything can lead to errors.");
+				warn(logOptions, "middleware", "Return the result emitted by the `next` function.");
 				/**
 				 * Here we handle the case where `next` was called and returned nothing.
 				 */
-				const responseResult = await responseFunction();
-				return responseResult;
+				// SAFETY: it's safe to use the bang operator because:
+				// 1. when `nextCalled` is set to true, also `responseFunctionPromise` is assigned to a value;
+				// 2. we don't await the `next` function, so by the time middleware is resolved, `next` is called too;
+				return responseFunctionPromise!;
 			}
 		} else if (typeof value === 'undefined') {
 			/**

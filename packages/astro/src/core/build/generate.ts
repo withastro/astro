@@ -497,6 +497,7 @@ async function generatePath(
 				response = await callMiddleware<Response>(
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
+					env.logging,
 					() => {
 						return renderPage({ mod, renderContext, env, apiContext });
 					}
