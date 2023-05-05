@@ -432,6 +432,23 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name cacheDir
+	 * @type {string}
+	 * @default `"./node_modules/.astro"`
+	 * @description Set the directory for caching build artifacts. Files in this directory will be used in subsequent builds to speed up the build time.
+	 *
+	 * The value can be either an absolute file system path or a path relative to the project root.
+	 *
+	 * ```js
+	 * {
+	 *   cacheDir: './my-custom-cache-directory'
+	 * }
+	 * ```
+	 */
+	cacheDir?: string;
+
+	/**
+	 * @docs
 	 * @name site
 	 * @type {string}
 	 * @description
@@ -518,8 +535,8 @@ export interface AstroUserConfig {
 	 * @name scopedStyleStrategy
 	 * @type {('where' | 'class')}
 	 * @default `'where'`
-	 * @description
 	 * @version 2.4
+	 * @description
 	 *
 	 * Specify the strategy used for scoping styles within Astro components. Choose from:
 	 *   - `'where'` - Use `:where` selectors, causing no specifity increase.
@@ -1051,6 +1068,7 @@ export interface AstroUserConfig {
 		 *		assets: true,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		assets?: boolean;
 
@@ -1060,8 +1078,8 @@ export interface AstroUserConfig {
 		 * @type {('always' | 'auto' | 'never')}
 		 * @default `never`
 		 * @description
-		 * Control whether styles are sent to the browser in a separate css file or inlined into <style> tags. Choose from the following options:
-		 *  - `'always'` - all styles are inlined into <style> tags
+		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
+		 *  - `'always'` - all styles are inlined into `<style>` tags
 		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
 		 *  - `'never'` - all styles are sent in external stylesheets
 		 *
@@ -1071,6 +1089,7 @@ export interface AstroUserConfig {
 		 *		inlineStylesheets: `auto`,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
 
@@ -1091,6 +1110,7 @@ export interface AstroUserConfig {
 		 *		middleware: true,
 		 * 	},
 		 * }
+		 * ```
 		 */
 		middleware?: boolean;
 	};

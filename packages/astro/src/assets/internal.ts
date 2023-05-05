@@ -73,12 +73,19 @@ export function getStaticImageList(): Iterable<
 	return globalThis.astroAsset.staticImages?.entries();
 }
 
-interface GenerationData {
+interface GenerationDataUncached {
+	cached: false;
 	weight: {
 		before: number;
 		after: number;
 	};
 }
+
+interface GenerationDataCached {
+	cached: true;
+}
+
+type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 export async function generateImage(
 	buildOpts: StaticBuildOptions,
@@ -89,7 +96,19 @@ export async function generateImage(
 		return undefined;
 	}
 
-	const imageService = (await getConfiguredImageService()) as LocalImageService;
+	let useCache = true;
+	const assetsCacheDir = new URL('assets/', buildOpts.settings.config.cacheDir);
+
+	// Ensure that the cache directory exists
+	try {
+		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
+	} catch (err) {
+		console.error(
+			'An error was encountered while creating the cache directory. Proceeding without caching. Error: ',
+			err
+		);
+		useCache = false;
+	}
 
 	let serverRoot: URL, clientRoot: URL;
 	if (buildOpts.settings.config.output === 'server') {
@@ -98,6 +117,20 @@ export async function generateImage(
 	} else {
 		serverRoot = buildOpts.settings.config.outDir;
 		clientRoot = buildOpts.settings.config.outDir;
+	}
+
+	const finalFileURL = new URL('.' + filepath, clientRoot);
+	const finalFolderURL = new URL('./', finalFileURL);
+	const cachedFileURL = new URL(basename(filepath), assetsCacheDir);
+
+	try {
+		await fs.promises.copyFile(cachedFileURL, finalFileURL);
+
+		return {
+			cached: true,
+		};
+	} catch (e) {
+		// no-op
 	}
 
 	// The original file's path (the `src` attribute of the ESM imported image passed by the user)
@@ -112,19 +145,33 @@ export async function generateImage(
 			serverRoot
 		)
 	);
+
+	const imageService = (await getConfiguredImageService()) as LocalImageService;
 	const resultData = await imageService.transform(
 		fileData,
 		{ ...options, src: originalImagePath },
 		buildOpts.settings.config.image.service.config
 	);
 
-	const finalFileURL = new URL('.' + filepath, clientRoot);
-	const finalFolderURL = new URL('./', finalFileURL);
-
 	await fs.promises.mkdir(finalFolderURL, { recursive: true });
-	await fs.promises.writeFile(finalFileURL, resultData.data);
+
+	if (useCache) {
+		try {
+			await fs.promises.writeFile(cachedFileURL, resultData.data);
+			await fs.promises.copyFile(cachedFileURL, finalFileURL);
+		} catch (e) {
+			console.error(
+				`There was an error creating the cache entry for ${filepath}. Attempting to write directly to output directory. Error: `,
+				e
+			);
+			await fs.promises.writeFile(finalFileURL, resultData.data);
+		}
+	} else {
+		await fs.promises.writeFile(finalFileURL, resultData.data);
+	}
 
 	return {
+		cached: false,
 		weight: {
 			before: Math.trunc(fileData.byteLength / 1024),
 			after: Math.trunc(resultData.data.byteLength / 1024),
