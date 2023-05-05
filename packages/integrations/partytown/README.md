@@ -100,7 +100,7 @@ export default defineConfig({
   integrations: [partytown({
     // Example: Disable debug mode.
     config: { debug: false },
-  
+  })]
 })
 ```
 
