@@ -103,6 +103,7 @@ export async function generateImage(
 	try {
 		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 	} catch (err) {
+		// eslint-disable-next-line no-console
 		console.error(
 			'An error was encountered while creating the cache directory. Proceeding without caching. Error: ',
 			err
@@ -160,6 +161,7 @@ export async function generateImage(
 			await fs.promises.writeFile(cachedFileURL, resultData.data);
 			await fs.promises.copyFile(cachedFileURL, finalFileURL);
 		} catch (e) {
+			// eslint-disable-next-line no-console
 			console.error(
 				`There was an error creating the cache entry for ${filepath}. Attempting to write directly to output directory. Error: `,
 				e
