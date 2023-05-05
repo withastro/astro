@@ -13,6 +13,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	srcDir: './src',
 	publicDir: './public',
 	outDir: './dist',
+	cacheDir: './node_modules/.astro',
 	base: '/',
 	trailingSlash: 'ignore',
 	build: {
@@ -63,6 +64,11 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.outDir)
+		.transform((val) => new URL(val)),
+	cacheDir: z
+		.string()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 		.transform((val) => new URL(val)),
 	site: z.string().url().optional(),
 	compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
@@ -225,6 +231,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 		outDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.outDir)
+			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+		cacheDir: z
+			.string()
+			.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		build: z
 			.object({

@@ -146,13 +146,10 @@ async function generateImage(opts: StaticBuildOptions, transform: ImageTransform
 	const timeEnd = performance.now();
 	const timeChange = getTimeStat(timeStart, timeEnd);
 	const timeIncrease = `(+${timeChange})`;
-	info(
-		opts.logging,
-		null,
-		`  ${green('▶')} ${path} ${dim(
-			`(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`
-		)} ${dim(timeIncrease)}`
-	);
+	const statsText = generationData.cached
+		? `(reused cache entry)`
+		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
+	info(opts.logging, null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
 }
 
 async function generatePage(
