@@ -9,13 +9,11 @@ import * as t from '@babel/types';
  * This plugin crawls each export in the file and "tags" each export with a given `rendererName`.
  * This allows us to automatically match a component to a renderer and skip the usual `check()` calls.
  */
-export default async function tagExportsWithRenderer({
+export default function tagExportsWithRenderer({
 	rendererName,
-	root,
 }: {
 	rendererName: string;
-	root: URL;
-}): Promise<PluginObj> {
+}): PluginObj {
 	return {
 		visitor: {
 			Program: {

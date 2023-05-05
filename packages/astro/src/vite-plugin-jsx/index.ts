@@ -5,7 +5,7 @@ import {
 	type Plugin,
 	type ResolvedConfig,
 } from 'vite';
-import type { AstroRenderer, AstroSettings } from '../@types/astro';
+import type { AstroRenderer, AstroSettings, JSXTransformConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
@@ -40,13 +40,17 @@ function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRende
 	);
 }
 
+const jsxTransformOptionsCache = new Map<
+	string,
+	Promise<JSXTransformConfig> | JSXTransformConfig
+>();
+
 interface TransformJSXOptions {
 	code: string;
 	id: string;
 	mode: string;
 	renderer: AstroRenderer;
 	ssr: boolean;
-	root: URL;
 }
 
 async function transformJSX({
@@ -55,17 +59,29 @@ async function transformJSX({
 	id,
 	ssr,
 	renderer,
-	root,
 }: TransformJSXOptions): Promise<TransformResult> {
-	const { jsxTransformOptions } = renderer;
-	const options = await jsxTransformOptions!({ mode, ssr });
-	const plugins = [...(options.plugins || [])];
-	if (ssr) {
-		plugins.push(await tagExportsPlugin({ rendererName: renderer.name, root }));
+	// Get JSX transform config from `renderer.jsxTransformOptions` with a cache
+	const cacheKey = `${renderer.name}__${mode}__${ssr}`;
+	const cached = jsxTransformOptionsCache.get(cacheKey);
+	let options: Promise<JSXTransformConfig> | JSXTransformConfig;
+
+	if (cached) {
+		options = cached;
+	} else {
+		options = getJsxTransformOptions(renderer, mode, ssr);
+		// Save direct value when promise is resolved for faster access next time
+		options.then((resolvedOptions) => {
+			jsxTransformOptionsCache.set(cacheKey, resolvedOptions);
+		});
+		// Save the promise for now until it's resolved
+		jsxTransformOptionsCache.set(cacheKey, options);
 	}
+
+	options = await options;
+
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
-		plugins,
+		plugins: options.plugins,
 		cwd: process.cwd(),
 		filename: id,
 		ast: false,
@@ -73,8 +89,10 @@ async function transformJSX({
 		sourceMaps: true,
 		configFile: false,
 		babelrc: false,
+		browserslistConfigFile: false,
 		inputSourceMap: options.inputSourceMap,
 	});
+
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
 	if (!result) return null;
@@ -101,6 +119,19 @@ async function transformJSX({
 	};
 }
 
+async function getJsxTransformOptions(renderer: AstroRenderer, mode: string, ssr: boolean) {
+	const { jsxTransformOptions } = renderer;
+	const opts = await jsxTransformOptions!({ mode, ssr });
+	if (ssr) {
+		return {
+			...opts,
+			plugins: [...(opts.plugins || []), tagExportsPlugin({ rendererName: renderer.name })],
+		};
+	} else {
+		return opts;
+	}
+}
+
 interface AstroPluginJSXOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
@@ -125,6 +156,12 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 	return {
 		name: 'astro:jsx',
 		enforce: 'pre', // run transforms before other plugins
+		config() {
+			return {
+				// We handle JSX and TSX in this plugin, so tell Vite's esbuild plugin to only handle TS files
+				esbuild: { include: /\.m?ts$/ },
+			};
+		},
 		async configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
 			const possibleRenderers = collectJSXRenderers(settings.renderers);
@@ -153,24 +190,12 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
 			if (id.endsWith('.mdx')) {
-				const { code: jsxCode } = await transformWithEsbuild(code, id, {
-					loader: getEsbuildLoader(id),
-					jsx: 'preserve',
-					sourcemap: 'inline',
-					tsconfigRaw: {
-						compilerOptions: {
-							// Ensure client:only imports are treeshaken
-							importsNotUsedAsValues: 'remove',
-						},
-					},
-				});
 				return transformJSX({
-					code: jsxCode,
+					code,
 					id,
 					renderer: astroJSXRenderer,
 					mode,
 					ssr,
-					root: settings.config.root,
 				});
 			}
 			if (defaultJSXRendererEntry && jsxRenderersIntegrationOnly.size === 1) {
@@ -186,7 +211,6 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					renderer: defaultJSXRendererEntry[1],
 					mode,
 					ssr,
-					root: settings.config.root,
 				});
 			}
 
@@ -243,7 +267,6 @@ https://docs.astro.build/en/core-concepts/framework-components/#installing-integ
 				renderer: selectedJsxRenderer,
 				mode,
 				ssr,
-				root: settings.config.root,
 			});
 		},
 	};

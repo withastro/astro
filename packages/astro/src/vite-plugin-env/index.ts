@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro';
+import { getContentEntryExts } from '../content/utils.js';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
@@ -67,6 +68,13 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 	let privateEnv: Record<string, string>;
 	let viteConfig: vite.ResolvedConfig;
 	const { config: astroConfig } = settings;
+
+	// Skip env replacement for content files
+	const contentEntryExts = getContentEntryExts(settings);
+	const contentEntryExtsRe = new RegExp(
+		`(${contentEntryExts.map((e) => '\\' + e).join('|')})(\\?.*)?$`
+	);
+
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
@@ -86,7 +94,7 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 			viteConfig = resolvedConfig;
 		},
 		async transform(source, id, options) {
-			if (!options?.ssr || !source.includes('import.meta.env')) {
+			if (!options?.ssr || !source.includes('import.meta.env') || contentEntryExtsRe.test(id)) {
 				return;
 			}
 
