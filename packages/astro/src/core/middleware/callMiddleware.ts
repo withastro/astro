@@ -46,9 +46,11 @@ export async function callMiddleware<R>(
 	});
 
 	let nextCalled = false;
+	let responseFunctionPromise: Promise<R> | undefined = undefined;
 	const next: MiddlewareNext<R> = async () => {
 		nextCalled = true;
-		return await responseFunction();
+		responseFunctionPromise = responseFunction();
+		return responseFunctionPromise;
 	};
 
 	let middlewarePromise = onRequest(apiContext, next);
@@ -74,8 +76,11 @@ export async function callMiddleware<R>(
 				/**
 				 * Here we handle the case where `next` was called and returned nothing.
 				 */
-				const responseResult = await responseFunction();
-				return responseResult;
+				if (responseFunctionPromise) {
+					return responseFunctionPromise;
+				} else {
+					throw new AstroError(AstroErrorData.MiddlewareNotAResponse);
+				}
 			}
 		} else if (typeof value === 'undefined') {
 			/**

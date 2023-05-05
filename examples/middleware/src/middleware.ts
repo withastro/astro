@@ -63,9 +63,7 @@ const validation = defineMiddleware(async (context, next) => {
 			return context.redirect('/admin');
 		}
 	}
-	// we don't really care about awaiting the response in this case
-	next();
-	return;
+	return next();
 });
 
 export const onRequest = sequence(validation, minifier);
