@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { warn } from '../core/logger/core.js';
 import { prependForwardSlash } from '../core/path.js';
 import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
@@ -103,9 +104,10 @@ export async function generateImage(
 	try {
 		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
 	} catch (err) {
-		console.error(
-			'An error was encountered while creating the cache directory. Proceeding without caching. Error: ',
-			err
+		warn(
+			buildOpts.logging,
+			'astro:assets',
+			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
 		);
 		useCache = false;
 	}
@@ -160,9 +162,10 @@ export async function generateImage(
 			await fs.promises.writeFile(cachedFileURL, resultData.data);
 			await fs.promises.copyFile(cachedFileURL, finalFileURL);
 		} catch (e) {
-			console.error(
-				`There was an error creating the cache entry for ${filepath}. Attempting to write directly to output directory. Error: `,
-				e
+			warn(
+				buildOpts.logging,
+				'astro:assets',
+				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
 			);
 			await fs.promises.writeFile(finalFileURL, resultData.data);
 		}

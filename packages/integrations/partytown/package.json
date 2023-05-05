@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/partytown",
   "description": "Use Partytown to move scripts into a web worker in your Astro project",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
