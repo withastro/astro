@@ -199,7 +199,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 });
 
-describe("Middleware with tailwind", () => {
+describe('Middleware with tailwind', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -217,6 +217,6 @@ describe("Middleware with tailwind", () => {
 		const bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
 			.replace(/\s/g, '')
 			.replace('/n', '');
-		expect(bundledCSS.includes("--tw-content")).to.be.true;
+		expect(bundledCSS.includes('--tw-content')).to.be.true;
 	});
-})
+});

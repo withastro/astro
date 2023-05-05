@@ -226,7 +226,6 @@ export class App {
 				response = await callMiddleware<Response>(
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
-					this.#env.logging,
 					() => {
 						return renderPage({ mod, renderContext, env: this.#env, apiContext });
 					}
