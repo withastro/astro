@@ -474,7 +474,7 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: true
+	 *   compressHTML: false
 	 * }
 	 * ```
 	 */
