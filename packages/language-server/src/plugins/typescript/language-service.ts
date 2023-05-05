@@ -3,7 +3,7 @@ import type ts from 'typescript';
 import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';
-import { getAstroInstall, normalizePath, urlToPath, pathToUrl } from '../../utils';
+import { getAstroInstall, normalizePath, pathToUrl, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
 import {
 	AstroSnapshot,
