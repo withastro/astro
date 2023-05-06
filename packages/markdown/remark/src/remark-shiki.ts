@@ -1,7 +1,9 @@
+import { default as parseMeta } from 'fenceparser'
 import type * as shiki from 'shiki';
 import { getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
 import type { ShikiConfig } from './types.js';
+import {type} from "os";
 
 /**
  * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
@@ -29,6 +31,33 @@ const normalizeTheme = (theme: string | shiki.IShikiTheme) => {
 	}
 };
 
+const normalizeMetaFieldValues = (field: string, value: any) => {
+	const LINE_OP_FIELDS = ['highlight', 'insert', 'delete', 'added', 'removed'];
+	
+	if (LINE_OP_FIELDS.includes(field)) {
+		if (Array.isArray(value)) {
+			return value.join(',');
+		}
+		if (typeof value == 'object') {
+			return Object.keys(value).sort().join(',');
+		}
+	}
+
+	return value.toString();
+} 
+
+const htmlDataAttrFromMeta = (lang: string, meta: Record<any, any>) => {
+  let dataLines: string[] = !!lang? [`data-lang=${lang}`] : [];
+	
+  for (const [field, value] of Object.entries(meta)) {
+		if (!!value) {
+			dataLines.push(`data-${field}=${normalizeMetaFieldValues(field, value)}`);
+		} else {
+			dataLines.push(`data-${field}`);
+		}
+	}
+	return dataLines;
+}
 const remarkShiki = async (
 	{ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig,
 	scopedClassName?: string | null
@@ -66,6 +95,9 @@ const remarkShiki = async (
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
 			let lang: string;
+			
+			const meta = parseMeta(!!node.meta? node.meta : '');
+			const dataAttr = htmlDataAttrFromMeta(node.lang, meta);
 
 			if (typeof node.lang === 'string') {
 				const langExists = highlighter.getLoadedLanguages().includes(node.lang);
@@ -89,9 +121,10 @@ const remarkShiki = async (
 			// &lt;span class=&quot;line&quot;
 
 			// Replace "shiki" class naming with "astro" and add "is:raw".
+			// and add meta fields as data-attributes
 			html = html.replace(
 				/<pre class="(.*?)shiki(.*?)"/,
-				`<pre is:raw class="$1astro-code$2${scopedClassName ? ' ' + scopedClassName : ''}"`
+				`<pre is:raw class="$1astro-code$2${scopedClassName ? ' ' + scopedClassName : ''}" ${dataAttr.join(' ')}`
 			);
 			// Add "user-select: none;" for "+"/"-" diff symbols
 			if (node.lang === 'diff') {

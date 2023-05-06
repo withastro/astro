@@ -4934,6 +4934,9 @@ importers:
       '@astrojs/prism':
         specifier: ^2.1.0
         version: link:../../astro-prism
+      fenceparser:
+        specifier: ^2.2.0
+        version: 2.2.0
       github-slugger:
         specifier: ^1.4.0
         version: 1.4.0
@@ -11665,6 +11668,10 @@ packages:
     resolution: {integrity: sha512-VdkTsK7GWLT0VWMK5S5WTAPn61wJ98WPFwJiRHumhg4ESNUO/tnkU8bzzzc62o6Uk1SVhuZFLnakmDA4SGV7wA==}
     engines: {node: '>=12'}
     dev: true
+
+  /fenceparser@2.2.0:
+    resolution: {integrity: sha512-fdXOPciCALTWvooKxyRUmYERiw1L1mzqVsfpk5F9kGr3NoT/Sdwew4BqGctY6xZpUXiZ7dXXPb27Om2nmUmHMg==}
+    dev: false
 
   /fetch-blob@3.2.0:
     resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
