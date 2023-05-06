@@ -5,10 +5,13 @@ import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
+	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
+	EndpointOutput,
 	ImageTransform,
+	MiddlewareResponseHandler,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
@@ -25,27 +28,32 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import {
+	call as callEndpoint,
+	createAPIContext,
+	throwIfRedirectNotAllowed,
+} from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
-	createLinkStylesheetElementSet,
 	createModuleScriptsSet,
+	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import {
-	eachPageData,
-	eachPrerenderedPageData,
-	getPageDataByComponent,
-	sortedCSS,
-} from './internal.js';
-import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
+import { cssOrder, eachPageData, getPageDataByComponent, mergeInlineCss } from './internal.js';
+import type {
+	PageBuildData,
+	SingleFileBuiltModule,
+	StaticBuildOptions,
+	StylesheetAsset,
+} from './types';
 import { getTimeStat } from './util.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
@@ -89,7 +97,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
-	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
+	if (ssr && !hasPrerenderedPages(internals)) return;
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
@@ -98,9 +106,10 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	if (opts.settings.config.output === 'server') {
-		for (const pageData of eachPrerenderedPageData(internals)) {
-			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+	if (ssr) {
+		for (const pageData of eachPageData(internals)) {
+			if (pageData.route.prerender)
+				await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}
 	} else {
 		for (const pageData of eachPageData(internals)) {
@@ -137,13 +146,10 @@ async function generateImage(opts: StaticBuildOptions, transform: ImageTransform
 	const timeEnd = performance.now();
 	const timeChange = getTimeStat(timeStart, timeEnd);
 	const timeIncrease = `(+${timeChange})`;
-	info(
-		opts.logging,
-		null,
-		`  ${green('▶')} ${path} ${dim(
-			`(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`
-		)} ${dim(timeIncrease)}`
-	);
+	const statsText = generationData.cached
+		? `(reused cache entry)`
+		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
+	info(opts.logging, null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
 }
 
 async function generatePage(
@@ -157,10 +163,17 @@ async function generatePage(
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
-	const linkIds: string[] = sortedCSS(pageData);
+
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const linkIds: [] = [];
 	const scripts = pageInfo?.hoistedScript ?? null;
+	const styles = pageData.styles
+		.sort(cssOrder)
+		.map(({ sheet }) => sheet)
+		.reduce(mergeInlineCss, []);
 
 	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const middleware = ssrEntry.middleware;
 
 	if (!pageModule) {
 		throw new Error(
@@ -178,6 +191,7 @@ async function generatePage(
 		internals,
 		linkIds,
 		scripts,
+		styles,
 		mod: pageModule,
 		renderers,
 	};
@@ -190,7 +204,7 @@ async function generatePage(
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions);
+		await generatePath(path, opts, generationOptions, middleware);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -268,6 +282,7 @@ interface GeneratePathOptions {
 	internals: BuildInternals;
 	linkIds: string[];
 	scripts: { type: 'inline' | 'external'; value: string } | null;
+	styles: StylesheetAsset[];
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }
@@ -332,10 +347,19 @@ function getUrlForPath(
 async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
-	gopts: GeneratePathOptions
+	gopts: GeneratePathOptions,
+	middleware?: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
+	const {
+		mod,
+		internals,
+		linkIds,
+		scripts: hoistedScripts,
+		styles: _styles,
+		pageData,
+		renderers,
+	} = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -344,13 +368,15 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const links = createLinkStylesheetElementSet(
-		linkIds,
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const links = new Set<never>();
+	const scripts = createModuleScriptsSet(
+		hoistedScripts ? [hoistedScripts] : [],
 		settings.config.base,
 		settings.config.build.assetsPrefix
 	);
-	const scripts = createModuleScriptsSet(
-		hoistedScripts ? [hoistedScripts] : [],
+	const styles = createStylesheetElementSet(
+		_styles,
 		settings.config.base,
 		settings.config.build.assetsPrefix
 	);
@@ -418,21 +444,32 @@ async function generatePath(
 		ssr,
 		streaming: true,
 	});
-	const ctx = createRenderContext({
+
+	const renderContext = await createRenderContext({
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		componentMetadata: internals.componentMetadata,
 		scripts,
+		styles,
 		links,
 		route: pageData.route,
+		env,
+		mod,
 	});
 
 	let body: string | Uint8Array;
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
-		const result = await callEndpoint(endpointHandler, env, ctx, logging);
+
+		const result = await callEndpoint(
+			endpointHandler,
+			env,
+			renderContext,
+			logging,
+			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+		);
 
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
@@ -447,7 +484,26 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			response = await renderPage(mod, ctx, env);
+			const apiContext = createAPIContext({
+				request: renderContext.request,
+				params: renderContext.params,
+				props: renderContext.props,
+				site: env.site,
+				adapterName: env.adapterName,
+			});
+
+			const onRequest = middleware?.onRequest;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage({ mod, renderContext, env, apiContext });
+					}
+				);
+			} else {
+				response = await renderPage({ mod, renderContext, env, apiContext });
+			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;

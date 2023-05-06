@@ -8,15 +8,18 @@ export async function call(options: SSROptions, logging: LogOptions) {
 	const {
 		env,
 		preload: [, mod],
+		middleware,
 	} = options;
 	const endpointHandler = mod as unknown as EndpointHandler;
 
-	const ctx = createRenderContext({
+	const ctx = await createRenderContext({
 		request: options.request,
 		origin: options.origin,
 		pathname: options.pathname,
 		route: options.route,
+		env,
+		mod: endpointHandler as any,
 	});
 
-	return await callEndpoint(endpointHandler, env, ctx, logging);
+	return await callEndpoint(endpointHandler, env, ctx, logging, middleware);
 }

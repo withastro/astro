@@ -14,7 +14,7 @@ Learn how to deploy your Astro site in our [Vercel deployment guide](https://doc
 
 ## Why Astro Vercel
 
-If you're using Astro as a static site builder — its behavior out of the box — you don't need an adapter. 
+If you're using Astro as a static site builder — its behavior out of the box — you don't need an adapter.
 
 If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
 
@@ -106,6 +106,63 @@ export default defineConfig({
     analytics: true
   })
 });
+```
+
+### imageConfig
+
+**Type:** `VercelImageConfig`<br>
+**Available for:** Edge, Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
+
+Configuration options for [Vercel's Image Optimization API](https://vercel.com/docs/concepts/image-optimization). See [Vercel's image configuration documentation](https://vercel.com/docs/build-output-api/v3/configuration#images) for a complete list of supported parameters.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/static';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    imageConfig: {
+      sizes: [320, 640, 1280]
+    }
+  })
+});
+```
+
+### imageService
+
+**Type:** `boolean`<br>
+**Available for:** Edge, Serverless, Static
+**Added in:** `@astrojs/vercel@3.3.0`
+
+When enabled, an [Image Service](https://docs.astro.build/en/reference/image-service-reference/) powered by the Vercel Image Optimization API will be automatically configured and used in production. In development, a built-in Squoosh-based service will be used instead.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/static';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    imageService: true
+  })
+});
+```
+
+```astro
+---
+import { Image } from "astro:assets";
+import astroLogo from "../assets/logo.png";
+---
+
+<!-- This component -->
+<Image src={astroLogo} alt="My super logo!" />
+
+<!-- will become the following HTML -->
+<img src="/_vercel/image?url=_astro/logo.hash.png&w=...&q=..." alt="My super logo!" loading="lazy" decoding="async" width="..." height="..." />
 ```
 
 ### includeFiles

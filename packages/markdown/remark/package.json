@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "2.1.4",
+  "version": "2.2.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "test": "mocha --exit --timeout 20000"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.3.0"
+    "astro": "workspace:^2.4.0"
   },
   "dependencies": {
     "@astrojs/prism": "^2.1.0",
@@ -37,7 +37,7 @@
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",
     "remark-smartypants": "^2.0.0",
-    "shiki": "^0.11.1",
+    "shiki": "^0.14.1",
     "unified": "^10.1.2",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2"

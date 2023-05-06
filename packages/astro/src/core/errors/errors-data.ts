@@ -628,6 +628,95 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		code: 3030,
 		message: 'The response has already been sent to the browser and cannot be altered.',
 	},
+
+	/**
+	 * @docs
+	 * @description
+	 * Thrown when the middleware does not return any data or call the `next` function.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, _) => {
+	 * 	// doesn't return anything or call `next`
+	 * 	context.locals.someData = false;
+	 * });
+	 * ```
+	 */
+	MiddlewareNoDataOrNextCalled: {
+		title: "The middleware didn't return a response or call `next`",
+		code: 3031,
+		message:
+			'The middleware needs to either return a `Response` object or call the `next` function.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 * Thrown in development mode when middleware returns something that is not a `Response` object.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware(() => {
+	 *   return "string"
+	 * });
+	 * ```
+	 */
+	MiddlewareNotAResponse: {
+		title: 'The middleware returned something that is not a `Response` object',
+		code: 3032,
+		message: 'Any data returned from middleware must be a valid `Response` object.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 *
+	 * Thrown in development mode when `locals` is overwritten with something that is not an object
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals = 1541;
+	 *   return next();
+	 * });
+	 * ```
+	 */
+	LocalsNotAnObject: {
+		title: 'Value assigned to `locals` is not accepted',
+		code: 3033,
+		message:
+			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
+		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 * Thrown in development mode when a user attempts to store something that is not serializable in `locals`.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals = {
+	 *     foo() {
+	 *       alert("Hello world!")
+	 *     }
+	 *   };
+	 *   return next();
+	 * });
+	 * ```
+	 */
+	LocalsNotSerializable: {
+		title: '`Astro.locals` is not serializable',
+		code: 3034,
+		message: (href: string) => {
+			return `The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`;
+		},
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**

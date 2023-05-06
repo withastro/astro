@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import {
 	createBuildInternals,
-	eachPrerenderedPageData,
+	eachPageData,
 	type BuildInternals,
 } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
@@ -290,8 +290,9 @@ async function runPostBuildHooks(
  */
 async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
 	const allStaticFiles = new Set();
-	for (const pageData of eachPrerenderedPageData(internals)) {
-		allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.prerender)
+			allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
 	}
 	const ssr = opts.settings.config.output === 'server';
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);

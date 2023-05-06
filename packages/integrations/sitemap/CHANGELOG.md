@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 1.3.0
+
+### Minor Changes
+
+- [#6534](https://github.com/withastro/astro/pull/6534) [`ad907196c`](https://github.com/withastro/astro/commit/ad907196cb42f21d9540ae0d77aa742bf7adf030) Thanks [@atilafassina](https://github.com/atilafassina)! - Adds support to SSR routes to sitemap generation.
+
 ## 1.2.2
 
 ### Patch Changes
