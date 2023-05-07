@@ -126,7 +126,6 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					console.log(pageUrls, routeUrls);
 					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
 					if (pageUrls.length === 0) {
