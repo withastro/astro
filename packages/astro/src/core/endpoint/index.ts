@@ -1,4 +1,12 @@
-import type { APIContext, AstroConfig, EndpointHandler, Params } from '../../@types/astro';
+import type {
+	APIContext,
+	AstroConfig,
+	AstroMiddlewareInstance,
+	EndpointHandler,
+	EndpointOutput,
+	MiddlewareEndpointHandler,
+	Params,
+} from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
 import { renderEndpoint } from '../../runtime/server/index.js';
@@ -6,9 +14,11 @@ import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
+import { isValueSerializable } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 type EndpointCallResult =
 	| {
@@ -22,7 +32,7 @@ type EndpointCallResult =
 			response: Response;
 	  };
 
-function createAPIContext({
+export function createAPIContext({
 	request,
 	params,
 	site,
@@ -35,7 +45,7 @@ function createAPIContext({
 	props: Record<string, any>;
 	adapterName?: string;
 }): APIContext {
-	return {
+	const context = {
 		cookies: new AstroCookies(request),
 		request,
 		params,
@@ -51,7 +61,6 @@ function createAPIContext({
 			});
 		},
 		url: new URL(request.url),
-		// @ts-expect-error
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
@@ -66,44 +75,60 @@ function createAPIContext({
 
 			return Reflect.get(request, clientAddressSymbol);
 		},
-	};
+	} as APIContext;
+
+	// We define a custom property, so we can check the value passed to locals
+	Object.defineProperty(context, 'locals', {
+		get() {
+			return Reflect.get(request, clientLocalsSymbol);
+		},
+		set(val) {
+			if (typeof val !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			} else {
+				Reflect.set(request, clientLocalsSymbol, val);
+			}
+		},
+	});
+	return context;
 }
 
-export async function call(
+export async function call<MiddlewareResult = Response | EndpointOutput>(
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	logging: LogOptions
+	logging: LogOptions,
+	middleware?: AstroMiddlewareInstance<MiddlewareResult> | undefined
 ): Promise<EndpointCallResult> {
-	const paramsAndPropsResp = await getParamsAndProps({
-		mod: mod as any,
-		route: ctx.route,
-		routeCache: env.routeCache,
-		pathname: ctx.pathname,
-		logging: env.logging,
-		ssr: env.ssr,
-	});
-
-	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
-		throw new AstroError({
-			...AstroErrorData.NoMatchingStaticPathFound,
-			message: AstroErrorData.NoMatchingStaticPathFound.message(ctx.pathname),
-			hint: ctx.route?.component
-				? AstroErrorData.NoMatchingStaticPathFound.hint([ctx.route?.component])
-				: '',
-		});
-	}
-	const [params, props] = paramsAndPropsResp;
-
 	const context = createAPIContext({
 		request: ctx.request,
-		params,
-		props,
+		params: ctx.params,
+		props: ctx.props,
 		site: env.site,
 		adapterName: env.adapterName,
 	});
 
-	const response = await renderEndpoint(mod, context, env.ssr);
+	let response = await renderEndpoint(mod, context, env.ssr);
+	if (middleware && middleware.onRequest) {
+		if (response.body === null) {
+			const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
+			response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
+				if (env.mode === 'development' && !isValueSerializable(context.locals)) {
+					throw new AstroError({
+						...AstroErrorData.LocalsNotSerializable,
+						message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+					});
+				}
+				return response;
+			});
+		} else {
+			warn(
+				env.logging,
+				'middleware',
+				"Middleware doesn't work for endpoints that return a simple body. The middleware will be disabled for this page."
+			);
+		}
+	}
 
 	if (response instanceof Response) {
 		attachToResponse(response, context.cookies);

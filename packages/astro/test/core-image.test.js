@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
+import { removeDir } from '../dist/core/fs/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -455,6 +457,9 @@ describe('astro:image', () => {
 					assets: true,
 				},
 			});
+			// Remove cache directory
+			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+
 			await fixture.build();
 		});
 
@@ -568,6 +573,39 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/format/index.html');
 			const $ = cheerio.load(html);
 			expect($('#no-format img').attr('src')).to.not.equal($('#format-avif img').attr('src'));
+		});
+
+		it('has cache entries', async () => {
+			const generatedImages = (await fixture.glob('_astro/**/*.webp')).map((path) =>
+				basename(path)
+			);
+			const cachedImages = (await fixture.glob('../node_modules/.astro/assets/**/*.webp')).map(
+				(path) => basename(path)
+			);
+
+			expect(generatedImages).to.deep.equal(cachedImages);
+		});
+
+		it('uses cache entries', async () => {
+			const logs = [];
+			const logging = {
+				dest: {
+					write(chunk) {
+						logs.push(chunk);
+					},
+				},
+			};
+
+			await fixture.build({ logging });
+			const generatingImageIndex = logs.findIndex((logLine) =>
+				logLine.message.includes('generating optimized images')
+			);
+			const relevantLogs = logs.slice(generatingImageIndex + 1, -1);
+			const isReusingCache = relevantLogs.every((logLine) =>
+				logLine.message.includes('(reused cache entry)')
+			);
+
+			expect(isReusingCache).to.be.true;
 		});
 	});
 

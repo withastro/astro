@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-
 import {
 	createComponent,
 	render,
@@ -46,8 +45,18 @@ describe('core/render', () => {
 				});
 			});
 
-			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
+			const mod = createAstroModule(Page);
+			const ctx = await createRenderContext({
+				request: new Request('http://example.com/'),
+				env,
+				mod,
+			});
+
+			const response = await renderPage({
+				mod,
+				renderContext: ctx,
+				env,
+			});
 
 			expect(response.status).to.equal(200);
 
@@ -85,8 +94,17 @@ describe('core/render', () => {
 				});
 			});
 
-			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
+			const mod = createAstroModule(Page);
+			const ctx = await createRenderContext({
+				request: new Request('http://example.com/'),
+				env,
+				mod,
+			});
+			const response = await renderPage({
+				mod,
+				renderContext: ctx,
+				env,
+			});
 
 			expect(response.status).to.equal(200);
 
@@ -105,8 +123,18 @@ describe('core/render', () => {
 				return render`<div>${renderComponent(result, 'Component', Component, {})}</div>`;
 			});
 
-			const ctx = createRenderContext({ request: new Request('http://example.com/') });
-			const response = await renderPage(createAstroModule(Page), ctx, env);
+			const mod = createAstroModule(Page);
+			const ctx = await createRenderContext({
+				request: new Request('http://example.com/'),
+				env,
+				mod,
+			});
+
+			const response = await renderPage({
+				mod,
+				renderContext: ctx,
+				env,
+			});
 
 			try {
 				await response.text();

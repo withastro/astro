@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { basename, join } from 'node:path/posix';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { warn } from '../core/logger/core.js';
 import { prependForwardSlash } from '../core/path.js';
 import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
@@ -29,22 +30,6 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return globalThis.astroAsset.imageService;
 }
 
-/**
- * Get an optimized image and the necessary attributes to render it.
- *
- * **Example**
- * ```astro
- * ---
- * import { getImage } from 'astro:assets';
- * import originalImage from '../assets/image.png';
- *
- * const optimizedImage = await getImage({src: originalImage, width: 1280 });
- * ---
- * <img src={optimizedImage.src} {...optimizedImage.attributes} />
- * ```
- *
- * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
- */
 export async function getImage(
 	options: ImageTransform,
 	serviceConfig: Record<string, any>
@@ -89,12 +74,19 @@ export function getStaticImageList(): Iterable<
 	return globalThis.astroAsset.staticImages?.entries();
 }
 
-interface GenerationData {
+interface GenerationDataUncached {
+	cached: false;
 	weight: {
 		before: number;
 		after: number;
 	};
 }
+
+interface GenerationDataCached {
+	cached: true;
+}
+
+type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 export async function generateImage(
 	buildOpts: StaticBuildOptions,
@@ -105,7 +97,20 @@ export async function generateImage(
 		return undefined;
 	}
 
-	const imageService = (await getConfiguredImageService()) as LocalImageService;
+	let useCache = true;
+	const assetsCacheDir = new URL('assets/', buildOpts.settings.config.cacheDir);
+
+	// Ensure that the cache directory exists
+	try {
+		await fs.promises.mkdir(assetsCacheDir, { recursive: true });
+	} catch (err) {
+		warn(
+			buildOpts.logging,
+			'astro:assets',
+			`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${err}`
+		);
+		useCache = false;
+	}
 
 	let serverRoot: URL, clientRoot: URL;
 	if (
@@ -120,6 +125,20 @@ export async function generateImage(
 		clientRoot = buildOpts.settings.config.outDir;
 	}
 
+	const finalFileURL = new URL('.' + filepath, clientRoot);
+	const finalFolderURL = new URL('./', finalFileURL);
+	const cachedFileURL = new URL(basename(filepath), assetsCacheDir);
+
+	try {
+		await fs.promises.copyFile(cachedFileURL, finalFileURL);
+
+		return {
+			cached: true,
+		};
+	} catch (e) {
+		// no-op
+	}
+
 	// The original file's path (the `src` attribute of the ESM imported image passed by the user)
 	const originalImagePath = options.src.src;
 
@@ -132,19 +151,34 @@ export async function generateImage(
 			serverRoot
 		)
 	);
+
+	const imageService = (await getConfiguredImageService()) as LocalImageService;
 	const resultData = await imageService.transform(
 		fileData,
 		{ ...options, src: originalImagePath },
 		buildOpts.settings.config.image.service.config
 	);
 
-	const finalFileURL = new URL('.' + filepath, clientRoot);
-	const finalFolderURL = new URL('./', finalFileURL);
-
 	await fs.promises.mkdir(finalFolderURL, { recursive: true });
-	await fs.promises.writeFile(finalFileURL, resultData.data);
+
+	if (useCache) {
+		try {
+			await fs.promises.writeFile(cachedFileURL, resultData.data);
+			await fs.promises.copyFile(cachedFileURL, finalFileURL);
+		} catch (e) {
+			warn(
+				buildOpts.logging,
+				'astro:assets',
+				`An error was encountered while creating the cache directory. Proceeding without caching. Error: ${e}`
+			);
+			await fs.promises.writeFile(finalFileURL, resultData.data);
+		}
+	} else {
+		await fs.promises.writeFile(finalFileURL, resultData.data);
+	}
 
 	return {
+		cached: false,
 		weight: {
 			before: Math.trunc(fileData.byteLength / 1024),
 			after: Math.trunc(resultData.data.byteLength / 1024),

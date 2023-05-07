@@ -3,11 +3,11 @@ import { loadFixture } from './test-utils.js';
 import * as cheerio from 'cheerio';
 
 describe('getStaticPaths - build calls', () => {
-	before(async () => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
 
-		const fixture = await loadFixture({
+	before(async () => {
+		fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',
 			base: '/blog',
@@ -15,9 +15,21 @@ describe('getStaticPaths - build calls', () => {
 		await fixture.build();
 	});
 
+	afterEach(() => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+	});
+
 	it('is only called once during build', () => {
 		// useless expect; if build() throws in setup then this test fails
 		expect(true).to.equal(true);
+	});
+
+	it('Astro.url sets the current pathname', async () => {
+		const html = await fixture.readFile('/food/tacos/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#url').text()).to.equal('/blog/food/tacos/');
 	});
 });
 
@@ -26,11 +38,16 @@ describe('getStaticPaths - dev calls', () => {
 	let devServer;
 
 	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-get-static-paths/',
+			site: 'https://mysite.dev/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	afterEach(() => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
-
-		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
-		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {
@@ -47,95 +64,46 @@ describe('getStaticPaths - dev calls', () => {
 		res = await fixture.fetch('/c');
 		expect(res.status).to.equal(200);
 	});
-});
 
-describe('getStaticPaths - 404 behavior', () => {
-	let fixture;
-	let devServer;
-
-	before(async () => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
-
-		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
-		devServer = await fixture.startDevServer();
-	});
-
-	after(async () => {
-		devServer.stop();
-	});
-
-	it('resolves 200 on matching static path - named params', async () => {
-		const res = await fixture.fetch('/pizza/provolone-sausage');
-		expect(res.status).to.equal(200);
-	});
-
-	it('resolves 404 on pattern match without static path - named params', async () => {
-		const res = await fixture.fetch('/pizza/provolone-pineapple');
-		expect(res.status).to.equal(404);
-	});
-
-	it('resolves 200 on matching static path - rest params', async () => {
-		const res = await fixture.fetch('/pizza/grimaldis/new-york');
-		expect(res.status).to.equal(200);
-	});
-
-	it('resolves 404 on pattern match without static path - rest params', async () => {
-		const res = await fixture.fetch('/pizza/pizza-hut');
-		expect(res.status).to.equal(404);
-	});
-});
-
-describe('getStaticPaths - route params type validation', () => {
-	let fixture, devServer;
-
-	before(async () => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
-
-		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
-		devServer = await fixture.startDevServer();
-	});
-
-	after(async () => {
-		await devServer.stop();
-	});
-
-	it('resolves 200 on nested array parameters', async () => {
-		const res = await fixture.fetch('/nested-arrays/slug1');
-		expect(res.status).to.equal(200);
-	});
-
-	it('resolves 200 on matching static path - string params', async () => {
-		// route provided with { params: { year: "2022", slug: "post-2" }}
-		const res = await fixture.fetch('/blog/2022/post-1');
-		expect(res.status).to.equal(200);
-	});
-
-	it('resolves 200 on matching static path - numeric params', async () => {
-		// route provided with { params: { year: 2022, slug: "post-2" }}
-		const res = await fixture.fetch('/blog/2022/post-2');
-		expect(res.status).to.equal(200);
-	});
-});
-
-describe('getStaticPaths - numeric route params', () => {
-	let fixture;
-	let devServer;
-
-	before(async () => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
-
-		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
-			site: 'https://mysite.dev/',
+	describe('404 behavior', () => {
+		it('resolves 200 on matching static path - named params', async () => {
+			const res = await fixture.fetch('/pizza/provolone-sausage');
+			expect(res.status).to.equal(200);
 		});
-		devServer = await fixture.startDevServer();
+
+		it('resolves 404 on pattern match without static path - named params', async () => {
+			const res = await fixture.fetch('/pizza/provolone-pineapple');
+			expect(res.status).to.equal(404);
+		});
+
+		it('resolves 200 on matching static path - rest params', async () => {
+			const res = await fixture.fetch('/pizza/grimaldis/new-york');
+			expect(res.status).to.equal(200);
+		});
+
+		it('resolves 404 on pattern match without static path - rest params', async () => {
+			const res = await fixture.fetch('/pizza/pizza-hut');
+			expect(res.status).to.equal(404);
+		});
 	});
 
-	after(async () => {
-		await devServer.stop();
+	describe('route params type validation', () => {
+		it('resolves 200 on nested array parameters', async () => {
+			const res = await fixture.fetch('/nested-arrays/slug1');
+			expect(res.status).to.equal(200);
+		});
+
+		it('resolves 200 on matching static path - string params', async () => {
+			// route provided with { params: { year: "2022", slug: "post-2" }}
+			const res = await fixture.fetch('/blog/2022/post-1');
+			expect(res.status).to.equal(200);
+		});
+
+		it('resolves 200 on matching static path - numeric params', async () => {
+			// route provided with { params: { year: 2022, slug: "post-2" }}
+			const res = await fixture.fetch('/blog/2022/post-2');
+			expect(res.status).to.equal(200);
+		});
 	});
 
 	it('resolves 200 on matching static paths', async () => {
@@ -153,27 +121,5 @@ describe('getStaticPaths - numeric route params', () => {
 				`doesn't trim the /${page} route param`
 			);
 		}
-	});
-});
-
-describe('getStaticPaths - Astro.url', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	before(async () => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
-
-		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
-			site: 'https://mysite.dev/',
-		});
-		await fixture.build();
-	});
-
-	it('Sets the current pathname', async () => {
-		const html = await fixture.readFile('/food/tacos/index.html');
-		const $ = cheerio.load(html);
-
-		expect($('#url').text()).to.equal('/food/tacos/');
 	});
 });

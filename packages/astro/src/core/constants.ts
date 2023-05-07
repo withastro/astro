@@ -10,3 +10,6 @@ export const SUPPORTED_MARKDOWN_FILE_EXTENSIONS = [
 	'.mdwn',
 	'.md',
 ] as const;
+
+// The folder name where to find the middleware
+export const MIDDLEWARE_PATH_SEGMENT_NAME = 'middleware';
