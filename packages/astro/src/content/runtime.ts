@@ -182,7 +182,6 @@ export function createGetEntry({
 		}
 
 		const entryImport = await getEntryImport(collection, id);
-		console.log({ id, collection, entryImport });
 		if (typeof entryImport !== 'function') return undefined;
 
 		const entry = await entryImport();
