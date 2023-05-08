@@ -386,7 +386,7 @@ async function writeContentFiles({
 	contentPaths: ContentPaths;
 	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
-	contentEntryTypes: ContentEntryType[];
+	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 }) {
 	let contentTypesStr = '';

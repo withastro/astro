@@ -33,11 +33,6 @@ import {
 	reloadContentConfigObserver,
 } from './utils.js';
 
-function isContentFlagImport(viteId: string) {
-	const flags = new URLSearchParams(viteId.split('?')[1]);
-	return flags.has(CONTENT_FLAG);
-}
-
 function getContentRendererByViteId(
 	viteId: string,
 	settings: Pick<AstroSettings, 'contentEntryTypes'>
@@ -112,7 +107,7 @@ export const _internal = {
 };
 `);
 					return code;
-				} else if (isContentFlagImport(viteId)) {
+				} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
 					const fileId = viteId.split('?')[0];
 					const { id, slug, collection, body, data, _internal } = await setContentEntryModuleCache({
 						fileId,
