@@ -1,8 +1,7 @@
-import glob, { type Options as FastGlobOptions } from 'fast-glob';
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import fsMod from 'node:fs';
-import path, { extname } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
@@ -461,86 +460,6 @@ function search(fs: typeof fsMod, srcDir: URL) {
 		}
 	}
 	return { exists: false, url: paths[0] };
-}
-
-export type ContentLookupMap = {
-	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
-};
-
-export async function getStringifiedLookupMap({
-	contentDir,
-	contentEntryConfigByExt,
-	dataEntryExts,
-	root,
-	fs,
-}: {
-	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
-	dataEntryExts: string[];
-	contentDir: URL;
-	root: URL;
-	fs: typeof fsMod;
-}) {
-	const globOpts: FastGlobOptions = {
-		absolute: true,
-		cwd: fileURLToPath(root),
-		fs: {
-			readdir: fs.readdir.bind(fs),
-			readdirSync: fs.readdirSync.bind(fs),
-		},
-	};
-
-	let lookupMap: ContentLookupMap = {};
-	const relContentDir = rootRelativePath(root, contentDir, false);
-	const contentGlob = await glob(
-		`${relContentDir}**/*${getExtGlob([...contentEntryConfigByExt.keys()])}`,
-		globOpts
-	);
-
-	await Promise.all(
-		contentGlob.map(async (filePath) => {
-			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-			if (!contentEntryType) return;
-			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
-			if (!collection) return;
-
-			const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
-				entry: pathToFileURL(filePath),
-				contentDir,
-				collection,
-			});
-			lookupMap[collection] ??= { type: 'content', entries: {} };
-			const slug = await getEntrySlug({
-				id,
-				collection,
-				generatedSlug,
-				fs,
-				fileUrl: pathToFileURL(filePath),
-				contentEntryType,
-			});
-			lookupMap[collection].entries[slug] = rootRelativePath(root, filePath);
-		})
-	);
-
-	const dataGlob = await glob(`${relContentDir}**/*${getExtGlob(dataEntryExts)}`, globOpts);
-	await Promise.all(
-		dataGlob.map(async (filePath) => {
-			const collection = getEntryCollectionName({
-				contentDir,
-				entry: pathToFileURL(filePath),
-			});
-			if (!collection) return;
-
-			const id = getDataEntryId({
-				entry: pathToFileURL(filePath),
-				contentDir,
-				collection,
-			});
-			lookupMap[collection] ??= { type: 'data', entries: {} };
-			lookupMap[collection].entries[id] = rootRelativePath(root, filePath);
-		})
-	);
-
-	return JSON.stringify(lookupMap);
 }
 
 /**
