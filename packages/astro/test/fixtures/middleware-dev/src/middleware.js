@@ -34,7 +34,7 @@ const third = defineMiddleware(async (context, next) => {
 	} else if (context.request.url.includes('/does-nothing')) {
 		return undefined;
 	}
-	next();
+	return next();
 });
 
 export const onRequest = sequence(first, second, third);

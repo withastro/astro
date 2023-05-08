@@ -77,8 +77,6 @@ describe('Middleware in DEV mode', () => {
 describe('Middleware in PROD mode, SSG', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').PreviewServer} */
-	let previewServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -198,5 +196,27 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		expect($('title').html()).to.not.equal('MiddlewareNoDataReturned');
+	});
+});
+
+describe('Middleware with tailwind', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-tailwind/',
+		});
+		await fixture.build();
+	});
+
+	it('should correctly emit the tailwind CSS file', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+		const bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+			.replace(/\s/g, '')
+			.replace('/n', '');
+		expect(bundledCSS.includes('--tw-content')).to.be.true;
 	});
 });
