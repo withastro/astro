@@ -61,7 +61,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				config = cfg;
 			},
 
-			'astro:build:done': async ({ dir, routes }) => {
+			'astro:build:done': async ({ dir, pages, routes }) => {
 				try {
 					if (!config.site) {
 						logger.warn(
@@ -84,31 +84,42 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						);
 						return;
 					}
-
-					let pageUrls = routes.reduce<string[]>((urls, r) => {
-						/**
-						 * Dynamic URLs have entries with `undefined` pathnames
-						 */
-						if (r.pathname) {
+					let paths;
+					if (pages.length > 0) {
+						paths = pages.map((page) => {
 							/**
 							 * remove the initial slash from relative pathname
 							 * because `finalSiteUrl` always has trailing slash
 							 */
-							const path = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
+							const path = finalSiteUrl.pathname + page.pathname;
 
-							let newUrl = new URL(path, finalSiteUrl).href;
+							return new URL(path, finalSiteUrl).href;
+						});
+					} else {
+						paths = routes.reduce<string[]>((urls, route) => {
+							if (route.pathname) {
+								const path = finalSiteUrl.pathname + route.pathname.substring(1);
 
-							if (config.trailingSlash === 'never') {
-								urls.push(newUrl);
-							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
-								urls.push(newUrl + '/');
-							} else {
-								urls.push(newUrl);
+								urls.push(new URL(path, finalSiteUrl).href);
 							}
-						}
+							return urls;
+						}, []);
+					}
 
-						return urls;
-					}, []);
+					let pageUrls = paths.map((path) => {
+						/**
+						 * remove the initial slash from relative pathname
+						 * because `finalSiteUrl` always has trailing slash
+						 */
+
+						if (config.trailingSlash === 'never') {
+							return path;
+						} else if (config.build.format === 'directory' && !path.endsWith('/')) {
+							return path + '/';
+						} else {
+							return path;
+						}
+					});
 
 					try {
 						if (filter) {

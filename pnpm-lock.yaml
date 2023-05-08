@@ -4566,8 +4566,23 @@ importers:
         specifier: 0.5.0
         version: 0.5.0
 
+  packages/integrations/sitemap/test/fixtures/content:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../mdx
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/sitemap/test/fixtures/ssr:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../node
       '@astrojs/sitemap':
         specifier: workspace:*
         version: link:../../..

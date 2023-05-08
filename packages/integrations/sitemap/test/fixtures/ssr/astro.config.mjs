@@ -3,7 +3,7 @@ import sitemap from '@astrojs/sitemap';
 import nodeServer from '@astrojs/node'
 
 export default defineConfig({
-  integrations: [sitemap()],
+	integrations: [sitemap()],
 	site: 'http://example.com',
 	output: 'server',
 	adapter: nodeServer({
