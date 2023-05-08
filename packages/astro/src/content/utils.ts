@@ -1,8 +1,7 @@
-import glob, { type Options as FastGlobOptions } from 'fast-glob';
 import { slug as githubSlug } from 'github-slugger';
 import matter from 'gray-matter';
 import fsMod from 'node:fs';
-import path, { extname } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
@@ -386,60 +385,6 @@ function search(fs: typeof fsMod, srcDir: URL) {
 		}
 	}
 	return { exists: false, url: paths[0] };
-}
-
-export async function getStringifiedLookupMap({
-	contentPaths,
-	contentEntryConfigByExt,
-	root,
-	fs,
-}: {
-	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
-	contentPaths: Pick<ContentPaths, 'contentDir' | 'cacheDir'>;
-	root: URL;
-	fs: typeof fsMod;
-}) {
-	const { contentDir } = contentPaths;
-	const globOpts: FastGlobOptions = {
-		absolute: true,
-		cwd: fileURLToPath(root),
-		fs: {
-			readdir: fs.readdir.bind(fs),
-			readdirSync: fs.readdirSync.bind(fs),
-		},
-	};
-
-	const relContentDir = rootRelativePath(root, contentDir, false);
-	const contentGlob = await glob(
-		`${relContentDir}**/*${getExtGlob([...contentEntryConfigByExt.keys()])}`,
-		globOpts
-	);
-	let filePathByLookupId: {
-		[collection: string]: Record<string, string>;
-	} = {};
-
-	await Promise.all(
-		contentGlob.map(async (filePath) => {
-			const info = getEntryInfo({ contentDir, entry: filePath });
-			if (info instanceof NoCollectionError) return;
-			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-			if (!contentEntryType) return;
-
-			const { id, collection, slug: generatedSlug } = info;
-			filePathByLookupId[collection] ??= {};
-			const slug = await getEntrySlug({
-				id,
-				collection,
-				generatedSlug,
-				fs,
-				fileUrl: pathToFileURL(filePath),
-				contentEntryType,
-			});
-			filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
-		})
-	);
-
-	return JSON.stringify(filePathByLookupId);
 }
 
 /**
