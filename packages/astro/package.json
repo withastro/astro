@@ -20,6 +20,9 @@
       ],
       "app/*": [
         "./dist/core/app/*"
+      ],
+      "middleware": [
+        "./dist/core/middleware/index.d.ts"
       ]
     }
   },
