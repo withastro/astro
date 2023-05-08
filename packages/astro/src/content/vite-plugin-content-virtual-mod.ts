@@ -11,6 +11,7 @@ import {
 	getEntryInfo,
 	NoCollectionError,
 	getEntrySlug,
+	hasUnderscoreBelowContentDirectoryPath,
 } from './utils.js';
 import { rootRelativePath } from '../core/util.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -103,28 +104,31 @@ export async function getStringifiedLookupMap({
 	} = {};
 
 	await Promise.all(
-		contentGlob.map(async (filePath) => {
-			const info = getEntryInfo({ contentDir, entry: filePath });
-			// Globbed entry outside of a collection
-			// Logs warning on type generation, safe to ignore in lookup map
-			if (info instanceof NoCollectionError) return;
-			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-			if (!contentEntryType) return;
+		contentGlob
+			// Ignore underscore files in lookup map
+			.filter((e) => !hasUnderscoreBelowContentDirectoryPath(pathToFileURL(e), contentDir))
+			.map(async (filePath) => {
+				const info = getEntryInfo({ contentDir, entry: filePath });
+				// Globbed entry outside a collection directory
+				// Log warning during type generation, safe to ignore in lookup map
+				if (info instanceof NoCollectionError) return;
+				const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+				if (!contentEntryType) return;
 
-			const { id, collection, slug: generatedSlug } = info;
-			const slug = await getEntrySlug({
-				id,
-				collection,
-				generatedSlug,
-				fs,
-				fileUrl: pathToFileURL(filePath),
-				contentEntryType,
-			});
-			filePathByLookupId[collection] = {
-				...filePathByLookupId[collection],
-				[slug]: rootRelativePath(root, filePath),
-			};
-		})
+				const { id, collection, slug: generatedSlug } = info;
+				const slug = await getEntrySlug({
+					id,
+					collection,
+					generatedSlug,
+					fs,
+					fileUrl: pathToFileURL(filePath),
+					contentEntryType,
+				});
+				filePathByLookupId[collection] = {
+					...filePathByLookupId[collection],
+					[slug]: rootRelativePath(root, filePath),
+				};
+			})
 	);
 
 	return JSON.stringify(filePathByLookupId);

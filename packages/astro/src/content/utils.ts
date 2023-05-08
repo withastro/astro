@@ -17,7 +17,6 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
-import { rootRelativePath } from '../core/util.js';
 
 export const collectionConfigParser = z.object({
 	schema: z.any().optional(),
@@ -228,7 +227,7 @@ function isImageAsset(fileExt: string) {
 	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
-function hasUnderscoreBelowContentDirectoryPath(
+export function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
 	contentDir: ContentPaths['contentDir']
 ): boolean {
