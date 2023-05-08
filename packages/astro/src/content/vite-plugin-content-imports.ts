@@ -386,7 +386,7 @@ async function getDataEntryModule({
 			)}. Did you apply an integration for this file type?`,
 		});
 	}
-	const { data: unvalidatedData } = await dataEntryParser({
+	const { data: unvalidatedData, rawData = '' } = await dataEntryParser({
 		fileUrl: pathToFileURL(fileId),
 		contents: rawContents,
 	});
@@ -397,7 +397,7 @@ async function getDataEntryModule({
 
 	const id = getDataEntryId({ entry, contentDir, collection });
 
-	const _internal = { filePath: fileId, rawData: '' };
+	const _internal = { filePath: fileId, rawData };
 
 	const collectionConfig = contentConfig?.collections[collection];
 	let data = collectionConfig

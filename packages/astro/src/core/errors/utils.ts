@@ -1,6 +1,8 @@
 import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
 import type { SSRError } from '../../@types/astro.js';
 import { AstroErrorData, type AstroErrorCodes, type ErrorData } from './errors-data.js';
+import type { YAMLException } from 'js-yaml';
+import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
 /**
  * Get the line and character based on the offset
@@ -69,6 +71,17 @@ function getLineOffsets(text: string) {
 	}
 
 	return lineOffsets;
+}
+
+/** Format YAML exceptions as Vite errors */
+export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
+	return {
+		name: e.name,
+		id: e.mark.name,
+		loc: { file: e.mark.name, line: e.mark.line + 1, column: e.mark.column },
+		message: e.reason,
+		stack: e.stack ?? '',
+	};
 }
 
 /** Coalesce any throw variable to an Error instance. */

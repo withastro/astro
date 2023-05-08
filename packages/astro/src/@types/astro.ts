@@ -1213,7 +1213,7 @@ export interface DataEntryType {
 	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
 }
 
-export type GetDataEntryInfoReturnType = { data: Record<string, unknown> };
+export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
 
 export interface AstroSettings {
 	config: AstroConfig;

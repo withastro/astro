@@ -19,6 +19,8 @@ import { CONTENT_TYPES_FILE, CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
 import { rootRelativePath } from '../core/util.js';
+import { formatYAMLException } from '../core/errors/utils.js';
+import type { YAMLException } from 'js-yaml';
 
 export const collectionConfigParser = z.union([
 	z.object({
@@ -145,10 +147,7 @@ export async function getEntryData(
 					),
 					location: {
 						file: entry._internal.filePath,
-						line: getFrontmatterErrorLine(
-							entry._internal.rawData,
-							String(parsed.error.errors[0].path[0])
-						),
+						line: getYAMLErrorLine(entry._internal.rawData, String(parsed.error.errors[0].path[0])),
 						column: 0,
 					},
 				});
@@ -283,20 +282,20 @@ function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
-function getFrontmatterErrorLine(rawFrontmatter: string | undefined, frontmatterKey: string) {
-	if (!rawFrontmatter) return 0;
-	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
-	if (indexOfFrontmatterKey === -1) return 0;
+function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
+	if (!rawData) return 0;
+	const indexOfObjectKey = rawData.search(
+		// Match key either at the top of the file or after a newline
+		// Ensures matching on top-level object keys only
+		new RegExp(`(\n|^)${objectKey}`)
+	);
+	if (indexOfObjectKey === -1) return 0;
 
-	const frontmatterBeforeKey = rawFrontmatter.substring(0, indexOfFrontmatterKey + 1);
-	const numNewlinesBeforeKey = frontmatterBeforeKey.split('\n').length;
+	const dataBeforeKey = rawData.substring(0, indexOfObjectKey + 1);
+	const numNewlinesBeforeKey = dataBeforeKey.split('\n').length;
 	return numNewlinesBeforeKey;
 }
 
-/**
- * Match YAML exception handling from Astro core errors
- * @see 'astro/src/core/errors.ts'
- */
 export function parseFrontmatter(fileContents: string, filePath: string) {
 	try {
 		// `matter` is empty string on cache results
@@ -305,11 +304,7 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 		return matter(fileContents);
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
-			const err: Error & ViteErrorPayload['err'] = e;
-			err.id = filePath;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
-			throw err;
+			throw formatYAMLException(e as YAMLException);
 		} else {
 			throw e;
 		}

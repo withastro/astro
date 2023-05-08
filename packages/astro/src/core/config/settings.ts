@@ -1,12 +1,15 @@
 import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 
+import { type ErrorPayload as ViteErrorPayload } from 'vite';
 import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import yaml, { type YAMLException } from 'js-yaml';
+import { formatYAMLException } from '../errors/utils.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -33,6 +36,23 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 						throw new Error('[Content] JSON entry must be an object.');
 
 					return { data };
+				},
+			},
+			{
+				extensions: ['.yaml'],
+				getEntryInfo({ contents, fileUrl }) {
+					try {
+						const data = yaml.load(contents, { filename: fileURLToPath(fileUrl) });
+						const rawData = contents;
+
+						return { data, rawData };
+					} catch (e: any) {
+						if (e.name === 'YAMLException') {
+							throw formatYAMLException(e as YAMLException);
+						} else {
+							throw e;
+						}
+					}
 				},
 			},
 		],
