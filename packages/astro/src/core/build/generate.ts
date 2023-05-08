@@ -169,15 +169,15 @@ async function generatePage(
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 
-	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const pageModulePromise = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;
 
-	if (!pageModule) {
+	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
 		);
 	}
-
+	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, opts.settings)) {
 		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
 		return;
