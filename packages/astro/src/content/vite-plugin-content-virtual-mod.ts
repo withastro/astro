@@ -112,7 +112,6 @@ export async function getStringifiedLookupMap({
 			if (!contentEntryType) return;
 
 			const { id, collection, slug: generatedSlug } = info;
-			filePathByLookupId[collection] ??= {};
 			const slug = await getEntrySlug({
 				id,
 				collection,
@@ -121,7 +120,10 @@ export async function getStringifiedLookupMap({
 				fileUrl: pathToFileURL(filePath),
 				contentEntryType,
 			});
-			filePathByLookupId[collection][slug] = rootRelativePath(root, filePath);
+			filePathByLookupId[collection] = {
+				...filePathByLookupId[collection],
+				[slug]: rootRelativePath(root, filePath),
+			};
 		})
 	);
 
