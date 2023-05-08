@@ -67,6 +67,11 @@ export function astroContentVirtualModPlugin({
 	};
 }
 
+/**
+ * Generate a map from a collection + slug to the local file path.
+ * This is used internally to resolve entry imports when using `getEntryBySlug()`.
+ * @see `src/content/virtual-mod.mjs`
+ */
 export async function getStringifiedLookupMap({
 	contentPaths,
 	contentEntryConfigByExt,
