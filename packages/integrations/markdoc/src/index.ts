@@ -54,17 +54,28 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 						const markdocConfig = applyDefaultConfig(userMarkdocConfig, { entry });
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
-							// Ignore `variable-undefined` errors.
-							// Variables can be configured at runtime,
-							// so we cannot validate them at build time.
-							return e.error.id !== 'variable-undefined';
+							return (
+								// Ignore `variable-undefined` errors.
+								// Variables can be configured at runtime,
+								// so we cannot validate them at build time.
+								e.error.id !== 'variable-undefined' &&
+								(e.error.level === 'error' || e.error.level === 'critical')
+							);
 						});
 						if (validationErrors.length) {
+							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
+							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
 							throw new MarkdocError({
 								message: [
-									`**${String(entry.collection)} → ${String(entry.id)}** failed to validate:`,
-									...validationErrors.map((e) => e.error.id),
+									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									...validationErrors.map((e) => `- ${e.error.message}`),
 								].join('\n'),
+								location: {
+									// Error overlay does not support multi-line or ranges.
+									// Just point to the first line.
+									line: frontmatterBlockOffset + validationErrors[0].lines[0],
+									file: viteId,
+								},
 							});
 						}
 
@@ -76,7 +87,7 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 							});
 						}
 
-						const code = {
+						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';
 import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
 import { Renderer } from '@astrojs/markdoc/components';
@@ -104,7 +115,6 @@ export async function Content (props) {
 							}
 	return h(Renderer, { stringifiedAst, config }); };`,
 						};
-						return code;
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
