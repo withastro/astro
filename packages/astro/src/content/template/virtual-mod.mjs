@@ -28,8 +28,11 @@ const dataCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: dataEntryGlob,
 	contentDir,
 });
+const collectionToEntryMap = createCollectionToGlobResultMap({
+	globResult: { ...contentEntryGlob, ...dataEntryGlob },
+	contentDir,
+});
 
-const collectionToEntryMap = { ...contentCollectionToEntryMap, ...dataCollectionToEntryMap };
 let lookupMap = {};
 /* @@LOOKUP_MAP_ASSIGNMENT@@ */
 
