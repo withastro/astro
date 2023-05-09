@@ -270,7 +270,7 @@ function isImageAsset(fileExt: string) {
 	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
-function hasUnderscoreBelowContentDirectoryPath(
+export function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
 	contentDir: ContentPaths['contentDir']
 ): boolean {
@@ -481,9 +481,16 @@ export async function getEntrySlug({
 	fileUrl: URL;
 	contentEntryType: Pick<ContentEntryType, 'getEntryInfo'>;
 }) {
+	let contents: string;
+	try {
+		contents = await fs.promises.readFile(fileUrl, 'utf-8');
+	} catch (e) {
+		// File contents should exist. Raise unexpected error as "unknown" if not.
+		throw new AstroError(AstroErrorData.UnknownContentCollectionError, { cause: e });
+	}
 	const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
 		fileUrl,
-		contents: await fs.promises.readFile(fileUrl, 'utf-8'),
+		contents,
 	});
 	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
 }

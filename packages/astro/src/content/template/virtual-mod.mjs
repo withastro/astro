@@ -67,6 +67,7 @@ export const image = () => {
 
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
+	dataCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
 

@@ -1015,6 +1015,17 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
 	},
+	/**
+	 * TODO
+	 */
+	MixedContentDataCollectionError: {
+		title: 'Mixed content and data collection',
+		code: 9005,
+		message: (collection: string) => {
+			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
+		},
+		hint: 'Store data entries in a new collection separate from your content collection, and share a schema in your content config.',
+	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
