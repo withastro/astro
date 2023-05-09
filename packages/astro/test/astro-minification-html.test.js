@@ -18,7 +18,7 @@ describe('minification html', () => {
 			devServer.stop();
 		});
 
-		it('Verify that the HTML code is compressed in the dev', async () => {
+		it('should emit compressed HTML in the emitted file', async () => {
 			let res = await fixture.fetch(`/`);
 			expect(res.status).to.equal(200);
 			const html = await res.text();
