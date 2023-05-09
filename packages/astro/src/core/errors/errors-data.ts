@@ -1019,7 +1019,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * TODO
 	 */
 	MixedContentDataCollectionError: {
-		title: 'Mixed content and data collection',
+		title: 'Content and data cannot be in same collection.',
 		code: 9005,
 		message: (collection: string) => {
 			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
