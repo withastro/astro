@@ -34,7 +34,7 @@ describe('minification html', () => {
 			await fixture.build();
 		});
 
-		it('Verify that the HTML code is compressed in the pro', async () => {
+		it('should emit compressed HTML in the emitted file', async () => {
 			const html = await fixture.readFile('/index.html');
 			expect(regex.test(html.slice(20))).to.equal(false);
 		});
