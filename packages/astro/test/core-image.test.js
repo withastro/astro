@@ -448,7 +448,7 @@ describe('astro:image', () => {
 			expect(src.startsWith('/blog')).to.be.true;
 		});
 
-		it('has base path prefix in SSR ssssss', async () => {
+		it('has base path prefix in SSR', async () => {
 			const fixtureWithBase = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
