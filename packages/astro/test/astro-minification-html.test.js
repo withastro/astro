@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
 
 describe('minification html', () => {
-	describe('in the dev', () => {
+	describe('in DEV enviroment', () => {
 		let fixture;
 		let devServer;
 		const regex = /[\r\n]+/gm;
