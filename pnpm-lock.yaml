@@ -4575,6 +4575,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/sitemap/test/fixtures/static:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/sitemap/test/fixtures/trailing-slash:
     dependencies:
       '@astrojs/sitemap':

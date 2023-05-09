@@ -1,5 +1,13 @@
 # astro
 
+## 2.4.3
+
+### Patch Changes
+
+- [#7034](https://github.com/withastro/astro/pull/7034) [`c00997033`](https://github.com/withastro/astro/commit/c0099703338cf81e2b381e6e754c73b442db4eab) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro:assets` SSR error
+
+- [#7032](https://github.com/withastro/astro/pull/7032) [`157357e1f`](https://github.com/withastro/astro/commit/157357e1fb6ff2c14a717230cc485fb76a3fea03) Thanks [@raulfdm](https://github.com/raulfdm)! - fix middleware typing export for "moduleResolution: node"
+
 ## 2.4.2
 
 ### Patch Changes

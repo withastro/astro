@@ -151,7 +151,11 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
-export function rootRelativePath(root: URL, idOrUrl: URL | string) {
+export function rootRelativePath(
+	root: URL,
+	idOrUrl: URL | string,
+	shouldPrependForwardSlash = true
+) {
 	let id: string;
 	if (typeof idOrUrl !== 'string') {
 		id = unwrapId(viteID(idOrUrl));
@@ -162,7 +166,7 @@ export function rootRelativePath(root: URL, idOrUrl: URL | string) {
 	if (id.startsWith(normalizedRoot)) {
 		id = id.slice(normalizedRoot.length);
 	}
-	return prependForwardSlash(id);
+	return shouldPrependForwardSlash ? prependForwardSlash(id) : id;
 }
 
 export function emoji(char: string, fallback: string) {
