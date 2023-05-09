@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Escape closing script tag with define:vars
+Escape closing script tag with `define:vars`
