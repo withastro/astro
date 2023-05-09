@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
 
-describe('minification html', () => {
+describe('HTML minification', () => {
 	describe('in DEV enviroment', () => {
 		let fixture;
 		let devServer;
