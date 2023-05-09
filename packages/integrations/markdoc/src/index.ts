@@ -18,7 +18,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(legacyConfig: any): AstroIntegration {
+export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
 	if (legacyConfig) {
 		console.log(
 			`${red(
