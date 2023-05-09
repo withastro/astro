@@ -1,11 +1,21 @@
+import glob, { type Options as FastGlobOptions } from 'fast-glob';
 import fsMod from 'node:fs';
-import * as path from 'node:path';
 import type { Plugin } from 'vite';
-import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
-import { getContentEntryExts, getContentPaths } from './utils.js';
+import {
+	getContentEntryConfigByExtMap,
+	getContentPaths,
+	getExtGlob,
+	type ContentPaths,
+	getEntryInfo,
+	NoCollectionError,
+	getEntrySlug,
+	hasUnderscoreBelowContentDirectoryPath,
+} from './utils.js';
+import { rootRelativePath } from '../core/util.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { extname } from 'node:path';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -15,20 +25,12 @@ export function astroContentVirtualModPlugin({
 	settings,
 }: AstroContentVirtualModPluginParams): Plugin {
 	const contentPaths = getContentPaths(settings.config);
-	const relContentDir = normalizePath(
-		appendForwardSlash(
-			prependForwardSlash(
-				path.relative(settings.config.root.pathname, contentPaths.contentDir.pathname)
-			)
-		)
-	);
-	const contentEntryExts = getContentEntryExts(settings);
+	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	const extGlob =
-		contentEntryExts.length === 1
-			? // Wrapping {...} breaks when there is only one extension
-			  contentEntryExts[0]
-			: `{${contentEntryExts.join(',')}}`;
+	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryExts = [...contentEntryConfigByExt.keys()];
+
+	const extGlob = getExtGlob(contentEntryExts);
 	const entryGlob = `${relContentDir}**/*${extGlob}`;
 	const virtualModContents = fsMod
 		.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
@@ -46,12 +48,88 @@ export function astroContentVirtualModPlugin({
 				return astroContentVirtualModuleId;
 			}
 		},
-		load(id) {
+		async load(id) {
+			const stringifiedLookupMap = await getStringifiedLookupMap({
+				fs: fsMod,
+				contentPaths,
+				contentEntryConfigByExt,
+				root: settings.config.root,
+			});
+
 			if (id === astroContentVirtualModuleId) {
 				return {
-					code: virtualModContents,
+					code: virtualModContents.replace(
+						'/* @@LOOKUP_MAP_ASSIGNMENT@@ */',
+						`lookupMap = ${stringifiedLookupMap};`
+					),
 				};
 			}
 		},
 	};
+}
+
+/**
+ * Generate a map from a collection + slug to the local file path.
+ * This is used internally to resolve entry imports when using `getEntryBySlug()`.
+ * @see `src/content/virtual-mod.mjs`
+ */
+export async function getStringifiedLookupMap({
+	contentPaths,
+	contentEntryConfigByExt,
+	root,
+	fs,
+}: {
+	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
+	contentPaths: Pick<ContentPaths, 'contentDir' | 'cacheDir'>;
+	root: URL;
+	fs: typeof fsMod;
+}) {
+	const { contentDir } = contentPaths;
+	const globOpts: FastGlobOptions = {
+		absolute: true,
+		cwd: fileURLToPath(root),
+		fs: {
+			readdir: fs.readdir.bind(fs),
+			readdirSync: fs.readdirSync.bind(fs),
+		},
+	};
+
+	const relContentDir = rootRelativePath(root, contentDir, false);
+	const contentGlob = await glob(
+		`${relContentDir}**/*${getExtGlob([...contentEntryConfigByExt.keys()])}`,
+		globOpts
+	);
+	let filePathByLookupId: {
+		[collection: string]: Record<string, string>;
+	} = {};
+
+	await Promise.all(
+		contentGlob
+			// Ignore underscore files in lookup map
+			.filter((e) => !hasUnderscoreBelowContentDirectoryPath(pathToFileURL(e), contentDir))
+			.map(async (filePath) => {
+				const info = getEntryInfo({ contentDir, entry: filePath });
+				// Globbed entry outside a collection directory
+				// Log warning during type generation, safe to ignore in lookup map
+				if (info instanceof NoCollectionError) return;
+				const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+				if (!contentEntryType) return;
+
+				const { id, collection, slug: generatedSlug } = info;
+				const slug = await getEntrySlug({
+					id,
+					collection,
+					generatedSlug,
+					fs,
+					fileUrl: pathToFileURL(filePath),
+					contentEntryType,
+				});
+				filePathByLookupId[collection] = {
+					...filePathByLookupId[collection],
+					[slug]: rootRelativePath(root, filePath),
+				};
+			})
+	);
+
+	return JSON.stringify(filePathByLookupId);
 }
