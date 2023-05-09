@@ -143,7 +143,7 @@ Use tags like this fancy "aside" to add some *flair* to your docs.
 
 #### Render Markdoc nodes / HTML elements as Astro components
 
-You may also want to map standard HTML elements like headings and paragraphs to components. For this, you can configure a custom [Markdoc node][markdoc-nodes]. This example overrides Markdoc's `heading` node to render a `Heading` component, and passes through Markdoc's default attributes for headings via the `Markdoc` object. This is exposed by the `@astrojs/markdoc/config` module and contains all properties from [the `@markdoc/markdoc` package](https://github.com/markdoc/markdoc).
+You may also want to map standard HTML elements like headings and paragraphs to components. For this, you can configure a custom [Markdoc node][markdoc-nodes]. This example overrides Markdoc's `heading` node to render a `Heading` component, and passes through [Markdoc's default attributes for headings](https://markdoc.dev/docs/nodes#built-in-nodes).
 
 ```js
 // markdoc.config.mjs
