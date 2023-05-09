@@ -205,10 +205,10 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						throw new AstroError({
-							code: 99999,
-							message: `${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`,
-						});
+						// Mixed content / data collection detected.
+						// `astro:content` virtual module should throw an error for the overlay.
+						// @see 'src/content/vite-plugin-virtual-mod.ts'
+						return { shouldGenerateTypes: false };
 					}
 					if (!(entryKey in collectionEntryMap[collectionKey])) {
 						collectionEntryMap[collectionKey] = {
@@ -240,10 +240,10 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			throw new AstroError({
-				code: 99999,
-				message: `${collectionKey} contains a mix of content and data entries. All entries must be of the same type.`,
-			});
+			// Mixed content / data collection detected.
+			// `astro:content` virtual module should throw an error for the overlay.
+			// @see 'src/content/vite-plugin-virtual-mod.ts'
+			return { shouldGenerateTypes: false };
 		}
 		const entryKey = JSON.stringify(id);
 
