@@ -467,14 +467,14 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name compressHTML
 	 * @type {boolean}
-	 * @default `true`
+	 * @default `false`
 	 * @description
-	 * Astro removes all whitespace from your final HTML file, including line breaks, by default. This is useful for reducing the size of your final build's HTML bundle. 
-	 * To disable this, set the `compressHTML` flag to `false`.
+	 * When enabled Astro removes all whitespace from your final HTML, including line breaks. This is useful for reducing the size of HTML transfered over the wire.
+	 * To enable this, set the `compressHTML` flag to `true`.
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: false
+	 *   compressHTML: true
 	 * }
 	 * ```
 	 */
