@@ -26,7 +26,7 @@ describe('minification html', () => {
 		});
 
 	})
-	describe('build', () => {
+	describe('in SSG mode', () => {
 		let fixture;
 		const regex = /[\r\n]+/gm;
 		before(async () => {
