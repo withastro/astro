@@ -10,16 +10,16 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
 import {
+	getContentEntryConfigByExtMap,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
-	parseEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
 	NoCollectionError,
+	parseEntrySlug,
 	type ContentConfig,
-	getContentEntryConfigByExtMap,
 } from './utils.js';
 
 function isContentFlagImport(viteId: string) {
