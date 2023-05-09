@@ -343,12 +343,9 @@ export async function loadContentConfig({
 	if (!contentPaths.config.exists) {
 		return undefined;
 	}
-	try {
-		const configPathname = fileURLToPath(contentPaths.config.url);
-		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
-	} catch (e) {
-		throw e;
-	}
+	const configPathname = fileURLToPath(contentPaths.config.url);
+	unparsedConfig = await viteServer.ssrLoadModule(configPathname);
+
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
 		return config.data;
