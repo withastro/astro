@@ -447,6 +447,27 @@ describe('astro:image', () => {
 			expect(src.length).to.be.greaterThan(0);
 			expect(src.startsWith('/blog')).to.be.true;
 		});
+
+		it('has base path prefix in SSR', async () => {
+			const fixtureWithBase = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+				base: '/blog',
+			});
+			await fixtureWithBase.build();
+			const app = await fixtureWithBase.loadTestAdapterApp();
+			const request = new Request('http://example.com/blog/');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.startsWith('/blog')).to.be.true;
+		});
 	});
 
 	describe('build ssg', () => {
