@@ -1,5 +1,21 @@
 # astro
 
+## 2.4.4
+
+### Patch Changes
+
+- [#7047](https://github.com/withastro/astro/pull/7047) [`48395c815`](https://github.com/withastro/astro/commit/48395c81522f7527126699c4f185f7b4488a4b9a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `/_image` endpoint not being prefixed with the `base` path in build SSR
+
+- [#6916](https://github.com/withastro/astro/pull/6916) [`630f8c8ef`](https://github.com/withastro/astro/commit/630f8c8ef68fedfa393899c13a072e50145895e8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add fast lookups for content collection entries when using `getEntryBySlug()`. This generates a lookup map to ensure O(1) retrieval.
+
+## 2.4.3
+
+### Patch Changes
+
+- [#7034](https://github.com/withastro/astro/pull/7034) [`c00997033`](https://github.com/withastro/astro/commit/c0099703338cf81e2b381e6e754c73b442db4eab) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro:assets` SSR error
+
+- [#7032](https://github.com/withastro/astro/pull/7032) [`157357e1f`](https://github.com/withastro/astro/commit/157357e1fb6ff2c14a717230cc485fb76a3fea03) Thanks [@raulfdm](https://github.com/raulfdm)! - fix middleware typing export for "moduleResolution: node"
+
 ## 2.4.2
 
 ### Patch Changes
