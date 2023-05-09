@@ -1,12 +1,14 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
+import testAdapter from './test-adapter.js';
+
+const NEW_LINES = /[\r\n]+/gm;
 
 describe('HTML minification', () => {
 	describe('in DEV enviroment', () => {
 		let fixture;
 		let devServer;
-		const regex = /[\r\n]+/gm;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/minification-html/',
@@ -22,13 +24,12 @@ describe('HTML minification', () => {
 			let res = await fixture.fetch(`/`);
 			expect(res.status).to.equal(200);
 			const html = await res.text();
-			expect(regex.test(html.slice(-100))).to.equal(false);
+			expect(NEW_LINES.test(html.slice(-100))).to.equal(false);
 		});
+	});
 
-	})
-	describe('in SSG mode', () => {
+	describe('Build SSG', () => {
 		let fixture;
-		const regex = /[\r\n]+/gm;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/minification-html/' });
 			await fixture.build();
@@ -36,7 +37,27 @@ describe('HTML minification', () => {
 
 		it('should emit compressed HTML in the emitted file', async () => {
 			const html = await fixture.readFile('/index.html');
-			expect(regex.test(html.slice(20))).to.equal(false);
+			expect(NEW_LINES.test(html.slice(20))).to.equal(false);
 		});
-	})
+	});
+
+	describe('Build SSR', () => {
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/minification-html/',
+				output: 'server',
+				adapter: testAdapter()
+			});
+			await fixture.build();
+		});
+
+		it('should emit compressed HTML in the emitted file', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			expect(NEW_LINES.test(html.slice(20))).to.equal(false);
+		});
+	});
 });
