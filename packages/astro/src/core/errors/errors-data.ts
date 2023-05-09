@@ -1026,6 +1026,16 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'Store data entries in a new collection separate from your content collection, and share a schema in your content config.',
 	},
+	/**
+	 * TODO
+	 */
+	ContentCollectionTypeMismatchError: {
+		title: 'Collection contains entries of a different type.',
+		code: 9006,
+		message: (collection: string, expectedType: string, actualType: string) => {
+			return `${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`;
+		},
+	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {

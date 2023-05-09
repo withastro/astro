@@ -23,6 +23,7 @@ import {
 	reloadContentConfigObserver,
 } from './utils.js';
 import { AstroError } from '../core/errors/errors.js';
+import { AstroErrorData } from '../core/errors/errors-data.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -205,9 +206,14 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						// Mixed content / data collection detected.
-						// `astro:content` virtual module should throw an error for the overlay.
-						// @see 'src/content/vite-plugin-virtual-mod.ts'
+						viteServer.ws.send({
+							type: 'error',
+							err: new AstroError({
+								...AstroErrorData.MixedContentDataCollectionError,
+								message: AstroErrorData.MixedContentDataCollectionError.message(collectionKey),
+								location: { file: entry.pathname },
+							}) as any,
+						});
 						return { shouldGenerateTypes: false };
 					}
 					if (!(entryKey in collectionEntryMap[collectionKey])) {
@@ -240,9 +246,14 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			// Mixed content / data collection detected.
-			// `astro:content` virtual module should throw an error for the overlay.
-			// @see 'src/content/vite-plugin-virtual-mod.ts'
+			viteServer.ws.send({
+				type: 'error',
+				err: new AstroError({
+					...AstroErrorData.MixedContentDataCollectionError,
+					message: AstroErrorData.MixedContentDataCollectionError.message(collectionKey),
+					location: { file: entry.pathname },
+				}) as any,
+			});
 			return { shouldGenerateTypes: false };
 		}
 		const entryKey = JSON.stringify(id);
@@ -351,6 +362,7 @@ export async function createContentTypesGenerator({
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
+				viteServer,
 			});
 			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
@@ -381,6 +393,7 @@ async function writeContentFiles({
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
+	viteServer,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
@@ -388,6 +401,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
+	viteServer: Pick<ViteDevServer, 'ws'>;
 }) {
 	let contentTypesStr = '';
 	let dataTypesStr = '';
@@ -395,14 +409,24 @@ async function writeContentFiles({
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
 		if (collectionConfig?.type && collection.type !== collectionConfig.type) {
-			throw new AstroError({
-				code: 99999,
-				message: `${collectionKey} contains ${collection.type} entries, but is configured as a ${collectionConfig.type} collection.`,
-				hint:
-					collection.type === 'data'
-						? "Try adding `type: 'data'` to your collection config."
-						: undefined,
+			viteServer.ws.send({
+				type: 'error',
+				err: new AstroError({
+					...AstroErrorData.ContentCollectionTypeMismatchError,
+					code: 99999,
+					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
+						collectionKey,
+						collection.type,
+						collectionConfig.type
+					),
+					hint:
+						collection.type === 'data'
+							? "Try adding `type: 'data'` to your collection config."
+							: undefined,
+					location: { file: '' /** required for error overlay `ws` messages */ },
+				}) as any,
 			});
+			return;
 		}
 		switch (collection.type) {
 			case 'content':
