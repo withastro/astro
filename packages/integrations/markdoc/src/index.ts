@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
@@ -19,7 +20,6 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 
 export default function markdocIntegration(legacyConfig: any): AstroIntegration {
 	if (legacyConfig) {
-		// eslint-disable-next-line no-console
 		console.log(
 			`${red(
 				bold('[Markdoc]')
