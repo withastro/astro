@@ -19,6 +19,8 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
+const clientLocalsSymbol = Symbol.for('astro.locals');
+
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
 ) => Promise<infer R>
@@ -142,6 +144,7 @@ export async function handleRoute(
 		logging,
 		ssr: buildingToSSR,
 		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
+		locals: Reflect.get(req, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
 	});
 
 	// Set user specified headers to response object.

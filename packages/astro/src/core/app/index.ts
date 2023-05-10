@@ -115,7 +115,7 @@ export class App {
 			return undefined;
 		}
 	}
-	async render(request: Request, routeData?: RouteData): Promise<Response> {
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
 		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
@@ -131,7 +131,7 @@ export class App {
 			}
 		}
 
-		Reflect.set(request, clientLocalsSymbol, {});
+		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 		// Use the 404 status code for 404.astro components
 		if (routeData.route === '/404') {
@@ -227,7 +227,7 @@ export class App {
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, apiContext });
+						return renderPage({ mod, renderContext, env: this.#env, locals: apiContext.locals });
 					}
 				);
 			} else {
@@ -235,7 +235,7 @@ export class App {
 					mod,
 					renderContext,
 					env: this.#env,
-					apiContext,
+					locals: apiContext.locals,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);

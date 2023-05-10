@@ -6,8 +6,11 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro';
+import { AstroError, AstroErrorData } from '../errors';
 import { getParamsAndPropsOrThrow } from './core.js';
 import type { Environment } from './environment';
+
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 /**
  * The RenderContext represents the parts of rendering that are specific to one request.
@@ -25,6 +28,7 @@ export interface RenderContext {
 	status?: number;
 	params: Params;
 	props: Props;
+	locals?: object;
 }
 
 export type CreateRenderContextArgs = Partial<RenderContext> & {
@@ -49,6 +53,8 @@ export async function createRenderContext(
 		logging: options.env.logging,
 		ssr: options.env.ssr,
 	});
+	const locals = Reflect.get(request, clientLocalsSymbol);
+
 	return {
 		...options,
 		origin,
@@ -56,5 +62,6 @@ export async function createRenderContext(
 		url,
 		params,
 		props,
+		locals,
 	};
 }
