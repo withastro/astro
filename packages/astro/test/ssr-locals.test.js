@@ -35,7 +35,6 @@ describe('SSR Environment Variables', () => {
 		expect(response.headers.get('Content-Length')).to.not.be.empty;
 		const body = await response.json();
 
-		expect(body.length).to.equal(1);
-		expect(body[0].foo).to.equal('bar');
+		expect(body.foo).to.equal('bar');
 	});
 });
