@@ -53,15 +53,29 @@ export async function createRenderContext(
 		logging: options.env.logging,
 		ssr: options.env.ssr,
 	});
-	const locals = Reflect.get(request, clientLocalsSymbol);
 
-	return {
-		...options,
+	let context = {
+		request,
 		origin,
 		pathname,
 		url,
 		params,
 		props,
-		locals,
 	};
+
+	// We define a custom property, so we can check the value passed to locals
+	Object.defineProperty(context, 'locals', {
+		get() {
+			return Reflect.get(request, clientLocalsSymbol);
+		},
+		set(val) {
+			if (typeof val !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			} else {
+				Reflect.set(request, clientLocalsSymbol, val);
+			}
+		},
+	});
+
+	return context;
 }
