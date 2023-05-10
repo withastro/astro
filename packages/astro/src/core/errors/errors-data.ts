@@ -45,6 +45,7 @@ export const AstroErrorData = {
 	 * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
 	 */
 	StaticRedirectNotAvailable: {
+		// TODO remove
 		title: '`Astro.redirect` is not available in static mode.',
 		code: 3001,
 		message:
@@ -716,6 +717,18 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (href: string) => {
 			return `The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`;
 		},
+	},
+	/**
+		 * @docs
+		 * @see
+		 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+		 * @description
+		 * A redirect must be given a location with the `Location` header.
+		 */
+	RedirectWithNoLocation: {
+		// TODO remove
+		title: 'A redirect must be given a location with the `Location` header.',
+		code: 3035,
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx

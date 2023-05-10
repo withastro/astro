@@ -33,7 +33,7 @@ import {
 	createAPIContext,
 	throwIfRedirectNotAllowed,
 } from '../endpoint/index.js';
-import { AstroError } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
@@ -70,6 +70,12 @@ function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings)
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, settings: AstroSettings): string {
 	return facadeId.slice(fileURLToPath(settings.config.root).length);
+}
+
+function redirectWithNoLocation() {
+	throw new AstroError({
+		...AstroErrorData.RedirectWithNoLocation
+	});
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
@@ -510,10 +516,23 @@ async function generatePath(
 			}
 			throw err;
 		}
-		throwIfRedirectNotAllowed(response, opts.settings.config);
-		// If there's no body, do nothing
-		if (!response.body) return;
-		body = await response.text();
+
+		switch(response.status) {
+			case 301:
+			case 302: {
+				const location = response.headers.get("location");
+				if(!location) {
+					redirectWithNoLocation();
+				}
+				body = `<!doctype html><meta http-equiv="refresh" content="0;url=${location}" />`
+				break;
+			}
+			default: {
+				// If there's no body, do nothing
+				if (!response.body) return;
+				body = await response.text();
+			}
+		}
 	}
 
 	const outFolder = getOutFolder(settings.config, pathname, pageData.route.type);
