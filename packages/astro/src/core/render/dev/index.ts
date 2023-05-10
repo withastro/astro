@@ -191,7 +191,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 
 			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
-				return coreRenderPage({ mod, renderContext, env: options.env, apiContext });
+				return coreRenderPage({ mod, renderContext, env: options.env });
 			});
 
 			return response;

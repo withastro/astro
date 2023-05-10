@@ -227,7 +227,7 @@ export class App {
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, locals: apiContext.locals });
+						return renderPage({ mod, renderContext, env: this.#env });
 					}
 				);
 			} else {
@@ -235,7 +235,6 @@ export class App {
 					mod,
 					renderContext,
 					env: this.#env,
-					locals: apiContext.locals,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
