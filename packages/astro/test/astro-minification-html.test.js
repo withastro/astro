@@ -5,6 +5,15 @@ import testAdapter from './test-adapter.js';
 
 const NEW_LINES = /[\r\n]+/gm;
 
+/**
+ * The doctype declaration is on a line between the rest of the HTML.
+ * This function removes the doctype so that we can check if the rest of the HTML is without
+ * whitespace.
+ */
+function removeDoctypeLine(html) {
+	return html.slice(20);
+}
+
 describe('HTML minification', () => {
 	describe('in DEV enviroment', () => {
 		let fixture;
@@ -37,7 +46,7 @@ describe('HTML minification', () => {
 
 		it('should emit compressed HTML in the emitted file', async () => {
 			const html = await fixture.readFile('/index.html');
-			expect(NEW_LINES.test(html.slice(20))).to.equal(false);
+			expect(NEW_LINES.test(removeDoctypeLine(html))).to.equal(false);
 		});
 	});
 
@@ -57,7 +66,7 @@ describe('HTML minification', () => {
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();
-			expect(NEW_LINES.test(html.slice(20))).to.equal(false);
+			expect(NEW_LINES.test(removeDoctypeLine(html))).to.equal(false);
 		});
 	});
 });
