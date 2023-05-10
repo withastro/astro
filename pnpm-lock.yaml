@@ -3188,6 +3188,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/ssr-locals:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/ssr-manifest:
     dependencies:
       astro:
@@ -4376,6 +4382,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/errors:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/locals:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
