@@ -196,6 +196,12 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
+			inlineStylesheets: z
+				.enum(['always', 'auto', 'never'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
+			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
+			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 		})
 		.optional()
 		.default({}),
