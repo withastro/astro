@@ -16,7 +16,7 @@ describe('API routes', () => {
 	});
 
 	it('Can render locals in page', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({
 			method: 'POST',
 			url: '/foo',
@@ -33,7 +33,7 @@ describe('API routes', () => {
 	});
 
 	it('Can access locals in API', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
 		let { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/api',
@@ -48,7 +48,6 @@ describe('API routes', () => {
 
 		let json = JSON.parse(buffer.toString('utf-8'));
 
-		expect(json.length).to.equal(1);
-		expect(json[0].foo).to.equal('bar');
+		expect(json.foo).to.equal('bar');
 	});
 });
