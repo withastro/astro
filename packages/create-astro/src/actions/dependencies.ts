@@ -25,12 +25,15 @@ export async function dependencies(
 		await spinner({
 			start: `Dependencies installing with ${ctx.pkgManager}...`,
 			end: 'Dependencies installed',
-			while: () =>
-				install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
-					// eslint-disable-next-line no-console
+			while: () => {
+				return install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
 					error('error', e);
-					process.exit(1);
-				}),
+					error(
+						'error',
+						'Dependencies failed to install, please install them manually after setup.'
+					);
+				});
+			},
 		});
 	} else {
 		await info(
