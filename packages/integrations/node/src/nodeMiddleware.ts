@@ -8,8 +8,8 @@ export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (
 		req: IncomingMessage,
 		res: ServerResponse,
-		locals?: object,
-		next?: (err?: unknown) => void
+		next?: (err?: unknown) => void,
+		locals?: object
 	) {
 		try {
 			const route =
