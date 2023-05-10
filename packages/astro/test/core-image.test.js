@@ -627,7 +627,7 @@ describe('astro:image', () => {
 			await devServer.stop();
 		});
 
-		it('does not interfere with query params ssssss', async () => {
+		it('does not interfere with query params', async () => {
 			let res = await fixture.fetch('/api?src=image.png');
 			const html = await res.text();
 			expect(html).to.equal('An image: "image.png"');
