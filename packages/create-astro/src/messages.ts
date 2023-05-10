@@ -93,16 +93,6 @@ export const info = async (prefix: string, text: string) => {
 		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
 	}
 };
-
-export const warn = async (prefix: string, text: string) => {
-	if (stdout.columns < 80) {
-		log(`${' '.repeat(5)} ${color.yellow('◼')}  ${color.yellow(prefix)}`);
-		log(`${' '.repeat(9)}${color.dim(text)}`);
-	} else {
-		log(`${' '.repeat(5)} ${color.yellow('◼')}  ${color.yellow(prefix)} ${color.dim(text)}`);
-	}
-};
-
 export const error = async (prefix: string, text: string) => {
 	if (stdout.columns < 80) {
 		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);

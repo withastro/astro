@@ -1,5 +1,5 @@
 import type { Context } from './context';
-
+import { color } from '@astrojs/cli-kit';
 import { execa } from 'execa';
 import { error, info, spinner, title } from '../messages.js';
 
@@ -30,7 +30,9 @@ export async function dependencies(
 					error('error', e);
 					error(
 						'error',
-						'Dependencies failed to install, please install them manually after setup.'
+						`Dependencies failed to install, please run ${color.bold(
+							ctx.pkgManager + ' install'
+						)}  to install them manually after setup.`
 					);
 				});
 			},
