@@ -1,5 +1,5 @@
 
-export async function post({ locals }) {
+export async function get({ locals }) {
 	let out = { ...locals };
 
 	return new Response(JSON.stringify(out), {

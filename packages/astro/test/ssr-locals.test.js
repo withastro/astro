@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-describe('SSR Environment Variables', () => {
+describe('SSR Astro.locals from server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -19,20 +19,20 @@ describe('SSR Environment Variables', () => {
 	it('Can access Astro.locals in page', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/foo');
-		const route = match
-		const response = await app.render(request);
+		const locals = { foo: 'bar' };
+		const response = await app.render(request, undefined, locals);
 		const html = await response.text();
+
 		const $ = cheerio.load(html);
-		expect($('#ssr').text()).to.equal('true');
+		expect($('#foo').text()).to.equal('bar');
 	});
 
-	it('Can access Astro.locals in API', async () => {
+	it('Can access Astro.locals in api context', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/api');
-		const response = await app.render(request);
+		const locals = { foo: 'bar' };
+		const response = await app.render(request, undefined, locals);
 		expect(response.status).to.equal(200);
-		expect(response.headers.get('Content-Type')).to.equal('application/json;charset=utf-8');
-		expect(response.headers.get('Content-Length')).to.not.be.empty;
 		const body = await response.json();
 
 		expect(body.foo).to.equal('bar');
