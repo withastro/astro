@@ -108,17 +108,10 @@ export type RenderPage = {
 	mod: ComponentInstance;
 	renderContext: RenderContext;
 	env: Environment;
-	apiContext?: APIContext;
 	isCompressHTML?: boolean;
 };
 
-export async function renderPage({
-	mod,
-	renderContext,
-	env,
-	apiContext,
-	isCompressHTML = false,
-}: RenderPage) {
+export async function renderPage({ mod, renderContext, env,isCompressHTML = false, }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -133,7 +126,14 @@ export async function renderPage({
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
-	let locals = apiContext?.locals ?? {};
+	if (renderContext.locals) {
+		if (env.mode === 'development' && !isValueSerializable(renderContext.locals)) {
+			throw new AstroError({
+				...AstroErrorData.LocalsNotSerializable,
+				message: AstroErrorData.LocalsNotSerializable.message(renderContext.pathname),
+			});
+		}
+	}
 
 	const result = createResult({
 		adapterName: env.adapterName,
@@ -156,7 +156,7 @@ export async function renderPage({
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
 		cookies: apiContext?.cookies,
-		locals,
+		locals: renderContext.locals ?? {},
 	});
 
 	// Support `export const components` for `MDX` pages
