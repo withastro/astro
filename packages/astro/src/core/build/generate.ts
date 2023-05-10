@@ -599,7 +599,6 @@ async function generatePath(
 							mod,
 							renderContext,
 							env,
-							apiContext,
 							isCompressHTML: settings.config.compressHTML,
 						});
 					}
@@ -609,7 +608,6 @@ async function generatePath(
 					mod,
 					renderContext,
 					env,
-					apiContext,
 					isCompressHTML: settings.config.compressHTML,
 				});
 			}
