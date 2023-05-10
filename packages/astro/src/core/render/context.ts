@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro';
-import { AstroError, AstroErrorData } from '../errors';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParamsAndPropsOrThrow } from './core.js';
 import type { Environment } from './environment';
 
@@ -55,7 +55,7 @@ export async function createRenderContext(
 	});
 
 	let context = {
-		request,
+		...options,
 		origin,
 		pathname,
 		url,
