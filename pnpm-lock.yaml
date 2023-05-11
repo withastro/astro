@@ -1672,6 +1672,18 @@ importers:
         specifier: ^3.48.0
         version: 3.58.0
 
+  packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      svelte:
+        specifier: ^3.48.0
+        version: 3.54.0
+
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
   packages/astro/test/fixtures/api-routes:
@@ -16518,6 +16530,11 @@ packages:
       pascal-case: 3.1.2
       svelte: 3.58.0
       typescript: 5.0.2
+    dev: false
+
+  /svelte@3.54.0:
+    resolution: {integrity: sha512-tdrgeJU0hob0ZWAMoKXkhcxXA7dpTg6lZGxUeko5YqvPdJBiyRspGsCwV27kIrbrqPP2WUoSV9ca0gnLlw8YzQ==}
+    engines: {node: '>= 8'}
     dev: false
 
   /svelte@3.58.0:
