@@ -35,6 +35,9 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let imports = [];
 				let i = 0;
 				for (const pageData of eachPageData(internals)) {
+					if(pageData.route.type === 'redirect') {
+						continue;
+					}
 					const variable = `_page${i}`;
 					imports.push(`import * as ${variable} from ${JSON.stringify(pageData.moduleSpecifier)};`);
 					importMap += `[${JSON.stringify(pageData.component)}, ${variable}],`;

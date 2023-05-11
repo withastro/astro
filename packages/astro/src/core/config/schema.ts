@@ -36,6 +36,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
+	redirects: {},
 	experimental: {
 		assets: false,
 		inlineStylesheets: 'never',
@@ -133,6 +134,7 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
+	redirects: z.record(z.string(), z.string()).default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
 			service: z.object({

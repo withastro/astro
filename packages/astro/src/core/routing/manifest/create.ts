@@ -412,6 +412,45 @@ export function createRouteManifest(
 			});
 		});
 
+	Object.entries(settings.config.redirects).forEach(([from, to]) => {
+		const trailingSlash = config.trailingSlash;
+
+		const segments = removeLeadingForwardSlash(from)
+		.split(path.posix.sep)
+		.filter(Boolean)
+		.map((s: string) => {
+			validateSegment(s);
+			return getParts(s, from);
+		});
+
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+			? `/${segments.map((segment) => segment[0].content).join('/')}`
+			: null;
+		const params = segments
+			.flat()
+			.filter((p) => p.dynamic)
+			.map((p) => p.content);
+		const route = `/${segments
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+			.join('/')}`.toLowerCase();
+
+
+		routes.unshift({
+			type: 'redirect',
+			route,
+			pattern,
+			segments,
+			params,
+			component: '',
+			generate,
+			pathname: pathname || void 0,
+			prerender: false,
+			redirect: to
+		});
+	});
+
 	return {
 		routes,
 	};

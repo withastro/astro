@@ -15,6 +15,9 @@ describe('SSG - Redirects', () => {
 			adapter: netlifyStatic(),
 			site: `http://example.com`,
 			integrations: [testIntegration()],
+			redirects: {
+				'/other': '/'
+			}
 		});
 		await fixture.build();
 	});
@@ -22,6 +25,9 @@ describe('SSG - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		let redirects = await fixture.readFile('/_redirects');
 		let parts = redirects.split(/\s+/);
-		expect(parts).to.deep.equal(['/nope', '/', '301']);
+		expect(parts).to.deep.equal([
+			'/other', '/', '301',
+			'/nope', '/', '301'
+		]);
 	});
 });

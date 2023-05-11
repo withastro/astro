@@ -448,6 +448,11 @@ export interface AstroUserConfig {
 	cacheDir?: string;
 
 	/**
+	 * TODO
+	 */
+	redirects?: Record<string, string>;
+
+	/**
 	 * @docs
 	 * @name site
 	 * @type {string}
@@ -1704,7 +1709,7 @@ export interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-export type RouteType = 'page' | 'endpoint';
+export type RouteType = 'page' | 'endpoint' | 'redirect';
 
 export interface RoutePart {
 	content: string;

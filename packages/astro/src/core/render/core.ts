@@ -111,6 +111,15 @@ export type RenderPage = {
 };
 
 export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
+	if(renderContext.route?.type === 'redirect') {
+		return new Response(null, {
+			status: 301,
+			headers: {
+				'location': renderContext.route.redirect!
+			}
+		});
+	}
+
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)

@@ -178,13 +178,17 @@ async function generatePage(
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 
-	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	let pageModule = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;
 
 	if (!pageModule) {
-		throw new Error(
-			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
-		);
+		if(pageData.route.type === 'redirect') {
+			pageModule = { 'default': Function.prototype as any };
+		} else {
+			throw new Error(
+				`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
+			);
+		}
 	}
 
 	if (shouldSkipDraft(pageModule, opts.settings)) {
