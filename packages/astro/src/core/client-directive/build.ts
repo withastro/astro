@@ -17,9 +17,8 @@ import directive from ${stringifiedEntrypoint};
 (self.Astro || (self.Astro = {}))[${stringifiedName}] = directive;
 
 window.dispatchEvent(new Event('astro:' + ${stringifiedName}));`,
-			loader: 'js',
+			resolveDir: process.cwd(),
 		},
-		entryPoints: [entrypoint],
 		absWorkingDir: process.cwd(),
 		format: 'iife',
 		minify: true,
