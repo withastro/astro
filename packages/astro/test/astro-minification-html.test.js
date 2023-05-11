@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
-import { loadFixture, isWindows } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
 const NEW_LINES = /[\r\n]+/gm;
@@ -12,6 +11,14 @@ const NEW_LINES = /[\r\n]+/gm;
  */
 function removeDoctypeLine(html) {
 	return html.slice(20);
+}
+
+/**
+ * In the dev environment, two more script tags will be injected than in the production environment
+ * so that we can check if the rest of the HTML is without whitespace
+ */
+function removeDoctypeLineInDev(html){
+	return html.slice(-100)
 }
 
 describe('HTML minification', () => {
@@ -33,7 +40,7 @@ describe('HTML minification', () => {
 			let res = await fixture.fetch(`/`);
 			expect(res.status).to.equal(200);
 			const html = await res.text();
-			expect(NEW_LINES.test(html.slice(-100))).to.equal(false);
+			expect(NEW_LINES.test(removeDoctypeLineInDev())).to.equal(false);
 		});
 	});
 
