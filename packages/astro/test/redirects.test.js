@@ -48,7 +48,7 @@ describe('Astro.redirect', () => {
 			await fixture.build();
 		});
 	
-		it.only('Includes the meta refresh tag.', async () => {
+		it('Includes the meta refresh tag.', async () => {
 			const html = await fixture.readFile('/secret/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/login');
