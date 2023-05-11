@@ -1724,6 +1724,7 @@ export interface RouteData {
 	segments: RoutePart[][];
 	type: RouteType;
 	prerender: boolean;
+	redirect?: string;
 }
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {

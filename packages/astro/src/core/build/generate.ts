@@ -522,9 +522,10 @@ async function generatePath(
 			case 302: {
 				const location = response.headers.get("location");
 				if(!location) {
-					redirectWithNoLocation();
+					return void redirectWithNoLocation();
 				}
-				body = `<!doctype html><meta http-equiv="refresh" content="0;url=${location}" />`
+				body = `<!doctype html><meta http-equiv="refresh" content="0;url=${location}" />`;
+				pageData.route.redirect = location;
 				break;
 			}
 			default: {

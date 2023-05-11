@@ -1,12 +1,12 @@
 import type { AstroConfig, RouteData } from 'astro';
 import fs from 'fs';
 
-type RedirectDefinition = {
+export type RedirectDefinition = {
 	dynamic: boolean;
 	input: string;
 	target: string;
 	weight: 0 | 1;
-	status: 200 | 404;
+	status: 200 | 404 | 301;
 };
 
 export async function createRedirects(
@@ -14,7 +14,7 @@ export async function createRedirects(
 	routes: RouteData[],
 	dir: URL,
 	entryFile: string,
-	type: 'functions' | 'edge-functions' | 'builders'
+	type: 'functions' | 'edge-functions' | 'builders' | 'static'
 ) {
 	const _redirectsURL = new URL('./_redirects', dir);
 	const kind = type ?? 'functions';
@@ -23,7 +23,19 @@ export async function createRedirects(
 
 	for (const route of routes) {
 		if (route.pathname) {
-			if (route.distURL) {
+			if( kind === 'static') {
+				if(route.redirect) {
+					definitions.push({
+						dynamic: false,
+						input: route.pathname,
+						target: route.redirect,
+						status: 301,
+						weight: 1
+					});
+				}
+				continue;
+			}
+			else if (route.distURL) {
 				definitions.push({
 					dynamic: false,
 					input: route.pathname,
@@ -68,7 +80,19 @@ export async function createRedirects(
 					})
 					.join('/');
 
-			if (route.distURL) {
+			if(kind === 'static') {
+				if(route.redirect) {
+					definitions.push({
+						dynamic: true,
+						input: pattern,
+						target: route.redirect,
+						status: 301,
+						weight: 1
+					});
+				}
+				continue;
+			}
+			else if (route.distURL) {
 				const target =
 					`${pattern}` + (config.build.format === 'directory' ? '/index.html' : '.html');
 				definitions.push({
@@ -99,8 +123,8 @@ export async function createRedirects(
 }
 
 function prettify(definitions: RedirectDefinition[]) {
-	let minInputLength = 0,
-		minTargetLength = 0;
+	let minInputLength = 4,
+		minTargetLength = 4;
 	definitions.sort((a, b) => {
 		// Find the longest input, so we can format things nicely
 		if (a.input.length > minInputLength) {
