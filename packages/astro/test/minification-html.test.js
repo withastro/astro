@@ -40,7 +40,7 @@ describe('HTML minification', () => {
 			let res = await fixture.fetch(`/`);
 			expect(res.status).to.equal(200);
 			const html = await res.text();
-			expect(NEW_LINES.test(removeDoctypeLineInDev())).to.equal(false);
+			expect(NEW_LINES.test(removeDoctypeLineInDev(html))).to.equal(false);
 		});
 	});
 
