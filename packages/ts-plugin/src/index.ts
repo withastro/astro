@@ -1,6 +1,6 @@
 import type ts from 'typescript/lib/tsserverlibrary';
 import { AstroSnapshotManager } from './astro-snapshots.js';
-import { decorateLanguageService } from './language-service/index.js';
+import { decorateLanguageService, isPatched } from './language-service/index.js';
 import { Logger } from './logger.js';
 import { patchModuleLoader } from './module-loader.js';
 import { ProjectAstroFilesManager } from './project-astro-files.js';
@@ -15,6 +15,10 @@ function init(modules: { typescript: typeof import('typescript/lib/tsserverlibra
 
 		if (!isAstroProject(info.project, parsedCommandLine)) {
 			logger.log('Detected that this is not an Astro project, abort patching TypeScript');
+			return info.languageService;
+		}
+
+		if (isPatched(info.languageService)) {
 			return info.languageService;
 		}
 

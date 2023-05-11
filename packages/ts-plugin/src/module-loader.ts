@@ -8,19 +8,19 @@ import { ensureRealAstroFilePath, isVirtualAstroFilePath } from './utils.js';
  * Caches resolved modules.
  */
 class ModuleResolutionCache {
-	private cache = new Map<string, ts.ResolvedModule>();
+	private cache = new Map<string, ts.ResolvedModuleFull>();
 
 	/**
 	 * Tries to get a cached module.
 	 */
-	get(moduleName: string, containingFile: string): ts.ResolvedModule | undefined {
+	get(moduleName: string, containingFile: string): ts.ResolvedModuleFull | undefined {
 		return this.cache.get(this.getKey(moduleName, containingFile));
 	}
 
 	/**
 	 * Caches resolved module, if it is not undefined.
 	 */
-	set(moduleName: string, containingFile: string, resolvedModule: ts.ResolvedModule | undefined) {
+	set(moduleName: string, containingFile: string, resolvedModule: ts.ResolvedModuleFull | undefined) {
 		if (!resolvedModule) {
 			return;
 		}
@@ -63,8 +63,13 @@ export function patchModuleLoader(
 	const astroSys = createAstroSys(logger);
 	const moduleCache = new ModuleResolutionCache();
 	const origResolveModuleNames = lsHost.resolveModuleNames?.bind(lsHost);
+	const origResolveModuleNamLiterals = lsHost.resolveModuleNameLiterals?.bind(lsHost);
 
-	lsHost.resolveModuleNames = resolveModuleNames;
+	if (lsHost.resolveModuleNameLiterals) {
+		lsHost.resolveModuleNameLiterals = resolveModuleNameLiterals;
+	} else {
+		lsHost.resolveModuleNames = resolveModuleNames;
+	}
 
 	const origRemoveFile = project.removeFile.bind(project);
 	project.removeFile = (info, fileExists, detachFromProject) => {
@@ -118,7 +123,7 @@ export function patchModuleLoader(
 		name: string,
 		containingFile: string,
 		compilerOptions: ts.CompilerOptions
-	): ts.ResolvedModule | undefined {
+	): ts.ResolvedModuleFull | undefined {
 		const astroResolvedModule = typescript.resolveModuleName(
 			name,
 			containingFile,
@@ -141,5 +146,58 @@ export function patchModuleLoader(
 			resolvedFileName,
 		};
 		return resolvedAstroModule;
+	}
+
+	function resolveModuleNameLiterals(
+		moduleLiterals: readonly ts.StringLiteralLike[],
+		containingFile: string,
+		redirectedReference: ts.ResolvedProjectReference | undefined,
+		options: ts.CompilerOptions,
+		containingSourceFile: ts.SourceFile,
+		reusedNames: readonly ts.StringLiteralLike[] | undefined
+	): readonly ts.ResolvedModuleWithFailedLookupLocations[] {
+		logger.log('Resolving modules names for ' + containingFile);
+		// Try resolving all module names with the original method first.
+		// The ones that are undefined will be re-checked if they are a
+		// Astro file and if so, are resolved, too. This way we can defer
+		// all module resolving logic except for Astro files to TypeScript.
+		const resolved =
+			origResolveModuleNamLiterals?.(
+				moduleLiterals,
+				containingFile,
+				redirectedReference,
+				options,
+				containingSourceFile,
+				reusedNames
+			) ??
+			moduleLiterals.map(
+				(): ts.ResolvedModuleWithFailedLookupLocations => ({
+					resolvedModule: undefined,
+				})
+			);
+
+		return resolved.map((tsResolvedModule, idx) => {
+			const moduleName = moduleLiterals[idx].text;
+			if (tsResolvedModule.resolvedModule || !ensureRealAstroFilePath(moduleName).endsWith('.astro')) {
+				return tsResolvedModule;
+			}
+
+			return resolveAstroModuleNameFromCache(moduleName, containingFile, options);
+		});
+	}
+
+	function resolveAstroModuleNameFromCache(moduleName: string, containingFile: string, options: ts.CompilerOptions) {
+		const cachedModule = moduleCache.get(moduleName, containingFile);
+		if (cachedModule) {
+			return {
+				resolvedModule: cachedModule,
+			};
+		}
+
+		const resolvedModule = resolveModuleName(moduleName, containingFile, options);
+		moduleCache.set(moduleName, containingFile, resolvedModule);
+		return {
+			resolvedModule: resolvedModule,
+		};
 	}
 }

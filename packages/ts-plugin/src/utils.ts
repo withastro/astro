@@ -1,3 +1,5 @@
+import type ts from 'typescript/lib/tsserverlibrary';
+
 export function isAstroFilePath(filePath: string) {
 	return filePath.endsWith('.astro');
 }
