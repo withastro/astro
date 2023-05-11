@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 1.0.5
+
+### Patch Changes
+
+- 841a761: Fix type for `scopeUri` in workspace/configuration request
+- 4f7430b: Update `prettier-plugin-astro` to 0.8.1
+
 ## 1.0.4
 
 ### Patch Changes

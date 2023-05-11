@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 1.0.5
+
+### Patch Changes
+
+- ae15420: Fix importing `.astro` files in `.ts` files not working with TypeScript 5.0+
+- 841a761: Fix type for `scopeUri` in workspace/configuration request
+- 4f7430b: Update `prettier-plugin-astro` to 0.8.1
+- Updated dependencies [ae15420]
+  - @astrojs/ts-plugin@1.0.5
+
 ## 1.0.4
 
 ### Patch Changes

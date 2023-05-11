@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.0.5
+
+### Patch Changes
+
+- ae15420: Fix importing `.astro` files in `.ts` files not working with TypeScript 5.0+
+
 ## 1.0.4
 
 ### Patch Changes
