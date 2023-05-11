@@ -1206,6 +1206,10 @@ export interface AstroSettings {
 		stage: InjectedScriptStage;
 		content: string;
 	}[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1654,6 +1658,7 @@ export interface AstroIntegration {
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
+			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -1750,6 +1755,7 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
+	clientDirectives: Map<string, string>;
 }
 
 /**
@@ -1814,4 +1820,27 @@ export type CreatePreviewServer = (
 
 export interface PreviewModule {
 	default: CreatePreviewServer;
+}
+
+/* Client Directives */
+type DirectiveHydrate = () => Promise<void>;
+type DirectiveLoad = () => Promise<DirectiveHydrate>;
+
+type DirectiveOptions = {
+	// The component displayName
+	name: string;
+	// The attribute value provided,
+	// for ex `client:interactive="click"
+	value: string;
+};
+
+export type ClientDirective = (
+	load: DirectiveLoad,
+	options: DirectiveOptions,
+	el: HTMLElement
+) => void;
+
+export interface ClientDirectiveConfig {
+	name: string;
+	entrypoint: string;
 }
