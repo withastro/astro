@@ -3878,6 +3878,9 @@ importers:
         specifier: ^3.17.3
         version: 3.20.6
     devDependencies:
+      '@astrojs/markdown-remark':
+        specifier: ^2.2.0
+        version: link:../../markdown/remark
       '@types/chai':
         specifier: ^4.3.1
         version: 4.3.3
