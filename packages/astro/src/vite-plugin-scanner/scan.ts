@@ -35,15 +35,9 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
-export async function scan(
-	code: string,
-	id: string,
-	settings: AstroSettings
-): Promise<PageOptions> {
-	const isHybridOutput =
-		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
+export async function scan(code: string, id: string): Promise<PageOptions> {
 	if (!includesExport(code)) {
-		return isHybridOutput ? { prerender: true } : {};
+		return {};
 	}
 	if (!didInit) {
 		await eslexer.init;
@@ -51,15 +45,11 @@ export async function scan(
 	}
 
 	const [_, exports] = eslexer.parse(code, id);
-	let hasFoundPrerenderExport = false;
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
 		// mark that a `prerender` export was found
 		if (BOOLEAN_EXPORTS.has(name)) {
-			if (!hasFoundPrerenderExport) {
-				hasFoundPrerenderExport = true;
-			}
 			// For a given export, check the value of the local declaration
 			// Basically extract the `const` from the statement `export const prerender = true`
 			const prefix = code
@@ -85,8 +75,5 @@ export async function scan(
 	}
 	// if there are no prerender exports
 	// return the default prerender value
-	if (!hasFoundPrerenderExport){
-		return isHybridOutput? {prerender: true}: {}
-	}
 	return pageOptions;
 }
