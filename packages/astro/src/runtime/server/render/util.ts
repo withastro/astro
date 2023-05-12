@@ -142,6 +142,7 @@ export function renderElement(
 export class EagerAsyncIterableIterator {
 	#iterable: AsyncIterable<any>;
 	#queue = new Queue<IteratorResult<any, any>>();
+	#error: any = undefined;
 	#next: Promise<IteratorResult<any, any>> | undefined;
 	constructor(iterable: AsyncIterable<any>) {
 		this.#iterable = iterable;
@@ -150,15 +151,22 @@ export class EagerAsyncIterableIterator {
 
 	async #run() {
 		let gen = this.#iterable[Symbol.asyncIterator]();
-		let value: IteratorResult<any, any>;
+		let value: IteratorResult<any, any> | undefined = undefined;
 		do {
 			this.#next = gen.next();
-			value = await this.#next;
-			this.#queue.push(value);
-		} while (!value.done);
+			try {
+				value = await this.#next;
+				this.#queue.push(value);
+			} catch (e) {
+				this.#error = e;
+			}
+		} while (value && !value.done);
 	}
 
 	async next() {
+		if (this.#error) {
+			throw this.#error;
+		}
 		if (!this.#queue.isEmpty()) {
 			return this.#queue.shift()!;
 		}
