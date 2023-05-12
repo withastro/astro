@@ -57,10 +57,10 @@ export function createServer(
 			});
 			stream.on('directory', () => {
 				// On directory find, redirect to the trailing slash
-				const location =  req.url + '/';
-        res.statusCode = 301
-        res.setHeader('Location', location);
-        res.end(location);
+				const location = req.url + '/';
+				res.statusCode = 301;
+				res.setHeader('Location', location);
+				res.end(location);
 			});
 			stream.on('file', () => {
 				forwardError = true;
