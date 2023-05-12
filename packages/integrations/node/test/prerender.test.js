@@ -61,7 +61,7 @@ describe('Prerendering', () => {
 
 	it('Omitting the trailing slash results in a redirect that includes the base', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/some-base/two`, {
-			redirect: 'manual'
+			redirect: 'manual',
 		});
 		expect(res.status).to.equal(301);
 		expect(res.headers.get('location')).to.equal('/some-base/two/');
