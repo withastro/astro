@@ -1831,10 +1831,13 @@ type DirectiveHydrate = () => Promise<void>;
 type DirectiveLoad = () => Promise<DirectiveHydrate>;
 
 type DirectiveOptions = {
-	// The component displayName
+	/**
+	 * The component displayName
+	 */
 	name: string;
-	// The attribute value provided,
-	// for ex `client:interactive="click"
+	/**
+	 * The attribute value provided
+	 */
 	value: string;
 };
 
