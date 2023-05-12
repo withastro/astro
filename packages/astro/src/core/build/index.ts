@@ -27,7 +27,7 @@ import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
-import { getTimeStat } from './util.js';
+import { getTimeStat, isHybridMalconfigured } from './util.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
@@ -132,11 +132,8 @@ class AstroBuilder {
 		this.validateConfig();
 
 		const astroConfig = this.settings.config;
-		const hybridOutputBadlyConfigured = astroConfig.experimental.hybridOutput
-			? astroConfig.output !== 'hybrid'
-			: astroConfig.output === 'hybrid';
 
-		if (hybridOutputBadlyConfigured) {
+		if (isHybridMalconfigured(astroConfig)) {
 			warn(
 				this.logging,
 				'build',
