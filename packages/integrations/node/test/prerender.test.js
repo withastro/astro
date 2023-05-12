@@ -12,6 +12,7 @@ describe('Prerendering', () => {
 	before(async () => {
 		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 		fixture = await loadFixture({
+			base: '/some-base',
 			root: './fixtures/prerender/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
@@ -32,7 +33,7 @@ describe('Prerendering', () => {
 	}
 
 	it('Can render SSR route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one`);
+		const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 
@@ -41,7 +42,7 @@ describe('Prerendering', () => {
 	});
 
 	it('Can render prerendered route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/two`);
+		const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 
@@ -50,11 +51,19 @@ describe('Prerendering', () => {
 	});
 
 	it('Can render prerendered route with query params', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/two?foo=bar`);
+		const res = await fetch(`http://${server.host}:${server.port}/some-base/two/?foo=bar`);
 		const html = await res.text();
 		const $ = cheerio.load(html);
 
 		expect(res.status).to.equal(200);
 		expect($('h1').text()).to.equal('Two');
+	});
+
+	it('Omitting the trailing slash results in a redirect that includes the base', async () => {
+		const res = await fetch(`http://${server.host}:${server.port}/some-base/two`, {
+			redirect: 'manual'
+		});
+		expect(res.status).to.equal(301);
+		expect(res.headers.get('location')).to.equal('/some-base/two/');
 	});
 });
