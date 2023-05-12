@@ -22,11 +22,7 @@ function vitePluginPrerender(
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						const isMarkedAsPrerender = meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender;
-						const isHybridOutput =
-							opts.settings.config.experimental.hybridOutput &&
-							opts.settings.config.output === 'hybrid';
-						if (isMarkedAsPrerender || (typeof isMarkedAsPrerender === 'undefined'  && isHybridOutput)) {
+						if (meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
