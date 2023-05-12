@@ -40,10 +40,10 @@ export async function scan(
 	id: string,
 	settings: AstroSettings
 ): Promise<PageOptions> {
-	const isHydbridOutput =
+	const isHybridOutput =
 		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
 	if (!includesExport(code)) {
-		return isHydbridOutput ? { prerender: true } : {};
+		return isHybridOutput ? { prerender: true } : {};
 	}
 	if (!didInit) {
 		await eslexer.init;
@@ -51,10 +51,15 @@ export async function scan(
 	}
 
 	const [_, exports] = eslexer.parse(code, id);
+	let hasFoundPrerenderExport = false;
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
+		// mark that a `prerender` export was found
 		if (BOOLEAN_EXPORTS.has(name)) {
+			if (!hasFoundPrerenderExport) {
+				hasFoundPrerenderExport = true;
+			}
 			// For a given export, check the value of the local declaration
 			// Basically extract the `const` from the statement `export const prerender = true`
 			const prefix = code
@@ -70,13 +75,18 @@ export async function scan(
 			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
-					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, isHydbridOutput),
+					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, isHybridOutput),
 					location: { file: id },
 				});
 			} else {
 				pageOptions[name as keyof PageOptions] = isTruthy(suffix);
 			}
 		}
+	}
+	// if there are no prerender exports
+	// return the default prerender value
+	if (!hasFoundPrerenderExport){
+		return isHybridOutput? {prerender: true}: {}
 	}
 	return pageOptions;
 }
