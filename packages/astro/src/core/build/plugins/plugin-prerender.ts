@@ -4,7 +4,7 @@ import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
 
-export function vitePluginPrerender(
+function vitePluginPrerender(
 	opts: StaticBuildOptions,
 	internals: BuildInternals
 ): VitePlugin {
@@ -26,12 +26,10 @@ export function vitePluginPrerender(
 						const isHybridOutput =
 							opts.settings.config.experimental.hybridOutput &&
 							opts.settings.config.output === 'hybrid';
-
-						if (isMarkedAsPrerender && (!isHybridOutput || isMarkedAsPrerender !== false)) {
+						if (isMarkedAsPrerender || (typeof isMarkedAsPrerender === 'undefined'  && isHybridOutput)) {
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
-
 						// dynamic pages should all go in their own chunk in the pages/* directory
 						return `pages/all`;
 					}
