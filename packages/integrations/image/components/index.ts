@@ -27,7 +27,7 @@ export interface ImageComponentRemoteImageProps extends TransformOptions, ImgHTM
 export interface PictureComponentLocalImageProps
 	extends GlobalHTMLAttributes,
 		Omit<TransformOptions, 'src'>,
-		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding' | 'fetchpriority'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
@@ -39,7 +39,7 @@ export interface PictureComponentLocalImageProps
 export interface PictureComponentRemoteImageProps
 	extends GlobalHTMLAttributes,
 		TransformOptions,
-		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding' | 'fetchpriority'> {
 	src: string;
 	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;

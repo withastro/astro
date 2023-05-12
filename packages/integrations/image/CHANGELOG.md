@@ -1,5 +1,14 @@
 # @astrojs/image
 
+## 0.16.8
+
+### Patch Changes
+
+- [#7059](https://github.com/withastro/astro/pull/7059) [`ebb40f5cb`](https://github.com/withastro/astro/commit/ebb40f5cb093e9be5f856a98bf5ffd65a814218b) Thanks [@jasikpark](https://github.com/jasikpark)! - Add `fetchpriority` to allowed `Picture` attributes in `@astrojs/image`
+
+- Updated dependencies [[`c87d42e76`](https://github.com/withastro/astro/commit/c87d42e766d02db5352671cbf074dd637bdb23e0), [`4f1073a6a`](https://github.com/withastro/astro/commit/4f1073a6a4f3e5a4fc9df96a2ae59f2e929703fe)]:
+  - astro@2.4.5
+
 ## 0.16.7
 
 ### Patch Changes
