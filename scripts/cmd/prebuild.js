@@ -40,7 +40,8 @@ export default async function prebuild(...args) {
 
 	async function prebuildFile(filepath) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
-		// If we're bundling a client directive, modify the code to export
+		// If we're bundling a client directive, modify the code to match `packages/astro/src/core/client-directive/build.ts`.
+		// If updating this code, make sure to also update that file.
 		if (filepath.includes(`runtime${path.sep}client`)) {
 			tscode = tscode.replace(
 				/export default (.*?)Directive/,
