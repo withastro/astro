@@ -1,7 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
-import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types';
 
 import glob from 'fast-glob';
@@ -13,7 +12,7 @@ import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { cssOrder, eachPageData, mergeInlineCss } from '../internal.js';
+import { cssOrder, eachPageData, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
@@ -21,7 +20,7 @@ const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
-export function vitePluginSSR(
+function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
 	config: AstroConfig
