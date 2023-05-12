@@ -143,28 +143,26 @@ Use tags like this fancy "aside" to add some *flair* to your docs.
 
 #### Render Markdoc nodes / HTML elements as Astro components
 
-You may also want to map standard HTML elements like headings and paragraphs to components. For this, you can configure a custom [Markdoc node][markdoc-nodes]. This example overrides Markdoc's `heading` node to render a `Heading` component, passing the built-in `level` attribute as a prop:
+You may also want to map standard HTML elements like headings and paragraphs to components. For this, you can configure a custom [Markdoc node][markdoc-nodes]. This example overrides Markdoc's `heading` node to render a `Heading` component, and passes through [Markdoc's default attributes for headings](https://markdoc.dev/docs/nodes#built-in-nodes).
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import { defineMarkdocConfig, Markdoc } from '@astrojs/markdoc/config';
 import Heading from './src/components/Heading.astro';
 
 export default defineMarkdocConfig({
   nodes: {
     heading: {
       render: Heading,
-      attributes: {
-        // Pass the attributes from Markdoc's default heading node
-        // as component props.
-        level: { type: String },
-      }
+      attributes: Markdoc.nodes.heading.attributes,
     },
   },
 })
 ```
 
-Now, all Markdown headings will render with the `Heading.astro` component. This example uses a level 3 heading, automatically passing `level: 3` as the component prop:
+Now, all Markdown headings will render with the `Heading.astro` component, and pass these `attributes` as component props. For headings, Markdoc provides a `level` attribute containing the numeric heading level.
+
+This example uses a level 3 heading, automatically passing `level: 3` as the component prop:
 
 ```md
 ### I'm a level 3 heading!
