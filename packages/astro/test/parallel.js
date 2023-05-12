@@ -19,6 +19,6 @@ describe('Component parallelization', () => {
 		let firstStart = Number($('.start').first().text());
 		let lastStart = Number($('.start').last().text());
 		let timeTook = lastStart - firstStart;
-		expect(timeTook).to.be.lessThan(50, 'the components in the list were kicked off more-or-less at the same time.');
+		expect(timeTook).to.be.lessThan(50, "The components didn't render in parallel");
 	});
 });
