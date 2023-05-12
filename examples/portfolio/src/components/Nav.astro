@@ -36,7 +36,7 @@ const iconLinks: { label: string; href: string; icon: keyof typeof iconPaths }[]
 			</template>
 		</menu-button>
 	</div>
-	<div id="menu-content">
+	<div id="menu-content" hidden>
 		<ul class="nav-items">
 			{
 				textLinks.map(({ label, href }) => (
