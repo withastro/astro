@@ -2,7 +2,7 @@ import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 import { RouteCache } from './route-cache.js';
-import { getDefaultClientDirectives } from '../client-directive/index.js';
+import { getDefaultClientDirectives } from '../client-directive/default.js';
 
 /**
  * An environment represents the static parts of rendering that do not change

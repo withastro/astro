@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 import testAdapter from '../test/test-adapter.js';
 
 const test = testFactory({
@@ -60,8 +60,11 @@ function testClientDirectivesShared() {
 		const counterValue = page.locator('#client-click pre');
 
 		await expect(counterValue).toHaveText('0');
-		await incrementBtn.click();
-		// Component only hydrates on first click, so this should stay 0
+
+		// Component only hydrates on first click
+		await Promise.all([waitForHydrate(page, counterValue), incrementBtn.click()]);
+
+		// Since first click only triggers hydration, this should stay 0
 		await expect(counterValue).toHaveText('0');
 		await incrementBtn.click();
 		// Hydrated, this should be 1
@@ -80,7 +83,7 @@ function testClientDirectivesShared() {
 		await expect(counterValue).toHaveText('0');
 
 		// Type super cool password to activate password!
-		await page.keyboard.type('hunter2');
+		await Promise.all([waitForHydrate(page, counterValue), page.keyboard.type('hunter2')]);
 
 		await incrementBtn.click();
 		// Hydrated, this should be 1
