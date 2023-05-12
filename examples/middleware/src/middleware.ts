@@ -8,6 +8,11 @@ const loginInfo = {
 	currentTime: undefined,
 };
 
+export const first = defineMiddleware(async (context, next) => {
+  context.locals.foo = 'bar';
+	return await next();
+});
+
 export const minifier = defineMiddleware(async (context, next) => {
 	const response = await next();
 	// check if the response is returning some HTML
@@ -53,17 +58,17 @@ const validation = defineMiddleware(async (context, next) => {
 	} else if (context.request.url.endsWith('/api/login')) {
 		const response = await next();
 		// the login endpoint will return to us a JSON with username and password
-		const data = await response.json();
-		// we naively check if username and password are equals to some string
-		if (data.username === 'astro' && data.password === 'astro') {
-			// we store the token somewhere outside of locals because the `locals` object is attached to the request
-			// and when doing a redirect, we lose that information
-			loginInfo.token = 'loggedIn';
-			loginInfo.currentTime = new Date().getTime();
-			return context.redirect('/admin');
-		}
+    const data = await response.json();
+    // we naively check if username and password are equals to some string
+    if (data.username === 'astro' && data.password === 'astro') {
+      // we store the token somewhere outside of locals because the `locals` object is attached to the request
+      // and when doing a redirect, we lose that information
+      loginInfo.token = 'loggedIn';
+      loginInfo.currentTime = new Date().getTime();
+      return context.redirect('/admin');
+    }
 	}
 	return next();
 });
 
-export const onRequest = sequence(validation, minifier);
+export const onRequest = sequence(first, validation, minifier);

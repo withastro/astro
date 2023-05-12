@@ -1,5 +1,14 @@
 import { sequence, defineMiddleware } from 'astro/middleware';
 
+const interceptEndpoint = defineMiddleware(async (context, next) => {
+	if (context.request.url.includes('/hello-never')) {
+    return new Response('intercepted', {
+			status: 200,
+		});
+	}
+	return await next();
+});
+
 const first = defineMiddleware(async (context, next) => {
 	if (context.request.url.includes('/lorem')) {
 		context.locals.name = 'ipsum';
@@ -37,4 +46,4 @@ const third = defineMiddleware(async (context, next) => {
 	return next();
 });
 
-export const onRequest = sequence(first, second, third);
+export const onRequest = sequence(interceptEndpoint, first, second, third);

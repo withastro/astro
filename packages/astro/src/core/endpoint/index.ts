@@ -16,21 +16,24 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { isValueSerializable } from '../render/core.js';
+import { simpleEndpointOutputToResponse } from '../util.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-type EndpointCallResult =
-	| {
-			type: 'simple';
-			body: string;
-			encoding?: BufferEncoding;
-			cookies: AstroCookies;
-	  }
-	| {
-			type: 'response';
-			response: Response;
-	  };
+export type EndpointCallResultSimple =  {
+  type: 'simple';
+  body: string;
+  encoding?: BufferEncoding;
+  cookies: AstroCookies;
+};
+
+export type EndpointCallResultResponse = {
+  type: 'response';
+  response: Response;
+};
+
+export type EndpointCallResult = EndpointCallResultSimple | EndpointCallResultResponse;
 
 export function createAPIContext({
 	request,
@@ -108,27 +111,39 @@ export async function call<MiddlewareResult = Response | EndpointOutput>(
 		adapterName: env.adapterName,
 	});
 
-	let response = await renderEndpoint(mod, context, env.ssr);
+	let response: Response | EndpointOutput;
+  
 	if (middleware && middleware.onRequest) {
-		if (response.body === null) {
-			const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
-			response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
-				if (env.mode === 'development' && !isValueSerializable(context.locals)) {
-					throw new AstroError({
-						...AstroErrorData.LocalsNotSerializable,
-						message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
-					});
-				}
-				return response;
-			});
-		} else {
-			warn(
-				env.logging,
-				'middleware',
-				"Middleware doesn't work for endpoints that return a simple body. The middleware will be disabled for this page."
-			);
-		}
-	}
+    const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
+    response = await callMiddleware<Response | EndpointOutput>(onRequest, context, async () => {
+      if (env.mode === 'development' && !isValueSerializable(context.locals)) {
+        throw new AstroError({
+          ...AstroErrorData.LocalsNotSerializable,
+          message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
+        });
+      }
+      // we can only support Response here, and *NOT* EndpointResponse, since this value will be passed back to the middleware handlers
+      const endpointResponse = await renderEndpoint(mod, context, env.ssr);
+      if (endpointResponse instanceof Response) {
+        return endpointResponse;
+      } else {
+        warn(
+          logging,
+          'ssr',
+          'Using a simple endpoint response with middleware requires automatic conversion to a Response immediately after next() completes.  You should prefer to return a Response from your endpoint instead.'
+        );
+        const simpleResult: EndpointCallResultSimple = {
+          type: 'simple',
+          body: endpointResponse.body,
+          encoding: endpointResponse.encoding,
+          cookies: context.cookies,
+        };
+        return simpleEndpointOutputToResponse(simpleResult, context.url);
+      }
+    });
+	} else {
+    response = await renderEndpoint(mod, context, env.ssr);
+  }
 
 	if (response instanceof Response) {
 		attachToResponse(response, context.cookies);

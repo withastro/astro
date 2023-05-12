@@ -117,6 +117,46 @@ describe('Middleware API in PROD mode, SSR', () => {
 		await fixture.build();
 	});
 
+	it('middleware should intercept and never run api endpoint', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/hello-never');
+		const response = await app.render(request);
+		const text = await response.text();
+    expect(response.status).to.equal(200);
+    expect(text).to.equal("intercepted");
+	});
+
+	it('middleware should get api endpoint result (Response)', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/hello-response');
+		const response = await app.render(request);
+		const text = await response.text();
+    expect(response.status).to.equal(200);
+    expect(text).to.equal("hello world: bar");
+	});
+
+	it('middleware should get api endpoint result (EndpointOutput default encoding)', async () => {
+    // endpoint returns a 'simple' result with a derived encoding of text/plain from the default encoding behavior
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/hello-endpointoutput-text');
+		const response = await app.render(request);
+		const text = await response.text();
+    expect(response.status).to.equal(200);
+    expect(response.headers.get("content-type")).to.equal("text/plain;charset=utf-8");
+    expect(text).to.equal("hello world: bar");
+	});
+
+	it('middleware should get api endpoint result (EndpointOutput derived encoding)', async () => {
+    // endpoint returns a 'simple' result with a derived encoding of application/json based on the path extension
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/hello-endpointoutput-json.json');
+		const response = await app.render(request);
+		const text = await response.text();
+    expect(response.status).to.equal(200);
+    expect(response.headers.get("content-type")).to.equal("application/json;charset=utf-8");
+    expect(text).to.equal('{ "hello": "world: bar" }');
+	});
+
 	it('should render locals data', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/');

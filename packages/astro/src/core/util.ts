@@ -3,10 +3,13 @@ import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
-import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
+import type { AstroConfig, AstroSettings, RouteType, EndpointOutput } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
+import type { EndpointCallResultSimple } from './endpoint';
+import mime from 'mime';
+import { attachToResponse } from './cookies/index.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
@@ -220,4 +223,32 @@ export function resolvePath(specifier: string, importer: string) {
 	} else {
 		return specifier;
 	}
+}
+
+// EndpointOutput.body is typed as "Body" (not exported) which is only allowed to be a string
+export function isEndpointOutput(o: any): o is EndpointOutput {
+  return !(o instanceof Response) && typeof o === "object" && typeof o.body === "string";
+}
+
+const textEncoder = new TextEncoder();
+
+export function simpleEndpointOutputToResponse(result: EndpointCallResultSimple, url: URL) {
+  const body = result.body;
+  const headers = new Headers();
+  const mimeType = mime.getType(url.pathname);
+  if (mimeType) {
+    headers.set('Content-Type', `${mimeType};charset=utf-8`);
+  } else {
+    headers.set('Content-Type', 'text/plain;charset=utf-8');
+  }
+  const bytes = textEncoder.encode(body);
+  headers.set('Content-Length', bytes.byteLength.toString());
+
+  const response = new Response(bytes, {
+    status: 200,
+    headers,
+  });
+
+  attachToResponse(response, result.cookies);
+  return response;
 }

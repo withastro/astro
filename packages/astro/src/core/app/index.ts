@@ -8,8 +8,7 @@ import type {
 } from '../../@types/astro';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
-import mime from 'mime';
-import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
+import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
@@ -28,6 +27,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import { simpleEndpointOutputToResponse } from '../util.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -45,7 +45,6 @@ export class App {
 	#manifest: Manifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#encoder = new TextEncoder();
 	#logging: LogOptions = {
 		dest: consoleLogDestination,
 		level: 'info',
@@ -287,23 +286,7 @@ export class App {
 			}
 			return result.response;
 		} else {
-			const body = result.body;
-			const headers = new Headers();
-			const mimeType = mime.getType(url.pathname);
-			if (mimeType) {
-				headers.set('Content-Type', `${mimeType};charset=utf-8`);
-			} else {
-				headers.set('Content-Type', 'text/plain;charset=utf-8');
-			}
-			const bytes = this.#encoder.encode(body);
-			headers.set('Content-Length', bytes.byteLength.toString());
-
-			const response = new Response(bytes, {
-				status: 200,
-				headers,
-			});
-
-			attachToResponse(response, result.cookies);
+      const response = simpleEndpointOutputToResponse(result, url);
 			return response;
 		}
 	}
