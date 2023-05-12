@@ -1,5 +1,5 @@
 import type { Context } from './context';
-
+import { color } from '@astrojs/cli-kit';
 import { execa } from 'execa';
 import { error, info, spinner, title } from '../messages.js';
 
@@ -25,12 +25,26 @@ export async function dependencies(
 		await spinner({
 			start: `Dependencies installing with ${ctx.pkgManager}...`,
 			end: 'Dependencies installed',
-			while: () =>
-				install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
-					// eslint-disable-next-line no-console
+			while: () => {
+				return Promise.reject('Unknown error').catch((e) => {
 					error('error', e);
-					process.exit(1);
-				}),
+					error(
+						'error',
+						`Dependencies failed to install, please run ${color.bold(
+							ctx.pkgManager + ' install'
+						)} to install them manually after setup.`
+					);
+				});
+				return install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
+					error('error', e);
+					error(
+						'error',
+						`Dependencies failed to install, please run ${color.bold(
+							ctx.pkgManager + ' install'
+						)}  to install them manually after setup.`
+					);
+				});
+			},
 		});
 	} else {
 		await info(
