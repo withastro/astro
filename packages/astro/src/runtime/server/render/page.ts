@@ -157,6 +157,11 @@ export async function renderPage(
 										}
 									}
 								}
+								if (chunk instanceof Response) {
+									throw new AstroError({
+										...AstroErrorData.ResponseSentError,
+									});
+								}
 
 								const bytes = chunkToByteArray(result, chunk);
 								controller.enqueue(bytes);
