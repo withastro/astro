@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/solid-recurse/' });
 
@@ -22,6 +22,8 @@ test.describe('Recursive elements with Solid', () => {
 
 		const increment = page.locator('#case1-B');
 		await expect(increment, 'initial count is 0').toHaveText('B: 0');
+
+		await waitForHydrate(page, wrapper);
 
 		await increment.click();
 		await expect(increment, 'count is incremented').toHaveText('B: 1');
