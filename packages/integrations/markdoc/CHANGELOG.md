@@ -1,5 +1,14 @@
 # @astrojs/markdoc
 
+## 0.1.3
+
+### Patch Changes
+
+- [#7045](https://github.com/withastro/astro/pull/7045) [`3a9f72c7f`](https://github.com/withastro/astro/commit/3a9f72c7f30ed173438fd0a222a094e5997b917d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve Markdoc validation errors with full message and file preview.
+
+- Updated dependencies [[`48395c815`](https://github.com/withastro/astro/commit/48395c81522f7527126699c4f185f7b4488a4b9a), [`630f8c8ef`](https://github.com/withastro/astro/commit/630f8c8ef68fedfa393899c13a072e50145895e8)]:
+  - astro@2.4.4
+
 ## 0.1.2
 
 ### Patch Changes

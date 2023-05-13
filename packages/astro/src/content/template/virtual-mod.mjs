@@ -28,6 +28,18 @@ const collectionToEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
+let lookupMap = {};
+/* @@LOOKUP_MAP_ASSIGNMENT@@ */
+
+function createGlobLookup(glob) {
+	return async (collection, lookupId) => {
+		const filePath = lookupMap[collection]?.[lookupId];
+
+		if (!filePath) return undefined;
+		return glob[collection][filePath];
+	};
+}
+
 const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
 	query: { astroPropagatedAssets: true },
 });
@@ -38,10 +50,10 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 
 export const getCollection = createGetCollection({
 	collectionToEntryMap,
-	collectionToRenderEntryMap,
+	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
-	getCollection,
-	collectionToRenderEntryMap,
+	getEntryImport: createGlobLookup(collectionToEntryMap),
+	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
