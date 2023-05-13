@@ -11,6 +11,7 @@ export default (load, options) => {
     }
 
     if (consecutiveMatch === password.length) {
+      window.removeEventListener('keydown', handleKeydown)
       const hydrate = await load()
       await hydrate()
     }
