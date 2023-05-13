@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.4
+
+### Patch Changes
+
+- [#7052](https://github.com/withastro/astro/pull/7052) [`8c14bffbd`](https://github.com/withastro/astro/commit/8c14bffbd9ea63bc4b4e9f9417352fdf4e7e65b4) Thanks [@ematipico](https://github.com/ematipico)! - Don't exit if dependencies fail to install
+
 ## 3.1.3
 
 ### Patch Changes
