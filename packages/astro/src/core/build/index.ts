@@ -131,18 +131,6 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
 		this.validateConfig();
 
-		const astroConfig = this.settings.config;
-
-		if (isHybridMalconfigured(astroConfig)) {
-			warn(
-				this.logging,
-				'build',
-				`The "output" config option must be set to "hybrid" and "experimental.hybridOutput" must be set to true to use the hybrid output mode. Falling back to "static" output mode.`
-			);
-			astroConfig.output = 'static';
-			this.settings.adapter = undefined;
-		}
-
 		info(this.logging, 'build', `output target: ${colors.green(this.settings.config.output)}`);
 		if (this.settings.adapter) {
 			info(this.logging, 'build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);

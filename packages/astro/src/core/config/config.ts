@@ -223,6 +223,12 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	}
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
+	if (isHybridMalconfigured(astroConfig)) {
+		throw new Error(
+			`The "output" config option must be set to "hybrid" and "experimental.hybridOutput" must be set to true to use the hybrid output mode. Falling back to "static" output mode.`
+		);
+	}
+
 	return {
 		astroConfig,
 		userConfig,
@@ -350,4 +356,10 @@ export function mergeConfig(
 	isRoot = true
 ): Record<string, any> {
 	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
+}
+
+// TODO: remove after the experimetal phase when
+// it won't be needed to edit two config fields to enable the feature
+function isHybridMalconfigured(config: AstroConfig) {
+	return config.experimental.hybridOutput ? config.output !== 'hybrid' : config.output === 'hybrid';
 }
