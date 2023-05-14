@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.5
+
+### Patch Changes
+
+- [#7086](https://github.com/withastro/astro/pull/7086) [`c5f1275e9`](https://github.com/withastro/astro/commit/c5f1275e9d2f212a08e56bc25e0b59c7d7e9f11d) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Fix create astro regression
+
 ## 3.1.4
 
 ### Patch Changes
