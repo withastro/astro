@@ -38,6 +38,21 @@ export async function renderToStaticMarkup(
 	return { html };
 }
 
+type FormatErrorOptions = {
+	message: string;
+	name: string;
+	stack?: string;
+	hint: string;
+	title: string;
+};
+function createFormattedError({ message, name, stack, hint }: FormatErrorOptions) {
+	const error = new Error(message);
+	error.name = name;
+	error.stack = stack;
+	// @ts-expect-error - hint is not part of the Error interface but it will be picked up by the error overlay
+	error.hint = hint;
+	return error;
+}
 export default {
 	check,
 	renderToStaticMarkup,
