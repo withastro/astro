@@ -17,7 +17,20 @@ export async function check(
 	try {
 		const result = await Component({ ...props, ...slots, children });
 		return result[AstroJSX];
-	} catch (e) {}
+	} catch (e) {
+		const error = e as Error;
+		// if the exception is from an mdx component
+		// throw an error
+		if (Component[Symbol.for('mdx-component')]) {
+			throw createFormattedError({
+				message: error.message,
+				title: error.name,
+				hint: `This issue often occurs when your MDX component encounters runtime errors.`, // For instance, if you reference frontmatter variables within the body using curly braces like \`{title}\`, you may encounter errors.\nTo avoid this, you should access frontmatter variables using the \`frontmatter\` key, like so: \`{frontmatter.title}\`
+				name: error.name,
+				stack: error.stack,
+			});
+		}
+	}
 	return false;
 }
 
@@ -53,6 +66,7 @@ function createFormattedError({ message, name, stack, hint }: FormatErrorOptions
 	error.hint = hint;
 	return error;
 }
+
 export default {
 	check,
 	renderToStaticMarkup,
