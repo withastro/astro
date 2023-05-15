@@ -58,6 +58,7 @@ type FormatErrorOptions = {
 	hint: string;
 	title: string;
 };
+// TODO: Remove this function and use `AstroError` when we refactor it to be usable without error codes
 function createFormattedError({ message, name, stack, hint }: FormatErrorOptions) {
 	const error = new Error(message);
 	error.name = name;
