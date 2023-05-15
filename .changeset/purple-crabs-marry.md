@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': minor
 ---
 
-Change esbuild.platform to 'neutral' to correctly resolve conditional package exports
+Continue using esbuild.platform 'browser' to match CloudFlare's standard build settings, but use resolve rewrites to point to the appropriate Lit.js package export for SSR support. Also, to allow workarounds for 3rd party integrations, add a `rewrites` option to the CloudFlare adapter.
