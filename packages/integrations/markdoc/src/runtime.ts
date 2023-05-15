@@ -6,7 +6,7 @@ import Markdoc, {
 import type { ContentEntryModule } from 'astro';
 import * as astroDefaultNodes from './nodes/index.js';
 
-export { transform, Ast } from '@markdoc/markdoc';
+export { default as Markdoc } from '@markdoc/markdoc';
 
 export function applyDefaultConfig(
 	config: MarkdocConfig,
