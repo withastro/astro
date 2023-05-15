@@ -136,24 +136,40 @@ export function renderElement(
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
 
-// This eagering consumes an AsyncIterable so that its values are ready to yield out
-// ASAP. This is used for list-like usage of Astro components, so that we don't have
-// to wait on earlier components to run to even start running those down in the list.
+// This wrapper around an AsyncIterable can eagerly consume its values, so that
+// its values are ready to yield out ASAP. This is used for list-like usage of
+// Astro components, so that we don't have to wait on earlier components to run
+// to even start running those down in the list.
 export class EagerAsyncIterableIterator {
 	#iterable: AsyncIterable<any>;
 	#queue = new Queue<IteratorResult<any, any>>();
 	#error: any = undefined;
 	#next: Promise<IteratorResult<any, any>> | undefined;
+	/**
+	 * Whether the proxy is running in buffering or pass-through mode
+	 */
+	#isBuffering = false;
+	#gen: AsyncIterator<any> | undefined = undefined;
+	#isStarted = false;
+
 	constructor(iterable: AsyncIterable<any>) {
 		this.#iterable = iterable;
-		this.#run();
 	}
 
-	async #run() {
-		let gen = this.#iterable[Symbol.asyncIterator]();
+	/**
+	 * Starts to eagerly fetch the inner iterator and cache the results.
+	 * Note: This might not be called, once next() has been called once, e.g. the iterator is started
+	 */
+	async buffer() {
+		if (this.#gen) {
+			throw new Error('Cannot not switch from non-buffer to buffer mode');
+		}
+		this.#isBuffering = true;
+		this.#isStarted = true;
+		this.#gen = this.#iterable[Symbol.asyncIterator]();
 		let value: IteratorResult<any, any> | undefined = undefined;
 		do {
-			this.#next = gen.next();
+			this.#next = this.#gen.next();
 			try {
 				value = await this.#next;
 				this.#queue.push(value);
@@ -167,11 +183,23 @@ export class EagerAsyncIterableIterator {
 		if (this.#error) {
 			throw this.#error;
 		}
+		// for non-buffered mode, just pass through the next result
+		if (!this.#isBuffering) {
+			if (!this.#gen) {
+				this.#isStarted = true;
+				this.#gen = this.#iterable[Symbol.asyncIterator]();
+			}
+			return await this.#gen.next();
+		}
 		if (!this.#queue.isEmpty()) {
 			return this.#queue.shift()!;
 		}
 		await this.#next;
 		return this.#queue.shift()!;
+	}
+
+	isStarted() {
+		return this.#isStarted;
 	}
 
 	[Symbol.asyncIterator]() {

@@ -36,10 +36,15 @@ export class RenderTemplateResult {
 	async *[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 
-		let iterables: Array<AsyncIterable<any>> = [];
+		let iterables: Array<EagerAsyncIterableIterator> = [];
+		// all async iterators start running in non-buffered mode to avoid useless caching
 		for (let i = 0; i < htmlParts.length; i++) {
 			iterables.push(new EagerAsyncIterableIterator(renderChild(expressions[i])));
 		}
+		// once the execution is interrupted, we start buffering the other iterators
+		setTimeout(() => {
+			iterables.forEach((it) => !it.isStarted() && it.buffer());
+		}, 0);
 		for (let i = 0; i < htmlParts.length; i++) {
 			const html = htmlParts[i];
 			const iterable = iterables[i];
