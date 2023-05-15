@@ -80,7 +80,7 @@ export default function vercelEdge({
 
 				if (config.output === 'static') {
 					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
+		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the edge adapter.
 
 	`);
 				}
