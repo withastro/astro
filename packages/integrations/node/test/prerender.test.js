@@ -9,7 +9,7 @@ import { fetch } from 'undici';
  */
 
 async function load() {
-	const mod = await import('./fixtures/prerender/dist/server/entry.mjs');
+	const mod = await import(`./fixtures/prerender/dist/server/entry.mjs?dropcache=${Date.now()}`);
 	return mod;
 }
 describe('Prerendering', () => {
@@ -36,7 +36,7 @@ describe('Prerendering', () => {
 
 		after(async () => {
 			await server.stop();
-			//await fixture.clean();
+			await fixture.clean();
 			delete process.env.PRERENDER;
 		});
 
@@ -94,7 +94,7 @@ describe('Prerendering', () => {
 
 		after(async () => {
 			await server.stop();
-			//await fixture.clean();
+			await fixture.clean();
 			delete process.env.PRERENDER;
 		});
 
@@ -153,7 +153,7 @@ describe('Hybrid rendering', () => {
 
 		after(async () => {
 			await server.stop();
-			//await fixture.clean();
+			await fixture.clean();
 			delete process.env.PRERENDER;
 		});
 
@@ -161,7 +161,6 @@ describe('Hybrid rendering', () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
-
 			expect(res.status).to.equal(200);
 			expect($('h1').text()).to.equal('Two');
 		});
@@ -213,7 +212,7 @@ describe('Hybrid rendering', () => {
 
 		after(async () => {
 			await server.stop();
-			//// await fixture.clean();
+			await fixture.clean();
 			delete process.env.PRERENDER;
 		});
 
@@ -221,7 +220,6 @@ describe('Hybrid rendering', () => {
 			const res = await fetch(`http://${server.host}:${server.port}/two`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
-			console.log({ html });
 
 			expect(res.status).to.equal(200);
 			expect($('h1').text()).to.equal('Two');
