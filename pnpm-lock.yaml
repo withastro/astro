@@ -3599,6 +3599,21 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/with-solid-js:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../solid
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      solid-js:
+        specifier: '*'
+        version: 1.7.4
+
   packages/integrations/deno:
     dependencies:
       esbuild:

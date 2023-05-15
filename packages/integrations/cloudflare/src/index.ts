@@ -98,6 +98,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
+					conditions: ["workerd", "worker", "browser"],
 					entryPoints: [entryPath],
 					outfile: buildPath,
 					allowOverwrite: true,
