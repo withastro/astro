@@ -1,1 +1,1 @@
-export { createHeadingNode } from './heading.js';
+export { heading } from './heading.js';

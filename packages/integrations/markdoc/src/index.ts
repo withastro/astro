@@ -9,7 +9,7 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
-import { applyDefaultConfig } from './default-config.js';
+import { applyDefaultConfig } from './runtime.js';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -52,7 +52,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const { config: markdocConfig } = applyDefaultConfig(userMarkdocConfig, entry);
+						const markdocConfig = applyDefaultConfig(userMarkdocConfig, entry);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -90,8 +90,8 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 						const res = `import { jsx as h } from 'astro/jsx-runtime';
 						import Markdoc from '@markdoc/markdoc';
-						import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
 						import { Renderer } from '@astrojs/markdoc/components';
+						import { collectHeadings, applyDefaultConfig } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
 							markdocConfigResult
 								? `\nimport userConfig from ${JSON.stringify(
@@ -112,13 +112,14 @@ export function getHeadings() {
 		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
 		''
 	}
-	const { collectedHeadings, config } = applyDefaultConfig({ nodes: { headings: userConfig?.nodes?.headings } }, entry);
+	const userHeadingConfig = userConfig?.nodes?.heading;
+	const config = applyDefaultConfig(userHeadingConfig ? { nodes: { heading: userHeadingConfig } } : {}, entry);
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
-	Markdoc.transform(ast, config);
-	return collectedHeadings;
+	const content = Markdoc.transform(ast, config);
+	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 export async function Content (props) {
-	const { config } = applyDefaultConfig({
+	const config = applyDefaultConfig({
 		...userConfig,
 		variables: { ...userConfig.variables, ...props },
 	}, entry);
