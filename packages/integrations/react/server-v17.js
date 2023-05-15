@@ -65,7 +65,11 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 	};
 	const newChildren = children ?? props.children;
 	if (newChildren != null) {
-		newProps.children = React.createElement(StaticHtml, { value: newChildren });
+		newProps.children = React.createElement(StaticHtml, {
+			// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
+			hydrate: metadata.astroStaticSlot ? !!metadata.hydrate : true,
+			value: newChildren
+		});
 	}
 	const vnode = React.createElement(Component, newProps);
 	let html;
@@ -80,4 +84,5 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 export default {
 	check,
 	renderToStaticMarkup,
+	supportsAstroStaticSlot: true,
 };

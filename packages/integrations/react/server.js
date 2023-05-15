@@ -58,6 +58,11 @@ async function getNodeWritable() {
 	return Writable;
 }
 
+function needsHydration(metadata) {
+	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
+	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+}
+
 async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
 	let prefix;
 	if (this && this.result) {
@@ -69,7 +74,11 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	const slots = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		const name = slotName(key);
-		slots[name] = React.createElement(StaticHtml, { value, name });
+		slots[name] = React.createElement(StaticHtml, {
+			hydrate: needsHydration(metadata),
+			value,
+			name
+		});
 	}
 	// Note: create newProps to avoid mutating `props` before they are serialized
 	const newProps = {
@@ -78,7 +87,10 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	};
 	const newChildren = children ?? props.children;
 	if (newChildren != null) {
-		newProps.children = React.createElement(StaticHtml, { value: newChildren });
+		newProps.children = React.createElement(StaticHtml, {
+			hydrate: needsHydration(metadata),
+			value: newChildren
+		});
 	}
 	const vnode = React.createElement(Component, newProps);
 	const renderOptions = {
@@ -182,4 +194,5 @@ async function renderToReadableStreamAsync(vnode, options) {
 export default {
 	check,
 	renderToStaticMarkup,
+	supportsAstroStaticSlot: true,
 };

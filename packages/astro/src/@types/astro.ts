@@ -90,6 +90,7 @@ export interface AstroComponentMetadata {
 	hydrateArgs?: any;
 	componentUrl?: string;
 	componentExport?: { value: string; namespace?: boolean };
+	astroStaticSlot: true;
 }
 
 /** The flags supported by the Astro CLI */
@@ -1632,6 +1633,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			html: string;
 			attrs?: Record<string, string>;
 		}>;
+		supportsAstroStaticSlot?: boolean;
 	};
 }
 
