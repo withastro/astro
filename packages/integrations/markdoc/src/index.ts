@@ -92,16 +92,16 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						import Markdoc from '@markdoc/markdoc';
 						import { Renderer } from '@astrojs/markdoc/components';
 						import { collectHeadings, applyDefaultConfig } from '@astrojs/markdoc/runtime';
-import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
-							markdocConfigResult
-								? `\nimport userConfig from ${JSON.stringify(
-										markdocConfigResult.fileUrl.pathname
-								  )};`
-								: ''
-						}${
+import * as entry from ${JSON.stringify(viteId + '?astroContent')};
+${
+	markdocConfigResult
+		? `import _userConfig from ${JSON.stringify(
+				markdocConfigResult.fileUrl.pathname
+		  )};\nconst userConfig = _userConfig ?? {};`
+		: 'const userConfig = {};'
+}${
 							astroConfig.experimental.assets
-								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';
-											userConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
+								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
 								: ''
 						}
 const stringifiedAst = ${JSON.stringify(JSON.stringify(ast))};
@@ -112,8 +112,8 @@ export function getHeadings() {
 		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
 		''
 	}
-	const userHeadingConfig = userConfig?.nodes?.heading;
-	const config = applyDefaultConfig(userHeadingConfig ? { nodes: { heading: userHeadingConfig } } : {}, entry);
+	const headingConfig = userConfig.nodes?.heading;
+	const config = applyDefaultConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
