@@ -16,9 +16,21 @@ describe('Component parallelization', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 
-		let firstStart = Number($('.start').first().text());
-		let lastStart = Number($('.start').last().text());
-		let timeTook = lastStart - firstStart;
-		expect(timeTook).to.be.lessThan(50, "The components didn't render in parallel");
+		const startTimes = Array.from($('.start')).map((element) => Number(element.children[0].data));
+		const finishTimes = Array.from($('.finished')).map((element) =>
+			Number(element.children[0].data)
+		);
+
+		let renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
+		expect(renderStartWithin).to.be.lessThan(
+			10, // in theory, this should be 0, so 10ms tolerance
+			"The components didn't start rendering in parallel"
+		);
+
+		const totalRenderTime = Math.max(...finishTimes) - Math.min(...startTimes);
+		expect(totalRenderTime).to.be.lessThan(
+			60, // max component delay is 40ms
+			'The total render time was significantly longer than the max component delay'
+		);
 	});
 });
