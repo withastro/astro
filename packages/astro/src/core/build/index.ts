@@ -27,7 +27,7 @@ import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
-import { getTimeStat, isHybridMalconfigured } from './util.js';
+import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
