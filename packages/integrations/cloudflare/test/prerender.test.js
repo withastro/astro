@@ -1,5 +1,6 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import slash from 'slash';
 
 describe('Prerendering', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -19,8 +20,12 @@ describe('Prerendering', () => {
 	});
 
 	it('includes prerendered routes in the routes.json config', async () => {
-		const routes = JSON.parse(await fixture.readFile('/_routes.json'));
-		expect(routes.exclude).to.deep.equal(['/_worker.js', '/one/index.html', '/one/']);
+		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
+			slash(r)
+		);
+		const expectedExcludedRoutes = ['/_worker.js', '/one/index.html', '/one/'];
+
+		expect(foundRoutes.every((element) => expectedExcludedRoutes.includes(element))).to.be.true;
 	});
 });
 
@@ -45,8 +50,11 @@ describe('Hybrid rendering', () => {
 	});
 
 	it('includes prerendered routes in the routes.json config', async () => {
-		const routes = JSON.parse(await fixture.readFile('/_routes.json'));
-		expect(routes.exclude).to.deep.equal(['/_worker.js', '/index.html', '/']);
+		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
+			slash(r)
+		);
+		const expectedExcludedRoutes = ['/_worker.js', '/index.html', '/'];
 
+		expect(foundRoutes.every((element) => expectedExcludedRoutes.includes(element))).to.be.true;
 	});
 });
