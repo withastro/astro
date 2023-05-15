@@ -26,15 +26,6 @@ export async function dependencies(
 			start: `Dependencies installing with ${ctx.pkgManager}...`,
 			end: 'Dependencies installed',
 			while: () => {
-				return Promise.reject('Unknown error').catch((e) => {
-					error('error', e);
-					error(
-						'error',
-						`Dependencies failed to install, please run ${color.bold(
-							ctx.pkgManager + ' install'
-						)} to install them manually after setup.`
-					);
-				});
 				return install({ pkgManager: ctx.pkgManager, cwd: ctx.cwd }).catch((e) => {
 					error('error', e);
 					error(
