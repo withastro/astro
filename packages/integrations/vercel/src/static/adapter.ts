@@ -6,9 +6,9 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
+import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
-import { exposeEnv } from '../lib/env.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
 

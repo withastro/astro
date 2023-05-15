@@ -8,10 +8,10 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
+import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
-import { exposeEnv } from '../lib/env.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 
