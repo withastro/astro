@@ -406,15 +406,6 @@ importers:
         specifier: ^3.58.0
         version: 3.58.0
 
-  examples/with-data:
-    dependencies:
-      '@astrojs/markdoc':
-        specifier: ^0.1.1
-        version: link:../../packages/integrations/markdoc
-      astro:
-        specifier: ^2.3.0
-        version: link:../../packages/astro
-
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
@@ -2325,6 +2316,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-collection-references:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: ^0.1.1
+        version: link:../../../../integrations/markdoc
+      astro:
+        specifier: ^2.3.0
+        version: link:../../..
+
   packages/astro/test/fixtures/content-collections:
     dependencies:
       '@astrojs/mdx':
@@ -2520,6 +2520,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/custom-elements/my-component-lib: {}
+
+  packages/astro/test/fixtures/data-collections:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/debug-component:
     dependencies:
