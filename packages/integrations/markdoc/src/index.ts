@@ -89,9 +89,8 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						}
 
 						const res = `import { jsx as h } from 'astro/jsx-runtime';
-						import Markdoc from '@markdoc/markdoc';
 						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, applyDefaultConfig } from '@astrojs/markdoc/runtime';
+						import { collectHeadings, applyDefaultConfig, transform, Ast } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContent')};
 ${
 	markdocConfigResult
@@ -114,8 +113,8 @@ export function getHeadings() {
 	}
 	const headingConfig = userConfig.nodes?.heading;
 	const config = applyDefaultConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
-	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
-	const content = Markdoc.transform(ast, config);
+	const ast = Ast.fromJSON(stringifiedAst);
+	const content = transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 export async function Content (props) {
