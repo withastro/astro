@@ -3,7 +3,7 @@ import { h } from 'preact';
 type Props = {
 	value: string;
 	name?: string;
-	hydrate: boolean;
+	hydrate?: boolean;
 }
 
 /**
@@ -15,7 +15,7 @@ type Props = {
  */
 const StaticHtml = ({ value, name, hydrate }: Props) => {
 	if (!value) return null;
-	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
+	const tagName = hydrate === false ? 'astro-static-slot' : 'astro-slot';
 	return h(tagName, { name, dangerouslySetInnerHTML: { __html: value } });
 };
 

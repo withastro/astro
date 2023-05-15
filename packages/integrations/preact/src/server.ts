@@ -11,7 +11,7 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
+function check(this: RendererContext, Component: any, props: Record<string, any>, children: any, ) {
 	if (typeof Component !== 'function') return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
@@ -22,7 +22,7 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 
 	try {
 		try {
-			const { html } = renderToStaticMarkup.call(this, Component, props, children);
+			const { html } = renderToStaticMarkup.call(this, Component, props, children, undefined);
 			if (typeof html !== 'string') {
 				return false;
 			}
@@ -39,9 +39,9 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 	}
 }
 
-function shouldHydrate(metadata: AstroMetadata) {
+function shouldHydrate(metadata: AstroComponentMetadata | undefined) {
 	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
-	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+	return metadata?.astroStaticSlot ? !!metadata.hydrate : true;
 }
 
 function renderToStaticMarkup(
@@ -49,7 +49,7 @@ function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroMetadata,
+	metadata: AstroComponentMetadata | undefined,
 ) {
 	const ctx = getContext(this.result);
 

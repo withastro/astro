@@ -18,7 +18,7 @@ function renderToStaticMarkup(
 	metadata?: undefined | Record<string, any>
 ) {
 	const renderId = metadata?.hydrate ? incrementId(getContext(this.result)) : '';
-	const needsHydrate = metadata.astroStaticSlot ? !!metadata.hydrate : true;
+	const needsHydrate = metadata?.astroStaticSlot ? !!metadata.hydrate : true;
 	const tagName = needsHydrate ? 'astro-slot' : 'astro-static-slot';
 
 	const html = renderToString(
