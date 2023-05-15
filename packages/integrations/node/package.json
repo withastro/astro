@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "5.1.2",
+  "version": "5.1.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
