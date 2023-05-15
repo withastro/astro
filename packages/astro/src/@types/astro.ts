@@ -469,7 +469,7 @@ export interface AstroUserConfig {
 	 * @type {boolean}
 	 * @default `false`
 	 * @description
-	 * When enabled Astro removes all whitespace from your final HTML, including line breaks. This is useful for reducing the size of HTML transfered over the wire in the development and the production.
+	 * This is an option to minify your HTML output and reduce the size of your HTML files. When enabled, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
 	 * To enable this, set the `compressHTML` flag to `true`.
 	 *
 	 * ```js
