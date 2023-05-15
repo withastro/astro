@@ -27,7 +27,6 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const isHybridOutput = settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
 			const pageOptions = await scan(code, id, isHybridOutput);
 
-			// if 
 			if (typeof pageOptions.prerender === "undefined"){
 				pageOptions.prerender = isHybridOutput? true: false
 			}
