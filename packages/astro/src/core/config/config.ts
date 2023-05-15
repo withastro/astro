@@ -11,6 +11,7 @@ import type { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
+import { isHybridMalconfigured } from '../../prerender/utils.js';
 
 export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
@@ -356,10 +357,4 @@ export function mergeConfig(
 	isRoot = true
 ): Record<string, any> {
 	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
-}
-
-// TODO: remove after the experimetal phase when
-// it won't be needed to edit two config fields to enable the feature
-function isHybridMalconfigured(config: AstroConfig) {
-	return config.experimental.hybridOutput ? config.output !== 'hybrid' : config.output === 'hybrid';
 }

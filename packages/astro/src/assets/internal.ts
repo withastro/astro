@@ -6,6 +6,7 @@ import { warn } from '../core/logger/core.js';
 import { prependForwardSlash } from '../core/path.js';
 import { isLocalService, type ImageService, type LocalImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
+import { isHybridOutput } from '../prerender/utils.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';
@@ -113,11 +114,7 @@ export async function generateImage(
 	}
 
 	let serverRoot: URL, clientRoot: URL;
-	if (
-		buildOpts.settings.config.output === 'server' ||
-		(buildOpts.settings.config.experimental.hybridOutput &&
-			buildOpts.settings.config.output === 'hybrid')
-	) {
+	if (buildOpts.settings.config.output === 'server' || isHybridOutput(buildOpts.settings.config)) {
 		serverRoot = buildOpts.settings.config.build.server;
 		clientRoot = buildOpts.settings.config.build.client;
 	} else {

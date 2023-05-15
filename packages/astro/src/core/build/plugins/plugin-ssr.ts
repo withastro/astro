@@ -14,6 +14,7 @@ import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, eachPageData, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
+import { isHybridOutput } from '../../../prerender/utils';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -248,9 +249,7 @@ export function pluginSSR(
 	internals: BuildInternals
 ): AstroBuildPlugin {
 	const ssr =
-		options.settings.config.output === 'server' ||
-		(options.settings.config.experimental.hybridOutput &&
-			options.settings.config.output === 'hybrid');
+		options.settings.config.output === 'server' || isHybridOutput(options.settings.config);
 	return {
 		build: 'ssr',
 		hooks: {

@@ -18,6 +18,7 @@ import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+import { isHybridOutput } from '../../../prerender/utils.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -226,8 +227,7 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
-	const isPrenderDefault =
-		settings.config.experimental.hybridOutput && settings.config.output === 'hybrid';
+	const isPrenderDefault = isHybridOutput(settings.config);
 
 	function walk(
 		fs: typeof nodeFs,
