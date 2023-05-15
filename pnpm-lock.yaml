@@ -2318,11 +2318,8 @@ importers:
 
   packages/astro/test/fixtures/content-collection-references:
     dependencies:
-      '@astrojs/markdoc':
-        specifier: ^0.1.1
-        version: link:../../../../integrations/markdoc
       astro:
-        specifier: ^2.3.0
+        specifier: workspace:*
         version: link:../../..
 
   packages/astro/test/fixtures/content-collections:
