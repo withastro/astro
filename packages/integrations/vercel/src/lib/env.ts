@@ -1,3 +1,7 @@
+/**
+ * While Vercel adds the `PUBLIC_` prefix for their `VERCEL_` env vars by default, some env vars
+ * like `VERCEL_ANALYTICS_ID` aren't, so handle them here so that it works correctly in runtime.
+ */
 export function exposeEnv(envs: string[]): Record<string, unknown> {
 	const mapped: Record<string, unknown> = {};
 
