@@ -1,4 +1,5 @@
 import rss from '../dist/index.js';
+import { rssSchema } from '../dist/schema.js';
 import chai from 'chai';
 import chaiPromises from 'chai-as-promised';
 import chaiXml from 'chai-xml';
@@ -195,4 +196,16 @@ describe('rss', () => {
 
 		chai.expect(body).xml.to.equal(validXmlResult);
 	});
+
+  it('should fail when an invalid date string is provided', async () => {
+    const res = rssSchema.safeParse({
+      title: phpFeedItem.title,
+      pubDate: 'invalid date',
+      description: phpFeedItem.description,
+      link: phpFeedItem.link,
+    })
+
+    chai.expect(res.success).to.be.false;
+    chai.expect(res.error.issues[0].path[0]).to.equal('pubDate');
+  });
 });
