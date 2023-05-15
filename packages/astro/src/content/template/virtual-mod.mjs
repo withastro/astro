@@ -14,7 +14,7 @@ export { z } from 'astro/zod';
 const contentDir = '@@CONTENT_DIR@@';
 
 const contentEntryGlob = import.meta.glob('@@CONTENT_ENTRY_GLOB_PATH@@', {
-	query: { astroContentCollectionEntry: true },
+	query: { astroContent: true },
 });
 const contentCollectionToEntryMap = createCollectionToGlobResultMap({
 	globResult: contentEntryGlob,
