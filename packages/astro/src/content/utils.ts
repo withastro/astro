@@ -17,9 +17,12 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE, CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
-import { rootRelativePath } from '../core/util.js';
 import { formatYAMLException } from '../core/errors/utils.js';
 import type { YAMLException } from 'js-yaml';
+
+export type ContentLookupMap = {
+	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
+};
 
 export const collectionConfigParser = z.union([
 	z.object({

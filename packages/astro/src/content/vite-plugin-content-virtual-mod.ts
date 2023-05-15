@@ -18,6 +18,7 @@ import {
 	getDataEntryId,
 	getEntryType,
 	type ContentPaths,
+	type ContentLookupMap,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -77,10 +78,6 @@ export function astroContentVirtualModPlugin({
 		},
 	};
 }
-
-export type ContentLookupMap = {
-	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
-};
 
 /**
  * Generate a map from a collection + slug to the local file path.
