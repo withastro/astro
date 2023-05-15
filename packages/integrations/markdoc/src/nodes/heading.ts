@@ -1,6 +1,6 @@
 // ./schema/Heading.markdoc.js
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import { Tag, type Schema, type Node, type RenderableTreeNode } from '@markdoc/markdoc';
+import Markdoc, { type Schema, type RenderableTreeNode } from '@markdoc/markdoc';
 
 // Or replace this with your own function
 function generateId(attributes: Record<string, any>, textContent: string): string {
@@ -10,19 +10,19 @@ function generateId(attributes: Record<string, any>, textContent: string): strin
 	return textContent.replace(/[?]/g, '').replace(/\s+/g, '-').toLowerCase();
 }
 
-function getTextContent(childNodes: Node[]) {
+function getTextContent(childNodes: RenderableTreeNode[]) {
 	let text = '';
 	for (const node of childNodes) {
-		if (node.inline && typeof node.attributes.content === 'string') {
-			text += node.attributes.content;
-		} else {
+		if (typeof node === 'string' || typeof node === 'number') {
+			text += node;
+		} else if (typeof node === 'object' && Markdoc.Tag.isTag(node)) {
 			text += getTextContent(node.children);
 		}
 	}
 	return text;
 }
 
-export function createHeadingWithIdSchema(): { headings: MarkdownHeading[]; schema: Schema } {
+export function createHeadingNode(): { headings: MarkdownHeading[]; schema: Schema } {
 	let headings: MarkdownHeading[] = [];
 	const schema: Schema = {
 		children: ['inline'],
@@ -31,14 +31,14 @@ export function createHeadingWithIdSchema(): { headings: MarkdownHeading[]; sche
 			level: { type: Number, required: true, default: 1 },
 		},
 		transform(node, config) {
-			const textContent = node.attributes.content ?? getTextContent(node.children);
-			const attributes = node.transformAttributes(config);
+			const { level, ...attributes } = node.transformAttributes(config);
 			const children = node.transformChildren(config);
+			const textContent = node.attributes.content ?? getTextContent(children);
 
 			const slug = generateId(attributes, textContent);
-			headings.push({ slug, depth: attributes.level, text: textContent });
+			headings.push({ slug, depth: level, text: textContent });
 
-			return new Tag(`h${node.attributes['level']}`, { ...attributes, id: slug }, children);
+			return new Markdoc.Tag(`h${level}`, { ...attributes, id: slug }, children);
 		},
 	};
 	return { headings, schema };

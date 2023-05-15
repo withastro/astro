@@ -1,18 +1,26 @@
 import type { ConfigType as MarkdocConfig } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
+import { createHeadingNode } from './nodes/index.js';
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
 
 export function applyDefaultConfig(
 	config: MarkdocConfig,
-	ctx: {
-		entry: ContentEntryModule;
-	}
-): MarkdocConfig {
+	entry: ContentEntryModule
+): { collectedHeadings: MarkdownHeading[]; config: MarkdocConfig } {
+	const headingNode = createHeadingNode();
 	return {
-		...config,
-		variables: {
-			entry: ctx.entry,
-			...config.variables,
+		collectedHeadings: headingNode.headings,
+		config: {
+			...config,
+			variables: {
+				entry,
+				...config.variables,
+			},
+			nodes: {
+				heading: headingNode.schema,
+				...config.nodes,
+			},
+			// TODO: Syntax highlighting
 		},
-		// TODO: heading ID calculation, Shiki syntax highlighting
 	};
 }
