@@ -1100,7 +1100,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name experimental.hybridOutput
-		 * Enable experimental support for opt-out prerendering
+		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
 		 *
 		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set the `output` to `hybrid`.
 		 *
@@ -1112,7 +1112,7 @@ export interface AstroUserConfig {
 		 * 	},
 		 * }
 		 * ```
-		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of prerendering.
+		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
 		 * ```astro
 		 * ---
 		 * // pages/contact.astro
