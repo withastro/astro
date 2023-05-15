@@ -1,5 +1,6 @@
 {
   "name": "@test/css-order",
+  "private": true,
   "dependencies": {
     "astro": "workspace:*"
   }

@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
+import { removeDir } from '../dist/core/fs/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -445,6 +447,27 @@ describe('astro:image', () => {
 			expect(src.length).to.be.greaterThan(0);
 			expect(src.startsWith('/blog')).to.be.true;
 		});
+
+		it('has base path prefix in SSR', async () => {
+			const fixtureWithBase = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+				base: '/blog',
+			});
+			await fixtureWithBase.build();
+			const app = await fixtureWithBase.loadTestAdapterApp();
+			const request = new Request('http://example.com/blog/');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.startsWith('/blog')).to.be.true;
+		});
 	});
 
 	describe('build ssg', () => {
@@ -455,6 +478,9 @@ describe('astro:image', () => {
 					assets: true,
 				},
 			});
+			// Remove cache directory
+			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+
 			await fixture.build();
 		});
 
@@ -569,6 +595,64 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			expect($('#no-format img').attr('src')).to.not.equal($('#format-avif img').attr('src'));
 		});
+
+		it('has cache entries', async () => {
+			const generatedImages = (await fixture.glob('_astro/**/*.webp')).map((path) =>
+				basename(path)
+			);
+			const cachedImages = (await fixture.glob('../node_modules/.astro/assets/**/*.webp')).map(
+				(path) => basename(path)
+			);
+
+			expect(generatedImages).to.deep.equal(cachedImages);
+		});
+
+		it('uses cache entries', async () => {
+			const logs = [];
+			const logging = {
+				dest: {
+					write(chunk) {
+						logs.push(chunk);
+					},
+				},
+			};
+
+			await fixture.build({ logging });
+			const generatingImageIndex = logs.findIndex((logLine) =>
+				logLine.message.includes('generating optimized images')
+			);
+			const relevantLogs = logs.slice(generatingImageIndex + 1, -1);
+			const isReusingCache = relevantLogs.every((logLine) =>
+				logLine.message.includes('(reused cache entry)')
+			);
+
+			expect(isReusingCache).to.be.true;
+		});
+	});
+
+	describe('dev ssr', () => {
+		let devServer;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('does not interfere with query params', async () => {
+			let res = await fixture.fetch('/api?src=image.png');
+			const html = await res.text();
+			expect(html).to.equal('An image: "image.png"');
+		});
 	});
 
 	describe('prod ssr', () => {
@@ -620,7 +704,12 @@ describe('astro:image', () => {
 					assets: true,
 				},
 				image: {
-					service: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)),
+					service: {
+						entrypoint: fileURLToPath(
+							new URL('./fixtures/core-image/service.mjs', import.meta.url)
+						),
+						config: { foo: 'bar' },
+					},
 				},
 			});
 			devServer = await fixture.startDevServer();
@@ -640,6 +729,14 @@ describe('astro:image', () => {
 
 			const $ = cheerio.load(html);
 			expect($('img').attr('data-service')).to.equal('my-custom-service');
+		});
+
+		it('gets service config', async () => {
+			const response = await fixture.fetch('/');
+			const html = await response.text();
+
+			const $ = cheerio.load(html);
+			expect($('#local img').attr('data-service-config')).to.equal('bar');
 		});
 	});
 });

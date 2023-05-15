@@ -13,6 +13,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	srcDir: './src',
 	publicDir: './public',
 	outDir: './dist',
+	cacheDir: './node_modules/.astro',
 	base: '/',
 	trailingSlash: 'ignore',
 	build: {
@@ -37,6 +38,8 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {},
 	experimental: {
 		assets: false,
+		inlineStylesheets: 'never',
+		middleware: false,
 	},
 };
 
@@ -61,6 +64,11 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
+	cacheDir: z
+		.string()
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
+		.transform((val) => new URL(val)),
 	site: z.string().url().optional(),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
@@ -71,6 +79,10 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('static'), z.literal('server')])
 		.optional()
 		.default('static'),
+	scopedStyleStrategy: z
+		.union([z.literal('where'), z.literal('class')])
+		.optional()
+		.default('where'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	integrations: z.preprocess(
 		// preprocess
@@ -123,14 +135,17 @@ export const AstroConfigSchema = z.object({
 	),
 	image: z
 		.object({
-			service: z.union([
-				z.literal('astro/assets/services/sharp'),
-				z.literal('astro/assets/services/squoosh'),
-				z.string(),
-			]),
+			service: z.object({
+				entrypoint: z.union([
+					z.literal('astro/assets/services/sharp'),
+					z.literal('astro/assets/services/squoosh'),
+					z.string(),
+				]),
+				config: z.record(z.any()).default({}),
+			}),
 		})
 		.default({
-			service: 'astro/assets/services/squoosh',
+			service: { entrypoint: 'astro/assets/services/squoosh', config: {} },
 		}),
 	markdown: z
 		.object({
@@ -180,6 +195,11 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
+			inlineStylesheets: z
+				.enum(['always', 'auto', 'never'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
+			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 		})
 		.optional()
 		.default({}),
@@ -205,6 +225,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 		outDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.outDir)
+			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+		cacheDir: z
+			.string()
+			.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		build: z
 			.object({

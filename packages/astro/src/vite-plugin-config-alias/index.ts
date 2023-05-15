@@ -13,7 +13,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
 	const { baseUrl, paths } = tsConfig.compilerOptions;
-	if (!baseUrl || !paths) return null;
+	if (!baseUrl) return null;
 
 	// resolve the base url from the configuration file directory
 	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), baseUrl);
@@ -21,26 +21,28 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	const aliases: Alias[] = [];
 
 	// compile any alias expressions and push them to the list
-	for (const [alias, values] of Object.entries(paths)) {
-		/** Regular Expression used to match a given path. */
-		const find = new RegExp(
-			`^${[...alias]
-				.map((segment) =>
-					segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&')
-				)
-				.join('')}$`
-		);
+	if (paths) {
+		for (const [alias, values] of Object.entries(paths)) {
+			/** Regular Expression used to match a given path. */
+			const find = new RegExp(
+				`^${[...alias]
+					.map((segment) =>
+						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&')
+					)
+					.join('')}$`
+			);
 
-		/** Internal index used to calculate the matching id in a replacement. */
-		let matchId = 0;
+			/** Internal index used to calculate the matching id in a replacement. */
+			let matchId = 0;
 
-		for (const value of values) {
-			/** String used to replace a matched path. */
-			const replacement = [...normalizePath(path.resolve(resolvedBaseUrl, value))]
-				.map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))
-				.join('');
+			for (const value of values) {
+				/** String used to replace a matched path. */
+				const replacement = [...normalizePath(path.resolve(resolvedBaseUrl, value))]
+					.map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))
+					.join('');
 
-			aliases.push({ find, replacement });
+				aliases.push({ find, replacement });
+			}
 		}
 	}
 
@@ -48,7 +50,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	// - `baseUrl` changes the way non-relative specifiers are resolved
 	// - if `baseUrl` exists then all non-relative specifiers are resolved relative to it
 	aliases.push({
-		find: /^(?!\.*\/|\w:)(.+)$/,
+		find: /^(?!\.*\/|\.*$|\w:)(.+)$/,
 		replacement: `${[...normalizePath(resolvedBaseUrl)]
 			.map((segment) => (segment === '$' ? '$$' : segment))
 			.join('')}/$1`,

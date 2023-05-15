@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 1.3.1
+
+### Patch Changes
+
+- [#7029](https://github.com/withastro/astro/pull/7029) [`1b90a7a5d`](https://github.com/withastro/astro/commit/1b90a7a5d5f16e3e1fa0329b509c6c6e76248181) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix generation for static dynamic routes
+
+## 1.3.0
+
+### Minor Changes
+
+- [#6534](https://github.com/withastro/astro/pull/6534) [`ad907196c`](https://github.com/withastro/astro/commit/ad907196cb42f21d9540ae0d77aa742bf7adf030) Thanks [@atilafassina](https://github.com/atilafassina)! - Adds support to SSR routes to sitemap generation.
+
 ## 1.2.2
 
 ### Patch Changes

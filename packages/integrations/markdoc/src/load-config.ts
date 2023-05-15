@@ -11,7 +11,14 @@ const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.ts',
 ];
 
-export async function loadMarkdocConfig(astroConfig: Pick<AstroConfig, 'root'>) {
+export type MarkdocConfigResult = {
+	config: MarkdocConfig;
+	fileUrl: URL;
+};
+
+export async function loadMarkdocConfig(
+	astroConfig: Pick<AstroConfig, 'root'>
+): Promise<MarkdocConfigResult | undefined> {
 	let markdocConfigUrl: URL | undefined;
 	for (const filename of SUPPORTED_MARKDOC_CONFIG_FILES) {
 		const filePath = new URL(filename, astroConfig.root);

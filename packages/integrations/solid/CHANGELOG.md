@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 2.1.1
+
+### Patch Changes
+
+- [#6934](https://github.com/withastro/astro/pull/6934) [`b6797fc85`](https://github.com/withastro/astro/commit/b6797fc8583f7cb0749e69e72a56fe9fba6f815b) Thanks [@matthewp](https://github.com/matthewp)! - Allow Solid ecosystem packages to not need special export map configuration. By default Solid is now treated as an external package in SSR, so any other dependent packages will receive the same instance.
+
 ## 2.1.0
 
 ### Minor Changes

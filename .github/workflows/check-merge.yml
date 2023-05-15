@@ -34,7 +34,7 @@ jobs:
 
       - name: Get changed files in the .changeset folder
         id: changed-files
-        uses: tj-actions/changed-files@v29
+        uses: tj-actions/changed-files@v35
         if: steps.set-blocks.outputs.blocks == ''
         with:
           files: |
@@ -87,5 +87,5 @@ jobs:
           --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
           --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
           --header 'content-type: application/json' \
-          -d '{"event":"REQUEST_CHANGES"}'
+          -d '{"event":"REQUEST_CHANGES", body: ""}'
 

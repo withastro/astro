@@ -5,6 +5,12 @@ import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+	defaultImageConfig,
+	getImageConfig,
+	throwIfAssetsNotEnabled,
+	type VercelImageConfig,
+} from '../image/shared.js';
+import {
 	copyFilesToFunction,
 	getFilesFromFolder,
 	getVercelOutput,
@@ -27,11 +33,15 @@ function getAdapter(): AstroAdapter {
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
 	analytics?: boolean;
+	imageService?: boolean;
+	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelEdge({
 	includeFiles = [],
 	analytics,
+	imageService,
+	imagesConfig,
 }: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -57,9 +67,11 @@ export default function vercelEdge({
 					vite: {
 						define: viteDefine,
 					},
+					...getImageConfig(imageService, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
+				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;
@@ -69,7 +81,7 @@ export default function vercelEdge({
 				if (config.output === 'static') {
 					throw new Error(`
 		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
-	
+
 	`);
 				}
 			},
@@ -140,6 +152,9 @@ export default function vercelEdge({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
+					...(imageService || imagesConfig
+						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						: {}),
 				});
 			},
 		},

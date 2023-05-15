@@ -13,6 +13,7 @@ import babel from '@babel/core';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { CONTENT_FLAG, PROPAGATED_ASSET_FLAG } from '../content/index.js';
+import { astroEntryPrefix } from '../core/build/plugins/plugin-component-entry.js';
 import { error } from '../core/logger/core.js';
 import { removeQueryString } from '../core/path.js';
 import { detectImportSource } from './import-source.js';
@@ -139,7 +140,9 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 		},
 		async transform(code, id, opts) {
 			const ssr = Boolean(opts?.ssr);
-			if (SPECIAL_QUERY_REGEX.test(id)) {
+			// Skip special queries and astro entries. We skip astro entries here as we know it doesn't contain
+			// JSX code, and also because we can't detect the import source to apply JSX transforms.
+			if (SPECIAL_QUERY_REGEX.test(id) || id.startsWith(astroEntryPrefix)) {
 				return null;
 			}
 			id = removeQueryString(id);

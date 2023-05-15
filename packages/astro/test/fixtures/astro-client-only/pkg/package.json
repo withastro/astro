@@ -1,4 +1,5 @@
 {
   "name": "@test/astro-client-only-pkg",
-  "main": "index.svelte"
+  "main": "index.svelte",
+  "private": true
 }

@@ -1,9 +1,6 @@
-// @ts-expect-error
 import { runBuild } from './test-utils.ts';
-// @ts-expect-error
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
-// @ts-expect-error
 Deno.env.set('SECRET_STUFF', 'secret');
 
 // @ts-expect-error

@@ -31,7 +31,14 @@ function getPrivateEnv(
 		// Ignore public env var
 		if (envPrefixes.every((prefix) => !key.startsWith(prefix))) {
 			if (typeof process.env[key] !== 'undefined') {
-				privateEnv[key] = `process.env.${key}`;
+				const value = process.env[key];
+				// Boolean values should be inlined to support `export const prerender`
+				// We already know that these are NOT sensitive values, so inlining is safe
+				if (value === '0' || value === '1' || value === 'true' || value === 'false') {
+					privateEnv[key] = value;
+				} else {
+					privateEnv[key] = `process.env.${key}`;
+				}
 			} else {
 				privateEnv[key] = JSON.stringify(fullEnv[key]);
 			}

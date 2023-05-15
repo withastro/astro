@@ -6,7 +6,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
 import { z } from 'zod';
-import type { AstroConfig, AstroSettings, ImageInputFormat } from '../@types/astro.js';
+import type {
+	AstroConfig,
+	AstroSettings,
+	ContentEntryType,
+	ImageInputFormat,
+} from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE } from './consts.js';
@@ -45,14 +50,19 @@ export const msg = {
 		`${collection} does not have a config. We suggest adding one for type safety!`,
 };
 
-export function getEntrySlug({
+export function parseEntrySlug({
 	id,
 	collection,
-	slug,
-	unvalidatedSlug,
-}: EntryInfo & { unvalidatedSlug?: unknown }) {
+	generatedSlug,
+	frontmatterSlug,
+}: {
+	id: string;
+	collection: string;
+	generatedSlug: string;
+	frontmatterSlug?: unknown;
+}) {
 	try {
-		return z.string().default(slug).parse(unvalidatedSlug);
+		return z.string().default(generatedSlug).parse(frontmatterSlug);
 	} catch {
 		throw new AstroError({
 			...AstroErrorData.InvalidContentEntrySlugError,
@@ -126,19 +136,36 @@ export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryT
 	return settings.contentEntryTypes.map((t) => t.extensions).flat();
 }
 
+export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
+	const map: Map<string, ContentEntryType> = new Map();
+	for (const entryType of settings.contentEntryTypes) {
+		for (const ext of entryType.extensions) {
+			map.set(ext, entryType);
+		}
+	}
+	return map;
+}
+
 export class NoCollectionError extends Error {}
 
 export function getEntryInfo(
-	params: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: true }
+	params: Pick<ContentPaths, 'contentDir'> & {
+		entry: string | URL;
+		allowFilesOutsideCollection?: true;
+	}
 ): EntryInfo;
 export function getEntryInfo({
 	entry,
 	contentDir,
 	allowFilesOutsideCollection = false,
-}: Pick<ContentPaths, 'contentDir'> & { entry: URL; allowFilesOutsideCollection?: boolean }):
-	| EntryInfo
-	| NoCollectionError {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+}: Pick<ContentPaths, 'contentDir'> & {
+	entry: string | URL;
+	allowFilesOutsideCollection?: boolean;
+}): EntryInfo | NoCollectionError {
+	const rawRelativePath = path.relative(
+		fileURLToPath(contentDir),
+		typeof entry === 'string' ? entry : fileURLToPath(entry)
+	);
 	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
 	const isOutsideCollection = rawCollection === '..' || rawCollection === '.';
 
@@ -200,7 +227,7 @@ function isImageAsset(fileExt: string) {
 	return VALID_INPUT_FORMATS.includes(fileExt.slice(1) as ImageInputFormat);
 }
 
-function hasUnderscoreBelowContentDirectoryPath(
+export function hasUnderscoreBelowContentDirectoryPath(
 	fileUrl: URL,
 	contentDir: ContentPaths['contentDir']
 ): boolean {
@@ -357,4 +384,44 @@ function search(fs: typeof fsMod, srcDir: URL) {
 		}
 	}
 	return { exists: false, url: paths[0] };
+}
+
+/**
+ * Check for slug in content entry frontmatter and validate the type,
+ * falling back to the `generatedSlug` if none is found.
+ */
+export async function getEntrySlug({
+	id,
+	collection,
+	generatedSlug,
+	contentEntryType,
+	fileUrl,
+	fs,
+}: {
+	fs: typeof fsMod;
+	id: string;
+	collection: string;
+	generatedSlug: string;
+	fileUrl: URL;
+	contentEntryType: Pick<ContentEntryType, 'getEntryInfo'>;
+}) {
+	let contents: string;
+	try {
+		contents = await fs.promises.readFile(fileUrl, 'utf-8');
+	} catch (e) {
+		// File contents should exist. Raise unexpected error as "unknown" if not.
+		throw new AstroError(AstroErrorData.UnknownContentCollectionError, { cause: e });
+	}
+	const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
+		fileUrl,
+		contents: await fs.promises.readFile(fileUrl, 'utf-8'),
+	});
+	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
+}
+
+export function getExtGlob(exts: string[]) {
+	return exts.length === 1
+		? // Wrapping {...} breaks when there is only one extension
+		  exts[0]
+		: `{${exts.join(',')}}`;
 }
