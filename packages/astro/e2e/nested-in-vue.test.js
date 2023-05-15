@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/nested-in-vue/' });
 

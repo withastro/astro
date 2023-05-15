@@ -85,7 +85,7 @@ test.describe('Hydrating namespaced components', () => {
 		await expect(namedChildren, 'children exist').toHaveText('preact (named import)');
 
 		await waitForHydrate(page, namedCounter);
-		
+
 		const namedIncrement = namedCounter.locator('.increment');
 		await namedIncrement.click();
 
