@@ -36,9 +36,7 @@ function isFalsy(value: string) {
 let didInit = false;
 
 export async function scan(code: string, id: string, isHybridOutput = false): Promise<PageOptions> {
-	if (!includesExport(code)) {
-		return {};
-	}
+	if (!includesExport(code)) return {};
 	if (!didInit) {
 		await eslexer.init;
 		didInit = true;
@@ -73,7 +71,5 @@ export async function scan(code: string, id: string, isHybridOutput = false): Pr
 			}
 		}
 	}
-	// if there are no prerender exports
-	// return the default prerender value
 	return pageOptions;
 }
