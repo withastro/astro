@@ -68,7 +68,7 @@ export async function getColor(el) {
  */
 export async function waitForHydrate(page, el) {
 	const astroIsland = page.locator('astro-island', { has: el });
-	const astroIslandId = await astroIsland.getAttribute('uid');
+	const astroIslandId = await astroIsland.last().getAttribute('uid');
 	await page.waitForFunction(
 		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
 		`astro-island[uid="${astroIslandId}"]`
