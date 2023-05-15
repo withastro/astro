@@ -1,5 +1,5 @@
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { fetch } from 'undici';
@@ -12,36 +12,16 @@ async function load() {
 	const mod = await import('./fixtures/prerender/dist/server/entry.mjs');
 	return mod;
 }
-
-/// skip until https://github.com/withastro/astro/pull/7091 is merged
-describe.skip('Prerendering', () => {
+describe('Prerendering', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let server;
 
-	before(async () => {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-		process.env.PRERENDER = true;
-
-		fixture = await loadFixture({
-			base: '/some-base',
-			root: './fixtures/prerender/',
-			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
-		});
-		await fixture.build();
-		const { startServer } = await await load();
-		let res = startServer();
-		server = res.server;
-	});
-	async function load() {
-		const mod = await import('./fixtures/prerender/dist/server/entry.mjs');
-		return mod;
-	}
-
-	describe('With base', () => {
+	describe('With base', async () => {
 		before(async () => {
 			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
+			process.env.PRERENDER = true;
+
 			fixture = await loadFixture({
 				base: '/some-base',
 				root: './fixtures/prerender/',
@@ -54,19 +34,12 @@ describe.skip('Prerendering', () => {
 			server = res.server;
 		});
 
-	after(async () => {
-		await server.stop();
-		await fixture.clean();
-		delete process.env.PRERENDER;
-	});
 		after(async () => {
 			await server.stop();
+			//await fixture.clean();
+			delete process.env.PRERENDER;
 		});
 
-	it('Can render SSR route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
 		it('Can render SSR route', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
 			const html = await res.text();
@@ -102,9 +75,12 @@ describe.skip('Prerendering', () => {
 			expect(res.headers.get('location')).to.equal('/some-base/two/');
 		});
 	});
-	describe('Without base', () => {
+
+	describe('Without base', async () => {
 		before(async () => {
 			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
+			process.env.PRERENDER = true;
+
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -118,6 +94,8 @@ describe.skip('Prerendering', () => {
 
 		after(async () => {
 			await server.stop();
+			//await fixture.clean();
+			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -149,173 +127,122 @@ describe.skip('Prerendering', () => {
 	});
 });
 
-// skip until https://github.com/withastro/astro/pull/7091 is merged
-describe.skip('Hybrid rendering', () => {
+describe('Hybrid rendering', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let server;
 
-	before(async () => {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-		process.env.PRERENDER = false;
-		fixture = await loadFixture({
-			root: './fixtures/prerender/',
-			output: 'hybrid',
-			experimental: {
-				hybridOutput: true,
-			},
-			adapter: nodejs({ mode: 'standalone' }),
+	describe('With base', async () => {
+		before(async () => {
+			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
+			process.env.PRERENDER = false;
+			fixture = await loadFixture({
+				base: '/some-base',
+				root: './fixtures/prerender/',
+				output: 'hybrid',
+				experimental: {
+					hybridOutput: true,
+				},
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await await load();
+			let res = startServer();
+			server = res.server;
 		});
-		await fixture.build();
-		const { startServer } = await await load();
-		let res = startServer();
-		server = res.server;
-	});
 
-	after(async () => {
-		await server.stop();
-		await fixture.clean();
-		delete process.env.PRERENDER;
-	});
-
-	it('Can render SSR route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/two`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('Two');
-	});
-
-	it('Can render prerendered route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('One');
-	});
-
-	it('Can render prerendered route with query params', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('One');
-	});
-});
-
-// skip until https://github.com/withastro/astro/pull/7091 is merged
-describe.skip('Hybrid rendering', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
-
-	before(async () => {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-		process.env.PRERENDER = false;
-		fixture = await loadFixture({
-			root: './fixtures/prerender/',
-			output: 'hybrid',
-			experimental: {
-				hybridOutput: true,
-			},
-			adapter: nodejs({ mode: 'standalone' }),
+		after(async () => {
+			await server.stop();
+			//await fixture.clean();
+			delete process.env.PRERENDER;
 		});
-		await fixture.build();
-		const { startServer } = await await load();
-		let res = startServer();
-		server = res.server;
-	});
 
-	after(async () => {
-		await server.stop();
-		await fixture.clean();
-		delete process.env.PRERENDER;
-	});
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
 
-	it('Can render SSR route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/two`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('Two');
-	});
-
-	it('Can render prerendered route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('One');
-	});
-
-	it('Can render prerendered route with query params', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('One');
-	});
-});
-
-// skip until https://github.com/withastro/astro/pull/7091 is merged
-describe.skip('Hybrid rendering', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
-
-	before(async () => {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-		process.env.PRERENDER = false;
-		fixture = await loadFixture({
-			root: './fixtures/prerender/',
-			output: 'hybrid',
-			experimental: {
-				hybridOutput: true,
-			},
-			adapter: nodejs({ mode: 'standalone' }),
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
 		});
-		await fixture.build();
-		const { startServer } = await await load();
-		let res = startServer();
-		server = res.server;
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
+		it('Omitting the trailing slash results in a redirect that includes the base', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
+				redirect: 'manual',
+			});
+			expect(res.status).to.equal(301);
+			expect(res.headers.get('location')).to.equal('/some-base/one/');
+		});
 	});
 
-	after(async () => {
-		await server.stop();
-		await fixture.clean();
-		delete process.env.PRERENDER;
-	});
+	describe('Without base', async () => {
+		before(async () => {
+			process.env.ASTRO_NODE_AUTOSTART = 'disabled';
+			process.env.PRERENDER = false;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'hybrid',
+				experimental: {
+					hybridOutput: true,
+				},
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await await load();
+			let res = startServer();
+			server = res.server;
+		});
 
-	it('Can render SSR route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/two`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
+		after(async () => {
+			await server.stop();
+			//// await fixture.clean();
+			delete process.env.PRERENDER;
+		});
 
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('Two');
-	});
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			console.log({ html });
 
-	it('Can render prerendered route', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
+		});
 
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('One');
-	});
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
 
-	it('Can render prerendered route with query params', async () => {
-		const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`);
-		const html = await res.text();
-		const $ = cheerio.load(html);
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
 
-		expect(res.status).to.equal(200);
-		expect($('h1').text()).to.equal('One');
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
 	});
 });
