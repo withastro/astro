@@ -8,7 +8,12 @@ import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
-import { appendForwardSlash, joinPaths, prependForwardSlash } from '../core/path.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	prependForwardSlash,
+	removeQueryString,
+} from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
@@ -228,7 +233,8 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id) {
-				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id)) {
+				const cleanedUrl = removeQueryString(id);
+				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);
 					return `export default ${JSON.stringify(meta)}`;
 				}

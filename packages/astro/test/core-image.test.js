@@ -630,6 +630,31 @@ describe('astro:image', () => {
 		});
 	});
 
+	describe('dev ssr', () => {
+		let devServer;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('does not interfere with query params', async () => {
+			let res = await fixture.fetch('/api?src=image.png');
+			const html = await res.text();
+			expect(html).to.equal('An image: "image.png"');
+		});
+	});
+
 	describe('prod ssr', () => {
 		before(async () => {
 			fixture = await loadFixture({

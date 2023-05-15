@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 5.1.3
+
+### Patch Changes
+
+- [#7076](https://github.com/withastro/astro/pull/7076) [`781f558c4`](https://github.com/withastro/astro/commit/781f558c401a5f02927d150e4628a77c55cccd28) Thanks [@matthewp](https://github.com/matthewp)! - Fix redirects on directories when using base option
+
 ## 5.1.2
 
 ### Patch Changes
