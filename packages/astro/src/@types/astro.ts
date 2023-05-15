@@ -1096,13 +1096,17 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		middleware?: boolean;
-		
+
 		/**
 		 * @docs
 		 * @name experimental.hybridOutput
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.5.0
+		 * @description
 		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
 		 *
-		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set the `output` to `hybrid`.
+		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
 		 *
 		 * ```js
 		 * {
