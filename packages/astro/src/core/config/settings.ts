@@ -39,7 +39,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 				},
 			},
 			{
-				extensions: ['.yaml'],
+				extensions: ['.yaml', '.yml'],
 				getEntryInfo({ contents, fileUrl }) {
 					try {
 						const data = yaml.load(contents, { filename: fileURLToPath(fileUrl) });
