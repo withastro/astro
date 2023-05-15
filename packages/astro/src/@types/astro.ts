@@ -1081,6 +1081,28 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.customClientDirectives
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.5.0
+		 * @description
+		 * Allow integrations to use the experimental `addClientDirective` API in the `astro:config:setup` hook
+		 * to add custom client directives in Astro files.
+		 *
+		 * To enable this feature, set `experimental.customClientDirectives` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		customClientDirectives: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		customClientDirectives?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.middleware
 		 * @type {boolean}
 		 * @default `false`
