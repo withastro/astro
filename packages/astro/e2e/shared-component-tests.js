@@ -39,7 +39,7 @@ export function prepareTestFactory(opts) {
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
 
-			await waitForHydrate(counter);
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('.increment');
 			await inc.click();
@@ -56,7 +56,7 @@ export function prepareTestFactory(opts) {
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
 
-			await waitForHydrate(counter);
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('.increment');
 			await inc.click();
@@ -75,7 +75,7 @@ export function prepareTestFactory(opts) {
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
 
-			await waitForHydrate(counter);
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('.increment');
 			await inc.click();
@@ -91,15 +91,14 @@ export function prepareTestFactory(opts) {
 
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
-
-			await waitForHydrate(counter);
-
 			const inc = counter.locator('.increment');
 			await inc.click();
 			await expect(count, 'component not hydrated yet').toHaveText('0');
 
 			// Reset the viewport to hydrate the component (max-width: 50rem)
 			await page.setViewportSize({ width: 414, height: 1124 });
+			await waitForHydrate(page, counter);
+
 			await inc.click();
 			await expect(count, 'count incremented by 1').toHaveText('1');
 		});
