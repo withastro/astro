@@ -18,6 +18,7 @@ import {
 	writeJson,
 } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
+import { exposeEnv } from '../lib/env.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';
 
@@ -55,12 +56,16 @@ export default function vercelEdge({
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
+				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+					},
+					vite: {
+						define: viteDefine,
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});
