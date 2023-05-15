@@ -60,7 +60,7 @@ export function patchModuleLoader(
 	lsHost: ts.LanguageServiceHost,
 	project: ts.server.Project
 ): void {
-	const astroSys = createAstroSys(logger);
+	const astroSys = createAstroSys(logger, typescript);
 	const moduleCache = new ModuleResolutionCache();
 	const origResolveModuleNames = lsHost.resolveModuleNames?.bind(lsHost);
 	const origResolveModuleNamLiterals = lsHost.resolveModuleNameLiterals?.bind(lsHost);

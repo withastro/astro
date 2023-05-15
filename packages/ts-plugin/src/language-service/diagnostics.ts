@@ -1,13 +1,15 @@
-import ts from 'typescript/lib/tsserverlibrary';
+import type ts from 'typescript/lib/tsserverlibrary';
 import { isAstroFilePath } from '../utils.js';
+
+type _ts = typeof ts;
 
 export enum DiagnosticCodes {
 	CANNOT_FIND_MODULE = 2307, // Cannot find module '{0}' or its corresponding type declarations.
 }
 
-export function decorateDiagnostics(ls: ts.LanguageService): void {
+export function decorateDiagnostics(ls: ts.LanguageService, typescript: _ts): void {
 	decorateSyntacticDiagnostics(ls);
-	decorateSemanticDiagnostics(ls);
+	decorateSemanticDiagnostics(ls, typescript);
 	decorateSuggestionDiagnostics(ls);
 }
 
@@ -23,7 +25,7 @@ function decorateSyntacticDiagnostics(ls: ts.LanguageService): void {
 	};
 }
 
-function decorateSemanticDiagnostics(ls: ts.LanguageService): void {
+function decorateSemanticDiagnostics(ls: ts.LanguageService, typescript: _ts): void {
 	const getSemanticDiagnostics = ls.getSemanticDiagnostics;
 	ls.getSemanticDiagnostics = (fileName: string) => {
 		// Diagnostics inside Astro files are done
@@ -34,7 +36,7 @@ function decorateSemanticDiagnostics(ls: ts.LanguageService): void {
 
 		let diagnostics = getSemanticDiagnostics(fileName);
 		diagnostics = diagnostics.map((diag) => {
-			const message = ts.flattenDiagnosticMessageText(diag.messageText, ts.sys.newLine);
+			const message = typescript.flattenDiagnosticMessageText(diag.messageText, typescript.sys.newLine);
 			if (
 				diag.code === DiagnosticCodes.CANNOT_FIND_MODULE &&
 				message.includes('astro:content') &&
@@ -44,8 +46,8 @@ function decorateSemanticDiagnostics(ls: ts.LanguageService): void {
 			) {
 				diag.messageText =
 					message +
-					`${ts.sys.newLine}${ts.sys.newLine}` +
-					"If you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the TS Server might be necessary in order for the change to take effect";
+					`${typescript.sys.newLine}${typescript.sys.newLine}` +
+					"If you're using content collections, make sure to run `astro dev`, `astro build` or `astro sync` to first generate the types so you can import from them. If you already ran one of those commands, restarting the TS Server might be necessary in order for the change to take effect.";
 			}
 
 			return diag;

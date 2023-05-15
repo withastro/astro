@@ -19,13 +19,14 @@ export function isPatched(ls: ts.LanguageService) {
 export function decorateLanguageService(
 	ls: ts.LanguageService,
 	snapshotManager: AstroSnapshotManager,
+	ts: typeof import('typescript/lib/tsserverlibrary'),
 	logger: Logger
 ): ts.LanguageService {
 	const proxy = new Proxy(ls, createProxyHandler());
 
 	decorateLineColumnOffset(proxy, snapshotManager);
 	decorateRename(proxy, snapshotManager, logger);
-	decorateDiagnostics(proxy);
+	decorateDiagnostics(proxy, ts);
 	decorateFindReferences(proxy, snapshotManager, logger);
 	decorateCompletions(proxy, logger);
 	decorateGetDefinition(proxy, snapshotManager);

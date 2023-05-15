@@ -5,6 +5,7 @@
     "rootDir": "src",
     "target": "ES2020",
     "module": "CommonJS",
+    "ignoreDeprecations": "5.0",
     "importsNotUsedAsValues": "error"
   },
   "include": ["src"],
