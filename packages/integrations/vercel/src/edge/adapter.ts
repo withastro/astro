@@ -10,6 +10,7 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
+import { exposeEnv } from '../lib/env.js';
 import {
 	copyFilesToFunction,
 	getFilesFromFolder,
@@ -55,12 +56,16 @@ export default function vercelEdge({
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
+				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+					},
+					vite: {
+						define: viteDefine,
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});

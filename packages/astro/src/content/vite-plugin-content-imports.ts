@@ -16,6 +16,8 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
+	type ContentConfig,
+	type ContentPaths,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
@@ -23,12 +25,10 @@ import {
 	getContentEntryIdAndSlug,
 	getEntryType,
 	globalContentConfigObserver,
-	type ContentConfig,
 	getContentEntryConfigByExtMap,
 	getEntryCollectionName,
 	getDataEntryExts,
 	hasContentFlag,
-	type ContentPaths,
 	getDataEntryId,
 	reloadContentConfigObserver,
 } from './utils.js';

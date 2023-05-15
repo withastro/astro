@@ -1,7 +1,11 @@
 import glob from 'fast-glob';
 import fsMod from 'node:fs';
+import { extname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import { rootRelativePath } from '../core/util.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryConfigByExtMap,
@@ -15,10 +19,6 @@ import {
 	getEntryType,
 	type ContentPaths,
 } from './utils.js';
-import { rootRelativePath } from '../core/util.js';
-import { extname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;

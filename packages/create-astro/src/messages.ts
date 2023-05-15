@@ -93,7 +93,6 @@ export const info = async (prefix: string, text: string) => {
 		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
 	}
 };
-
 export const error = async (prefix: string, text: string) => {
 	if (stdout.columns < 80) {
 		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);

@@ -1,15 +1,16 @@
+/* eslint-disable no-console */
 import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
-import { bold, red } from 'kleur/colors';
+import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
 import { applyDefaultConfig } from './default-config.js';
-import { loadMarkdocConfig } from './load-config.js';
+import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -17,9 +18,8 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(legacyConfig: any): AstroIntegration {
+export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
 	if (legacyConfig) {
-		// eslint-disable-next-line no-console
 		console.log(
 			`${red(
 				bold('[Markdoc]')
@@ -27,14 +27,15 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 		);
 		process.exit(0);
 	}
+	let markdocConfigResult: MarkdocConfigResult | undefined;
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
 				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
 
-				const configLoadResult = await loadMarkdocConfig(astroConfig);
-				const userMarkdocConfig = configLoadResult?.config ?? {};
+				markdocConfigResult = await loadMarkdocConfig(astroConfig);
+				const userMarkdocConfig = markdocConfigResult?.config ?? {};
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -54,17 +55,28 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 						const markdocConfig = applyDefaultConfig(userMarkdocConfig, { entry });
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
-							// Ignore `variable-undefined` errors.
-							// Variables can be configured at runtime,
-							// so we cannot validate them at build time.
-							return e.error.id !== 'variable-undefined';
+							return (
+								// Ignore `variable-undefined` errors.
+								// Variables can be configured at runtime,
+								// so we cannot validate them at build time.
+								e.error.id !== 'variable-undefined' &&
+								(e.error.level === 'error' || e.error.level === 'critical')
+							);
 						});
 						if (validationErrors.length) {
+							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
+							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
 							throw new MarkdocError({
 								message: [
-									`**${String(entry.collection)} → ${String(entry.id)}** failed to validate:`,
-									...validationErrors.map((e) => e.error.id),
+									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									...validationErrors.map((e) => `- ${e.error.message}`),
 								].join('\n'),
+								location: {
+									// Error overlay does not support multi-line or ranges.
+									// Just point to the first line.
+									line: frontmatterBlockOffset + validationErrors[0].lines[0],
+									file: viteId,
+								},
 							});
 						}
 
@@ -76,13 +88,15 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 							});
 						}
 
-						const code = {
+						return {
 							code: `import { jsx as h } from 'astro/jsx-runtime';
 import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
 import { Renderer } from '@astrojs/markdoc/components';
 import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
-								configLoadResult
-									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
+								markdocConfigResult
+									? `\nimport userConfig from ${JSON.stringify(
+											markdocConfigResult.fileUrl.pathname
+									  )};`
 									: ''
 							}${
 								astroConfig.experimental.assets
@@ -94,7 +108,7 @@ const stringifiedAst = ${JSON.stringify(
 							)};
 export async function Content (props) {
 	const config = applyDefaultConfig(${
-		configLoadResult
+		markdocConfigResult
 			? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
 			: '{ variables: props }'
 	}, { entry });${
@@ -104,12 +118,22 @@ export async function Content (props) {
 							}
 	return h(Renderer, { stringifiedAst, config }); };`,
 						};
-						return code;
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+				});
+			},
+			'astro:server:setup': async ({ server }) => {
+				server.watcher.on('all', (event, entry) => {
+					if (pathToFileURL(entry).pathname === markdocConfigResult?.fileUrl.pathname) {
+						console.log(
+							yellow(
+								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
+							)
+						);
+					}
 				});
 			},
 		},
