@@ -2352,6 +2352,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-mixed-errors:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-ssr-integration:
     dependencies:
       '@astrojs/mdx':
