@@ -1,12 +1,18 @@
-import Markdoc, { type Schema } from '@markdoc/markdoc';
+import Markdoc, { type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
 import { getTextContent } from '../runtime.js';
+import Slugger from 'github-slugger';
 
-// Or replace this with your own function
-function generateId(attributes: Record<string, any>, textContent: string): string {
+export const headingSlugger = new Slugger(); 
+
+function getSlug(attributes: Record<string, any>, children: RenderableTreeNode[]): string {
 	if (attributes.id && typeof attributes.id === 'string') {
 		return attributes.id;
 	}
-	return textContent.replace(/[?]/g, '').replace(/\s+/g, '-').toLowerCase();
+	const textContent = attributes.content ?? getTextContent(children);
+	let slug = headingSlugger.slug(textContent);
+
+	if (slug.endsWith('-')) slug = slug.slice(0, -1);
+	return slug;
 }
 
 export const heading: Schema = {
@@ -18,9 +24,9 @@ export const heading: Schema = {
 	transform(node, config) {
 		const { level, ...attributes } = node.transformAttributes(config);
 		const children = node.transformChildren(config);
-		const textContent = node.attributes.content ?? getTextContent(children);
 
-		const slug = generateId(attributes, textContent);
+
+		const slug = getSlug(attributes, children);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
 		const tagProps =

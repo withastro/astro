@@ -1,5 +1,5 @@
 import type { ConfigType as MarkdocConfig } from '@markdoc/markdoc';
-import * as astroNodes from './nodes/index.js';
+import { nodes as astroNodes } from './nodes/index.js';
 import _Markdoc from '@markdoc/markdoc';
 
 export const Markdoc = _Markdoc;
