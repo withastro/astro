@@ -113,11 +113,11 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.4.0",
-    "@astrojs/language-server": "^1.0.0",
-    "@astrojs/markdown-remark": "^2.2.0",
-    "@astrojs/telemetry": "^2.1.1",
-    "@astrojs/webapi": "^2.1.1",
+    "@astrojs/compiler": "^1.4.1",
+    "@astrojs/language-server": "^0.28.3",
+    "@astrojs/markdown-remark": "^2.1.4",
+    "@astrojs/telemetry": "^2.1.0",
+    "@astrojs/webapi": "^2.1.0",
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",

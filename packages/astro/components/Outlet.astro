@@ -6,7 +6,7 @@ interface Props {
 const { id } = Astro.props;
 
 // @ts-ignore untyped internals
-// $$result.outlets.set(id, $$slots.default);
+$$result.outlets.set(id, () => Astro.slots.render('default'));
 ---
 
 <Fragment set:html={`<!--astro:outlet ${id}-->`} /><slot /><Fragment

@@ -70,14 +70,13 @@ async function bufferHeadContent(result: SSRResult) {
 // Recursively calls component instances that might have slots to be propagated up.
 async function bufferSlottedContent(result: SSRResult, outlet: string) {
 	const iterator = result.outletPropagators.entries();
-	let promises = [];
 	while (true) {
 		const { value: [name, slot] = [], done } = iterator.next();
 		if (done) {
 			break;
 		}
 		const returnValue = await slot(result);
-		result.outlets.set(name, returnValue);
+		// TODO: exhaust all expressions
 		if (name === outlet) {
 			break;
 		}
@@ -152,6 +151,8 @@ export async function renderPage(
 		const outlet = result._metadata.request.headers.get('x-astro-outlet')!;
 		result.scripts.clear();
 		await bufferSlottedContent(result, outlet);
+
+		console.log(result.outlets);
 
 		if (!result.outlets.get(outlet)) {
 			let init = result.response;

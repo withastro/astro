@@ -15,15 +15,30 @@ import { Outlet } from 'astro/components';
 			<h1>My Website</h1>
 		</header>
 
-		<slot name="nav" />
+		<Outlet id="nav">
+			<slot name="nav" />
+		</Outlet>
 
 		<main>
 			{() => new Promise((resolve) => setTimeout(resolve, 1000))}
-			<slot />
+			<Outlet id="main">
+				<slot />
+			</Outlet>
 			{() => new Promise((resolve) => setTimeout(resolve, 1000))}
-
-			<slot name="tabs" />
 		</main>
+
+		<style is:global>
+			nav ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				gap: 1rem;
+			}
+			a.active {
+				color: red;
+			}
+		</style>
 
 		<script>
 			function getOutlets() {
@@ -98,6 +113,7 @@ import { Outlet } from 'astro/components';
 						async function update() {
 							const promises: any[] = [];
 							for (const [outlet, range] of Object.entries(getOutlets())) {
+								console.log({ outlet });
 								promises.push(
 									fetch(event.destination.url, {
 										headers: { 'x-astro-outlet': outlet },
@@ -115,18 +131,5 @@ import { Outlet } from 'astro/components';
 				});
 			});
 		</script>
-
-		<style is:global>
-			nav ul {
-				list-style: none;
-				margin: 0;
-				padding: 0;
-				display: flex;
-				gap: 1rem;
-			}
-			a.active {
-				color: red;
-			}
-		</style>
 	</body>
 </html>

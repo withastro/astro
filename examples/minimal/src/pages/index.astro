@@ -1,11 +1,18 @@
 ---
 import Layout from '../layouts/Default.astro';
+
+import { getEntryBySlug } from 'astro:content';
+
+const entry = await getEntryBySlug('posts', 'intro');
+const { Content } = await entry.render();
 ---
 
 <Layout>
 	<div>
 		<h2>Home</h2>
 		<p>Streaming partials!</p>
+
+		<Content />
 	</div>
 
 	<nav slot="nav">
