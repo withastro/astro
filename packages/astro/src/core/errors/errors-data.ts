@@ -1028,7 +1028,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (collection: string) => {
 			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
 		},
-		hint: 'Store data entries in a new collection separate from your content collection, and share a `schema` in your content config.',
+		hint: 'Store data entries in a new collection separate from your content collection.',
 	},
 	/**
 	 * @docs
