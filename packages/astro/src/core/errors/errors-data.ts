@@ -1002,10 +1002,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 
 	/**
 	 * @docs
-	 * @see
-	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * @message A collection queried via `getCollection()` does not exist.
 	 * @description
-	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
 	 */
 	CollectionDoesNotExistError: {
 		title: 'Collection does not exist',
@@ -1016,7 +1015,12 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
 	},
 	/**
-	 * TODO
+	 * @docs
+	 * @message `COLLECTION_NAME` contains a mix of content and data entries. All entries must be of the same type.
+	 * @see
+	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+	 * @description
+	 * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
 	 */
 	MixedContentDataCollectionError: {
 		title: 'Content and data cannot be in same collection.',
@@ -1024,10 +1028,15 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (collection: string) => {
 			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
 		},
-		hint: 'Store data entries in a new collection separate from your content collection, and share a schema in your content config.',
+		hint: 'Store data entries in a new collection separate from your content collection, and share a `schema` in your content config.',
 	},
 	/**
-	 * TODO
+	 * @docs
+	 * @message `COLLECTION_NAME` contains entries of type `ACTUAL_TYPE`, but is configured as a `EXPECTED_TYPE` collection.
+	 * @see
+	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+	 * @description
+	 * Content collections must contain entries of the type configured. If your collection config is missing a `type`, it will be considered `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
 	 */
 	ContentCollectionTypeMismatchError: {
 		title: 'Collection contains entries of a different type.',

@@ -53,18 +53,6 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
-export function defineCollection(config) {
-	if (!config.type) config.type = 'content';
-	return config;
-}
-
-// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
-export const image = () => {
-	throw new Error(
-		'Importing `image()` from `astro:content` is no longer supported. See https://docs.astro.build/en/guides/assets/#update-content-collections-schemas for our new import instructions.'
-	);
-};
-
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
