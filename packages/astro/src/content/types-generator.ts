@@ -413,7 +413,6 @@ async function writeContentFiles({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
-					code: 99999,
 					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
 						collectionKey,
 						collection.type,
