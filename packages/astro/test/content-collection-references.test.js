@@ -76,11 +76,11 @@ describe('Content collections - references', () => {
 				it('Returns `relatedPosts` data', () => {
 					const { relatedPosts } = json;
 					expect(Array.isArray(relatedPosts)).to.be.true;
-					const meta = relatedPosts.map(({ data, body, ...meta }) => ({
+					const topLevelInfo = relatedPosts.map(({ data, body, ...meta }) => ({
 						...meta,
 						body: fixLineEndings(body).trim(),
 					}));
-					expect(meta).to.deep.equal([
+					expect(topLevelInfo).to.deep.equal([
 						{
 							id: 'related-1.md',
 							slug: 'related-1',
@@ -94,8 +94,8 @@ describe('Content collections - references', () => {
 							collection: 'blog',
 						},
 					]);
-					const data = relatedPosts.map(({ data }) => data);
-					expect(data).to.deep.equal([
+					const postData = relatedPosts.map(({ data }) => data);
+					expect(postData).to.deep.equal([
 						{
 							title: 'Related post 1',
 							banner: { id: 'welcome', collection: 'banners' },
