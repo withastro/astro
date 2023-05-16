@@ -1,9 +1,9 @@
 ---
-title: Related post
+title: Related post 2
 banner: welcome
-author: ben
+author: ben-holmes
 ---
 
-# Related post
+# Related post 2
 
 This is related to the welcome post.

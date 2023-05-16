@@ -14,7 +14,6 @@ const authors = defineCollection({
 	schema: z.object({
 		name: z.string(),
 		twitter: z.string().url(),
-		portfolio: z.string().url().optional(),
 	}),
 });
 

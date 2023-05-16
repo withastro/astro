@@ -4,7 +4,7 @@ import { loadFixture } from './test-utils.js';
 const authorIds = ['Ben Holmes', 'Fred K Schott', 'Nate Moore'];
 const translationIds = ['en', 'es', 'fr'];
 
-describe('Data Collections', () => {
+describe('Content collections - data collections', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/data-collections/' });

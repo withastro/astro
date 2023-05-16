@@ -1,9 +1,10 @@
 ---
 title: Welcome to the future of content!
 banner: welcome
-author: tony
+author: nate-moore
 relatedPosts:
-- related
+- related-1
+- related-2
 ---
 
 # Welcome to the future!

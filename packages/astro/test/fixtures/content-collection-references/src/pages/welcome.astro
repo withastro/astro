@@ -3,7 +3,11 @@ import { Image } from 'astro:assets';
 import { getEntry, getEntries } from 'astro:content';
 
 const welcomePost = await getEntry('blog', 'welcome');
-const { Content } = await welcomePost.render();
+
+if (!welcomePost?.data) {
+	throw new Error('Render - blog/welcome did not return `data`.');
+}
+
 const author = await getEntry(welcomePost.data.author);
 const banner = await getEntry(welcomePost.data.banner);
 const relatedPosts = await getEntries(welcomePost.data.relatedPosts ?? []);
@@ -18,11 +22,11 @@ const relatedPosts = await getEntries(welcomePost.data.relatedPosts ?? []);
 		<title>Astro</title>
 	</head>
 	<body>
-		<Image {...banner.data} />
-		<p>{author.data.name}</p>
-		<Content />
+		<Image data-banner {...banner.data} />
+		<a href={author.data.twitter} data-author-name>{author.data.name}</a>
+
 		<h2>Related posts</h2>
-		<ul>
+		<ul data-related-posts>
 			{
 				relatedPosts.map((post) => (
 					<li>
