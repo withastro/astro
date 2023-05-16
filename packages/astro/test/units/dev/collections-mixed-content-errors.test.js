@@ -113,7 +113,6 @@ title: Post
 			await sync({ fs });
 			expect.fail(0, 1, 'Expected sync to throw');
 		} catch (e) {
-			console.log('$$$', e.message);
 			expect(e).to.be.instanceOf(Error);
 			expect(e.type).to.equal('AstroError');
 			expect(e.errorCode).to.equal(9006);
