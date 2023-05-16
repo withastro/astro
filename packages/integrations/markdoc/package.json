@@ -36,6 +36,7 @@
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",
     "esbuild": "^0.17.12",
+    "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
     "zod": "^3.17.3"
