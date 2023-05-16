@@ -103,7 +103,7 @@ ${
 								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
 								: ''
 						}
-const stringifiedAst = ${JSON.stringify(JSON.stringify(ast))};
+const stringifiedAst = ${JSON.stringify(/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast))};
 export function getHeadings() {
 	${
 		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
