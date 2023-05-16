@@ -59,6 +59,10 @@ export async function runHookConfigSetup({
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
 	let addedClientDirectives = new Map<string, Promise<string>>();
+	
+	if (settings.config.experimental.router === 'spa') {
+		updatedSettings.scripts.push({ stage: 'page', content: 'import "astro/client/router.js"' });
+	}
 
 	for (const integration of settings.config.integrations) {
 		/**

@@ -43,6 +43,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		customClientDirectives: false,
 		inlineStylesheets: 'never',
 		middleware: false,
+		router: 'mpa'
 	},
 };
 
@@ -209,6 +210,10 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
 			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
+			router: z
+				.enum(['mpa', 'spa'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.router),
 		})
 		.passthrough()
 		.refine(
