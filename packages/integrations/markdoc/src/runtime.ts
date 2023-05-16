@@ -4,7 +4,7 @@ import Markdoc, {
 	type ConfigType as MarkdocConfig,
 } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
-import { nodes } from './nodes/index.js';
+import { nodes as astroNodes } from './nodes/index.js';
 
 export { headingSlugger } from './nodes/index.js';
 export { default as Markdoc } from '@markdoc/markdoc';
