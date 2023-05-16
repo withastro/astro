@@ -1036,7 +1036,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
 	 * @description
-	 * Content collections must contain entries of the type configured. If your collection config is missing a `type`, it will be considered `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+	 * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
 	 */
 	ContentCollectionTypeMismatchError: {
 		title: 'Collection contains entries of a different type.',
