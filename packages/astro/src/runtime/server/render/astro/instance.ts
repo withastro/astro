@@ -42,9 +42,7 @@ export class AstroComponentInstance {
 	}
 
 	async *render() {
-		if (this.returnValue === undefined) {
-			await this.init(this.result);
-		}
+		await this.init(this.result);
 
 		let value: AstroFactoryReturnValue | undefined = this.returnValue;
 		if (isPromise(value)) {

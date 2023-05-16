@@ -1,0 +1,6 @@
+---
+const content1 = await Astro.slots.render('default');
+const content2 = await Astro.slots.render('default');
+---
+<Fragment set:html={content1} />
+<Fragment set:html={content2} />

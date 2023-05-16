@@ -23,4 +23,9 @@ describe('Nested Slots', () => {
 		const $ = cheerio.load(html);
 		expect($('script')).to.have.a.lengthOf(1, 'script rendered');
 	});
+	it('render two slots at the same time', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		expect($('#test')).to.length(2)
+	});
 });
