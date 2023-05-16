@@ -289,7 +289,7 @@ export const _internal = {
 					{ id, collection, _internal, unvalidatedData },
 					collectionConfig,
 					pluginContext,
-					settings
+					settings.config
 			  )
 			: unvalidatedData;
 
@@ -400,7 +400,7 @@ async function getDataEntryModule({
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				pluginContext,
-				settings
+				settings.config
 		  )
 		: unvalidatedData;
 

@@ -93,7 +93,7 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	pluginContext: PluginContext,
-	settings: Pick<AstroSettings, 'config'>
+	config: AstroConfig
 ) {
 	let data;
 	if (collectionConfig.type === 'data') {
@@ -105,14 +105,14 @@ export async function getEntryData(
 
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
-		if (!settings.config.experimental.assets) {
+		if (!config.experimental.assets) {
 			throw new Error(
 				'The function shape for schema can only be used when `experimental.assets` is enabled.'
 			);
 		}
 
 		schema = schema({
-			image: createImage(settings, pluginContext, entry._internal.filePath),
+			image: createImage({ config }, pluginContext, entry._internal.filePath),
 		});
 	}
 
