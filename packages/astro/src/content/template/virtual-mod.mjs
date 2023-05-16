@@ -53,6 +53,11 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
+export function defineCollection(config) {
+	if (!config.type) config.type = 'content';
+	return config;
+}
+
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
