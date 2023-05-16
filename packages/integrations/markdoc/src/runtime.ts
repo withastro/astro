@@ -4,7 +4,7 @@ import Markdoc, {
 	type ConfigType as MarkdocConfig,
 } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
-import * as astroDefaultNodes from './nodes/index.js';
+import * as astroNodes from './nodes/index.js';
 
 export { default as Markdoc } from '@markdoc/markdoc';
 
@@ -19,7 +19,7 @@ export function applyDefaultConfig(
 			...config.variables,
 		},
 		nodes: {
-			...astroDefaultNodes,
+			...astroNodes,
 			...config.nodes,
 		},
 		// TODO: Syntax highlighting

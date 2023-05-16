@@ -147,14 +147,14 @@ You may also want to map standard HTML elements like headings and paragraphs to 
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig, defaultNodes } from '@astrojs/markdoc/config';
+import { defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
 import Heading from './src/components/Heading.astro';
 
 export default defineMarkdocConfig({
   nodes: {
     heading: {
       render: Heading,
-      ...defaultNodes.heading,
+      ...nodes.heading,
     },
   },
 })
