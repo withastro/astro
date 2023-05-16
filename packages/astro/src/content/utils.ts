@@ -20,6 +20,11 @@ import { createImage } from './runtime-assets.js';
 import { formatYAMLException } from '../core/errors/utils.js';
 import type { YAMLException } from 'js-yaml';
 
+/**
+ * Amap from a collection + slug to the local file path.
+ * This is used internally to resolve entry imports when using `getEntry()`.
+ * @see `src/content/virtual-mod.mjs`
+ */
 export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
 };
