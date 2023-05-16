@@ -6,6 +6,7 @@ import Markdoc, {
 import type { ContentEntryModule } from 'astro';
 import { nodes as astroNodes } from './nodes/index.js';
 
+/** Used to reset Slugger cache on each build at runtime */
 export { headingSlugger } from './nodes/index.js';
 export { default as Markdoc } from '@markdoc/markdoc';
 
