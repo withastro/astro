@@ -172,7 +172,7 @@ importers:
   packages/vscode:
     dependencies:
       '@astrojs/ts-plugin':
-        specifier: 1.0.5
+        specifier: 1.0.6
         version: link:../ts-plugin
       prettier:
         specifier: ^2.8.8

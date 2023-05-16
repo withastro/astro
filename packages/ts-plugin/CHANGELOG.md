@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.0.6
+
+### Patch Changes
+
+- 3fcbc1a: Fix TypeScript plugin crashing at start in certain circumstances
+
 ## 1.0.5
 
 ### Patch Changes
