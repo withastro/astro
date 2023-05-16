@@ -26,6 +26,11 @@
     "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "components",
+    "dist",
+    "template"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",

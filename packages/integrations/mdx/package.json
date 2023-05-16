@@ -22,6 +22,10 @@
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "template"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
