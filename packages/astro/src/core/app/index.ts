@@ -10,7 +10,7 @@ import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { call as callEndpoint, createAPIContext } from '../endpoint/index.js';
+import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
@@ -224,6 +224,7 @@ export class App {
 			let response;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
+					this.#env.logging,
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
