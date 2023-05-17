@@ -406,7 +406,7 @@ async function getDataEntryModule({
 	const _internal = { filePath: fileId, rawData };
 
 	const collectionConfig = contentConfig?.collections[collection];
-	let data = collectionConfig
+	const data = collectionConfig
 		? await getEntryData(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
