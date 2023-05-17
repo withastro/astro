@@ -9,8 +9,10 @@ import {
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
+	type AstroComponentFactory,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -155,6 +157,23 @@ export function createGetDataEntryById({
 	};
 }
 
+type ContentEntryResult = {
+	id: string;
+	slug: string;
+	body: string;
+	collection: string;
+	data: Record<string, any>;
+	render(): Promise<RenderResult>;
+};
+
+type DataEntryResult = {
+	id: string;
+	collection: string;
+	data: Record<string, any>;
+};
+
+type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
+
 export function createGetEntry({
 	getEntryImport,
 	getRenderEntryImport,
@@ -163,25 +182,31 @@ export function createGetEntry({
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getEntry(
-		collectionOrLookupObject:
-			| string
-			| { collection: string; id: string }
-			| { collection: string; slug: string },
-		lookupId?: string
-	) {
-		let collection: string, id: string;
+		// Can either pass collection and identifier as 2 positional args,
+		// Or pass a single object with the collection and identifier as properties.
+		// This means the first positional arg can have different shapes.
+		collectionOrLookupObject: string | EntryLookupObject,
+		_lookupId?: string
+	): Promise<ContentEntryResult | DataEntryResult | undefined> {
+		let collection: string, lookupId: string;
 		if (typeof collectionOrLookupObject === 'string') {
 			collection = collectionOrLookupObject;
-			id = lookupId!;
+			if (!_lookupId)
+				throw new AstroError({
+					...AstroErrorData.UnknownContentCollectionError,
+					message: '`getEntry()` requires an entry identifier as the second argument.',
+				});
+			lookupId = _lookupId;
 		} else {
 			collection = collectionOrLookupObject.collection;
-			id =
+			// Identifier could be `slug` for content entries, or `id` for data entries
+			lookupId =
 				'id' in collectionOrLookupObject
 					? collectionOrLookupObject.id
 					: collectionOrLookupObject.slug;
 		}
 
-		const entryImport = await getEntryImport(collection, id);
+		const entryImport = await getEntryImport(collection, lookupId);
 		if (typeof entryImport !== 'function') return undefined;
 
 		const entry = await entryImport();
@@ -197,7 +222,7 @@ export function createGetEntry({
 					return render({
 						collection: entry.collection,
 						id: entry.id,
-						renderEntryImport: await getRenderEntryImport(collection, id),
+						renderEntryImport: await getRenderEntryImport(collection, lookupId),
 					});
 				},
 			};
@@ -220,6 +245,12 @@ export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 	};
 }
 
+type RenderResult = {
+	Content: AstroComponentFactory;
+	headings: MarkdownHeading[];
+	remarkPluginFrontmatter: Record<string, any>;
+};
+
 async function render({
 	collection,
 	id,
@@ -228,7 +259,7 @@ async function render({
 	collection: string;
 	id: string;
 	renderEntryImport?: LazyImport;
-}) {
+}): Promise<RenderResult> {
 	const UnexpectedRenderError = new AstroError({
 		...AstroErrorData.UnknownContentCollectionError,
 		message: `Unexpected error while rendering ${String(collection)} → ${String(id)}.`,
