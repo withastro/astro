@@ -9,10 +9,6 @@ import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 import { serializeListValue } from './util.js';
 
-const HydrationDirectivesRaw = ['load', 'idle', 'media', 'visible', 'only'];
-const HydrationDirectives = new Set(HydrationDirectivesRaw);
-export const HydrationDirectiveProps = new Set(HydrationDirectivesRaw.map((n) => `client:${n}`));
-
 export interface HydrationMetadata {
 	directive: string;
 	value: string;
@@ -29,8 +25,8 @@ interface ExtractedProps {
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
-	displayName: string,
-	inputProps: Record<string | number | symbol, any>
+	inputProps: Record<string | number | symbol, any>,
+	clientDirectives: SSRResult['_metadata']['clientDirectives']
 ): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,
@@ -74,11 +70,12 @@ export function extractDirectives(
 					extracted.hydration.value = value;
 
 					// throw an error if an invalid hydration directive was provided
-					if (!HydrationDirectives.has(extracted.hydration.directive)) {
+					if (!clientDirectives.has(extracted.hydration.directive)) {
+						const hydrationMethods = Array.from(clientDirectives.keys())
+							.map((d) => `client:${d}`)
+							.join(', ');
 						throw new Error(
-							`Error: invalid hydration directive "${key}". Supported hydration methods: ${Array.from(
-								HydrationDirectiveProps
-							).join(', ')}`
+							`Error: invalid hydration directive "${key}". Supported hydration methods: ${hydrationMethods}`
 						);
 					}
 

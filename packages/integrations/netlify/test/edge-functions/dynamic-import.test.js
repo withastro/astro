@@ -1,14 +1,11 @@
-// @ts-ignore
 import { runBuild, runApp } from './test-utils.ts';
-// @ts-ignore
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
-// @ts-ignore
 Deno.test({
 	name: 'Dynamic imports',
 	async fn() {
-		let close = await runBuild('./fixtures/dynimport/');
-		let stop = await runApp('./fixtures/dynimport/prod.js');
+		await runBuild('./fixtures/dynimport/');
+		const stop = await runApp('./fixtures/dynimport/prod.js');
 
 		try {
 			const response = await fetch('http://127.0.0.1:8085/');
@@ -23,7 +20,6 @@ Deno.test({
 			// eslint-disable-next-line no-console
 			console.error(err);
 		} finally {
-			await close();
 			await stop();
 		}
 	},

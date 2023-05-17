@@ -1,7 +1,7 @@
 import { polyfill } from '@astrojs/webapi';
 import type { SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
-import middleware from './middleware.js';
+import middleware from './nodeMiddleware.js';
 import startServer from './standalone.js';
 import type { Options } from './types';
 

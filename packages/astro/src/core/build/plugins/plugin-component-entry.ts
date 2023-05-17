@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
-const astroEntryPrefix = '\0astro-entry:';
+export const astroEntryPrefix = '\0astro-entry:';
 
 /**
  * When adding hydrated or client:only components as Rollup inputs, sometimes we're not using all

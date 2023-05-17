@@ -1,14 +1,6 @@
 import type { SSRElement, SSRResult } from '../../../@types/astro';
+import type { StylesheetAsset } from '../../../core/app/types';
 import { renderElement } from './util.js';
-
-const stylesheetRel = 'stylesheet';
-
-export function renderStyleElement(children: string) {
-	return renderElement('style', {
-		props: {},
-		children,
-	});
-}
 
 export function renderScriptElement({ props, children }: SSRElement) {
 	return renderElement('script', {
@@ -17,26 +9,14 @@ export function renderScriptElement({ props, children }: SSRElement) {
 	});
 }
 
-export function renderStylesheet({ href }: { href: string }) {
-	return renderElement(
-		'link',
-		{
-			props: {
-				rel: stylesheetRel,
-				href,
-			},
-			children: '',
-		},
-		false
-	);
-}
-
-export function renderUniqueStylesheet(result: SSRResult, link: { href: string }) {
-	for (const existingLink of result.links) {
-		if (existingLink.props.rel === stylesheetRel && existingLink.props.href === link.href) {
-			return '';
-		}
+export function renderUniqueStylesheet(result: SSRResult, sheet: StylesheetAsset) {
+	if (sheet.type === 'external') {
+		if (Array.from(result.styles).some((s) => s.props.href === sheet.src)) return '';
+		return renderElement('link', { props: { rel: 'stylesheet', href: sheet.src }, children: '' });
 	}
 
-	return renderStylesheet(link);
+	if (sheet.type === 'inline') {
+		if (Array.from(result.styles).some((s) => s.children.includes(sheet.content))) return '';
+		return renderElement('style', { props: { type: 'text/css' }, children: sheet.content });
+	}
 }

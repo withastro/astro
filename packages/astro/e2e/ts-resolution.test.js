@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/ts-resolution/' });
 
@@ -12,6 +12,8 @@ function runTest(it) {
 
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
+
+		await waitForHydrate(page, counter);
 
 		const inc = counter.locator('.increment');
 		await inc.click();

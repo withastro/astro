@@ -1,5 +1,14 @@
 # @astrojs/mdx
 
+## 0.19.1
+
+### Patch Changes
+
+- [#6932](https://github.com/withastro/astro/pull/6932) [`49514e4ce`](https://github.com/withastro/astro/commit/49514e4ce40fedb39bf7decd2c296258efbdafc7) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade shiki to v0.14.1. This updates the shiki theme colors and adds the theme name to the `pre` tag, e.g. `<pre class="astro-code github-dark">`.
+
+- Updated dependencies [[`49514e4ce`](https://github.com/withastro/astro/commit/49514e4ce40fedb39bf7decd2c296258efbdafc7)]:
+  - @astrojs/markdown-remark@2.2.0
+
 ## 0.19.0
 
 ### Minor Changes

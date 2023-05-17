@@ -48,7 +48,7 @@ export const AstroErrorData = {
 		title: '`Astro.redirect` is not available in static mode.',
 		code: 3001,
 		message:
-			"Redirects are only available when using `output: 'server'`. Update your Astro config if you need SSR features.",
+			"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
 	/**
@@ -79,7 +79,7 @@ export const AstroErrorData = {
 		title: '`Astro.clientAddress` is not available in static mode.',
 		code: 3003,
 		message:
-			"`Astro.clientAddress` is only available when using `output: 'server'`. Update your Astro config if you need SSR features.",
+			"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
 	/**
@@ -390,7 +390,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	NoAdapterInstalled: {
 		title: 'Cannot use Server-side Rendering without an adapter.',
 		code: 3017,
-		message: `Cannot use \`output: 'server'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+		message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 	},
 	/**
@@ -416,10 +416,12 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	InvalidPrerenderExport: {
 		title: 'Invalid prerender export.',
 		code: 3019,
-		message: (prefix: string, suffix: string) => {
+		message: (prefix: string, suffix: string, isHydridOuput: boolean) => {
+			const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
 			let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 			if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
-			if (suffix !== 'true') msg += `\nExpected \`true\` value but got \`${suffix}\`.`;
+			if (suffix !== 'true')
+				msg += `\nExpected \`${defaultExpectedValue}\` value but got \`${suffix}\`.`;
 			return msg;
 		},
 		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
@@ -627,6 +629,95 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Unable to set response',
 		code: 3030,
 		message: 'The response has already been sent to the browser and cannot be altered.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 * Thrown when the middleware does not return any data or call the `next` function.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, _) => {
+	 * 	// doesn't return anything or call `next`
+	 * 	context.locals.someData = false;
+	 * });
+	 * ```
+	 */
+	MiddlewareNoDataOrNextCalled: {
+		title: "The middleware didn't return a response or call `next`",
+		code: 3031,
+		message:
+			'The middleware needs to either return a `Response` object or call the `next` function.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 * Thrown in development mode when middleware returns something that is not a `Response` object.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware(() => {
+	 *   return "string"
+	 * });
+	 * ```
+	 */
+	MiddlewareNotAResponse: {
+		title: 'The middleware returned something that is not a `Response` object',
+		code: 3032,
+		message: 'Any data returned from middleware must be a valid `Response` object.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 *
+	 * Thrown in development mode when `locals` is overwritten with something that is not an object
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals = 1541;
+	 *   return next();
+	 * });
+	 * ```
+	 */
+	LocalsNotAnObject: {
+		title: 'Value assigned to `locals` is not accepted',
+		code: 3033,
+		message:
+			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
+		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+	},
+
+	/**
+	 * @docs
+	 * @description
+	 * Thrown in development mode when a user attempts to store something that is not serializable in `locals`.
+	 *
+	 * For example:
+	 * ```ts
+	 * import {defineMiddleware} from "astro/middleware";
+	 * export const onRequest = defineMiddleware((context, next) => {
+	 *   context.locals = {
+	 *     foo() {
+	 *       alert("Hello world!")
+	 *     }
+	 *   };
+	 *   return next();
+	 * });
+	 * ```
+	 */
+	LocalsNotSerializable: {
+		title: '`Astro.locals` is not serializable',
+		code: 3034,
+		message: (href: string) => {
+			return `The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`;
+		},
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx

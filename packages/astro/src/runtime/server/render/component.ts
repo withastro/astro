@@ -67,10 +67,10 @@ async function renderFrameworkComponent(
 		);
 	}
 
-	const { renderers } = result._metadata;
+	const { renderers, clientDirectives } = result._metadata;
 	const metadata: AstroComponentMetadata = { displayName };
 
-	const { hydration, isPage, props } = extractDirectives(displayName, _props);
+	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 
@@ -263,7 +263,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
 			} else if (html && html.length > 0) {
-				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+				yield markHTMLString(html.replace(/\<\/?astro-slot\b[^>]*>/g, ''));
 			} else {
 				yield '';
 			}
