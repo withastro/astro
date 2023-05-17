@@ -3621,10 +3621,16 @@ importers:
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
+      mime:
+        specifier: ^3.0.0
+        version: 3.0.0
       tiny-glob:
         specifier: ^0.2.9
         version: 0.2.9
     devDependencies:
+      '@types/mime':
+        specifier: ^2.0.3
+        version: 2.0.3
       astro:
         specifier: workspace:*
         version: link:../../astro
