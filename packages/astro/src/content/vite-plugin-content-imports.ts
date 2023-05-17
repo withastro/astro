@@ -371,7 +371,16 @@ async function getDataEntryModule({
 	settings,
 }: GetDataEntryModuleParams): Promise<DataEntryModule> {
 	const contentConfig = await getContentConfigFromGlobal();
-	const rawContents = await fs.promises.readFile(fileId, 'utf-8');
+	let rawContents;
+	try {
+		rawContents = await fs.promises.readFile(fileId, 'utf-8');
+	} catch (e) {
+		throw new AstroError({
+			...AstroErrorData.UnknownContentCollectionError,
+			message: `Unexpected error reading entry ${JSON.stringify(fileId)}.`,
+			stack: e instanceof Error ? e.stack : undefined,
+		});
+	}
 	const fileExt = extname(fileId);
 	const dataEntryParser = dataEntryExtToParser.get(fileExt);
 
