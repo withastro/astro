@@ -65,6 +65,7 @@ export class App {
 			markdown: manifest.markdown,
 			mode: 'production',
 			renderers: manifest.renderers,
+			clientDirectives: manifest.clientDirectives,
 			async resolve(specifier: string) {
 				if (!(specifier in manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);

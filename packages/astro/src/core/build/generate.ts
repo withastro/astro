@@ -417,6 +417,7 @@ async function generatePath(
 		markdown: settings.config.markdown,
 		mode: opts.mode,
 		renderers,
+		clientDirectives: settings.clientDirectives,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {

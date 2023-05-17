@@ -38,6 +38,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {},
 	experimental: {
 		assets: false,
+		customClientDirecives: false,
 		inlineStylesheets: 'never',
 		middleware: false,
 	},
@@ -195,6 +196,10 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
+			customClientDirectives: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.customClientDirecives),
 			inlineStylesheets: z
 				.enum(['always', 'auto', 'never'])
 				.optional()

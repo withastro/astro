@@ -55,6 +55,10 @@ export interface AstroBuiltinProps {
 	'client:only'?: boolean | string;
 }
 
+// Allow users to extend this for astro-jsx.d.ts
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AstroClientDirectives {}
+
 export interface AstroBuiltinAttributes {
 	'class:list'?:
 		| Record<string, boolean>
@@ -1077,6 +1081,28 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.customClientDirectives
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.5.0
+		 * @description
+		 * Allow integrations to use the [experimental `addClientDirective` API](/en/reference/integrations-reference/#addclientdirective-option) in the `astro:config:setup` hook
+		 * to add custom client directives in Astro files.
+		 *
+		 * To enable this feature, set `experimental.customClientDirectives` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		customClientDirectives: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		customClientDirectives?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.middleware
 		 * @type {boolean}
 		 * @default `false`
@@ -1206,6 +1232,10 @@ export interface AstroSettings {
 		stage: InjectedScriptStage;
 		content: string;
 	}[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1654,6 +1684,7 @@ export interface AstroIntegration {
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
+			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -1750,6 +1781,7 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
+	clientDirectives: Map<string, string>;
 }
 
 /**
@@ -1814,4 +1846,30 @@ export type CreatePreviewServer = (
 
 export interface PreviewModule {
 	default: CreatePreviewServer;
+}
+
+/* Client Directives */
+type DirectiveHydrate = () => Promise<void>;
+type DirectiveLoad = () => Promise<DirectiveHydrate>;
+
+type DirectiveOptions = {
+	/**
+	 * The component displayName
+	 */
+	name: string;
+	/**
+	 * The attribute value provided
+	 */
+	value: string;
+};
+
+export type ClientDirective = (
+	load: DirectiveLoad,
+	options: DirectiveOptions,
+	el: HTMLElement
+) => void;
+
+export interface ClientDirectiveConfig {
+	name: string;
+	entrypoint: string;
 }

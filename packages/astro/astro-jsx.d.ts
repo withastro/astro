@@ -18,12 +18,13 @@ declare namespace astroHTML.JSX {
 		children: {};
 	}
 
-	interface IntrinsicAttributes extends AstroBuiltinProps, AstroBuiltinAttributes {
+	interface IntrinsicAttributes extends AstroBuiltinProps, AstroBuiltinAttributes, AstroClientDirectives {
 		slot?: string;
 		children?: Children;
 	}
 
 	type AstroBuiltinProps = import('./dist/@types/astro.js').AstroBuiltinProps;
+	type AstroClientDirectives = import('./dist/@types/astro.js').AstroClientDirectives;
 	type AstroBuiltinAttributes = import('./dist/@types/astro.js').AstroBuiltinAttributes;
 	type AstroDefineVarsAttribute = import('./dist/@types/astro.js').AstroDefineVarsAttribute;
 	type AstroScriptAttributes = import('./dist/@types/astro.js').AstroScriptAttributes &

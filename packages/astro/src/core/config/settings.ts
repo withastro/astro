@@ -7,6 +7,7 @@ import { markdownContentEntryType } from '../../vite-plugin-markdown/content-ent
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import { getDefaultClientDirectives } from '../client-directive/index.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -23,6 +24,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		contentEntryTypes: [markdownContentEntryType],
 		renderers: [jsxRenderer],
 		scripts: [],
+		clientDirectives: getDefaultClientDirectives(),
 		watchFiles: [],
 		forceDisableTelemetry: false,
 		timer: new AstroTimer(),
