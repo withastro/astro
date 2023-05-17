@@ -237,6 +237,7 @@ function buildManifest(
 		pageMap: null as any,
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
+		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
 		assets: staticFiles.map(prefixAssetPath),
 	};

@@ -14,6 +14,7 @@ import type {
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
+import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
 import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
@@ -56,6 +57,7 @@ export async function runHookConfigSetup({
 
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
+	let addedClientDirectives = new Map<string, Promise<string>>();
 
 	for (const integration of settings.config.integrations) {
 		/**
@@ -98,6 +100,19 @@ export async function runHookConfigSetup({
 				addWatchFile: (path) => {
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
+				addClientDirective: ({ name, entrypoint }) => {
+					if (!settings.config.experimental.customClientDirectives) {
+						throw new Error(
+							`The "${integration.name}" integration is trying to add the "${name}" client directive, but the \`experimental.customClientDirectives\` config is not enabled.`
+						);
+					}
+					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
+						throw new Error(
+							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`
+						);
+					}
+					addedClientDirectives.set(name, buildClientDirectiveEntrypoint(name, entrypoint));
+				},
 			};
 
 			// ---
@@ -138,6 +153,11 @@ export async function runHookConfigSetup({
 				!updatedSettings.contentEntryTypes.find((c) => c.extensions.includes('.mdx'))
 			) {
 				addContentEntryType(mdxContentEntryType);
+			}
+
+			// Add custom client directives to settings, waiting for compiled code by esbuild
+			for (const [name, compiled] of addedClientDirectives) {
+				updatedSettings.clientDirectives.set(name, await compiled);
 			}
 		}
 	}

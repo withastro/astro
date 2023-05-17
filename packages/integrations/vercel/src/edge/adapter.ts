@@ -119,6 +119,8 @@ export default function vercelEdge({
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
+					// https://runtime-keys.proposal.wintercg.org/#edge-light
+					conditions: ['edge-light', 'worker', 'browser'],
 					entryPoints: [entryPath],
 					outfile: entryPath,
 					allowOverwrite: true,

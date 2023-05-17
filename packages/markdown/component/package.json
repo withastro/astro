@@ -18,6 +18,9 @@
       "astro": "./Markdown.astro"
     }
   },
+  "files": [
+    "Markdown.astro"
+  ],
   "scripts": {
     "test": "mocha --exit --timeout 20000"
   },

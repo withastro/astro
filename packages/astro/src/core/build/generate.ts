@@ -28,11 +28,7 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import {
-	call as callEndpoint,
-	createAPIContext,
-	throwIfRedirectNotAllowed,
-} from '../endpoint/index.js';
+import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
@@ -422,6 +418,7 @@ async function generatePath(
 		markdown: settings.config.markdown,
 		mode: opts.mode,
 		renderers,
+		clientDirectives: settings.clientDirectives,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {
@@ -496,6 +493,7 @@ async function generatePath(
 			const onRequest = middleware?.onRequest;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
+					env.logging,
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {

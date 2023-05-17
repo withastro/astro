@@ -23,6 +23,10 @@
     "./Prism.astro": "./Prism.astro",
     "./dist/highlighter": "./dist/highlighter.js"
   },
+  "files": [
+    "dist",
+    "Prism.astro"
+  ],
   "keywords": [
     "astro",
     "astro-component"
