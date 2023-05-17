@@ -116,6 +116,33 @@ describe('astro:image', () => {
 			});
 		});
 
+		describe('vite-isms', () => {
+			/**
+			 * @type {cheerio.CheerioAPI}
+			 */
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/vite');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('support ?url imports', () => {
+				let $url = $('#url');
+				expect($url.text()).to.equal('string');
+			});
+
+			it('support ?raw imports', () => {
+				let $raw = $('#raw');
+				expect($raw.text()).to.equal('string');
+			});
+
+			it('support glob import as raw', () => {
+				let $raw = $('#glob-import');
+				expect($raw.text()).to.equal('string');
+			});
+		});
+
 		describe('remote', () => {
 			describe('working', () => {
 				let $;
