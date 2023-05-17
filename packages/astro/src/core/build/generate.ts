@@ -19,7 +19,7 @@ import type {
 import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
-} from '../../assets/internal.js';
+} from '../../assets/generate.js';
 import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,

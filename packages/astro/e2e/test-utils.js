@@ -61,3 +61,17 @@ export async function getErrorOverlayContent(page) {
 export async function getColor(el) {
 	return await el.evaluate((e) => getComputedStyle(e).color);
 }
+
+/**
+ * Wait for `astro-island` that contains the `el` to hydrate
+ * @param {import('@playwright/test').Page} page
+ * @param {import('@playwright/test').Locator} el
+ */
+export async function waitForHydrate(page, el) {
+	const astroIsland = page.locator('astro-island', { has: el });
+	const astroIslandId = await astroIsland.last().getAttribute('uid');
+	await page.waitForFunction(
+		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
+		`astro-island[uid="${astroIslandId}"]`
+	);
+}
