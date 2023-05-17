@@ -6,10 +6,9 @@ import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
-	PrescriptType,
+	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
-import { hasScopeFlag, ScopeFlags } from './scope.js';
 import { isSlotString, type SlotString } from './slot.js';
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -21,7 +20,10 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction) {
+export function stringifyChunk(
+	result: SSRResult,
+	chunk: string | SlotString | RenderInstruction
+): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
 		switch (instruction.type) {
@@ -37,7 +39,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 					? 'directive'
 					: null;
 				if (prescriptType) {
-					let prescripts = getPrescripts(prescriptType, hydration.directive);
+					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';
@@ -50,52 +52,9 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
-				if (result._metadata.hasRenderedHead) {
+				if (result._metadata.hasRenderedHead || result._metadata.headInTree) {
 					return '';
 				}
-
-				const scope = instruction.scope;
-				switch (scope) {
-					// JSX with an Astro slot
-					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro:
-					case ScopeFlags.JSX | ScopeFlags.Astro | ScopeFlags.HeadBuffer:
-					case ScopeFlags.JSX | ScopeFlags.Slot | ScopeFlags.Astro | ScopeFlags.HeadBuffer: {
-						return '';
-					}
-
-					// Astro rendered within JSX, head will be injected by the page itself.
-					case ScopeFlags.JSX | ScopeFlags.Astro: {
-						if (hasScopeFlag(result, ScopeFlags.JSX)) {
-							return '';
-						}
-						break;
-					}
-
-					// If the current scope is with Astro.slots.render()
-					case ScopeFlags.Slot:
-					case ScopeFlags.Slot | ScopeFlags.HeadBuffer: {
-						if (hasScopeFlag(result, ScopeFlags.RenderSlot)) {
-							return '';
-						}
-						break;
-					}
-
-					// Nested element inside of JSX during head buffering phase
-					case ScopeFlags.HeadBuffer: {
-						if (hasScopeFlag(result, ScopeFlags.JSX | ScopeFlags.HeadBuffer)) {
-							return '';
-						}
-						break;
-					}
-
-					// Astro.slots.render() should never render head content.
-					case ScopeFlags.RenderSlot | ScopeFlags.Astro:
-					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX:
-					case ScopeFlags.RenderSlot | ScopeFlags.Astro | ScopeFlags.JSX | ScopeFlags.HeadBuffer: {
-						return '';
-					}
-				}
-
 				return renderAllHeadContent(result);
 			}
 		}

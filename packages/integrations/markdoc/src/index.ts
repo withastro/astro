@@ -1,15 +1,16 @@
-import type { Config } from '@markdoc/markdoc';
+/* eslint-disable no-console */
+import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import type { InlineConfig } from 'vite';
-import {
-	getAstroConfigPath,
-	MarkdocError,
-	parseFrontmatter,
-	prependForwardSlash,
-} from './utils.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
+// @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
+import { emitESMImage } from 'astro/assets';
+import { bold, red, yellow } from 'kleur/colors';
+import type * as rollup from 'rollup';
+import { applyDefaultConfig } from './runtime.js';
+import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -17,12 +18,24 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
+export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
+	if (legacyConfig) {
+		console.log(
+			`${red(
+				bold('[Markdoc]')
+			)} Passing Markdoc config from your \`astro.config\` is no longer supported. Configuration should be exported from a \`markdoc.config.mjs\` file. See the configuration docs for more: https://docs.astro.build/en/guides/integrations-guide/markdoc/#configuration`
+		);
+		process.exit(0);
+	}
+	let markdocConfigResult: MarkdocConfigResult | undefined;
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { updateConfig, config, addContentEntryType } = params as SetupHookParams;
+				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
+
+				markdocConfigResult = await loadMarkdocConfig(astroConfig);
+				const userMarkdocConfig = markdocConfigResult?.config ?? {};
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -36,87 +49,150 @@ export default function markdoc(markdocConfig: Config = {}): AstroIntegration {
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
+					async getRenderModule({ entry, viteId }) {
+						const ast = Markdoc.parse(entry.body);
+						const pluginContext = this;
+						const markdocConfig = applyDefaultConfig(userMarkdocConfig, entry);
+
+						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
+							return (
+								// Ignore `variable-undefined` errors.
+								// Variables can be configured at runtime,
+								// so we cannot validate them at build time.
+								e.error.id !== 'variable-undefined' &&
+								(e.error.level === 'error' || e.error.level === 'critical')
+							);
+						});
+						if (validationErrors.length) {
+							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
+							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
+							throw new MarkdocError({
+								message: [
+									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									...validationErrors.map((e) => `- ${e.error.message}`),
+								].join('\n'),
+								location: {
+									// Error overlay does not support multi-line or ranges.
+									// Just point to the first line.
+									line: frontmatterBlockOffset + validationErrors[0].lines[0],
+									file: viteId,
+								},
+							});
+						}
+
+						if (astroConfig.experimental.assets) {
+							await emitOptimizedImages(ast.children, {
+								astroConfig,
+								pluginContext,
+								filePath: entry._internal.filePath,
+							});
+						}
+
+						const res = `import { jsx as h } from 'astro/jsx-runtime';
+						import { Renderer } from '@astrojs/markdoc/components';
+						import { collectHeadings, applyDefaultConfig, Markdoc, headingSlugger } from '@astrojs/markdoc/runtime';
+import * as entry from ${JSON.stringify(viteId + '?astroContent')};
+${
+	markdocConfigResult
+		? `import _userConfig from ${JSON.stringify(
+				markdocConfigResult.fileUrl.pathname
+		  )};\nconst userConfig = _userConfig ?? {};`
+		: 'const userConfig = {};'
+}${
+							astroConfig.experimental.assets
+								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
+								: ''
+						}
+const stringifiedAst = ${JSON.stringify(/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast))};
+export function getHeadings() {
+	${
+		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
+		TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
+		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
+		''
+	}
+	headingSlugger.reset();
+	const headingConfig = userConfig.nodes?.heading;
+	const config = applyDefaultConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
+	const content = Markdoc.transform(ast, config);
+	return collectHeadings(Array.isArray(content) ? content : content.children);
+}
+export async function Content (props) {
+	headingSlugger.reset();
+	const config = applyDefaultConfig({
+		...userConfig,
+		variables: { ...userConfig.variables, ...props },
+	}, entry);
+
+	return h(Renderer, { config, stringifiedAst });
+}`;
+						return { code: res };
+					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
 				});
-
-				const viteConfig: InlineConfig = {
-					plugins: [
-						{
-							name: '@astrojs/markdoc',
-							async transform(code, id) {
-								if (!id.endsWith('.mdoc')) return;
-
-								validateRenderProperties(markdocConfig, config);
-								const body = getEntryInfo({
-									// Can't use `pathToFileUrl` - Vite IDs are not plain file paths
-									fileUrl: new URL(prependForwardSlash(id), 'file://'),
-									contents: code,
-								}).body;
-								const ast = Markdoc.parse(body);
-								const content = Markdoc.transform(ast, markdocConfig);
-
-								return `import { jsx as h } from 'astro/jsx-runtime';\nimport { Renderer } from '@astrojs/markdoc/components';\nconst transformedContent = ${JSON.stringify(
-									content
-								)};\nexport async function Content ({ components }) { return h(Renderer, { content: transformedContent, components }); }\nContent[Symbol.for('astro.needsHeadRendering')] = true;`;
-							},
-						},
-					],
-				};
-				updateConfig({ vite: viteConfig });
+			},
+			'astro:server:setup': async ({ server }) => {
+				server.watcher.on('all', (event, entry) => {
+					if (pathToFileURL(entry).pathname === markdocConfigResult?.fileUrl.pathname) {
+						console.log(
+							yellow(
+								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
+							)
+						);
+					}
+				});
 			},
 		},
 	};
 }
 
-function validateRenderProperties(markdocConfig: Config, astroConfig: AstroConfig) {
-	const tags = markdocConfig.tags ?? {};
-	const nodes = markdocConfig.nodes ?? {};
-
-	for (const [name, config] of Object.entries(tags)) {
-		validateRenderProperty({ type: 'tag', name, config, astroConfig });
+/**
+ * Emits optimized images, and appends the generated `src` to each AST node
+ * via the `__optimizedSrc` attribute.
+ */
+async function emitOptimizedImages(
+	nodeChildren: Node[],
+	ctx: {
+		pluginContext: rollup.PluginContext;
+		filePath: string;
+		astroConfig: AstroConfig;
 	}
-	for (const [name, config] of Object.entries(nodes)) {
-		validateRenderProperty({ type: 'node', name, config, astroConfig });
+) {
+	for (const node of nodeChildren) {
+		if (
+			node.type === 'image' &&
+			typeof node.attributes.src === 'string' &&
+			shouldOptimizeImage(node.attributes.src)
+		) {
+			// Attempt to resolve source with Vite.
+			// This handles relative paths and configured aliases
+			const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
+
+			if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
+				const src = await emitESMImage(
+					resolved.id,
+					ctx.pluginContext.meta.watchMode,
+					ctx.pluginContext.emitFile,
+					{ config: ctx.astroConfig }
+				);
+				node.attributes.__optimizedSrc = src;
+			} else {
+				throw new MarkdocError({
+					message: `Could not resolve image ${JSON.stringify(
+						node.attributes.src
+					)} from ${JSON.stringify(ctx.filePath)}. Does the file exist?`,
+				});
+			}
+		}
+		await emitOptimizedImages(node.children, ctx);
 	}
 }
 
-function validateRenderProperty({
-	name,
-	config,
-	type,
-	astroConfig,
-}: {
-	name: string;
-	config: { render?: string };
-	type: 'node' | 'tag';
-	astroConfig: Pick<AstroConfig, 'root'>;
-}) {
-	if (typeof config.render === 'string' && config.render.length === 0) {
-		throw new Error(
-			`Invalid ${type} configuration: ${JSON.stringify(
-				name
-			)}. The "render" property cannot be an empty string.`
-		);
-	}
-	if (typeof config.render === 'string' && !isCapitalized(config.render)) {
-		const astroConfigPath = getAstroConfigPath(fs, fileURLToPath(astroConfig.root));
-		throw new MarkdocError({
-			message: `Invalid ${type} configuration: ${JSON.stringify(
-				name
-			)}. The "render" property must reference a capitalized component name.`,
-			hint: 'If you want to render to an HTML element, see our docs on rendering Markdoc manually: https://docs.astro.build/en/guides/integrations-guide/markdoc/#render-markdoc-nodes--html-elements-as-astro-components',
-			location: astroConfigPath
-				? {
-						file: astroConfigPath,
-				  }
-				: undefined,
-		});
-	}
-}
-
-function isCapitalized(str: string) {
-	return str.length > 0 && str[0] === str[0].toUpperCase();
+function shouldOptimizeImage(src: string) {
+	// Optimize anything that is NOT external or an absolute path to `public/`
+	return !isValidUrl(src) && !src.startsWith('/');
 }

@@ -1,8 +1,12 @@
 /* eslint-disable no-console */
-import { AstroCheck, DiagnosticSeverity, GetDiagnosticsResult } from '@astrojs/language-server';
+import {
+	AstroCheck,
+	DiagnosticSeverity,
+	type GetDiagnosticsResult,
+} from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
-import fsMod, * as fs from 'fs';
+import fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
 import { join } from 'node:path';
@@ -85,7 +89,10 @@ export async function check(
 			commandName: 'astro check',
 			usage: '[...flags]',
 			tables: {
-				Flags: [['--help (-h)', 'See all available flags.']],
+				Flags: [
+					['--watch', 'Watch Astro files for changes and re-run checks.'],
+					['--help (-h)', 'See all available flags.'],
+				],
 			},
 			description: `Runs diagnostics against your project and reports errors to the console.`,
 		});
@@ -129,7 +136,7 @@ type CheckerConstructor = {
 
 	logging: Readonly<LogOptions>;
 
-	fileSystem: typeof fsMod;
+	fileSystem: typeof fs;
 };
 
 /**
@@ -146,7 +153,7 @@ export class AstroChecker {
 	readonly #settings: AstroSettings;
 
 	readonly #logging: LogOptions;
-	readonly #fs: typeof fsMod;
+	readonly #fs: typeof fs;
 	#watcher?: FSWatcher;
 
 	#filesCount: number;

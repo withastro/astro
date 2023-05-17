@@ -2,6 +2,7 @@
 import { getPicture } from '../dist/index.js';
 import { warnForMissingAlt } from './index.js';
 import type { PictureComponentLocalImageProps, PictureComponentRemoteImageProps } from './index.js';
+import type { GetPictureResult } from '../src/lib/get-picture.js';
 
 export type Props = PictureComponentLocalImageProps | PictureComponentRemoteImageProps;
 
@@ -24,7 +25,7 @@ if (alt === undefined || alt === null) {
 	warnForMissingAlt();
 }
 
-const { image, sources } = await getPicture({
+const { image, sources }: GetPictureResult = await getPicture({
 	src,
 	widths,
 	formats,

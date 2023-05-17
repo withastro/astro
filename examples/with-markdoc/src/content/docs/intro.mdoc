@@ -20,9 +20,9 @@ This simple starter showcases Markdoc with Content Collections. All Markdoc feat
 
 {% aside title="Code Challenge" type="tip" %}
 
-Reveal the secret message below by adding `revealSecret: true` to your list of Markdoc variables.
+Reveal the secret message below by adding `revealSecret` to your list of Markdoc variables.
 
-_Hint: Try [adding a `variables` object](https://markdoc.dev/docs/variables#global-variables) to your Markdoc config. Check the `astro.config.mjs`._
+_Hint: Try passing as a prop to the `<Content />` component in the `src/pages/index.astro` file._
 
 {% if $revealSecret %}
 

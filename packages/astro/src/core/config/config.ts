@@ -96,12 +96,15 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		base: typeof flags.base === 'string' ? flags.base : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
+		open: typeof flags.open === 'boolean' ? flags.open : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 		experimentalAssets:
 			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
+		experimentalMiddleware:
+			typeof flags.experimentalMiddleware === 'boolean' ? flags.experimentalMiddleware : undefined,
 	};
 }
 
@@ -129,6 +132,14 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
 		// TODO: Come back here and refactor to remove this expected error.
 		astroConfig.server.host = flags.host;
+	}
+	if (typeof flags.open === 'boolean') {
+		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
+		// TODO: Come back here and refactor to remove this expected error.
+		astroConfig.server.open = flags.open;
+	}
+	if (typeof flags.experimentalMiddleware === 'boolean') {
+		astroConfig.experimental.middleware = true;
 	}
 	return astroConfig;
 }

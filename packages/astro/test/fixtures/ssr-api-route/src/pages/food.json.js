@@ -9,7 +9,7 @@ export function get() {
 	};
 }
 
-export async function post(params, request) {
+export async function post({ params, request }) {
 	const body = await request.text();
 	return new Response(body === `some data` ? `ok` : `not ok`, {
 		status: 200,

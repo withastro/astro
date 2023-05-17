@@ -10,8 +10,8 @@ import { runHookConfigSetup } from '../../integrations/index.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import { info, LogOptions } from '../logger/core.js';
+import { AstroError, AstroErrorData, createSafeError } from '../errors/index.js';
+import { info, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 
 export type ProcessExit = 0 | 1;
@@ -66,7 +66,7 @@ export async function sync(
 		await createVite(
 			{
 				server: { middlewareMode: true, hmr: false },
-				optimizeDeps: { entries: [] },
+				optimizeDeps: { disabled: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
@@ -98,7 +98,14 @@ export async function sync(
 			}
 		}
 	} catch (e) {
-		throw new AstroError(AstroErrorData.GenerateContentTypesError);
+		const safeError = createSafeError(e);
+		throw new AstroError(
+			{
+				...AstroErrorData.GenerateContentTypesError,
+				message: AstroErrorData.GenerateContentTypesError.message(safeError.message),
+			},
+			{ cause: e }
+		);
 	} finally {
 		await tempViteServer.close();
 	}

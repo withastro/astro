@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { ImageMetadata, InputFormat } from '../types.js';
+import type { ImageInputFormat, ImageMetadata } from '../types.js';
 import imageSize from '../vendor/image-size/index.js';
 
 export interface Metadata extends ImageMetadata {
@@ -31,7 +31,7 @@ export async function imageMetadata(
 		src: fileURLToPath(src),
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
-		format: type as InputFormat,
+		format: type as ImageInputFormat,
 		orientation,
 	};
 }

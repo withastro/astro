@@ -23,6 +23,6 @@ describe('astro:ssr-manifest', () => {
 		const html = await response.text();
 
 		const $ = cheerio.load(html);
-		expect($('#assets').text()).to.equal('["/_astro/index.1bad7273.css"]');
+		expect($('#assets').text()).to.equal('["/_astro/index.a8a337e4.css"]');
 	});
 });

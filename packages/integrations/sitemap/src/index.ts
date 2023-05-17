@@ -1,9 +1,9 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import {
 	EnumChangefreq,
-	LinkItem as LinkItemBase,
 	simpleSitemapAndIndex,
-	SitemapItemLoose,
+	type LinkItem as LinkItemBase,
+	type SitemapItemLoose,
 } from 'sitemap';
 import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
@@ -51,6 +51,8 @@ const OUTFILE = 'sitemap-index.xml';
 
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
+	const logger = new Logger(PKG_NAME);
+
 	return {
 		name: PKG_NAME,
 
@@ -59,10 +61,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				config = cfg;
 			},
 
-			'astro:build:done': async ({ dir, pages }) => {
-				const logger = new Logger(PKG_NAME);
-
+			'astro:build:done': async ({ dir, routes, pages }) => {
 				try {
+					if (!config.site) {
+						logger.warn(
+							'The Sitemap integration requires the `site` astro.config option. Skipping.'
+						);
+						return;
+					}
+
 					const opts = validateOptions(config.site, options);
 
 					const { filter, customPages, serialize, entryLimit } = opts;
@@ -79,9 +86,36 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					let pageUrls = pages.map((p) => {
+						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+							finalSiteUrl.pathname += '/';
 						const path = finalSiteUrl.pathname + p.pathname;
 						return new URL(path, finalSiteUrl).href;
 					});
+
+					let routeUrls = routes.reduce<string[]>((urls, r) => {
+						/**
+						 * Dynamic URLs have entries with `undefined` pathnames
+						 */
+						if (r.pathname) {
+							/**
+							 * remove the initial slash from relative pathname
+							 * because `finalSiteUrl` always has trailing slash
+							 */
+							const path = finalSiteUrl.pathname + r.generate(r.pathname).substring(1);
+
+							let newUrl = new URL(path, finalSiteUrl).href;
+
+							if (config.trailingSlash === 'never') {
+								urls.push(newUrl);
+							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
+								urls.push(newUrl + '/');
+							} else {
+								urls.push(newUrl);
+							}
+						}
+
+						return urls;
+					}, []);
 
 					try {
 						if (filter) {
@@ -92,19 +126,10 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					if (customPages) {
-						pageUrls = [...pageUrls, ...customPages];
-					}
+					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
 					if (pageUrls.length === 0) {
-						// offer suggestion for SSR users
-						if (config.output !== 'static') {
-							logger.warn(
-								`No pages found! We can only detect sitemap routes for "static" builds. Since you are using an SSR adapter, we recommend manually listing your sitemap routes using the "customPages" integration option.\n\nExample: \`sitemap({ customPages: ['https://example.com/route'] })\``
-							);
-						} else {
-							logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
-						}
+						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
 						return;
 					}
 

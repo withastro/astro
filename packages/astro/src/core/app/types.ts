@@ -1,14 +1,19 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
+	AstroMiddlewareInstance,
 	ComponentInstance,
-	PropagationHint,
 	RouteData,
 	SerializedRouteData,
+	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
 
 export type ComponentPath = string;
+
+export type StylesheetAsset =
+	| { type: 'inline'; content: string }
+	| { type: 'external'; src: string };
 
 export interface RouteInfo {
 	routeData: RouteData;
@@ -20,6 +25,7 @@ export interface RouteInfo {
 		// Hoisted
 		| { type: 'inline' | 'external'; value: string }
 	)[];
+	styles: StylesheetAsset[];
 }
 
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
@@ -31,18 +37,28 @@ export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
 	base?: string;
+	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
 	entryModules: Record<string, string>;
 	assets: Set<string>;
-	propagation: SSRResult['propagation'];
+	componentMetadata: SSRResult['componentMetadata'];
+	middleware?: AstroMiddlewareInstance<unknown>;
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'propagation'> & {
+export type SerializedSSRManifest = Omit<
+	SSRManifest,
+	'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
+> & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
-	propagation: readonly [string, PropagationHint][];
+	componentMetadata: [string, SSRComponentMetadata][];
+	clientDirectives: [string, string][];
 };
 
 export type AdapterCreateExports<T = any> = (

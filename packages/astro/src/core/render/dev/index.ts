@@ -1,21 +1,25 @@
 import { fileURLToPath } from 'url';
 import type {
+	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
+	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { createAPIContext } from '../../endpoint/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
+import { callMiddleware } from '../../middleware/callMiddleware.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
-import { getPropagationMap } from './head.js';
+import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
@@ -35,6 +39,10 @@ export interface SSROptions {
 	request: Request;
 	/** optional, in case we need to render something outside of a dev server */
 	route?: RouteData;
+	/**
+	 * Optional middlewares
+	 */
+	middleware?: AstroMiddlewareInstance<unknown>;
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
@@ -76,7 +84,7 @@ interface GetScriptsAndStylesParams {
 
 async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, env.loader);
+	const scripts = await getScriptsForURL(filePath, env.settings.config.root, env.loader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, env.settings) && env.mode === 'development') {
@@ -142,9 +150,9 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 		});
 	});
 
-	const propagationMap = await getPropagationMap(filePath, env.loader);
+	const metadata = await getComponentMetadata(filePath, env.loader);
 
-	return { scripts, styles, links, propagationMap };
+	return { scripts, styles, links, metadata };
 }
 
 export async function renderPage(options: SSROptions): Promise<Response> {
@@ -154,21 +162,40 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 	// The new instances are passed through.
 	options.env.renderers = renderers;
 
-	const { scripts, links, styles, propagationMap } = await getScriptsAndStyles({
+	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
 		env: options.env,
 		filePath: options.filePath,
 	});
+	const { env } = options;
 
-	const ctx = createRenderContext({
+	const renderContext = await createRenderContext({
 		request: options.request,
 		origin: options.origin,
 		pathname: options.pathname,
 		scripts,
 		links,
 		styles,
-		propagation: propagationMap,
+		componentMetadata: metadata,
 		route: options.route,
+		mod,
+		env,
 	});
+	if (options.middleware) {
+		if (options.middleware && options.middleware.onRequest) {
+			const apiContext = createAPIContext({
+				request: options.request,
+				params: renderContext.params,
+				props: renderContext.props,
+				adapterName: options.env.adapterName,
+			});
 
-	return await coreRenderPage(mod, ctx, options.env); // NOTE: without "await", errors won’t get caught below
+			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
+			const response = await callMiddleware<Response>(env.logging, onRequest, apiContext, () => {
+				return coreRenderPage({ mod, renderContext, env: options.env, apiContext });
+			});
+
+			return response;
+		}
+	}
+	return await coreRenderPage({ mod, renderContext, env: options.env }); // NOTE: without "await", errors won’t get caught below
 }

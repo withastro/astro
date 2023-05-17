@@ -57,9 +57,10 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
 	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
-	setCookieHeaders.forEach((cookie) => {
-		headers.append('set-cookie', cookie);
-	});
+	if (setCookieHeaders.length) {
+		// Always use `res.setHeader` because headers.append causes them to be concatenated.
+		res.setHeader('set-cookie', setCookieHeaders);
+	}
 
 	const _headers = Object.fromEntries(headers.entries());
 
@@ -99,6 +100,11 @@ export async function writeWebResponse(res: http.ServerResponse, webResponse: Re
 	res.end();
 }
 
-export async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
+export async function writeSSRResult(
+	webRequest: Request,
+	webResponse: Response,
+	res: http.ServerResponse
+) {
+	Reflect.set(webRequest, Symbol.for('astro.responseSent'), true);
 	return writeWebResponse(res, webResponse);
 }

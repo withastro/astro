@@ -35,7 +35,7 @@ export function testFactory(inlineConfig) {
 /**
  *
  * @param {string} page
- * @returns {Promise<{message: string, hint: string}>}
+ * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string}>}
  */
 export async function getErrorOverlayContent(page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
@@ -47,14 +47,30 @@ export async function getErrorOverlayContent(page) {
 
 	const message = await overlay.$$eval('#message-content', (m) => m[0].textContent);
 	const hint = await overlay.$$eval('#hint-content', (m) => m[0].textContent);
-
-	return { message, hint };
+	const [absoluteFileLocation, fileLocation] = await overlay.$$eval('#code header h2', (m) => [
+		m[0].title,
+		m[0].textContent,
+	]);
+	return { message, hint, absoluteFileLocation, fileLocation };
 }
 
 /**
- * @param {import('@playwright/test').Locator} el
  * @returns {Promise<string>}
  */
 export async function getColor(el) {
 	return await el.evaluate((e) => getComputedStyle(e).color);
+}
+
+/**
+ * Wait for `astro-island` that contains the `el` to hydrate
+ * @param {import('@playwright/test').Page} page
+ * @param {import('@playwright/test').Locator} el
+ */
+export async function waitForHydrate(page, el) {
+	const astroIsland = page.locator('astro-island', { has: el });
+	const astroIslandId = await astroIsland.last().getAttribute('uid');
+	await page.waitForFunction(
+		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
+		`astro-island[uid="${astroIslandId}"]`
+	);
 }

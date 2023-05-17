@@ -31,7 +31,14 @@ function getPrivateEnv(
 		// Ignore public env var
 		if (envPrefixes.every((prefix) => !key.startsWith(prefix))) {
 			if (typeof process.env[key] !== 'undefined') {
-				privateEnv[key] = `process.env.${key}`;
+				const value = process.env[key];
+				// Boolean values should be inlined to support `export const prerender`
+				// We already know that these are NOT sensitive values, so inlining is safe
+				if (value === '0' || value === '1' || value === 'true' || value === 'false') {
+					privateEnv[key] = value;
+				} else {
+					privateEnv[key] = `process.env.${key}`;
+				}
 			} else {
 				privateEnv[key] = JSON.stringify(fullEnv[key]);
 			}
@@ -40,6 +47,9 @@ function getPrivateEnv(
 	privateEnv.SITE = astroConfig.site ? JSON.stringify(astroConfig.site) : 'undefined';
 	privateEnv.SSR = JSON.stringify(true);
 	privateEnv.BASE_URL = astroConfig.base ? JSON.stringify(astroConfig.base) : 'undefined';
+	privateEnv.ASSETS_PREFIX = astroConfig.build.assetsPrefix
+		? JSON.stringify(astroConfig.build.assetsPrefix)
+		: 'undefined';
 	return privateEnv;
 }
 
@@ -60,6 +70,18 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
+		config() {
+			return {
+				define: {
+					'import.meta.env.BASE_URL': astroConfig.base
+						? JSON.stringify(astroConfig.base)
+						: 'undefined',
+					'import.meta.env.ASSETS_PREFIX': astroConfig.build.assetsPrefix
+						? JSON.stringify(astroConfig.build.assetsPrefix)
+						: 'undefined',
+				},
+			};
+		},
 		configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
 		},

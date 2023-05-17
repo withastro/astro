@@ -35,7 +35,8 @@ describe('head injection', () => {
 							factory(result, props, slots) {
 								return createHeadAndContent(
 									unescapeHTML(renderUniqueStylesheet(result, {
-										href: '/some/fake/styles.css'
+										type: 'external',
+										src: '/some/fake/styles.css'
 									})),
 									renderTemplate\`$\{renderComponent(result, 'Other', Other, props, slots)}\`
 								);
@@ -49,8 +50,13 @@ describe('head injection', () => {
 					import { renderEntry } from '../common/head.js';
 					const Head = renderEntry();
 					---
-					<h1>testing</h1>
-					<Head />
+					<html>
+						<head><title>Testing</title></head>
+						<body>
+							<h1>testing</h1>
+							<Head />
+						</body>
+					</html>
 				`,
 			},
 			root
@@ -108,7 +114,8 @@ describe('head injection', () => {
 							factory(result, props, slots) {
 								return createHeadAndContent(
 									unescapeHTML(renderUniqueStylesheet(result, {
-										href: '/some/fake/styles.css'
+										type: 'external',
+										src: '/some/fake/styles.css'
 									})),
 									renderTemplate\`$\{renderComponent(result, 'Other', Other, props, slots)}\`
 								);

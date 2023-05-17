@@ -41,7 +41,7 @@ describe('Astro Markdown Shiki', () => {
 
 				expect($('pre')).to.have.lengthOf(1);
 				expect($('pre').hasClass('astro-code')).to.equal(true);
-				expect($('pre').attr().style).to.equal('background-color: #ffffff; overflow-x: auto;');
+				expect($('pre').attr().style).to.equal('background-color: #fff; overflow-x: auto;');
 			});
 		});
 
@@ -78,12 +78,12 @@ describe('Astro Markdown Shiki', () => {
 
 			const segments = $('.line').get(6).children;
 			expect(segments).to.have.lengthOf(3);
-			expect(segments[0].attribs.style).to.be.equal('color: #C9D1D9');
-			expect(segments[1].attribs.style).to.be.equal('color: #79C0FF');
+			expect(segments[0].attribs.style).to.be.equal('color: #E1E4E8');
+			expect(segments[1].attribs.style).to.be.equal('color: #79B8FF');
 
 			const unknownLang = $('.line').last().html();
 			expect(unknownLang).to.be.equal(
-				'<span style="color: #c9d1d9">This language does not exist</span>'
+				'<span style="color: #e1e4e8">This language does not exist</span>'
 			);
 		});
 	});
@@ -91,7 +91,7 @@ describe('Astro Markdown Shiki', () => {
 	describe('Wrap', () => {
 		describe('wrap = true', () => {
 			const style =
-				'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
+				'background-color: #24292e; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 			let fixture;
 
 			before(async () => {
@@ -110,7 +110,7 @@ describe('Astro Markdown Shiki', () => {
 	});
 
 	describe('wrap = false', () => {
-		const style = 'background-color: #0d1117; overflow-x: auto;';
+		const style = 'background-color: #24292e; overflow-x: auto;';
 		let fixture;
 
 		before(async () => {
@@ -128,7 +128,7 @@ describe('Astro Markdown Shiki', () => {
 	});
 
 	describe('wrap = null', () => {
-		const style = 'background-color: #0d1117';
+		const style = 'background-color: #24292e';
 		let fixture;
 
 		before(async () => {

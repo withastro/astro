@@ -2,10 +2,8 @@ import type { SSRResult } from '../../../../@types/astro';
 import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 
-import { HydrationDirectiveProps } from '../../hydration.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
-import { createScopedResult, ScopeFlags } from '../scope.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 
@@ -31,9 +29,8 @@ export class AstroComponentInstance {
 		this.props = props;
 		this.factory = factory;
 		this.slotValues = {};
-		const scoped = createScopedResult(result, ScopeFlags.Slot);
 		for (const name in slots) {
-			const value = slots[name](scoped);
+			const value = slots[name](result);
 			this.slotValues[name] = () => value;
 		}
 	}
@@ -64,7 +61,7 @@ export class AstroComponentInstance {
 function validateComponentProps(props: any, displayName: string) {
 	if (props != null) {
 		for (const prop of Object.keys(props)) {
-			if (HydrationDirectiveProps.has(prop)) {
+			if (prop.startsWith('client:')) {
 				// eslint-disable-next-line
 				console.warn(
 					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`

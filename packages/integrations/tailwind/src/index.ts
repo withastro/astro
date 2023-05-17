@@ -1,9 +1,9 @@
 import load, { resolve } from '@proload/core';
-import type { AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import fs from 'fs/promises';
 import path from 'path';
-import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
+import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 import type { CSSOptions, UserConfig } from 'vite';
@@ -85,7 +85,10 @@ async function getPostCssConfig(
 	return postcssConfigResult;
 }
 
-async function getViteConfiguration(tailwindConfig: TailwindConfig, viteConfig: UserConfig) {
+async function getViteConfiguration(
+	tailwindConfig: TailwindConfig,
+	viteConfig: AstroConfig['vite']
+) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
 	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);

@@ -85,7 +85,7 @@ export default defineConfig({
 });
 ```
 
-This mirrors the [Partytown config object](https://partytown.builder.io/configuration), but only `debug` and `forward` are exposed by this integration.
+This mirrors the [Partytown config object](https://partytown.builder.io/configuration).
 
 ### config.debug
 
@@ -100,7 +100,7 @@ export default defineConfig({
   integrations: [partytown({
     // Example: Disable debug mode.
     config: { debug: false },
-  
+  })]
 })
 ```
 

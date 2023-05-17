@@ -1,21 +1,25 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import type { AstroSettings } from '../../@types/astro';
-import { rootRelativePath } from '../../core/util.js';
-import { imageMetadata } from './metadata.js';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import slash from 'slash';
+import type { AstroConfig, AstroSettings } from '../../@types/astro';
+import { imageMetadata, type Metadata } from './metadata.js';
 
 export async function emitESMImage(
-	id: string,
+	id: string | undefined,
 	watchMode: boolean,
 	fileEmitter: any,
-	settings: AstroSettings
-) {
+	settings: Pick<AstroSettings, 'config'>
+): Promise<Metadata | undefined> {
+	if (!id) {
+		return undefined;
+	}
+
 	const url = pathToFileURL(id);
 	const meta = await imageMetadata(url);
 
 	if (!meta) {
-		return;
+		return undefined;
 	}
 
 	// Build
@@ -40,4 +44,30 @@ export async function emitESMImage(
 	}
 
 	return meta;
+}
+
+/**
+ * Utilities inlined from `packages/astro/src/core/util.ts`
+ * Avoids ESM / CJS bundling failures when accessed from integrations
+ * due to Vite dependencies in core.
+ */
+
+function rootRelativePath(config: Pick<AstroConfig, 'root'>, url: URL): string {
+	const basePath = fileURLToNormalizedPath(url);
+	const rootPath = fileURLToNormalizedPath(config.root);
+	return prependForwardSlash(basePath.slice(rootPath.length));
+}
+
+function prependForwardSlash(filePath: string): string {
+	return filePath[0] === '/' ? filePath : '/' + filePath;
+}
+
+function fileURLToNormalizedPath(filePath: URL): string {
+	// Uses `slash` package instead of Vite's `normalizePath`
+	// to avoid CJS bundling issues.
+	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
+}
+
+export function emoji(char: string, fallback: string): string {
+	return process.platform !== 'win32' ? char : fallback;
 }

@@ -22,6 +22,9 @@
     "baseUrl": ".",
     "paths": {
       "~/assets/*": ["src/assets/*"]
-    }
+    },
+    // TypeScript 5.0 changed how `isolatedModules` and `importsNotUsedAsValues` works, deprecating the later
+    // Until the majority of users are on TypeScript 5.0, we'll have to supress those deprecation errors
+    "ignoreDeprecations": "5.0"
   }
 }

@@ -9,7 +9,7 @@
   "author": "",
   "license": "unlicensed",
   "devDependencies": {
-    "astro": "^2.0.12",
+    "astro": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

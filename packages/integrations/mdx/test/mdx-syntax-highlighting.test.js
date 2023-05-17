@@ -25,7 +25,7 @@ describe('MDX syntax highlighting', () => {
 
 			const shikiCodeBlock = document.querySelector('pre.astro-code');
 			expect(shikiCodeBlock).to.not.be.null;
-			expect(shikiCodeBlock.getAttribute('style')).to.contain('background-color:#0d1117');
+			expect(shikiCodeBlock.getAttribute('style')).to.contain('background-color:#24292e');
 		});
 
 		it('respects markdown.shikiConfig.theme', async () => {

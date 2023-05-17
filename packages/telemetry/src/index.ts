@@ -4,8 +4,8 @@ import { randomBytes } from 'node:crypto';
 import * as KEY from './config-keys.js';
 import { GlobalConfig } from './config.js';
 import { post } from './post.js';
-import { getProjectInfo, ProjectInfo } from './project-info.js';
-import { getSystemInfo, SystemInfo } from './system-info.js';
+import { getProjectInfo, type ProjectInfo } from './project-info.js';
+import { getSystemInfo, type SystemInfo } from './system-info.js';
 
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, silentLogging } from './test-utils.js';
 
 describe('Development Routing', () => {
 	describe('No site config', () => {
@@ -10,7 +10,9 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/without-site-config/' });
-			devServer = await fixture.startDevServer();
+			devServer = await fixture.startDevServer({
+				logging: silentLogging,
+			});
 		});
 
 		after(async () => {

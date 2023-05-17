@@ -1,6 +1,6 @@
 import { bold } from 'kleur/colors';
 import MagicString from 'magic-string';
-import mime from 'mime';
+import mime from 'mime/lite.js';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
@@ -8,15 +8,19 @@ import type * as vite from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroPluginOptions, ImageTransform } from '../@types/astro';
 import { error } from '../core/logger/core.js';
-import { joinPaths, prependForwardSlash } from '../core/path.js';
+import {
+	appendForwardSlash,
+	joinPaths,
+	prependForwardSlash,
+	removeQueryString,
+} from '../core/path.js';
 import { VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
 import { isESMImportedImage } from './internal.js';
 import { isLocalService } from './services/service.js';
-import { copyWasmFiles } from './services/vendor/squoosh/copy-wasm.js';
 import { emitESMImage } from './utils/emitAsset.js';
 import { imageMetadata } from './utils/metadata.js';
 import { getOrigQueryParams } from './utils/queryParams.js';
-import { propsToFilename } from './utils/transformToPath.js';
+import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -39,7 +43,7 @@ export default function assets({
 	const adapterName = settings.config.adapter?.name;
 	if (
 		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
-			settings.config.image.service
+			settings.config.image.service.entrypoint
 		) &&
 		adapterName &&
 		UNSUPPORTED_ADAPTERS.has(adapterName)
@@ -71,7 +75,7 @@ export default function assets({
 			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
-					return await this.resolve(settings.config.image.service);
+					return await this.resolve(settings.config.image.service.entrypoint);
 				}
 				if (id === VIRTUAL_MODULE_ID) {
 					return resolvedVirtualModuleId;
@@ -80,8 +84,12 @@ export default function assets({
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
 					return `
-					export { getImage, getConfiguredImageService } from "astro/assets";
+					export { getConfiguredImageService, isLocalService } from "astro/assets";
+					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
+
+					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
+					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
 				`;
 				}
 			},
@@ -117,7 +125,10 @@ export default function assets({
 							}
 						}
 
-						const transform = await globalThis.astroAsset.imageService.parseURL(url);
+						const transform = await globalThis.astroAsset.imageService.parseURL(
+							url,
+							settings.config.image.service.config
+						);
 
 						if (transform === undefined) {
 							error(logging, 'image', `Failed to parse transform for ${url}`);
@@ -128,15 +139,16 @@ export default function assets({
 						let format: string = meta.format;
 
 						if (transform) {
-							const result = await globalThis.astroAsset.imageService.transform(file, transform);
+							const result = await globalThis.astroAsset.imageService.transform(
+								file,
+								transform,
+								settings.config.image.service.config
+							);
 							data = result.data;
 							format = result.format;
 						}
 
-						res.setHeader(
-							'Content-Type',
-							mime.getType(fileURLToPath(filePathURL)) || `image/${format}`
-						);
+						res.setHeader('Content-Type', mime.getType(format) ?? `image/${format}`);
 						res.setHeader('Cache-Control', 'max-age=360000');
 
 						const stream = Readable.from(data);
@@ -153,12 +165,17 @@ export default function assets({
 
 				globalThis.astroAsset.addStaticImage = (options) => {
 					if (!globalThis.astroAsset.staticImages) {
-						globalThis.astroAsset.staticImages = new Map<ImageTransform, string>();
+						globalThis.astroAsset.staticImages = new Map<
+							string,
+							{ path: string; options: ImageTransform }
+						>();
 					}
 
+					const hash = hashTransform(options, settings.config.image.service.entrypoint);
+
 					let filePath: string;
-					if (globalThis.astroAsset.staticImages.has(options)) {
-						filePath = globalThis.astroAsset.staticImages.get(options)!;
+					if (globalThis.astroAsset.staticImages.has(hash)) {
+						filePath = globalThis.astroAsset.staticImages.get(hash)!.path;
 					} else {
 						// If the image is not imported, we can return the path as-is, since static references
 						// should only point ot valid paths for builds or remote images
@@ -167,29 +184,17 @@ export default function assets({
 						}
 
 						filePath = prependForwardSlash(
-							joinPaths(
-								settings.config.base,
-								settings.config.build.assets,
-								propsToFilename(options)
-							)
+							joinPaths(settings.config.build.assets, propsToFilename(options, hash))
 						);
-						globalThis.astroAsset.staticImages.set(options, filePath);
+						globalThis.astroAsset.staticImages.set(hash, { path: filePath, options: options });
 					}
 
-					return filePath;
+					if (settings.config.build.assetsPrefix) {
+						return joinPaths(settings.config.build.assetsPrefix, filePath);
+					} else {
+						return prependForwardSlash(joinPaths(settings.config.base, filePath));
+					}
 				};
-			},
-			async buildEnd() {
-				if (mode != 'build') {
-					return;
-				}
-
-				const dir =
-					settings.config.output === 'server'
-						? settings.config.build.server
-						: settings.config.outDir;
-
-				await copyWasmFiles(new URL('./chunks', dir));
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {
@@ -202,7 +207,10 @@ export default function assets({
 					const [full, hash, postfix = ''] = match;
 
 					const file = this.getFileName(hash);
-					const outputFilepath = normalizePath(resolvedConfig.base + file + postfix);
+					const prefix = settings.config.build.assetsPrefix
+						? appendForwardSlash(settings.config.build.assetsPrefix)
+						: resolvedConfig.base;
+					const outputFilepath = prefix + normalizePath(file + postfix);
 
 					s.overwrite(match.index, match.index + full.length, outputFilepath);
 				}
@@ -225,7 +233,8 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id) {
-				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(id)) {
+				const cleanedUrl = removeQueryString(id);
+				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);
 					return `export default ${JSON.stringify(meta)}`;
 				}

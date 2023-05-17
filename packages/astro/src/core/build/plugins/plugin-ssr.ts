@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter } from '../../../@types/astro';
+import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types';
@@ -9,11 +9,11 @@ import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
-import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../../path.js';
+import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { eachPrerenderedPageData, eachServerPageData, sortedCSS } from '../internal.js';
+import { cssOrder, eachPageData, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
@@ -21,27 +21,36 @@ const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
-export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
+export function vitePluginSSR(
+	internals: BuildInternals,
+	adapter: AstroAdapter,
+	config: AstroConfig
+): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',
 		options(opts) {
 			return addRollupInput(opts, [virtualModuleId]);
 		},
-		resolveId(id, parent) {
+		resolveId(id) {
 			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
+				let middleware = '';
+				if (config.experimental?.middleware === true) {
+					middleware = 'middleware: _main.middleware';
+				}
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
-	renderers: _main.renderers
+	renderers: _main.renderers,
+	${middleware}
 });
 _privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
@@ -134,10 +143,16 @@ function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
-	const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
-	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
+	const prefixAssetPath = (pth: string) => {
+		if (settings.config.build.assetsPrefix) {
+			return joinPaths(settings.config.build.assetsPrefix, pth);
+		} else {
+			return prependForwardSlash(joinPaths(settings.config.base, pth));
+		}
+	};
 
-	for (const pageData of eachPrerenderedPageData(internals)) {
+	for (const pageData of eachPageData(internals)) {
+		if (!pageData.route.prerender) continue;
 		if (!pageData.route.pathname) continue;
 
 		const outFolder = getOutFolder(
@@ -156,16 +171,18 @@ function buildManifest(
 			file,
 			links: [],
 			scripts: [],
+			styles: [],
 			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
 		});
 		staticFiles.push(file);
 	}
 
-	for (const pageData of eachServerPageData(internals)) {
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.prerender) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			const hoistedValue = pageData.hoistedScript.value;
-			const value = hoistedValue.endsWith('.js') ? joinBase(hoistedValue) : hoistedValue;
+			const value = hoistedValue.endsWith('.js') ? prefixAssetPath(hoistedValue) : hoistedValue;
 			scripts.unshift(
 				Object.assign({}, pageData.hoistedScript, {
 					value,
@@ -177,11 +194,18 @@ function buildManifest(
 
 			scripts.push({
 				type: 'external',
-				value: joinBase(src),
+				value: prefixAssetPath(src),
 			});
 		}
 
-		const links = sortedCSS(pageData).map((pth) => joinBase(pth));
+		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+		const links: [] = [];
+
+		const styles = pageData.styles
+			.sort(cssOrder)
+			.map(({ sheet }) => sheet)
+			.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
+			.reduce(mergeInlineCss, []);
 
 		routes.push({
 			file: '',
@@ -192,6 +216,7 @@ function buildManifest(
 					.filter((script) => script.stage === 'head-inline')
 					.map(({ stage, content }) => ({ stage, children: content })),
 			],
+			styles,
 			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
 		});
 	}
@@ -207,12 +232,14 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		assetsPrefix: settings.config.build.assetsPrefix,
 		markdown: settings.config.markdown,
 		pageMap: null as any,
-		propagation: Array.from(internals.propagation),
+		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
+		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
-		assets: staticFiles.map((s) => settings.config.base + s),
+		assets: staticFiles.map(prefixAssetPath),
 	};
 
 	return ssrManifest;
@@ -227,7 +254,9 @@ export function pluginSSR(
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
-				let vitePlugin = ssr ? vitePluginSSR(internals, options.settings.adapter!) : undefined;
+				let vitePlugin = ssr
+					? vitePluginSSR(internals, options.settings.adapter!, options.settings.config)
+					: undefined;
 
 				return {
 					enforce: 'after-user-plugins',

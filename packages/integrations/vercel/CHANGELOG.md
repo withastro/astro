@@ -1,5 +1,48 @@
 # @astrojs/vercel
 
+## 3.3.0
+
+### Minor Changes
+
+- [#6845](https://github.com/withastro/astro/pull/6845) [`6063f5657`](https://github.com/withastro/astro/commit/6063f5657392a74b6ffc4d5e0de5463c217a8563) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add support for using the Vercel Image Optimization API through `astro:assets`
+
+### Patch Changes
+
+- Updated dependencies [[`a8a319aef`](https://github.com/withastro/astro/commit/a8a319aef744a64647ee16c7d558d74de6864c6c), [`a695e44ae`](https://github.com/withastro/astro/commit/a695e44aed6e2f5d32cb950d4237be6e5657ba98), [`367e61776`](https://github.com/withastro/astro/commit/367e61776196a17d61c28daa4dfbabb6244e040c), [`77270cc2c`](https://github.com/withastro/astro/commit/77270cc2cd06c942d7abf1d882e36d9163edafa5), [`895fa07d8`](https://github.com/withastro/astro/commit/895fa07d8b4b8359984e048daca5437e40f44390), [`72c6bf01f`](https://github.com/withastro/astro/commit/72c6bf01fe49b331ca8ad9206a7506b15caf5b8d), [`e5bd084c0`](https://github.com/withastro/astro/commit/e5bd084c01e4f60a157969b50c05ce002f7b63d2)]:
+  - astro@2.3.4
+
+## 3.2.5
+
+### Patch Changes
+
+- [#6874](https://github.com/withastro/astro/pull/6874) [`43230b2ca`](https://github.com/withastro/astro/commit/43230b2cac6c28e0412b77d32f06db416fca8560) Thanks [@nblackburn](https://github.com/nblackburn)! - Refactor static adapter to use updateConfig method
+
+- Updated dependencies [[`4c7ba4da0`](https://github.com/withastro/astro/commit/4c7ba4da084d7508df91cbac03c2b099a8301e2b), [`b6154d2d5`](https://github.com/withastro/astro/commit/b6154d2d57bfb77767a3ccf9e91c1ae4051c81bc), [`1f2699461`](https://github.com/withastro/astro/commit/1f2699461d4cdcc8007ae47ebff74ace62eee058), [`edabf01b4`](https://github.com/withastro/astro/commit/edabf01b44d8c99da160973cd0f779e0a0b93cd7), [`0afff3274`](https://github.com/withastro/astro/commit/0afff32741247bc4c6709a30fc83787f58ec02b7)]:
+  - astro@2.3.1
+
+## 3.2.4
+
+### Patch Changes
+
+- [#6841](https://github.com/withastro/astro/pull/6841) [`2e3125e18`](https://github.com/withastro/astro/commit/2e3125e18063dd23080d380c93c1b709bb59e413) Thanks [@bluwy](https://github.com/bluwy)! - Fix vercel edge private environment variables usage
+
+- [#6840](https://github.com/withastro/astro/pull/6840) [`00a2e1d7c`](https://github.com/withastro/astro/commit/00a2e1d7c74cf253dcad729624246dd59138eb7c) Thanks [@delucis](https://github.com/delucis)! - Fix warning syntax in README
+
+## 3.2.3
+
+### Patch Changes
+
+- [#6776](https://github.com/withastro/astro/pull/6776) [`84a464888`](https://github.com/withastro/astro/commit/84a46488846604596378b6640af6428e24d1e526) Thanks [@nblackburn](https://github.com/nblackburn)! - Revert change to environment variable
+
+## 3.2.2
+
+### Patch Changes
+
+- [#6751](https://github.com/withastro/astro/pull/6751) [`26daba8d9`](https://github.com/withastro/astro/commit/26daba8d9fd2e7cac8e506a2a36cd6f40ab25f16) Thanks [@nblackburn](https://github.com/nblackburn)! - Fix vercel analytics id not being set
+
+- Updated dependencies [[`489dd8d69`](https://github.com/withastro/astro/commit/489dd8d69cdd9d7c243cf8bec96051a914984b9c), [`a1a4f45b5`](https://github.com/withastro/astro/commit/a1a4f45b51a80215fa7598da83bd0d9c5acd20d2), [`a1108e037`](https://github.com/withastro/astro/commit/a1108e037115cdb67d03505286c7d3a4fc2a1ff5), [`8b88e4cf1`](https://github.com/withastro/astro/commit/8b88e4cf15c8bea7942b3985380164e0edf7250b), [`d54cbe413`](https://github.com/withastro/astro/commit/d54cbe41349e55f8544212ad9320705f07325920), [`4c347ab51`](https://github.com/withastro/astro/commit/4c347ab51e46f2319d614f8577fe502e3dc816e2), [`ff0430786`](https://github.com/withastro/astro/commit/ff043078630e678348ae4f4757b3015b3b862c16), [`2f2e572e9`](https://github.com/withastro/astro/commit/2f2e572e937fd25451bbc78a05d55b7caa1ca3ec), [`7116c021a`](https://github.com/withastro/astro/commit/7116c021a39eac15a6e1264dfbd11bef0f5d618a)]:
+  - astro@2.2.0
+
 ## 3.2.1
 
 ### Patch Changes

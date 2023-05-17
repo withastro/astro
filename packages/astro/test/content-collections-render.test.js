@@ -36,6 +36,25 @@ describe('Content Collections - render()', () => {
 			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(0);
 		});
 
+		it('De-duplicates CSS used both in layout and directly in target page', async () => {
+			const html = await fixture.readFile('/with-layout-prop/index.html');
+			const $ = cheerio.load(html);
+
+			const set = new Set();
+
+			$('link[rel=stylesheet]').each((_, linkEl) => {
+				const href = linkEl.attribs.href;
+				expect(set).to.not.contain(href);
+				set.add(href);
+			});
+
+			$('style').each((_, styleEl) => {
+				const textContent = styleEl.children[0].data;
+				expect(set).to.not.contain(textContent);
+				set.add(textContent);
+			});
+		});
+
 		it('Includes component scripts for rendered entry', async () => {
 			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 			const $ = cheerio.load(html);
@@ -114,6 +133,28 @@ describe('Content Collections - render()', () => {
 
 			// Includes styles
 			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(0);
+		});
+
+		it('De-duplicates CSS used both in layout and directly in target page', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/with-layout-prop/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const set = new Set();
+
+			$('link[rel=stylesheet]').each((_, linkEl) => {
+				const href = linkEl.attribs.href;
+				expect(set).to.not.contain(href);
+				set.add(href);
+			});
+
+			$('style').each((_, styleEl) => {
+				const textContent = styleEl.children[0].data;
+				expect(set).to.not.contain(textContent);
+				set.add(textContent);
+			});
 		});
 
 		it('Applies MDX components export', async () => {

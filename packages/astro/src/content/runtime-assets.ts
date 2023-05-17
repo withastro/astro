@@ -1,28 +1,34 @@
+import type { PluginContext } from 'rollup';
 import { z } from 'zod';
-import { imageMetadata, type Metadata } from '../assets/utils/metadata.js';
+import type { AstroSettings } from '../@types/astro.js';
+import { emitESMImage } from '../assets/index.js';
 
-export function createImage(options: { assetsDir: string; relAssetsDir: string }) {
+export function createImage(
+	settings: AstroSettings,
+	pluginContext: PluginContext,
+	entryFilePath: string
+) {
 	return () => {
-		if (options.assetsDir === 'undefined') {
-			throw new Error('Enable `experimental.assets` in your Astro config to use image()');
-		}
+		return z.string().transform(async (imagePath, ctx) => {
+			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
+			const metadata = await emitESMImage(
+				resolvedFilePath,
+				pluginContext.meta.watchMode,
+				pluginContext.emitFile,
+				settings
+			);
 
-		return z.string().transform(async (imagePath) => {
-			const fullPath = new URL(imagePath, options.assetsDir);
-			return await getImageMetadata(fullPath);
+			if (!metadata) {
+				ctx.addIssue({
+					code: 'custom',
+					message: `Image ${imagePath} does not exist. Is the path correct?`,
+					fatal: true,
+				});
+
+				return z.never();
+			}
+
+			return metadata;
 		});
 	};
-}
-
-async function getImageMetadata(
-	imagePath: URL
-): Promise<(Metadata & { __astro_asset: true }) | undefined> {
-	const meta = await imageMetadata(imagePath);
-
-	if (!meta) {
-		return undefined;
-	}
-
-	delete meta.orientation;
-	return { ...meta, __astro_asset: true };
 }

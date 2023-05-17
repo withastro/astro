@@ -1,6 +1,11 @@
 import type { FormatEnum } from 'sharp';
-import type { ImageQualityPreset, OutputFormat } from '../types.js';
-import { baseService, BaseServiceTransform, LocalImageService, parseQuality } from './service.js';
+import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import {
+	baseService,
+	parseQuality,
+	type BaseServiceTransform,
+	type LocalImageService,
+} from './service.js';
 
 let sharp: typeof import('sharp');
 
@@ -59,7 +64,7 @@ const sharpService: LocalImageService = {
 
 		return {
 			data: data,
-			format: info.format as OutputFormat,
+			format: info.format as ImageOutputFormat,
 		};
 	},
 };

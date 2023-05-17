@@ -93,7 +93,6 @@ export const info = async (prefix: string, text: string) => {
 		log(`${' '.repeat(5)} ${color.cyan('◼')}  ${color.cyan(prefix)} ${color.dim(text)}`);
 	}
 };
-
 export const error = async (prefix: string, text: string) => {
 	if (stdout.columns < 80) {
 		log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);
@@ -121,9 +120,10 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 
 	await sleep(100);
 	if (projectDir !== '') {
+		projectDir = projectDir.includes(' ') ? `"./${projectDir}"` : `./${projectDir}`;
 		const enter = [
 			`\n${prefix}Enter your project directory using`,
-			color.cyan(`cd ./${projectDir}`, ''),
+			color.cyan(`cd ${projectDir}`, ''),
 		];
 		const len = enter[0].length + stripAnsi(enter[1]).length;
 		log(enter.join(len > max ? '\n' + prefix : ' '));

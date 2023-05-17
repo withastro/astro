@@ -1,5 +1,29 @@
 # @astrojs/rss
 
+## 2.4.1
+
+### Patch Changes
+
+- [#6970](https://github.com/withastro/astro/pull/6970) [`b5482cee2`](https://github.com/withastro/astro/commit/b5482cee2387149ff397447e546130ba3dea58db) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: remove accidental stripping of trailing `/1/` on canonical URLs
+
+## 2.4.0
+
+### Minor Changes
+
+- [#6707](https://github.com/withastro/astro/pull/6707) [`4ea716e56`](https://github.com/withastro/astro/commit/4ea716e5692d23361e9301330ce52733b3d05b01) Thanks [@philnash](https://github.com/philnash)! - Added extra elements to the RSS items, including categories and enclosure
+
+## 2.3.2
+
+### Patch Changes
+
+- [#6614](https://github.com/withastro/astro/pull/6614) [`b1b9b1390`](https://github.com/withastro/astro/commit/b1b9b1390f95c6ae91389eba55f7563b911bccc7) Thanks [@aivarsliepa](https://github.com/aivarsliepa)! - Fixes `RSSOptions` type error when using `strictest` Typescript tsconfig
+
+## 2.3.1
+
+### Patch Changes
+
+- [#6538](https://github.com/withastro/astro/pull/6538) [`400ef26c9`](https://github.com/withastro/astro/commit/400ef26c998a586b29c2f3931e63c1c5801d3bea) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Preserve self-closing tags in `customData` option
+
 ## 2.3.0
 
 ### Minor Changes

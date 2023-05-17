@@ -1,5 +1,30 @@
 # @astrojs/node
 
+## 5.1.3
+
+### Patch Changes
+
+- [#7076](https://github.com/withastro/astro/pull/7076) [`781f558c4`](https://github.com/withastro/astro/commit/781f558c401a5f02927d150e4628a77c55cccd28) Thanks [@matthewp](https://github.com/matthewp)! - Fix redirects on directories when using base option
+
+## 5.1.2
+
+### Patch Changes
+
+- [#6935](https://github.com/withastro/astro/pull/6935) [`c405cef64`](https://github.com/withastro/astro/commit/c405cef64711a7b6a480e8b4068cd2bf3cf889a9) Thanks [@matthewp](https://github.com/matthewp)! - Catch errors that occur within the stream in the Node adapter
+
+- Updated dependencies [[`a98df9374`](https://github.com/withastro/astro/commit/a98df9374dec65c678fa47319cb1481b1af123e2), [`ac57b5549`](https://github.com/withastro/astro/commit/ac57b5549f828a17bdbebdaca7ace075307a3c9d), [`50975f2ea`](https://github.com/withastro/astro/commit/50975f2ea3a59f9e023cc631a9372c0c7986eec9), [`ebae1eaf8`](https://github.com/withastro/astro/commit/ebae1eaf87f49399036033c673b513338f7d9c42), [`dc062f669`](https://github.com/withastro/astro/commit/dc062f6695ce577dc569781fc0678c903012c336)]:
+  - astro@2.3.3
+  - @astrojs/webapi@2.1.1
+
+## 5.1.1
+
+### Patch Changes
+
+- [#6746](https://github.com/withastro/astro/pull/6746) [`4cc1bf61b`](https://github.com/withastro/astro/commit/4cc1bf61b832dba9aab1916b56f5260ceac2d97d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix malformed URLs crashing the server in certain cases
+
+- Updated dependencies [[`489dd8d69`](https://github.com/withastro/astro/commit/489dd8d69cdd9d7c243cf8bec96051a914984b9c), [`a1a4f45b5`](https://github.com/withastro/astro/commit/a1a4f45b51a80215fa7598da83bd0d9c5acd20d2), [`a1108e037`](https://github.com/withastro/astro/commit/a1108e037115cdb67d03505286c7d3a4fc2a1ff5), [`8b88e4cf1`](https://github.com/withastro/astro/commit/8b88e4cf15c8bea7942b3985380164e0edf7250b), [`d54cbe413`](https://github.com/withastro/astro/commit/d54cbe41349e55f8544212ad9320705f07325920), [`4c347ab51`](https://github.com/withastro/astro/commit/4c347ab51e46f2319d614f8577fe502e3dc816e2), [`ff0430786`](https://github.com/withastro/astro/commit/ff043078630e678348ae4f4757b3015b3b862c16), [`2f2e572e9`](https://github.com/withastro/astro/commit/2f2e572e937fd25451bbc78a05d55b7caa1ca3ec), [`7116c021a`](https://github.com/withastro/astro/commit/7116c021a39eac15a6e1264dfbd11bef0f5d618a)]:
+  - astro@2.2.0
+
 ## 5.1.0
 
 ### Minor Changes

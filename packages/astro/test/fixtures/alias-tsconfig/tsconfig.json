@@ -7,6 +7,10 @@
       ],
       "@styles/*": [
         "src/styles/*"
+      ],
+      // this can really trip up namespaced packages
+      "@*": [
+        "src/*"
       ]
     }
   }

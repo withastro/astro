@@ -1,5 +1,5 @@
 {
-  "name": "@test/content-with-spaces-in-folder-name",
+  "name": "@test/content-collections-with-config-mjs",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

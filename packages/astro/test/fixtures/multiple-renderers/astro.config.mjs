@@ -1,5 +1,5 @@
-import one from '@astrojs/renderer-one';
-import two from '@astrojs/renderer-two';
+import one from '@test/astro-renderer-one';
+import two from '@test/astro-renderer-two';
 
 export default {
 	integrations: [one(), two()]

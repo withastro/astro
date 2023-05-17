@@ -1,7 +1,8 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { VALID_INPUT_FORMATS } from '../consts.js';
+import { joinPaths } from '../../core/path.js';
+import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
-import type { ImageTransform, OutputFormat } from '../types.js';
+import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -31,14 +32,17 @@ interface SharedServiceProps {
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform) => string;
+	getURL: (options: ImageTransform, serviceConfig: Record<string, any>) => string;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
 	 * For example, you might want to return the `width` and `height` to avoid CLS, or a particular `class` or `style`.
 	 * In most cases, you'll want to return directly what your user supplied you, minus the attributes that were used to generate the image.
 	 */
-	getHTMLAttributes?: (options: ImageTransform) => Record<string, any>;
+	getHTMLAttributes?: (
+		options: ImageTransform,
+		serviceConfig: Record<string, any>
+	) => Record<string, any>;
 	/**
 	 * Validate and return the options passed by the user.
 	 *
@@ -47,7 +51,7 @@ interface SharedServiceProps {
 	 *
 	 * This method should returns options, and can be used to set defaults (ex: a default output format to be used if the user didn't specify one.)
 	 */
-	validateOptions?: (options: ImageTransform) => ImageTransform;
+	validateOptions?: (options: ImageTransform, serviceConfig: Record<string, any>) => ImageTransform;
 }
 
 export type ExternalImageService = SharedServiceProps;
@@ -63,15 +67,16 @@ export interface LocalImageService extends SharedServiceProps {
 	 *
 	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return those.
 	 */
-	parseURL: (url: URL) => LocalImageTransform | undefined;
+	parseURL: (url: URL, serviceConfig: Record<string, any>) => LocalImageTransform | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
 	 */
 	transform: (
 		inputBuffer: Buffer,
-		transform: LocalImageTransform
-	) => Promise<{ data: Buffer; format: OutputFormat }>;
+		transform: LocalImageTransform,
+		serviceConfig: Record<string, any>
+	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
 export type BaseServiceTransform = {
@@ -104,6 +109,13 @@ export type BaseServiceTransform = {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	validateOptions(options) {
+		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
+			throw new AstroError({
+				...AstroErrorData.ExpectedImage,
+				message: AstroErrorData.ExpectedImage.message(JSON.stringify(options.src)),
+			});
+		}
+
 		if (!isESMImportedImage(options.src)) {
 			// For remote images, width and height are explicitly required as we can't infer them from the file
 			let missingDimension: 'width' | 'height' | 'both' | undefined;
@@ -122,13 +134,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 		} else {
-			if (!VALID_INPUT_FORMATS.includes(options.src.format as any)) {
+			if (!VALID_OPTIMIZABLE_FORMATS.includes(options.src.format as any)) {
 				throw new AstroError({
 					...AstroErrorData.UnsupportedImageFormat,
 					message: AstroErrorData.UnsupportedImageFormat.message(
 						options.src.format,
 						options.src.src,
-						VALID_INPUT_FORMATS
+						VALID_OPTIMIZABLE_FORMATS
 					),
 				});
 			}
@@ -184,7 +196,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		options.quality && searchParams.append('q', options.quality.toString());
 		options.format && searchParams.append('f', options.format);
 
-		return '/_image?' + searchParams;
+		return joinPaths(import.meta.env.BASE_URL, '/_image?') + searchParams;
 	},
 	parseURL(url) {
 		const params = url.searchParams;
@@ -197,7 +209,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			src: params.get('href')!,
 			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
 			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
-			format: params.get('f') as OutputFormat,
+			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
 		};
 
