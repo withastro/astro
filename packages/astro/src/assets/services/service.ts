@@ -1,4 +1,5 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { joinPaths } from '../../core/path.js';
 import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
@@ -195,7 +196,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		options.quality && searchParams.append('q', options.quality.toString());
 		options.format && searchParams.append('f', options.format);
 
-		return '/_image?' + searchParams;
+		return joinPaths(import.meta.env.BASE_URL, '/_image?') + searchParams;
 	},
 	parseURL(url) {
 		const params = url.searchParams;

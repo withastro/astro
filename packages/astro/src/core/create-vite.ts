@@ -58,6 +58,8 @@ const ONLY_DEV_EXTERNAL = [
 	'shiki',
 	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
 	'prismjs/components/index.js',
+	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
+	'string-width',
 ];
 
 /** Return a common starting point for all Vite actions */

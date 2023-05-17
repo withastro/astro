@@ -22,6 +22,10 @@
     "./base.css": "./base.css",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "base.css"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
@@ -40,7 +44,7 @@
     "vite": "^4.3.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.4.2",
+    "astro": "workspace:^2.4.5",
     "tailwindcss": "^3.0.24"
   },
   "pnpm": {

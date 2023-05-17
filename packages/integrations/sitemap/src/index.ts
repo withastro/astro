@@ -62,7 +62,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				config = cfg;
 			},
 
-			'astro:build:done': async ({ dir, routes }) => {
+			'astro:build:done': async ({ dir, routes, pages }) => {
 				try {
 					if (!config.site) {
 						logger.warn(
@@ -86,7 +86,14 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = routes.reduce<string[]>((urls, r) => {
+					let pageUrls = pages.map((p) => {
+						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+							finalSiteUrl.pathname += '/';
+						const path = finalSiteUrl.pathname + p.pathname;
+						return new URL(path, finalSiteUrl).href;
+					});
+
+					let routeUrls = routes.reduce<string[]>((urls, r) => {
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
@@ -120,9 +127,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					if (customPages) {
-						pageUrls = Array.from(new Set([...pageUrls, ...customPages]));
-					}
+					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
 					if (pageUrls.length === 0) {
 						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
