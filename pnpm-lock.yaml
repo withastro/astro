@@ -3586,6 +3586,9 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+      slash:
+        specifier: ^4.0.0
+        version: 4.0.0
       wrangler:
         specifier: ^2.0.23
         version: 2.0.23

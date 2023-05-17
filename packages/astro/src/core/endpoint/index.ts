@@ -9,6 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
+import { isHybridOutput } from '../../prerender/utils.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
@@ -168,7 +169,7 @@ function isRedirect(statusCode: number) {
 }
 
 export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (config.output !== 'server' && isRedirect(response.status)) {
+	if (config.output !== 'server' && !isHybridOutput(config) && isRedirect(response.status)) {
 		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 	}
 }

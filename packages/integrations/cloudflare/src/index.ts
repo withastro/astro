@@ -60,7 +60,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				if (config.output === 'static') {
 					throw new Error(`
-  [@astrojs/cloudflare] \`output: "server"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
+  [@astrojs/cloudflare] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
 
 `);
 				}

@@ -6,6 +6,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
+import { isHybridMalconfigured } from '../../prerender/utils.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
@@ -222,6 +223,12 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		userConfig = config.value;
 	}
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+
+	if (isHybridMalconfigured(astroConfig)) {
+		throw new Error(
+			`The "output" config option must be set to "hybrid" and "experimental.hybridOutput" must be set to true to use the hybrid output mode. Falling back to "static" output mode.`
+		);
+	}
 
 	return {
 		astroConfig,
