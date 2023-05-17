@@ -1,4 +1,5 @@
 import esbuild from 'esbuild';
+import { red } from 'kleur/colors';
 import glob from 'tiny-glob';
 import fs from 'fs';
 import path from 'path';
@@ -43,11 +44,22 @@ export default async function prebuild(...args) {
 		// If we're bundling a client directive, modify the code to match `packages/astro/src/core/client-directive/build.ts`.
 		// If updating this code, make sure to also update that file.
 		if (filepath.includes(`runtime${path.sep}client`)) {
-			tscode = tscode.replace(
+			// `export default xxxDirective` is a convention used in the current client directives that we use
+			// to make sure we bundle this right. We'll error below if this convention isn't followed.
+			const newTscode = tscode.replace(
 				/export default (.*?)Directive/,
 				(_, name) =>
 					`(self.Astro || (self.Astro = {})).${name} = ${name}Directive;window.dispatchEvent(new Event('astro:${name}'))`
 			);
+			if (newTscode === tscode) {
+				console.error(
+					red(
+						`${filepath} doesn't follow the \`export default xxxDirective\` convention. The prebuilt output may be wrong. ` +
+							`For more information, check out ${fileURLToPath(import.meta.url)}`
+					)
+				);
+			}
+			tscode = newTscode;
 		}
 		const esbuildresult = await esbuild.build({
 			stdin: {
