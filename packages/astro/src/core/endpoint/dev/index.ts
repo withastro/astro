@@ -2,7 +2,7 @@ import type { EndpointHandler } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 import type { SSROptions } from '../../render/dev';
 import { createRenderContext } from '../../render/index.js';
-import { call as callEndpoint } from '../index.js';
+import { callEndpoint } from '../index.js';
 
 export async function call(options: SSROptions, logging: LogOptions) {
 	const {

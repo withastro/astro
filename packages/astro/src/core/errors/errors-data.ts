@@ -48,7 +48,7 @@ export const AstroErrorData = {
 		title: '`Astro.redirect` is not available in static mode.',
 		code: 3001,
 		message:
-			"Redirects are only available when using `output: 'server'`. Update your Astro config if you need SSR features.",
+			"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
 	/**
@@ -79,7 +79,7 @@ export const AstroErrorData = {
 		title: '`Astro.clientAddress` is not available in static mode.',
 		code: 3003,
 		message:
-			"`Astro.clientAddress` is only available when using `output: 'server'`. Update your Astro config if you need SSR features.",
+			"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
 	/**
@@ -390,7 +390,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	NoAdapterInstalled: {
 		title: 'Cannot use Server-side Rendering without an adapter.',
 		code: 3017,
-		message: `Cannot use \`output: 'server'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+		message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 	},
 	/**
@@ -416,10 +416,12 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	InvalidPrerenderExport: {
 		title: 'Invalid prerender export.',
 		code: 3019,
-		message: (prefix: string, suffix: string) => {
+		message: (prefix: string, suffix: string, isHydridOuput: boolean) => {
+			const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
 			let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 			if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
-			if (suffix !== 'true') msg += `\nExpected \`true\` value but got \`${suffix}\`.`;
+			if (suffix !== 'true')
+				msg += `\nExpected \`${defaultExpectedValue}\` value but got \`${suffix}\`.`;
 			return msg;
 		},
 		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',

@@ -137,6 +137,7 @@
     "devalue": "^4.2.0",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.1.0",
+    "esbuild": "^0.17.18",
     "estree-walker": "3.0.0",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",

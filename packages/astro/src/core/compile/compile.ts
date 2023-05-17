@@ -37,6 +37,7 @@ export async function compile({
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
 		transformResult = await transform(source, {
+			compact: astroConfig.compressHTML,
 			filename,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',

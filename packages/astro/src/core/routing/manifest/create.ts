@@ -13,6 +13,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import { isHybridOutput } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
@@ -226,6 +227,7 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
+	const isPrenderDefault = isHybridOutput(settings.config);
 
 	function walk(
 		fs: typeof nodeFs,
@@ -322,7 +324,6 @@ export function createRouteManifest(
 				const route = `/${segments
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
-
 				routes.push({
 					route,
 					type: item.isPage ? 'page' : 'endpoint',
@@ -332,7 +333,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: false,
+					prerender: isPrenderDefault,
 				});
 			}
 		});
@@ -408,7 +409,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: false,
+				prerender: isPrenderDefault,
 			});
 		});
 
