@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/test-font-awesome-package": "file:packages/font-awesome",
+    "@test/astro-font-awesome-package": "file:packages/font-awesome",
     "astro": "workspace:*"
   }
 }

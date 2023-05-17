@@ -68,6 +68,12 @@ export const defaultLogging = {
 	level: 'error',
 };
 
+/** @type {import('../src/core/logger/core').LogOptions} */
+export const silentLogging = {
+	dest: nodeLogDestination,
+	level: 'silent',
+};
+
 /**
  * Load Astro fixture
  * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
@@ -121,12 +127,21 @@ export async function loadFixture(inlineConfig) {
 	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
 		config.base = inlineConfig.base + '/';
 	}
-	let settings = createSettings(config, fileURLToPath(cwd));
-	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
-		// Enable default JSX integration. It needs to come first, so unshift rather than push!
-		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
-		settings.renderers.unshift(jsxRenderer);
-	}
+
+	/**
+	 * The dev/build/sync/check commands run integrations' `astro:config:setup` hook that could mutate
+	 * the `AstroSettings`. This function helps to create a fresh settings object that is used by the
+	 * command functions below to prevent tests from polluting each other.
+	 */
+	const getSettings = async () => {
+		let settings = createSettings(config, fileURLToPath(cwd));
+		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
+			// Enable default JSX integration. It needs to come first, so unshift rather than push!
+			const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
+			settings.renderers.unshift(jsxRenderer);
+		}
+		return settings;
+	};
 
 	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
 	const telemetry = {
@@ -164,27 +179,39 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: (opts = {}) => {
+		build: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(settings, { logging, telemetry, ...opts });
+			return build(await getSettings(), { logging, telemetry, ...opts });
 		},
-		sync: (opts) => sync(settings, { logging, fs, ...opts }),
+		sync: async (opts) => sync(await getSettings(), { logging, fs, ...opts }),
 		check: async (opts) => {
-			return await check(settings, { logging, ...opts });
+			return await check(await getSettings(), { logging, ...opts });
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev(settings, { logging, telemetry, ...opts });
+			devServer = await dev(await getSettings(), { logging, telemetry, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
 		},
 		config,
 		resolveUrl,
-		fetch: (url, init) => fetch(resolveUrl(url), init),
+		fetch: async (url, init) => {
+			const resolvedUrl = resolveUrl(url);
+			try {
+				return await fetch(resolvedUrl, init);
+			} catch (err) {
+				// undici throws a vague error when it fails, so we log the url here to easily debug it
+				if (err.message?.includes('fetch failed')) {
+					console.error(`[astro test] failed to fetch ${resolvedUrl}`);
+					console.error(err);
+				}
+				throw err;
+			}
+		},
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(settings, {
+			const previewServer = await preview(await getSettings(), {
 				logging,
 				telemetry,
 				...opts,
@@ -213,7 +240,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
-			const { createApp, manifest } = await import(url);
+			const { createApp, manifest, middleware } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;

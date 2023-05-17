@@ -1,11 +1,7 @@
 import type { SSRResult } from '../../@types/astro';
-
-import idlePrebuilt from '../client/idle.prebuilt.js';
-import loadPrebuilt from '../client/load.prebuilt.js';
-import mediaPrebuilt from '../client/media.prebuilt.js';
-import onlyPrebuilt from '../client/only.prebuilt.js';
-import visiblePrebuilt from '../client/visible.prebuilt.js';
 import islandScript from './astro-island.prebuilt.js';
+
+const ISLAND_STYLES = `<style>astro-island,astro-slot{display:contents}</style>`;
 
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 	if (result._metadata.hasHydrationScript) {
@@ -13,14 +9,6 @@ export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 	}
 	return (result._metadata.hasHydrationScript = true);
 }
-
-export const hydrationScripts: Record<string, string> = {
-	idle: idlePrebuilt,
-	load: loadPrebuilt,
-	only: onlyPrebuilt,
-	media: mediaPrebuilt,
-	visible: visiblePrebuilt,
-};
 
 export function determinesIfNeedsDirectiveScript(result: SSRResult, directive: string): boolean {
 	if (result._metadata.hasDirectives.has(directive)) {
@@ -32,26 +20,28 @@ export function determinesIfNeedsDirectiveScript(result: SSRResult, directive: s
 
 export type PrescriptType = null | 'both' | 'directive';
 
-function getDirectiveScriptText(directive: string): string {
-	if (!(directive in hydrationScripts)) {
+function getDirectiveScriptText(result: SSRResult, directive: string): string {
+	const clientDirectives = result._metadata.clientDirectives;
+	const clientDirective = clientDirectives.get(directive);
+	if (!clientDirective) {
 		throw new Error(`Unknown directive: ${directive}`);
 	}
-	const directiveScriptText = hydrationScripts[directive];
-	return directiveScriptText;
+	return clientDirective;
 }
 
-export function getPrescripts(type: PrescriptType, directive: string): string {
+export function getPrescripts(result: SSRResult, type: PrescriptType, directive: string): string {
 	// Note that this is a classic script, not a module script.
 	// This is so that it executes immediate, and when the browser encounters
 	// an astro-island element the callbacks will fire immediately, causing the JS
 	// deps to be loaded immediately.
 	switch (type) {
 		case 'both':
-			return `<style>astro-island,astro-slot{display:contents}</style><script>${
-				getDirectiveScriptText(directive) + islandScript
-			}</script>`;
+			return `${ISLAND_STYLES}<script>${getDirectiveScriptText(
+				result,
+				directive
+			)};${islandScript}</script>`;
 		case 'directive':
-			return `<script>${getDirectiveScriptText(directive)}</script>`;
+			return `<script>${getDirectiveScriptText(result, directive)}</script>`;
 	}
 	return '';
 }

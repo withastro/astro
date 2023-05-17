@@ -95,13 +95,21 @@ describe('core/render', () => {
 				)}`;
 			});
 
-			const ctx = createRenderContext({
+			const PageModule = createAstroModule(Page);
+			const ctx = await createRenderContext({
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
+				mod: PageModule,
+				env,
 			});
-			const PageModule = createAstroModule(Page);
 
-			const response = await renderPage(PageModule, ctx, env);
+			const response = await renderPage({
+				mod: PageModule,
+				renderContext: ctx,
+				env,
+				params: ctx.params,
+				props: ctx.props,
+			});
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -173,14 +181,21 @@ describe('core/render', () => {
 				)}`;
 			});
 
-			const ctx = createRenderContext({
+			const PageModule = createAstroModule(Page);
+			const ctx = await createRenderContext({
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
+				env,
+				mod: PageModule,
 			});
-			const PageModule = createAstroModule(Page);
 
-			const response = await renderPage(PageModule, ctx, env);
-
+			const response = await renderPage({
+				mod: PageModule,
+				renderContext: ctx,
+				env,
+				params: ctx.params,
+				props: ctx.props,
+			});
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
@@ -218,14 +233,21 @@ describe('core/render', () => {
 				)}`;
 			});
 
-			const ctx = createRenderContext({
+			const PageModule = createAstroModule(Page);
+			const ctx = await createRenderContext({
 				request: new Request('http://example.com/'),
 				links: [{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' }],
+				env,
+				mod: PageModule,
 			});
-			const PageModule = createAstroModule(Page);
 
-			const response = await renderPage(PageModule, ctx, env);
-
+			const response = await renderPage({
+				mod: PageModule,
+				renderContext: ctx,
+				env,
+				params: ctx.params,
+				props: ctx.props,
+			});
 			const html = await response.text();
 			const $ = cheerio.load(html);
 

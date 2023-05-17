@@ -25,6 +25,7 @@ export function createDevelopmentEnvironment(
 		mode,
 		// This will be overridden in the dev server
 		renderers: [],
+		clientDirectives: settings.clientDirectives,
 		resolve: createResolve(loader, settings.config.root),
 		routeCache: new RouteCache(logging, mode),
 		site: settings.config.site,

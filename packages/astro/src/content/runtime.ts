@@ -6,14 +6,15 @@ import {
 	createHeadAndContent,
 	renderComponent,
 	renderScriptElement,
-	renderStyleElement,
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../runtime/server/index.js';
 
-type GlobResult = Record<string, () => Promise<any>>;
+type LazyImport = () => Promise<any>;
+type GlobResult = Record<string, LazyImport>;
 type CollectionToEntryMap = Record<string, GlobResult>;
+type GetEntryImport = (collection: string, lookupId: string) => Promise<LazyImport>;
 
 export function createCollectionToGlobResultMap({
 	globResult,
@@ -28,9 +29,8 @@ export function createCollectionToGlobResultMap({
 		const segments = keyRelativeToContentDir.split('/');
 		if (segments.length <= 1) continue;
 		const collection = segments[0];
-		const entryId = segments.slice(1).join('/');
 		collectionToGlobResultMap[collection] ??= {};
-		collectionToGlobResultMap[collection][entryId] = globResult[key];
+		collectionToGlobResultMap[collection][key] = globResult[key];
 	}
 	return collectionToGlobResultMap;
 }
@@ -38,10 +38,10 @@ export function createCollectionToGlobResultMap({
 const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
 	collectionToEntryMap,
-	collectionToRenderEntryMap,
+	getRenderEntryImport,
 }: {
 	collectionToEntryMap: CollectionToEntryMap;
-	collectionToRenderEntryMap: CollectionToEntryMap;
+	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
 		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
@@ -64,7 +64,7 @@ export function createGetCollection({
 							return render({
 								collection: entry.collection,
 								id: entry.id,
-								collectionToRenderEntryMap,
+								renderEntryImport: await getRenderEntryImport(collection, entry.slug),
 							});
 						},
 					};
@@ -81,29 +81,18 @@ export function createGetCollection({
 }
 
 export function createGetEntryBySlug({
-	getCollection,
-	collectionToRenderEntryMap,
+	getEntryImport,
+	getRenderEntryImport,
 }: {
-	getCollection: ReturnType<typeof createGetCollection>;
-	collectionToRenderEntryMap: CollectionToEntryMap;
+	getEntryImport: GetEntryImport;
+	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
-		// This is not an optimized lookup. Should look into an O(1) implementation
-		// as it's probably that people will have very large collections.
-		const entries = await getCollection(collection);
-		let candidate: (typeof entries)[number] | undefined = undefined;
-		for (let entry of entries) {
-			if (entry.slug === slug) {
-				candidate = entry;
-				break;
-			}
-		}
+		const entryImport = await getEntryImport(collection, slug);
+		if (typeof entryImport !== 'function') return undefined;
 
-		if (typeof candidate === 'undefined') {
-			return undefined;
-		}
+		const entry = await entryImport();
 
-		const entry = candidate;
 		return {
 			id: entry.id,
 			slug: entry.slug,
@@ -114,7 +103,7 @@ export function createGetEntryBySlug({
 				return render({
 					collection: entry.collection,
 					id: entry.id,
-					collectionToRenderEntryMap,
+					renderEntryImport: await getRenderEntryImport(collection, slug),
 				});
 			},
 		};
@@ -124,21 +113,20 @@ export function createGetEntryBySlug({
 async function render({
 	collection,
 	id,
-	collectionToRenderEntryMap,
+	renderEntryImport,
 }: {
 	collection: string;
 	id: string;
-	collectionToRenderEntryMap: CollectionToEntryMap;
+	renderEntryImport?: LazyImport;
 }) {
 	const UnexpectedRenderError = new AstroError({
 		...AstroErrorData.UnknownContentCollectionError,
 		message: `Unexpected error while rendering ${String(collection)} → ${String(id)}.`,
 	});
 
-	const lazyImport = collectionToRenderEntryMap[collection]?.[id];
-	if (typeof lazyImport !== 'function') throw UnexpectedRenderError;
+	if (typeof renderEntryImport !== 'function') throw UnexpectedRenderError;
 
-	const baseMod = await lazyImport();
+	const baseMod = await renderEntryImport();
 	if (baseMod == null || typeof baseMod !== 'object') throw UnexpectedRenderError;
 
 	const { collectedStyles, collectedLinks, collectedScripts, getMod } = baseMod;
@@ -152,13 +140,21 @@ async function render({
 				links = '',
 				scripts = '';
 			if (Array.isArray(collectedStyles)) {
-				styles = collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+				styles = collectedStyles
+					.map((style: any) => {
+						return renderUniqueStylesheet(result, {
+							type: 'inline',
+							content: style,
+						});
+					})
+					.join('');
 			}
 			if (Array.isArray(collectedLinks)) {
 				links = collectedLinks
 					.map((link: any) => {
 						return renderUniqueStylesheet(result, {
-							href: prependForwardSlash(link),
+							type: 'external',
+							src: prependForwardSlash(link),
 						});
 					})
 					.join('');

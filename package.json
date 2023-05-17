@@ -8,19 +8,21 @@
   },
   "scripts": {
     "release": "pnpm run build && changeset publish",
-    "build": "turbo run build --output-logs=new-only --no-deps --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
-    "build:ci": "turbo run build:ci --output-logs=new-only --no-deps --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:examples": "turbo run build --filter=\"@example/*\"",
-    "dev": "turbo run dev --no-deps --no-cache --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "dev": "turbo run dev --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
     "format:code": "prettier -w . --cache --plugin-search-dir=.",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
-    "test": "turbo run test --output-logs=new-only --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
+    "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
-    "test:smoke": "turbo run build --filter=\"@example/*\" --filter=\"docs\" --output-logs=new-only --concurrency=1",
+    "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
+    "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
+    "test:smoke:docs": "turbo run build --filter=docs",
     "test:check-examples": "node ./scripts/smoke/check.js",
-    "test:vite-ci": "turbo run test --filter=astro --output-logs=new-only --no-deps --concurrency=1",
+    "test:vite-ci": "turbo run test --filter=astro",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "astro-benchmark",
@@ -31,13 +33,7 @@
   "workspaces": [
     "packages/markdown/*",
     "packages/integrations/*",
-    "packages/*",
-    "examples/*",
-    "examples/component/demo",
-    "scripts",
-    "packages/astro/test/fixtures/component-library-shared",
-    "packages/astro/test/fixtures/custom-elements/my-component-lib",
-    "packages/astro/test/fixtures/static build/pkg"
+    "packages/*"
   ],
   "engines": {
     "node": ">=16.12.0",
@@ -72,7 +68,7 @@
       ]
     },
     "patchedDependencies": {
-      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch"
+      "@changesets/cli@2.26.1": "patches/@changesets__cli@2.26.1.patch"
     }
   },
   "dependencies": {
@@ -80,26 +76,22 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "0.4.4",
-    "@changesets/cli": "2.23.0",
-    "@octokit/action": "^3.18.1",
+    "@changesets/changelog-github": "0.4.8",
+    "@changesets/cli": "2.26.1",
     "@types/node": "^18.7.21",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
-    "del": "^7.0.0",
     "esbuild": "^0.17.12",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "execa": "^6.1.0",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "prettier-plugin-astro": "^0.8.0",
-    "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "1.2.5",
+    "turbo": "^1.9.3",
     "typescript": "~5.0.2"
   }
 }
