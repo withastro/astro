@@ -18,20 +18,22 @@ function renderToStaticMarkup(
 	metadata?: undefined | Record<string, any>
 ) {
 	const renderId = metadata?.hydrate ? incrementId(getContext(this.result)) : '';
+	const needsHydrate = metadata?.astroStaticSlot ? !!metadata.hydrate : true;
+	const tagName = needsHydrate ? 'astro-slot' : 'astro-static-slot';
 
 	const html = renderToString(
 		() => {
 			const slots: Record<string, any> = {};
 			for (const [key, value] of Object.entries(slotted)) {
 				const name = slotName(key);
-				slots[name] = ssr(`<astro-slot name="${name}">${value}</astro-slot>`);
+				slots[name] = ssr(`<${tagName} name="${name}">${value}</${tagName}>`);
 			}
 			// Note: create newProps to avoid mutating `props` before they are serialized
 			const newProps = {
 				...props,
 				...slots,
 				// In Solid SSR mode, `ssr` creates the expected structure for `children`.
-				children: children != null ? ssr(`<astro-slot>${children}</astro-slot>`) : children,
+				children: children != null ? ssr(`<${tagName}>${children}</${tagName}>`) : children,
 			};
 
 			return createComponent(Component, newProps);
@@ -51,4 +53,5 @@ function renderToStaticMarkup(
 export default {
 	check,
 	renderToStaticMarkup,
+	supportsAstroStaticSlot: true,
 };

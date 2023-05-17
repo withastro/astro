@@ -79,7 +79,6 @@ export async function renderPage(
 		result._metadata.headInTree =
 			result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
-
 		let output: ComponentIterable;
 		let head = '';
 		try {

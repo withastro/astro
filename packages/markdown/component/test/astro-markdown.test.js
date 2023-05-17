@@ -119,7 +119,7 @@ describe('Astro Markdown', () => {
 
 		// test 1: the "pre" tag receives scoped style
 		const preClassList = $('pre').attr('class').split(/\s+/);
-		expect(preClassList.length).to.equal(2);
+		expect(preClassList.length).to.equal(3);
 		const preAstroClass = preClassList.find(isAstroScopedClass);
 		expect(Boolean(preAstroClass)).to.equal(true);
 

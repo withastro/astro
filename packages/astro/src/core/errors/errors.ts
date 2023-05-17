@@ -28,6 +28,10 @@ type ErrorTypes =
 	| 'InternalError'
 	| 'AggregateError';
 
+export function isAstroError(e: unknown): e is AstroError {
+	return e instanceof Error && (e as AstroError).type === 'AstroError';
+}
+
 export class AstroError extends Error {
 	// NOTE: If this property is named `code`, Rollup will use it to fill the `pluginCode` property downstream
 	// This cause issues since we expect `pluginCode` to be a string containing code

@@ -5,31 +5,47 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { AstroErrorData } from '../core/errors/errors-data.js';
+import { AstroError } from '../core/errors/errors.js';
 import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getContentEntryExts,
+	getContentEntryConfigByExtMap,
+	getContentEntryIdAndSlug,
 	getContentPaths,
-	getEntryInfo,
+	getDataEntryExts,
+	getDataEntryId,
+	getEntryCollectionName,
 	getEntrySlug,
 	getEntryType,
-	loadContentConfig,
-	NoCollectionError,
-	parseFrontmatter,
+	reloadContentConfigObserver,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
-	type EntryInfo,
 } from './utils.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
 type ContentEvent = { name: ChokidarEvent; entry: URL };
 
-type ContentTypesEntryMetadata = { slug: string };
-type ContentTypes = Record<string, Record<string, ContentTypesEntryMetadata>>;
+type DataEntryMetadata = Record<string, never>;
+type ContentEntryMetadata = { slug: string };
+type CollectionEntryMap = {
+	[collection: string]:
+		| {
+				type: 'unknown';
+				entries: Record<string, never>;
+		  }
+		| {
+				type: 'content';
+				entries: Record<string, ContentEntryMetadata>;
+		  }
+		| {
+				type: 'data';
+				entries: Record<string, DataEntryMetadata>;
+		  };
+};
 
 type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
@@ -56,9 +72,11 @@ export async function createContentTypesGenerator({
 	settings,
 	viteServer,
 }: CreateContentGeneratorParams) {
-	const contentTypes: ContentTypes = {};
+	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
-	const contentEntryExts = getContentEntryExts(settings);
+	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryExts = [...contentEntryConfigByExt.keys()];
+	const dataEntryExts = getDataEntryExts(settings);
 
 	let events: EventWithOptions[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
@@ -107,18 +125,22 @@ export async function createContentTypesGenerator({
 			const collection = normalizePath(
 				path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry))
 			);
+			const collectionKey = JSON.stringify(collection);
 			// If directory is multiple levels deep, it is not a collection. Ignore event.
 			const isCollectionEvent = collection.split('/').length === 1;
 			if (!isCollectionEvent) return { shouldGenerateTypes: false };
+
 			switch (event.name) {
 				case 'addDir':
-					addCollection(contentTypes, JSON.stringify(collection));
+					collectionEntryMap[JSON.stringify(collection)] = { type: 'unknown', entries: {} };
 					if (logLevel === 'info') {
 						info(logging, 'content', `${cyan(collection)} collection added`);
 					}
 					break;
 				case 'unlinkDir':
-					removeCollection(contentTypes, JSON.stringify(collection));
+					if (collectionKey in collectionEntryMap) {
+						delete collectionEntryMap[JSON.stringify(collection)];
+					}
 					break;
 			}
 			return { shouldGenerateTypes: true };
@@ -127,28 +149,14 @@ export async function createContentTypesGenerator({
 			fileURLToPath(event.entry),
 			contentPaths,
 			contentEntryExts,
+			dataEntryExts,
 			settings.config.experimental.assets
 		);
 		if (fileType === 'ignored') {
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			contentConfigObserver.set({ status: 'loading' });
-			try {
-				const config = await loadContentConfig({ fs, settings, viteServer });
-				if (config) {
-					contentConfigObserver.set({ status: 'loaded', config });
-				} else {
-					contentConfigObserver.set({ status: 'does-not-exist' });
-				}
-			} catch (e) {
-				contentConfigObserver.set({
-					status: 'error',
-					error:
-						e instanceof Error ? e : new AstroError(AstroErrorData.UnknownContentCollectionError),
-				});
-			}
-
+			await reloadContentConfigObserver({ fs, settings, viteServer });
 			return { shouldGenerateTypes: true };
 		}
 		if (fileType === 'unsupported') {
@@ -156,22 +164,22 @@ export async function createContentTypesGenerator({
 			if (event.name === 'unlink') {
 				return { shouldGenerateTypes: false };
 			}
-			const entryInfo = getEntryInfo({
+			const { id } = getContentEntryIdAndSlug({
 				entry: event.entry,
 				contentDir: contentPaths.contentDir,
-				// Skip invalid file check. We already know it’s invalid.
-				allowFilesOutsideCollection: true,
+				collection: '',
 			});
 			return {
 				shouldGenerateTypes: false,
-				error: new UnsupportedFileTypeError(entryInfo.id),
+				error: new UnsupportedFileTypeError(id),
 			};
 		}
-		const entryInfo = getEntryInfo({
-			entry: event.entry,
-			contentDir: contentPaths.contentDir,
-		});
-		if (entryInfo instanceof NoCollectionError) {
+
+		const { entry } = event;
+		const { contentDir } = contentPaths;
+
+		const collection = getEntryCollectionName({ entry, contentDir });
+		if (collection === undefined) {
 			if (['info', 'warn'].includes(logLevel)) {
 				warn(
 					logging,
@@ -186,32 +194,109 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 
-		const { id, collection } = entryInfo;
+		if (fileType === 'data') {
+			const id = getDataEntryId({ entry, contentDir, collection });
+			const collectionKey = JSON.stringify(collection);
+			const entryKey = JSON.stringify(id);
+
+			switch (event.name) {
+				case 'add':
+					if (!(collectionKey in collectionEntryMap)) {
+						collectionEntryMap[collectionKey] = { type: 'data', entries: {} };
+					}
+					const collectionInfo = collectionEntryMap[collectionKey];
+					if (collectionInfo.type === 'content') {
+						viteServer.ws.send({
+							type: 'error',
+							err: new AstroError({
+								...AstroErrorData.MixedContentDataCollectionError,
+								message: AstroErrorData.MixedContentDataCollectionError.message(collectionKey),
+								location: { file: entry.pathname },
+							}) as any,
+						});
+						return { shouldGenerateTypes: false };
+					}
+					if (!(entryKey in collectionEntryMap[collectionKey])) {
+						collectionEntryMap[collectionKey] = {
+							type: 'data',
+							entries: { ...collectionInfo.entries, [entryKey]: {} },
+						};
+					}
+					return { shouldGenerateTypes: true };
+				case 'unlink':
+					if (
+						collectionKey in collectionEntryMap &&
+						entryKey in collectionEntryMap[collectionKey].entries
+					) {
+						delete collectionEntryMap[collectionKey].entries[entryKey];
+					}
+					return { shouldGenerateTypes: true };
+				case 'change':
+					return { shouldGenerateTypes: false };
+			}
+		}
+
+		const contentEntryType = contentEntryConfigByExt.get(path.extname(event.entry.pathname));
+		if (!contentEntryType) return { shouldGenerateTypes: false };
+		const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
 
 		const collectionKey = JSON.stringify(collection);
+		if (!(collectionKey in collectionEntryMap)) {
+			collectionEntryMap[collectionKey] = { type: 'content', entries: {} };
+		}
+		const collectionInfo = collectionEntryMap[collectionKey];
+		if (collectionInfo.type === 'data') {
+			viteServer.ws.send({
+				type: 'error',
+				err: new AstroError({
+					...AstroErrorData.MixedContentDataCollectionError,
+					message: AstroErrorData.MixedContentDataCollectionError.message(collectionKey),
+					location: { file: entry.pathname },
+				}) as any,
+			});
+			return { shouldGenerateTypes: false };
+		}
 		const entryKey = JSON.stringify(id);
 
 		switch (event.name) {
 			case 'add':
-				const addedSlug = await parseSlug({ fs, event, entryInfo });
-				if (!(collectionKey in contentTypes)) {
-					addCollection(contentTypes, collectionKey);
-				}
-				if (!(entryKey in contentTypes[collectionKey])) {
-					setEntry(contentTypes, collectionKey, entryKey, addedSlug);
+				const addedSlug = await getEntrySlug({
+					generatedSlug,
+					id,
+					collection,
+					fileUrl: event.entry,
+					contentEntryType,
+					fs,
+				});
+				if (!(entryKey in collectionEntryMap[collectionKey].entries)) {
+					collectionEntryMap[collectionKey] = {
+						type: 'content',
+						entries: { ...collectionInfo.entries, [entryKey]: { slug: addedSlug } },
+					};
 				}
 				return { shouldGenerateTypes: true };
 			case 'unlink':
-				if (collectionKey in contentTypes && entryKey in contentTypes[collectionKey]) {
-					removeEntry(contentTypes, collectionKey, entryKey);
+				if (
+					collectionKey in collectionEntryMap &&
+					entryKey in collectionEntryMap[collectionKey].entries
+				) {
+					delete collectionEntryMap[collectionKey].entries[entryKey];
 				}
 				return { shouldGenerateTypes: true };
 			case 'change':
 				// User may modify `slug` in their frontmatter.
 				// Only regen types if this change is detected.
-				const changedSlug = await parseSlug({ fs, event, entryInfo });
-				if (contentTypes[collectionKey]?.[entryKey]?.slug !== changedSlug) {
-					setEntry(contentTypes, collectionKey, entryKey, changedSlug);
+				const changedSlug = await getEntrySlug({
+					generatedSlug,
+					id,
+					collection,
+					fileUrl: event.entry,
+					contentEntryType,
+					fs,
+				});
+				const entryMetadata = collectionInfo.entries[entryKey];
+				if (entryMetadata?.slug !== changedSlug) {
+					collectionInfo.entries[entryKey].slug = changedSlug;
 					return { shouldGenerateTypes: true };
 				}
 				return { shouldGenerateTypes: false };
@@ -272,17 +357,19 @@ export async function createContentTypesGenerator({
 		if (eventResponses.some((r) => r.shouldGenerateTypes)) {
 			await writeContentFiles({
 				fs,
-				contentTypes,
+				collectionEntryMap,
 				contentPaths,
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
+				viteServer,
 			});
+			invalidateVirtualMod(viteServer);
 			if (observable.status === 'loaded' && ['info', 'warn'].includes(logLevel)) {
 				warnNonexistentCollections({
 					logging,
 					contentConfig: observable.config,
-					contentTypes,
+					collectionEntryMap,
 				});
 			}
 		}
@@ -290,77 +377,83 @@ export async function createContentTypesGenerator({
 	return { init, queueEvent };
 }
 
-function addCollection(contentMap: ContentTypes, collectionKey: string) {
-	contentMap[collectionKey] = {};
-}
+// The virtual module contains a lookup map from slugs to content imports.
+// Invalidate whenever content types change.
+function invalidateVirtualMod(viteServer: ViteDevServer) {
+	const virtualMod = viteServer.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
+	if (!virtualMod) return;
 
-function removeCollection(contentMap: ContentTypes, collectionKey: string) {
-	delete contentMap[collectionKey];
-}
-
-async function parseSlug({
-	fs,
-	event,
-	entryInfo,
-}: {
-	fs: typeof fsMod;
-	event: ContentEvent;
-	entryInfo: EntryInfo;
-}) {
-	// `slug` may be present in entry frontmatter.
-	// This should be respected by the generated `slug` type!
-	// Parse frontmatter and retrieve `slug` value for this.
-	// Note: will raise any YAML exceptions and `slug` parse errors (i.e. `slug` is a boolean)
-	// on dev server startup or production build init.
-	const rawContents = await fs.promises.readFile(event.entry, 'utf-8');
-	const { data: frontmatter } = parseFrontmatter(rawContents, fileURLToPath(event.entry));
-	return getEntrySlug({ ...entryInfo, unvalidatedSlug: frontmatter.slug });
-}
-
-function setEntry(
-	contentTypes: ContentTypes,
-	collectionKey: string,
-	entryKey: string,
-	slug: string
-) {
-	contentTypes[collectionKey][entryKey] = { slug };
-}
-
-function removeEntry(contentTypes: ContentTypes, collectionKey: string, entryKey: string) {
-	delete contentTypes[collectionKey][entryKey];
+	viteServer.moduleGraph.invalidateModule(virtualMod);
 }
 
 async function writeContentFiles({
 	fs,
 	contentPaths,
-	contentTypes,
+	collectionEntryMap,
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
+	viteServer,
 }: {
 	fs: typeof fsMod;
 	contentPaths: ContentPaths;
-	contentTypes: ContentTypes;
+	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
-	contentEntryTypes: ContentEntryType[];
+	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
+	viteServer: Pick<ViteDevServer, 'ws'>;
 }) {
 	let contentTypesStr = '';
-	const collectionKeys = Object.keys(contentTypes).sort();
-	for (const collectionKey of collectionKeys) {
+	let dataTypesStr = '';
+	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
-		contentTypesStr += `${collectionKey}: {\n`;
-		const entryKeys = Object.keys(contentTypes[collectionKey]).sort();
-		for (const entryKey of entryKeys) {
-			const entryMetadata = contentTypes[collectionKey][entryKey];
-			const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
-			const renderType = `{ render(): Render[${JSON.stringify(
-				path.extname(JSON.parse(entryKey))
-			)}] }`;
-			const slugType = JSON.stringify(entryMetadata.slug);
-			contentTypesStr += `${entryKey}: {\n  id: ${entryKey},\n  slug: ${slugType},\n  body: string,\n  collection: ${collectionKey},\n  data: ${dataType}\n} & ${renderType},\n`;
+		const collection = collectionEntryMap[collectionKey];
+		if (collectionConfig?.type && collection.type !== collectionConfig.type) {
+			viteServer.ws.send({
+				type: 'error',
+				err: new AstroError({
+					...AstroErrorData.ContentCollectionTypeMismatchError,
+					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
+						collectionKey,
+						collection.type,
+						collectionConfig.type
+					),
+					hint:
+						collection.type === 'data'
+							? "Try adding `type: 'data'` to your collection config."
+							: undefined,
+					location: { file: '' /** required for error overlay `ws` messages */ },
+				}) as any,
+			});
+			return;
 		}
-		contentTypesStr += `},\n`;
+		switch (collection.type) {
+			case 'content':
+				contentTypesStr += `${collectionKey}: {\n`;
+				for (const entryKey of Object.keys(collection.entries).sort()) {
+					const entryMetadata = collection.entries[entryKey];
+					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+					const renderType = `{ render(): Render[${JSON.stringify(
+						path.extname(JSON.parse(entryKey))
+					)}] }`;
+
+					const slugType = JSON.stringify(entryMetadata.slug);
+					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
+				}
+				contentTypesStr += `};\n`;
+				break;
+			case 'data':
+			// Add empty / unknown collections to the data type map by default
+			// This ensures `getCollection('empty-collection')` doesn't raise a type error
+			case 'unknown':
+				dataTypesStr += `${collectionKey}: {\n`;
+				for (const entryKey of Object.keys(collection.entries).sort()) {
+					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
+					dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
+				}
+				dataTypesStr += `};\n`;
+				break;
+		}
 	}
 
 	if (!fs.existsSync(contentPaths.cacheDir)) {
@@ -383,7 +476,8 @@ async function writeContentFiles({
 			typeTemplateContent = contentEntryType.contentModuleTypes + '\n' + typeTemplateContent;
 		}
 	}
-	typeTemplateContent = typeTemplateContent.replace('// @@ENTRY_MAP@@', contentTypesStr);
+	typeTemplateContent = typeTemplateContent.replace('// @@CONTENT_ENTRY_MAP@@', contentTypesStr);
+	typeTemplateContent = typeTemplateContent.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr);
 	typeTemplateContent = typeTemplateContent.replace(
 		"'@@CONTENT_CONFIG_TYPE@@'",
 		contentConfig ? `typeof import(${JSON.stringify(configPathRelativeToCacheDir)})` : 'never'
@@ -397,15 +491,15 @@ async function writeContentFiles({
 
 function warnNonexistentCollections({
 	contentConfig,
-	contentTypes,
+	collectionEntryMap,
 	logging,
 }: {
 	contentConfig: ContentConfig;
-	contentTypes: ContentTypes;
+	collectionEntryMap: CollectionEntryMap;
 	logging: LogOptions;
 }) {
 	for (const configuredCollection in contentConfig.collections) {
-		if (!contentTypes[JSON.stringify(configuredCollection)]) {
+		if (!collectionEntryMap[JSON.stringify(configuredCollection)]) {
 			warn(
 				logging,
 				'content',

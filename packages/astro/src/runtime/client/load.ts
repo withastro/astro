@@ -1,7 +1,8 @@
-(self.Astro = self.Astro || {}).load = (getHydrateCallback) => {
-	(async () => {
-		let hydrate = await getHydrateCallback();
-		await hydrate();
-	})();
+import type { ClientDirective } from '../../@types/astro';
+
+const loadDirective: ClientDirective = async (load) => {
+	const hydrate = await load();
+	await hydrate();
 };
-window.dispatchEvent(new Event('astro:load'));
+
+export default loadDirective;

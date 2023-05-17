@@ -1,9 +1,6 @@
-// @ts-expect-error
-import { runBuild } from './test-utils.ts';
-// @ts-expect-error
+import { loadFixture } from './test-utils.ts';
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
-// @ts-expect-error
 Deno.env.set('SECRET_STUFF', 'secret');
 
 // @ts-expect-error
@@ -13,7 +10,8 @@ Deno.test({
 	name: 'Edge Basics',
 	skip: true,
 	async fn() {
-		let close = await runBuild('./fixtures/edge-basic/');
+		const fixture = loadFixture('./fixtures/edge-basic/');
+		await fixture.runBuild();
 		const { default: handler } = await import(
 			'./fixtures/edge-basic/.netlify/edge-functions/entry.js'
 		);
@@ -29,6 +27,6 @@ Deno.test({
 		const envDiv = doc.querySelector('#env');
 		assertEquals(envDiv?.innerText, 'secret');
 
-		await close();
+		await fixture.cleanup();
 	},
 });

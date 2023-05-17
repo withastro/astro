@@ -1,5 +1,6 @@
 ---
 import type * as shiki from 'shiki';
+import { renderToHtml } from 'shiki';
 import { getHighlighter } from './Shiki.js';
 
 export interface Props {
@@ -30,36 +31,60 @@ export interface Props {
 	 * @default false
 	 */
 	wrap?: boolean | null;
+	/**
+	 * Generate inline code element only, without the pre element wrapper.
+	 *
+	 * @default false
+	 */
+	inline?: boolean;
 }
 
-const { code, lang = 'plaintext', theme = 'github-dark', wrap = false } = Astro.props;
+const {
+	code,
+	lang = 'plaintext',
+	theme = 'github-dark',
+	wrap = false,
+	inline = false,
+} = Astro.props;
 
-/** Replace the shiki class name with a custom astro class name. */
-function repairShikiTheme(html: string): string {
-	// Replace "shiki" class naming with "astro"
-	html = html.replace(/<pre class="(.*?)shiki(.*?)"/, '<pre class="$1astro-code$2"');
-	// Handle code wrapping
-	// if wrap=null, do nothing.
-	if (wrap === false) {
-		html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
-	} else if (wrap === true) {
-		html = html.replace(
-			/style="(.*?)"/,
-			'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
-		);
-	}
-	return html;
-}
-
+// 1. Get the shiki syntax highlighter
 const highlighter = await getHighlighter({
 	theme,
 	// Load custom lang if passed an object, otherwise load the default
 	langs: typeof lang !== 'string' ? [lang] : undefined,
 });
-const _html = highlighter.codeToHtml(code, {
-	lang: typeof lang === 'string' ? lang : lang.id,
+
+// 2. Turn code into shiki theme tokens
+const tokens = highlighter.codeToThemedTokens(code, typeof lang === 'string' ? lang : lang.id);
+
+// 3. Get shiki theme object
+const _theme = highlighter.getTheme();
+
+// 4. Render the theme tokens as html
+const html = renderToHtml(tokens, {
+	themeName: _theme.name,
+	fg: _theme.fg,
+	bg: _theme.bg,
+	elements: {
+		pre({ className, style, children }) {
+			// Swap to `code` tag if inline
+			const tag = inline ? 'code' : 'pre';
+			// Replace "shiki" class naming with "astro-code"
+			className = className.replace(/shiki/g, 'astro-code');
+			// Handle code wrapping
+			// if wrap=null, do nothing.
+			if (wrap === false) {
+				style += '; overflow-x: auto;"';
+			} else if (wrap === true) {
+				style += '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"';
+			}
+			return `<${tag} class="${className}" style="${style}" tabindex="0">${children}</${tag}>`;
+		},
+		code({ children }) {
+			return inline ? children : `<code>${children}</code>`;
+		},
+	},
 });
-const html = repairShikiTheme(_html);
 ---
 
 <Fragment set:html={html} />

@@ -1,5 +1,164 @@
 # astro
 
+## 2.4.5
+
+### Patch Changes
+
+- [#7000](https://github.com/withastro/astro/pull/7000) [`c87d42e76`](https://github.com/withastro/astro/commit/c87d42e766d02db5352671cbf074dd637bdb23e0) Thanks [@craigjennings11](https://github.com/craigjennings11)! - Remove 'paths' requirement for tsconfig path aliasing
+
+- [#7055](https://github.com/withastro/astro/pull/7055) [`4f1073a6a`](https://github.com/withastro/astro/commit/4f1073a6a4f3e5a4fc9df96a2ae59f2e929703fe) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix astro:assets interfering with SSR query params ending with image extensions
+
+## 2.4.4
+
+### Patch Changes
+
+- [#7047](https://github.com/withastro/astro/pull/7047) [`48395c815`](https://github.com/withastro/astro/commit/48395c81522f7527126699c4f185f7b4488a4b9a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `/_image` endpoint not being prefixed with the `base` path in build SSR
+
+- [#6916](https://github.com/withastro/astro/pull/6916) [`630f8c8ef`](https://github.com/withastro/astro/commit/630f8c8ef68fedfa393899c13a072e50145895e8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add fast lookups for content collection entries when using `getEntryBySlug()`. This generates a lookup map to ensure O(1) retrieval.
+
+## 2.4.3
+
+### Patch Changes
+
+- [#7034](https://github.com/withastro/astro/pull/7034) [`c00997033`](https://github.com/withastro/astro/commit/c0099703338cf81e2b381e6e754c73b442db4eab) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro:assets` SSR error
+
+- [#7032](https://github.com/withastro/astro/pull/7032) [`157357e1f`](https://github.com/withastro/astro/commit/157357e1fb6ff2c14a717230cc485fb76a3fea03) Thanks [@raulfdm](https://github.com/raulfdm)! - fix middleware typing export for "moduleResolution: node"
+
+## 2.4.2
+
+### Patch Changes
+
+- [#7009](https://github.com/withastro/astro/pull/7009) [`1d4db68e6`](https://github.com/withastro/astro/commit/1d4db68e64b7c3faf8863bf67f8332aa28e2f34b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix types from `astro/client` not working properly due to `client-base.d.ts` being an non-ambient declaration file
+
+- [#7010](https://github.com/withastro/astro/pull/7010) [`e9f0dd9b4`](https://github.com/withastro/astro/commit/e9f0dd9b473c4793c958a6c81e743fd9b02b4f64) Thanks [@ematipico](https://github.com/ematipico)! - Call `next()` without return anything should work, with a warning
+
+## 2.4.1
+
+### Patch Changes
+
+- [#6995](https://github.com/withastro/astro/pull/6995) [`71332cf96`](https://github.com/withastro/astro/commit/71332cf9697755884e5e2e63d6d2499cc2c5edd1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Move sharpImageService and squooshImageService functions to `astro/config` so they can be imported
+
+## 2.4.0
+
+### Minor Changes
+
+- [#6990](https://github.com/withastro/astro/pull/6990) [`818252acd`](https://github.com/withastro/astro/commit/818252acda3c00499cea51ffa0f26d4c2ccd3a02) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Generated optimized images are now cached inside the `node_modules/.astro/assets` folder. The cached images will be used to avoid doing extra work and speed up subsequent builds.
+
+- [#6659](https://github.com/withastro/astro/pull/6659) [`80e3d4d3d`](https://github.com/withastro/astro/commit/80e3d4d3d0f7719d8eae5435bba3805503057511) Thanks [@lilnasy](https://github.com/lilnasy)! - Implement Inline Stylesheets RFC as experimental
+
+- [#6771](https://github.com/withastro/astro/pull/6771) [`3326492b9`](https://github.com/withastro/astro/commit/3326492b94f76ed2b0154dd9b9a1a9eb883c1e31) Thanks [@matthewp](https://github.com/matthewp)! - Implements a new class-based scoping strategy
+
+  This implements the [Scoping RFC](https://github.com/withastro/roadmap/pull/543), providing a way to opt in to increased style specificity for Astro component styles.
+
+  This prevents bugs where global styles override Astro component styles due to CSS ordering and the use of element selectors.
+
+  To enable class-based scoping, you can set it in your config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    scopedStyleStrategy: 'class',
+  });
+  ```
+
+  Note that the 0-specificity `:where` pseudo-selector is still the default strategy. The intent is to change `'class'` to be the default in 3.0.
+
+- [#6959](https://github.com/withastro/astro/pull/6959) [`cac4a321e`](https://github.com/withastro/astro/commit/cac4a321e814fb805eb0e3ced469e25261a50885) Thanks [@bluwy](https://github.com/bluwy)! - Support `<Code inline />` to output inline code HTML (no `pre` tag)
+
+- [#6721](https://github.com/withastro/astro/pull/6721) [`831b67cdb`](https://github.com/withastro/astro/commit/831b67cdb8250f93f66e3b171fab024652bf80f2) Thanks [@ematipico](https://github.com/ematipico)! - Implements a new experimental middleware in Astro.
+
+  The middleware is available under the following experimental flag:
+
+  ```js
+  export default defineConfig({
+    experimental: {
+      middleware: true,
+    },
+  });
+  ```
+
+  Or via CLI, using the new argument `--experimental-middleware`.
+
+  Create a file called `middleware.{js,ts}` inside the `src` folder, and
+  export a `onRequest` function.
+
+  From `astro/middleware`, use the `defineMiddleware` utility to take advantage of type-safety, and use
+  the `sequence` utility to chain multiple middleware functions.
+
+  Example:
+
+  ```ts
+  import { defineMiddleware, sequence } from 'astro/middleware';
+
+  const redirects = defineMiddleware((context, next) => {
+    if (context.request.url.endsWith('/old-url')) {
+      return context.redirect('/new-url');
+    }
+    return next();
+  });
+
+  const minify = defineMiddleware(async (context, next) => {
+    const repsonse = await next();
+    const minifiedHtml = await minifyHtml(response.text());
+    return new Response(minifiedHtml, {
+      status: 200,
+      headers: response.headers,
+    });
+  });
+
+  export const onRequest = sequence(redirects, minify);
+  ```
+
+- [#6932](https://github.com/withastro/astro/pull/6932) [`49514e4ce`](https://github.com/withastro/astro/commit/49514e4ce40fedb39bf7decd2c296258efbdafc7) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade shiki to v0.14.1. This updates the shiki theme colors and adds the theme name to the `pre` tag, e.g. `<pre class="astro-code github-dark">`.
+
+### Patch Changes
+
+- [#6973](https://github.com/withastro/astro/pull/6973) [`0883fd487`](https://github.com/withastro/astro/commit/0883fd4875548a613df122f0b87a1ca8b7a7cf7d) Thanks [@matthewp](https://github.com/matthewp)! - Ensure multiple cookies set in dev result in multiple set-cookie headers
+
+- Updated dependencies [[`49514e4ce`](https://github.com/withastro/astro/commit/49514e4ce40fedb39bf7decd2c296258efbdafc7)]:
+  - @astrojs/markdown-remark@2.2.0
+
+## 2.3.4
+
+### Patch Changes
+
+- [#6967](https://github.com/withastro/astro/pull/6967) [`a8a319aef`](https://github.com/withastro/astro/commit/a8a319aef744a64647ee16c7d558d74de6864c6c) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro-entry` error on build with multiple JSX frameworks
+
+- [#6961](https://github.com/withastro/astro/pull/6961) [`a695e44ae`](https://github.com/withastro/astro/commit/a695e44aed6e2f5d32cb950d4237be6e5657ba98) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix getImage type
+
+- [#6956](https://github.com/withastro/astro/pull/6956) [`367e61776`](https://github.com/withastro/astro/commit/367e61776196a17d61c28daa4dfbabb6244e040c) Thanks [@lilnasy](https://github.com/lilnasy)! - Changed where various parts of the build pipeline look to decide if a page should be prerendered. They now exclusively consider PageBuildData, allowing integrations to participate in the decision.
+
+- [#6969](https://github.com/withastro/astro/pull/6969) [`77270cc2c`](https://github.com/withastro/astro/commit/77270cc2cd06c942d7abf1d882e36d9163edafa5) Thanks [@bluwy](https://github.com/bluwy)! - Avoid removing leading slash for `build.assetsPrefix` value in the build output
+
+- [#6910](https://github.com/withastro/astro/pull/6910) [`895fa07d8`](https://github.com/withastro/astro/commit/895fa07d8b4b8359984e048daca5437e40f44390) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Inline `process.env` boolean values (`0`, `1`, `true`, `false`) during the build. This helps with DCE and allows for better `export const prerender` detection.
+
+- [#6958](https://github.com/withastro/astro/pull/6958) [`72c6bf01f`](https://github.com/withastro/astro/commit/72c6bf01fe49b331ca8ad9206a7506b15caf5b8d) Thanks [@bluwy](https://github.com/bluwy)! - Fix content render imports flow
+
+- [#6952](https://github.com/withastro/astro/pull/6952) [`e5bd084c0`](https://github.com/withastro/astro/commit/e5bd084c01e4f60a157969b50c05ce002f7b63d2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update allowed Sharp versions to support 0.32.0
+
+## 2.3.3
+
+### Patch Changes
+
+- [#6940](https://github.com/withastro/astro/pull/6940) [`a98df9374`](https://github.com/withastro/astro/commit/a98df9374dec65c678fa47319cb1481b1af123e2) Thanks [@delucis](https://github.com/delucis)! - Support custom 404s added via `injectRoute` or as `src/pages/404.html`
+
+- [#6948](https://github.com/withastro/astro/pull/6948) [`50975f2ea`](https://github.com/withastro/astro/commit/50975f2ea3a59f9e023cc631a9372c0c7986eec9) Thanks [@imchell](https://github.com/imchell)! - Placeholders for slots are cleaned in HTML String that is rendered
+
+- [#6848](https://github.com/withastro/astro/pull/6848) [`ebae1eaf8`](https://github.com/withastro/astro/commit/ebae1eaf87f49399036033c673b513338f7d9c42) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update `experimental.assets`'s `image.service` configuration to allow for a config option in addition to an entrypoint
+
+- [#6953](https://github.com/withastro/astro/pull/6953) [`dc062f669`](https://github.com/withastro/astro/commit/dc062f6695ce577dc569781fc0678c903012c336) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update `astro check` to use version 1.0.0 of the Astro language server
+
+- Updated dependencies [[`ac57b5549`](https://github.com/withastro/astro/commit/ac57b5549f828a17bdbebdaca7ace075307a3c9d)]:
+  - @astrojs/telemetry@2.1.1
+  - @astrojs/webapi@2.1.1
+
+## 2.3.2
+
+### Patch Changes
+
+- [#6920](https://github.com/withastro/astro/pull/6920) [`b89042553`](https://github.com/withastro/astro/commit/b89042553ec45d5f6bc71747e0f3470ba969e679) Thanks [@bluwy](https://github.com/bluwy)! - Fix tsconfig alias baseUrl handling for "." and ".." imports
+
 ## 2.3.1
 
 ### Patch Changes

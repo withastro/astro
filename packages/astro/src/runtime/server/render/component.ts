@@ -54,6 +54,13 @@ function isHTMLComponent(Component: unknown) {
 	return Component && typeof Component === 'object' && (Component as any)['astro:html'];
 }
 
+const ASTRO_SLOT_EXP = /\<\/?astro-slot\b[^>]*>/g;
+const ASTRO_STATIC_SLOT_EXP = /\<\/?astro-static-slot\b[^>]*>/g;
+function removeStaticAstroSlot(html: string, supportsAstroStaticSlot: boolean) {
+	const exp = supportsAstroStaticSlot ? ASTRO_STATIC_SLOT_EXP : ASTRO_SLOT_EXP;
+	return html.replace(exp, '');
+}
+
 async function renderFrameworkComponent(
 	result: SSRResult,
 	displayName: string,
@@ -67,10 +74,13 @@ async function renderFrameworkComponent(
 		);
 	}
 
-	const { renderers } = result._metadata;
-	const metadata: AstroComponentMetadata = { displayName };
+	const { renderers, clientDirectives } = result._metadata;
+	const metadata: AstroComponentMetadata = {
+		astroStaticSlot: true,
+		displayName,
+	};
 
-	const { hydration, isPage, props } = extractDirectives(displayName, _props);
+	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 
@@ -263,7 +273,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
 			} else if (html && html.length > 0) {
-				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+				yield markHTMLString(
+					removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false)
+				);
 			} else {
 				yield '';
 			}
@@ -288,7 +300,13 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	if (html) {
 		if (Object.keys(children).length > 0) {
 			for (const key of Object.keys(children)) {
-				if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
+				let tagName = renderer?.ssr?.supportsAstroStaticSlot
+					? !!metadata.hydrate
+						? 'astro-slot'
+						: 'astro-static-slot'
+					: 'astro-slot';
+				let expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${key}">`;
+				if (!html.includes(expectedHTML)) {
 					unrenderedSlots.push(key);
 				}
 			}

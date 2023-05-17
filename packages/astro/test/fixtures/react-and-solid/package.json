@@ -1,5 +1,6 @@
 {
   "name": "@test/react-and-solid",
+  "private": true,
   "dependencies": {
     "@astrojs/react": "workspace:*",
     "@astrojs/solid-js": "workspace:*",

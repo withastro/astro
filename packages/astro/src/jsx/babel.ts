@@ -3,7 +3,6 @@ import * as t from '@babel/types';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
 import { resolvePath } from '../core/util.js';
-import { HydrationDirectiveProps } from '../runtime/server/hydration.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
@@ -285,7 +284,7 @@ export default function astroJSX(): PluginObj {
 						for (const attr of parentNode.openingElement.attributes) {
 							if (t.isJSXAttribute(attr)) {
 								const name = jsxAttributeToString(attr);
-								if (HydrationDirectiveProps.has(name)) {
+								if (name.startsWith('client:')) {
 									// eslint-disable-next-line
 									console.warn(
 										`You are attempting to render <${displayName} ${name} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`

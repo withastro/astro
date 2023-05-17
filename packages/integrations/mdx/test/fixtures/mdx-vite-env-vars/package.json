@@ -1,5 +1,6 @@
 {
   "name": "@test/mdx-env-variables",
+  "private": true,
   "dependencies": {
     "astro": "workspace:*",
     "@astrojs/mdx": "workspace:*"

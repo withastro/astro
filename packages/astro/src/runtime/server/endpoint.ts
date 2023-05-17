@@ -19,13 +19,13 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(mod: EndpointHandler, context: APIContext, ssr: boolean) {
-	const { request, params } = context;
+	const { request, params, locals } = context;
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'get') {
 		// eslint-disable-next-line no-console
 		console.warn(`
-${chosenMethod} requests are not available when building a static site. Update your config to output: 'server' to handle ${chosenMethod} requests.`);
+${chosenMethod} requests are not available when building a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` with an \`export const prerender = false\` to handle ${chosenMethod} requests.`);
 	}
 	if (!handler || typeof handler !== 'function') {
 		// No handler found, so this should be a 404. Using a custom header
