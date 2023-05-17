@@ -1,6 +1,6 @@
 ---
 'astro': minor
-'@astrojs/markdoc': patch
+'@astrojs/markdoc': minor
 ---
 
-Introducing data collections and references. These offer a way to store JSON file as collection entries under the new `src/data/` directory. You can reference this data from existing content collections using "references." Learn more on our docs (TODO!)
+Content collections now support data formats including JSON and YAML. You can also create relationships, or references, between collections to pull information from one collection entry into another. Learn more on our [updated Content Collections docs](https://docs.astro.build/en/guides/content-collections/).
