@@ -2810,6 +2810,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/minification-html:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/multiple-renderers:
     dependencies:
       '@test/astro-renderer-one':
