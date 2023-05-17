@@ -3674,6 +3674,30 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/with-lit-js:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/lit':
+        specifier: workspace:*
+        version: link:../../../../lit
+      '@lit/reactive-element':
+        specifier: ^1.6.1
+        version: 1.6.1
+      '@webcomponents/template-shadowroot':
+        specifier: ^0.2.1
+        version: 0.2.1
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      lit:
+        specifier: '*'
+        version: 2.7.4
+      lit-html:
+        specifier: '*'
+        version: 2.7.4
+
   packages/integrations/cloudflare/test/fixtures/with-solid-js:
     dependencies:
       '@astrojs/cloudflare':
