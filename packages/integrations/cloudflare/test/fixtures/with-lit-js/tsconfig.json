@@ -23,14 +23,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": ".",
-    "useDefineForClassFields": false,
-    "paths": {
-      "components/*": ["src/components/*"],
-      "services/*": ["src/services/*"],
-      "layouts/*": ["src/layouts/*"],
-      "styles/*": ["src/styles/*"],
-      "pages/*": ["src/pages/*"],
-    }
+    "useDefineForClassFields": false
   },
   "include": [
     "src",
