@@ -1047,6 +1047,20 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			return `${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`;
 		},
 	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_ENTRY_NAME` failed to parse.
+	 * @description
+	 * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).
+	 */
+	DataCollectionEntryParseError: {
+		title: 'Data collection entry failed to parse.',
+		code: 9007,
+		message: (entryId: string, errorMessage: string) => {
+			return `**${entryId}** failed to parse: ${errorMessage}`;
+		},
+		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {

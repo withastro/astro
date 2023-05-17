@@ -73,6 +73,10 @@ function getLineOffsets(text: string) {
 	return lineOffsets;
 }
 
+export function isYAMLException(err: unknown): err is YAMLException {
+	return err instanceof Error && err.name === 'YAMLException';
+}
+
 /** Format YAML exceptions as Vite errors */
 export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
 	return {

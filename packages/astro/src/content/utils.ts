@@ -17,8 +17,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { CONTENT_TYPES_FILE, CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
-import { formatYAMLException } from '../core/errors/utils.js';
-import type { YAMLException } from 'js-yaml';
+import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
 
 /**
  * Amap from a collection + slug to the local file path.
@@ -313,9 +312,9 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 		// clear cache to prevent this
 		(matter as any).clearCache();
 		return matter(fileContents);
-	} catch (e: any) {
-		if (e.name === 'YAMLException') {
-			throw formatYAMLException(e as YAMLException);
+	} catch (e) {
+		if (isYAMLException(e)) {
+			throw formatYAMLException(e);
 		} else {
 			throw e;
 		}
