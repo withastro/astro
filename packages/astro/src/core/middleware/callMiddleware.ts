@@ -1,9 +1,13 @@
-import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro';
+import { bold } from 'kleur/colors';
+import type {
+	APIContext,
+	EndpointOutput,
+	MiddlewareHandler,
+	MiddlewareNext,
+} from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { EndpointOutput } from '../../@types/astro';
 import { warn } from '../logger/core.js';
 import type { Environment } from '../render';
-import { bold } from 'kleur/colors';
 
 /**
  * Utility function that is in charge of calling the middleware.
