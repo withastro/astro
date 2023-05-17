@@ -50,6 +50,7 @@
     "@astrojs/webapi": "^2.1.1",
     "@vercel/analytics": "^0.1.8",
     "@vercel/nft": "^0.22.1",
+    "esbuild": "^0.17.12",
     "fast-glob": "^3.2.11",
     "set-cookie-parser": "^2.5.1",
     "web-vitals": "^3.1.1"

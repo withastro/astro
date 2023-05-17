@@ -4713,6 +4713,9 @@ importers:
       '@vercel/nft':
         specifier: ^0.22.1
         version: 0.22.1
+      esbuild:
+        specifier: ^0.17.12
+        version: 0.17.12
       fast-glob:
         specifier: ^3.2.11
         version: 3.2.11
