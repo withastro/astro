@@ -41,8 +41,10 @@ export class RenderTemplateResult {
 		for (let i = 0; i < htmlParts.length; i++) {
 			iterables.push(new EagerAsyncIterableIterator(renderChild(expressions[i])));
 		}
-		// once the execution is interrupted, we start buffering the other iterators
+		// once the execution of the next for loop is suspended due to an async component,
+		// this timeout triggers and we start buffering the other iterators
 		setTimeout(() => {
+			// buffer all iterators that haven't started yet
 			iterables.forEach((it) => !it.isStarted() && it.buffer());
 		}, 0);
 		for (let i = 0; i < htmlParts.length; i++) {

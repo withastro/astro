@@ -158,10 +158,12 @@ export class EagerAsyncIterableIterator {
 
 	/**
 	 * Starts to eagerly fetch the inner iterator and cache the results.
-	 * Note: This might not be called, once next() has been called once, e.g. the iterator is started
+	 * Note: This might not be called after next() has been called once, e.g. the iterator is started
 	 */
 	async buffer() {
 		if (this.#gen) {
+			// If this called as part of rendering, please open a bug report.
+			// Any call to buffer() should verify that the iterator isn't running
 			throw new Error('Cannot not switch from non-buffer to buffer mode');
 		}
 		this.#isBuffering = true;
@@ -195,6 +197,8 @@ export class EagerAsyncIterableIterator {
 			return this.#queue.shift()!;
 		}
 		await this.#next;
+		// the previous statement will either put an element in the queue or throw,
+		// so we can safely assume we have something now
 		return this.#queue.shift()!;
 	}
 
