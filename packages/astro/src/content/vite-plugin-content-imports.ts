@@ -353,6 +353,15 @@ async function getContentConfigFromGlobal() {
 	return contentConfig;
 }
 
+type GetDataEntryModuleParams = {
+	fs: typeof fsMod;
+	fileId: string;
+	contentPaths: Pick<ContentPaths, 'contentDir'>;
+	pluginContext: PluginContext;
+	dataEntryExtToParser: Map<string, DataEntryType['getEntryInfo']>;
+	settings: Pick<AstroSettings, 'config'>;
+};
+
 async function getDataEntryModule({
 	fileId,
 	dataEntryExtToParser,
@@ -360,14 +369,7 @@ async function getDataEntryModule({
 	fs,
 	pluginContext,
 	settings,
-}: {
-	fs: typeof fsMod;
-	fileId: string;
-	contentPaths: Pick<ContentPaths, 'contentDir'>;
-	pluginContext: PluginContext;
-	dataEntryExtToParser: Map<string, DataEntryType['getEntryInfo']>;
-	settings: Pick<AstroSettings, 'config'>;
-}): Promise<DataEntryModule> {
+}: GetDataEntryModuleParams): Promise<DataEntryModule> {
 	const contentConfig = await getContentConfigFromGlobal();
 	const rawContents = await fs.promises.readFile(fileId, 'utf-8');
 	const fileExt = extname(fileId);
