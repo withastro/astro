@@ -1002,6 +1002,66 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
+	/**
+	 * @docs
+	 * @message A collection queried via `getCollection()` does not exist.
+	 * @description
+	 * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
+	 */
+	CollectionDoesNotExistError: {
+		title: 'Collection does not exist',
+		code: 9004,
+		message: (collection: string) => {
+			return `The collection **${collection}** does not exist. Ensure a collection directory with this name exists.`;
+		},
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains a mix of content and data entries. All entries must be of the same type.
+	 * @see
+	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+	 * @description
+	 * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
+	 */
+	MixedContentDataCollectionError: {
+		title: 'Content and data cannot be in same collection.',
+		code: 9005,
+		message: (collection: string) => {
+			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
+		},
+		hint: 'Store data entries in a new collection separate from your content collection.',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains entries of type `ACTUAL_TYPE`, but is configured as a `EXPECTED_TYPE` collection.
+	 * @see
+	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+	 * @description
+	 * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+	 */
+	ContentCollectionTypeMismatchError: {
+		title: 'Collection contains entries of a different type.',
+		code: 9006,
+		message: (collection: string, expectedType: string, actualType: string) => {
+			return `${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`;
+		},
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_ENTRY_NAME` failed to parse.
+	 * @description
+	 * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).
+	 */
+	DataCollectionEntryParseError: {
+		title: 'Data collection entry failed to parse.',
+		code: 9007,
+		message: (entryId: string, errorMessage: string) => {
+			return `**${entryId}** failed to parse: ${errorMessage}`;
+		},
+		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	},
+
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',

@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-
+import { ZodIssueCode, string as zodString, type z } from 'zod';
 import {
 	createComponent,
 	createHeadAndContent,
@@ -9,7 +9,10 @@ import {
 	renderTemplate,
 	renderUniqueStylesheet,
 	unescapeHTML,
+	type AstroComponentFactory,
 } from '../runtime/server/index.js';
+import type { ContentLookupMap } from './utils.js';
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;
@@ -37,14 +40,31 @@ export function createCollectionToGlobResultMap({
 
 const cacheEntriesByCollection = new Map<string, any[]>();
 export function createGetCollection({
-	collectionToEntryMap,
+	contentCollectionToEntryMap,
+	dataCollectionToEntryMap,
 	getRenderEntryImport,
 }: {
-	collectionToEntryMap: CollectionToEntryMap;
+	contentCollectionToEntryMap: CollectionToEntryMap;
+	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
 }) {
 	return async function getCollection(collection: string, filter?: (entry: any) => unknown) {
-		const lazyImports = Object.values(collectionToEntryMap[collection] ?? {});
+		let type: 'content' | 'data';
+		if (collection in contentCollectionToEntryMap) {
+			type = 'content';
+		} else if (collection in dataCollectionToEntryMap) {
+			type = 'data';
+		} else {
+			throw new AstroError({
+				...AstroErrorData.CollectionDoesNotExistError,
+				message: AstroErrorData.CollectionDoesNotExistError.message(collection),
+			});
+		}
+		const lazyImports = Object.values(
+			type === 'content'
+				? contentCollectionToEntryMap[collection]
+				: dataCollectionToEntryMap[collection]
+		);
 		let entries: any[] = [];
 		// Cache `getCollection()` calls in production only
 		// prevents stale cache in development
@@ -54,20 +74,26 @@ export function createGetCollection({
 			entries = await Promise.all(
 				lazyImports.map(async (lazyImport) => {
 					const entry = await lazyImport();
-					return {
-						id: entry.id,
-						slug: entry.slug,
-						body: entry.body,
-						collection: entry.collection,
-						data: entry.data,
-						async render() {
-							return render({
-								collection: entry.collection,
+					return type === 'content'
+						? {
 								id: entry.id,
-								renderEntryImport: await getRenderEntryImport(collection, entry.slug),
-							});
-						},
-					};
+								slug: entry.slug,
+								body: entry.body,
+								collection: entry.collection,
+								data: entry.data,
+								async render() {
+									return render({
+										collection: entry.collection,
+										id: entry.id,
+										renderEntryImport: await getRenderEntryImport(collection, entry.slug),
+									});
+								},
+						  }
+						: {
+								id: entry.id,
+								collection: entry.collection,
+								data: entry.data,
+						  };
 				})
 			);
 			cacheEntriesByCollection.set(collection, entries);
@@ -110,6 +136,121 @@ export function createGetEntryBySlug({
 	};
 }
 
+export function createGetDataEntryById({
+	dataCollectionToEntryMap,
+}: {
+	dataCollectionToEntryMap: CollectionToEntryMap;
+}) {
+	return async function getDataEntryById(collection: string, id: string) {
+		const lazyImport =
+			dataCollectionToEntryMap[collection]?.[/*TODO: filePathToIdMap*/ id + '.json'];
+
+		// TODO: AstroError
+		if (!lazyImport) throw new Error(`Entry ${collection} → ${id} was not found.`);
+		const entry = await lazyImport();
+
+		return {
+			id: entry.id,
+			collection: entry.collection,
+			data: entry.data,
+		};
+	};
+}
+
+type ContentEntryResult = {
+	id: string;
+	slug: string;
+	body: string;
+	collection: string;
+	data: Record<string, any>;
+	render(): Promise<RenderResult>;
+};
+
+type DataEntryResult = {
+	id: string;
+	collection: string;
+	data: Record<string, any>;
+};
+
+type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
+
+export function createGetEntry({
+	getEntryImport,
+	getRenderEntryImport,
+}: {
+	getEntryImport: GetEntryImport;
+	getRenderEntryImport: GetEntryImport;
+}) {
+	return async function getEntry(
+		// Can either pass collection and identifier as 2 positional args,
+		// Or pass a single object with the collection and identifier as properties.
+		// This means the first positional arg can have different shapes.
+		collectionOrLookupObject: string | EntryLookupObject,
+		_lookupId?: string
+	): Promise<ContentEntryResult | DataEntryResult | undefined> {
+		let collection: string, lookupId: string;
+		if (typeof collectionOrLookupObject === 'string') {
+			collection = collectionOrLookupObject;
+			if (!_lookupId)
+				throw new AstroError({
+					...AstroErrorData.UnknownContentCollectionError,
+					message: '`getEntry()` requires an entry identifier as the second argument.',
+				});
+			lookupId = _lookupId;
+		} else {
+			collection = collectionOrLookupObject.collection;
+			// Identifier could be `slug` for content entries, or `id` for data entries
+			lookupId =
+				'id' in collectionOrLookupObject
+					? collectionOrLookupObject.id
+					: collectionOrLookupObject.slug;
+		}
+
+		const entryImport = await getEntryImport(collection, lookupId);
+		if (typeof entryImport !== 'function') return undefined;
+
+		const entry = await entryImport();
+
+		if (entry._internal.type === 'content') {
+			return {
+				id: entry.id,
+				slug: entry.slug,
+				body: entry.body,
+				collection: entry.collection,
+				data: entry.data,
+				async render() {
+					return render({
+						collection: entry.collection,
+						id: entry.id,
+						renderEntryImport: await getRenderEntryImport(collection, lookupId),
+					});
+				},
+			};
+		} else if (entry._internal.type === 'data') {
+			return {
+				id: entry.id,
+				collection: entry.collection,
+				data: entry.data,
+			};
+		}
+		return undefined;
+	};
+}
+
+export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
+	return async function getEntries(
+		entries: { collection: string; id: string }[] | { collection: string; slug: string }[]
+	) {
+		return Promise.all(entries.map((e) => getEntry(e)));
+	};
+}
+
+type RenderResult = {
+	Content: AstroComponentFactory;
+	headings: MarkdownHeading[];
+	remarkPluginFrontmatter: Record<string, any>;
+};
+
 async function render({
 	collection,
 	id,
@@ -118,7 +259,7 @@ async function render({
 	collection: string;
 	id: string;
 	renderEntryImport?: LazyImport;
-}) {
+}): Promise<RenderResult> {
 	const UnexpectedRenderError = new AstroError({
 		...AstroErrorData.UnknownContentCollectionError,
 		message: `Unexpected error while rendering ${String(collection)} → ${String(id)}.`,
@@ -184,5 +325,40 @@ async function render({
 		Content,
 		headings: mod.getHeadings?.() ?? [],
 		remarkPluginFrontmatter: mod.frontmatter ?? {},
+	};
+}
+
+export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
+	return function reference(collection: string) {
+		return zodString().transform((lookupId: string, ctx) => {
+			const flattenedErrorPath = ctx.path.join('.');
+			if (!lookupMap[collection]) {
+				ctx.addIssue({
+					code: ZodIssueCode.custom,
+					message: `**${flattenedErrorPath}:** Reference to ${collection} invalid. Collection does not exist or is empty.`,
+				});
+				return;
+			}
+
+			const { type, entries } = lookupMap[collection];
+			const entry = entries[lookupId];
+
+			if (!entry) {
+				ctx.addIssue({
+					code: ZodIssueCode.custom,
+					message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
+						entries
+					)
+						.map((c) => JSON.stringify(c))
+						.join(' | ')}. Received ${JSON.stringify(lookupId)}.`,
+				});
+				return;
+			}
+			// Content is still identified by slugs, so map to a `slug` key for consistency.
+			if (type === 'content') {
+				return { slug: lookupId, collection };
+			}
+			return { id: lookupId, collection };
+		});
 	};
 }

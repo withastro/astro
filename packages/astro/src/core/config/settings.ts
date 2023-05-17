@@ -1,6 +1,6 @@
 import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
-
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { isHybridOutput } from '../../prerender/utils.js';
@@ -9,8 +9,13 @@ import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import yaml from 'js-yaml';
+import { formatYAMLException, isYAMLException } from '../errors/utils.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import { getContentPaths } from '../../content/index.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
+	const { contentDir } = getContentPaths(config);
 	return {
 		config,
 		tsConfig: undefined,
@@ -23,6 +28,78 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		contentEntryTypes: [markdownContentEntryType],
+		dataEntryTypes: [
+			{
+				extensions: ['.json'],
+				getEntryInfo({ contents, fileUrl }) {
+					if (contents === undefined || contents === '') return { data: {} };
+
+					const pathRelToContentDir = path.relative(
+						fileURLToPath(contentDir),
+						fileURLToPath(fileUrl)
+					);
+					let data;
+					try {
+						data = JSON.parse(contents);
+					} catch (e) {
+						throw new AstroError({
+							...AstroErrorData.DataCollectionEntryParseError,
+							message: AstroErrorData.DataCollectionEntryParseError.message(
+								pathRelToContentDir,
+								e instanceof Error ? e.message : 'contains invalid JSON.'
+							),
+							location: { file: fileUrl.pathname },
+							stack: e instanceof Error ? e.stack : undefined,
+						});
+					}
+
+					if (data == null || typeof data !== 'object') {
+						throw new AstroError({
+							...AstroErrorData.DataCollectionEntryParseError,
+							message: AstroErrorData.DataCollectionEntryParseError.message(
+								pathRelToContentDir,
+								'data is not an object.'
+							),
+							location: { file: fileUrl.pathname },
+						});
+					}
+
+					return { data };
+				},
+			},
+			{
+				extensions: ['.yaml', '.yml'],
+				getEntryInfo({ contents, fileUrl }) {
+					try {
+						const data = yaml.load(contents, { filename: fileURLToPath(fileUrl) });
+						const rawData = contents;
+
+						return { data, rawData };
+					} catch (e) {
+						const pathRelToContentDir = path.relative(
+							fileURLToPath(contentDir),
+							fileURLToPath(fileUrl)
+						);
+						const formattedError = isYAMLException(e)
+							? formatYAMLException(e)
+							: new Error('contains invalid YAML.');
+
+						throw new AstroError({
+							...AstroErrorData.DataCollectionEntryParseError,
+							message: AstroErrorData.DataCollectionEntryParseError.message(
+								pathRelToContentDir,
+								formattedError.message
+							),
+							stack: formattedError.stack,
+							location:
+								'loc' in formattedError
+									? { file: fileUrl.pathname, ...formattedError.loc }
+									: { file: fileUrl.pathname },
+						});
+					}
+				},
+			},
+		],
 		renderers: [jsxRenderer],
 		scripts: [],
 		clientDirectives: getDefaultClientDirectives(),

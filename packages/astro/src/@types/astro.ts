@@ -1250,12 +1250,22 @@ export type ContentEntryModule = {
 	};
 };
 
+export type DataEntryModule = {
+	id: string;
+	collection: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
-	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	}): GetContentEntryInfoReturnType | Promise<GetContentEntryInfoReturnType>;
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
@@ -1266,7 +1276,7 @@ export interface ContentEntryType {
 	contentModuleTypes?: string;
 }
 
-type GetEntryInfoReturnType = {
+type GetContentEntryInfoReturnType = {
 	data: Record<string, unknown>;
 	/**
 	 * Used for error hints to point to correct line and location
@@ -1278,12 +1288,23 @@ type GetEntryInfoReturnType = {
 	slug: string;
 };
 
+export interface DataEntryType {
+	extensions: string[];
+	getEntryInfo(params: {
+		fileUrl: URL;
+		contents: string;
+	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
+}
+
+export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
+	dataEntryTypes: DataEntryType[];
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;

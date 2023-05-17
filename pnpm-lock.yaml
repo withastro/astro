@@ -624,6 +624,9 @@ importers:
       html-escaper:
         specifier: ^3.0.3
         version: 3.0.3
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       kleur:
         specifier: ^4.1.4
         version: 4.1.5
@@ -730,6 +733,9 @@ importers:
       '@types/html-escaper':
         specifier: ^3.0.0
         version: 3.0.0
+      '@types/js-yaml':
+        specifier: ^4.0.5
+        version: 4.0.5
       '@types/mime':
         specifier: ^2.0.3
         version: 2.0.3
@@ -2352,6 +2358,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-collection-references:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-collections:
     dependencies:
       '@astrojs/mdx':
@@ -2377,6 +2389,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/content-collections-with-config-mjs:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/content-mixed-errors:
     dependencies:
       astro:
         specifier: workspace:*
@@ -2547,6 +2565,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/custom-elements/my-component-lib: {}
+
+  packages/astro/test/fixtures/data-collections:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/debug-component:
     dependencies:
@@ -8848,6 +8872,10 @@ packages:
     resolution: {integrity: sha512-Q0Op0hdWbYd1iahB+IFNQcWXFq4O0Q5MwQP7uN0souuQ4rPg1vEYcnIOfr1gY+M+6rc8FGoRaBO1mOOvL29sEQ==}
     dependencies:
       ci-info: 3.3.1
+    dev: true
+
+  /@types/js-yaml@4.0.5:
+    resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
     dev: true
 
   /@types/json-schema@7.0.11:

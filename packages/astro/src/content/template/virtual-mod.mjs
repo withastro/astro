@@ -3,28 +3,33 @@ import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
 	createGetEntryBySlug,
+	createGetEntry,
+	createGetEntries,
+	createGetDataEntryById,
+	createReference,
 } from 'astro/content/runtime';
 
 export { z } from 'astro/zod';
 
-export function defineCollection(config) {
-	return config;
-}
-
-// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
-export const image = () => {
-	throw new Error(
-		'Importing `image()` from `astro:content` is no longer supported. See https://docs.astro.build/en/guides/assets/#update-content-collections-schemas for our new import instructions.'
-	);
-};
-
 const contentDir = '@@CONTENT_DIR@@';
 
-const entryGlob = import.meta.glob('@@ENTRY_GLOB_PATH@@', {
-	query: { astroContent: true },
+const contentEntryGlob = import.meta.glob('@@CONTENT_ENTRY_GLOB_PATH@@', {
+	query: { astroContentCollectionEntry: true },
+});
+const contentCollectionToEntryMap = createCollectionToGlobResultMap({
+	globResult: contentEntryGlob,
+	contentDir,
+});
+
+const dataEntryGlob = import.meta.glob('@@DATA_ENTRY_GLOB_PATH@@', {
+	query: { astroDataCollectionEntry: true },
+});
+const dataCollectionToEntryMap = createCollectionToGlobResultMap({
+	globResult: dataEntryGlob,
+	contentDir,
 });
 const collectionToEntryMap = createCollectionToGlobResultMap({
-	globResult: entryGlob,
+	globResult: { ...contentEntryGlob, ...dataEntryGlob },
 	contentDir,
 });
 
@@ -33,7 +38,7 @@ let lookupMap = {};
 
 function createGlobLookup(glob) {
 	return async (collection, lookupId) => {
-		const filePath = lookupMap[collection]?.[lookupId];
+		const filePath = lookupMap[collection]?.entries[lookupId];
 
 		if (!filePath) return undefined;
 		return glob[collection][filePath];
@@ -48,12 +53,31 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	contentDir,
 });
 
+export function defineCollection(config) {
+	if (!config.type) config.type = 'content';
+	return config;
+}
+
 export const getCollection = createGetCollection({
-	collectionToEntryMap,
+	contentCollectionToEntryMap,
+	dataCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
+	getEntryImport: createGlobLookup(contentCollectionToEntryMap),
+	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
+});
+
+export const getDataEntryById = createGetDataEntryById({
+	dataCollectionToEntryMap,
+});
+
+export const getEntry = createGetEntry({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 });
+
+export const getEntries = createGetEntries(getEntry);
+
+export const reference = createReference({ lookupMap });

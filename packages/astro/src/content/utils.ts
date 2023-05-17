@@ -14,13 +14,30 @@ import type {
 } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { CONTENT_TYPES_FILE } from './consts.js';
+import { CONTENT_TYPES_FILE, CONTENT_FLAGS } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
+import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
 
-export const collectionConfigParser = z.object({
-	schema: z.any().optional(),
-});
+/**
+ * Amap from a collection + slug to the local file path.
+ * This is used internally to resolve entry imports when using `getEntry()`.
+ * @see `src/content/virtual-mod.mjs`
+ */
+export type ContentLookupMap = {
+	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
+};
+
+export const collectionConfigParser = z.union([
+	z.object({
+		type: z.literal('content').optional().default('content'),
+		schema: z.any().optional(),
+	}),
+	z.object({
+		type: z.literal('data'),
+		schema: z.any().optional(),
+	}),
+]);
 
 export function getDotAstroTypeReference({ root, srcDir }: { root: URL; srcDir: URL }) {
 	const { cacheDir } = getContentPaths({ root, srcDir });
@@ -39,11 +56,6 @@ export type CollectionConfig = z.infer<typeof collectionConfigParser>;
 export type ContentConfig = z.infer<typeof contentConfigParser>;
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
-export type EntryInfo = {
-	id: string;
-	slug: string;
-	collection: string;
-};
 
 export const msg = {
 	collectionConfigMissing: (collection: string) =>
@@ -72,31 +84,46 @@ export function parseEntrySlug({
 }
 
 export async function getEntryData(
-	entry: EntryInfo & { unvalidatedData: Record<string, unknown>; _internal: EntryInternal },
+	entry: {
+		id: string;
+		collection: string;
+		unvalidatedData: Record<string, unknown>;
+		_internal: EntryInternal;
+	},
 	collectionConfig: CollectionConfig,
 	pluginContext: PluginContext,
-	settings: AstroSettings
+	config: AstroConfig
 ) {
-	// Remove reserved `slug` field before parsing data
-	let { slug, ...data } = entry.unvalidatedData;
+	let data;
+	if (collectionConfig.type === 'data') {
+		data = entry.unvalidatedData;
+	} else {
+		const { slug, ...unvalidatedData } = entry.unvalidatedData;
+		data = unvalidatedData;
+	}
 
 	let schema = collectionConfig.schema;
 	if (typeof schema === 'function') {
-		if (!settings.config.experimental.assets) {
+		if (!config.experimental.assets) {
 			throw new Error(
 				'The function shape for schema can only be used when `experimental.assets` is enabled.'
 			);
 		}
 
 		schema = schema({
-			image: createImage(settings, pluginContext, entry._internal.filePath),
+			image: createImage({ config }, pluginContext, entry._internal.filePath),
 		});
 	}
 
 	if (schema) {
-		// Catch reserved `slug` field inside schema
+		// Catch reserved `slug` field inside content schemas
 		// Note: will not warn for `z.union` or `z.intersection` schemas
-		if (typeof schema === 'object' && 'shape' in schema && schema.shape.slug) {
+		if (
+			collectionConfig.type === 'content' &&
+			typeof schema === 'object' &&
+			'shape' in schema &&
+			schema.shape.slug
+		) {
 			throw new AstroError({
 				...AstroErrorData.ContentSchemaContainsSlugError,
 				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
@@ -104,28 +131,33 @@ export async function getEntryData(
 		}
 
 		// Use `safeParseAsync` to allow async transforms
-		const parsed = await schema.safeParseAsync(entry.unvalidatedData, {
-			errorMap,
+		let formattedError;
+		const parsed = await (schema as z.ZodSchema).safeParseAsync(entry.unvalidatedData, {
+			errorMap(error, ctx) {
+				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
+					formattedError = error.params?.astroError;
+				}
+				return errorMap(error, ctx);
+			},
 		});
 		if (parsed.success) {
 			data = parsed.data;
 		} else {
-			const formattedError = new AstroError({
-				...AstroErrorData.InvalidContentEntryFrontmatterError,
-				message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
-					entry.collection,
-					entry.id,
-					parsed.error
-				),
-				location: {
-					file: entry._internal.filePath,
-					line: getFrontmatterErrorLine(
-						entry._internal.rawData,
-						String(parsed.error.errors[0].path[0])
+			if (!formattedError) {
+				formattedError = new AstroError({
+					...AstroErrorData.InvalidContentEntryFrontmatterError,
+					message: AstroErrorData.InvalidContentEntryFrontmatterError.message(
+						entry.collection,
+						entry.id,
+						parsed.error
 					),
-					column: 0,
-				},
-			});
+					location: {
+						file: entry._internal.filePath,
+						line: getYAMLErrorLine(entry._internal.rawData, String(parsed.error.errors[0].path[0])),
+						column: 0,
+					},
+				});
+			}
 			throw formattedError;
 		}
 	}
@@ -134,6 +166,10 @@ export async function getEntryData(
 
 export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
 	return settings.contentEntryTypes.map((t) => t.extensions).flat();
+}
+
+export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
+	return settings.dataEntryTypes.map((t) => t.extensions).flat();
 }
 
 export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
@@ -146,35 +182,45 @@ export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'con
 	return map;
 }
 
-export class NoCollectionError extends Error {}
+export function getEntryCollectionName({
+	contentDir,
+	entry,
+}: Pick<ContentPaths, 'contentDir'> & { entry: string | URL }) {
+	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
+	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
+	const collectionName = path.dirname(rawRelativePath).split(path.sep)[0];
+	const isOutsideCollection =
+		!collectionName || collectionName === '' || collectionName === '..' || collectionName === '.';
 
-export function getEntryInfo(
-	params: Pick<ContentPaths, 'contentDir'> & {
-		entry: string | URL;
-		allowFilesOutsideCollection?: true;
+	if (isOutsideCollection) {
+		return undefined;
 	}
-): EntryInfo;
-export function getEntryInfo({
+
+	return collectionName;
+}
+
+export function getDataEntryId({
 	entry,
 	contentDir,
-	allowFilesOutsideCollection = false,
-}: Pick<ContentPaths, 'contentDir'> & {
-	entry: string | URL;
-	allowFilesOutsideCollection?: boolean;
-}): EntryInfo | NoCollectionError {
-	const rawRelativePath = path.relative(
-		fileURLToPath(contentDir),
-		typeof entry === 'string' ? entry : fileURLToPath(entry)
-	);
-	const rawCollection = path.dirname(rawRelativePath).split(path.sep).shift();
-	const isOutsideCollection = rawCollection === '..' || rawCollection === '.';
+	collection,
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
+	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
+	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
 
-	if (!rawCollection || (!allowFilesOutsideCollection && isOutsideCollection))
-		return new NoCollectionError();
+	return withoutFileExt;
+}
 
-	const rawId = path.relative(rawCollection, rawRelativePath);
-	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
-	const rawSlugSegments = rawIdWithoutFileExt.split(path.sep);
+export function getContentEntryIdAndSlug({
+	entry,
+	contentDir,
+	collection,
+}: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): {
+	id: string;
+	slug: string;
+} {
+	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
+	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
+	const rawSlugSegments = withoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments
 		// Slugify each route segment to handle capitalization and spaces.
@@ -184,20 +230,26 @@ export function getEntryInfo({
 		.replace(/\/index$/, '');
 
 	const res = {
-		id: normalizePath(rawId),
+		id: normalizePath(relativePath),
 		slug,
-		collection: normalizePath(rawCollection),
 	};
 	return res;
+}
+
+function getRelativeEntryPath(entry: URL, collection: string, contentDir: URL) {
+	const relativeToContent = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+	const relativeToCollection = path.relative(collection, relativeToContent);
+	return relativeToCollection;
 }
 
 export function getEntryType(
 	entryPath: string,
 	paths: Pick<ContentPaths, 'config' | 'contentDir'>,
 	contentFileExts: string[],
+	dataFileExts: string[],
 	// TODO: Unflag this when we're ready to release assets - erika, 2023-04-12
-	experimentalAssets: boolean
-): 'content' | 'config' | 'ignored' | 'unsupported' {
+	experimentalAssets = false
+): 'content' | 'data' | 'config' | 'ignored' | 'unsupported' {
 	const { ext, base } = path.parse(entryPath);
 	const fileUrl = pathToFileURL(entryPath);
 
@@ -209,6 +261,8 @@ export function getEntryType(
 		return 'ignored';
 	} else if (contentFileExts.includes(ext)) {
 		return 'content';
+	} else if (dataFileExts.includes(ext)) {
+		return 'data';
 	} else if (fileUrl.href === paths.config.url.href) {
 		return 'config';
 	} else {
@@ -238,33 +292,29 @@ export function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
-function getFrontmatterErrorLine(rawFrontmatter: string | undefined, frontmatterKey: string) {
-	if (!rawFrontmatter) return 0;
-	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
-	if (indexOfFrontmatterKey === -1) return 0;
+function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
+	if (!rawData) return 0;
+	const indexOfObjectKey = rawData.search(
+		// Match key either at the top of the file or after a newline
+		// Ensures matching on top-level object keys only
+		new RegExp(`(\n|^)${objectKey}`)
+	);
+	if (indexOfObjectKey === -1) return 0;
 
-	const frontmatterBeforeKey = rawFrontmatter.substring(0, indexOfFrontmatterKey + 1);
-	const numNewlinesBeforeKey = frontmatterBeforeKey.split('\n').length;
+	const dataBeforeKey = rawData.substring(0, indexOfObjectKey + 1);
+	const numNewlinesBeforeKey = dataBeforeKey.split('\n').length;
 	return numNewlinesBeforeKey;
 }
 
-/**
- * Match YAML exception handling from Astro core errors
- * @see 'astro/src/core/errors.ts'
- */
 export function parseFrontmatter(fileContents: string, filePath: string) {
 	try {
 		// `matter` is empty string on cache results
 		// clear cache to prevent this
 		(matter as any).clearCache();
 		return matter(fileContents);
-	} catch (e: any) {
-		if (e.name === 'YAMLException') {
-			const err: Error & ViteErrorPayload['err'] = e;
-			err.id = filePath;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
-			throw err;
+	} catch (e) {
+		if (isYAMLException(e)) {
+			throw formatYAMLException(e);
 		} else {
 			throw e;
 		}
@@ -277,6 +327,11 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
  * subscribe to changes during dev server updates.
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
+
+export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]) {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	return flags.has(flag);
+}
 
 export async function loadContentConfig({
 	fs,
@@ -292,17 +347,39 @@ export async function loadContentConfig({
 	if (!contentPaths.config.exists) {
 		return undefined;
 	}
-	try {
-		const configPathname = fileURLToPath(contentPaths.config.url);
-		unparsedConfig = await viteServer.ssrLoadModule(configPathname);
-	} catch (e) {
-		throw e;
-	}
+	const configPathname = fileURLToPath(contentPaths.config.url);
+	unparsedConfig = await viteServer.ssrLoadModule(configPathname);
+
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
 		return config.data;
 	} else {
 		return undefined;
+	}
+}
+
+export async function reloadContentConfigObserver({
+	observer = globalContentConfigObserver,
+	...loadContentConfigOpts
+}: {
+	fs: typeof fsMod;
+	settings: AstroSettings;
+	viteServer: ViteDevServer;
+	observer?: ContentObservable;
+}) {
+	observer.set({ status: 'loading' });
+	try {
+		const config = await loadContentConfig(loadContentConfigOpts);
+		if (config) {
+			observer.set({ status: 'loaded', config });
+		} else {
+			observer.set({ status: 'does-not-exist' });
+		}
+	} catch (e) {
+		observer.set({
+			status: 'error',
+			error: e instanceof Error ? e : new AstroError(AstroErrorData.UnknownContentCollectionError),
+		});
 	}
 }
 
@@ -414,7 +491,7 @@ export async function getEntrySlug({
 	}
 	const { slug: frontmatterSlug } = await contentEntryType.getEntryInfo({
 		fileUrl,
-		contents: await fs.promises.readFile(fileUrl, 'utf-8'),
+		contents,
 	});
 	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
 }
