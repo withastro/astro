@@ -27,6 +27,10 @@
     "./server.directory.js": "./dist/server.directory.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "runtime.d.ts"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
