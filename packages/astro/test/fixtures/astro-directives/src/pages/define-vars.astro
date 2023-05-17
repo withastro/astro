@@ -3,6 +3,7 @@ import Title from "../components/Title.astro"
 let foo = 'bar'
 let bg = 'white'
 let fg = 'black'
+let bar = '<script>bar</script>'
 ---
 
 <html>
@@ -27,6 +28,9 @@ let fg = 'black'
 		</script>
 		<script id="inline-3" define:vars={{ 'dash-case': foo }}>
 			console.log(foo);
+		</script>
+		<script id="inline-4" define:vars={{ bar }}>
+			console.log(bar);
 		</script>
 
 		<Title />
