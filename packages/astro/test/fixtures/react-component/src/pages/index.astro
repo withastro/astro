@@ -8,6 +8,7 @@ import Pure from '../components/Pure.jsx';
 import TypeScriptComponent from '../components/TypeScriptComponent';
 import CloneElement from '../components/CloneElement';
 import WithChildren from '../components/WithChildren';
+import WithId from '../components/WithId';
 
 const someProps = {
   text: 'Hello world!',
@@ -34,5 +35,7 @@ const someProps = {
 		<CloneElement />
 		<WithChildren client:load>test</WithChildren>
 		<WithChildren client:load children="test" />
+		<WithId client:idle />
+		<WithId client:idle />
   </body>
 </html>

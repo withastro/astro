@@ -10,14 +10,15 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG } from './consts.js';
 import {
+	getContentEntryConfigByExtMap,
 	getContentEntryExts,
 	getContentPaths,
 	getEntryData,
 	getEntryInfo,
-	getEntrySlug,
 	getEntryType,
 	globalContentConfigObserver,
 	NoCollectionError,
+	parseEntrySlug,
 	type ContentConfig,
 } from './utils.js';
 
@@ -55,12 +56,7 @@ export function astroContentImportPlugin({
 	const contentPaths = getContentPaths(settings.config, fs);
 	const contentEntryExts = getContentEntryExts(settings);
 
-	const contentEntryExtToParser: Map<string, ContentEntryType> = new Map();
-	for (const entryType of settings.contentEntryTypes) {
-		for (const ext of entryType.extensions) {
-			contentEntryExtToParser.set(ext, entryType);
-		}
-	}
+	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
 
 	const plugins: Plugin[] = [
 		{
@@ -119,7 +115,7 @@ export function astroContentImportPlugin({
 	if (settings.contentEntryTypes.some((t) => t.getRenderModule)) {
 		plugins.push({
 			name: 'astro:content-render-imports',
-			async load(viteId) {
+			async transform(_, viteId) {
 				const contentRenderer = getContentRendererByViteId(viteId, settings);
 				if (!contentRenderer) return;
 
@@ -196,7 +192,7 @@ export function astroContentImportPlugin({
 		const contentConfig = await getContentConfigFromGlobal();
 		const rawContents = await fs.promises.readFile(fileId, 'utf-8');
 		const fileExt = extname(fileId);
-		if (!contentEntryExtToParser.has(fileExt)) {
+		if (!contentEntryConfigByExt.has(fileExt)) {
 			throw new AstroError({
 				...AstroErrorData.UnknownContentCollectionError,
 				message: `No parser found for content entry ${JSON.stringify(
@@ -204,13 +200,13 @@ export function astroContentImportPlugin({
 				)}. Did you apply an integration for this file type?`,
 			});
 		}
-		const contentEntryParser = contentEntryExtToParser.get(fileExt)!;
+		const contentEntryConfig = contentEntryConfigByExt.get(fileExt)!;
 		const {
 			rawData,
 			body,
-			slug: unvalidatedSlug,
+			slug: frontmatterSlug,
 			data: unvalidatedData,
-		} = await contentEntryParser.getEntryInfo({
+		} = await contentEntryConfig.getEntryInfo({
 			fileUrl: pathToFileURL(fileId),
 			contents: rawContents,
 		});
@@ -225,7 +221,12 @@ export function astroContentImportPlugin({
 		const _internal = { filePath: fileId, rawData: rawData };
 		// TODO: move slug calculation to the start of the build
 		// to generate a performant lookup map for `getEntryBySlug`
-		const slug = getEntrySlug({ id, collection, slug: generatedSlug, unvalidatedSlug });
+		const slug = parseEntrySlug({
+			id,
+			collection,
+			generatedSlug,
+			frontmatterSlug,
+		});
 
 		const collectionConfig = contentConfig?.collections[collection];
 		let data = collectionConfig

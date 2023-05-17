@@ -1,13 +1,15 @@
-(self.Astro = self.Astro || {}).idle = (getHydrateCallback) => {
+import type { ClientDirective } from '../../@types/astro';
+
+const idleDirective: ClientDirective = (load) => {
 	const cb = async () => {
-		let hydrate = await getHydrateCallback();
+		const hydrate = await load();
 		await hydrate();
 	};
-
 	if ('requestIdleCallback' in window) {
 		(window as any).requestIdleCallback(cb);
 	} else {
 		setTimeout(cb, 200);
 	}
 };
-window.dispatchEvent(new Event('astro:idle'));
+
+export default idleDirective;

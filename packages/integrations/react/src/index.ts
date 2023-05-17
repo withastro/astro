@@ -66,6 +66,7 @@ function getViteConfiguration() {
 				'@mui/material',
 				'@mui/base',
 				'@babel/runtime',
+				'redoc',
 				'use-immer',
 			],
 		},

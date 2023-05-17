@@ -1,10 +1,11 @@
+import type { ClientDirective } from '../../@types/astro';
+
 /**
  * Hydrate this component only on the client
  */
-(self.Astro = self.Astro || {}).only = (getHydrateCallback) => {
-	(async () => {
-		let hydrate = await getHydrateCallback();
-		await hydrate();
-	})();
+const onlyDirective: ClientDirective = async (load) => {
+	const hydrate = await load();
+	await hydrate();
 };
-window.dispatchEvent(new Event('astro:only'));
+
+export default onlyDirective;

@@ -1,4 +1,5 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { joinPaths } from '../../core/path.js';
 import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
@@ -31,14 +32,17 @@ interface SharedServiceProps {
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform) => string;
+	getURL: (options: ImageTransform, serviceConfig: Record<string, any>) => string;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
 	 *
 	 * For example, you might want to return the `width` and `height` to avoid CLS, or a particular `class` or `style`.
 	 * In most cases, you'll want to return directly what your user supplied you, minus the attributes that were used to generate the image.
 	 */
-	getHTMLAttributes?: (options: ImageTransform) => Record<string, any>;
+	getHTMLAttributes?: (
+		options: ImageTransform,
+		serviceConfig: Record<string, any>
+	) => Record<string, any>;
 	/**
 	 * Validate and return the options passed by the user.
 	 *
@@ -47,7 +51,7 @@ interface SharedServiceProps {
 	 *
 	 * This method should returns options, and can be used to set defaults (ex: a default output format to be used if the user didn't specify one.)
 	 */
-	validateOptions?: (options: ImageTransform) => ImageTransform;
+	validateOptions?: (options: ImageTransform, serviceConfig: Record<string, any>) => ImageTransform;
 }
 
 export type ExternalImageService = SharedServiceProps;
@@ -63,14 +67,15 @@ export interface LocalImageService extends SharedServiceProps {
 	 *
 	 * In most cases, this will get query parameters using, for example, `params.get('width')` and return those.
 	 */
-	parseURL: (url: URL) => LocalImageTransform | undefined;
+	parseURL: (url: URL, serviceConfig: Record<string, any>) => LocalImageTransform | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
 	 */
 	transform: (
 		inputBuffer: Buffer,
-		transform: LocalImageTransform
+		transform: LocalImageTransform,
+		serviceConfig: Record<string, any>
 	) => Promise<{ data: Buffer; format: ImageOutputFormat }>;
 }
 
@@ -191,7 +196,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		options.quality && searchParams.append('q', options.quality.toString());
 		options.format && searchParams.append('f', options.format);
 
-		return '/_image?' + searchParams;
+		return joinPaths(import.meta.env.BASE_URL, '/_image?') + searchParams;
 	},
 	parseURL(url) {
 		const params = url.searchParams;

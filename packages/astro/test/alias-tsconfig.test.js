@@ -61,6 +61,7 @@ describe('Aliases with tsconfig.json', () => {
 
 			expect($('#foo').text()).to.equal('foo');
 			expect($('#constants-foo').text()).to.equal('foo');
+			expect($('#constants-index').text()).to.equal('index');
 		});
 
 		it('can load namespace packages with @* paths', async () => {
@@ -107,6 +108,7 @@ describe('Aliases with tsconfig.json', () => {
 
 			expect($('#foo').text()).to.equal('foo');
 			expect($('#constants-foo').text()).to.equal('foo');
+			expect($('#constants-index').text()).to.equal('index');
 		});
 
 		it('can load namespace packages with @* paths', async () => {

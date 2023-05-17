@@ -19,7 +19,6 @@ export {
 	renderScriptElement,
 	renderSlot,
 	renderSlotToString,
-	renderStyleElement,
 	renderTemplate as render,
 	renderTemplate,
 	renderToString,

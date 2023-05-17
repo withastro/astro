@@ -75,5 +75,16 @@ function isString(path: unknown): path is string {
 }
 
 export function joinPaths(...paths: (string | undefined)[]) {
-	return paths.filter(isString).map(trimSlashes).join('/');
+	return paths
+		.filter(isString)
+		.map((path, i) => {
+			if (i === 0) {
+				return removeTrailingForwardSlash(path);
+			} else if (i === paths.length - 1) {
+				return removeLeadingForwardSlash(path);
+			} else {
+				return trimSlashes(path);
+			}
+		})
+		.join('/');
 }
