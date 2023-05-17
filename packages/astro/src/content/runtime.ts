@@ -1,6 +1,7 @@
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import { string as zodString, ZodIssueCode } from 'zod';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { ZodIssueCode, string as zodString, type z } from 'zod';
 import {
 	createComponent,
 	createHeadAndContent,
@@ -12,7 +13,6 @@ import {
 	type AstroComponentFactory,
 } from '../runtime/server/index.js';
 import type { ContentLookupMap } from './utils.js';
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
 
 type LazyImport = () => Promise<any>;
 type GlobResult = Record<string, LazyImport>;

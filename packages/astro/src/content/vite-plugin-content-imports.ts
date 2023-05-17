@@ -16,21 +16,21 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
-	type ContentConfig,
-	type ContentPaths,
+	getContentEntryConfigByExtMap,
 	getContentEntryExts,
-	getContentPaths,
-	getEntryData,
-	parseEntrySlug,
 	getContentEntryIdAndSlug,
+	getContentPaths,
+	getDataEntryExts,
+	getDataEntryId,
+	getEntryCollectionName,
+	getEntryData,
 	getEntryType,
 	globalContentConfigObserver,
-	getContentEntryConfigByExtMap,
-	getEntryCollectionName,
-	getDataEntryExts,
 	hasContentFlag,
-	getDataEntryId,
+	parseEntrySlug,
 	reloadContentConfigObserver,
+	type ContentConfig,
+	type ContentPaths,
 } from './utils.js';
 
 function getContentRendererByViteId(

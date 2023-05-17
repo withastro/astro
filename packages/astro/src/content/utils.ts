@@ -4,7 +4,7 @@ import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
-import { normalizePath, type ErrorPayload as ViteErrorPayload, type ViteDevServer } from 'vite';
+import { normalizePath, type ViteDevServer } from 'vite';
 import { z } from 'zod';
 import type {
 	AstroConfig,
@@ -14,10 +14,10 @@ import type {
 } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { CONTENT_TYPES_FILE, CONTENT_FLAGS } from './consts.js';
+import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
+import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
 import { createImage } from './runtime-assets.js';
-import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
 
 /**
  * Amap from a collection + slug to the local file path.

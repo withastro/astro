@@ -5,25 +5,25 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath, type ViteDevServer } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
+import { AstroErrorData } from '../core/errors/errors-data.js';
+import { AstroError } from '../core/errors/errors.js';
 import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
+	getContentEntryConfigByExtMap,
+	getContentEntryIdAndSlug,
+	getContentPaths,
+	getDataEntryExts,
+	getDataEntryId,
+	getEntryCollectionName,
+	getEntrySlug,
+	getEntryType,
+	reloadContentConfigObserver,
 	type ContentConfig,
 	type ContentObservable,
 	type ContentPaths,
-	getContentEntryConfigByExtMap,
-	getContentPaths,
-	getEntryType,
-	getContentEntryIdAndSlug,
-	getEntrySlug,
-	getEntryCollectionName,
-	getDataEntryExts,
-	getDataEntryId,
-	reloadContentConfigObserver,
 } from './utils.js';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/errors-data.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };

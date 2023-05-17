@@ -5,8 +5,8 @@ export {
 	AstroError,
 	CompilerError,
 	CSSError,
-	MarkdownError,
 	isAstroError,
+	MarkdownError,
 } from './errors.js';
 export { codeFrame } from './printer.js';
 export { createSafeError, positionAt } from './utils.js';

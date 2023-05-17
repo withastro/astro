@@ -2,10 +2,10 @@
 import {
 	createCollectionToGlobResultMap,
 	createGetCollection,
-	createGetEntryBySlug,
-	createGetEntry,
-	createGetEntries,
 	createGetDataEntryById,
+	createGetEntries,
+	createGetEntry,
+	createGetEntryBySlug,
 	createReference,
 } from 'astro/content/runtime';
 

@@ -1,18 +1,18 @@
-import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
+import yaml from 'js-yaml';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/astro';
+import { getContentPaths } from '../../content/index.js';
 import jsxRenderer from '../../jsx/renderer.js';
 import { isHybridOutput } from '../../prerender/utils.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import { formatYAMLException, isYAMLException } from '../errors/utils.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
-import yaml from 'js-yaml';
-import { formatYAMLException, isYAMLException } from '../errors/utils.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getContentPaths } from '../../content/index.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	const { contentDir } = getContentPaths(config);

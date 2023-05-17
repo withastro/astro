@@ -10,10 +10,9 @@ import { runHookConfigSetup } from '../../integrations/index.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
-import { AstroError, AstroErrorData, createSafeError } from '../errors/index.js';
+import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import { info, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
-import { isAstroError } from '../errors/index.js';
 
 export type ProcessExit = 0 | 1;
 

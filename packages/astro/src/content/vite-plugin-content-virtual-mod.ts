@@ -4,21 +4,21 @@ import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import { rootRelativePath } from '../core/util.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
 	getContentEntryConfigByExtMap,
-	getDataEntryExts,
-	getContentPaths,
-	getExtGlob,
-	getEntryCollectionName,
 	getContentEntryIdAndSlug,
-	getEntrySlug,
+	getContentPaths,
+	getDataEntryExts,
 	getDataEntryId,
+	getEntryCollectionName,
+	getEntrySlug,
 	getEntryType,
-	type ContentPaths,
+	getExtGlob,
 	type ContentLookupMap,
+	type ContentPaths,
 } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
