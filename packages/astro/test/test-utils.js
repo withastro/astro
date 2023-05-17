@@ -129,7 +129,9 @@ export async function loadFixture(inlineConfig) {
 	}
 
 	/**
-	 * Create new AstroSettings as Astro APIs could mutate the settings on `astro:config:setup` hook
+	 * The dev/build/sync/check commands run integrations' `astro:config:setup` hook that could mutate
+	 * the `AstroSettings`. This function helps to create a fresh settings object that is used by the
+	 * command functions below to prevent tests from polluting each other.
 	 */
 	const getSettings = async () => {
 		let settings = createSettings(config, fileURLToPath(cwd));
