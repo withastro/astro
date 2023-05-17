@@ -328,13 +328,6 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
-// TODO: hoist to proper error
-const InvalidDataCollectionConfigError = {
-	...AstroErrorData.UnknownContentCollectionError,
-	message: (dataExtsStringified: string, collection: string) =>
-		`Found a non-data collection with ${dataExtsStringified} files: **${collection}.** To make this a data collection, use the \`defineDataCollection()\` helper or add \`type: 'data'\` to your collection config.`,
-};
-
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]) {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
