@@ -17,8 +17,8 @@ function removeDoctypeLine(html) {
  * In the dev environment, two more script tags will be injected than in the production environment
  * so that we can check if the rest of the HTML is without whitespace
  */
-function removeDoctypeLineInDev(html){
-	return html.slice(-100)
+function removeDoctypeLineInDev(html) {
+	return html.slice(-100);
 }
 
 describe('HTML minification', () => {
@@ -63,7 +63,7 @@ describe('HTML minification', () => {
 			fixture = await loadFixture({
 				root: './fixtures/minification-html/',
 				output: 'server',
-				adapter: testAdapter()
+				adapter: testAdapter(),
 			});
 			await fixture.build();
 		});

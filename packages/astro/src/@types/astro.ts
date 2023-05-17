@@ -466,7 +466,6 @@ export interface AstroUserConfig {
 	 */
 	site?: string;
 
-
 	/**
 	 * @docs
 	 * @name compressHTML

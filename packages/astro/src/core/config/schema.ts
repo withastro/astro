@@ -227,10 +227,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
-		compressHTML: z
-			.boolean()
-			.optional()
-			.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
+		compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 		publicDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
