@@ -205,11 +205,10 @@ export function getDataEntryId({
 	contentDir,
 	collection,
 }: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
-	const rawId = path.relative(collection, rawRelativePath);
-	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
+	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
+	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
 
-	return rawIdWithoutFileExt;
+	return withoutFileExt;
 }
 
 export function getContentEntryIdAndSlug({
@@ -220,10 +219,9 @@ export function getContentEntryIdAndSlug({
 	id: string;
 	slug: string;
 } {
-	const rawRelativePath = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
-	const rawId = path.relative(collection, rawRelativePath);
-	const rawIdWithoutFileExt = rawId.replace(new RegExp(path.extname(rawId) + '$'), '');
-	const rawSlugSegments = rawIdWithoutFileExt.split(path.sep);
+	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
+	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
+	const rawSlugSegments = withoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments
 		// Slugify each route segment to handle capitalization and spaces.
@@ -233,10 +231,16 @@ export function getContentEntryIdAndSlug({
 		.replace(/\/index$/, '');
 
 	const res = {
-		id: normalizePath(rawId),
+		id: normalizePath(relativePath),
 		slug,
 	};
 	return res;
+}
+
+function getRelativeEntryPath(entry: URL, collection: string, contentDir: URL) {
+	const relativeToContent = path.relative(fileURLToPath(contentDir), fileURLToPath(entry));
+	const relativeToCollection = path.relative(collection, relativeToContent);
+	return relativeToCollection;
 }
 
 export function getEntryType(
