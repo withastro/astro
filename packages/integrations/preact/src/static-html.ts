@@ -1,5 +1,11 @@
 import { h } from 'preact';
 
+type Props = {
+	value: string;
+	name?: string;
+	hydrate?: boolean;
+}
+
 /**
  * Astro passes `children` as a string of HTML, so we need
  * a wrapper `div` to render that content as VNodes.
@@ -7,9 +13,10 @@ import { h } from 'preact';
  * As a bonus, we can signal to Preact that this subtree is
  * entirely static and will never change via `shouldComponentUpdate`.
  */
-const StaticHtml = ({ value, name }: { value: string; name?: string }) => {
+const StaticHtml = ({ value, name, hydrate }: Props) => {
 	if (!value) return null;
-	return h('astro-slot', { name, dangerouslySetInnerHTML: { __html: value } });
+	const tagName = hydrate === false ? 'astro-static-slot' : 'astro-slot';
+	return h(tagName, { name, dangerouslySetInnerHTML: { __html: value } });
 };
 
 /**

@@ -2194,18 +2194,42 @@ importers:
 
   packages/astro/test/fixtures/astro-slots-nested:
     dependencies:
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
       astro:
         specifier: workspace:*
         version: link:../../..
+      preact:
+        specifier: ^10.13.2
+        version: 10.13.2
       react:
         specifier: ^18.2.0
         version: 18.2.0
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      solid-js:
+        specifier: ^1.7.4
+        version: 1.7.4
+      svelte:
+        specifier: ^3.58.0
+        version: 3.58.0
+      vue:
+        specifier: ^3.2.47
+        version: 3.2.47
 
   packages/astro/test/fixtures/before-hydration:
     dependencies:
