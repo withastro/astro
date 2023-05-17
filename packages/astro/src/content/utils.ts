@@ -189,9 +189,9 @@ export function getEntryCollectionName({
 }: Pick<ContentPaths, 'contentDir'> & { entry: string | URL }) {
 	const entryPath = typeof entry === 'string' ? entry : fileURLToPath(entry);
 	const rawRelativePath = path.relative(fileURLToPath(contentDir), entryPath);
-	const collectionName = path.dirname(rawRelativePath).split(path.sep).shift() ?? '';
+	const collectionName = path.dirname(rawRelativePath).split(path.sep)[0];
 	const isOutsideCollection =
-		collectionName === '' || collectionName === '..' || collectionName === '.';
+		!collectionName || collectionName === '' || collectionName === '..' || collectionName === '.';
 
 	if (isOutsideCollection) {
 		return undefined;
