@@ -84,7 +84,7 @@ export function astroContentImportPlugin({
 			name: 'astro:content-imports',
 			async transform(_, viteId) {
 				if (hasContentFlag(viteId, DATA_FLAG)) {
-					const fileId = viteId.split('?')[0];
+					const fileId = viteId.split('?')[0] ?? viteId;
 					// Data collections don't need to rely on the module cache.
 					// This cache only exists for the `render()` function specific to content.
 					const { id, data, collection, _internal } = await getDataEntryModule({
