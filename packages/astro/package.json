@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.4.2",
+  "version": "2.4.5",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -20,6 +20,9 @@
       ],
       "app/*": [
         "./dist/core/app/*"
+      ],
+      "middleware": [
+        "./dist/core/middleware/index.d.ts"
       ]
     }
   },
@@ -134,6 +137,7 @@
     "devalue": "^4.2.0",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.1.0",
+    "esbuild": "^0.17.18",
     "estree-walker": "3.0.0",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",

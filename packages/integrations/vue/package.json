@@ -27,6 +27,12 @@
     "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "client.js",
+    "server.js",
+    "static-html.js"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/index.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
@@ -50,7 +56,7 @@
     "vue": "^3.2.37"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.4.2",
+    "astro": "workspace:^2.4.5",
     "vue": "^3.2.30"
   },
   "engines": {

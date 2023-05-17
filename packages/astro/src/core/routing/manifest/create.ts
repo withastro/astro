@@ -18,6 +18,7 @@ import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+import { isHybridOutput } from '../../../prerender/utils.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -226,6 +227,7 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
+	const isPrenderDefault = isHybridOutput(settings.config);
 
 	function walk(
 		fs: typeof nodeFs,
@@ -322,7 +324,6 @@ export function createRouteManifest(
 				const route = `/${segments
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
-
 				routes.push({
 					route,
 					type: item.isPage ? 'page' : 'endpoint',
@@ -332,7 +333,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: false,
+					prerender: isPrenderDefault,
 				});
 			}
 		});
@@ -408,7 +409,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: false,
+				prerender: isPrenderDefault,
 			});
 		});
 

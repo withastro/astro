@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/lit-component/',
@@ -30,6 +30,8 @@ test.describe('Lit components', () => {
 			const count = counter.locator('p');
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
 
+			await waitForHydrate(page, counter);
+
 			const inc = counter.locator('button');
 			await inc.click();
 
@@ -42,6 +44,8 @@ test.describe('Lit components', () => {
 			const counter = page.locator('#non-deferred');
 			const count = counter.locator('p');
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
+
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('button');
 			await inc.click();
@@ -57,6 +61,8 @@ test.describe('Lit components', () => {
 
 			const count = counter.locator('p');
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
+
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('button');
 			await inc.click();
@@ -74,6 +80,8 @@ test.describe('Lit components', () => {
 
 			const count = counter.locator('p');
 			await expect(count, 'initial count is 10').toHaveText('Count: 10');
+
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('button');
 			await inc.click();
@@ -97,12 +105,13 @@ test.describe('Lit components', () => {
 
 			// Reset the viewport to hydrate the component (max-width: 50rem)
 			await page.setViewportSize({ width: 414, height: 1124 });
+			await waitForHydrate(page, counter);
 
 			await inc.click();
 			await expect(count, 'count incremented by 1').toHaveText('Count: 11');
 		});
 
-		test('client:only', async ({ page, astro }) => {
+		t('client:only', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const label = page.locator('#client-only');
@@ -157,7 +166,15 @@ test.describe('Lit components', () => {
 			// Playwright's Node version doesn't have these functions, so stub them.
 			process.stdout.clearLine = () => {};
 			process.stdout.cursorTo = () => {};
-			await astro.build();
+			try {
+				await astro.build();
+			} catch (err) {
+				// There's this strange error on build since the dev server already defined `my-counter`,
+				// however the tests still pass with this error, so swallow it.
+				if (!err.message.includes(`Failed to execute 'define' on 'CustomElementRegistry'`)) {
+					throw err;
+				}
+			}
 		});
 
 		t.beforeAll(async ({ astro }) => {

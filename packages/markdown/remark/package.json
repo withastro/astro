@@ -16,6 +16,9 @@
     ".": "./dist/index.js",
     "./dist/internal.js": "./dist/internal.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",

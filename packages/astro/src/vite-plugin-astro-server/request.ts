@@ -12,6 +12,7 @@ import { eventError, telemetry } from '../events/index.js';
 import { runWithErrorHandling } from './controller.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
+import { isHybridOutput } from '../prerender/utils.js';
 
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest(
@@ -24,7 +25,7 @@ export async function handleRequest(
 	const { settings, loader: moduleLoader } = env;
 	const { config } = settings;
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${req.headers.host}`;
-	const buildingToSSR = config.output === 'server';
+	const buildingToSSR = config.output === 'server' || isHybridOutput(config);
 
 	const url = new URL(origin + req.url);
 	let pathname: string;

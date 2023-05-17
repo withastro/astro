@@ -1,6 +1,7 @@
 import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { PageOptions } from '../vite-plugin-astro/types.js';
+import type { AstroSettings } from '../@types/astro.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
@@ -34,7 +35,7 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
-export async function scan(code: string, id: string): Promise<PageOptions> {
+export async function scan(code: string, id: string, isHybridOutput = false): Promise<PageOptions> {
 	if (!includesExport(code)) return {};
 	if (!didInit) {
 		await eslexer.init;
@@ -45,6 +46,7 @@ export async function scan(code: string, id: string): Promise<PageOptions> {
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
+		// mark that a `prerender` export was found
 		if (BOOLEAN_EXPORTS.has(name)) {
 			// For a given export, check the value of the local declaration
 			// Basically extract the `const` from the statement `export const prerender = true`
@@ -61,7 +63,7 @@ export async function scan(code: string, id: string): Promise<PageOptions> {
 			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
-					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix),
+					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, isHybridOutput),
 					location: { file: id },
 				});
 			} else {

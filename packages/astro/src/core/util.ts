@@ -7,6 +7,7 @@ import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
+import { isHybridOutput } from '../prerender/utils.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
@@ -138,7 +139,9 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
-	return settings.config.output === 'server' && !settings.adapter;
+	return (
+		(settings.config.output === 'server' || isHybridOutput(settings.config)) && !settings.adapter
+	);
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
@@ -151,7 +154,11 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
-export function rootRelativePath(root: URL, idOrUrl: URL | string) {
+export function rootRelativePath(
+	root: URL,
+	idOrUrl: URL | string,
+	shouldPrependForwardSlash = true
+) {
 	let id: string;
 	if (typeof idOrUrl !== 'string') {
 		id = unwrapId(viteID(idOrUrl));
@@ -162,7 +169,7 @@ export function rootRelativePath(root: URL, idOrUrl: URL | string) {
 	if (id.startsWith(normalizedRoot)) {
 		id = id.slice(normalizedRoot.length);
 	}
-	return prependForwardSlash(id);
+	return shouldPrependForwardSlash ? prependForwardSlash(id) : id;
 }
 
 export function emoji(char: string, fallback: string) {

@@ -197,6 +197,22 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const $ = cheerio.load(html);
 		expect($('title').html()).to.not.equal('MiddlewareNoDataReturned');
 	});
+
+	it('should correctly work for API endpoints that return a Response object', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/api/endpoint');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		expect(response.headers.get('Content-Type')).to.equal('application/json');
+	});
+
+	it('should correctly manipulate the response coming from API endpoints (not simple)', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/api/endpoint');
+		const response = await app.render(request);
+		const text = await response.text();
+		expect(text.includes('REDACTED')).to.be.true;
+	});
 });
 
 describe('Middleware with tailwind', () => {

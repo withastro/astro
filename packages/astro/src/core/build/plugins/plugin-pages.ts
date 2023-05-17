@@ -6,12 +6,12 @@ import { eachPageData, hasPrerenderedPages, type BuildInternals } from '../inter
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 
-export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if (opts.settings.config.output === 'static' || hasPrerenderedPages(internals)) {
+			if (opts.settings.config.output === 'static') {
 				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},

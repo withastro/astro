@@ -4,9 +4,11 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { fileURLToPath, pathToFileURL } from 'url';
 import jsxRenderer from '../../jsx/renderer.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
+import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -16,13 +18,14 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 
 		adapter: undefined,
 		injectedRoutes:
-			config.experimental.assets && config.output === 'server'
+			config.experimental.assets && (config.output === 'server' || isHybridOutput(config))
 				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
 				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],
 		contentEntryTypes: [markdownContentEntryType],
 		renderers: [jsxRenderer],
 		scripts: [],
+		clientDirectives: getDefaultClientDirectives(),
 		watchFiles: [],
 		forceDisableTelemetry: false,
 		timer: new AstroTimer(),
