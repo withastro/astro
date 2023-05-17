@@ -1,0 +1,14 @@
+{
+  "name": "@test/astro-cloudflare-with-lit-js",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/lit": "workspace:*",
+    "@lit/reactive-element": "^1.6.1",
+    "@webcomponents/template-shadowroot": "^0.2.1",
+    "astro": "workspace:*",
+    "lit": "*",
+    "lit-html": "*"
+  }
+}

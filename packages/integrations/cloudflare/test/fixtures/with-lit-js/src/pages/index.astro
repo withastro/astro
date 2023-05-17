@@ -1,0 +1,25 @@
+---
+import { Card } from '../components/Card';
+
+---
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Lit.js Cloudflare Test</title>
+	</head>
+	<body>
+		<main>
+			<h1>Welcome to <span class="text-gradient">Astro</span></h1>
+			<ul role="list" class="link-card-grid">
+				<Card
+					client:visible
+					title="Lit.js Content"
+				/>
+			</ul>
+		</main>
+	</body>
+</html>

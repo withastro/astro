@@ -7,7 +7,6 @@ import { fileURLToPath, pathToFileURL } from 'url';
 
 type Options = {
 	mode: 'directory' | 'advanced';
-	rewrites?: RewriteResolutionOption[];
 };
 
 interface BuildConfig {
@@ -79,7 +78,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
 	const isModeDirectory = args?.mode === 'directory';
-	const additionalRewrites = args?.rewrites || [];
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -134,9 +132,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const buildPath = fileURLToPath(entryUrl);
 				// A URL for the final build path after renaming
 				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
+
+				/* Rewrite module resolution for Lit.js, since it does not have a package
+				   export specifically for the `worker` or `workerd` environment, and the
+					 `browser` export includes references to DOM APIs that don't exist in
+					 the Cloudflare Worker context.
+				*/
 				const rewriteResolutionPlugin = makeRewriteResolutionPlugin([
 					...DEFAULT_RESOLUTION_REWRITE_OPTIONS,
-					...additionalRewrites,
 				]);
 
 				await esbuild.build({

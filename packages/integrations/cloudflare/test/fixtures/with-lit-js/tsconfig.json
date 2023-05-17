@@ -1,0 +1,39 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "ts-node": {
+    "swc": true,
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "useDefineForClassFields": false,
+    "paths": {
+      "components/*": ["src/components/*"],
+      "services/*": ["src/services/*"],
+      "layouts/*": ["src/layouts/*"],
+      "styles/*": ["src/styles/*"],
+      "pages/*": ["src/pages/*"],
+    }
+  },
+  "include": [
+    "src",
+    "src/test"
+  ]
+}
