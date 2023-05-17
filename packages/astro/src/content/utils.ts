@@ -336,7 +336,7 @@ const InvalidDataCollectionConfigError = {
 };
 
 export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]) {
-	const flags = new URLSearchParams(viteId.split('?')[1]);
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
 }
 
