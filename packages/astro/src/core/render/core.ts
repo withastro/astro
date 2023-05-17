@@ -140,6 +140,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		componentMetadata: renderContext.componentMetadata,
 		resolve: env.resolve,
 		renderers: env.renderers,
+		clientDirectives: env.clientDirectives,
 		request: renderContext.request,
 		site: env.site,
 		scripts: renderContext.scripts,

@@ -41,16 +41,24 @@ export interface SSRManifest {
 	markdown: MarkdownRenderingOptions;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middleware?: AstroMiddlewareInstance<unknown>;
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'componentMetadata'> & {
+export type SerializedSSRManifest = Omit<
+	SSRManifest,
+	'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
+> & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
+	clientDirectives: [string, string][];
 };
 
 export type AdapterCreateExports<T = any> = (

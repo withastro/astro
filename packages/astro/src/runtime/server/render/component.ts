@@ -74,13 +74,13 @@ async function renderFrameworkComponent(
 		);
 	}
 
-	const { renderers } = result._metadata;
+	const { renderers, clientDirectives } = result._metadata;
 	const metadata: AstroComponentMetadata = {
 		astroStaticSlot: true,
 		displayName
 	};
 
-	const { hydration, isPage, props } = extractDirectives(displayName, _props);
+	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
 	let html = '';
 	let attrs: Record<string, string> | undefined = undefined;
 

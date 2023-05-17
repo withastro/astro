@@ -1,9 +1,11 @@
+import type { ClientDirective } from '../../@types/astro';
+
 /**
  * Hydrate this component when a matching media query is found
  */
-(self.Astro = self.Astro || {}).media = (getHydrateCallback, options) => {
+const mediaDirective: ClientDirective = (load, options) => {
 	const cb = async () => {
-		let hydrate = await getHydrateCallback();
+		const hydrate = await load();
 		await hydrate();
 	};
 
@@ -16,4 +18,5 @@
 		}
 	}
 };
-window.dispatchEvent(new Event('astro:media'));
+
+export default mediaDirective;
