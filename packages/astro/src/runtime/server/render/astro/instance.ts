@@ -31,8 +31,7 @@ export class AstroComponentInstance {
 		this.factory = factory;
 		this.slotValues = {};
 		for (const name in slots) {
-			const value = slots[name](result);
-			this.slotValues[name] = () => value;
+			this.slotValues[name] = () => slots[name](result);
 		}
 	}
 
@@ -42,7 +41,9 @@ export class AstroComponentInstance {
 	}
 
 	async *render() {
-		await this.init(this.result);
+		if (this.returnValue === undefined) {
+			await this.init(this.result);
+		}
 
 		let value: AstroFactoryReturnValue | undefined = this.returnValue;
 		if (isPromise(value)) {
