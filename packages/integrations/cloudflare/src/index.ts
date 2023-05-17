@@ -72,8 +72,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					vite.resolve = vite.resolve || {};
-					vite.resolve.alias = vite.resolve.alias || {};
+					vite.resolve ||= {};
+					vite.resolve.alias ||= {};
 
 					const aliases = [{ find: 'react-dom/server', replacement: 'react-dom/server.browser' }];
 
@@ -84,8 +84,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
 						}
 					}
-					vite.ssr = vite.ssr || {};
-					vite.ssr.target = vite.ssr.target || 'webworker';
+					vite.ssr ||= {};
+					vite.ssr.target = 'webworker';
 				}
 			},
 			'astro:build:done': async ({ pages }) => {
