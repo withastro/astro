@@ -27,6 +27,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
@@ -51,7 +52,6 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
-import { isHybridOutput } from '../../prerender/utils.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (

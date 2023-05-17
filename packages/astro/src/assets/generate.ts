@@ -3,10 +3,10 @@ import { basename, join } from 'node:path/posix';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { warn } from '../core/logger/core.js';
 import { prependForwardSlash } from '../core/path.js';
+import { isHybridOutput } from '../prerender/utils.js';
 import { getConfiguredImageService, isESMImportedImage } from './internal.js';
 import type { LocalImageService } from './services/service.js';
 import type { ImageTransform } from './types.js';
-import { isHybridOutput } from '../prerender/utils.js';
 
 interface GenerationDataUncached {
 	cached: false;

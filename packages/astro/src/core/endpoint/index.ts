@@ -9,6 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
+import { isHybridOutput } from '../../prerender/utils.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
@@ -16,7 +17,6 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { isValueSerializable } from '../render/core.js';
-import { isHybridOutput } from '../../prerender/utils.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');

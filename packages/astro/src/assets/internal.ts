@@ -1,7 +1,6 @@
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
-import { isHybridOutput } from '../prerender/utils.js';
 
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object';

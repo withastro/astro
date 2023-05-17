@@ -3,8 +3,8 @@ import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
-import { createPlugin } from './vite-plugin-astro-image.js';
 import { isHybridOutput } from './utils/prerender.js';
+import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';

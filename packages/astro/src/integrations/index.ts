@@ -17,8 +17,8 @@ import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
-import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 import { isHybridOutput } from '../prerender/utils.js';
+import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,

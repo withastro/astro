@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../../app/index.js';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { eachPageData, hasPrerenderedPages, type BuildInternals } from '../internal.js';
+import { eachPageData, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 

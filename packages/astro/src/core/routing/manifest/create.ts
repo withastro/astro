@@ -13,12 +13,12 @@ import { createRequire } from 'module';
 import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import { isHybridOutput } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
-import { isHybridOutput } from '../../../prerender/utils.js';
 const require = createRequire(import.meta.url);
 
 interface Item {

@@ -4,10 +4,10 @@ import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
+import { isHybridOutput } from '../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
-import { isHybridOutput } from '../prerender/utils.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {

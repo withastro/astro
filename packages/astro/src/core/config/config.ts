@@ -6,12 +6,12 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
+import { isHybridMalconfigured } from '../../prerender/utils.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
-import { isHybridMalconfigured } from '../../prerender/utils.js';
 
 export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',

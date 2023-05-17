@@ -6,6 +6,7 @@ import type { StaticBuildOptions } from '../types';
 import glob from 'fast-glob';
 import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../../integrations/index.js';
+import { isHybridOutput } from '../../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../../app/index.js';
 import { joinPaths, prependForwardSlash } from '../../path.js';
@@ -14,7 +15,6 @@ import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, eachPageData, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
-import { isHybridOutput } from '../../../prerender/utils.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;

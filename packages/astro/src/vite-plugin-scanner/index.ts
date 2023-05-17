@@ -2,8 +2,8 @@ import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { isEndpoint, isPage } from '../core/util.js';
 
-import { scan } from './scan.js';
 import { isHybridOutput } from '../prerender/utils.js';
+import { scan } from './scan.js';
 
 export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
 	return {

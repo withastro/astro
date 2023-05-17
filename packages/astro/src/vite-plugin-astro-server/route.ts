@@ -16,9 +16,9 @@ import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { isHybridOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
-import { isHybridOutput } from '../prerender/utils.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
