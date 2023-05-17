@@ -1,14 +1,14 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import Markdoc, {
-	type RenderableTreeNode,
 	type ConfigType as MarkdocConfig,
+	type RenderableTreeNode,
 } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
 import { nodes as astroNodes } from './nodes/index.js';
 
 /** Used to reset Slugger cache on each build at runtime */
-export { headingSlugger } from './nodes/index.js';
 export { default as Markdoc } from '@markdoc/markdoc';
+export { headingSlugger } from './nodes/index.js';
 
 export function applyDefaultConfig(
 	config: MarkdocConfig,

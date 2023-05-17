@@ -1,8 +1,8 @@
 import Markdoc, { type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
-import { getTextContent } from '../runtime.js';
 import Slugger from 'github-slugger';
+import { getTextContent } from '../runtime.js';
 
-export const headingSlugger = new Slugger(); 
+export const headingSlugger = new Slugger();
 
 function getSlug(attributes: Record<string, any>, children: RenderableTreeNode[]): string {
 	if (attributes.id && typeof attributes.id === 'string') {
@@ -24,7 +24,6 @@ export const heading: Schema = {
 	transform(node, config) {
 		const { level, ...attributes } = node.transformAttributes(config);
 		const children = node.transformChildren(config);
-
 
 		const slug = getSlug(attributes, children);
 

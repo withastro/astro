@@ -9,8 +9,8 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
-import { applyDefaultConfig } from './runtime.js';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
+import { applyDefaultConfig } from './runtime.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -103,7 +103,9 @@ ${
 								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
 								: ''
 						}
-const stringifiedAst = ${JSON.stringify(/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast))};
+const stringifiedAst = ${JSON.stringify(
+							/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
+						)};
 export function getHeadings() {
 	${
 		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
