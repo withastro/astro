@@ -3913,6 +3913,9 @@ importers:
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -3923,6 +3926,9 @@ importers:
         specifier: ^3.17.3
         version: 3.20.6
     devDependencies:
+      '@astrojs/markdown-remark':
+        specifier: ^2.2.0
+        version: link:../../markdown/remark
       '@types/chai':
         specifier: ^4.3.1
         version: 4.3.3
@@ -3967,6 +3973,24 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/markdoc/test/fixtures/entry-prop:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/headings:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/headings-custom:
     dependencies:
       '@astrojs/markdoc':
         specifier: workspace:*

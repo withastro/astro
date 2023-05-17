@@ -9,7 +9,7 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
-import { applyDefaultConfig } from './default-config.js';
+import { applyDefaultConfig } from './runtime.js';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -52,7 +52,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = applyDefaultConfig(userMarkdocConfig, { entry });
+						const markdocConfig = applyDefaultConfig(userMarkdocConfig, entry);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -88,36 +88,46 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							});
 						}
 
-						return {
-							code: `import { jsx as h } from 'astro/jsx-runtime';
-import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
-import { Renderer } from '@astrojs/markdoc/components';
-import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
-								markdocConfigResult
-									? `\nimport userConfig from ${JSON.stringify(
-											markdocConfigResult.fileUrl.pathname
-									  )};`
-									: ''
-							}${
-								astroConfig.experimental.assets
-									? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';`
-									: ''
-							}
-const stringifiedAst = ${JSON.stringify(
-								/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
-							)};
+						const res = `import { jsx as h } from 'astro/jsx-runtime';
+						import { Renderer } from '@astrojs/markdoc/components';
+						import { collectHeadings, applyDefaultConfig, Markdoc, headingSlugger } from '@astrojs/markdoc/runtime';
+import * as entry from ${JSON.stringify(viteId + '?astroContent')};
+${
+	markdocConfigResult
+		? `import _userConfig from ${JSON.stringify(
+				markdocConfigResult.fileUrl.pathname
+		  )};\nconst userConfig = _userConfig ?? {};`
+		: 'const userConfig = {};'
+}${
+							astroConfig.experimental.assets
+								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
+								: ''
+						}
+const stringifiedAst = ${JSON.stringify(/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast))};
+export function getHeadings() {
+	${
+		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
+		TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
+		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
+		''
+	}
+	headingSlugger.reset();
+	const headingConfig = userConfig.nodes?.heading;
+	const config = applyDefaultConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
+	const content = Markdoc.transform(ast, config);
+	return collectHeadings(Array.isArray(content) ? content : content.children);
+}
 export async function Content (props) {
-	const config = applyDefaultConfig(${
-		markdocConfigResult
-			? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
-			: '{ variables: props }'
-	}, { entry });${
-								astroConfig.experimental.assets
-									? `\nconfig.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
-									: ''
-							}
-	return h(Renderer, { stringifiedAst, config }); };`,
-						};
+	headingSlugger.reset();
+	const config = applyDefaultConfig({
+		...userConfig,
+		variables: { ...userConfig.variables, ...props },
+	}, entry);
+
+	return h(Renderer, { config, stringifiedAst });
+}`;
+						return { code: res };
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),

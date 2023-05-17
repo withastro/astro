@@ -21,7 +21,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
-    "./default-config": "./dist/default-config.js",
+    "./runtime": "./dist/runtime.js",
     "./config": "./dist/config.js",
     "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
@@ -41,6 +41,7 @@
   "dependencies": {
     "@markdoc/markdoc": "^0.2.2",
     "esbuild": "^0.17.12",
+    "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
     "zod": "^3.17.3"
@@ -49,6 +50,7 @@
     "astro": "workspace:^2.4.5"
   },
   "devDependencies": {
+    "@astrojs/markdown-remark": "^2.2.0",
     "@types/chai": "^4.3.1",
     "@types/html-escaper": "^3.0.0",
     "@types/mocha": "^9.1.1",
