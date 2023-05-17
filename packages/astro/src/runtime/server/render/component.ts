@@ -77,7 +77,7 @@ async function renderFrameworkComponent(
 	const { renderers, clientDirectives } = result._metadata;
 	const metadata: AstroComponentMetadata = {
 		astroStaticSlot: true,
-		displayName
+		displayName,
 	};
 
 	const { hydration, isPage, props } = extractDirectives(_props, clientDirectives);
@@ -273,7 +273,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
 			} else if (html && html.length > 0) {
-				yield markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false));
+				yield markHTMLString(
+					removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false)
+				);
 			} else {
 				yield '';
 			}
@@ -298,8 +300,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	if (html) {
 		if (Object.keys(children).length > 0) {
 			for (const key of Object.keys(children)) {
-				let tagName = renderer?.ssr?.supportsAstroStaticSlot ?
-					!!metadata.hydrate ? 'astro-slot' : 'astro-static-slot'
+				let tagName = renderer?.ssr?.supportsAstroStaticSlot
+					? !!metadata.hydrate
+						? 'astro-slot'
+						: 'astro-static-slot'
 					: 'astro-slot';
 				let expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${key}">`;
 				if (!html.includes(expectedHTML)) {

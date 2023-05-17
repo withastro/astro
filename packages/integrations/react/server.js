@@ -77,7 +77,7 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		slots[name] = React.createElement(StaticHtml, {
 			hydrate: needsHydration(metadata),
 			value,
-			name
+			name,
 		});
 	}
 	// Note: create newProps to avoid mutating `props` before they are serialized
@@ -89,7 +89,7 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	if (newChildren != null) {
 		newProps.children = React.createElement(StaticHtml, {
 			hydrate: needsHydration(metadata),
-			value: newChildren
+			value: newChildren,
 		});
 	}
 	const vnode = React.createElement(Component, newProps);

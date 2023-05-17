@@ -11,7 +11,7 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-function check(this: RendererContext, Component: any, props: Record<string, any>, children: any, ) {
+function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
 	if (typeof Component !== 'function') return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
@@ -49,7 +49,7 @@ function renderToStaticMarkup(
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
-	metadata: AstroComponentMetadata | undefined,
+	metadata: AstroComponentMetadata | undefined
 ) {
 	const ctx = getContext(this.result);
 
@@ -59,7 +59,7 @@ function renderToStaticMarkup(
 		slots[name] = h(StaticHtml, {
 			hydrate: shouldHydrate(metadata),
 			value,
-			name
+			name,
 		});
 	}
 
@@ -72,9 +72,16 @@ function renderToStaticMarkup(
 	serializeSignals(ctx, props, attrs, propsMap);
 
 	const html = render(
-		h(Component, newProps, children != null ? h(StaticHtml, {
-			hydrate: shouldHydrate(metadata),
-			value: children}) : children)
+		h(
+			Component,
+			newProps,
+			children != null
+				? h(StaticHtml, {
+						hydrate: shouldHydrate(metadata),
+						value: children,
+				  })
+				: children
+		)
 	);
 	return {
 		attrs,

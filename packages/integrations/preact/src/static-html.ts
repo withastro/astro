@@ -4,7 +4,7 @@ type Props = {
 	value: string;
 	name?: string;
 	hydrate?: boolean;
-}
+};
 
 /**
  * Astro passes `children` as a string of HTML, so we need

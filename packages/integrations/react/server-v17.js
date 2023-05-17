@@ -68,7 +68,7 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 		newProps.children = React.createElement(StaticHtml, {
 			// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
 			hydrate: metadata.astroStaticSlot ? !!metadata.hydrate : true,
-			value: newChildren
+			value: newChildren,
 		});
 	}
 	const vnode = React.createElement(Component, newProps);

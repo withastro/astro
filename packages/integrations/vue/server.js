@@ -10,12 +10,13 @@ function check(Component) {
 async function renderToStaticMarkup(Component, props, slotted, metadata) {
 	const slots = {};
 	for (const [key, value] of Object.entries(slotted)) {
-		slots[key] = () => h(StaticHtml, {
-			value,
-			name: key === 'default' ? undefined : key,
-			// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
-			hydrate: metadata.astroStaticSlot ? !!metadata.hydrate : true,
-		});
+		slots[key] = () =>
+			h(StaticHtml, {
+				value,
+				name: key === 'default' ? undefined : key,
+				// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
+				hydrate: metadata.astroStaticSlot ? !!metadata.hydrate : true,
+			});
 	}
 	const app = createSSRApp({ render: () => h(Component, props, slots) });
 	await setup(app);
