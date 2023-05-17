@@ -3,6 +3,7 @@ import type { AstroSettings } from '../@types/astro.js';
 import { isEndpoint, isPage } from '../core/util.js';
 
 import { scan } from './scan.js';
+import { isHybridOutput } from '../prerender/utils.js';
 
 export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
 	return {
@@ -24,7 +25,12 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const pageOptions = await scan(code, id);
+			const hybridOutput = isHybridOutput(settings.config);
+			const pageOptions = await scan(code, id, hybridOutput);
+
+			if (typeof pageOptions.prerender === 'undefined') {
+				pageOptions.prerender = hybridOutput ? true : false;
+			}
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
 			return {

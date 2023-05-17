@@ -25,7 +25,7 @@ export async function renderEndpoint(mod: EndpointHandler, context: APIContext, 
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'get') {
 		// eslint-disable-next-line no-console
 		console.warn(`
-${chosenMethod} requests are not available when building a static site. Update your config to output: 'server' to handle ${chosenMethod} requests.`);
+${chosenMethod} requests are not available when building a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` with an \`export const prerender = false\` to handle ${chosenMethod} requests.`);
 	}
 	if (!handler || typeof handler !== 'function') {
 		// No handler found, so this should be a 404. Using a custom header

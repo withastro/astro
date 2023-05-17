@@ -40,7 +40,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				setAdapter(getAdapter(_options));
 
 				if (config.output === 'static') {
-					console.warn(`[@astrojs/node] \`output: "server"\` is required to use this adapter.`);
+					console.warn(
+						`[@astrojs/node] \`output: "server"\` or  \`output: "hybrid"\` is required to use this adapter.`
+					);
 				}
 			},
 		},

@@ -16,6 +16,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { isValueSerializable } from '../render/core.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -168,7 +169,7 @@ function isRedirect(statusCode: number) {
 }
 
 export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (config.output !== 'server' && isRedirect(response.status)) {
+	if (config.output !== 'server' && !isHybridOutput(config) && isRedirect(response.status)) {
 		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 	}
 }

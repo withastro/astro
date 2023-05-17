@@ -38,6 +38,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {},
 	experimental: {
 		assets: false,
+		hybridOutput: false,
 		customClientDirecives: false,
 		inlineStylesheets: 'never',
 		middleware: false,
@@ -77,7 +78,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-		.union([z.literal('static'), z.literal('server')])
+		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
 		.default('static'),
 	scopedStyleStrategy: z
@@ -205,6 +206,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
 			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
+			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 		})
 		.optional()
 		.default({}),

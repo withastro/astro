@@ -6,6 +6,7 @@ import { prependForwardSlash } from '../core/path.js';
 import { getConfiguredImageService, isESMImportedImage } from './internal.js';
 import type { LocalImageService } from './services/service.js';
 import type { ImageTransform } from './types.js';
+import { isHybridOutput } from '../prerender/utils.js';
 
 interface GenerationDataUncached {
 	cached: false;
@@ -46,7 +47,7 @@ export async function generateImage(
 	}
 
 	let serverRoot: URL, clientRoot: URL;
-	if (buildOpts.settings.config.output === 'server') {
+	if (buildOpts.settings.config.output === 'server' || isHybridOutput(buildOpts.settings.config)) {
 		serverRoot = buildOpts.settings.config.build.server;
 		clientRoot = buildOpts.settings.config.build.client;
 	} else {

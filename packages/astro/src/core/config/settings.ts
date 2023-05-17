@@ -8,6 +8,7 @@ import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { createDefaultDevConfig } from './config.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
 	return {
@@ -17,7 +18,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 
 		adapter: undefined,
 		injectedRoutes:
-			config.experimental.assets && config.output === 'server'
+			config.experimental.assets && (config.output === 'server' || isHybridOutput(config))
 				? [{ pattern: '/_image', entryPoint: 'astro/assets/image-endpoint' }]
 				: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],

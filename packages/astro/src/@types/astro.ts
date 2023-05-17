@@ -557,7 +557,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name output
-	 * @type {('static' | 'server')}
+	 * @type {('static' | 'server' | 'hybrid')}
 	 * @default `'static'`
 	 * @see adapter
 	 * @description
@@ -566,6 +566,7 @@ export interface AstroUserConfig {
 	 *
 	 * - 'static' - Building a static site to be deploy to any static host.
 	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 * - 'hybrid' - Building a static site with a few server-side rendered pages.
 	 *
 	 * ```js
 	 * import { defineConfig } from 'astro/config';
@@ -575,7 +576,7 @@ export interface AstroUserConfig {
 	 * })
 	 * ```
 	 */
-	output?: 'static' | 'server';
+	output?: 'static' | 'server' | 'hybrid';
 
 	/**
 	 * @docs
@@ -616,14 +617,14 @@ export interface AstroUserConfig {
 		 * @type {string}
 		 * @default `'./dist/client'`
 		 * @description
-		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` only.
+		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` or `output: 'hybrid'` only.
 		 * `outDir` controls where the code is built to.
 		 *
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
 		 * {
-		 *   output: 'server',
+		 *   output: 'server', // or 'hybrid'
 		 *   build: {
 		 *     client: './client'
 		 *   }
@@ -1121,6 +1122,44 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		middleware?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.hybridOutput
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.5.0
+		 * @description
+		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
+		 *
+		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
+		 *
+		 * ```js
+		 * {
+		 *  output: 'hybrid',
+		 * 	experimental: {
+		 *		hybridOutput: true,
+		 * 	},
+		 * }
+		 * ```
+		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
+		 * ```astro
+		 * ---
+		 * // pages/contact.astro
+		 * export const prerender = false
+		 *
+		 * if (Astro.request.method === 'POST') {
+		 *  // handle form submission
+		 * }
+		 * ---
+		 * <form method="POST">
+		 * 	<input type="text" name="name" />
+		 * 	<input type="email" name="email" />
+		 * 	<button type="submit">Submit</button>
+		 * </form>
+		 * ```
+		 */
+		hybridOutput?: boolean;
 	};
 
 	// Legacy options to be removed

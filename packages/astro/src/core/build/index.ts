@@ -1,6 +1,11 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroSettings, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
+import type {
+	AstroConfig,
+	AstroSettings,
+	BuildConfig,
+	ManifestData,
+	RuntimeMode,
+} from '../../@types/astro';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -14,7 +19,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { debug, info, levels, timerMessage } from '../logger/core.js';
+import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -233,7 +238,7 @@ class AstroBuilder {
 		logging: LogOptions;
 		timeStart: number;
 		pageCount: number;
-		buildMode: 'static' | 'server';
+		buildMode: AstroConfig['output'];
 	}) {
 		const total = getTimeStat(timeStart, performance.now());
 

@@ -51,6 +51,7 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
@@ -89,7 +90,7 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server';
+	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config); // hybrid mode is essentially SSR with prerender by default
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
@@ -227,7 +228,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server',
+			ssr: opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -403,7 +404,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server';
+	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,

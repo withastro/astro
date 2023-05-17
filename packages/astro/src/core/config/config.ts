@@ -11,6 +11,7 @@ import type { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
+import { isHybridMalconfigured } from '../../prerender/utils.js';
 
 export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
@@ -222,6 +223,12 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		userConfig = config.value;
 	}
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+
+	if (isHybridMalconfigured(astroConfig)) {
+		throw new Error(
+			`The "output" config option must be set to "hybrid" and "experimental.hybridOutput" must be set to true to use the hybrid output mode. Falling back to "static" output mode.`
+		);
+	}
 
 	return {
 		astroConfig,
