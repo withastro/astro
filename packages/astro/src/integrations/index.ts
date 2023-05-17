@@ -14,10 +14,10 @@ import type {
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
+import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
 import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
-import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,

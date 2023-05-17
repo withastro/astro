@@ -18,7 +18,10 @@ declare namespace astroHTML.JSX {
 		children: {};
 	}
 
-	interface IntrinsicAttributes extends AstroBuiltinProps, AstroBuiltinAttributes, AstroClientDirectives {
+	interface IntrinsicAttributes
+		extends AstroBuiltinProps,
+			AstroBuiltinAttributes,
+			AstroClientDirectives {
 		slot?: string;
 		children?: Children;
 	}
