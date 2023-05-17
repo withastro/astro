@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { fixLineEndings, loadFixture } from './test-utils.js';
 
-describe('Content collections - references', () => {
+describe('Content Collections - references', () => {
 	let fixture;
 	let devServer;
 	before(async () => {
