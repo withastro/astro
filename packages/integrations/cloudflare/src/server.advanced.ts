@@ -1,6 +1,7 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
+import mime from 'mime';
 
 if (!isNode) {
 	process.env = getProcessEnvProxy();
@@ -21,7 +22,23 @@ export function createExports(manifest: SSRManifest) {
 
 		// static assets fallback, in case default _routes.json is not used
 		if (manifest.assets.has(pathname)) {
-			return env.ASSETS.fetch(request);
+			const content = await env.ASSETS.fetch(request);
+			if (content.status == 404) {
+				return new Response(null, {
+					status: 404,
+					statusText: 'Not found',
+				});
+			} else if (content.status != 200) {
+				return new Response(null, {
+					status: content.status,
+					statusText: content.statusText,
+				});
+			}
+			const body = content.body;
+			const mimeType = mime.getType(pathname) || 'text/plain';
+			const headers = new Headers(content.headers);
+			headers.set('Content-Type', mimeType);
+			return new Response(body, { headers });
 		}
 
 		let routeData = app.match(request, { matchNotFound: true });
