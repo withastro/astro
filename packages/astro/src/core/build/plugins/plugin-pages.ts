@@ -25,6 +25,10 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 
 		async load(id) {
 			if (id === resolvedPagesVirtualModuleId) {
+				let middlewareId = await this.resolve(
+					`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
+				);
+
 				let importMap = '';
 				const imports: string[] = [];
 				const exports: string[] = [];

@@ -108,7 +108,6 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
-	experimentalMiddleware?: boolean;
 }
 
 export interface BuildConfig {

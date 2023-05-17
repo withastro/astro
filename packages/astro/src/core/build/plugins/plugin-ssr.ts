@@ -40,10 +40,7 @@ function vitePluginSSR(
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
-				let middleware = '';
-				if (config.experimental?.middleware === true) {
-					middleware = 'middleware: _main.middleware';
-				}
+				const middleware = 'middleware: _main.middleware';
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import { renderers } from '${RENDERERS_MODULE_ID}'; 
 import * as _main from '${pagesVirtualModuleId}';
