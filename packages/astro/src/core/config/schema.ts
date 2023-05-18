@@ -40,7 +40,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	experimental: {
 		assets: false,
 		hybridOutput: false,
-		customClientDirecives: false,
+		customClientDirectives: false,
 		inlineStylesheets: 'never',
 		middleware: false,
 	},
