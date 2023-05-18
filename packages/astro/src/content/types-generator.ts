@@ -509,9 +509,9 @@ function warnNonexistentCollections({
 			warn(
 				logging,
 				'content',
-				`${JSON.stringify(
+				`The ${JSON.stringify(
 					configuredCollection
-				)} is not a collection. Check your content config for typos.`
+				)} collection does not have an associated folder in your \`content\` directory. Make sure the folder exists, or check your content config for typos.`
 			);
 		}
 	}
