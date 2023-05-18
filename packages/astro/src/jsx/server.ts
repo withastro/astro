@@ -25,7 +25,7 @@ export async function check(
 			throw createFormattedError({
 				message: error.message,
 				title: error.name,
-				hint: `This issue often occurs when your MDX component encounters runtime errors.`, // For instance, if you reference frontmatter variables within the body using curly braces like \`{title}\`, you may encounter errors.\nTo avoid this, you should access frontmatter variables using the \`frontmatter\` key, like so: \`{frontmatter.title}\`
+				hint: `This issue often occurs when your MDX component encounters runtime errors.`
 				name: error.name,
 				stack: error.stack,
 			});
