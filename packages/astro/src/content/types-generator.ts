@@ -103,11 +103,11 @@ export async function createContentTypesGenerator({
 			},
 			onlyFiles: false,
 			objectMode: true,
-			ignore: ['config.ts'],
 		});
 
 		for (const entry of globResult) {
 			const entryURL = new URL(entry.path, contentPaths.contentDir);
+			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
 			if (entry.dirent.isFile()) {
 				events.push({
 					type: { name: 'add', entry: entryURL },
