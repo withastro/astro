@@ -25,7 +25,7 @@ export async function check(
 			throw createFormattedError({
 				message: error.message,
 				title: error.name,
-				hint: `This issue often occurs when your MDX component encounters runtime errors.`
+				hint: `This issue often occurs when your MDX component encounters runtime errors.`,
 				name: error.name,
 				stack: error.stack,
 			});
