@@ -210,6 +210,17 @@ export const AstroConfigSchema = z.object({
 			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 		})
+    .passthrough()
+    .refine(d => {
+      const validKeys = Object.keys(ASTRO_CONFIG_DEFAULTS.experimental)
+      const invalidKeys = Object.keys(d).filter(key => !validKeys.includes(key))
+      if (invalidKeys.length > 0) return false
+      return true
+    }, d => {
+      const validKeys = Object.keys(ASTRO_CONFIG_DEFAULTS.experimental)
+      const invalidKeys = Object.keys(d).filter(key => !validKeys.includes(key))
+      return { message: `Invalid experimental key: \`${invalidKeys.join(', ')}\`. \nMake sure the spelling is correct, and that your Astro version supports this experiment.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for more information.` };
+    })
 		.optional()
 		.default({}),
 	legacy: z.object({}).optional().default({}),
