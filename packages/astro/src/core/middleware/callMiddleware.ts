@@ -1,5 +1,13 @@
-import type { APIContext, MiddlewareHandler, MiddlewareNext } from '../../@types/astro';
+import { bold } from 'kleur/colors';
+import type {
+	APIContext,
+	EndpointOutput,
+	MiddlewareHandler,
+	MiddlewareNext,
+} from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { warn } from '../logger/core.js';
+import type { Environment } from '../render';
 
 /**
  * Utility function that is in charge of calling the middleware.
@@ -36,6 +44,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
  * @param responseFunction A callback function that should return a promise with the response
  */
 export async function callMiddleware<R>(
+	logging: Environment['logging'],
 	onRequest: MiddlewareHandler<R>,
 	apiContext: APIContext,
 	responseFunction: () => Promise<R>
@@ -56,6 +65,15 @@ export async function callMiddleware<R>(
 	let middlewarePromise = onRequest(apiContext, next);
 
 	return await Promise.resolve(middlewarePromise).then(async (value) => {
+		if (isEndpointOutput(value)) {
+			warn(
+				logging,
+				'middleware',
+				'Using simple endpoints can cause unexpected issues in the chain of middleware functions.' +
+					`\nIt's strongly suggested to use full ${bold('Response')} objects.`
+			);
+		}
+
 		// first we check if `next` was called
 		if (nextCalled) {
 			/**
@@ -99,6 +117,10 @@ export async function callMiddleware<R>(
 	});
 }
 
-function isEndpointResult(response: any): boolean {
-	return response && typeof response.body !== 'undefined';
+function isEndpointOutput(endpointResult: any): endpointResult is EndpointOutput {
+	return (
+		!(endpointResult instanceof Response) &&
+		typeof endpointResult === 'object' &&
+		typeof endpointResult.body === 'string'
+	);
 }

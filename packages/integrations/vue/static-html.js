@@ -10,10 +10,12 @@ const StaticHtml = defineComponent({
 	props: {
 		value: String,
 		name: String,
+		hydrate: Boolean,
 	},
-	setup({ name, value }) {
+	setup({ name, value, hydrate }) {
 		if (!value) return () => null;
-		return () => h('astro-slot', { name, innerHTML: value });
+		let tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
+		return () => h(tagName, { name, innerHTML: value });
 	},
 });
 

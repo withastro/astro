@@ -22,6 +22,10 @@
     "./base.css": "./base.css",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "base.css"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",

@@ -62,7 +62,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_buildConfig = config.build;
 
 				if (config.output === 'static') {
-					console.warn(`[@astrojs/deno] \`output: "server"\` is required to use this adapter.`);
+					console.warn(
+						`[@astrojs/deno] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter.`
+					);
 					console.warn(
 						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
 					);

@@ -9,6 +9,9 @@ export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 >;
 
-// TODO: Enable generic/polymorphic types once compiler output stabilizes in the Language Server
-// type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<(P & HTMLAttributes<P['as']>), 'as'> & { as?: P['as'] };
-// export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<Omit<P, 'as'> & { as: NonNullable<P['as']>}>;
+type PolymorphicAttributes<P extends { as: HTMLTag }> = Omit<P & HTMLAttributes<P['as']>, 'as'> & {
+	as?: P['as'];
+};
+export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
+	Omit<P, 'as'> & { as: NonNullable<P['as']> }
+>;

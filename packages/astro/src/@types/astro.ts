@@ -55,6 +55,10 @@ export interface AstroBuiltinProps {
 	'client:only'?: boolean | string;
 }
 
+// Allow users to extend this for astro-jsx.d.ts
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AstroClientDirectives {}
+
 export interface AstroBuiltinAttributes {
 	'class:list'?:
 		| Record<string, boolean>
@@ -90,6 +94,7 @@ export interface AstroComponentMetadata {
 	hydrateArgs?: any;
 	componentUrl?: string;
 	componentExport?: { value: string; namespace?: boolean };
+	astroStaticSlot: true;
 }
 
 /** The flags supported by the Astro CLI */
@@ -464,6 +469,23 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name compressHTML
+	 * @type {boolean}
+	 * @default `false`
+	 * @description
+	 * This is an option to minify your HTML output and reduce the size of your HTML files. When enabled, Astro removes all whitespace from your HTML, including line breaks, from `.astro` components. This occurs both in development mode and in the final build.
+	 * To enable this, set the `compressHTML` flag to `true`.
+	 *
+	 * ```js
+	 * {
+	 *   compressHTML: true
+	 * }
+	 * ```
+	 */
+	compressHTML?: boolean;
+
+	/**
+	 * @docs
 	 * @name base
 	 * @type {string}
 	 * @description
@@ -553,7 +575,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name output
-	 * @type {('static' | 'server')}
+	 * @type {('static' | 'server' | 'hybrid')}
 	 * @default `'static'`
 	 * @see adapter
 	 * @description
@@ -562,6 +584,7 @@ export interface AstroUserConfig {
 	 *
 	 * - 'static' - Building a static site to be deploy to any static host.
 	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 * - 'hybrid' - Building a static site with a few server-side rendered pages.
 	 *
 	 * ```js
 	 * import { defineConfig } from 'astro/config';
@@ -571,7 +594,7 @@ export interface AstroUserConfig {
 	 * })
 	 * ```
 	 */
-	output?: 'static' | 'server';
+	output?: 'static' | 'server' | 'hybrid';
 
 	/**
 	 * @docs
@@ -612,14 +635,14 @@ export interface AstroUserConfig {
 		 * @type {string}
 		 * @default `'./dist/client'`
 		 * @description
-		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` only.
+		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` or `output: 'hybrid'` only.
 		 * `outDir` controls where the code is built to.
 		 *
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
 		 * {
-		 *   output: 'server',
+		 *   output: 'server', // or 'hybrid'
 		 *   build: {
 		 *     client: './client'
 		 *   }
@@ -1077,6 +1100,28 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name experimental.customClientDirectives
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.5.0
+		 * @description
+		 * Allow integrations to use the [experimental `addClientDirective` API](/en/reference/integrations-reference/#addclientdirective-option) in the `astro:config:setup` hook
+		 * to add custom client directives in Astro files.
+		 *
+		 * To enable this feature, set `experimental.customClientDirectives` to `true` in your Astro config:
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		customClientDirectives: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		customClientDirectives?: boolean;
+
+		/**
+		 * @docs
 		 * @name experimental.middleware
 		 * @type {boolean}
 		 * @default `false`
@@ -1095,6 +1140,44 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		middleware?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.hybridOutput
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.5.0
+		 * @description
+		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
+		 *
+		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
+		 *
+		 * ```js
+		 * {
+		 *  output: 'hybrid',
+		 * 	experimental: {
+		 *		hybridOutput: true,
+		 * 	},
+		 * }
+		 * ```
+		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
+		 * ```astro
+		 * ---
+		 * // pages/contact.astro
+		 * export const prerender = false
+		 *
+		 * if (Astro.request.method === 'POST') {
+		 *  // handle form submission
+		 * }
+		 * ---
+		 * <form method="POST">
+		 * 	<input type="text" name="name" />
+		 * 	<input type="email" name="email" />
+		 * 	<button type="submit">Submit</button>
+		 * </form>
+		 * ```
+		 */
+		hybridOutput?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1167,12 +1250,22 @@ export type ContentEntryModule = {
 	};
 };
 
+export type DataEntryModule = {
+	id: string;
+	collection: string;
+	data: Record<string, unknown>;
+	_internal: {
+		rawData: string;
+		filePath: string;
+	};
+};
+
 export interface ContentEntryType {
 	extensions: string[];
 	getEntryInfo(params: {
 		fileUrl: URL;
 		contents: string;
-	}): GetEntryInfoReturnType | Promise<GetEntryInfoReturnType>;
+	}): GetContentEntryInfoReturnType | Promise<GetContentEntryInfoReturnType>;
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
@@ -1183,7 +1276,7 @@ export interface ContentEntryType {
 	contentModuleTypes?: string;
 }
 
-type GetEntryInfoReturnType = {
+type GetContentEntryInfoReturnType = {
 	data: Record<string, unknown>;
 	/**
 	 * Used for error hints to point to correct line and location
@@ -1195,17 +1288,32 @@ type GetEntryInfoReturnType = {
 	slug: string;
 };
 
+export interface DataEntryType {
+	extensions: string[];
+	getEntryInfo(params: {
+		fileUrl: URL;
+		contents: string;
+	}): GetDataEntryInfoReturnType | Promise<GetDataEntryInfoReturnType>;
+}
+
+export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawData?: string };
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
 	injectedRoutes: InjectedRoute[];
 	pageExtensions: string[];
 	contentEntryTypes: ContentEntryType[];
+	dataEntryTypes: DataEntryType[];
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;
 		content: string;
 	}[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
@@ -1632,6 +1740,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 			html: string;
 			attrs?: Record<string, string>;
 		}>;
+		supportsAstroStaticSlot?: boolean;
 	};
 }
 
@@ -1654,6 +1763,7 @@ export interface AstroIntegration {
 			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
+			addClientDirective: (directive: ClientDirectiveConfig) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -1750,6 +1860,7 @@ export interface SSRMetadata {
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
+	clientDirectives: Map<string, string>;
 }
 
 /**
@@ -1814,4 +1925,30 @@ export type CreatePreviewServer = (
 
 export interface PreviewModule {
 	default: CreatePreviewServer;
+}
+
+/* Client Directives */
+type DirectiveHydrate = () => Promise<void>;
+type DirectiveLoad = () => Promise<DirectiveHydrate>;
+
+type DirectiveOptions = {
+	/**
+	 * The component displayName
+	 */
+	name: string;
+	/**
+	 * The attribute value provided
+	 */
+	value: string;
+};
+
+export type ClientDirective = (
+	load: DirectiveLoad,
+	options: DirectiveOptions,
+	el: HTMLElement
+) => void;
+
+export interface ClientDirectiveConfig {
+	name: string;
+	entrypoint: string;
 }

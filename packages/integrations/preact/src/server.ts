@@ -1,3 +1,4 @@
+import type { AstroComponentMetadata } from 'astro';
 import { Component as BaseComponent, h } from 'preact';
 import render from 'preact-render-to-string';
 import { getContext } from './context.js';
@@ -21,7 +22,7 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 
 	try {
 		try {
-			const { html } = renderToStaticMarkup.call(this, Component, props, children);
+			const { html } = renderToStaticMarkup.call(this, Component, props, children, undefined);
 			if (typeof html !== 'string') {
 				return false;
 			}
@@ -38,18 +39,28 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 	}
 }
 
+function shouldHydrate(metadata: AstroComponentMetadata | undefined) {
+	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
+	return metadata?.astroStaticSlot ? !!metadata.hydrate : true;
+}
+
 function renderToStaticMarkup(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
-	{ default: children, ...slotted }: Record<string, any>
+	{ default: children, ...slotted }: Record<string, any>,
+	metadata: AstroComponentMetadata | undefined
 ) {
 	const ctx = getContext(this.result);
 
 	const slots: Record<string, ReturnType<typeof h>> = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		const name = slotName(key);
-		slots[name] = h(StaticHtml, { value, name });
+		slots[name] = h(StaticHtml, {
+			hydrate: shouldHydrate(metadata),
+			value,
+			name,
+		});
 	}
 
 	// Restore signals back onto props so that they will be passed as-is to components
@@ -61,7 +72,16 @@ function renderToStaticMarkup(
 	serializeSignals(ctx, props, attrs, propsMap);
 
 	const html = render(
-		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
+		h(
+			Component,
+			newProps,
+			children != null
+				? h(StaticHtml, {
+						hydrate: shouldHydrate(metadata),
+						value: children,
+				  })
+				: children
+		)
 	);
 	return {
 		attrs,
@@ -127,4 +147,5 @@ function filteredConsoleError(msg: string, ...rest: any[]) {
 export default {
 	check,
 	renderToStaticMarkup,
+	supportsAstroStaticSlot: true,
 };
