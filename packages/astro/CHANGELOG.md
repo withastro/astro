@@ -1,5 +1,166 @@
 # astro
 
+## 2.5.0
+
+### Minor Changes
+
+- [#7071](https://github.com/withastro/astro/pull/7071) [`e186ecc5e`](https://github.com/withastro/astro/commit/e186ecc5e292de8c6a2c441a2d588512c0813068) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Render sibling components in parallel
+
+- [#6850](https://github.com/withastro/astro/pull/6850) [`c6d7ebefd`](https://github.com/withastro/astro/commit/c6d7ebefdd554a9ef29cfeb426ac55cab80d6473) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Content collections now support data formats including JSON and YAML. You can also create relationships, or references, between collections to pull information from one collection entry into another. Learn more on our [updated Content Collections docs](https://docs.astro.build/en/guides/content-collections/).
+
+- [#6991](https://github.com/withastro/astro/pull/6991) [`719002ca5`](https://github.com/withastro/astro/commit/719002ca5b128744fb4316d4a52c5dcd46a42759) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Enable experimental support for hybrid SSR with pre-rendering enabled by default
+
+  **astro.config.mjs**
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  export defaultdefineConfig({
+     output: 'hybrid',
+         experimental: {
+         hybridOutput: true,
+     },
+  })
+  ```
+
+  Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
+
+  **src/pages/contact.astro**
+
+  ```astro
+  ---
+  export const prerender = false;
+
+  if (Astro.request.method === 'POST') {
+    // handle form submission
+  }
+  ---
+
+  <form method="POST">
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <button type="submit">Submit</button>
+  </form>
+  ```
+
+- [#7074](https://github.com/withastro/astro/pull/7074) [`73ec6f6c1`](https://github.com/withastro/astro/commit/73ec6f6c16cadb71dafe9f664f0debde072c3173) Thanks [@bluwy](https://github.com/bluwy)! - Integrations can add new `client:` directives through the `astro:config:setup` hook's `addClientDirective()` API. To enable this API, the user needs to set `experimental.customClientDirectives` to `true` in their config.
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import onClickDirective from 'astro-click-directive';
+
+  export default defineConfig({
+    integrations: [onClickDirective()],
+    experimental: {
+      customClientDirectives: true,
+    },
+  });
+  ```
+
+  ```js
+  export default function onClickDirective() {
+    return {
+      hooks: {
+        'astro:config:setup': ({ addClientDirective }) => {
+          addClientDirective({
+            name: 'click',
+            entrypoint: 'astro-click-directive/click.js',
+          });
+        },
+      },
+    };
+  }
+  ```
+
+  ```astro
+  <Counter client:click />
+  ```
+
+  The client directive file (e.g. `astro-click-directive/click.js`) should export a function of type `ClientDirective`:
+
+  ```ts
+  import type { ClientDirective } from 'astro';
+
+  const clickDirective: ClientDirective = (load, opts, el) => {
+    window.addEventListener(
+      'click',
+      async () => {
+        const hydrate = await load();
+        await hydrate();
+      },
+      { once: true }
+    );
+  };
+
+  export default clickDirective;
+  ```
+
+- [#6706](https://github.com/withastro/astro/pull/6706) [`763ff2d1e`](https://github.com/withastro/astro/commit/763ff2d1e44f54b899d7c65386f1b4b877c95737) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - Adds an opt-in way to minify the HTML output.
+
+  Using the `compressHTML` option Astro will remove whitespace from Astro components. This only applies to components written in `.astro` format and happens in the compiler to maximize performance. You can enable with:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    compressHTML: true,
+  });
+  ```
+
+  Compression occurs both in development mode and in the final build.
+
+- [#7069](https://github.com/withastro/astro/pull/7069) [`c1669c001`](https://github.com/withastro/astro/commit/c1669c0011eecfe65a459d727848c18c189a54ca) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added `Polymorphic` type helper to `astro/types` to easily create polymorphic components:
+
+  ```astro
+  ---
+  import { HTMLTag, Polymorphic } from 'astro/types';
+
+  type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }>;
+
+  const { as: Tag, ...props } = Astro.props;
+  ---
+
+  <Tag {...props} />
+  ```
+
+- [#7093](https://github.com/withastro/astro/pull/7093) [`3d525efc9`](https://github.com/withastro/astro/commit/3d525efc95cfb2deb5d9e04856d02965d66901c9) Thanks [@matthewp](https://github.com/matthewp)! - Prevent removal of nested slots within islands
+
+  This change introduces a new flag that renderers can add called `supportsAstroStaticSlot`. What this does is let Astro know that the render is sending `<astro-static-slot>` as placeholder values for static (non-hydrated) slots which Astro will then remove.
+
+  This change is completely backwards compatible, but fixes bugs caused by combining ssr-only and client-side framework components like so:
+
+  ```astro
+  <Component>
+    <div>
+      <Component client:load>
+        <span>Nested</span>
+      </Component>
+    </div>
+  </Component>
+  ```
+
+### Patch Changes
+
+- [#7102](https://github.com/withastro/astro/pull/7102) [`4516d7b22`](https://github.com/withastro/astro/commit/4516d7b22c5979cde4537f196b53ae2826ba9561) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix image services not being usable on Edge runtimes
+
+- [#7044](https://github.com/withastro/astro/pull/7044) [`914c439bc`](https://github.com/withastro/astro/commit/914c439bccee9fec002c6d92beaa501c398e62ac) Thanks [@Steffan153](https://github.com/Steffan153)! - Escape closing script tag with `define:vars`
+
+- [#6851](https://github.com/withastro/astro/pull/6851) [`e9fc2c221`](https://github.com/withastro/astro/commit/e9fc2c2213036d47cd30a47a6cdad5633481a0f8) Thanks [@timozander](https://github.com/timozander)! - Added warning message when using unsupported file extensions in pages/
+
+- [#7106](https://github.com/withastro/astro/pull/7106) [`075eee08f`](https://github.com/withastro/astro/commit/075eee08f2e2b0baea008b97f3523f2cb937ee44) Thanks [@ematipico](https://github.com/ematipico)! - Fix middleware for API endpoints that use `Response`, and log a warning for endpoints that don't use `Response`.
+
+- [#7110](https://github.com/withastro/astro/pull/7110) [`fc52681ba`](https://github.com/withastro/astro/commit/fc52681ba2f8fe8bcd92eeedf3c6a52fd86a390e) Thanks [@delucis](https://github.com/delucis)! - Fix formatting in the `NoMatchingRenderer` error message.
+
+- [#7095](https://github.com/withastro/astro/pull/7095) [`fb84622af`](https://github.com/withastro/astro/commit/fb84622af04f795de8d17f24192de105f70fe910) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Generate heading `id`s and populate the `headings` property for all Markdoc files
+
+- [#7011](https://github.com/withastro/astro/pull/7011) [`cada10a46`](https://github.com/withastro/astro/commit/cada10a466f81f8edb0aa664f9cffdb6b5b8f307) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Throw an error when unknown experimental keys are present
+
+- [#7091](https://github.com/withastro/astro/pull/7091) [`cd410c5eb`](https://github.com/withastro/astro/commit/cd410c5eb71f825259279c27c4c39d0ad282c3f0) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Fix double prepended forward slash in SSR
+
+- [#7108](https://github.com/withastro/astro/pull/7108) [`410428672`](https://github.com/withastro/astro/commit/410428672ed97bba7ca0b3352c1a7ee564921462) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix imports using ?raw and ?url not working when `experimental.assets` is enabled
+
+- Updated dependencies [[`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa)]:
+  - @astrojs/markdown-remark@2.2.1
+
 ## 2.4.5
 
 ### Patch Changes
