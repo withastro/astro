@@ -13,7 +13,8 @@ export const markdownContentEntryType: ContentEntryType = {
 			rawData: parsed.matter,
 		};
 	},
-	handlePropagation: false,
+	// We need to handle propagation for Markdown because they support layouts which will bring in styles.
+	handlePropagation: true,
 };
 
 /**
