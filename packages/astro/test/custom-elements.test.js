@@ -8,9 +8,6 @@ describe('Custom Elements', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-elements/',
-			experimental: {
-				integrations: true,
-			},
 		});
 		await fixture.build();
 	});
