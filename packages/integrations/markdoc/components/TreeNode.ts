@@ -6,7 +6,6 @@ import {
 	createComponent,
 	renderComponent,
 	render,
-	renderStyleElement,
 	renderScriptElement,
 	renderUniqueStylesheet,
 	createHeadAndContent,
@@ -49,7 +48,10 @@ export const ComponentNode = createComponent({
 				links = '',
 				scripts = '';
 			if (Array.isArray(treeNode.collectedStyles)) {
-				styles = treeNode.collectedStyles.map((style: any) => renderStyleElement(style)).join('');
+				styles = treeNode.collectedStyles.map((style: any) => renderUniqueStylesheet({
+					type: 'inline',
+					content: style,
+				})).join('');
 			}
 			if (Array.isArray(treeNode.collectedLinks)) {
 				links = treeNode.collectedLinks
