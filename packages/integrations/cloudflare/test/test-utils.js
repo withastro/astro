@@ -64,3 +64,44 @@ export function runCLI(basePath, { silent }) {
 		},
 	};
 }
+
+const workerdPath = fileURLToPath(new URL('../node_modules/workerd/bin/workerd', import.meta.url));
+
+export function runWorkerd(basePath, { silent }) {
+	const configPath = fileURLToPath(new URL(`${basePath}/config.capnp`, import.meta.url));
+	const distPath = fileURLToPath(new URL(`${basePath}/dist`, import.meta.url));
+
+	const p = spawn(workerdPath, ['serve', configPath, '--verbose', '--directory-path', `site-files=${distPath}`]);
+	p.stderr.setEncoding('utf-8');
+	p.stdout.setEncoding('utf-8');
+	const pwd = process.cwd();
+	console.log(pwd);
+	const timeout = 10000;
+
+	const ready = new Promise(async (resolve, reject) => {
+		const failed = setTimeout(
+			() => reject(new Error(`Timed out starting workerd`)),
+			timeout
+		);
+
+		p.stderr.on('data', (data) => {
+			if (!silent) {
+				// eslint-disable-next-line
+				console.error(data);
+				reject(data)
+			}
+		});
+
+		setTimeout(() => {
+			clearTimeout(failed);
+			resolve();
+		}, 1000);
+	});
+
+	return {
+		ready,
+		stop() {
+			p.kill();
+		},
+	};
+}
