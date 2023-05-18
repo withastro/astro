@@ -13,7 +13,7 @@ describe('workerd static file', () => {
 	});
 
 	it('can render', async () => {
-		const { ready, stop } = runWorkerd('./fixtures/workerd', { silent: false });
+		const { ready, stop } = runWorkerd('./fixtures/workerd', { silent: true });
 
 		try {
 			await ready;

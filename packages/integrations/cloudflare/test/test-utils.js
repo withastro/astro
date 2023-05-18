@@ -74,8 +74,7 @@ export function runWorkerd(basePath, { silent }) {
 	const p = spawn(workerdPath, ['serve', configPath, '--verbose', '--directory-path', `site-files=${distPath}`]);
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
-	const pwd = process.cwd();
-	console.log(pwd);
+
 	const timeout = 10000;
 
 	const ready = new Promise(async (resolve, reject) => {
@@ -88,7 +87,7 @@ export function runWorkerd(basePath, { silent }) {
 			if (!silent) {
 				// eslint-disable-next-line
 				console.error(data);
-				reject(data)
+				reject(new Error(data));
 			}
 		});
 
