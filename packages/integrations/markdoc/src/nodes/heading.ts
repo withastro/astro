@@ -28,11 +28,12 @@ export const heading: Schema = {
 		const slug = getSlug(attributes, children);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
+
 		const tagProps =
 			// For components, pass down `level` as a prop,
 			// alongside `__collectHeading` for our `headings` collector.
 			// Avoid accidentally rendering `level` as an HTML attribute otherwise!
-			typeof render === 'function'
+			typeof render === 'object'
 				? { ...attributes, id: slug, __collectHeading: true, level }
 				: { ...attributes, id: slug };
 
