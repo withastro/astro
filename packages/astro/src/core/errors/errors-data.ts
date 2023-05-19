@@ -517,7 +517,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
 	 * ```astro
 	 * ---
-	 * import rocket from '../assets/images/rocket.svg'
+	 * import rocket from '../assets/images/rocket.svg';
 	 * ---
 	 *
 	 * <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
@@ -715,9 +715,18 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	LocalsNotSerializable: {
 		title: '`Astro.locals` is not serializable',
 		code: 3034,
-		message: (href: string) => {
-			return `The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`;
-		},
+		message: (href: string) =>
+			`The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`,
+	},
+	/**
+	 * @docs
+	 */
+	ImageOutsideProject: {
+		title: 'Image is located outside project.',
+		code: 3035,
+		message: (imagePath: string) =>
+			`Image ${imagePath} is located outside the Astro project and could not be processed.`,
+		hint: 'We recommend having all your images and content inside of your Astro project.',
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
@@ -987,7 +996,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
-	 * @message A content collection schema should not contain `slug` since it is reserved for slug generation. Remove this from your `COLLECTION_NAME` collection schema.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
@@ -996,9 +1004,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
 		code: 9003,
-		message: (collection: string) => {
-			return `A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collection} collection schema.`;
-		},
+		message: (collectionName: string) =>
+			`A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collectionName} collection schema.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
@@ -1011,9 +1018,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	CollectionDoesNotExistError: {
 		title: 'Collection does not exist',
 		code: 9004,
-		message: (collection: string) => {
-			return `The collection **${collection}** does not exist. Ensure a collection directory with this name exists.`;
-		},
+		message: (collectionName: string) =>
+			`The collection **${collectionName}** does not exist. Ensure a collection directory with this name exists.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
 	},
 	/**
