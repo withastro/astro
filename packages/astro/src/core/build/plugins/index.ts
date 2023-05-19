@@ -7,10 +7,10 @@ import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginHoistedScripts } from './plugin-hoisted-scripts.js';
 import { pluginInternals } from './plugin-internals.js';
+import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginSSR } from './plugin-ssr.js';
-import { pluginMiddleware } from './plugin-middleware.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
