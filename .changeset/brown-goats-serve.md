@@ -1,5 +1,6 @@
 ---
-'astro': patch
+'@astrojs/prefetch': patch
 ---
 
-Fix image services not being usable on Edge runtimes
+Fix the inclusion of `@types/network-information`.
+
