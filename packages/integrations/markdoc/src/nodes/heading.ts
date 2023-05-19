@@ -42,7 +42,7 @@ export const heading: Schema = {
 			// For components, pass down `level` as a prop,
 			// alongside `__collectHeading` for our `headings` collector.
 			// Avoid accidentally rendering `level` as an HTML attribute otherwise!
-			typeof render === 'object'
+			typeof render === 'function'
 				? { ...attributes, id: slug, __collectHeading: true, level }
 				: { ...attributes, id: slug };
 
