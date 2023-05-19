@@ -1,9 +1,9 @@
+import path from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
-import path from 'node:path';
 
 function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
