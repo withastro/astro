@@ -5,6 +5,7 @@ import { eachPageData, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
+import { routeIsRedirect } from '../../redirects/index.js';
 
 function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -28,7 +29,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				let imports = [];
 				let i = 0;
 				for (const pageData of eachPageData(internals)) {
-					if(pageData.route.type === 'redirect') {
+					if(routeIsRedirect(pageData.route)) {
 						continue;
 					}
 					const variable = `_page${i}`;

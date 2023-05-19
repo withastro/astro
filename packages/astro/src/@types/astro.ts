@@ -1843,6 +1843,10 @@ export interface RouteData {
 	redirect?: string;
 }
 
+export type RedirectRouteData = RouteData & {
+	redirect: string;
+}
+
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;
 	pattern: string;
