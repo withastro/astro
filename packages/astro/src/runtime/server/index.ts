@@ -1,7 +1,14 @@
 export { createComponent } from './astro-component.js';
 export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';
-export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from './escape.js';
+export {
+	escapeHTML,
+	HTMLBytes,
+	HTMLString,
+	markHTMLString,
+	unescapeHTML,
+	isHTMLString,
+} from './escape.js';
 export { renderJSX } from './jsx.js';
 export {
 	addAttribute,

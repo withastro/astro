@@ -1,8 +1,7 @@
-/** @ts-expect-error "Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations" */
+// @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
 import { unescapeHTML } from 'astro/runtime/server/index.js';
 import type { ShikiConfig } from 'astro';
-import { Fragment } from 'astro/jsx-runtime';
-import Markdoc, { type ConfigType, type Schema } from '@markdoc/markdoc';
+import Markdoc, { type Schema } from '@markdoc/markdoc';
 import type * as shikiTypes from 'shiki';
 import { getHighlighter } from 'shiki';
 
@@ -57,7 +56,7 @@ export async function shiki({
 	}
 	return {
 		attributes: Markdoc.nodes.fence.attributes!,
-		transform({ attributes, transformAttributes }, config) {
+		transform({ attributes }) {
 			let lang: string;
 
 			if (typeof attributes.language === 'string') {
@@ -105,9 +104,8 @@ export async function shiki({
 				);
 			}
 
-			const slotReadyHtml = unescapeHTML(html);
-
-			return new Markdoc.Tag(Fragment, { 'set:html': slotReadyHtml }, []);
+			// Return HTML that Astro can render as HTML nodes
+			return unescapeHTML(html);
 		},
 	};
 }
