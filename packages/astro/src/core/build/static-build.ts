@@ -27,6 +27,7 @@ import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.
 import { registerAllPlugins } from './plugins/index.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { RESOLVED_MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -172,6 +173,8 @@ async function ssrBuild(
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
 							return opts.buildConfig.serverEntry;
+						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
+							return 'middleware.mjs';
 						} else {
 							return '[name].mjs';
 						}
