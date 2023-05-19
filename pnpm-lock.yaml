@@ -633,6 +633,9 @@ importers:
       magic-string:
         specifier: ^0.27.0
         version: 0.27.0
+      micromorph:
+        specifier: ^0.4.5
+        version: 0.4.5
       mime:
         specifier: ^3.0.0
         version: 3.0.0
@@ -14252,6 +14255,10 @@ packages:
     dependencies:
       braces: 3.0.2
       picomatch: 2.3.1
+
+  /micromorph@0.4.5:
+    resolution: {integrity: sha512-Erasr0xiDvDeEhh7B/k7RFTwwfaAX10D7BMorNpokkwDh6XsRLYWDPaWF1m5JQeMSkGdqlEtQ8s68NcdDWuGgw==}
+    dev: false
 
   /mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
