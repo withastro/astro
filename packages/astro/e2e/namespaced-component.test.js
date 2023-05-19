@@ -16,8 +16,8 @@ test.afterAll(async () => {
 });
 
 test.describe('Hydrating namespaced components', () => {
-	test('Preact Component', async ({ page }) => {
-		await page.goto('/');
+	test('Preact Component', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
 
 		// Counter declared with: <ns.components.PreactCounter id="preact-counter-namespace" client:load>
 		const namespacedCounter = page.locator('#preact-counter-namespace');
@@ -54,8 +54,8 @@ test.describe('Hydrating namespaced components', () => {
 		await expect(namedCount, 'count incremented by 1').toHaveText('1');
 	});
 
-	test('MDX', async ({ page }) => {
-		await page.goto('/mdx');
+	test('MDX', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/mdx'));
 
 		// Counter declared with: <ns.components.PreactCounter id="preact-counter-namespace" client:load>
 		const namespacedCounter = page.locator('#preact-counter-namespace');
