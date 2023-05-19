@@ -175,12 +175,12 @@ async function generatePage(
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 
-	const pageModulePromise = ssrEntry.pageMap?.get(pageData.component);
+	let pageModulePromise = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;
 
 	if (!pageModulePromise) {
 		if(pageData.route.type === 'redirect') {
-			pageModule = { 'default': Function.prototype as any };
+			pageModulePromise = () => Promise.resolve({ 'default': Function.prototype }) as any;
 		} else {
 			throw new Error(
 				`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
