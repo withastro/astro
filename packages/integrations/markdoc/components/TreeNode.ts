@@ -25,12 +25,16 @@ export type TreeNode =
 export const ComponentNode = createComponent({
 	factory(result: any, { treeNode }: { treeNode: TreeNode }) {
 		if (treeNode.type === 'text') return render`${treeNode.content}`;
+
+		const allAttrs = 'props' in treeNode ? treeNode.props : treeNode.attributes;
 		const slots = {
 			default: () =>
+				allAttrs['set:html'] ??
 				render`${treeNode.children.map((child) =>
 					renderComponent(result, 'ComponentNode', ComponentNode, { treeNode: child })
 				)}`,
 		};
+		const { 'set:html': setHtml, ...attrs } = allAttrs;
 		if (treeNode.type === 'component') {
 			return renderComponent(
 				result,
@@ -40,7 +44,7 @@ export const ComponentNode = createComponent({
 				slots
 			);
 		}
-		return renderComponent(result, treeNode.tag, treeNode.tag, treeNode.attributes, slots);
+		return renderComponent(result, treeNode.tag, treeNode.tag, attrs, slots);
 	},
 	propagation: 'none',
 });

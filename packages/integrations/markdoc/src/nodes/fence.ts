@@ -1,8 +1,9 @@
+/** @ts-expect-error "Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations" */
+import { unescapeHTML } from 'astro/runtime/server/index.js';
 import type { ShikiConfig } from 'astro';
-/** @ts-expect-error "Cannot find module 'astro/jsx-runtime'" */
 import { Fragment } from 'astro/jsx-runtime';
-import Markdoc, { type ConfigType } from '@markdoc/markdoc';
-import type * as shiki from 'shiki';
+import Markdoc, { type ConfigType, type Schema } from '@markdoc/markdoc';
+import type * as shikiTypes from 'shiki';
 import { getHighlighter } from 'shiki';
 
 // Map of old theme names to new names to preserve compatibility when we upgrade shiki
@@ -14,7 +15,7 @@ const compatThemes: Record<string, string> = {
 	'material-palenight': 'material-theme-palenight',
 };
 
-const normalizeTheme = (theme: string | shiki.IShikiTheme) => {
+const normalizeTheme = (theme: string | shikiTypes.IShikiTheme) => {
 	if (typeof theme === 'string') {
 		return compatThemes[theme] || theme;
 	} else if (compatThemes[theme.name]) {
@@ -24,13 +25,13 @@ const normalizeTheme = (theme: string | shiki.IShikiTheme) => {
 	}
 };
 
-let cachedHighlighter: shiki.Highlighter;
+let cachedHighlighter: shikiTypes.Highlighter;
 
-export async function createShikiConfig({
+export async function shiki({
 	langs = [],
 	theme = 'github-dark',
 	wrap = false,
-}: ShikiConfig): Promise<ConfigType> {
+}: ShikiConfig = {}): Promise<Schema> {
 	theme = normalizeTheme(theme);
 	if (!cachedHighlighter) {
 		cachedHighlighter = await getHighlighter({ theme }).then((hl) => {
@@ -55,68 +56,58 @@ export async function createShikiConfig({
 		await cachedHighlighter.loadLanguage(lang);
 	}
 	return {
-		nodes: {
-			fence: {
-				attributes: {
-					content: { type: String, required: true },
-					language: { type: String },
-					process: { type: Boolean },
-				},
-				transform(node, config) {
-					const attributes = node.transformAttributes(config);
+		attributes: Markdoc.nodes.fence.attributes!,
+		transform({ attributes, transformAttributes }, config) {
+			let lang: string;
 
-					let lang: string;
+			if (typeof attributes.language === 'string') {
+				const langExists = cachedHighlighter
+					.getLoadedLanguages()
+					.includes(attributes.language as any);
+				if (langExists) {
+					lang = attributes.language;
+				} else {
+					// eslint-disable-next-line no-console
+					console.warn(
+						`The language "${attributes.language}" doesn't exist, falling back to plaintext.`
+					);
+					lang = 'plaintext';
+				}
+			} else {
+				lang = 'plaintext';
+			}
 
-					if (typeof attributes.language === 'string') {
-						const langExists = cachedHighlighter
-							.getLoadedLanguages()
-							.includes(attributes.language as any);
-						if (langExists) {
-							lang = attributes.language;
-						} else {
-							// eslint-disable-next-line no-console
-							console.warn(
-								`The language "${attributes.language}" doesn't exist, falling back to plaintext.`
-							);
-							lang = 'plaintext';
-						}
-					} else {
-						lang = 'plaintext';
-					}
+			let html = cachedHighlighter.codeToHtml(attributes.content, { lang });
 
-					let html = cachedHighlighter.codeToHtml(attributes.content, { lang });
+			// Q: Could these regexes match on a user's inputted code blocks?
+			// A: Nope! All rendered HTML is properly escaped.
+			// Ex. If a user typed `<span class="line"` into a code block,
+			// It would become this before hitting our regexes:
+			// &lt;span class=&quot;line&quot;
 
-					// Q: Could these regexes match on a user's inputted code blocks?
-					// A: Nope! All rendered HTML is properly escaped.
-					// Ex. If a user typed `<span class="line"` into a code block,
-					// It would become this before hitting our regexes:
-					// &lt;span class=&quot;line&quot;
+			// Replace "shiki" class naming with "astro-code"
+			html = html.replace(/<pre class="(.*?)shiki(.*?)"/, `<pre class="$1astro-code$2"`);
+			// Add "user-select: none;" for "+"/"-" diff symbols
+			if (attributes.language === 'diff') {
+				html = html.replace(
+					/<span class="line"><span style="(.*?)">([\+|\-])/g,
+					'<span class="line"><span style="$1"><span style="user-select: none;">$2</span>'
+				);
+			}
+			// Handle code wrapping
+			// if wrap=null, do nothing.
+			if (wrap === false) {
+				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
+			} else if (wrap === true) {
+				html = html.replace(
+					/style="(.*?)"/,
+					'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
+				);
+			}
 
-					// Replace "shiki" class naming with "astro-code"
-					html = html.replace(/<pre class="(.*?)shiki(.*?)"/, `<pre class="$1astro-code$2"`);
-					// Add "user-select: none;" for "+"/"-" diff symbols
-					if (attributes.language === 'diff') {
-						html = html.replace(
-							/<span class="line"><span style="(.*?)">([\+|\-])/g,
-							'<span class="line"><span style="$1"><span style="user-select: none;">$2</span>'
-						);
-					}
-					// Handle code wrapping
-					// if wrap=null, do nothing.
-					if (wrap === false) {
-						html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
-					} else if (wrap === true) {
-						html = html.replace(
-							/style="(.*?)"/,
-							'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
-						);
-					}
+			const slotReadyHtml = unescapeHTML(html);
 
-					const htmlFragment = new Markdoc.Tag(Fragment, { 'set:html': html }, []);
-
-					return new Markdoc.Tag('pre', attributes, [htmlFragment]);
-				},
-			},
+			return new Markdoc.Tag(Fragment, { 'set:html': slotReadyHtml }, []);
 		},
 	};
 }
