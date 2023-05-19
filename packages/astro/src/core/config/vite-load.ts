@@ -24,6 +24,7 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 				'@astrojs/react',
 				'@astrojs/preact',
 				'@astrojs/sitemap',
+				'@astrojs/markdoc',
 			],
 		},
 		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],

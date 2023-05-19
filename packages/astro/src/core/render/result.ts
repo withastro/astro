@@ -43,6 +43,7 @@ export interface CreateResultArgs {
 	pathname: string;
 	props: Props;
 	renderers: SSRLoadedRenderer[];
+	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
 	links?: Set<SSRElement>;
@@ -135,7 +136,8 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, request, resolve, locals } = args;
+	const { markdown, params, pathname, renderers, clientDirectives, request, resolve, locals } =
+		args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -263,6 +265,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
+			clientDirectives,
 		},
 		response,
 	};

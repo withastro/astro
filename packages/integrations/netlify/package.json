@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -25,6 +25,9 @@
     "./netlify-edge-functions.js": "./dist/netlify-edge-functions.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
@@ -39,7 +42,7 @@
     "esbuild": "^0.15.18"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.4.4"
+    "astro": "workspace:^2.5.0"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",

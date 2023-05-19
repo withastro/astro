@@ -15,11 +15,13 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 
 	const assets = new Set<string>(serializedManifest.assets);
 	const componentMetadata = new Map(serializedManifest.componentMetadata);
+	const clientDirectives = new Map(serializedManifest.clientDirectives);
 
 	return {
 		...serializedManifest,
 		assets,
 		componentMetadata,
+		clientDirectives,
 		routes,
 	};
 }

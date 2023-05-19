@@ -116,6 +116,33 @@ describe('astro:image', () => {
 			});
 		});
 
+		describe('vite-isms', () => {
+			/**
+			 * @type {cheerio.CheerioAPI}
+			 */
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/vite');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('support ?url imports', () => {
+				let $url = $('#url');
+				expect($url.text()).to.equal('string');
+			});
+
+			it('support ?raw imports', () => {
+				let $raw = $('#raw');
+				expect($raw.text()).to.equal('string');
+			});
+
+			it('support glob import as raw', () => {
+				let $raw = $('#glob-import');
+				expect($raw.text()).to.equal('string');
+			});
+		});
+
 		describe('remote', () => {
 			describe('working', () => {
 				let $;
@@ -627,6 +654,31 @@ describe('astro:image', () => {
 			);
 
 			expect(isReusingCache).to.be.true;
+		});
+	});
+
+	describe('dev ssr', () => {
+		let devServer;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('does not interfere with query params', async () => {
+			let res = await fixture.fetch('/api?src=image.png');
+			const html = await res.text();
+			expect(html).to.equal('An image: "image.png"');
 		});
 	});
 

@@ -5,7 +5,7 @@ import { Image } from 'astro:assets';
 
 // Separate module to only import `astro:assets` when
 // `experimental.assets` flag is set in a project.
-// TODO: merge with `./default-config.ts` when `experimental.assets` is baselined.
+// TODO: merge with `./runtime.ts` when `experimental.assets` is baselined.
 export const experimentalAssetsConfig: MarkdocConfig = {
 	nodes: {
 		image: {
