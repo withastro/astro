@@ -4,7 +4,7 @@ import { viteID } from '../../util.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
+import type { OutputChunk, StaticBuildOptions } from '../types';
 
 function virtualHoistedEntry(id: string) {
 	return id.startsWith('/astro/hoisted.js?q=');
@@ -50,46 +50,55 @@ export function vitePluginHoistedScripts(
 				assetInlineLimit = settings.config.vite?.build.assetsInlineLimit;
 			}
 
+			const considerInlining = new Map<string, OutputChunk>();
+			const importedByOtherScripts = new Set<string>();
+
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.
 			// This is used when we render so that we can add the script to the head.
-			for (const [id, output] of Object.entries(bundle)) {
+			Object.entries(bundle).forEach(([ id, output ]) => {
 				if (
 					output.type === 'chunk' &&
 					output.facadeModuleId &&
 					virtualHoistedEntry(output.facadeModuleId)
 				) {
-					const canBeInlined =
-						output.imports.length === 0 &&
-						output.dynamicImports.length === 0 &&
-						Buffer.byteLength(output.code) <= assetInlineLimit;
-					let removeFromBundle = false;
-					const facadeId = output.facadeModuleId!;
-					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
-					for (const pathname of pages) {
-						const vid = viteID(new URL('.' + pathname, settings.config.root));
-						const pageInfo = getPageDataByViteID(internals, vid);
-						if (pageInfo) {
-							if (canBeInlined) {
-								pageInfo.hoistedScript = {
-									type: 'inline',
-									value: output.code,
-								};
-								removeFromBundle = true;
-							} else {
-								pageInfo.hoistedScript = {
-									type: 'external',
-									value: id,
-								};
-							}
+					considerInlining.set(id, output);
+					output.imports.forEach(imported => importedByOtherScripts.add(imported));
+				}
+			});
+
+			for (const [ id, output ] of considerInlining.entries()) {
+				const canBeInlined =
+					importedByOtherScripts.has(output.fileName) === false &&
+					output.imports.length === 0 &&
+					output.dynamicImports.length === 0 &&
+					Buffer.byteLength(output.code) <= assetInlineLimit;
+				let removeFromBundle = false;
+				const facadeId = output.facadeModuleId!;
+				const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
+				for (const pathname of pages) {
+					const vid = viteID(new URL('.' + pathname, settings.config.root));
+					const pageInfo = getPageDataByViteID(internals, vid);
+					if (pageInfo) {
+						if (canBeInlined) {
+							pageInfo.hoistedScript = {
+								type: 'inline',
+								value: output.code,
+							};
+							removeFromBundle = true;
+						} else {
+							pageInfo.hoistedScript = {
+								type: 'external',
+								value: id,
+							};
 						}
 					}
-
-					// Remove the bundle if it was inlined
-					if (removeFromBundle) {
-						delete bundle[id];
-					}
 				}
-			}
+
+				// Remove the bundle if it was inlined
+				if (removeFromBundle) {
+					delete bundle[id];
+				}
+			};
 		},
 	};
 }
