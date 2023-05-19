@@ -130,16 +130,9 @@ export function getHeadings() {
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 
-export async function Content (props) {
-	const config = setupConfig({
-		...userConfig,
-		variables: { ...userConfig.variables, ...props },
-	}, entry);
-
 export const Content = createComponent({
 	factory(result, props) {
-		headingSlugger.reset();
-		const config = applyDefaultConfig({
+		const config = setupConfig({
 			...userConfig,
 			variables: { ...userConfig.variables, ...props },
 		}, entry);
