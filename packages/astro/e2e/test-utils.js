@@ -91,7 +91,7 @@ export async function waitForHydrate(page, el) {
 }
 
 /**
- * Wait for `astro-island` that contains the `el` to hydrate
+ * Scroll to element manually without making sure the `el` is stable
  * @param {import('@playwright/test').Locator} el
  */
 export async function scrollToElement(el) {
