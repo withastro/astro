@@ -74,3 +74,13 @@ export async function waitForHydrate(page, el) {
 		`astro-island[uid="${astroIslandId}"]`
 	);
 }
+
+/**
+ * Wait for `astro-island` that contains the `el` to hydrate
+ * @param {import('@playwright/test').Locator} el
+ */
+export async function scrollToElement(el) {
+	await el.evaluate((node) => {
+		node.scrollIntoView({ behavior: 'auto' });
+	});
+}
