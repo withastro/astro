@@ -29,7 +29,7 @@ describe('Astro.redirect', () => {
 			const request = new Request('http://example.com/late');
 			const response = await app.render(request);
 			try {
-				const text = await response.text();
+				await response.text();
 				expect(false).to.equal(true);
 			} catch (e) {
 				expect(e.message).to.equal(
@@ -41,6 +41,7 @@ describe('Astro.redirect', () => {
 
 	describe('output: "static"', () => {
 		before(async () => {
+			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
 				root: './fixtures/ssr-redirect/',
 				output: 'static',
