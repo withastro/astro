@@ -1,3 +1,5 @@
+import npath from 'path';
+import fs from 'fs';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
@@ -105,4 +107,30 @@ export function ignoreStringPlugins(plugins: any[]): PluggableList {
 		);
 	}
 	return validPlugins;
+}
+
+export function resolveJsToTs(filePath: string) {
+	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
+		const tryPath = filePath.slice(0, -4) + '.tsx';
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	return filePath;
+}
+
+/**
+ * Resolve the hydration paths so that it can be imported in the client
+ */
+export function resolvePath(specifier: string, importer: string) {
+	if (specifier.startsWith('.')) {
+		const absoluteSpecifier = npath.resolve(npath.dirname(importer), specifier);
+		return resolveJsToTs(normalizePath(absoluteSpecifier));
+	} else {
+		return specifier;
+	}
+}
+
+export function normalizePath(id: string): string {
+	return npath.posix.normalize(id.replace(/\\/g, '/'));
 }

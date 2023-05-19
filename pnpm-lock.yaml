@@ -4140,9 +4140,18 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      hast-util-to-html:
+        specifier: ^8.0.4
+        version: 8.0.4
+      html-void-elements:
+        specifier: ^2.0.1
+        version: 2.0.1
       kleur:
         specifier: ^4.1.4
         version: 4.1.5
+      property-information:
+        specifier: ^6.2.0
+        version: 6.2.0
       rehype-raw:
         specifier: ^6.1.1
         version: 6.1.1
@@ -4167,6 +4176,9 @@ importers:
       vfile:
         specifier: ^5.3.2
         version: 5.3.2
+      zwitch:
+        specifier: ^2.0.4
+        version: 2.0.4
     devDependencies:
       '@types/chai':
         specifier: ^4.3.1

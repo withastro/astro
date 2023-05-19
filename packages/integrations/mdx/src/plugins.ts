@@ -20,6 +20,7 @@ import { remarkImageToComponent } from './remark-images-to-component.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
+import { rehypeAstro } from './rehype-astro.js';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
@@ -144,6 +145,8 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 		...(isPerformanceBenchmark ? [] : [rehypeHeadingIds, rehypeInjectHeadingsExport]),
 		// computed from `astro.data.frontmatter` in VFile data
 		rehypeApplyFrontmatterExport,
+		// render hast to js using Astro's runtime
+		rehypeAstro,
 	];
 	return rehypePlugins;
 }

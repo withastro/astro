@@ -1,10 +1,9 @@
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
-import { compile as mdxCompile } from '@mdx-js/mdx';
+import { createProcessor } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { type Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
-import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
@@ -98,12 +97,14 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 									if (!id.endsWith('mdx')) return;
 
 									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
-									const { fileId } = getFileInfo(id, config);
+									const { fileUrl, fileId } = getFileInfo(id, config);
 									const code = await fs.readFile(fileId, 'utf-8');
 
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
-									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
+									const vfile = new VFile({ value: pageContent, path: id });
+									const processor = createProcessor({
 										...mdxPluginOpts,
+										format: 'mdx',
 										elementAttributeNameCase: 'html',
 										remarkPlugins: [
 											// Ensure `data.astro` is available to all remark plugins
@@ -119,60 +120,50 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 											: undefined,
 									});
 
-									return {
-										code: escapeViteEnvReferences(String(compiled.value)),
-										map: compiled.map,
-									};
-								},
-							},
-							{
-								name: '@astrojs/mdx-postprocess',
-								// These transforms must happen *after* JSX runtime transformations
-								transform(code, id) {
-									if (!id.endsWith('.mdx')) return;
-
-									const [moduleImports, moduleExports] = parseESM(code);
-
-									// Fragment import should already be injected, but check just to be safe.
-									const importsFromJSXRuntime = moduleImports
-										.filter(({ n }) => n === 'astro/jsx-runtime')
-										.map(({ ss, se }) => code.substring(ss, se));
-									const hasFragmentImport = importsFromJSXRuntime.some((statement) =>
-										/[\s,{](Fragment,|Fragment\s*})/.test(statement)
-									);
-									if (!hasFragmentImport) {
-										code = 'import { Fragment } from "astro/jsx-runtime"\n' + code;
+									// strip out recma plugins
+									const unwantedRecmaPluginNames = [
+										'recmaDocument',
+										'recmaJsxRewrite',
+										'recmaJsxBuild',
+									];
+									for (let i = 0; i < processor.attachers.length; i++) {
+										const attacher = processor.attachers[i];
+										if (unwantedRecmaPluginNames.includes(attacher[0].name)) {
+											processor.attachers.splice(i, 1);
+										}
 									}
 
-									const { fileUrl, fileId } = getFileInfo(id, config);
-									if (!moduleExports.find(({ n }) => n === 'url')) {
-										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
-									}
-									if (!moduleExports.find(({ n }) => n === 'file')) {
-										code += `\nexport const file = ${JSON.stringify(fileId)};`;
-									}
-									if (!moduleExports.find(({ n }) => n === 'Content')) {
-										// Make `Content` the default export so we can wrap `MDXContent` and pass in `Fragment`
-										code = code.replace('export default MDXContent;', '');
-										code += `\nexport const Content = (props = {}) => MDXContent({
-											...props,
-											components: { Fragment, ...props.components },
-										});
-										export default Content;`;
-									}
-
+									const compiled = await processor.process(vfile);
+									let compiledCode = compiled.toString();
+									// Remove `<></>` from the end of the file
+									compiledCode = compiledCode.replace('<></>;', '');
+									// Add metadata
+									compiledCode += `\nexport const url = ${JSON.stringify(fileUrl)};`;
+									compiledCode += `\nexport const file = ${JSON.stringify(fileId)};`;
 									// Ensures styles and scripts are injected into a `<head>`
 									// When a layout is not applied
-									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
-									code += `\nContent.moduleId = ${JSON.stringify(id)};`;
+									compiledCode += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;
+									compiledCode += `\nContent.moduleId = ${JSON.stringify(id)};`;
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
-										code += `\nif (import.meta.hot) {
-											import.meta.hot.decline();
-										}`;
+										compiledCode += `\nif (import.meta.hot) {
+	import.meta.hot.decline();
+}`;
 									}
-									return { code: escapeViteEnvReferences(code), map: null };
+
+									// console.log(compiledCode)
+
+									return {
+										code: escapeViteEnvReferences(compiledCode),
+										map: compiled.map,
+										meta: {
+											astro: vfile.data.rehypeAstro,
+											vite: {
+												lang: 'ts',
+											},
+										},
+									};
 								},
 							},
 						] as VitePlugin[],

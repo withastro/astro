@@ -43,7 +43,10 @@
     "estree-util-visit": "^1.2.0",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
+    "hast-util-to-html": "^8.0.4",
+    "html-void-elements": "^2.0.1",
     "kleur": "^4.1.4",
+    "property-information": "^6.2.0",
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
@@ -51,7 +54,8 @@
     "shiki": "^0.14.1",
     "source-map": "^0.7.4",
     "unist-util-visit": "^4.1.0",
-    "vfile": "^5.3.2"
+    "vfile": "^5.3.2",
+    "zwitch": "^2.0.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
