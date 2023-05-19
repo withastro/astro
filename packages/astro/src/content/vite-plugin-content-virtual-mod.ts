@@ -114,59 +114,60 @@ export async function getStringifiedLookupMap({
 		}
 	);
 
-	await Promise.all(
-		contentGlob.map(async (filePath) => {
-			const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
-			// Globbed ignored or unsupported entry.
-			// Logs warning during type generation, should ignore in lookup map.
-			if (entryType !== 'content' && entryType !== 'data') return;
+	// NOTE: Even though we await things inside, we run serially to avoid `await getEntrySlug`
+	// from accessing the filesystem all at once. Each await shouldn't take too long for the
+	// serial work to be noticably slow.
+	for (const filePath of contentGlob) {
+		const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
+		// Globbed ignored or unsupported entry.
+		// Logs warning during type generation, should ignore in lookup map.
+		if (entryType !== 'content' && entryType !== 'data') return;
 
-			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
-			if (!collection) throw UnexpectedLookupMapError;
+		const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
+		if (!collection) throw UnexpectedLookupMapError;
 
-			if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
-				throw new AstroError({
-					...AstroErrorData.MixedContentDataCollectionError,
-					message: AstroErrorData.MixedContentDataCollectionError.message(collection),
-				});
-			}
+		if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
+			throw new AstroError({
+				...AstroErrorData.MixedContentDataCollectionError,
+				message: AstroErrorData.MixedContentDataCollectionError.message(collection),
+			});
+		}
 
-			if (entryType === 'content') {
-				const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-				if (!contentEntryType) throw UnexpectedLookupMapError;
+		if (entryType === 'content') {
+			const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+			if (!contentEntryType) throw UnexpectedLookupMapError;
 
-				const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
-					entry: pathToFileURL(filePath),
-					contentDir,
-					collection,
-				});
-				const slug = await getEntrySlug({
-					id,
-					collection,
-					generatedSlug,
-					fs,
-					fileUrl: pathToFileURL(filePath),
-					contentEntryType,
-				});
-				lookupMap[collection] = {
-					type: 'content',
-					entries: {
-						...lookupMap[collection]?.entries,
-						[slug]: rootRelativePath(root, filePath),
-					},
-				};
-			} else {
-				const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
-				lookupMap[collection] = {
-					type: 'data',
-					entries: {
-						...lookupMap[collection]?.entries,
-						[id]: rootRelativePath(root, filePath),
-					},
-				};
-			}
-		})
-	);
+			const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+				entry: pathToFileURL(filePath),
+				contentDir,
+				collection,
+			});
+			const slug = await getEntrySlug({
+				id,
+				collection,
+				generatedSlug,
+				fs,
+				fileUrl: pathToFileURL(filePath),
+				contentEntryType,
+			});
+			lookupMap[collection] = {
+				type: 'content',
+				entries: {
+					...lookupMap[collection]?.entries,
+					[slug]: rootRelativePath(root, filePath),
+				},
+			};
+		} else {
+			const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
+			lookupMap[collection] = {
+				type: 'data',
+				entries: {
+					...lookupMap[collection]?.entries,
+					[id]: rootRelativePath(root, filePath),
+				},
+			};
+		}
+	}
 
 	return JSON.stringify(lookupMap);
 }
