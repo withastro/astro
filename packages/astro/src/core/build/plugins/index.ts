@@ -10,12 +10,14 @@ import { pluginInternals } from './plugin-internals.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginSSR } from './plugin-ssr.js';
+import { pluginMiddleware } from './plugin-middleware.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
 	register(pluginAliasResolve(internals));
 	register(pluginAnalyzer(internals));
 	register(pluginInternals(internals));
+	register(pluginMiddleware(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
 	register(astroHeadBuildPlugin(options, internals));
