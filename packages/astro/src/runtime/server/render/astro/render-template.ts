@@ -3,6 +3,7 @@ import type { RenderInstruction } from '../types';
 import { HTMLBytes, markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
+import { EagerAsyncIterableIterator } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
@@ -35,12 +36,23 @@ export class RenderTemplateResult {
 	async *[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 
+		let iterables: Array<EagerAsyncIterableIterator> = [];
+		// all async iterators start running in non-buffered mode to avoid useless caching
+		for (let i = 0; i < htmlParts.length; i++) {
+			iterables.push(new EagerAsyncIterableIterator(renderChild(expressions[i])));
+		}
+		// once the execution of the next for loop is suspended due to an async component,
+		// this timeout triggers and we start buffering the other iterators
+		setTimeout(() => {
+			// buffer all iterators that haven't started yet
+			iterables.forEach((it) => !it.isStarted() && it.buffer());
+		}, 0);
 		for (let i = 0; i < htmlParts.length; i++) {
 			const html = htmlParts[i];
-			const expression = expressions[i];
+			const iterable = iterables[i];
 
 			yield markHTMLString(html);
-			yield* renderChild(expression);
+			yield* iterable;
 		}
 	}
 }

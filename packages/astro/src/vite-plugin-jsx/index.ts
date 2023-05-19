@@ -202,7 +202,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 Unable to resolve a renderer that handles this file! With more than one renderer enabled, you should include an import or use a pragma comment.
 Add ${colors.cyan(
 						IMPORT_STATEMENTS[defaultRendererName] || `import '${defaultRendererName}';`
-					)} or ${colors.cyan(`/* jsxImportSource: ${defaultRendererName} */`)} to this file.
+					)} or ${colors.cyan(`/** @jsxImportSource: ${defaultRendererName} */`)} to this file.
 `
 				);
 				return null;

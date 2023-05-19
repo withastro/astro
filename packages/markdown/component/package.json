@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdown-component",
   "description": "Use the legacy Markdown component in your Astro site",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

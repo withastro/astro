@@ -55,7 +55,6 @@ export async function getErrorOverlayContent(page) {
 }
 
 /**
- * @param {import('@playwright/test').Locator} el
  * @returns {Promise<string>}
  */
 export async function getColor(el) {

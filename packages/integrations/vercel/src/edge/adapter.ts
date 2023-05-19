@@ -80,7 +80,7 @@ export default function vercelEdge({
 
 				if (config.output === 'static') {
 					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
+		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the edge adapter.
 
 	`);
 				}
@@ -119,6 +119,8 @@ export default function vercelEdge({
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
+					// https://runtime-keys.proposal.wintercg.org/#edge-light
+					conditions: ['edge-light', 'worker', 'browser'],
 					entryPoints: [entryPath],
 					outfile: entryPath,
 					allowOverwrite: true,

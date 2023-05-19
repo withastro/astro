@@ -138,3 +138,111 @@ export function renderElement(
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
+
+// This wrapper around an AsyncIterable can eagerly consume its values, so that
+// its values are ready to yield out ASAP. This is used for list-like usage of
+// Astro components, so that we don't have to wait on earlier components to run
+// to even start running those down in the list.
+export class EagerAsyncIterableIterator {
+	#iterable: AsyncIterable<any>;
+	#queue = new Queue<IteratorResult<any, any>>();
+	#error: any = undefined;
+	#next: Promise<IteratorResult<any, any>> | undefined;
+	/**
+	 * Whether the proxy is running in buffering or pass-through mode
+	 */
+	#isBuffering = false;
+	#gen: AsyncIterator<any> | undefined = undefined;
+	#isStarted = false;
+
+	constructor(iterable: AsyncIterable<any>) {
+		this.#iterable = iterable;
+	}
+
+	/**
+	 * Starts to eagerly fetch the inner iterator and cache the results.
+	 * Note: This might not be called after next() has been called once, e.g. the iterator is started
+	 */
+	async buffer() {
+		if (this.#gen) {
+			// If this called as part of rendering, please open a bug report.
+			// Any call to buffer() should verify that the iterator isn't running
+			throw new Error('Cannot not switch from non-buffer to buffer mode');
+		}
+		this.#isBuffering = true;
+		this.#isStarted = true;
+		this.#gen = this.#iterable[Symbol.asyncIterator]();
+		let value: IteratorResult<any, any> | undefined = undefined;
+		do {
+			this.#next = this.#gen.next();
+			try {
+				value = await this.#next;
+				this.#queue.push(value);
+			} catch (e) {
+				this.#error = e;
+			}
+		} while (value && !value.done);
+	}
+
+	async next() {
+		if (this.#error) {
+			throw this.#error;
+		}
+		// for non-buffered mode, just pass through the next result
+		if (!this.#isBuffering) {
+			if (!this.#gen) {
+				this.#isStarted = true;
+				this.#gen = this.#iterable[Symbol.asyncIterator]();
+			}
+			return await this.#gen.next();
+		}
+		if (!this.#queue.isEmpty()) {
+			return this.#queue.shift()!;
+		}
+		await this.#next;
+		// the previous statement will either put an element in the queue or throw,
+		// so we can safely assume we have something now
+		return this.#queue.shift()!;
+	}
+
+	isStarted() {
+		return this.#isStarted;
+	}
+
+	[Symbol.asyncIterator]() {
+		return this;
+	}
+}
+
+interface QueueItem<T> {
+	item: T;
+	next?: QueueItem<T>;
+}
+
+/**
+ * Basis Queue implementation with a linked list
+ */
+class Queue<T> {
+	head: QueueItem<T> | undefined = undefined;
+	tail: QueueItem<T> | undefined = undefined;
+
+	push(item: T) {
+		if (this.head === undefined) {
+			this.head = { item };
+			this.tail = this.head;
+		} else {
+			this.tail!.next = { item };
+			this.tail = this.tail!.next;
+		}
+	}
+
+	isEmpty() {
+		return this.head === undefined;
+	}
+
+	shift(): T | undefined {
+		const val = this.head?.item;
+		this.head = this.head?.next;
+		return val;
+	}
+}

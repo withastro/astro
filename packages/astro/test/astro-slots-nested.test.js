@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Nested Slots', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -27,5 +28,38 @@ describe('Nested Slots', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		expect($('#test')).to.length(2)
+	});
+	describe('Client components nested inside server-only framework components', () => {
+		/** @type {cheerio.CheerioAPI} */
+		let $;
+		before(async () => {
+			const html = await fixture.readFile('/server-component-nested/index.html');
+			$ = cheerio.load(html);
+		});
+
+		it('react', () => {
+			expect($('#react astro-slot')).to.have.a.lengthOf(1);
+			expect($('#react astro-static-slot')).to.have.a.lengthOf(0);
+		});
+
+		it('vue', () => {
+			expect($('#vue astro-slot')).to.have.a.lengthOf(1);
+			expect($('#vue astro-static-slot')).to.have.a.lengthOf(0);
+		});
+
+		it('preact', () => {
+			expect($('#preact astro-slot')).to.have.a.lengthOf(1);
+			expect($('#preact astro-static-slot')).to.have.a.lengthOf(0);
+		});
+
+		it('solid', () => {
+			expect($('#solid astro-slot')).to.have.a.lengthOf(1);
+			expect($('#solid astro-static-slot')).to.have.a.lengthOf(0);
+		});
+
+		it('svelte', () => {
+			expect($('#svelte astro-slot')).to.have.a.lengthOf(1);
+			expect($('#svelte astro-static-slot')).to.have.a.lengthOf(0);
+		});
 	});
 });
