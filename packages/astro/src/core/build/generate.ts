@@ -518,8 +518,9 @@ async function generatePath(
 		switch(response.status) {
 			case 301:
 			case 302: {
+				const location = getRedirectLocationOrThrow(response.headers);
 				body = `<!doctype html><meta http-equiv="refresh" content="0;url=${location}" />`;
-				pageData.route.redirect = getRedirectLocationOrThrow(response.headers)
+				pageData.route.redirect = location;
 				break;
 			}
 			default: {
