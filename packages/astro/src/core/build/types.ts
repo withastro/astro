@@ -47,8 +47,10 @@ export interface StaticBuildOptions {
 	teardownCompiler: boolean;
 }
 
+type ImportComponentInstance = () => Promise<ComponentInstance>;
+
 export interface SingleFileBuiltModule {
-	pageMap: Map<ComponentPath, ComponentInstance>;
+	pageMap: Map<ComponentPath, ImportComponentInstance>;
 	middleware: AstroMiddlewareInstance<unknown>;
 	renderers: SSRLoadedRenderer[];
 }
