@@ -1,10 +1,19 @@
-import Markdoc, { type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
+import Markdoc, { type RenderableTreeNode, type Schema, type ConfigType } from '@markdoc/markdoc';
 import Slugger from 'github-slugger';
 import { getTextContent } from '../runtime.js';
 
-export const headingSlugger = new Slugger();
+type ConfigTypeWithCtx = ConfigType & {
+	// TODO: decide on `ctx` as a convention for config merging
+	ctx: {
+		headingSlugger: Slugger;
+	};
+};
 
-function getSlug(attributes: Record<string, any>, children: RenderableTreeNode[]): string {
+function getSlug(
+	attributes: Record<string, any>,
+	children: RenderableTreeNode[],
+	headingSlugger: Slugger
+): string {
 	if (attributes.id && typeof attributes.id === 'string') {
 		return attributes.id;
 	}
@@ -21,11 +30,11 @@ export const heading: Schema = {
 		id: { type: String },
 		level: { type: Number, required: true, default: 1 },
 	},
-	transform(node, config) {
+	transform(node, config: ConfigTypeWithCtx) {
 		const { level, ...attributes } = node.transformAttributes(config);
 		const children = node.transformChildren(config);
 
-		const slug = getSlug(attributes, children);
+		const slug = getSlug(attributes, children, config.ctx.headingSlugger);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
 		const tagProps =
@@ -39,3 +48,16 @@ export const heading: Schema = {
 		return new Markdoc.Tag(render, tagProps, children);
 	},
 };
+
+export function setupHeadingConfig(): ConfigTypeWithCtx {
+	const headingSlugger = new Slugger();
+
+	return {
+		ctx: {
+			headingSlugger,
+		},
+		nodes: {
+			heading,
+		},
+	};
+}
