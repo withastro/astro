@@ -75,7 +75,7 @@ async function teardown() {
   window.dispatchEvent(new CustomEvent('astro:hydrate'));
 }
 
-async function navigate(url: URL, isBack: boolean = false, opts: Options) {
+async function navigate(url: URL, isBack = false, opts: Options) {
   p = p || new DOMParser();
   const contents = await fetch(`${url}`)
     .then((res) => res.text())
