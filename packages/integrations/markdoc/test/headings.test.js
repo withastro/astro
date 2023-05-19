@@ -27,7 +27,15 @@ describe('Markdoc - Headings', () => {
 		});
 
 		it('applies IDs to headings', async () => {
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/headings');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			idTest(document);
+		});
+
+		it('generates the same IDs for other documents with the same headings', async () => {
+			const res = await fixture.fetch('/headings-stale-cache-check');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
@@ -35,7 +43,7 @@ describe('Markdoc - Headings', () => {
 		});
 
 		it('generates a TOC with correct info', async () => {
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/headings');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
@@ -49,14 +57,21 @@ describe('Markdoc - Headings', () => {
 		});
 
 		it('applies IDs to headings', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/headings/index.html');
+			const { document } = parseHTML(html);
+
+			idTest(document);
+		});
+
+		it('generates the same IDs for other documents with the same headings', async () => {
+			const html = await fixture.readFile('/headings-stale-cache-check/index.html');
 			const { document } = parseHTML(html);
 
 			idTest(document);
 		});
 
 		it('generates a TOC with correct info', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/headings/index.html');
 			const { document } = parseHTML(html);
 
 			tocTest(document);
@@ -83,7 +98,15 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 		});
 
 		it('applies IDs to headings', async () => {
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/headings');
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			idTest(document);
+		});
+
+		it('generates the same IDs for other documents with the same headings', async () => {
+			const res = await fixture.fetch('/headings-stale-cache-check');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
@@ -91,7 +114,7 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 		});
 
 		it('generates a TOC with correct info', async () => {
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/headings');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
@@ -99,7 +122,7 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 		});
 
 		it('renders Astro component for each heading', async () => {
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/headings');
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
@@ -113,21 +136,28 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 		});
 
 		it('applies IDs to headings', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/headings/index.html');
+			const { document } = parseHTML(html);
+
+			idTest(document);
+		});
+
+		it('generates the same IDs for other documents with the same headings', async () => {
+			const html = await fixture.readFile('/headings-stale-cache-check/index.html');
 			const { document } = parseHTML(html);
 
 			idTest(document);
 		});
 
 		it('generates a TOC with correct info', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/headings/index.html');
 			const { document } = parseHTML(html);
 
 			tocTest(document);
 		});
 
 		it('renders Astro component for each heading', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/headings/index.html');
 			const { document } = parseHTML(html);
 
 			astroComponentTest(document);
