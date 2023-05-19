@@ -151,34 +151,26 @@ function buildManifest(
 		}
 	};
 
-	for (const pageData of eachPageData(internals)) {
-		if (!pageData.route.prerender) continue;
-		if (!pageData.route.pathname) continue;
+	for (const route of opts.manifest.routes) {
+		if (!route.prerender) continue;
+		if (!route.pathname) continue;
 
-		const outFolder = getOutFolder(
-			opts.settings.config,
-			pageData.route.pathname!,
-			pageData.route.type
-		);
-		const outFile = getOutFile(
-			opts.settings.config,
-			outFolder,
-			pageData.route.pathname!,
-			pageData.route.type
-		);
+		const outFolder = getOutFolder(opts.settings.config, route.pathname!, route.type);
+		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname!, route.type);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
 			file,
 			links: [],
 			scripts: [],
 			styles: [],
-			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
 		staticFiles.push(file);
 	}
 
-	for (const pageData of eachPageData(internals)) {
-		if (pageData.route.prerender) continue;
+	for (const route of opts.manifest.routes) {
+		const pageData = internals.pagesByComponent.get(route.component);
+		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			const hoistedValue = pageData.hoistedScript.value;
@@ -217,7 +209,7 @@ function buildManifest(
 					.map(({ stage, content }) => ({ stage, children: content })),
 			],
 			styles,
-			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
 	}
 
