@@ -5,5 +5,9 @@
   "dependencies": {
     "astro": "workspace:*",
     "@astrojs/node": "workspace:*"
+  },
+  "scripts": {
+    "build": "astro build",
+    "preview": "astro preview"
   }
 }
