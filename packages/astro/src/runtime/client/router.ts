@@ -61,16 +61,15 @@ let p: DOMParser;
 async function setup(doc: Document) {
   for (const island of doc.querySelectorAll('astro-island')) {
     const uid = island.getAttribute('uid');
-    const current = document.querySelector(`astro-island[uid="${uid}"]`);
-    console.log({ uid, current })
+    const current = document.querySelector<HTMLElement>(`astro-island[uid="${uid}"]`);
     if (current) {
-      current.dataset.persist = true;
+      current.dataset.persist = 'true';
       island.replaceWith(current);
     }
   }
 }
 async function teardown() {
-  for (const island of document.querySelectorAll('astro-island')) {
+  for (const island of document.querySelectorAll<HTMLElement>('astro-island')) {
     delete island.dataset.persist;
   }
   window.dispatchEvent(new CustomEvent('astro:hydrate'));
@@ -105,8 +104,8 @@ async function navigate(url: URL, isBack: boolean = false, opts: Options) {
   }
   announcer.dataset.persist = '';
   html.body.appendChild(announcer);
-  if (document.startViewTransition) {
-    await document.startViewTransition(() => micromorph(document, html))
+  if ((document as any).startViewTransition) {
+    await (document as any).startViewTransition(() => micromorph(document, html))
   } else {
     await micromorph(document, html);
   }
