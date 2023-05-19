@@ -146,7 +146,7 @@
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.27.0",
-    "micromorph": "^0.4.4",
+    "micromorph": "^0.4.5",
     "mime": "^3.0.0",
     "ora": "^6.1.0",
     "path-to-regexp": "^6.2.1",
