@@ -170,10 +170,7 @@ function buildManifest(
 
 	for (const route of opts.manifest.routes) {
 		const pageData = internals.pagesByComponent.get(route.component);
-		if (route.prerender) continue;
-		if (!pageData) {
-			continue;
-		}
+		if (route.prerender || !pageData) continue;
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			const hoistedValue = pageData.hoistedScript.value;
