@@ -43,7 +43,9 @@ function netlifyFunctions({
 				entryFile = config.build.serverEntry.replace(/\.m?js/, '');
 
 				if (config.output === 'static') {
-					console.warn(`[@astrojs/netlify] \`output: "server"\` is required to use this adapter.`);
+					console.warn(
+						`[@astrojs/netlify] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter.`
+					);
 					console.warn(
 						`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`
 					);

@@ -1,0 +1,10 @@
+---
+import { getCollection } from 'astro:content';
+try {
+	await getCollection('authors')
+} catch (e) {
+	return e
+}
+---
+
+<h1>Worked</h1>

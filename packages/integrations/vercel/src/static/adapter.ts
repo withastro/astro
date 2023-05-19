@@ -6,7 +6,9 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
+import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
+import { isHybridOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
@@ -36,10 +38,14 @@ export default function vercelStatic({
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = new URL('./static/', getVercelOutput(config.root));
+				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
 						format: 'directory',
+					},
+					vite: {
+						define: viteDefine,
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});
@@ -49,7 +55,7 @@ export default function vercelStatic({
 				setAdapter(getAdapter());
 				_config = config;
 
-				if (config.output === 'server') {
+				if (config.output === 'server' || isHybridOutput(config)) {
 					throw new Error(`${PACKAGE_NAME} should be used with output: 'static'`);
 				}
 			},

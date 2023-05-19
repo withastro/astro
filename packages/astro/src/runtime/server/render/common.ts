@@ -39,7 +39,7 @@ export function stringifyChunk(
 					? 'directive'
 					: null;
 				if (prescriptType) {
-					let prescripts = getPrescripts(prescriptType, hydration.directive);
+					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';

@@ -11,6 +11,13 @@ const first = defineMiddleware(async (context, next) => {
 		return new Response(null, {
 			status: 500,
 		});
+	} else if (context.request.url.includes('/api/endpoint')) {
+		const response = await next();
+		const object = await response.json();
+		object.name = 'REDACTED';
+		return new Response(JSON.stringify(object), {
+			headers: response.headers,
+		});
 	} else {
 		context.locals.name = 'bar';
 	}

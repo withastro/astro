@@ -1,15 +1,16 @@
+/* eslint-disable no-console */
 import type { Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
-import { bold, red } from 'kleur/colors';
+import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
-import { applyDefaultConfig } from './default-config.js';
-import { loadMarkdocConfig } from './load-config.js';
+import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
+import { setupConfig } from './runtime.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -17,9 +18,8 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export default function markdocIntegration(legacyConfig: any): AstroIntegration {
+export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
 	if (legacyConfig) {
-		// eslint-disable-next-line no-console
 		console.log(
 			`${red(
 				bold('[Markdoc]')
@@ -27,14 +27,15 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 		);
 		process.exit(0);
 	}
+	let markdocConfigResult: MarkdocConfigResult | undefined;
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
 				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
 
-				const configLoadResult = await loadMarkdocConfig(astroConfig);
-				const userMarkdocConfig = configLoadResult?.config ?? {};
+				markdocConfigResult = await loadMarkdocConfig(astroConfig);
+				const userMarkdocConfig = markdocConfigResult?.config ?? {};
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -51,20 +52,31 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = applyDefaultConfig(userMarkdocConfig, { entry });
+						const markdocConfig = setupConfig(userMarkdocConfig, entry);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
-							// Ignore `variable-undefined` errors.
-							// Variables can be configured at runtime,
-							// so we cannot validate them at build time.
-							return e.error.id !== 'variable-undefined';
+							return (
+								// Ignore `variable-undefined` errors.
+								// Variables can be configured at runtime,
+								// so we cannot validate them at build time.
+								e.error.id !== 'variable-undefined' &&
+								(e.error.level === 'error' || e.error.level === 'critical')
+							);
 						});
 						if (validationErrors.length) {
+							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
+							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
 							throw new MarkdocError({
 								message: [
-									`**${String(entry.collection)} → ${String(entry.id)}** failed to validate:`,
-									...validationErrors.map((e) => e.error.id),
+									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									...validationErrors.map((e) => `- ${e.error.message}`),
 								].join('\n'),
+								location: {
+									// Error overlay does not support multi-line or ranges.
+									// Just point to the first line.
+									line: frontmatterBlockOffset + validationErrors[0].lines[0],
+									file: viteId,
+								},
 							});
 						}
 
@@ -76,40 +88,62 @@ export default function markdocIntegration(legacyConfig: any): AstroIntegration 
 							});
 						}
 
-						const code = {
-							code: `import { jsx as h } from 'astro/jsx-runtime';
-import { applyDefaultConfig } from '@astrojs/markdoc/default-config';
-import { Renderer } from '@astrojs/markdoc/components';
-import * as entry from ${JSON.stringify(viteId + '?astroContent')};${
-								configLoadResult
-									? `\nimport userConfig from ${JSON.stringify(configLoadResult.fileUrl.pathname)};`
-									: ''
-							}${
-								astroConfig.experimental.assets
-									? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';`
-									: ''
-							}
+						const res = `import { jsx as h } from 'astro/jsx-runtime';
+						import { Renderer } from '@astrojs/markdoc/components';
+						import { collectHeadings, setupConfig, Markdoc } from '@astrojs/markdoc/runtime';
+import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
+${
+	markdocConfigResult
+		? `import _userConfig from ${JSON.stringify(
+				markdocConfigResult.fileUrl.pathname
+		  )};\nconst userConfig = _userConfig ?? {};`
+		: 'const userConfig = {};'
+}${
+							astroConfig.experimental.assets
+								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
+								: ''
+						}
 const stringifiedAst = ${JSON.stringify(
-								/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
-							)};
+							/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
+						)};
+export function getHeadings() {
+	${
+		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
+		TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
+		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
+		''
+	}
+	const headingConfig = userConfig.nodes?.heading;
+	const config = setupConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
+	const content = Markdoc.transform(ast, config);
+	return collectHeadings(Array.isArray(content) ? content : content.children);
+}
 export async function Content (props) {
-	const config = applyDefaultConfig(${
-		configLoadResult
-			? '{ ...userConfig, variables: { ...userConfig.variables, ...props } }'
-			: '{ variables: props }'
-	}, { entry });${
-								astroConfig.experimental.assets
-									? `\nconfig.nodes = { ...experimentalAssetsConfig.nodes, ...config.nodes };`
-									: ''
-							}
-	return h(Renderer, { stringifiedAst, config }); };`,
-						};
-						return code;
+	const config = setupConfig({
+		...userConfig,
+		variables: { ...userConfig.variables, ...props },
+	}, entry);
+
+	return h(Renderer, { config, stringifiedAst });
+}`;
+						return { code: res };
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+				});
+			},
+			'astro:server:setup': async ({ server }) => {
+				server.watcher.on('all', (event, entry) => {
+					if (pathToFileURL(entry).pathname === markdocConfigResult?.fileUrl.pathname) {
+						console.log(
+							yellow(
+								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
+							)
+						);
+					}
 				});
 			},
 		},

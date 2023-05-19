@@ -1,5 +1,15 @@
 # @astrojs/mdx
 
+## 0.19.2
+
+### Patch Changes
+
+- [#7104](https://github.com/withastro/astro/pull/7104) [`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa) Thanks [@bluwy](https://github.com/bluwy)! - Specify `"files"` field to only publish necessary files
+
+- Updated dependencies [[`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa)]:
+  - @astrojs/markdown-remark@2.2.1
+  - @astrojs/prism@2.1.2
+
 ## 0.19.1
 
 ### Patch Changes

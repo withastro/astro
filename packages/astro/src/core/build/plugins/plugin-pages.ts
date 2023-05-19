@@ -1,17 +1,17 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../../app/index.js';
-import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import { eachPageData, hasPrerenderedPages, type BuildInternals } from '../internal.js';
+import { eachPageData, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
+import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 
-export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if (opts.settings.config.output === 'static' || hasPrerenderedPages(internals)) {
+			if (opts.settings.config.output === 'static') {
 				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},
@@ -24,13 +24,6 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 		async load(id) {
 			if (id === resolvedPagesVirtualModuleId) {
-				let middlewareId = null;
-				if (opts.settings.config.experimental.middleware) {
-					middlewareId = await this.resolve(
-						`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
-					);
-				}
-
 				let importMap = '';
 				let imports = [];
 				let i = 0;
@@ -39,7 +32,9 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 						continue;
 					}
 					const variable = `_page${i}`;
-					imports.push(`import * as ${variable} from ${JSON.stringify(pageData.moduleSpecifier)};`);
+					imports.push(
+						`const ${variable} = () => import(${JSON.stringify(pageData.moduleSpecifier)});`
+					);
 					importMap += `[${JSON.stringify(pageData.component)}, ${variable}],`;
 					i++;
 				}
@@ -57,11 +52,15 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 				const def = `${imports.join('\n')}
 
-${middlewareId ? `import * as _middleware from "${middlewareId.id}";` : ''}
+${
+	opts.settings.config.experimental.middleware
+		? `import * as _middleware from "${MIDDLEWARE_MODULE_ID}";`
+		: ''
+}
 
 export const pageMap = new Map([${importMap}]);
 export const renderers = [${rendererItems}];
-${middlewareId ? `export const middleware = _middleware;` : ''}
+${opts.settings.config.experimental.middleware ? `export const middleware = _middleware;` : ''}
 `;
 
 				return def;

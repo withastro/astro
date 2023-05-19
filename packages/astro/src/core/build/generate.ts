@@ -19,7 +19,7 @@ import type {
 import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
-} from '../../assets/internal.js';
+} from '../../assets/generate.js';
 import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -27,12 +27,9 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import {
-	call as callEndpoint,
-	createAPIContext,
-	throwIfRedirectNotAllowed,
-} from '../endpoint/index.js';
+import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
@@ -99,7 +96,7 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server';
+	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config); // hybrid mode is essentially SSR with prerender by default
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
@@ -178,10 +175,10 @@ async function generatePage(
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 
-	let pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const pageModulePromise = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;
 
-	if (!pageModule) {
+	if (!pageModulePromise) {
 		if(pageData.route.type === 'redirect') {
 			pageModule = { 'default': Function.prototype as any };
 		} else {
@@ -190,7 +187,7 @@ async function generatePage(
 			);
 		}
 	}
-
+	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, opts.settings)) {
 		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
 		return;
@@ -241,7 +238,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server',
+			ssr: opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -417,7 +414,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server';
+	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,
@@ -431,6 +428,7 @@ async function generatePath(
 		markdown: settings.config.markdown,
 		mode: opts.mode,
 		renderers,
+		clientDirectives: settings.clientDirectives,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {
@@ -505,6 +503,7 @@ async function generatePath(
 			const onRequest = middleware?.onRequest;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
+					env.logging,
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
