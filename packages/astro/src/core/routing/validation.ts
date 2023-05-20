@@ -32,7 +32,7 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	}
 ) {
-	if (ssr && mod.getStaticPaths && !mod.prerender) {
+	if (ssr && mod.getStaticPaths && !route.prerender) {
 		warn(
 			logging,
 			'getStaticPaths',
