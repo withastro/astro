@@ -1,3 +1,4 @@
+import { bold } from 'kleur/colors';
 import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core';
@@ -31,12 +32,11 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	}
 ) {
-	console.log('Validation');
-	if (ssr && mod.getStaticPaths && !route.prerender) {
-		console.log(
-			// logging,
-			'getStaticPathss',
-			'getStaticPaths() is ignored when "output: server" is set.'
+	if (ssr && mod.getStaticPaths && !mod.prerender) {
+		warn(
+			logging,
+			'getStaticPaths',
+			`getStaticPaths() in ${bold(route.component)} is ignored when "output: server" is set.`
 		);
 	}
 	if ((!ssr || route.prerender) && !mod.getStaticPaths) {

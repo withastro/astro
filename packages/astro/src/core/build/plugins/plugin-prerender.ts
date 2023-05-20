@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
@@ -30,7 +31,7 @@ export function vitePluginPrerender(
 						}
 						pageInfo.route.prerender = false;
 						// dynamic pages should all go in their own chunk in the pages/* directory
-						return `pages/all`;
+						return `pages/${path.basename(pageInfo.component)}`;
 					}
 				},
 			});
