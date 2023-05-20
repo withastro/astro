@@ -2409,15 +2409,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/content-ssr-integration-prerender:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/content-static-paths-integration:
     dependencies:
       '@astrojs/mdx':
@@ -3289,11 +3280,8 @@ importers:
 
   packages/astro/test/fixtures/ssr-hybrid-get-static-paths:
     dependencies:
-      '@astrojs/node':
-        specifier: '*'
-        version: link:../../../../integrations/node
       astro:
-        specifier: '*'
+        specifier: workspace:*
         version: link:../../..
 
   packages/astro/test/fixtures/ssr-manifest:
