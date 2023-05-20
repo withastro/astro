@@ -1,0 +1,9 @@
+{
+  "name": "@test/ssr-hybrid-get-static-paths",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "*",
+    "astro": "*"
+  }
+}
