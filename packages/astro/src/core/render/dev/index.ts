@@ -21,7 +21,6 @@ import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
-import { getPrerenderStatus } from '../../../prerender/utils.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 
