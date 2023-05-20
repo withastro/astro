@@ -13,18 +13,12 @@ describe('Prerender', () => {
 	describe('getStaticPaths - build calls', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
-		/** @type {Error} */
-		let error;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/ssr-prerender-get-static-paths/',
 				...sharedConfig,
 			});
-			try {
-				await fixture.build();
-			} catch (err) {
-				error = err;
-			}
+			await fixture.build();
 		});
 
 		afterEach(() => {
@@ -33,8 +27,6 @@ describe('Prerender', () => {
 		});
 
 		it('is only called once during build', () => {
-			console.log({ error });
-			if (error) throw error;
 			// useless expect; if build() throws in setup then this test fails
 			expect(true).to.equal(true);
 		});
@@ -163,19 +155,12 @@ describe('Hybrid', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 
-		/** @type {Error} */
-		let error;
-
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/ssr-hybrid-get-static-paths/',
 				...sharedConfig,
 			});
-			try {
-				await fixture.build();
-			} catch (err) {
-				error = err;
-			}
+			await fixture.build();
 		});
 
 		afterEach(() => {
@@ -184,8 +169,6 @@ describe('Hybrid', () => {
 		});
 
 		it('is only called once during build', () => {
-			console.log({ error });
-			if (error) throw error;
 			// useless expect; if build() throws in setup then this test fails
 			expect(true).to.equal(true);
 		});
