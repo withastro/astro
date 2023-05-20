@@ -52,11 +52,11 @@ export async function matchRoute(
 		const filePath = new URL(`./${maybeRoute.component}`, settings.config.root);
 		const preloadedComponent = await preload({ env, filePath });
 
-		const prerenderStatus =
-			getPrerenderStatus({
-				filePath,
-				loader: env.loader,
-			}) ?? maybeRoute.prerender;
+		// gets the prerender metadata set by the `astro:scanner` vite plugin
+		const prerenderStatus = getPrerenderStatus({
+			filePath,
+			loader: env.loader,
+		});
 
 		if (prerenderStatus !== undefined) {
 			maybeRoute.prerender = prerenderStatus;
