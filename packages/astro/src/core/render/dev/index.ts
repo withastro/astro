@@ -21,6 +21,7 @@ import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
 import { getScriptsForURL } from './scripts.js';
+import { getPrerenderStatus } from '../../../prerender/utils.js';
 export { createDevelopmentEnvironment } from './environment.js';
 export type { DevelopmentEnvironment };
 
@@ -65,7 +66,12 @@ export async function preload({
 
 	try {
 		// Load the module from the Vite SSR Runtime.
+		console.log('Imported page!');
 		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
+
+		console.log('Finished importing page!');
+		// we should here set the prerender metadata of the module
+
 		return [renderers, mod];
 	} catch (error) {
 		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it

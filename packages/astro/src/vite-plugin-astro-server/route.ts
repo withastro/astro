@@ -16,7 +16,7 @@ import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { isHybridOutput } from '../prerender/utils.js';
+import { getPrerenderStatus, isHybridOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
@@ -50,6 +50,17 @@ export async function matchRoute(
 	for await (const maybeRoute of matches) {
 		const filePath = new URL(`./${maybeRoute.component}`, settings.config.root);
 		const preloadedComponent = await preload({ env, filePath });
+
+		const prerenderStatus =
+			getPrerenderStatus({
+				filePath,
+				loader: env.loader,
+			}) ?? maybeRoute.prerender;
+
+		if (prerenderStatus !== undefined) {
+			maybeRoute.prerender = prerenderStatus;
+		}
+
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!

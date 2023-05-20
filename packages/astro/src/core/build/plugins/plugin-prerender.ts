@@ -3,8 +3,12 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
+import { getPrerenderMetadata } from '../../../prerender/utils.js';
 
-function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+export function vitePluginPrerender(
+	opts: StaticBuildOptions,
+	internals: BuildInternals
+): VitePlugin {
 	return {
 		name: 'astro:rollup-plugin-prerender',
 
@@ -19,7 +23,8 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						if (meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
+						if (getPrerenderMetadata(meta.getModuleInfo(id))) {
+							console.log('Plugin prerender run!');
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}

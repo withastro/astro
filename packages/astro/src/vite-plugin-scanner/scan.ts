@@ -35,6 +35,7 @@ function isFalsy(value: string) {
 let didInit = false;
 
 export async function scan(code: string, id: string, isHybridOutput = false): Promise<PageOptions> {
+	console.log('Plugin scanner run!!');
 	if (!includesExport(code)) return {};
 	if (!didInit) {
 		await eslexer.init;

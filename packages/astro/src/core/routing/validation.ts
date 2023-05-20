@@ -31,10 +31,15 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	}
 ) {
-	if (ssr && mod.getStaticPaths && !mod.prerender) {
-		warn(logging, 'getStaticPaths', 'getStaticPaths() is ignored when "output: server" is set.');
+	console.log('Validation');
+	if (ssr && mod.getStaticPaths && !route.prerender) {
+		console.log(
+			// logging,
+			'getStaticPathss',
+			'getStaticPaths() is ignored when "output: server" is set.'
+		);
 	}
-	if ((!ssr || mod.prerender) && !mod.getStaticPaths) {
+	if ((!ssr || route.prerender) && !mod.getStaticPaths) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsRequired,
 			location: { file: route.component },

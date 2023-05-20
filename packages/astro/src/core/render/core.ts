@@ -49,6 +49,7 @@ export async function getParamsAndProps(
 	// Handle dynamic routes
 	let params: Params = {};
 	let pageProps: Props;
+	console.log('Looking for route!');
 	if (route && !route.pathname) {
 		if (route.params.length) {
 			// The RegExp pattern expects a decoded string, but the pathname is encoded
@@ -89,7 +90,12 @@ export async function getParamsAndProps(
 			routeCache.set(route, routeCacheEntry);
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
-		if (!matchedStaticPath && (ssr ? mod.prerender : true)) {
+		console.log('getParamsAndProps', {
+			routePrerender: route.prerender,
+			modPrerender: mod.prerender,
+		});
+		console.log({ matchedStaticPath });
+		if (!matchedStaticPath && (ssr ? route.prerender : true)) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
 		// Note: considered using Object.create(...) for performance
@@ -98,8 +104,10 @@ export async function getParamsAndProps(
 		// Replaced with a simple spread as a compromise
 		pageProps = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
 	} else {
+		console.log('No route!');
 		pageProps = {};
 	}
+	console.log('Finished!');
 	return [params, pageProps];
 }
 

@@ -105,6 +105,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	if (ssr) {
 		for (const pageData of eachPageData(internals)) {
+			console.log('Route prerendering: ', pageData.route.prerender);
 			if (pageData.route.prerender)
 				await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}
@@ -198,6 +199,7 @@ async function generatePage(
 
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
+	console.log({ paths });
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
@@ -244,6 +246,7 @@ async function getPathsForRoute(
 				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 				throw err;
 			});
+		console.log({ result });
 
 		// Save the route cache so it doesn't get called again
 		opts.routeCache.set(route, result);
