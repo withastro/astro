@@ -15,7 +15,7 @@ test.afterAll(async () => {
 
 test.describe('Nested Frameworks in Vue', () => {
 	test('React counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#react-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -32,7 +32,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Preact counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -49,7 +49,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Solid counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#solid-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -66,7 +66,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Vue counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#vue-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -83,7 +83,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Svelte counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#svelte-counter');
 		await expect(counter, 'component is visible').toBeVisible();

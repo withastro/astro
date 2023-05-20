@@ -1,8 +1,14 @@
 ---
-import { getEntryBySlug } from "astro:content";
+import { getCollection, CollectionEntry } from "astro:content";
 
-const post = await getEntryBySlug('docs', 'headings');
-const { Content, headings } = await post.render();
+export async function getStaticPaths() {
+	const docs = await getCollection('docs');
+	return docs.map(doc => ({ params: { slug: doc.slug }, props: doc }));
+}
+
+type Props = CollectionEntry<'docs'>;
+
+const { Content, headings } = await Astro.props.render();
 ---
 
 <!DOCTYPE html>

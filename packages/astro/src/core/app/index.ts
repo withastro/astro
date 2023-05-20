@@ -139,7 +139,7 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let mod = this.#manifest.pageMap.get(routeData.component)!;
+		let mod = await this.#manifest.pageMap.get(routeData.component)!();
 
 		if (routeData.type === 'page') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
@@ -148,7 +148,7 @@ export class App {
 			if (response.status === 500) {
 				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
 				if (fiveHundredRouteData) {
-					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
+					mod = await this.#manifest.pageMap.get(fiveHundredRouteData.component)!();
 					try {
 						let fiveHundredResponse = await this.#renderPage(
 							request,
