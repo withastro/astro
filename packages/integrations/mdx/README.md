@@ -183,6 +183,42 @@ These are plugins that modify the output [estree](https://github.com/estree/estr
 
 We suggest [using AST Explorer](https://astexplorer.net/) to play with estree outputs, and trying [`estree-util-visit`](https://unifiedjs.com/explore/package/estree-util-visit/) for searching across JavaScript nodes.
 
+### `optimize`
+
+Whether to optimize the MDX output for faster builds and rendering. An internal rehype plugin will be injected last to transform static parts of the `hast` into [`set:html` properties](https://docs.astro.build/en/reference/directives-reference/#sethtml). As this modifies the intermediate `estree` and leaves some generated HTML to be un-escaped, the option is disabled by default.
+
+As the optimizer works within individual MDX files, if you're [passing custom components to an imported MDX content](https://docs.astro.build/en/guides/markdown-content/#custom-components-with-imported-mdx), you'll need to configure `customComponentNames` to prevent the optimizer from handling the custom components:
+
+```astro
+---
+import { Content, components } from '../content.mdx';
+import Heading from '../Heading.astro';
+---
+
+<Content components={{...components, h1: Heading }} />
+```
+
+__`astro.config.mjs`__
+
+```js
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  integrations: [
+    mdx({
+      optimize: {
+        // Prevent the optimizer from handling `h1` elements
+        customComponentNames: ['h1'],
+      },
+    })
+  ]
+});
+```
+
+> **Note**
+> If you're using `export const components = { ... }` in your MDX file, the optimizer will automatically detect and add them to `customComponentNames` so you don't have to manually configure it.
+
 ## Examples
 
 *   The [Astro MDX starter template](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.

@@ -16,6 +16,7 @@ import type { VFile } from 'vfile';
 import type { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
+import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
 import { remarkImageToComponent } from './remark-images-to-component.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
@@ -145,6 +146,12 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 		// computed from `astro.data.frontmatter` in VFile data
 		rehypeApplyFrontmatterExport,
 	];
+
+	if (mdxOptions.optimize) {
+		const options = mdxOptions.optimize === true ? undefined : mdxOptions.optimize;
+		rehypePlugins.push([rehypeOptimizeStatic, options]);
+	}
+
 	return rehypePlugins;
 }
 
