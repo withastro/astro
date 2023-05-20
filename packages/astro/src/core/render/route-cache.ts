@@ -31,10 +31,6 @@ export async function callGetStaticPaths({
 }: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
 	validateDynamicRouteModule(mod, { ssr, logging, route });
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
-	// console.log('callGetStaticPaths', {
-	// 	routePrerender: route.prerender,
-	// 	modPrerender: mod.prerender,
-	// });
 	if (ssr && !route.prerender) {
 		return { staticPaths: Object.assign([], { keyed: new Map() }) };
 	}

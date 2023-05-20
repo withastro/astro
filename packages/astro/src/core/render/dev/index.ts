@@ -65,10 +65,8 @@ export async function preload({
 
 	try {
 		// Load the module from the Vite SSR Runtime.
-		console.log('Imported page!');
 		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
 
-		console.log('Finished importing page!');
 		// we should here set the prerender metadata of the module
 
 		return [renderers, mod];

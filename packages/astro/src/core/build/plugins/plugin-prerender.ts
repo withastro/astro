@@ -6,10 +6,7 @@ import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
 import { getPrerenderMetadata } from '../../../prerender/utils.js';
 
-export function vitePluginPrerender(
-	opts: StaticBuildOptions,
-	internals: BuildInternals
-): VitePlugin {
+function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: 'astro:rollup-plugin-prerender',
 
@@ -25,7 +22,6 @@ export function vitePluginPrerender(
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
 						if (getPrerenderMetadata(meta.getModuleInfo(id))) {
-							console.log('Plugin prerender run!');
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}

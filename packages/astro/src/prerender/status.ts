@@ -12,10 +12,8 @@ export function getPrerenderStatus({
 	loader,
 }: GetPrerenderStatusParams): boolean | undefined {
 	const fileID = viteID(filePath);
-	// console.log({ fileID });
 	const moduleInfo = loader.getModuleInfo(fileID);
 	if (!moduleInfo) return;
 	const prerenderStatus = getPrerenderMetadata(moduleInfo);
-	// console.log({ prerenderStatus });
 	return prerenderStatus;
 }
