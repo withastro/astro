@@ -1,6 +1,5 @@
-import type { ModuleLoader } from '../core/module-loader';
+import type { ModuleInfo, ModuleLoader } from '../core/module-loader';
 import { viteID } from '../core/util.js';
-import { getPrerenderMetadata } from './utils.js';
 
 type GetPrerenderStatusParams = {
 	filePath: URL;
@@ -16,4 +15,8 @@ export function getPrerenderStatus({
 	if (!moduleInfo) return;
 	const prerenderStatus = getPrerenderMetadata(moduleInfo);
 	return prerenderStatus;
+}
+
+export function getPrerenderMetadata(moduleInfo: ModuleInfo) {
+	return moduleInfo?.meta?.astro?.pageOptions?.prerender === true;
 }

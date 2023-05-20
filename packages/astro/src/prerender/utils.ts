@@ -1,7 +1,6 @@
 // TODO: remove after the experimetal phase when
 
 import type { AstroConfig } from '../@types/astro';
-import type { ModuleInfo } from '../core/module-loader';
 
 export function isHybridMalconfigured(config: AstroConfig) {
 	return config.experimental.hybridOutput ? config.output !== 'hybrid' : config.output === 'hybrid';
@@ -9,8 +8,4 @@ export function isHybridMalconfigured(config: AstroConfig) {
 
 export function isHybridOutput(config: AstroConfig) {
 	return config.experimental.hybridOutput && config.output === 'hybrid';
-}
-
-export function getPrerenderMetadata(moduleInfo: ModuleInfo) {
-	return moduleInfo?.meta?.astro?.pageOptions?.prerender === true;
 }

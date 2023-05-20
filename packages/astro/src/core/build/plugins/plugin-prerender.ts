@@ -4,7 +4,7 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
-import { getPrerenderMetadata } from '../../../prerender/utils.js';
+import { getPrerenderMetadata } from '../../../prerender/metadata.js';
 
 function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
