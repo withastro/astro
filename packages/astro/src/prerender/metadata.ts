@@ -18,5 +18,5 @@ export function getPrerenderStatus({
 }
 
 export function getPrerenderMetadata(moduleInfo: ModuleInfo) {
-	return moduleInfo?.meta?.astro?.pageOptions?.prerender === true;
+	return moduleInfo?.meta?.astro?.pageOptions?.prerender;
 }
