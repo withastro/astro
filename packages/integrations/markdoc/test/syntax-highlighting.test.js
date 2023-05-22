@@ -2,6 +2,7 @@ import { parseHTML } from 'linkedom';
 import { expect } from 'chai';
 import Markdoc from '@markdoc/markdoc';
 import { shiki } from '../dist/nodes/fence.js';
+import { setupConfig } from '../dist/runtime.js';
 import { isHTMLString } from 'astro/runtime/server/index.js';
 
 const document = `
@@ -19,11 +20,7 @@ const highlighting = true;
 describe('Markdoc - Syntax Highlighting', () => {
 	it('transforms with defaults', async () => {
 		const ast = Markdoc.parse(document);
-		const content = Markdoc.transform(ast, {
-			nodes: {
-				fence: await shiki(),
-			},
-		});
+		const content = Markdoc.transform(ast, await getConfigExtendingShiki());
 
 		expect(content.children).to.have.lengthOf(2);
 		for (const codeBlock of content.children) {
@@ -36,11 +33,12 @@ describe('Markdoc - Syntax Highlighting', () => {
 	});
 	it('transforms with `theme` property', async () => {
 		const ast = Markdoc.parse(document);
-		const content = Markdoc.transform(ast, {
-			nodes: {
-				fence: await shiki({ theme: 'dracula' }),
-			},
-		});
+		const content = Markdoc.transform(
+			ast,
+			await getConfigExtendingShiki({
+				theme: 'dracula',
+			})
+		);
 		expect(content.children).to.have.lengthOf(2);
 		for (const codeBlock of content.children) {
 			expect(isHTMLString(codeBlock)).to.be.true;
@@ -52,11 +50,12 @@ describe('Markdoc - Syntax Highlighting', () => {
 	});
 	it('transforms with `wrap` property', async () => {
 		const ast = Markdoc.parse(document);
-		const content = Markdoc.transform(ast, {
-			nodes: {
-				fence: await shiki({ wrap: true }),
-			},
-		});
+		const content = Markdoc.transform(
+			ast,
+			await getConfigExtendingShiki({
+				wrap: true,
+			})
+		);
 		expect(content.children).to.have.lengthOf(2);
 		for (const codeBlock of content.children) {
 			expect(isHTMLString(codeBlock)).to.be.true;
@@ -67,6 +66,16 @@ describe('Markdoc - Syntax Highlighting', () => {
 		}
 	});
 });
+
+/**
+ * @param {import('astro').ShikiConfig} config
+ * @returns {import('../src/config.js').AstroMarkdocConfig}
+ */
+async function getConfigExtendingShiki(config) {
+	return setupConfig({
+		extends: [await shiki(config)],
+	});
+}
 
 /**
  * @param {string} html

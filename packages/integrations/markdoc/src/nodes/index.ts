@@ -1,5 +1,4 @@
-import { heading } from './heading.js';
 export { setupHeadingConfig } from './heading.js';
-import { shiki } from './fence.js';
+import { heading } from './heading.js';
 
-export const nodes = { heading, fence: { shiki } };
+export const nodes = { heading };
