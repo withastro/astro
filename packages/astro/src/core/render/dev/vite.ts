@@ -60,7 +60,9 @@ export async function* crawlGraph(
 					if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
 						continue;
 					}
-					const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
+					const isFileTypeNeedingSSR = fileExtensionsToSSR.has(
+						npath.extname(importedModulePathname)
+					);
 					if (
 						isFileTypeNeedingSSR &&
 						// Should not SSR a module with ?astroPropagatedAssets
