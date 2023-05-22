@@ -1,7 +1,6 @@
 import type { ModuleLoader, ModuleNode } from '../../module-loader/index';
 
 import npath from 'path';
-import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { unwrapId } from '../../util.js';
 import { isCSSRequest } from './util.js';
@@ -10,9 +9,10 @@ import { isCSSRequest } from './util.js';
  * List of file extensions signalling we can (and should) SSR ahead-of-time
  * See usage below
  */
-const fileExtensionsToSSR = new Set(['.astro', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS]);
+const fileExtensionsToSSR = new Set(['.astro', '.mdoc', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS]);
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
+const ASTRO_PROPAGATED_ASSET_REGEX = /\?astroPropagatedAssets/;
 
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
@@ -23,7 +23,6 @@ export async function* crawlGraph(
 ): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<ModuleNode>();
-	if (new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) return;
 
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
@@ -44,6 +43,7 @@ export async function* crawlGraph(
 		if (id === entry.id) {
 			scanned.add(id);
 			const entryIsStyle = isCSSRequest(id);
+
 			for (const importedModule of entry.importedModules) {
 				// some dynamically imported modules are *not* server rendered in time
 				// to only SSR modules that we can safely transform, we check against
@@ -60,15 +60,11 @@ export async function* crawlGraph(
 					if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
 						continue;
 					}
+					const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
 					if (
-						fileExtensionsToSSR.has(
-							npath.extname(
-								// Use `id` instead of `pathname` to preserve query params.
-								// Should not SSR a module with an unexpected query param,
-								// like "?astroPropagatedAssets"
-								importedModule.id
-							)
-						)
+						isFileTypeNeedingSSR &&
+						// Should not SSR a module with ?astroPropagatedAssets
+						!ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id)
 					) {
 						const mod = loader.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
