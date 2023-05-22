@@ -1,5 +1,14 @@
 # @astrojs/markdoc
 
+## 0.2.1
+
+### Patch Changes
+
+- [#7141](https://github.com/withastro/astro/pull/7141) [`a9e1cd7e5`](https://github.com/withastro/astro/commit/a9e1cd7e58794fe220539c2ed935c9eb96bab55a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix inconsistent Markdoc heading IDs for documents with the same headings.
+
+- Updated dependencies [[`72f686a68`](https://github.com/withastro/astro/commit/72f686a68930de52f9a274c13c98acad59925b31), [`319a0a7a0`](https://github.com/withastro/astro/commit/319a0a7a0a6a950387c942b467746d590bb32fda), [`852d59a8d`](https://github.com/withastro/astro/commit/852d59a8d68e124f10852609e0f1619d5838ac76), [`530fb9ebe`](https://github.com/withastro/astro/commit/530fb9ebee77646921ec29d45d9b66484bdfb521), [`3257dd289`](https://github.com/withastro/astro/commit/3257dd28901c785a6a661211b98c5ef2cb3b9aa4)]:
+  - astro@2.5.1
+
 ## 0.2.0
 
 ### Minor Changes
