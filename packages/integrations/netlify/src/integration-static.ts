@@ -10,16 +10,6 @@ export function netlifyStatic(): AstroIntegration {
 			'astro:config:done': ({ config }) => {
 				_config = config;
 			},
-			// 'astro:config:setup': ({ config, updateConfig }) => {
-			// 	const outDir = dist ?? new URL('./dist/', config.root);
-			// 	updateConfig({
-			// 		outDir,
-			// 		build: {
-			// 			client: outDir,
-			// 			server: new URL('./.netlify/functions-internal/', config.root),
-			// 		},
-			// 	});
-			// },
 			'astro:build:done': async ({ dir, routes }) => {
 				await createRedirects(_config, routes, dir, '', 'static');
 			}
