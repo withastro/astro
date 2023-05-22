@@ -4,22 +4,23 @@ import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 
 describe('Prerender', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
 	describe('output: "server"', () => {
-		const sharedConfig = {
-			site: 'https://mysite.dev/',
-			adapter: testAdapter(),
-			base: '/blog',
-			output: 'server',
-		};
 		describe('getStaticPaths - build calls', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/ssr-prerender-get-static-paths/',
-					...sharedConfig,
+					site: 'https://mysite.dev/',
+					adapter: testAdapter(),
+					base: '/blog',
+					output: 'server',
 				});
 				await fixture.build();
+			});
+
+			after(async () => {
+				await fixture.clean();
 			});
 
 			afterEach(() => {
@@ -42,16 +43,10 @@ describe('Prerender', () => {
 		});
 
 		describe('getStaticPaths - dev calls', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
 			let devServer;
 
 			before(async () => {
 				globalThis.isCalledOnce = false;
-				fixture = await loadFixture({
-					root: './fixtures/ssr-prerender-get-static-paths/',
-					...sharedConfig,
-				});
 				devServer = await fixture.startDevServer();
 			});
 
@@ -141,25 +136,26 @@ describe('Prerender', () => {
 	});
 
 	describe('output: "hybrid"', () => {
-		const sharedConfig = {
-			site: 'https://mysite.dev/',
-			adapter: testAdapter(),
-			base: '/blog',
-			output: 'hybrid',
-			experimental: {
-				hybridOutput: true,
-			},
-		};
 		describe('getStaticPaths - build calls', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
-
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/ssr-hybrid-get-static-paths/',
-					...sharedConfig,
+					root: './fixtures/ssr-prerender-get-static-paths/',
+					site: 'https://mysite.dev/',
+					adapter: testAdapter(),
+					base: '/blog',
+					output: 'hybrid',
+					experimental: {
+						hybridOutput: true,
+					},
+					vite: {
+						plugins: [vitePluginRemovePrerenderExport()],
+					},
 				});
 				await fixture.build();
+			});
+
+			after(async () => {
+				await fixture.clean();
 			});
 
 			afterEach(() => {
@@ -182,16 +178,10 @@ describe('Prerender', () => {
 		});
 
 		describe('getStaticPaths - dev calls', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
 			let devServer;
 
 			before(async () => {
 				globalThis.isCalledOnce = false;
-				fixture = await loadFixture({
-					root: './fixtures/ssr-hybrid-get-static-paths/',
-					...sharedConfig,
-				});
 				devServer = await fixture.startDevServer();
 			});
 
@@ -280,3 +270,22 @@ describe('Prerender', () => {
 		});
 	});
 });
+
+/** @returns {import('vite').Plugin} */
+function vitePluginRemovePrerenderExport() {
+	const EXTENSIONS = ['.astro', '.ts'];
+	/** @type {import('vite').Plugin} */
+	const plugin = {
+		name: 'remove-prerender-export',
+		transform(code, id) {
+			if (!EXTENSIONS.some((ext) => id.endsWith(ext))) return;
+			return code.replace(/export\s+const\s+prerender\s+=\s+true;/g, '');
+		},
+	};
+	return {
+		name: 'remove-prerender-export-injector',
+		configResolved(resolved) {
+			resolved.plugins.unshift(plugin);
+		},
+	};
+}
