@@ -1,10 +1,10 @@
 import path from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
+import { getPrerenderMetadata } from '../../../prerender/metadata.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
-import { getPrerenderMetadata } from '../../../prerender/metadata.js';
 
 function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
