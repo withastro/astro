@@ -55,18 +55,18 @@ export function vitePluginHoistedScripts(
 
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.
 			// This is used when we render so that we can add the script to the head.
-			Object.entries(bundle).forEach(([ id, output ]) => {
+			Object.entries(bundle).forEach(([id, output]) => {
 				if (
 					output.type === 'chunk' &&
 					output.facadeModuleId &&
 					virtualHoistedEntry(output.facadeModuleId)
 				) {
 					considerInlining.set(id, output);
-					output.imports.forEach(imported => importedByOtherScripts.add(imported));
+					output.imports.forEach((imported) => importedByOtherScripts.add(imported));
 				}
 			});
 
-			for (const [ id, output ] of considerInlining.entries()) {
+			for (const [id, output] of considerInlining.entries()) {
 				const canBeInlined =
 					importedByOtherScripts.has(output.fileName) === false &&
 					output.imports.length === 0 &&
@@ -98,7 +98,7 @@ export function vitePluginHoistedScripts(
 				if (removeFromBundle) {
 					delete bundle[id];
 				}
-			};
+			}
 		},
 	};
 }
