@@ -1,6 +1,6 @@
 import type { ConfigType as MarkdocConfig } from '@markdoc/markdoc';
 import _Markdoc from '@markdoc/markdoc';
-import { nodes as astroNodes } from './nodes/index.js';
+import { heading } from './heading-ids.js';
 
 export type AstroMarkdocConfig<C extends Record<string, any> = Record<string, any>> =
 	MarkdocConfig & {
@@ -11,8 +11,8 @@ export type AstroMarkdocConfig<C extends Record<string, any> = Record<string, an
 export type ResolvedAstroMarkdocConfig = Omit<AstroMarkdocConfig, 'extends'>;
 
 export const Markdoc = _Markdoc;
-export const nodes = { ...Markdoc.nodes, ...astroNodes };
-export { shiki } from './nodes/fence.js';
+export const nodes = { ...Markdoc.nodes, heading };
+export { shiki } from './extensions/shiki.js';
 
 export function defineMarkdocConfig(config: AstroMarkdocConfig): AstroMarkdocConfig {
 	return config;

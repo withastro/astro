@@ -1,7 +1,7 @@
 import { parseHTML } from 'linkedom';
 import { expect } from 'chai';
 import Markdoc from '@markdoc/markdoc';
-import { shiki } from '../dist/nodes/fence.js';
+import { shiki } from '../dist/config.js';
 import { setupConfig } from '../dist/runtime.js';
 import { isHTMLString } from 'astro/runtime/server/index.js';
 

@@ -1,8 +1,8 @@
 import Markdoc, { type ConfigType, type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
 import Slugger from 'github-slugger';
-import { getTextContent } from '../runtime.js';
-import type { AstroMarkdocConfig } from '../config.js';
-import { MarkdocError } from '../utils.js';
+import { getTextContent } from './runtime.js';
+import type { AstroMarkdocConfig } from './config.js';
+import { MarkdocError } from './utils.js';
 
 function getSlug(
 	attributes: Record<string, any>,
@@ -23,6 +23,11 @@ type HeadingIdConfig = AstroMarkdocConfig<{
 	headingSlugger: Slugger;
 }>;
 
+/*
+	Expose standalone node for users to import in their config.
+	Allows users to apply a custom `render: AstroComponent`
+	and spread our default heading attributes.
+*/
 export const heading: Schema = {
 	children: ['inline'],
 	attributes: {
@@ -54,6 +59,7 @@ export const heading: Schema = {
 	},
 };
 
+// Called internally to ensure `ctx` is generated per-file, instead of per-build.
 export function setupHeadingConfig(): HeadingIdConfig {
 	const headingSlugger = new Slugger();
 	return {
