@@ -19,6 +19,7 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { isHybridOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { getPrerenderStatus } from '../prerender/metadata.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -50,6 +51,17 @@ export async function matchRoute(
 	for await (const maybeRoute of matches) {
 		const filePath = new URL(`./${maybeRoute.component}`, settings.config.root);
 		const preloadedComponent = await preload({ env, filePath });
+
+		// gets the prerender metadata set by the `astro:scanner` vite plugin
+		const prerenderStatus = getPrerenderStatus({
+			filePath,
+			loader: env.loader,
+		});
+
+		if (prerenderStatus !== undefined) {
+			maybeRoute.prerender = prerenderStatus;
+		}
+
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!

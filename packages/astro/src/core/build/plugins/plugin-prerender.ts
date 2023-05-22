@@ -4,6 +4,7 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types';
 import { extendManualChunks } from './util.js';
+import { getPrerenderMetadata } from '../../../prerender/metadata.js';
 
 function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -20,7 +21,7 @@ function vitePluginPrerender(opts: StaticBuildOptions, internals: BuildInternals
 					if (pageInfo) {
 						// prerendered pages should be split into their own chunk
 						// Important: this can't be in the `pages/` directory!
-						if (meta.getModuleInfo(id)?.meta.astro?.pageOptions?.prerender) {
+						if (getPrerenderMetadata(meta.getModuleInfo(id))) {
 							pageInfo.route.prerender = true;
 							return 'prerender';
 						}
