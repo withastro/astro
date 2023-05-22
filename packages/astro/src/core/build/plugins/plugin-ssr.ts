@@ -1,21 +1,22 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
+import type { AstroAdapter } from '../../../@types/astro';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
 import type { StaticBuildOptions } from '../types';
-
+import type { AstroBuildPlugin } from '../plugin';
 import glob from 'fast-glob';
 import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { isHybridOutput } from '../../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import { pagesVirtualModuleId } from '../../app/index.js';
 import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin';
+import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
+import { extname } from 'node:path';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
+import { ASTRO_PAGE_EXTENSION_POST_PATTERN, ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -25,7 +26,7 @@ const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
-	config: AstroConfig
+	options: StaticBuildOptions
 ): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
@@ -38,25 +39,57 @@ function vitePluginSSR(
 				return resolvedVirtualModuleId;
 			}
 		},
-		load(id) {
+		async load(id) {
 			if (id === resolvedVirtualModuleId) {
-				let middleware = '';
+				const {
+					settings: { config },
+					allPages,
+				} = options;
+				const imports: string[] = [];
+				const contents: string[] = [];
+				const exports: string[] = [];
+				let middleware;
 				if (config.experimental?.middleware === true) {
-					middleware = 'middleware: _main.middleware';
+					imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}"`);
+					middleware = 'middleware: _middleware';
 				}
-				return `import * as adapter from '${adapter.serverEntrypoint}';
+				let i = 0;
+				const pageMap: string[] = [];
+
+				for (const path of Object.keys(allPages)) {
+					const extension = extname(path);
+					const virtualModuleName = `${ASTRO_PAGE_MODULE_ID}${path.replace(
+						extension,
+						extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
+					)}`;
+					let module = await this.resolve(virtualModuleName);
+					if (module) {
+						const variable = `_page${i}`;
+						// we need to use the non-resolved ID in order to resolve correctly the virtual module
+						imports.push(`const ${variable}  = () => import("${virtualModuleName}")`);
+
+						const pageData = internals.pagesByComponent.get(path);
+						if (pageData) {
+							pageMap.push(`[${JSON.stringify(pageData.component)}, ${variable}]`);
+						}
+						i++;
+					}
+				}
+
+				contents.push(`const pageMap = new Map([${pageMap.join(',')}]);`);
+				exports.push(`export { pageMap }`);
+				const content = `import * as adapter from '${adapter.serverEntrypoint}';
 import { renderers } from '${RENDERERS_MODULE_ID}'; 
-import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
-	pageMap: _main.pageMap,
-	renderers: _main.renderers,
+	pageMap,
+	renderers,
 	${middleware}
 });
 _privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
-export * from '${pagesVirtualModuleId}';
+
 ${
 	adapter.exports
 		? `const _exports = adapter.createExports(_manifest, _args);
@@ -77,6 +110,8 @@ const _start = 'start';
 if(_start in adapter) {
 	adapter[_start](_manifest, _args);
 }`;
+				const result = [imports.join('\n'), contents.join('\n'), content, exports.join('\n')];
+				return result.join('\n');
 			}
 			return void 0;
 		},
@@ -250,7 +285,7 @@ export function pluginSSR(
 		hooks: {
 			'build:before': () => {
 				let vitePlugin = ssr
-					? vitePluginSSR(internals, options.settings.adapter!, options.settings.config)
+					? vitePluginSSR(internals, options.settings.adapter!, options)
 					: undefined;
 
 				return {

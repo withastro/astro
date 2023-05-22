@@ -8,6 +8,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import type { SinglePageBuiltModule } from '../build/types';
 
 export type ComponentPath = string;
 
@@ -31,7 +32,7 @@ export interface RouteInfo {
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
-type ImportComponentInstance = () => Promise<ComponentInstance>;
+type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
 export interface SSRManifest {
 	adapterName: string;

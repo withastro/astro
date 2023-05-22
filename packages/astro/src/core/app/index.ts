@@ -32,8 +32,6 @@ export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
@@ -139,7 +137,8 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let mod = await this.#manifest.pageMap.get(routeData.component)!();
+		let page = await this.#manifest.pageMap.get(routeData.component)!();
+		let mod = await page.page();
 
 		if (routeData.type === 'page') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
@@ -148,7 +147,8 @@ export class App {
 			if (response.status === 500 || response.status === 404) {
 				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
 				if (errorPageData && errorPageData.route !== routeData.route) {
-					mod = await this.#manifest.pageMap.get(errorPageData.component)!();
+					page = await this.#manifest.pageMap.get(errorPageData.component)!();
+					mod = await page.page();
 					try {
 						let errorResponse = await this.#renderPage(
 							request,

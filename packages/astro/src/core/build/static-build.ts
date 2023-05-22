@@ -17,7 +17,6 @@ import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { isHybridOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { resolvedPagesVirtualModuleId } from '../app/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -29,6 +28,7 @@ import { RESOLVED_MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -171,17 +171,6 @@ async function ssrBuild(
 					chunkFileNames: `chunks/[name].[hash].mjs`,
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
-					entryFileNames(chunkInfo) {
-						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
-							return opts.buildConfig.serverEntry;
-						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
-							return 'middleware.mjs';
-						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
-							return 'renderers.mjs';
-						} else {
-							return '[name].mjs';
-						}
-					},
 				},
 			},
 			ssr: true,

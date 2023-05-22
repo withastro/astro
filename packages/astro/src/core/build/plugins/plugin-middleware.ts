@@ -43,6 +43,10 @@ export function vitePluginMiddleware(
 				return result.join('\n');
 			}
 		},
+
+		outputOptions(options) {
+			options.entryFileNames = 'middleware.mjs';
+		},
 	};
 }
 
