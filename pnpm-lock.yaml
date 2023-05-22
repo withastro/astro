@@ -3278,12 +3278,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/ssr-hybrid-get-static-paths:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/ssr-manifest:
     dependencies:
       astro:
