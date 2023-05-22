@@ -42,7 +42,10 @@ export function* walkParentInfos(
 // Returns true if a module is a top-level page. We determine this based on whether
 // it is imported by the top-level virtual module.
 export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
-	return info.importers[0] === resolvedPagesVirtualModuleId;
+	return (
+		info.importers[0] === resolvedPagesVirtualModuleId ||
+		info.dynamicImporters[0] == resolvedPagesVirtualModuleId
+	);
 }
 
 // This function walks the dependency graph, going up until it finds a page component.

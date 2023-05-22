@@ -25,6 +25,7 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import { RESOLVED_MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -172,6 +173,8 @@ async function ssrBuild(
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
 							return opts.buildConfig.serverEntry;
+						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
+							return 'middleware.mjs';
 						} else {
 							return '[name].mjs';
 						}

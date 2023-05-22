@@ -101,15 +101,21 @@ export async function createContentTypesGenerator({
 				readdir: fs.readdir.bind(fs),
 				readdirSync: fs.readdirSync.bind(fs),
 			},
+			onlyFiles: false,
+			objectMode: true,
 		});
-		const entries = globResult
-			.map((e) => new URL(e, contentPaths.contentDir))
-			.filter(
-				// Config loading handled first. Avoid running twice.
-				(e) => !e.href.startsWith(contentPaths.config.url.href)
-			);
-		for (const entry of entries) {
-			events.push({ type: { name: 'add', entry }, opts: { logLevel: 'warn' } });
+
+		for (const entry of globResult) {
+			const entryURL = new URL(entry.path, contentPaths.contentDir);
+			if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
+			if (entry.dirent.isFile()) {
+				events.push({
+					type: { name: 'add', entry: entryURL },
+					opts: { logLevel: 'warn' },
+				});
+			} else if (entry.dirent.isDirectory()) {
+				events.push({ type: { name: 'addDir', entry: entryURL }, opts: { logLevel: 'warn' } });
+			}
 		}
 		await runEvents();
 		return { typesGenerated: true };
@@ -503,9 +509,9 @@ function warnNonexistentCollections({
 			warn(
 				logging,
 				'content',
-				`${JSON.stringify(
+				`The ${JSON.stringify(
 					configuredCollection
-				)} is not a collection. Check your content config for typos.`
+				)} collection does not have an associated folder in your \`content\` directory. Make sure the folder exists, or check your content config for typos.`
 			);
 		}
 	}

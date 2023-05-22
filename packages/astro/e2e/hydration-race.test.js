@@ -17,7 +17,7 @@ test.afterEach(async () => {
 
 test.describe('Hydration race', () => {
 	test('Islands inside of slots hydrate', async ({ page, astro }) => {
-		await page.goto('/slot');
+		await page.goto(astro.resolveUrl('/slot'));
 
 		const html = await page.content();
 
