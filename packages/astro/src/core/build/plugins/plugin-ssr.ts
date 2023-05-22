@@ -15,6 +15,7 @@ import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
+import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -44,6 +45,7 @@ function vitePluginSSR(
 					middleware = 'middleware: _main.middleware';
 				}
 				return `import * as adapter from '${adapter.serverEntrypoint}';
+import { renderers } from '${RENDERERS_MODULE_ID}'; 
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
