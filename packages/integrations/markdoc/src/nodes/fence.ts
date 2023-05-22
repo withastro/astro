@@ -24,7 +24,12 @@ const normalizeTheme = (theme: string | shikiTypes.IShikiTheme) => {
 	}
 };
 
-let cachedHighlighter: shikiTypes.Highlighter;
+/**
+ * Cache each Shiki highlighter by theme name.
+ * Note: cache only needed for dev server reloads, internal test suites, and manual calls to `Markdoc.transform` by the user.
+ * Otherwise, `shiki()` is only called once per build, NOT once per page, so a cache isn't needed!
+ */
+const highlighterCacheAsync = new Map<string, Promise<shikiTypes.Highlighter>>();
 
 export async function shiki({
 	langs = [],
@@ -32,8 +37,11 @@ export async function shiki({
 	wrap = false,
 }: ShikiConfig = {}): Promise<Schema> {
 	theme = normalizeTheme(theme);
-	if (!cachedHighlighter) {
-		cachedHighlighter = await getHighlighter({ theme }).then((hl) => {
+
+	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
+	let highlighterAsync = highlighterCacheAsync.get(cacheID);
+	if (!highlighterAsync) {
+		highlighterAsync = getHighlighter({ theme }).then((hl) => {
 			hl.setColorReplacements({
 				'#000001': 'var(--astro-code-color-text)',
 				'#000002': 'var(--astro-code-color-background)',
@@ -49,10 +57,12 @@ export async function shiki({
 			});
 			return hl;
 		});
+		highlighterCacheAsync.set(cacheID, highlighterAsync);
 	}
+	const highlighter = await highlighterAsync;
 
 	for (const lang of langs) {
-		await cachedHighlighter.loadLanguage(lang);
+		await highlighter.loadLanguage(lang);
 	}
 	return {
 		attributes: Markdoc.nodes.fence.attributes!,
@@ -60,15 +70,13 @@ export async function shiki({
 			let lang: string;
 
 			if (typeof attributes.language === 'string') {
-				const langExists = cachedHighlighter
-					.getLoadedLanguages()
-					.includes(attributes.language as any);
+				const langExists = highlighter.getLoadedLanguages().includes(attributes.language as any);
 				if (langExists) {
 					lang = attributes.language;
 				} else {
 					// eslint-disable-next-line no-console
 					console.warn(
-						`The language "${attributes.language}" doesn't exist, falling back to plaintext.`
+						`[Shiki highlighter] The language "${attributes.language}" doesn't exist, falling back to plaintext.`
 					);
 					lang = 'plaintext';
 				}
@@ -76,7 +84,7 @@ export async function shiki({
 				lang = 'plaintext';
 			}
 
-			let html = cachedHighlighter.codeToHtml(attributes.content, { lang });
+			let html = highlighter.codeToHtml(attributes.content, { lang });
 
 			// Q: Could these regexes match on a user's inputted code blocks?
 			// A: Nope! All rendered HTML is properly escaped.
