@@ -409,8 +409,8 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^0.1.2
-        version: 0.1.2(astro@packages+astro)
+        specifier: ^0.2.0
+        version: link:../../packages/integrations/markdoc
       astro:
         specifier: ^2.4.1
         version: link:../../packages/astro
@@ -5519,23 +5519,6 @@ packages:
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
       vscode-uri: 3.0.7
-    dev: false
-
-  /@astrojs/markdoc@0.1.2(astro@packages+astro):
-    resolution: {integrity: sha512-pOHMGQ/az9UOw+3X21cViPlZBwtxYXZpF8bv9pBQquVJGsfrBv4VZhdJkiXkwp2sq+SXa/Bxk02EXhevUVogCQ==}
-    engines: {node: '>=16.12.0'}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@markdoc/markdoc': 0.2.2
-      astro: link:packages/astro
-      esbuild: 0.17.18
-      gray-matter: 4.0.3
-      kleur: 4.1.5
-      zod: 3.20.6
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
     dev: false
 
   /@babel/code-frame@7.21.4:
