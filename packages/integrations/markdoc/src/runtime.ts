@@ -4,27 +4,45 @@ import Markdoc, {
 	type RenderableTreeNode,
 } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
-import { nodes as astroNodes } from './nodes/index.js';
+import { setupHeadingConfig } from './nodes/index.js';
 
-/** Used to reset Slugger cache on each build at runtime */
+/** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';
-export { headingSlugger } from './nodes/index.js';
 
-export function applyDefaultConfig(
-	config: MarkdocConfig,
-	entry: ContentEntryModule
-): MarkdocConfig {
+/**
+ * Merge user config with default config and set up context (ex. heading ID slugger)
+ * Called on each file's individual transform
+ */
+export function setupConfig(userConfig: MarkdocConfig, entry: ContentEntryModule): MarkdocConfig {
+	const defaultConfig: MarkdocConfig = {
+		// `setupXConfig()` could become a "plugin" convention as well?
+		...setupHeadingConfig(),
+		variables: { entry },
+	};
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Merge function from `@markdoc/markdoc` internals */
+function mergeConfig(configA: MarkdocConfig, configB: MarkdocConfig): MarkdocConfig {
 	return {
-		...config,
-		variables: {
-			entry,
-			...config.variables,
+		...configA,
+		...configB,
+		tags: {
+			...configA.tags,
+			...configB.tags,
 		},
 		nodes: {
-			...astroNodes,
-			...config.nodes,
+			...configA.nodes,
+			...configB.nodes,
 		},
-		// TODO: Syntax highlighting
+		functions: {
+			...configA.functions,
+			...configB.functions,
+		},
+		variables: {
+			...configA.variables,
+			...configB.variables,
+		},
 	};
 }
 
