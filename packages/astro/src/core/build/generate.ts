@@ -35,8 +35,8 @@ import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { getRedirectLocationOrThrow } from '../redirects/index.js';
-import {
+import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
+import {	
 	createAssetLink,
 	createModuleScriptsSet,
 	createStylesheetElementSet,
@@ -173,14 +173,17 @@ async function generatePage(
 	let pageModulePromise = ssrEntry.pageMap?.get(pageData.component);
 	const middleware = ssrEntry.middleware;
 
-	if (!pageModulePromise) {
-		if(pageData.route.type === 'redirect') {
-			pageModulePromise = () => Promise.resolve({ 'default': Function.prototype }) as any;
+	if (!pageModulePromise && routeIsRedirect(pageData.route)) {
+		if(pageData.route.redirectRoute) {
+			pageModulePromise = ssrEntry.pageMap?.get(pageData.route.redirectRoute!.component);
 		} else {
-			throw new Error(
-				`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
-			);
+			pageModulePromise = { default: () => {} } as any;
 		}
+	}
+	if (!pageModulePromise) {
+		throw new Error(
+			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
+		);
 	}
 	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, opts.settings)) {
@@ -519,7 +522,9 @@ async function generatePath(
 			case 301:
 			case 302: {
 				const location = getRedirectLocationOrThrow(response.headers);
-				body = `<!doctype html><meta http-equiv="refresh" content="0;url=${location}" />`;
+				body = `<!doctype html>
+<title>Redirecting to: ${location}</title>
+<meta http-equiv="refresh" content="0;url=${location}" />`;
 				pageData.route.redirect = location;
 				break;
 			}

@@ -27,6 +27,7 @@ import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.
 import { registerAllPlugins } from './plugins/index.js';
 import { RESOLVED_MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
+import { routeIsRedirect } from '../redirects/index.js';
 import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
@@ -55,6 +56,11 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 		// Track the page data in internals
 		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
+
+		// Redirects are config-only, do not add them as input
+		if(routeIsRedirect(pageData.route)) {
+			//continue;
+		}
 
 		pageInput.add(astroModuleId);
 		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);

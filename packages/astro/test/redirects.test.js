@@ -39,20 +39,45 @@ describe('Astro.redirect', () => {
 		});
 	});
 
-	describe('output: "static"', () => {
+	describe.only('output: "static"', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
 				root: './fixtures/ssr-redirect/',
 				output: 'static',
+				redirects: {
+					'/one': '/',
+					'/two': '/',
+					'/blog/[...slug]': '/articles/[...slug]'
+				}
 			});
 			await fixture.build();
 		});
 	
-		it('Includes the meta refresh tag.', async () => {
+		it('Includes the meta refresh tag in Astro.redirect pages', async () => {
 			const html = await fixture.readFile('/secret/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/login');
+		});
+
+		it('Includes the meta refresh tag in `redirect` config pages', async () => {
+			let html = await fixture.readFile('/one/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/');
+
+			html = await fixture.readFile('/two/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/');
+		});
+
+		it('Generates page for dynamic routes', async () => {
+			let html = await fixture.readFile('/blog/one/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/articles/one');
+
+			html = await fixture.readFile('/blog/two/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/articles/two');
 		});
 	});
 });

@@ -1,8 +1,6 @@
 import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
 import { loadFixture, testIntegration } from './test-utils.js';
 import { netlifyStatic } from '../../dist/index.js';
-import { fileURLToPath } from 'url';
 
 describe('SSG - Redirects', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */
@@ -16,7 +14,8 @@ describe('SSG - Redirects', () => {
 			site: `http://example.com`,
 			integrations: [testIntegration()],
 			redirects: {
-				'/other': '/'
+				'/other': '/',
+				'/blog/[...slug]': '/team/articles/[...slug]'
 			}
 		});
 		await fixture.build();
@@ -26,8 +25,10 @@ describe('SSG - Redirects', () => {
 		let redirects = await fixture.readFile('/_redirects');
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
+			'/blog/*', '/team/articles/*/index.html', '301',
 			'/other', '/', '301',
-			'/nope', '/', '301'
+			'/nope', '/', '301',
+			'/team/articles/*', '/team/articles/*/index.html', '200'
 		]);
 	});
 });
