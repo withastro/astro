@@ -11,12 +11,14 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginSSR } from './plugin-ssr.js';
+import { pluginRenderers } from './plugin-renderers.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
 	register(pluginAliasResolve(internals));
 	register(pluginAnalyzer(internals));
 	register(pluginInternals(internals));
+	register(pluginRenderers(options, internals));
 	register(pluginMiddleware(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
