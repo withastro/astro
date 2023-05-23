@@ -1,4 +1,5 @@
 import type { AstroConfig, RouteData, RoutePart } from 'astro';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 
 // https://vercel.com/docs/project-configuration#legacy/routes
 interface VercelRoute {
@@ -36,10 +37,6 @@ function getMatchPattern(segments: RoutePart[][]) {
 		.join('');
 }
 
-function appendTrailingSlash(route: string): string {
-	return route.at(-1) === '/' ? route : route + '/';
-}
-
 function getReplacePattern(segments: RoutePart[][]) {
 	let n = 0;
 	let result = '';
@@ -61,7 +58,7 @@ function getReplacePattern(segments: RoutePart[][]) {
 function getRedirectLocation(route: RouteData, config: AstroConfig): string {
 	if(route.redirectRoute) {
 		const pattern = getReplacePattern(route.redirectRoute.segments);
-		const path = (config.trailingSlash === 'always' ? appendTrailingSlash(pattern) : pattern);
+		const path = (config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern);
 		return config.base + path;
 	} else {
 		return config.base + route.redirect;
