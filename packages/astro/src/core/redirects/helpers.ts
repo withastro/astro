@@ -18,10 +18,12 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 	return route.destination;
 }
 
-export function redirectRouteStatus(redirectRoute: RouteData): ValidRedirectStatus {
+export function redirectRouteStatus(redirectRoute: RouteData, method = 'GET'): ValidRedirectStatus {
 	const routeData = redirectRoute.redirectRoute;
 	if(typeof routeData?.redirect === 'object') {
 		return routeData.redirect.status;
+	} else if(method !== 'GET') {
+		return 308;
 	}
 	return 301;
 }
