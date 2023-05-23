@@ -1,8 +1,8 @@
 import glob from 'fast-glob';
-import pLimit from 'p-limit';
 import fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
