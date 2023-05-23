@@ -46,7 +46,7 @@ function createGlobLookup(glob) {
 }
 
 const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
-	query: { astroRenderContent: true },
+	query: { astroPropagatedAssets: true },
 });
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,

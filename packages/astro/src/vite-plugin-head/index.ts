@@ -9,8 +9,7 @@ import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 
-// Detect this in comments, both in .astro components and in js/ts files.
-const injectExp = /(^\/\/|\/\/!)\s*astro-head-inject/;
+const injectExp = /^\/\/\s*astro-head-inject/;
 
 export default function configHeadVitePlugin({
 	settings,
@@ -33,7 +32,6 @@ export default function configHeadVitePlugin({
 		seen.add(id);
 		const mod = server.moduleGraph.getModuleById(id);
 		const info = this.getModuleInfo(id);
-
 		if (info?.meta.astro) {
 			const astroMetadata = getAstroMetadata(info);
 			if (astroMetadata) {
