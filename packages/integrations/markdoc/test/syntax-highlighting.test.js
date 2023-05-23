@@ -5,7 +5,7 @@ import { shiki } from '../dist/config.js';
 import { setupConfig } from '../dist/runtime.js';
 import { isHTMLString } from 'astro/runtime/server/index.js';
 
-const document = `
+const entry = `
 \`\`\`ts
 const highlighting = true;
 \`\`\`
@@ -19,7 +19,7 @@ const highlighting = true;
 
 describe('Markdoc - Syntax Highlighting', () => {
 	it('transforms with defaults', async () => {
-		const ast = Markdoc.parse(document);
+		const ast = Markdoc.parse(entry);
 		const content = Markdoc.transform(ast, await getConfigExtendingShiki());
 
 		expect(content.children).to.have.lengthOf(2);
@@ -32,7 +32,7 @@ describe('Markdoc - Syntax Highlighting', () => {
 		}
 	});
 	it('transforms with `theme` property', async () => {
-		const ast = Markdoc.parse(document);
+		const ast = Markdoc.parse(entry);
 		const content = Markdoc.transform(
 			ast,
 			await getConfigExtendingShiki({
@@ -49,7 +49,7 @@ describe('Markdoc - Syntax Highlighting', () => {
 		}
 	});
 	it('transforms with `wrap` property', async () => {
-		const ast = Markdoc.parse(document);
+		const ast = Markdoc.parse(entry);
 		const content = Markdoc.transform(
 			ast,
 			await getConfigExtendingShiki({
