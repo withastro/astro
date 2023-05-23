@@ -1,5 +1,5 @@
 ---
-'@astrojs/cloudflare': minor
+'@astrojs/cloudflare': patch
 ---
 
-Continue using esbuild.platform 'browser' to match CloudFlare's standard build settings, but use resolve rewrites to point to the appropriate Lit.js package export for SSR support.
+Fix SSR support for Lit by rewriting some package entrypoints' to a worker-friendly file

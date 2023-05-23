@@ -1,20 +1,20 @@
 import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
+import * as cheerio from "cheerio";
 
-describe('With SolidJS', () => {
-	/** @type {import('./test-utils').Fixture} */
+describe('With Lit', () => {
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/with-solid-js/',
+			root: './fixtures/with-lit/',
 		});
 		await fixture.build();
 	});
 
-	it('renders the solid component', async () => {
-		const { ready, stop } = runCLI('./fixtures/with-solid-js/', { silent: true });
+	it('renders the lit component', async () => {
+		const { ready, stop } = runCLI('./fixtures/with-lit/', { silent: false });
 
 		try {
 			await ready;
@@ -23,7 +23,7 @@ describe('With SolidJS', () => {
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);
-			expect($('.solid').text()).to.equal('Solid Content');
+			expect($('.link-card').text().trim()).to.equal('Lit Content');
 		} finally {
 			stop();
 		}

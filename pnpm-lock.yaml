@@ -3680,7 +3680,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/cloudflare/test/fixtures/with-lit-js:
+  packages/integrations/cloudflare/test/fixtures/with-lit:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -3698,10 +3698,10 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       lit:
-        specifier: '*'
+        specifier: ^2.7.4
         version: 2.7.4
       lit-html:
-        specifier: '*'
+        specifier: ^2.7.4
         version: 2.7.4
 
   packages/integrations/cloudflare/test/fixtures/with-solid-js:

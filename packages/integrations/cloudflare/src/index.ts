@@ -1,9 +1,10 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
-import esbuild, { type Plugin } from 'esbuild';
+import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
 import glob from 'tiny-glob';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { esbuildRewritePlugin, type RewriteResolutionOption } from './esbuild-rewrite-plugin.js';
 
 type Options = {
 	mode: 'directory' | 'advanced';
@@ -29,41 +30,24 @@ export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 		  };
 }
 
-type RewriteResolutionOption = {
-	filter: RegExp;
-	rewrite: (path: string) => string;
-};
-
-const makeRewriteResolutionPlugin = (rewrites: RewriteResolutionOption[]): Plugin => ({
-  name: 'resolutionRewrite',
-  setup(build) {
-    for (const rewrite of rewrites) {
-      build.onResolve({ filter: rewrite.filter }, async ({ path, ...options }) => {
-        // avoid endless loops (this function will be called again by resolve())
-        if (options.pluginData === "skip-rewrite") {
-          return undefined; // continue with original resolution
-        }
-        // get original resolution
-        const resolution = await build.resolve(path, { ...options, pluginData: 'skip-rewrite' });
-        resolution.path = rewrite.rewrite(resolution.path);
-        return resolution;
-      });
-    }
-  },
-});
-
+/**
+ * Rewrite module resolution for Lit, since it does not have a package
+ * export specifically for the `worker` or `workerd` environment, and the
+ * `browser` export includes references to DOM APIs that don't exist in
+ * the Cloudflare Worker context.
+ */
 const DEFAULT_RESOLUTION_REWRITE_OPTIONS: RewriteResolutionOption[] = [
 	{
 		filter: /^lit-html/,
-		rewrite: (path) => path.includes('/lit-html/node/')
-			? path
-			: path.replace('/lit-html/', '/lit-html/node/'),
+		rewrite: (path) =>
+			path.includes('/lit-html/node/') ? path : path.replace('/lit-html/', '/lit-html/node/'),
 	},
 	{
 		filter: /^@lit\/reactive-element/,
-		rewrite: (path) => path.includes('/@lit/reactive-element/node/')
-			? path
-			: path.replace('/@lit/reactive-element/', '/@lit/reactive-element/node/'),
+		rewrite: (path) =>
+			path.includes('/@lit/reactive-element/node/')
+				? path
+				: path.replace('/@lit/reactive-element/', '/@lit/reactive-element/node/'),
 	},
 ];
 
@@ -133,15 +117,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// A URL for the final build path after renaming
 				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
-				/* Rewrite module resolution for Lit.js, since it does not have a package
-				   export specifically for the `worker` or `workerd` environment, and the
-					 `browser` export includes references to DOM APIs that don't exist in
-					 the Cloudflare Worker context.
-				*/
-				const rewriteResolutionPlugin = makeRewriteResolutionPlugin([
-					...DEFAULT_RESOLUTION_REWRITE_OPTIONS,
-				]);
-
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
@@ -158,9 +133,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					logOverride: {
 						'ignored-bare-import': 'silent',
 					},
-					plugins: [
-						rewriteResolutionPlugin,	
-					],
+					plugins: [esbuildRewritePlugin(DEFAULT_RESOLUTION_REWRITE_OPTIONS)],
 				});
 
 				// Rename to worker.js
