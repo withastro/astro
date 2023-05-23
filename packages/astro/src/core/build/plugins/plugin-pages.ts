@@ -26,9 +26,9 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 		async load(id) {
 			if (id === resolvedPagesVirtualModuleId) {
 				let importMap = '';
-				const imports = [];
-				const exports = [];
-				const content = [];
+				const imports: string[] = [];
+				const exports: string[] = [];
+				const content: string[] = [];
 				let i = 0;
 				imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}"`);
 				exports.push(`export { renderers }`);
@@ -48,8 +48,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 
 				content.push(`export const pageMap = new Map([${importMap}]);`);
 
-				const result = [imports.join('\n'), content.join('\n'), exports.join('\n')];
-				return result.join('\n');
+				return `${imports.join('\n')}${content.join('\n')}${exports.join('\n')}`;
 			}
 		},
 	};

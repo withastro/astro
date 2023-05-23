@@ -42,9 +42,7 @@ export function vitePluginRenderers(
 
 					exports.push(`export const renderers = [${rendererItems}];`);
 
-					const result = [imports.join('\n'), exports.join('\n')];
-
-					return result.join('\n');
+					return `${imports.join('\n')}\n${exports.join('\n')}`;
 				}
 			}
 		},
