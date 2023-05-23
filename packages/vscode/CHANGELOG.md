@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 1.0.7
+
+### Patch Changes
+
+- e54ec6c: Update to prettier-plugin-astro@0.9.0
+
 ## 1.0.6
 
 ### Patch Changes
