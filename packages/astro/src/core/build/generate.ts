@@ -177,7 +177,7 @@ async function generatePage(
 		if(pageData.route.redirectRoute) {
 			pageModulePromise = ssrEntry.pageMap?.get(pageData.route.redirectRoute!.component);
 		} else {
-			pageModulePromise = { default: () => {} } as any;
+			pageModulePromise = () => Promise.resolve<any>({ default: () => {} });
 		}
 	}
 	if (!pageModulePromise) {

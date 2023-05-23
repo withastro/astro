@@ -36,6 +36,10 @@ function getMatchPattern(segments: RoutePart[][]) {
 		.join('');
 }
 
+function appendTrailingSlash(route: string): string {
+	return route.at(-1) === '/' ? route : route + '/';
+}
+
 function getReplacePattern(segments: RoutePart[][]) {
 	let n = 0;
 	let result = '';
@@ -54,28 +58,44 @@ function getReplacePattern(segments: RoutePart[][]) {
 	return result;
 }
 
+function getRedirectLocation(route: RouteData, config: AstroConfig): string {
+	if(route.redirectRoute) {
+		const pattern = getReplacePattern(route.redirectRoute.segments);
+		const path = (config.trailingSlash === 'always' ? appendTrailingSlash(pattern) : pattern);
+		return config.base + path;
+	} else {
+		return config.base + route.redirect;
+	}	
+}
+
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
 	let redirects: VercelRoute[] = [];
 
-	if (config.trailingSlash === 'always') {
-		for (const route of routes) {
-			if (route.type !== 'page' || route.segments.length === 0) continue;
-
-			redirects.push({
-				src: config.base + getMatchPattern(route.segments),
-				headers: { Location: config.base + getReplacePattern(route.segments) + '/' },
-				status: 308,
-			});
-		}
-	} else if (config.trailingSlash === 'never') {
-		for (const route of routes) {
-			if (route.type !== 'page' || route.segments.length === 0) continue;
-
-			redirects.push({
-				src: config.base + getMatchPattern(route.segments) + '/',
-				headers: { Location: config.base + getReplacePattern(route.segments) },
-				status: 308,
-			});
+	for(const route of routes) {
+		if(route.type === 'redirect') {
+			if(true || route.pathname) {
+				redirects.push({
+					src: config.base + getMatchPattern(route.segments),
+					headers: { Location: getRedirectLocation(route, config) },
+					status: 301
+				})
+			} else {
+				console.error(`Dynamic routes not yet supported`);
+			}
+		} else if (route.type === 'page') {
+			if (config.trailingSlash === 'always') {
+				redirects.push({
+					src: config.base + getMatchPattern(route.segments),
+					headers: { Location: config.base + getReplacePattern(route.segments) + '/' },
+					status: 308,
+				});
+			} else if (config.trailingSlash === 'never') {
+				redirects.push({
+					src: config.base + getMatchPattern(route.segments) + '/',
+					headers: { Location: config.base + getReplacePattern(route.segments) },
+					status: 308,
+				});
+			}
 		}
 	}
 
