@@ -4,11 +4,18 @@ import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
+import { existsSync } from 'node:fs';
 
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 export const RESOLVED_MIDDLEWARE_MODULE_ID = '\0@astro-middleware';
 
 let inputs: Set<string> = new Set();
+
+function middlewareFileExists(opts: StaticBuildOptions): boolean {
+	const middlewareFile = `${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`;
+	return existsSync(middlewareFile);
+}
+
 export function vitePluginMiddleware(
 	opts: StaticBuildOptions,
 	_internals: BuildInternals
@@ -16,11 +23,13 @@ export function vitePluginMiddleware(
 	return {
 		name: '@astro/plugin-middleware',
 		options(options) {
-			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			if (middlewareFileExists(opts)) {
+				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			}
 		},
 
 		resolveId(id) {
-			if (id === MIDDLEWARE_MODULE_ID) {
+			if (id === MIDDLEWARE_MODULE_ID && middlewareFileExists(opts)) {
 				return RESOLVED_MIDDLEWARE_MODULE_ID;
 			}
 		},
@@ -33,12 +42,11 @@ export function vitePluginMiddleware(
 					`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
 				);
 				if (middlewareId) {
-					imports.push(`import { onRequest } from "${middlewareId.id}"`);
+					imports.push(`import { onRequest } from "${middlewareId.id}";`);
 					exports.push(`export { onRequest }`);
-				}
-				const result = [imports.join('\n'), exports.join('\n')];
 
-				return result.join('\n');
+					return `${imports.join('\n')}\n${exports.join('\n')}`;
+				}
 			}
 		},
 	};

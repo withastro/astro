@@ -16,6 +16,7 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
+import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -38,9 +39,13 @@ function vitePluginSSR(
 				return resolvedVirtualModuleId;
 			}
 		},
-		load(id) {
+		async load(id) {
 			if (id === resolvedVirtualModuleId) {
-				const middleware = 'middleware: _main.middleware';
+				let middleware = '';
+				const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
+				if (middlewareModule) {
+					middleware = 'middleware: _main.middleware';
+				}
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import { renderers } from '${RENDERERS_MODULE_ID}'; 
 import * as _main from '${pagesVirtualModuleId}';

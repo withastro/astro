@@ -43,6 +43,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 
 				let middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
 				if (middlewareModule) {
+					let what = await this.load(middlewareModule);
 					imports.push(`import * as _middleware from "${middlewareModule.id}";`);
 					exports.push(`export const middleware = _middleware;`);
 				}
