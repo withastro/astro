@@ -83,6 +83,7 @@ You can configure how your MDX is rendered with the following options:
 - [Options inherited from Markdown config](#options-inherited-from-markdown-config)
 - [`extendMarkdownConfig`](#extendmarkdownconfig)
 - [`recmaPlugins`](#recmaplugins)
+- [`optimize`](#optimize)
 
 ### Options inherited from Markdown config
 
@@ -185,9 +186,34 @@ We suggest [using AST Explorer](https://astexplorer.net/) to play with estree ou
 
 ### `optimize`
 
-Whether to optimize the MDX output for faster builds and rendering. An internal rehype plugin will be injected last to transform static parts of the `hast` into [`set:html` properties](https://docs.astro.build/en/reference/directives-reference/#sethtml). As this modifies the intermediate `estree` and leaves some generated HTML to be un-escaped, the option is disabled by default.
+- **Type:** `boolean | { customComponentNames?: string[] }`
 
-As the optimizer works within individual MDX files, if you're [passing custom components to an imported MDX content](https://docs.astro.build/en/guides/markdown-content/#custom-components-with-imported-mdx), you'll need to configure `customComponentNames` to prevent the optimizer from handling the custom components:
+This is an optional configuration setting to optimize the MDX output for faster builds and rendering via an internal rehype plugin. This may be useful if you have many MDX content and notice slow builds. However, this option may generate some unescaped HTML, so make sure your site's interactive parts still work correctly after enabling it.
+
+This is disabled by default. To enable MDX optimization, add the following to your MDX integration configuration:
+
+__`astro.config.mjs`__
+
+```js
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  integrations: [
+    mdx({
+      optimize: true,
+    })
+  ]
+});
+```
+
+### `customComponentNames`
+
+- **Type:** `string[]`
+
+An optional property of `optimize` to prevent the MDX optimizer from handling any [custom components passed to imported MDX content](https://docs.astro.build/en/guides/markdown-content/#custom-components-with-imported-mdx).
+
+You will need to exclude these components from optimization as the optimizer eagerly converts content into a static string, which will break custom components that needs to be dynamically rendered. For example, with the below configuration, the MDX output should be `<Heading>...</Heading>` instead of `"<h1>...</h1>"`.
 
 ```astro
 ---
@@ -197,6 +223,10 @@ import Heading from '../Heading.astro';
 
 <Content components={{...components, h1: Heading }} />
 ```
+
+Note that if you use `export const components = { ... }` in your MDX file to configure custom components, you don't need to manually configure this option as the optimizer will automatically detect them.
+
+To configure this option, specify an array of HTML element names that are custom components:
 
 __`astro.config.mjs`__
 
@@ -215,9 +245,6 @@ export default defineConfig({
   ]
 });
 ```
-
-> **Note**
-> If you're using `export const components = { ... }` in your MDX file, the optimizer will automatically detect and add them to `customComponentNames` so you don't have to manually configure it.
 
 ## Examples
 
