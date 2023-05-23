@@ -18,6 +18,7 @@ import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
+import { isHTMLString } from '../../runtime/server/escape.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -110,9 +111,11 @@ class Slots {
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
-				const slot = () => expression(...args);
-				return await renderSlotToString(result, slot).then((res) =>
-					res != null ? String(res) : res
+				const slot = async () => isHTMLString(await expression) ? expression : expression(...args)
+				return await renderSlotToString(result, slot).then((res) =>{
+					return res != null ? String(res) : res
+				}
+					
 				);
 			}
 			// JSX
