@@ -20,7 +20,7 @@ test.afterAll(async () => {
 
 test.describe('Recursive Nested Frameworks', () => {
 	test('React counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#react-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -37,7 +37,7 @@ test.describe('Recursive Nested Frameworks', () => {
 	});
 
 	test('Preact counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -54,7 +54,7 @@ test.describe('Recursive Nested Frameworks', () => {
 	});
 
 	test('Solid counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#solid-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -71,7 +71,7 @@ test.describe('Recursive Nested Frameworks', () => {
 	});
 
 	test('Vue counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#vue-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -88,7 +88,7 @@ test.describe('Recursive Nested Frameworks', () => {
 	});
 
 	test('Svelte counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#svelte-counter');
 		await expect(counter, 'component is visible').toBeVisible();

@@ -15,7 +15,7 @@ test.afterAll(async () => {
 
 test.describe('Recursive elements with Solid', () => {
 	test('Counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const wrapper = page.locator('#case1');
 		await expect(wrapper, 'component is visible').toBeVisible();

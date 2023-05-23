@@ -10,7 +10,7 @@ import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
-import { applyDefaultConfig } from './runtime.js';
+import { setupConfig } from './runtime.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -32,7 +32,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
+				const {
+					config: astroConfig,
+					updateConfig,
+					addContentEntryType,
+				} = params as SetupHookParams;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
@@ -49,10 +53,13 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
+					// Markdoc handles script / style propagation
+					// for Astro components internally
+					handlePropagation: false,
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = applyDefaultConfig(userMarkdocConfig, entry);
+						const markdocConfig = setupConfig(userMarkdocConfig, entry);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -88,9 +95,12 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							});
 						}
 
-						const res = `import { jsx as h } from 'astro/jsx-runtime';
+						const res = `import {
+							createComponent,
+							renderComponent,
+						} from 'astro/runtime/server/index.js';
 						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, applyDefaultConfig, Markdoc, headingSlugger } from '@astrojs/markdoc/runtime';
+						import { collectHeadings, setupConfig, Markdoc } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
 ${
 	markdocConfigResult
@@ -113,28 +123,57 @@ export function getHeadings() {
 		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
 		''
 	}
-	headingSlugger.reset();
 	const headingConfig = userConfig.nodes?.heading;
-	const config = applyDefaultConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const config = setupConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
-export async function Content (props) {
-	headingSlugger.reset();
-	const config = applyDefaultConfig({
-		...userConfig,
-		variables: { ...userConfig.variables, ...props },
-	}, entry);
 
-	return h(Renderer, { config, stringifiedAst });
-}`;
+export const Content = createComponent({
+	factory(result, props) {
+		const config = setupConfig({
+			...userConfig,
+			variables: { ...userConfig.variables, ...props },
+		}, entry);
+		
+		return renderComponent(
+			result,
+			Renderer.name,
+			Renderer,
+			{ stringifiedAst, config },
+			{}
+		);
+	},
+	propagation: 'self',
+});`;
 						return { code: res };
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+				});
+
+				updateConfig({
+					vite: {
+						plugins: [
+							{
+								name: '@astrojs/markdoc:astro-propagated-assets',
+								enforce: 'pre',
+								// Astro component styles and scripts should only be injected
+								// When a given Markdoc file actually uses that component.
+								// Add the `astroPropagatedAssets` flag to inject only when rendered.
+								resolveId(this: rollup.TransformPluginContext, id: string, importer: string) {
+									if (importer === markdocConfigResult?.fileUrl.pathname && id.endsWith('.astro')) {
+										return this.resolve(id + '?astroPropagatedAssets', importer, {
+											skipSelf: true,
+										});
+									}
+								},
+							},
+						],
+					},
 				});
 			},
 			'astro:server:setup': async ({ server }) => {

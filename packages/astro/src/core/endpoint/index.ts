@@ -138,7 +138,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		};
 	}
 
-	if (env.ssr && !mod.prerender) {
+	if (env.ssr && !ctx.route?.prerender) {
 		if (response.hasOwnProperty('headers')) {
 			warn(
 				logging,

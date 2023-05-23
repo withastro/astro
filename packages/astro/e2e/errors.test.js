@@ -18,7 +18,7 @@ test.afterAll(async ({ astro }) => {
 
 test.describe('Error display', () => {
 	test('detect syntax errors in template', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/astro-syntax-error'));
+		await page.goto(astro.resolveUrl('/astro-syntax-error'), { waitUntil: 'networkidle' });
 
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('Unexpected "}"');
@@ -37,7 +37,7 @@ test.describe('Error display', () => {
 	});
 
 	test('shows useful error when frontmatter import is not found', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/import-not-found'));
+		await page.goto(astro.resolveUrl('/import-not-found'), { waitUntil: 'networkidle' });
 
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('Could not import ../abc.astro');
@@ -53,7 +53,7 @@ test.describe('Error display', () => {
 	});
 
 	test('shows correct file path when a page has an error', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/import-not-found'));
+		await page.goto(astro.resolveUrl('/import-not-found'), { waitUntil: 'networkidle' });
 
 		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
 		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
@@ -64,7 +64,7 @@ test.describe('Error display', () => {
 	});
 
 	test('shows correct file path when a component has an error', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/preact-runtime-error'));
+		await page.goto(astro.resolveUrl('/preact-runtime-error'), { waitUntil: 'networkidle' });
 
 		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
 		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
@@ -75,7 +75,7 @@ test.describe('Error display', () => {
 	});
 
 	test('framework errors recover when fixed', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/svelte-syntax-error'));
+		await page.goto(astro.resolveUrl('/svelte-syntax-error'), { waitUntil: 'networkidle' });
 
 		const message = (await getErrorOverlayContent(page)).message;
 		expect(message).toMatch('</div> attempted to close an element that was not open');

@@ -12,9 +12,6 @@ describe('SSR: prerender', () => {
 			root: './fixtures/ssr-prerender/',
 			output: 'server',
 			adapter: testAdapter(),
-			experimental: {
-				prerender: true,
-			},
 		});
 		await fixture.build();
 	});
