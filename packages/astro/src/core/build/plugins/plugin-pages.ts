@@ -25,10 +25,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 
 		async load(id) {
 			if (id === resolvedPagesVirtualModuleId) {
-				let middlewareId = await this.resolve(
-					`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
-				);
-
 				let importMap = '';
 				const imports: string[] = [];
 				const exports: string[] = [];
@@ -45,8 +41,9 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					i++;
 				}
 
-				if (opts.settings.config.experimental.middleware) {
-					imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}";`);
+				let middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
+				if (middlewareModule) {
+					imports.push(`import * as _middleware from "${middlewareModule.id}";`);
 					exports.push(`export const middleware = _middleware;`);
 				}
 

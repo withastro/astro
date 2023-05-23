@@ -16,19 +16,17 @@ export function vitePluginMiddleware(
 	return {
 		name: '@astro/plugin-middleware',
 		options(options) {
-			if (opts.settings.config.experimental.middleware) {
-				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
-			}
+			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
 		},
 
 		resolveId(id) {
-			if (id === MIDDLEWARE_MODULE_ID && opts.settings.config.experimental.middleware) {
+			if (id === MIDDLEWARE_MODULE_ID) {
 				return RESOLVED_MIDDLEWARE_MODULE_ID;
 			}
 		},
 
 		async load(id) {
-			if (id === RESOLVED_MIDDLEWARE_MODULE_ID && opts.settings.config.experimental.middleware) {
+			if (id === RESOLVED_MIDDLEWARE_MODULE_ID) {
 				const imports: string[] = [];
 				const exports: string[] = [];
 				let middlewareId = await this.resolve(
