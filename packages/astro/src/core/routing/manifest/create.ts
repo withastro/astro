@@ -444,6 +444,7 @@ export function createRouteManifest(
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
+		
 
 		routes.unshift({
 			type: 'redirect',
@@ -451,11 +452,12 @@ export function createRouteManifest(
 			pattern,
 			segments,
 			params,
-			component: '',
+			component: from,
 			generate,
 			pathname: pathname || void 0,
 			prerender: false,
-			redirect: to
+			redirect: to,
+			redirectRoute: routes.find(r => r.route === to)
 		});
 	});
 

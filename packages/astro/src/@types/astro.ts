@@ -1841,6 +1841,7 @@ export interface RouteData {
 	type: RouteType;
 	prerender: boolean;
 	redirect?: string;
+	redirectRoute?: RouteData;
 }
 
 export type RedirectRouteData = RouteData & {

@@ -65,46 +65,18 @@ export async function createRedirects(
 				}
 			}
 		} else {
-			const pattern =
-				'/' +
-				route.segments
-					.map(([part]) => {
-						//(part.dynamic ? '*' : part.content)
-						if (part.dynamic) {
-							if (part.spread) {
-								return '*';
-							} else {
-								return ':' + part.content;
-							}
-						} else {
-							return part.content;
-						}
-					})
-					.join('/');
+			const pattern = generateDynamicPattern(route);
 
-			//if(kind === 'static') {
-				if(route.redirect) {
-					definitions.push({
-						dynamic: true,
-						input: pattern,
-						target: route.redirect,
-						status: 301,
-						weight: 1
-					});
-					continue;
-				}
-
-			if(kind === 'static') {
-				continue;	
-			}
-			else if (route.distURL) {
+			if (route.distURL) {
+				const targetRoute = route.redirectRoute ?? route;
+				const targetPattern = generateDynamicPattern(targetRoute);
 				const target =
-					`${pattern}` + (config.build.format === 'directory' ? '/index.html' : '.html');
+					`${targetPattern}` + (config.build.format === 'directory' ? '/index.html' : '.html');
 				definitions.push({
 					dynamic: true,
 					input: pattern,
 					target,
-					status: 200,
+					status: route.type === 'redirect' ? 301 : 200,
 					weight: 1,
 				});
 			} else {
@@ -125,6 +97,26 @@ export async function createRedirects(
 	// e.g. due to a `/public/_redirects` file that got copied to the output dir.
 	// If the file does not exist yet, appendFile() automatically creates it.
 	await fs.promises.appendFile(_redirectsURL, _redirects, 'utf-8');
+}
+
+function generateDynamicPattern(route: RouteData) {
+	const pattern =
+		'/' +
+		route.segments
+			.map(([part]) => {
+				//(part.dynamic ? '*' : part.content)
+				if (part.dynamic) {
+					if (part.spread) {
+						return '*';
+					} else {
+						return ':' + part.content;
+					}
+				} else {
+					return part.content;
+				}
+			})
+			.join('/');
+	return pattern;
 }
 
 function prettify(definitions: RedirectDefinition[]) {
