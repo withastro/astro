@@ -73,15 +73,11 @@ export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRo
 
 	for(const route of routes) {
 		if(route.type === 'redirect') {
-			if(true || route.pathname) {
-				redirects.push({
-					src: config.base + getMatchPattern(route.segments),
-					headers: { Location: getRedirectLocation(route, config) },
-					status: 301
-				})
-			} else {
-				console.error(`Dynamic routes not yet supported`);
-			}
+			redirects.push({
+				src: config.base + getMatchPattern(route.segments),
+				headers: { Location: getRedirectLocation(route, config) },
+				status: 301
+			});
 		} else if (route.type === 'page') {
 			if (config.trailingSlash === 'always') {
 				redirects.push({
