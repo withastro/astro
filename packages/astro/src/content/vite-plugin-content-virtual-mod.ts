@@ -1,4 +1,5 @@
 import glob from 'fast-glob';
+import pLimit from 'p-limit';
 import fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -114,59 +115,68 @@ export async function getStringifiedLookupMap({
 		}
 	);
 
-	await Promise.all(
-		contentGlob.map(async (filePath) => {
-			const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
-			// Globbed ignored or unsupported entry.
-			// Logs warning during type generation, should ignore in lookup map.
-			if (entryType !== 'content' && entryType !== 'data') return;
+	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
+	// Each await shouldn't take too long for the work to be noticably slow too.
+	const limit = pLimit(10);
+	const promises: Promise<void>[] = [];
 
-			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
-			if (!collection) throw UnexpectedLookupMapError;
+	for (const filePath of contentGlob) {
+		promises.push(
+			limit(async () => {
+				const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
+				// Globbed ignored or unsupported entry.
+				// Logs warning during type generation, should ignore in lookup map.
+				if (entryType !== 'content' && entryType !== 'data') return;
 
-			if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
-				throw new AstroError({
-					...AstroErrorData.MixedContentDataCollectionError,
-					message: AstroErrorData.MixedContentDataCollectionError.message(collection),
-				});
-			}
+				const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
+				if (!collection) throw UnexpectedLookupMapError;
 
-			if (entryType === 'content') {
-				const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-				if (!contentEntryType) throw UnexpectedLookupMapError;
+				if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
+					throw new AstroError({
+						...AstroErrorData.MixedContentDataCollectionError,
+						message: AstroErrorData.MixedContentDataCollectionError.message(collection),
+					});
+				}
 
-				const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
-					entry: pathToFileURL(filePath),
-					contentDir,
-					collection,
-				});
-				const slug = await getEntrySlug({
-					id,
-					collection,
-					generatedSlug,
-					fs,
-					fileUrl: pathToFileURL(filePath),
-					contentEntryType,
-				});
-				lookupMap[collection] = {
-					type: 'content',
-					entries: {
-						...lookupMap[collection]?.entries,
-						[slug]: rootRelativePath(root, filePath),
-					},
-				};
-			} else {
-				const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
-				lookupMap[collection] = {
-					type: 'data',
-					entries: {
-						...lookupMap[collection]?.entries,
-						[id]: rootRelativePath(root, filePath),
-					},
-				};
-			}
-		})
-	);
+				if (entryType === 'content') {
+					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+					if (!contentEntryType) throw UnexpectedLookupMapError;
+
+					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+						entry: pathToFileURL(filePath),
+						contentDir,
+						collection,
+					});
+					const slug = await getEntrySlug({
+						id,
+						collection,
+						generatedSlug,
+						fs,
+						fileUrl: pathToFileURL(filePath),
+						contentEntryType,
+					});
+					lookupMap[collection] = {
+						type: 'content',
+						entries: {
+							...lookupMap[collection]?.entries,
+							[slug]: rootRelativePath(root, filePath),
+						},
+					};
+				} else {
+					const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
+					lookupMap[collection] = {
+						type: 'data',
+						entries: {
+							...lookupMap[collection]?.entries,
+							[id]: rootRelativePath(root, filePath),
+						},
+					};
+				}
+			})
+		);
+	}
+
+	await Promise.all(promises);
 
 	return JSON.stringify(lookupMap);
 }

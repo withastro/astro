@@ -148,6 +148,7 @@
     "magic-string": "^0.27.0",
     "mime": "^3.0.0",
     "ora": "^6.1.0",
+    "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",
     "preferred-pm": "^3.0.3",
     "prompts": "^2.4.2",
