@@ -40,14 +40,11 @@ export default function startServer(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	const { client } = resolvePaths(options);
 	const handler = middleware(app, options.mode);
+
 	// Allow to provide host value at runtime
 	const host = getResolvedHostForHttpServer(
 		process.env.HOST !== undefined && process.env.HOST !== '' ? process.env.HOST : options.host
 	);
-
-	
-	
-
 	const server = createServer(
 		{
 			client,
@@ -57,6 +54,7 @@ export default function startServer(app: NodeApp, options: Options) {
 		},
 		handler
 	);
+	
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';
 	const address = getNetworkAddress(protocol, host!, port)
 
