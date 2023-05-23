@@ -148,6 +148,7 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 	];
 
 	if (mdxOptions.optimize) {
+		// Convert user `optimize` option to compatible `rehypeOptimizeStatic` option
 		const options = mdxOptions.optimize === true ? undefined : mdxOptions.optimize;
 		rehypePlugins.push([rehypeOptimizeStatic, options]);
 	}

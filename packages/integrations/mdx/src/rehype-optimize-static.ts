@@ -19,10 +19,16 @@ const exportConstComponentsRe = /export\s+const\s+components\s*=/;
  */
 export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 	return (tree: any) => {
-		// Read `export const components` to make sure the components are not optimized.
+		// A set of non-static components to avoid collapsing when walking the tree
+		// as they need to be preserved as JSX to be rendered dynamically.
 		const customComponentNames = new Set<string>(options?.customComponentNames);
+
+		// Find `export const components = { ... }` and get it's object's keys to be
+		// populated into `customComponentNames`. This configuration is used to render
+		// some HTML elements as custom components, and we also want to avoid collapsing them.
 		for (const child of tree.children) {
 			if (child.type === 'mdxjsEsm' && exportConstComponentsRe.test(child.value)) {
+				// Try to loosely get the object property nodes
 				const objectPropertyNodes = child.data.estree.body[0]?.declarations?.[0]?.init?.properties;
 				if (objectPropertyNodes) {
 					for (const objectPropertyNode of objectPropertyNodes) {
@@ -56,14 +62,16 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 					// comment out the code below when reading.
 					elementStack.length = 0;
 				}
-				// For possible subtree root nodes, record them
+				// For possible subtree root nodes, record them in `elementStack` and
+				// `allPossibleElements` to be used in the "leave" hook below.
 				if (node.type === 'element' || node.type === 'mdxJsxFlowElement') {
 					elementStack.push(node);
 					allPossibleElements.add(node);
 				}
 			},
 			leave(node, _, __, parents) {
-				// Similar as above, but pop the `elementStack`
+				// Do the reverse of the if condition above, popping the `elementStack`,
+				// and consolidating `allPossibleElements` as a subtree root.
 				if (node.type === 'element' || node.type === 'mdxJsxFlowElement') {
 					elementStack.pop();
 					// Many possible elements could be part of a subtree, in order to find
