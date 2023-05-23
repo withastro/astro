@@ -32,7 +32,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
+				const {
+					config: astroConfig,
+					updateConfig,
+					addContentEntryType,
+				} = params as SetupHookParams;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
@@ -49,6 +53,9 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
+					// Markdoc handles script / style propagation
+					// for Astro components internally
+					handlePropagation: false,
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
@@ -88,7 +95,10 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							});
 						}
 
-						const res = `import { jsx as h } from 'astro/jsx-runtime';
+						const res = `import {
+							createComponent,
+							renderComponent,
+						} from 'astro/runtime/server/index.js';
 						import { Renderer } from '@astrojs/markdoc/components';
 						import { collectHeadings, setupConfig, Markdoc } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
@@ -119,20 +129,51 @@ export function getHeadings() {
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
-export async function Content (props) {
-	const config = setupConfig({
-		...userConfig,
-		variables: { ...userConfig.variables, ...props },
-	}, entry);
 
-	return h(Renderer, { config, stringifiedAst });
-}`;
+export const Content = createComponent({
+	factory(result, props) {
+		const config = setupConfig({
+			...userConfig,
+			variables: { ...userConfig.variables, ...props },
+		}, entry);
+		
+		return renderComponent(
+			result,
+			Renderer.name,
+			Renderer,
+			{ stringifiedAst, config },
+			{}
+		);
+	},
+	propagation: 'self',
+});`;
 						return { code: res };
 					},
 					contentModuleTypes: await fs.promises.readFile(
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+				});
+
+				updateConfig({
+					vite: {
+						plugins: [
+							{
+								name: '@astrojs/markdoc:astro-propagated-assets',
+								enforce: 'pre',
+								// Astro component styles and scripts should only be injected
+								// When a given Markdoc file actually uses that component.
+								// Add the `astroPropagatedAssets` flag to inject only when rendered.
+								resolveId(this: rollup.TransformPluginContext, id: string, importer: string) {
+									if (importer === markdocConfigResult?.fileUrl.pathname && id.endsWith('.astro')) {
+										return this.resolve(id + '?astroPropagatedAssets', importer, {
+											skipSelf: true,
+										});
+									}
+								},
+							},
+						],
+					},
 				});
 			},
 			'astro:server:setup': async ({ server }) => {

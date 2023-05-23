@@ -66,6 +66,7 @@ export async function preload({
 	try {
 		// Load the module from the Vite SSR Runtime.
 		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
+
 		return [renderers, mod];
 	} catch (error) {
 		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it

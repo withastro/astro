@@ -4,6 +4,7 @@ let foo = 'bar'
 let bg = 'white'
 let fg = 'black'
 let bar = '<script>bar</script>'
+let undef: undefined;
 ---
 
 <html>
@@ -31,6 +32,9 @@ let bar = '<script>bar</script>'
 		</script>
 		<script id="inline-4" define:vars={{ bar }}>
 			console.log(bar);
+		</script>
+		<script id="inline-5" define:vars={{ undef }}>
+			console.log(undef);
 		</script>
 
 		<Title />
