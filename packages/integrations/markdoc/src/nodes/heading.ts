@@ -37,14 +37,13 @@ export const heading: Schema = {
 		const slug = getSlug(attributes, children, config.ctx.headingSlugger);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
-
 		const tagProps =
 			// For components, pass down `level` as a prop,
 			// alongside `__collectHeading` for our `headings` collector.
 			// Avoid accidentally rendering `level` as an HTML attribute otherwise!
-			typeof render === 'string'
-				? { ...attributes, id: slug }
-				: { ...attributes, id: slug, __collectHeading: true, level };
+			typeof render === 'function'
+				? { ...attributes, id: slug, __collectHeading: true, level }
+				: { ...attributes, id: slug };
 
 		return new Markdoc.Tag(render, tagProps, children);
 	},
