@@ -48,8 +48,8 @@ function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): 
 		...configA,
 		...configB,
 		ctx: {
-			...configA,
-			...configB,
+			...configA.ctx,
+			...configB.ctx,
 		},
 		tags: {
 			...configA.tags,
