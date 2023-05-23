@@ -113,6 +113,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^1.4.0",
+    "@astrojs/internal-helpers": "^0.1.0",
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",
     "@astrojs/telemetry": "^2.1.1",

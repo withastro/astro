@@ -534,6 +534,9 @@ importers:
       '@astrojs/compiler':
         specifier: ^1.4.0
         version: 1.4.0
+      '@astrojs/internal-helpers':
+        specifier: ^0.1.0
+        version: link:../internal-helpers
       '@astrojs/language-server':
         specifier: ^1.0.0
         version: 1.0.0
@@ -4809,6 +4812,9 @@ importers:
 
   packages/integrations/vercel:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: ^0.1.0
+        version: link:../../internal-helpers
       '@astrojs/webapi':
         specifier: ^2.1.1
         version: link:../../webapi
@@ -4860,6 +4866,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/no-output:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/redirects:
     dependencies:
       '@astrojs/vercel':
         specifier: workspace:*
@@ -4925,6 +4940,12 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/internal-helpers:
+    devDependencies:
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/markdown/component:
     devDependencies:
