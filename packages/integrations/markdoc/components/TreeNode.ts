@@ -61,7 +61,8 @@ export const ComponentNode = createComponent({
 				links = treeNode.collectedLinks
 					.map((link: any) => {
 						return renderUniqueStylesheet(result, {
-							href: link[0] === '/' ? link : '/' + link,
+							type: 'external',
+							src: link[0] === '/' ? link : '/' + link,
 						});
 					})
 					.join('');
