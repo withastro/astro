@@ -1,5 +1,32 @@
 /// <reference path="./import-meta.d.ts" />
 
+// eslint-disable-next-line  @typescript-eslint/no-namespace
+declare namespace App {
+	// eslint-disable-next-line  @typescript-eslint/no-empty-interface
+	export interface Locals {}
+}
+
+interface ImportMetaEnv {
+	/**
+	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
+	 */
+	readonly ASSETS_PREFIX: string;
+	/**
+	 * This is set to the site option specified in your project’s Astro config file.
+	 */
+	readonly SITE: string;
+}
+
+interface ImportMeta {
+	/**
+	 * Astro and Vite expose environment variables through `import.meta.env`. For a complete list of the environment variables available, see the two references below.
+	 *
+	 * - [Astro reference](https://docs.astro.build/en/guides/environment-variables/#default-environment-variables)
+	 * - [Vite reference](https://vitejs.dev/guide/env-and-mode.html#env-variables)
+	 */
+	readonly env: ImportMetaEnv;
+}
+
 declare module 'astro:assets' {
 	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
 	type AstroAssets = {
@@ -386,10 +413,4 @@ declare module '*?url' {
 declare module '*?inline' {
 	const src: string;
 	export default src;
-}
-
-// eslint-disable-next-line  @typescript-eslint/no-namespace
-declare namespace App {
-	// eslint-disable-next-line  @typescript-eslint/no-empty-interface
-	export interface Locals {}
 }

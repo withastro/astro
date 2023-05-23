@@ -144,19 +144,19 @@ export class App {
 		if (routeData.type === 'page') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
-			// If there was a 500 error, try sending the 500 page.
-			if (response.status === 500) {
-				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
-				if (fiveHundredRouteData) {
-					mod = await this.#manifest.pageMap.get(fiveHundredRouteData.component)!();
+			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+			if (response.status === 500 || response.status === 404) {
+				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorPageData && errorPageData.route !== routeData.route) {
+					mod = await this.#manifest.pageMap.get(errorPageData.component)!();
 					try {
-						let fiveHundredResponse = await this.#renderPage(
+						let errorResponse = await this.#renderPage(
 							request,
-							fiveHundredRouteData,
+							errorPageData,
 							mod,
-							500
+							response.status
 						);
-						return fiveHundredResponse;
+						return errorResponse;
 					} catch {}
 				}
 			}
