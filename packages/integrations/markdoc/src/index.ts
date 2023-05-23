@@ -4,7 +4,15 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
+import {
+	createNameHash,
+	hasContentFlag,
+	isValidUrl,
+	MarkdocError,
+	parseFrontmatter,
+	prependForwardSlash,
+	PROPAGATED_ASSET_FLAG,
+} from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
@@ -155,8 +163,30 @@ export const Content = createComponent({
 					),
 				});
 
+				let rollupOptions: rollup.RollupOptions = {};
+				if (markdocConfigResult) {
+					rollupOptions = {
+						output: {
+							// Split Astro components from your `markdoc.config`
+							// to only inject component styles and scripts at runtime.
+							manualChunks(id, { getModuleInfo }) {
+								if (
+									markdocConfigResult &&
+									hasContentFlag(id, PROPAGATED_ASSET_FLAG) &&
+									getModuleInfo(id)?.importers?.includes(markdocConfigResult.fileUrl.pathname)
+								) {
+									return createNameHash(id, [id]);
+								}
+							},
+						},
+					};
+				}
+
 				updateConfig({
 					vite: {
+						build: {
+							rollupOptions,
+						},
 						plugins: [
 							{
 								name: '@astrojs/markdoc:astro-propagated-assets',

@@ -175,7 +175,10 @@ export const _internal = {
 				if (!contentRenderer) return;
 
 				const { fileId } = getFileInfo(viteId, settings.config);
-				const entry = await getContentEntryModuleFromCache(fileId);
+				const entry = await setContentEntryModuleCache({
+					fileId,
+					pluginContext: this,
+				});
 				if (!entry) {
 					// Cached entry must exist (or be in-flight) when importing the module via content collections.
 					// This is ensured by the `astro:content-imports` plugin.
