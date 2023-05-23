@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': minor
 ---
 
 The Inline Stylesheets RFC is now stable!
