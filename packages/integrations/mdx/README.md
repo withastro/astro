@@ -207,7 +207,7 @@ export default defineConfig({
 });
 ```
 
-### `customComponentNames`
+#### `customComponentNames`
 
 - **Type:** `string[]`
 
