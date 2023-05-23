@@ -1,4 +1,4 @@
-import type { AstroConfig, RouteData } from 'astro';
+import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
 import fs from 'fs';
 
 export type RedirectDefinition = {
@@ -6,8 +6,15 @@ export type RedirectDefinition = {
 	input: string;
 	target: string;
 	weight: 0 | 1;
-	status: 200 | 404 | 301;
+	status: 200 | 404 | ValidRedirectStatus;
 };
+
+function getRedirectStatus(route: RouteData): ValidRedirectStatus {
+	if(typeof route.redirect === 'object') {
+		return route.redirect.status;
+	}
+	return 301;
+}
 
 export async function createRedirects(
 	config: AstroConfig,
@@ -27,8 +34,8 @@ export async function createRedirects(
 				definitions.push({
 					dynamic: false,
 					input: route.pathname,
-					target: route.redirect,
-					status: 301,
+					target: typeof route.redirect === 'object' ? route.redirect.destination : route.redirect,
+					status: getRedirectStatus(route),
 					weight: 1
 				});
 				continue;

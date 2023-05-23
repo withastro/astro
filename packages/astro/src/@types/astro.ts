@@ -1582,6 +1582,8 @@ export interface AstroAdapter {
 
 type Body = string;
 
+export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
 	/**
@@ -1611,7 +1613,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Redirect to another page (**SSR Only**).
 	 */
-	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
+	redirect(path: string, status?: ValidRedirectStatus): Response;
 
 	/**
 	 * Object accessed via Astro middleware
@@ -1834,6 +1836,11 @@ export interface RoutePart {
 	spread: boolean;
 }
 
+type RedirectConfig = string | {
+	status: ValidRedirectStatus;
+	destination: string;
+}
+
 export interface RouteData {
 	route: string;
 	component: string;
@@ -1846,7 +1853,7 @@ export interface RouteData {
 	segments: RoutePart[][];
 	type: RouteType;
 	prerender: boolean;
-	redirect?: string;
+	redirect?: RedirectConfig;
 	redirectRoute?: RouteData;
 }
 

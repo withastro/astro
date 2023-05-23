@@ -8,7 +8,7 @@ import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
-import { routeIsRedirect, redirectRouteGenerate } from '../redirects/index.js';
+import { routeIsRedirect, redirectRouteGenerate, redirectRouteStatus } from '../redirects/index.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -114,9 +114,9 @@ export type RenderPage = {
 export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
 	if(routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
-			status: 301,
+			status: redirectRouteStatus(renderContext.route),
 			headers: {
-				location: redirectRouteGenerate(renderContext.route!, renderContext.params)
+				location: redirectRouteGenerate(renderContext.route, renderContext.params)
 			}
 		});
 	}

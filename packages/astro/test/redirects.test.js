@@ -48,7 +48,11 @@ describe('Astro.redirect', () => {
 				redirects: {
 					'/one': '/',
 					'/two': '/',
-					'/blog/[...slug]': '/articles/[...slug]'
+					'/blog/[...slug]': '/articles/[...slug]',
+					'/three': {
+						status: 302,
+						destination: '/'
+					}
 				}
 			});
 			await fixture.build();
@@ -66,6 +70,10 @@ describe('Astro.redirect', () => {
 			expect(html).to.include('url=/');
 
 			html = await fixture.readFile('/two/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/');
+
+			html = await fixture.readFile('/three/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/');
 		});
