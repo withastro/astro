@@ -16,7 +16,7 @@ export default defineConfig({
 })
 ```
 
-The options include:
+The options:
 - `inlineStylesheets: "never"`: This is the behavior you are familiar with. Every stylesheet is external, and added to the page via a `<link>` tag. Default.
 - `inlineStylesheets: "auto"`: Small stylesheets are inlined into `<style>` tags and inserted into `<head>`, while larger ones remain external.
 - `inlineStylesheets: "always"`: Every style required by the page is inlined.
