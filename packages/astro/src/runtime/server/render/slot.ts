@@ -7,7 +7,9 @@ import { renderChild } from './any.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
-export type ComponentSlotValue = (result: SSRResult) => RenderTemplateResult | Promise<RenderTemplateResult>;
+export type ComponentSlotValue = (
+	result: SSRResult
+) => RenderTemplateResult | Promise<RenderTemplateResult>;
 
 const slotString = Symbol.for('astro:slot-string');
 

@@ -40,7 +40,7 @@ describe('set:html', () => {
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			expect(html).include('Test');
-		})
+		});
 	});
 
 	describe('Build', () => {
@@ -87,6 +87,6 @@ describe('set:html', () => {
 		it('test Fragment when Fragment is as a slot', async () => {
 			let res = await fixture.readFile('/children/index.html');
 			expect(res).include('Test');
-		})
+		});
 	});
 });
