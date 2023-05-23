@@ -116,16 +116,8 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
-	let locals = {};
-	if (apiContext) {
-		if (env.mode === 'development' && !isValueSerializable(apiContext.locals)) {
-			throw new AstroError({
-				...AstroErrorData.LocalsNotSerializable,
-				message: AstroErrorData.LocalsNotSerializable.message(renderContext.pathname),
-			});
-		}
-		locals = apiContext.locals;
-	}
+	let locals = apiContext?.locals ?? {};
+
 	const result = createResult({
 		adapterName: env.adapterName,
 		links: renderContext.links,
@@ -170,58 +162,4 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 	}
 
 	return response;
-}
-
-/**
- * Checks whether any value can is serializable.
- *
- * A serializable value contains plain values. For example, `Proxy`, `Set`, `Map`, functions, etc.
- * are not serializable objects.
- *
- * @param object
- */
-export function isValueSerializable(value: unknown): boolean {
-	let type = typeof value;
-	let plainObject = true;
-	if (type === 'object' && isPlainObject(value)) {
-		for (const [, nestedValue] of Object.entries(value)) {
-			if (!isValueSerializable(nestedValue)) {
-				plainObject = false;
-				break;
-			}
-		}
-	} else {
-		plainObject = false;
-	}
-	let result =
-		value === null ||
-		type === 'string' ||
-		type === 'number' ||
-		type === 'boolean' ||
-		Array.isArray(value) ||
-		plainObject;
-
-	return result;
-}
-
-/**
- *
- * From [redux-toolkit](https://github.com/reduxjs/redux-toolkit/blob/master/packages/toolkit/src/isPlainObject.ts)
- *
- * Returns true if the passed value is "plain" object, i.e. an object whose
- * prototype is the root `Object.prototype`. This includes objects created
- * using object literals, but not for instance for class instances.
- */
-function isPlainObject(value: unknown): value is object {
-	if (typeof value !== 'object' || value === null) return false;
-
-	let proto = Object.getPrototypeOf(value);
-	if (proto === null) return true;
-
-	let baseProto = proto;
-	while (Object.getPrototypeOf(baseProto) !== null) {
-		baseProto = Object.getPrototypeOf(baseProto);
-	}
-
-	return proto === baseProto;
 }
