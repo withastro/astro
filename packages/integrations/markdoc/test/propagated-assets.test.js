@@ -64,18 +64,3 @@ describe('Markdoc - propagated assets', () => {
 		});
 	}
 });
-
-/**
- * @param {string} filePath
- * @param {'dev' | 'prod'} mode
- * @returns {Document} */
-async function parseDocument(filePath, mode) {
-	if (mode === 'prod') {
-		const html = await fixture.readFile(filePath + 'index.html');
-		document = parseHTML(html).document;
-	} else if (mode === 'dev') {
-		const res = await fixture.fetch('/styles');
-		const html = await res.text();
-		document = parseHTML(html).document;
-	}
-}
