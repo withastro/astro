@@ -1,5 +1,21 @@
 # astro
 
+## 2.5.4
+
+### Patch Changes
+
+- [#7125](https://github.com/withastro/astro/pull/7125) [`4ce8bf7c6`](https://github.com/withastro/astro/commit/4ce8bf7c62d2b19ff7bd3dd0fbad88fcac10feaa) Thanks [@bluwy](https://github.com/bluwy)! - Make vite-plugin-content-virtual-mod run `getEntrySlug` 10 at a time to prevent `EMFILE: too many open files` error
+
+- [#7166](https://github.com/withastro/astro/pull/7166) [`626dd41d0`](https://github.com/withastro/astro/commit/626dd41d0a80155f59962e3a1b70d8dfd2719d25) Thanks [@ematipico](https://github.com/ematipico)! - Move generation of renderers code into their own file
+
+- [#7174](https://github.com/withastro/astro/pull/7174) [`92d1f017e`](https://github.com/withastro/astro/commit/92d1f017e5c0a921973e028b90c7975e74dce433) Thanks [@ematipico](https://github.com/ematipico)! - Remove restriction around serialisable data for `Astro.locals`
+
+- [#7172](https://github.com/withastro/astro/pull/7172) [`2ca94269e`](https://github.com/withastro/astro/commit/2ca94269ed0b5046033c47985ef50b7e7a637caf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add types for `import.meta.env.ASSETS_PREFIX` and `import.meta.env.SITE`
+
+- [#7134](https://github.com/withastro/astro/pull/7134) [`5b6a0312a`](https://github.com/withastro/astro/commit/5b6a0312a822565404a6334576677fc574cfcd56) Thanks [@alexvuka1](https://github.com/alexvuka1)! - value of var can be undefined when using `define:vars`
+
+- [#7171](https://github.com/withastro/astro/pull/7171) [`79ba74832`](https://github.com/withastro/astro/commit/79ba74832fc46e6946c8235c33e9acfbb3a4139b) Thanks [@bluwy](https://github.com/bluwy)! - Prevent Vite watching on Astro config load
+
 ## 2.5.3
 
 ### Patch Changes
