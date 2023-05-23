@@ -16,8 +16,6 @@ import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { isValueSerializable } from '../render/core.js';
-
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -117,12 +115,6 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 			onRequest,
 			context,
 			async () => {
-				if (env.mode === 'development' && !isValueSerializable(context.locals)) {
-					throw new AstroError({
-						...AstroErrorData.LocalsNotSerializable,
-						message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
-					});
-				}
 				return await renderEndpoint(mod, context, env.ssr);
 			}
 		);

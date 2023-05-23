@@ -65,7 +65,7 @@ export async function sync(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false },
+				server: { middlewareMode: true, hmr: false, watch: { ignored: ['**'] } },
 				optimizeDeps: { disabled: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

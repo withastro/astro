@@ -1280,12 +1280,6 @@ export interface ContentEntryType {
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
-	/**
-	 * Handle asset propagation for rendered content to avoid bleed.
-	 * Ex. MDX content can import styles and scripts, so `handlePropagation` should be true.
-	 * @default true
-	 */
-	handlePropagation?: boolean;
 }
 
 type GetContentEntryInfoReturnType = {

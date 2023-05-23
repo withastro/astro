@@ -9,6 +9,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import { isHTMLString } from '../../runtime/server/escape.js';
 import {
 	renderSlotToString,
 	stringifyChunk,
@@ -110,10 +111,11 @@ class Slots {
 			// Astro
 			const expression = getFunctionExpression(component);
 			if (expression) {
-				const slot = () => expression(...args);
-				return await renderSlotToString(result, slot).then((res) =>
-					res != null ? String(res) : res
-				);
+				const slot = async () =>
+					isHTMLString(await expression) ? expression : expression(...args);
+				return await renderSlotToString(result, slot).then((res) => {
+					return res != null ? String(res) : res;
+				});
 			}
 			// JSX
 			if (typeof component === 'function') {

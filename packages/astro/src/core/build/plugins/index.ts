@@ -10,6 +10,7 @@ import { pluginInternals } from './plugin-internals.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
+import { pluginRenderers } from './plugin-renderers.js';
 import { pluginSSR } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
@@ -17,6 +18,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginAliasResolve(internals));
 	register(pluginAnalyzer(internals));
 	register(pluginInternals(internals));
+	register(pluginRenderers(options, internals));
 	register(pluginMiddleware(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
