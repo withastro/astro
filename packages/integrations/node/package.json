@@ -30,7 +30,6 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "t": "mocha --exit --timeout 20000 test/url-protocol.test.js",
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {

@@ -40,11 +40,14 @@ export default function startServer(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	const { client } = resolvePaths(options);
 	const handler = middleware(app, options.mode);
-
 	// Allow to provide host value at runtime
 	const host = getResolvedHostForHttpServer(
 		process.env.HOST !== undefined && process.env.HOST !== '' ? process.env.HOST : options.host
 	);
+
+	
+	
+
 	const server = createServer(
 		{
 			client,
@@ -54,11 +57,23 @@ export default function startServer(app: NodeApp, options: Options) {
 		},
 		handler
 	);
-
 	const protocol = server.server instanceof https.Server ? 'https' : 'http';
+	const address = getNetworkAddress(protocol, host!, port)
 
-	// eslint-disable-next-line no-console
-	console.log(`Server listening on ${protocol}://${host}:${port}`);
+	if(host === undefined ){
+		// eslint-disable-next-line no-console
+		console.log(
+			`Preview server listening on 
+			\t
+			local: ${address.local[0]}
+			\t
+			network: ${address.network[0]}
+			` );
+	}else{
+		// eslint-disable-next-line no-console
+		console.log(`Preview server listening on \t 
+		${address.local[0]}`);
+	}
 
 	return {
 		server,

@@ -59,9 +59,6 @@ const preview: CreatePreviewServer = async function ({
 		return pathname;
 	}
 
-	if (!host){
-		host = getNetworkAddress()
-	}
 
 	const server = createServer(
 		{
@@ -72,9 +69,23 @@ const preview: CreatePreviewServer = async function ({
 		},
 		handler
 	);
+	const address = getNetworkAddress('http', host!, port)
 	
-	// eslint-disable-next-line no-console
-	console.log(`Preview server listening on http://${host}:${port}`);
+	if(host === undefined ){
+		// eslint-disable-next-line no-console
+		console.log(
+			`Preview server listening on 
+			\t
+			local: ${address.local[0]}
+			\t
+			network: ${address.network[0]}
+			` );
+	}else{
+		// eslint-disable-next-line no-console
+		console.log(`Preview server listening on \t 
+		${address.local[0]}`);
+	}
+	
 
 	return server;
 };

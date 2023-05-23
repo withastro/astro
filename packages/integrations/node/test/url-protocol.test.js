@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { TLSSocket } from 'node:tls';
-import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { getNetworkAddress } from '../dist/get-network-address.js'
+import { fetch } from 'undici';
 
 describe('URL protocol', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -26,10 +25,10 @@ describe('URL protocol', () => {
 			devPreview = await fixture.preview();
 			
 		});
-		it('test host is true ', () => {
-			const host = devPreview.host
-			const ishost = () => host.startsWith('127') ||  host.startsWith('loc')
-			expect(!ishost()).eq(true)
+		it('test host is true ', async () => {
+			const address = getNetworkAddress('http', undefined, 3000)
+			const res = await fetch(address.network[0])
+			expect(res.status).to.equal(200);
 		});
 	})
 	it('return http when non-secure', async () => {
