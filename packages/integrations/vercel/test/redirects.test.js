@@ -12,6 +12,10 @@ describe('Redirects', () => {
 			redirects: {
 				'/one': '/',
 				'/two': '/',
+				'/three': {
+					status: 302,
+					destination: '/'
+				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
 			}
 		});
@@ -32,9 +36,13 @@ describe('Redirects', () => {
 		expect(oneRoute.headers.Location).to.equal('/');
 		expect(oneRoute.status).to.equal(301);
 		
-		const twoRoute = config.routes.find(r => r.src === '/\\/one');
+		const twoRoute = config.routes.find(r => r.src === '/\\/two');
 		expect(twoRoute.headers.Location).to.equal('/');
 		expect(twoRoute.status).to.equal(301);
+
+		const threeRoute = config.routes.find(r => r.src === '/\\/three');
+		expect(threeRoute.headers.Location).to.equal('/');
+		expect(threeRoute.status).to.equal(302);
 	});
 
 	it('defines dynamic routes', async () => {

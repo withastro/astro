@@ -15,6 +15,10 @@ describe('SSG - Redirects', () => {
 			integrations: [testIntegration()],
 			redirects: {
 				'/other': '/',
+				'/two': {
+					status: 302,
+					destination: '/'
+				},
 				'/blog/[...slug]': '/team/articles/[...slug]'
 			}
 		});
@@ -26,6 +30,7 @@ describe('SSG - Redirects', () => {
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
 			'/blog/*', '/team/articles/*/index.html', '301',
+			'/two', '/', '302',
 			'/other', '/', '301',
 			'/nope', '/', '301',
 			'/team/articles/*', '/team/articles/*/index.html', '200'

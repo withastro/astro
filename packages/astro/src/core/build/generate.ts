@@ -518,14 +518,16 @@ async function generatePath(
 			throw err;
 		}
 
-		switch(response.status) {
-			case 301:
-			case 302: {
+		switch(true) {
+			case (response.status >= 300 && response.status < 400): {
 				const location = getRedirectLocationOrThrow(response.headers);
 				body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
 <meta http-equiv="refresh" content="0;url=${location}" />`;
-				pageData.route.redirect = location;
+				// A dynamic redirect, set the location so that integrations know about it.
+				if(pageData.route.type !== 'redirect') {
+					pageData.route.redirect = location;
+				}
 				break;
 			}
 			default: {

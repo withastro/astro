@@ -1,4 +1,4 @@
-import type { RouteData, RedirectRouteData, Params } from '../../@types/astro';
+import type { RouteData, RedirectRouteData, Params, ValidRedirectStatus } from '../../@types/astro';
 
 export function routeIsRedirect(route: RouteData | undefined): route is RedirectRouteData {
 	return route?.type === 'redirect';
@@ -8,5 +8,20 @@ export function redirectRouteGenerate(redirectRoute: RouteData, data: Params): s
 	const routeData = redirectRoute.redirectRoute;
 	const route = redirectRoute.redirect;
 
-	return routeData?.generate(data) || routeData?.pathname || route || '/';
+	if(typeof routeData !== 'undefined') {
+		return routeData?.generate(data) || routeData?.pathname || '/';
+	} else if(typeof route === 'string') {
+		return route;
+	} else if(typeof route === 'undefined') {
+		return '/';
+	}
+	return route.destination;
+}
+
+export function redirectRouteStatus(redirectRoute: RouteData): ValidRedirectStatus {
+	const routeData = redirectRoute.redirectRoute;
+	if(typeof routeData?.redirect === 'object') {
+		return routeData.redirect.status;
+	}
+	return 301;
 }
