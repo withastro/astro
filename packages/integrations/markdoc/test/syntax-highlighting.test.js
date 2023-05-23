@@ -17,7 +17,7 @@ const highlighting = true;
 \`\`\`
 `;
 
-describe('Markdoc - Syntax Highlighting', () => {
+describe('Markdoc - syntax highlighting', () => {
 	it('transforms with defaults', async () => {
 		const ast = Markdoc.parse(entry);
 		const content = Markdoc.transform(ast, await getConfigExtendingShiki());
