@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.19.4
+
+### Patch Changes
+
+- [#7178](https://github.com/withastro/astro/pull/7178) [`57e65d247`](https://github.com/withastro/astro/commit/57e65d247f67de61bcc3a585c2254feb61ed2e74) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: revert Markdoc asset bleed changes. Production build issues were discovered that deserve a different fix.
+
 ## 0.19.3
 
 ### Patch Changes
