@@ -30,8 +30,8 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				const exports: string[] = [];
 				const content: string[] = [];
 				let i = 0;
-				imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}"`);
-				exports.push(`export { renderers }`);
+				imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
+				exports.push(`export { renderers };`);
 				for (const pageData of eachPageData(internals)) {
 					const variable = `_page${i}`;
 					imports.push(
