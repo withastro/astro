@@ -3,6 +3,7 @@ import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
 import { setupHeadingConfig } from './heading-ids.js';
 import type { AstroMarkdocConfig } from './config.js';
+import { MarkdocError } from './utils.js';
 
 /** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';
@@ -14,7 +15,8 @@ export { default as Markdoc } from '@markdoc/markdoc';
  */
 export function setupConfig(
 	userConfig: AstroMarkdocConfig,
-	entry: ContentEntryModule
+	entry: ContentEntryModule,
+	markdocConfigPath?: string
 ): Omit<AstroMarkdocConfig, 'extends'> {
 	let defaultConfig: AstroMarkdocConfig = {
 		...setupHeadingConfig(),
@@ -23,6 +25,16 @@ export function setupConfig(
 
 	if (userConfig.extends) {
 		for (const extension of userConfig.extends) {
+			if (extension instanceof Promise) {
+				throw new MarkdocError({
+					message: 'An extension passed to `extends` in your markdoc config returns a Promise.',
+					hint: 'Call `await` for async extensions. Example: `extends: [await myExtension()]`',
+					location: {
+						file: markdocConfigPath,
+					},
+				});
+			}
+
 			defaultConfig = mergeConfig(defaultConfig, extension);
 		}
 	}
