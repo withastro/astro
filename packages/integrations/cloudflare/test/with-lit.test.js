@@ -14,12 +14,12 @@ describe('With Lit', () => {
 	});
 
 	it('renders the lit component', async () => {
-		const { ready, stop } = runCLI('./fixtures/with-lit/', { silent: false });
+		const { ready, stop } = runCLI('./fixtures/with-lit/', { silent: true, port: 5005 });
 
 		try {
 			await ready;
 
-			let res = await fetch(`http://localhost:8787/`);
+			let res = await fetch(`http://localhost:5005/`);
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);

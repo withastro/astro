@@ -19,9 +19,13 @@ const wranglerPath = fileURLToPath(
 	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)
 );
 
-export function runCLI(basePath, { silent }) {
+export function runCLI(basePath, { silent, port }) {
 	const script = fileURLToPath(new URL(`${basePath}/dist/_worker.js`, import.meta.url));
-	const p = spawn('node', [wranglerPath, 'dev', '-l', script]);
+	const args = ['-l']
+	if (port) {
+		args.push('--port', port);
+	}
+	const p = spawn('node', [wranglerPath, 'dev', ...args, script]);
 
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
