@@ -39,7 +39,7 @@ describe('Astro.redirect', () => {
 		});
 	});
 
-	describe.only('output: "static"', () => {
+	describe('output: "static"', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
