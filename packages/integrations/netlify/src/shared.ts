@@ -23,16 +23,18 @@ export async function createRedirects(
 
 	for (const route of routes) {
 		if (route.pathname) {
-			if( kind === 'static') {
-				if(route.redirect) {
-					definitions.push({
-						dynamic: false,
-						input: route.pathname,
-						target: route.redirect,
-						status: 301,
-						weight: 1
-					});
-				}
+			if(route.redirect) {
+				definitions.push({
+					dynamic: false,
+					input: route.pathname,
+					target: route.redirect,
+					status: 301,
+					weight: 1
+				});
+				continue;
+			}
+
+			if(kind === 'static') {
 				continue;
 			}
 			else if (route.distURL) {
@@ -80,7 +82,7 @@ export async function createRedirects(
 					})
 					.join('/');
 
-			if(kind === 'static') {
+			//if(kind === 'static') {
 				if(route.redirect) {
 					definitions.push({
 						dynamic: true,
@@ -89,8 +91,11 @@ export async function createRedirects(
 						status: 301,
 						weight: 1
 					});
+					continue;
 				}
-				continue;
+
+			if(kind === 'static') {
+				continue;	
 			}
 			else if (route.distURL) {
 				const target =
