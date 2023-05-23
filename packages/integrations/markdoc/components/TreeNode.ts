@@ -50,7 +50,7 @@ export const ComponentNode = createComponent({
 			if (Array.isArray(treeNode.collectedStyles)) {
 				styles = treeNode.collectedStyles
 					.map((style: any) =>
-						renderUniqueStylesheet({
+						renderUniqueStylesheet(result, {
 							type: 'inline',
 							content: style,
 						})
