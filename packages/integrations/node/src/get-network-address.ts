@@ -29,7 +29,7 @@ export function getNetworkAddress(protocol: Protocol = 'http', hostname: string,
 				detail.family === 4),
 	)
 	.forEach((detail) => {
-		let host = detail.address.replace('127.0.0.1', hostname === undefined || wildcardHosts.has(hostname) ? 'localhost' : hostname)
+		let host = detail.address.replace('127.0.0.1', hostname === undefined || wildcardHosts.has(hostname) ? '127.0.0.1' : hostname)
 		// ipv6 host
 		if (host.includes(':')) {
 			host = `[${host}]`
