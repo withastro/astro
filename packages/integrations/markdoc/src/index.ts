@@ -32,7 +32,19 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
+				const {
+					config: astroConfig,
+					updateConfig,
+					addContentEntryType,
+				} = params as SetupHookParams;
+
+				updateConfig({
+					vite: {
+						ssr: {
+							external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
+						},
+					},
+				});
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
