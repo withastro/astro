@@ -47,7 +47,13 @@
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.5.5"
+    "astro": "workspace:^2.5.5",
+    "shiki": "^0.14.1"
+  },
+  "peerDependenciesMeta": {
+    "shiki": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^2.2.1",
