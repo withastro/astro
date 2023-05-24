@@ -38,6 +38,7 @@
     "test": "mocha --exit --timeout 30000 test/"
   },
   "dependencies": {
+    "@astrojs/underscore-redirects": "^0.1.0",
     "esbuild": "^0.17.12",
     "tiny-glob": "^0.2.9"
   },
