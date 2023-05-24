@@ -233,8 +233,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	};
 }
 
-function saveRedirects(redirects)
-
 function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
