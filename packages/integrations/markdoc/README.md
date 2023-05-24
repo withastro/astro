@@ -205,7 +205,9 @@ export default defineMarkdocConfig({
 
 ### Syntax highlighting
 
-`@astrojs/markdoc` includes a [Shiki](https://github.com/shikijs/shiki) extension to highlight your code blocks. First install `shiki` as a dependency:
+`@astrojs/markdoc` provides a [Shiki](https://github.com/shikijs/shiki) extension to highlight your code blocks.
+
+To use this extension, you must separately install `shiki` as a dependency:
 
 ```bash
 npm i shiki
