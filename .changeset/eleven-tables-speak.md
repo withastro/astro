@@ -14,4 +14,4 @@ export default defineMarkdocConfig({
 })
 ```
 
-Learn more in the [`@astrojs/markdoc` README](https://docs.astro.build/en/guides/integrations-guide/markdoc/#syntax-highlighting).
+Learn more in the [`@astrojs/markdoc` README.](https://docs.astro.build/en/guides/integrations-guide/markdoc/#syntax-highlighting)
