@@ -190,6 +190,7 @@ export async function loadFixture(inlineConfig) {
 			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
+			console.log(config.server.port, config.server.host, 'test')
 			return previewServer;
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
