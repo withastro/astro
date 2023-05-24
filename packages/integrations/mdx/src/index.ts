@@ -94,7 +94,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
 								async transform(_, id) {
-									if (!id.endsWith('mdx')) return;
+									if (!id.endsWith('.mdx')) return;
 
 									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
 									const { fileId } = getFileInfo(id, config);

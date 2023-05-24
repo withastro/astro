@@ -306,7 +306,7 @@ async function render({
 
 			let props = baseProps;
 			// Auto-apply MDX components export
-			if (id.endsWith('mdx')) {
+			if (id.endsWith('.mdx')) {
 				props = {
 					components: mod.components ?? {},
 					...baseProps,
