@@ -1,8 +1,7 @@
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
-import { compile as mdxCompile } from '@mdx-js/mdx';
+import { compile as mdxCompile, type CompileOptions } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import mdxPlugin, { type Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
@@ -67,7 +66,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					),
 				});
 
-				const mdxPluginOpts: MdxRollupPluginOptions = {
+				const mdxPluginOpts: CompileOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions),
 					recmaPlugins: mdxOptions.recmaPlugins,
@@ -87,8 +86,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					vite: {
 						plugins: [
 							{
+								name: '@mdx-js/rollup',
 								enforce: 'pre',
-								...mdxPlugin(mdxPluginOpts),
 								configResolved(resolved) {
 									importMetaEnv = { ...importMetaEnv, ...resolved.env };
 								},

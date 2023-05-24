@@ -4125,9 +4125,6 @@ importers:
       '@mdx-js/mdx':
         specifier: ^2.3.0
         version: 2.3.0
-      '@mdx-js/rollup':
-        specifier: ^2.3.0
-        version: 2.3.0
       acorn:
         specifier: ^8.8.0
         version: 8.8.2
@@ -8084,22 +8081,6 @@ packages:
       unist-util-position-from-estree: 1.1.2
       unist-util-stringify-position: 3.0.3
       unist-util-visit: 4.1.0
-      vfile: 5.3.2
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@mdx-js/rollup@2.3.0:
-    resolution: {integrity: sha512-wLvRfJS/M4UmdqTd+WoaySEE7q4BIejYf1xAHXYvtT1du/1Tl/z2450Gg2+Hu7fh05KwRRiehiTP9Yc/Dtn0fA==}
-    peerDependencies:
-      rollup: '>=2'
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@mdx-js/mdx': 2.3.0
-      '@rollup/pluginutils': 5.0.2(rollup@3.20.1)
-      source-map: 0.7.4
       vfile: 5.3.2
     transitivePeerDependencies:
       - supports-color
