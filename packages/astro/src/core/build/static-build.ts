@@ -32,6 +32,7 @@ import {
 	ASTRO_PAGE_EXTENSION_POST_PATTERN,
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 } from './plugins/plugin-pages.js';
+import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -184,6 +185,8 @@ async function ssrBuild(
 								.replaceAll('.', '_')
 								// this must be last
 								.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}.mjs`;
+						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
+							return opts.buildConfig.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
 							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {

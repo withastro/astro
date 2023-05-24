@@ -18,8 +18,8 @@ import { extname } from 'node:path';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN, ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 
-export const virtualModuleId = '@astrojs-ssr-virtual-entry';
-const resolvedVirtualModuleId = '\0' + virtualModuleId;
+export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
+const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
@@ -32,15 +32,15 @@ function vitePluginSSR(
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',
 		options(opts) {
-			return addRollupInput(opts, [virtualModuleId]);
+			return addRollupInput(opts, [SSR_VIRTUAL_MODULE_ID]);
 		},
 		resolveId(id) {
-			if (id === virtualModuleId) {
-				return resolvedVirtualModuleId;
+			if (id === SSR_VIRTUAL_MODULE_ID) {
+				return RESOLVED_SSR_VIRTUAL_MODULE_ID;
 			}
 		},
 		async load(id) {
-			if (id === resolvedVirtualModuleId) {
+			if (id === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
 				const {
 					settings: { config },
 					allPages,
@@ -127,7 +127,7 @@ if(_start in adapter) {
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				if (chunk.modules[resolvedVirtualModuleId]) {
+				if (chunk.modules[RESOLVED_SSR_VIRTUAL_MODULE_ID]) {
 					internals.ssrEntryChunk = chunk;
 					delete bundle[chunkName];
 				}

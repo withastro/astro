@@ -16,6 +16,8 @@ import { onRequest } from "@astro-middleware";
 export { onRequest }
 ```
 
+This is **not** a virtual module. The plugin will try to resolve the physical file.
+
 ## `plugin-renderers`
 
 This plugin is responsible to collect all the renderers inside an Astro application and emit them in a single file.
