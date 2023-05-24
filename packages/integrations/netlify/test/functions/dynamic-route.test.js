@@ -26,6 +26,7 @@ describe('Dynamic pages', () => {
 
 	it('Prerendered routes are also included using placeholder syntax', async () => {
 		const redir = await fixture.readFile('/_redirects');
+		console.log(redir)
 		expect(redir).to.include('/pets/:cat       /pets/:cat/index.html        200');
 		expect(redir).to.include('/pets/:dog       /pets/:dog/index.html        200');
 		expect(redir).to.include('/pets            /.netlify/functions/entry    200');
