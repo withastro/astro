@@ -1,7 +1,7 @@
-import Markdoc, { type ConfigType, type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
+import Markdoc, { type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
 import Slugger from 'github-slugger';
-import { getTextContent } from './runtime.js';
 import type { AstroMarkdocConfig } from './config.js';
+import { getTextContent } from './runtime.js';
 import { MarkdocError } from './utils.js';
 
 function getSlug(

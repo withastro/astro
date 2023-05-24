@@ -5,9 +5,9 @@ export {
 	escapeHTML,
 	HTMLBytes,
 	HTMLString,
+	isHTMLString,
 	markHTMLString,
 	unescapeHTML,
-	isHTMLString,
 } from './escape.js';
 export { renderJSX } from './jsx.js';
 export {
