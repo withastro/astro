@@ -29,11 +29,11 @@ describe('SSG - Redirects', () => {
 		let redirects = await fixture.readFile('/_redirects');
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
-			'/blog/*', '/team/articles/*/index.html', '301',
-			'/two', '/', '302',
-			'/other', '/', '301',
 			'/nope', '/', '301',
-			'/team/articles/*', '/team/articles/*/index.html', '200'
+			'/other', '/', '301',
+			'/two', '/', '302',
+			'/team/articles/*', '/team/articles/*/index.html', '200',
+			'/blog/*', '/team/articles/*/index.html', '301',
 		]);
 	});
 });
