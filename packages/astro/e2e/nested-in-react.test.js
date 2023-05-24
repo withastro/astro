@@ -14,6 +14,22 @@ test.afterAll(async () => {
 });
 
 test.describe('Nested Frameworks in React', () => {
+	test('No hydration mismatch', async ({ page, astro }) => {
+		// Get browser logs
+		const logs = [];
+		page.on('console', (msg) => logs.push(msg.text()));
+
+		await page.goto(astro.resolveUrl('/'));
+
+		// wait for root island to hydrate
+		const counter = page.locator('#react-counter');
+		await waitForHydrate(page, counter);
+
+		for (const log of logs) {
+			expect(log, 'React hydration mismatch').not.toMatch('An error occurred during hydration');
+		}
+	});
+
 	test('React counter', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
