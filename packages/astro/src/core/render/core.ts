@@ -114,7 +114,7 @@ export type RenderPage = {
 export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
 	if(routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
-			status: redirectRouteStatus(renderContext.route),
+			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
 			headers: {
 				location: redirectRouteGenerate(renderContext.route, renderContext.params)
 			}

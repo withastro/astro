@@ -12,6 +12,9 @@ describe('Astro.redirect', () => {
 				root: './fixtures/ssr-redirect/',
 				output: 'server',
 				adapter: testAdapter(),
+				redirects: {
+					'/api/redirect': '/'
+				}
 			});
 			await fixture.build();
 		});
@@ -36,6 +39,25 @@ describe('Astro.redirect', () => {
 					'The response has already been sent to the browser and cannot be altered.'
 				);
 			}
+		});
+
+		describe('Redirects config', () => {
+			it('Returns the redirect', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/api/redirect');
+				const response = await app.render(request);
+				expect(response.status).to.equal(301);
+				expect(response.headers.get('Location')).to.equal('/');
+			});
+
+			it('Uses 308 for non-GET methods', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/api/redirect', {
+					method: 'POST'
+				});
+				const response = await app.render(request);
+				expect(response.status).to.equal(308);
+			});
 		});
 	});
 

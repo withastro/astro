@@ -35,7 +35,7 @@ import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
+import { getRedirectLocationOrThrow, routeIsRedirect, RedirectComponentInstance } from '../redirects/index.js';
 import {	
 	createAssetLink,
 	createModuleScriptsSet,
@@ -177,7 +177,7 @@ async function generatePage(
 		if(pageData.route.redirectRoute) {
 			pageModulePromise = ssrEntry.pageMap?.get(pageData.route.redirectRoute!.component);
 		} else {
-			pageModulePromise = () => Promise.resolve<any>({ default: () => {} });
+			pageModulePromise = () => Promise.resolve(RedirectComponentInstance);
 		}
 	}
 	if (!pageModulePromise) {
