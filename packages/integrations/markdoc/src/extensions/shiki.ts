@@ -4,7 +4,7 @@ import type { ShikiConfig } from 'astro';
 import type * as shikiTypes from 'shiki';
 import type { AstroMarkdocConfig } from '../config.js';
 import Markdoc from '@markdoc/markdoc';
-import { getHighlighter } from 'shiki';
+import { MarkdocError } from '../utils.js';
 
 // Map of old theme names to new names to preserve compatibility when we upgrade shiki
 const compatThemes: Record<string, string> = {
@@ -26,41 +26,49 @@ const normalizeTheme = (theme: string | shikiTypes.IShikiTheme) => {
 };
 
 /**
- * Cache each Shiki highlighter by theme name.
  * Note: cache only needed for dev server reloads, internal test suites, and manual calls to `Markdoc.transform` by the user.
  * Otherwise, `shiki()` is only called once per build, NOT once per page, so a cache isn't needed!
  */
-const highlighterCacheAsync = new Map<string, Promise<shikiTypes.Highlighter>>();
+const highlighterCache = new Map<string, shikiTypes.Highlighter>();
 
 export async function shiki({
 	langs = [],
 	theme = 'github-dark',
 	wrap = false,
 }: ShikiConfig = {}): Promise<AstroMarkdocConfig> {
+	let getHighlighter: (options: shikiTypes.HighlighterOptions) => Promise<shikiTypes.Highlighter>;
+	try {
+		getHighlighter = (await import('shiki')).getHighlighter;
+	} catch {
+		throw new MarkdocError({
+			message: 'Shiki is not installed. Run `npm install shiki` to use the `shiki` extension.',
+		});
+	}
 	theme = normalizeTheme(theme);
 
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
-	let highlighterAsync = highlighterCacheAsync.get(cacheID);
-	if (!highlighterAsync) {
-		highlighterAsync = getHighlighter({ theme }).then((hl) => {
-			hl.setColorReplacements({
-				'#000001': 'var(--astro-code-color-text)',
-				'#000002': 'var(--astro-code-color-background)',
-				'#000004': 'var(--astro-code-token-constant)',
-				'#000005': 'var(--astro-code-token-string)',
-				'#000006': 'var(--astro-code-token-comment)',
-				'#000007': 'var(--astro-code-token-keyword)',
-				'#000008': 'var(--astro-code-token-parameter)',
-				'#000009': 'var(--astro-code-token-function)',
-				'#000010': 'var(--astro-code-token-string-expression)',
-				'#000011': 'var(--astro-code-token-punctuation)',
-				'#000012': 'var(--astro-code-token-link)',
-			});
-			return hl;
-		});
-		highlighterCacheAsync.set(cacheID, highlighterAsync);
+	if (!highlighterCache.has(cacheID)) {
+		highlighterCache.set(
+			cacheID,
+			await getHighlighter({ theme }).then((hl) => {
+				hl.setColorReplacements({
+					'#000001': 'var(--astro-code-color-text)',
+					'#000002': 'var(--astro-code-color-background)',
+					'#000004': 'var(--astro-code-token-constant)',
+					'#000005': 'var(--astro-code-token-string)',
+					'#000006': 'var(--astro-code-token-comment)',
+					'#000007': 'var(--astro-code-token-keyword)',
+					'#000008': 'var(--astro-code-token-parameter)',
+					'#000009': 'var(--astro-code-token-function)',
+					'#000010': 'var(--astro-code-token-string-expression)',
+					'#000011': 'var(--astro-code-token-punctuation)',
+					'#000012': 'var(--astro-code-token-link)',
+				});
+				return hl;
+			})
+		);
 	}
-	const highlighter = await highlighterAsync;
+	const highlighter = highlighterCache.get(cacheID)!;
 
 	for (const lang of langs) {
 		await highlighter.loadLanguage(lang);
