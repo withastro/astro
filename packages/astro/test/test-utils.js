@@ -173,7 +173,6 @@ export async function loadFixture(inlineConfig) {
 		config,
 		resolveUrl,
 		fetch: async (url, init) => {
-			console.log(resolveUrl(url), 'test')
 			const resolvedUrl = resolveUrl(url);
 			try {
 				return await fetch(resolvedUrl, init);
