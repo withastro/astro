@@ -8,7 +8,6 @@ import type { StaticBuildOptions } from '../types';
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 export const RESOLVED_MIDDLEWARE_MODULE_ID = '\0@astro-middleware';
 
-let inputs: Set<string> = new Set();
 export function vitePluginMiddleware(
 	opts: StaticBuildOptions,
 	_internals: BuildInternals
@@ -42,10 +41,6 @@ export function vitePluginMiddleware(
 
 				return result.join('\n');
 			}
-		},
-
-		outputOptions(options) {
-			options.entryFileNames = 'middleware.mjs';
 		},
 	};
 }

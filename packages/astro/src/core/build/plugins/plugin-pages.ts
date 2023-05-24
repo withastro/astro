@@ -73,21 +73,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				}
 			}
 		},
-
-		outputOptions(options) {
-			options.entryFileNames = (chunkInfo) => {
-				if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-					return `entry.${chunkInfo.facadeModuleId
-						.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
-						.replace('src/', '')
-						.replaceAll('[', '_')
-						.replaceAll(']', '_')
-						.replaceAll('.', '_')}.mjs`;
-				} else {
-					return '[name].mjs';
-				}
-			};
-		},
 	};
 }
 

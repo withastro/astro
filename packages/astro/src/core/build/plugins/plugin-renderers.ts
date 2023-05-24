@@ -46,10 +46,6 @@ export function vitePluginRenderers(
 				}
 			}
 		},
-
-		outputOptions(options) {
-			options.entryFileNames = 'renderers.mjs';
-		},
 	};
 }
 

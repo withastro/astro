@@ -28,7 +28,10 @@ import { RESOLVED_MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
+import {
+	ASTRO_PAGE_EXTENSION_POST_PATTERN,
+	ASTRO_PAGE_RESOLVED_MODULE_ID,
+} from './plugins/plugin-pages.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -119,14 +122,14 @@ export async function staticBuild(opts: StaticBuildOptions, internals: BuildInte
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts);
+			// await cleanServerOutput(opts);
 			settings.timer.end('Static generate');
 			return;
 		}
 		case settings.config.output === 'server' || hybridOutput: {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals);
+			// await cleanStaticOutput(opts, internals);
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
@@ -171,6 +174,24 @@ async function ssrBuild(
 					chunkFileNames: `chunks/[name].[hash].mjs`,
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
+					entryFileNames(chunkInfo) {
+						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
+							return `${chunkInfo.facadeModuleId
+								.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
+								.replace('src/', '')
+								.replaceAll('[', '_')
+								.replaceAll(']', '_')
+								.replaceAll('.', '_')
+								// this must be last
+								.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}.mjs`;
+						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
+							return 'middleware.mjs';
+						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
+							return 'renderers.mjs';
+						} else {
+							return '[name].mjs';
+						}
+					},
 				},
 			},
 			ssr: true,
