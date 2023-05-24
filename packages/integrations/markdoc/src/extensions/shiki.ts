@@ -25,6 +25,24 @@ const normalizeTheme = (theme: string | shikiTypes.IShikiTheme) => {
 	}
 };
 
+const ASTRO_COLOR_REPLACEMENTS = {
+	'#000001': 'var(--astro-code-color-text)',
+	'#000002': 'var(--astro-code-color-background)',
+	'#000004': 'var(--astro-code-token-constant)',
+	'#000005': 'var(--astro-code-token-string)',
+	'#000006': 'var(--astro-code-token-comment)',
+	'#000007': 'var(--astro-code-token-keyword)',
+	'#000008': 'var(--astro-code-token-parameter)',
+	'#000009': 'var(--astro-code-token-function)',
+	'#000010': 'var(--astro-code-token-string-expression)',
+	'#000011': 'var(--astro-code-token-punctuation)',
+	'#000012': 'var(--astro-code-token-link)',
+};
+
+const PRE_SELECTOR = /<pre class="(.*?)shiki(.*?)"/;
+const LINE_SELECTOR = /<span class="line"><span style="(.*?)">([\+|\-])/g;
+const INLINE_STYLE_SELECTOR = /style="(.*?)"/;
+
 /**
  * Note: cache only needed for dev server reloads, internal test suites, and manual calls to `Markdoc.transform` by the user.
  * Otherwise, `shiki()` is only called once per build, NOT once per page, so a cache isn't needed!
@@ -51,19 +69,7 @@ export async function shiki({
 		highlighterCache.set(
 			cacheID,
 			await getHighlighter({ theme }).then((hl) => {
-				hl.setColorReplacements({
-					'#000001': 'var(--astro-code-color-text)',
-					'#000002': 'var(--astro-code-color-background)',
-					'#000004': 'var(--astro-code-token-constant)',
-					'#000005': 'var(--astro-code-token-string)',
-					'#000006': 'var(--astro-code-token-comment)',
-					'#000007': 'var(--astro-code-token-keyword)',
-					'#000008': 'var(--astro-code-token-parameter)',
-					'#000009': 'var(--astro-code-token-function)',
-					'#000010': 'var(--astro-code-token-string-expression)',
-					'#000011': 'var(--astro-code-token-punctuation)',
-					'#000012': 'var(--astro-code-token-link)',
-				});
+				hl.setColorReplacements(ASTRO_COLOR_REPLACEMENTS);
 				return hl;
 			})
 		);
@@ -105,27 +111,25 @@ export async function shiki({
 					// It would become this before hitting our regexes:
 					// &lt;span class=&quot;line&quot;
 
-					// Replace "shiki" class naming with "astro-code"
-					html = html.replace(/<pre class="(.*?)shiki(.*?)"/, `<pre class="$1astro-code$2"`);
+					html = html.replace(PRE_SELECTOR_REGEX, `<pre class="$1astro-code$2"`);
 					// Add "user-select: none;" for "+"/"-" diff symbols
 					if (attributes.language === 'diff') {
 						html = html.replace(
-							/<span class="line"><span style="(.*?)">([\+|\-])/g,
+							LINE_SELECTOR,
 							'<span class="line"><span style="$1"><span style="user-select: none;">$2</span>'
 						);
 					}
-					// Handle code wrapping
-					// if wrap=null, do nothing.
+
 					if (wrap === false) {
-						html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
+						html = html.replace(INLINE_STYLE_SELECTOR, 'style="$1; overflow-x: auto;"');
 					} else if (wrap === true) {
 						html = html.replace(
-							/style="(.*?)"/,
+							INLINE_STYLE_SELECTOR,
 							'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
 						);
 					}
 
-					// Return HTML that Astro can render as HTML nodes
+					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(html);
 				},
 			},
