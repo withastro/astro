@@ -25,6 +25,9 @@ describe('URL protocol', () => {
 			devPreview = await fixture.preview();
 			
 		});
+		after(async () => {
+			await devPreview.stop();
+		});
 		it('test host is true ', async () => {
 			const address = getNetworkAddress('http', undefined, 3000)
 			const res = await fetch(address.network[0])
