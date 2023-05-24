@@ -3973,9 +3973,12 @@ importers:
 
   packages/integrations/markdoc:
     dependencies:
+      '@astrojs/prism':
+        specifier: ^2.1.2
+        version: link:../../astro-prism
       '@markdoc/markdoc':
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: ^0.3.0
+        version: 0.3.0
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
@@ -3988,6 +3991,9 @@ importers:
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
+      shiki:
+        specifier: ^0.14.1
+        version: 0.14.1
       zod:
         specifier: ^3.17.3
         version: 3.20.6
@@ -4025,9 +4031,6 @@ importers:
       rollup:
         specifier: ^3.20.1
         version: 3.20.1
-      shiki:
-        specifier: ^0.14.1
-        version: 0.14.1
       vite:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@18.16.3)(sass@1.52.2)
@@ -8055,15 +8058,15 @@ packages:
       nopt: 5.0.0
       npmlog: 5.0.1
       rimraf: 3.0.2
-      semver: 7.3.8
-      tar: 6.1.11
+      semver: 7.5.1
+      tar: 6.1.14
     transitivePeerDependencies:
       - encoding
       - supports-color
     dev: false
 
-  /@markdoc/markdoc@0.2.2:
-    resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
+  /@markdoc/markdoc@0.3.0:
+    resolution: {integrity: sha512-QWCF8krIIw52ulflfnoff0yG1eKl9CCGA3KAiOjHyYtHNzSEouFh8lO52nAaO3qV2Ctj1GTB8TTb2rTfvISQfA==}
     engines: {node: '>=14.7.0'}
     peerDependencies:
       '@types/react': '*'
@@ -8734,8 +8737,8 @@ packages:
   /@types/babel__core@7.1.19:
     resolution: {integrity: sha512-WEOTgRsbYkvA/KCsDwVEGkd7WAr1e3g31VHQ8zy5gul/V1qKullU/BU5I68X5v7V3GnB9eotmom4v5a5gjxorw==}
     dependencies:
-      '@babel/parser': 7.18.4
-      '@babel/types': 7.18.4
+      '@babel/parser': 7.21.8
+      '@babel/types': 7.21.5
       '@types/babel__generator': 7.6.4
       '@types/babel__template': 7.4.1
       '@types/babel__traverse': 7.17.1
@@ -8744,19 +8747,19 @@ packages:
   /@types/babel__generator@7.6.4:
     resolution: {integrity: sha512-tFkciB9j2K755yrTALxD44McOrk+gfpIpvC3sxHjRawj6PfnQxrse4Clq5y/Rq+G3mrBurMax/lG8Qn2t9mSsg==}
     dependencies:
-      '@babel/types': 7.18.4
+      '@babel/types': 7.21.5
 
   /@types/babel__template@7.4.1:
     resolution: {integrity: sha512-azBFKemX6kMg5Io+/rdGT0dkGreboUVR0Cdm3fz9QJWpaQGJRQXl7C+6hOTCZcMll7KFyEQpgbYI2lHdsS4U7g==}
     dependencies:
-      '@babel/parser': 7.18.4
-      '@babel/types': 7.18.4
+      '@babel/parser': 7.21.8
+      '@babel/types': 7.21.5
     dev: false
 
   /@types/babel__traverse@7.17.1:
     resolution: {integrity: sha512-kVzjari1s2YVi77D3w1yuvohV2idweYXMCDzqBiVNN63TcDWrIlTVOYpqVrvbbyOE/IyzBoTKF0fdnLPEORFxA==}
     dependencies:
-      '@babel/types': 7.18.4
+      '@babel/types': 7.21.5
 
   /@types/better-sqlite3@7.6.4:
     resolution: {integrity: sha512-dzrRZCYPXIXfSR1/surNbJ/grU3scTaygS0OMzjlGf71i9sc2fGyHPXXiXmEvNIoE0cGwsanEFMVJxPXmco9Eg==}
@@ -10496,7 +10499,7 @@ packages:
     dev: false
 
   /concat-map@0.0.1:
-    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
 
   /concordance@5.0.4:
     resolution: {integrity: sha512-OAcsnTEYu1ARJqWVGwf4zh4JDfHZEaSNlNccFmt8YjB2l/n19/PF2viLINHc57vO4FKIAFl2FWASIGZZWZ2Kxw==}
