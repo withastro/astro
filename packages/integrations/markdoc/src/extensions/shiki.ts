@@ -111,7 +111,7 @@ export async function shiki({
 					// It would become this before hitting our regexes:
 					// &lt;span class=&quot;line&quot;
 
-					html = html.replace(PRE_SELECTOR_REGEX, `<pre class="$1astro-code$2"`);
+					html = html.replace(PRE_SELECTOR, `<pre class="$1astro-code$2"`);
 					// Add "user-select: none;" for "+"/"-" diff symbols
 					if (attributes.language === 'diff') {
 						html = html.replace(
