@@ -1,7 +1,8 @@
 import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
 import { Redirects } from './redirects.js';
-import { join as pathJoin } from 'node:path';
+import { posix } from 'node:path';
 
+const pathJoin = posix.join;
 
 function getRedirectStatus(route: RouteData): ValidRedirectStatus {
 	if(typeof route.redirect === 'object') {
