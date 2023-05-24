@@ -14,7 +14,7 @@ describe('Directives', async () => {
 		const html = await fixture.readFile('/define-vars/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('script')).to.have.lengthOf(4);
+		expect($('script')).to.have.lengthOf(5);
 
 		let i = 0;
 		for (const script of $('script').toArray()) {
@@ -27,9 +27,12 @@ describe('Directives', async () => {
 			} else if (i < 3) {
 				// Convert invalid keys to valid identifiers
 				expect($(script).toString()).to.include('const dashCase = "bar"');
-			} else {
+			} else if (i < 4) {
 				// Closing script tags in strings are escaped
 				expect($(script).toString()).to.include('const bar = "<script>bar\\x3C/script>"');
+			} else {
+				// Vars with undefined values are handled
+				expect($(script).toString()).to.include('const undef = undefined');
 			}
 			i++;
 		}

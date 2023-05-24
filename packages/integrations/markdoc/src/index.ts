@@ -10,7 +10,7 @@ import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
-import { applyDefaultConfig } from './runtime.js';
+import { setupConfig } from './runtime.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -52,7 +52,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = applyDefaultConfig(userMarkdocConfig, entry);
+						const markdocConfig = setupConfig(userMarkdocConfig, entry);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -90,7 +90,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 						const res = `import { jsx as h } from 'astro/jsx-runtime';
 						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, applyDefaultConfig, Markdoc, headingSlugger } from '@astrojs/markdoc/runtime';
+						import { collectHeadings, setupConfig, Markdoc } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
 ${
 	markdocConfigResult
@@ -113,16 +113,14 @@ export function getHeadings() {
 		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
 		''
 	}
-	headingSlugger.reset();
 	const headingConfig = userConfig.nodes?.heading;
-	const config = applyDefaultConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const config = setupConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 export async function Content (props) {
-	headingSlugger.reset();
-	const config = applyDefaultConfig({
+	const config = setupConfig({
 		...userConfig,
 		variables: { ...userConfig.variables, ...props },
 	}, entry);
