@@ -2,12 +2,18 @@ import type { AstroInstance } from 'astro';
 import { Fragment } from 'astro/jsx-runtime';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
-import { createComponent, renderComponent, render } from 'astro/runtime/server/index.js';
+import {
+	createComponent,
+	renderComponent,
+	render,
+	HTMLString,
+	isHTMLString,
+} from 'astro/runtime/server/index.js';
 
 export type TreeNode =
 	| {
 			type: 'text';
-			content: string;
+			content: string | HTMLString;
 	  }
 	| {
 			type: 'component';
@@ -25,6 +31,7 @@ export type TreeNode =
 export const ComponentNode = createComponent({
 	factory(result: any, { treeNode }: { treeNode: TreeNode }) {
 		if (treeNode.type === 'text') return render`${treeNode.content}`;
+
 		const slots = {
 			default: () =>
 				render`${treeNode.children.map((child) =>
@@ -46,7 +53,9 @@ export const ComponentNode = createComponent({
 });
 
 export function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]): TreeNode {
-	if (typeof node === 'string' || typeof node === 'number') {
+	if (isHTMLString(node)) {
+		return { type: 'text', content: node as HTMLString };
+	} else if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (Array.isArray(node)) {
 		return {

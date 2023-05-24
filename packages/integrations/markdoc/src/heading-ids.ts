@@ -1,13 +1,8 @@
 import Markdoc, { type ConfigType, type RenderableTreeNode, type Schema } from '@markdoc/markdoc';
 import Slugger from 'github-slugger';
-import { getTextContent } from '../runtime.js';
-
-type ConfigTypeWithCtx = ConfigType & {
-	// TODO: decide on `ctx` as a convention for config merging
-	ctx: {
-		headingSlugger: Slugger;
-	};
-};
+import { getTextContent } from './runtime.js';
+import type { AstroMarkdocConfig } from './config.js';
+import { MarkdocError } from './utils.js';
 
 function getSlug(
 	attributes: Record<string, any>,
@@ -24,16 +19,31 @@ function getSlug(
 	return slug;
 }
 
+type HeadingIdConfig = AstroMarkdocConfig<{
+	headingSlugger: Slugger;
+}>;
+
+/*
+	Expose standalone node for users to import in their config.
+	Allows users to apply a custom `render: AstroComponent`
+	and spread our default heading attributes.
+*/
 export const heading: Schema = {
 	children: ['inline'],
 	attributes: {
 		id: { type: String },
 		level: { type: Number, required: true, default: 1 },
 	},
-	transform(node, config: ConfigTypeWithCtx) {
+	transform(node, config: HeadingIdConfig) {
 		const { level, ...attributes } = node.transformAttributes(config);
 		const children = node.transformChildren(config);
 
+		if (!config.ctx?.headingSlugger) {
+			throw new MarkdocError({
+				message:
+					'Unexpected problem adding heading IDs to Markdoc file. Did you modify the `ctx.headingSlugger` property in your Markdoc config?',
+			});
+		}
 		const slug = getSlug(attributes, children, config.ctx.headingSlugger);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
@@ -49,9 +59,9 @@ export const heading: Schema = {
 	},
 };
 
-export function setupHeadingConfig(): ConfigTypeWithCtx {
+// Called internally to ensure `ctx` is generated per-file, instead of per-build.
+export function setupHeadingConfig(): HeadingIdConfig {
 	const headingSlugger = new Slugger();
-
 	return {
 		ctx: {
 			headingSlugger,

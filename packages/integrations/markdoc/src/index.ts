@@ -52,7 +52,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					async getRenderModule({ entry, viteId }) {
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = setupConfig(userMarkdocConfig, entry);
+						const markdocConfig = setupConfig(
+							userMarkdocConfig,
+							entry,
+							markdocConfigResult?.fileUrl.pathname
+						);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (

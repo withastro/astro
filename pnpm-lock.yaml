@@ -4025,6 +4025,9 @@ importers:
       rollup:
         specifier: ^3.20.1
         version: 3.20.1
+      shiki:
+        specifier: ^0.14.1
+        version: 0.14.1
       vite:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@18.16.3)(sass@1.52.2)
