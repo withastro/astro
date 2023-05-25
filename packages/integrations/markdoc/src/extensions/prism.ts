@@ -1,5 +1,7 @@
+// leave space, so organize imports doesn't mess up comments
 // @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
 import { unescapeHTML } from 'astro/runtime/server/index.js';
+
 import { runHighlighterWithAstro } from '@astrojs/prism/dist/highlighter';
 import { Markdoc, type AstroMarkdocConfig } from '../config.js';
 
