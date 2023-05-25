@@ -33,6 +33,7 @@ import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 } from './plugins/plugin-pages.js';
 import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import type { PreRenderedChunk } from 'rollup';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -177,16 +178,9 @@ async function ssrBuild(
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-							return `${chunkInfo.facadeModuleId
-								.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
-								.replace('src/', '')
-								.replaceAll('[', '_')
-								.replaceAll(']', '_')
-								.replaceAll('.', '_')
-								// this must be last
-								.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}.mjs`;
+							return makeAstroPageEntryPointFileName(chunkInfo.facadeModuleId);
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
-							return opts.buildConfig.serverEntry;
+							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
 							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
@@ -420,4 +414,30 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		);
 		removeEmptyDirs(serverAssets);
 	}
+}
+
+/**
+ * This function takes as input the virtual module name of an astro page and transform
+ * to generate an `.mjs` file:
+ *
+ * Input: `@astro-page:src/pages/index@_@astro`
+ *
+ * Output: `pages/index.astro.mjs`
+ *
+ * 1. We remove the module id prefix, `@astro-page:`
+ * 2. We remove `src/`
+ * 3. We replace square brackets with underscore, for example `[slug]`
+ * 4. At last, we replace the extension pattern with a simple dot
+ * 5. We append the `.mjs` string, so the file will always be a JS file
+ *
+ * @param facadeModuleId
+ */
+function makeAstroPageEntryPointFileName(facadeModuleId: string) {
+	return `${facadeModuleId
+		.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
+		.replace('src/', '')
+		.replaceAll('[', '_')
+		.replaceAll(']', '_')
+		// this must be last
+		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}.mjs`;
 }
