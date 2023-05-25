@@ -27,6 +27,7 @@ describe('SSG - Redirects', () => {
 
 	it('Creates a redirects file', async () => {
 		let redirects = await fixture.readFile('/_redirects');
+		console.log(redirects)
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
 			'/nope', '/', '301',

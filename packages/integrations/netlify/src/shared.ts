@@ -13,7 +13,9 @@ export async function createRedirects(
 	const dynamicTarget = `/.netlify/${kind}/${entryFile}`;
 	const _redirectsURL = new URL('./_redirects', dir);
 
-	const _redirects = createRedirectsFromAstroRoutes(config, routes, dir, dynamicTarget);
+	const _redirects = createRedirectsFromAstroRoutes({
+		config, routes, dir, dynamicTarget
+	});
 	const content = _redirects.print();
 
 	// Always use appendFile() because the redirects file could already exist,

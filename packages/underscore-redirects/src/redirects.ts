@@ -4,7 +4,10 @@ export type RedirectDefinition = {
 	dynamic: boolean;
 	input: string;
 	target: string;
-	weight: 0 | 1 | 2;
+	// Allows specifying a weight to the definition.
+	// This allows insertion of definitions out of order but having
+	// a priority once inserted.
+	weight: number;
 	status: number;
 };
 
@@ -13,17 +16,22 @@ export class Redirects {
 	public minInputLength = 4;
 	public minTargetLength = 4;
 
-	add(defn: RedirectDefinition) {
+	/**
+	 * Adds a new definition by inserting it into the list of definitions
+	 * prioritized by the given weight. This keeps higher priority definitions
+	 * At the top of the list once printed.
+	 */
+	add(definition: RedirectDefinition) {
 		// Find the longest input, so we can format things nicely
-		if (defn.input.length > this.minInputLength) {
-			this.minInputLength = defn.input.length;
+		if (definition.input.length > this.minInputLength) {
+			this.minInputLength = definition.input.length;
 		}
 		// Same for the target
-		if (defn.target.length > this.minTargetLength) {
-			this.minTargetLength = defn.target.length;
+		if (definition.target.length > this.minTargetLength) {
+			this.minTargetLength = definition.target.length;
 		}
 
-		binaryInsert(this.definitions, defn, (a, b) => {
+		binaryInsert(this.definitions, definition, (a, b) => {
 			return a.weight > b.weight;
 		});
 	}

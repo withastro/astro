@@ -1,5 +1,14 @@
 import type { RedirectDefinition } from './redirects';
 
+/**
+ * Pretty print a list of definitions into the output format. Keeps
+ * things readable for humans. Ex:
+ * /nope               /                              301
+ * /other              /                              301
+ * /two                /                              302
+ * /team/articles/*    /team/articles/*\/index.html    200
+ * /blog/*             /team/articles/*\/index.html    301
+ */
 export function print(
 	definitions: RedirectDefinition[],
 	minInputLength: number,
@@ -8,19 +17,20 @@ export function print(
 	let _redirects = '';
 
 	// Loop over the definitions
-	definitions.forEach((defn, i) => {
+	for(let i = 0; i < definitions.length; i++) {
+		let definition = definitions[i];
 		// Figure out the number of spaces to add. We want at least 4 spaces
 		// after the input. This ensure that all targets line up together.
-		let inputSpaces = minInputLength - defn.input.length + 4;
-		let targetSpaces = minTargetLength - defn.target.length + 4;
+		let inputSpaces = minInputLength - definition.input.length + 4;
+		let targetSpaces = minTargetLength - definition.target.length + 4;
 		_redirects +=
 			(i === 0 ? '' : '\n') +
-			defn.input +
+			definition.input +
 			' '.repeat(inputSpaces) +
-			defn.target +
+			definition.target +
 			' '.repeat(Math.abs(targetSpaces)) +
-			defn.status;
-	});
+			definition.status;
+	}
 
 	return _redirects;
 }

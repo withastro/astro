@@ -199,7 +199,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 
 					const redirectRoutes = routes.filter(r => r.type === 'redirect');
-					const trueRedirects = createRedirectsFromAstroRoutes(_config, redirectRoutes, dir, '');
+					const trueRedirects = createRedirectsFromAstroRoutes({
+						config: _config,
+						routes: redirectRoutes,
+						dir,
+					});
 					if(!trueRedirects.empty()) {
 						await fs.promises.appendFile(
 							new URL('./_redirects', _config.outDir),

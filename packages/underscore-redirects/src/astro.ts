@@ -11,18 +11,31 @@ function getRedirectStatus(route: RouteData): ValidRedirectStatus {
 	return 301;
 }
 
-export function createRedirectsFromAstroRoutes(
-	config: Pick<AstroConfig, 'output' | 'build'>,
-	routes: RouteData[],
-	dir: URL,
-	dynamicTargetValue: string
-) {
+interface CreateRedirectsFromAstroRoutesParams {
+	config: Pick<AstroConfig, 'output' | 'build'>;
+	routes: RouteData[];
+	dir: URL;
+	dynamicTarget?: string;
+}
+
+/**
+ * Takes a set of routes and creates a Redirects object from them.
+ */
+export function createRedirectsFromAstroRoutes({
+	config,
+	routes,
+	dir,
+	dynamicTarget = '',
+}: CreateRedirectsFromAstroRoutesParams) {
 	const output = config.output;
 	const _redirects = new Redirects();
 
 	for (const route of routes) {
+		// A route with a `pathname` is as static route.
 		if (route.pathname) {
 			if(route.redirect) {
+				// A redirect route without dynamic parts. Get the redirect status
+				// from the user if provided.
 				_redirects.add({
 					dynamic: false,
 					input: route.pathname,
@@ -33,6 +46,7 @@ export function createRedirectsFromAstroRoutes(
 				continue;
 			}
 
+			// If this is a static build we don't want to add redirects to the HTML file.
 			if(output === 'static') {
 				continue;
 			}
@@ -49,7 +63,7 @@ export function createRedirectsFromAstroRoutes(
 				_redirects.add({
 					dynamic: false,
 					input: route.pathname,
-					target: dynamicTargetValue,
+					target: dynamicTarget,
 					status: 200,
 					weight: 2,
 				});
@@ -58,15 +72,18 @@ export function createRedirectsFromAstroRoutes(
 					_redirects.add({
 						dynamic: true,
 						input: '/*',
-						target: dynamicTargetValue,
+						target: dynamicTarget,
 						status: 404,
 						weight: 0,
 					});
 				}
 			}
 		} else {
+			// This is the dynamic route code. This generates a pattern from a dynamic
+			// route formatted with *s in place of the Astro dynamic/spread syntax.
 			const pattern = generateDynamicPattern(route);
 
+			// This route was prerendered and should be forwarded to the HTML file.
 			if (route.distURL) {
 				const targetRoute = route.redirectRoute ?? route;
 				const targetPattern = generateDynamicPattern(targetRoute);
@@ -87,7 +104,7 @@ export function createRedirectsFromAstroRoutes(
 				_redirects.add({
 					dynamic: true,
 					input: pattern,
-					target: dynamicTargetValue,
+					target: dynamicTarget,
 					status: 200,
 					weight: 1,
 				});
@@ -98,6 +115,11 @@ export function createRedirectsFromAstroRoutes(
 	return _redirects;
 }
 
+/**
+ * Converts an Astro dynamic route into one formatted like:
+ * /team/articles/*
+ * With stars replacing spread and :id syntax replacing [id]
+ */
 function generateDynamicPattern(route: RouteData) {
 	const pattern =
 		'/' +
