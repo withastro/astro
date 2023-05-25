@@ -2,17 +2,15 @@
 '@astrojs/markdoc': patch
 ---
 
-Add support for syntax highlighting with Shiki. Apply to your Markdoc config using the `extends` property:
+Add a built-in extension for syntax highlighting with Prism. Apply to your Markdoc config using the `extends` property:
 
 ```js
 // markdoc.config.mjs
 import { defineMarkdocConfig } from '@astrojs/markdoc/config';
-import shiki from '@astrojs/markdoc/shiki';
+import prism from '@astrojs/markdoc/prism';
 
 export default defineMarkdocConfig({
-  extends: [
-    shiki({ /** Shiki config options */ }),
-  ],
+  extends: [prism()],
 })
 ```
 
