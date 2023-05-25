@@ -17,7 +17,7 @@ test.afterAll(async () => {
 
 test.describe('Passing JS into client components', () => {
 	test('Complex nested objects', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const nestedDate = await page.locator('#nested-date');
 		await expect(nestedDate, 'component is visible').toBeVisible();
@@ -32,8 +32,8 @@ test.describe('Passing JS into client components', () => {
 		await expect(regExpValue).toHaveText('ok');
 	});
 
-	test('BigInts', async ({ page }) => {
-		await page.goto('/');
+	test('BigInts', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
 
 		const bigIntType = await page.locator('#bigint-type');
 		await expect(bigIntType, 'is visible').toBeVisible();
@@ -44,8 +44,8 @@ test.describe('Passing JS into client components', () => {
 		await expect(bigIntValue).toHaveText('11');
 	});
 
-	test('Arrays that look like the serialization format', async ({ page }) => {
-		await page.goto('/');
+	test('Arrays that look like the serialization format', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
 
 		const arrType = await page.locator('#arr-type');
 		await expect(arrType, 'is visible').toBeVisible();
@@ -56,8 +56,8 @@ test.describe('Passing JS into client components', () => {
 		await expect(arrValue).toHaveText('0,foo');
 	});
 
-	test('Maps and Sets', async ({ page }) => {
-		await page.goto('/');
+	test('Maps and Sets', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
 
 		const mapType = page.locator('#map-type');
 		await expect(mapType, 'is visible').toBeVisible();

@@ -20,7 +20,11 @@ import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
 } from '../../assets/generate.js';
-import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
+import {
+	eachPageDataFromEntryPoint,
+	hasPrerenderedPages,
+	type BuildInternals,
+} from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
@@ -44,10 +48,10 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { cssOrder, eachPageData, getPageDataByComponent, mergeInlineCss } from './internal.js';
+import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
 import type {
 	PageBuildData,
-	SingleFileBuiltModule,
+	SinglePageBuiltModule,
 	StaticBuildOptions,
 	StylesheetAsset,
 } from './types';
@@ -99,18 +103,23 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 
-	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
-	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
 	if (ssr) {
-		for (const pageData of eachPageData(internals)) {
-			if (pageData.route.prerender)
-				await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
+			if (pageData.route.prerender) {
+				const ssrEntryURLPage = new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
+				const ssrEntryPage = await import(ssrEntryURLPage.toString());
+
+				await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+			}
 		}
 	} else {
-		for (const pageData of eachPageData(internals)) {
-			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
+			const ssrEntryURLPage = new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
+			const ssrEntryPage = await import(ssrEntryURLPage.toString());
+
+			await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
 		}
 	}
 
@@ -153,7 +162,7 @@ async function generatePage(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	ssrEntry: SingleFileBuiltModule,
+	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>
 ) {
 	let timeStart = performance.now();
@@ -169,15 +178,15 @@ async function generatePage(
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 
-	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const pageModulePromise = ssrEntry.page;
 	const middleware = ssrEntry.middleware;
 
-	if (!pageModule) {
+	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
 		);
 	}
-
+	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, opts.settings)) {
 		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
 		return;

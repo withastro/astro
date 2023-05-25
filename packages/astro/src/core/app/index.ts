@@ -32,8 +32,6 @@ export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
@@ -139,24 +137,26 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let mod = this.#manifest.pageMap.get(routeData.component)!;
+		let page = await this.#manifest.pageMap.get(routeData.component)!();
+		let mod = await page.page();
 
 		if (routeData.type === 'page') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
-			// If there was a 500 error, try sending the 500 page.
-			if (response.status === 500) {
-				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
-				if (fiveHundredRouteData) {
-					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
+			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+			if (response.status === 500 || response.status === 404) {
+				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorPageData && errorPageData.route !== routeData.route) {
+					page = await this.#manifest.pageMap.get(errorPageData.component)!();
+					mod = await page.page();
 					try {
-						let fiveHundredResponse = await this.#renderPage(
+						let errorResponse = await this.#renderPage(
 							request,
-							fiveHundredRouteData,
+							errorPageData,
 							mod,
-							500
+							response.status
 						);
-						return fiveHundredResponse;
+						return errorResponse;
 					} catch {}
 				}
 			}
