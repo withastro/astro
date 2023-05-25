@@ -15,7 +15,7 @@ test.afterAll(async () => {
 
 test.describe('Client only', () => {
 	test('React counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = await page.locator('#react-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -33,7 +33,7 @@ test.describe('Client only', () => {
 	});
 
 	test('Preact counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = await page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -51,7 +51,7 @@ test.describe('Client only', () => {
 	});
 
 	test('Solid counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = await page.locator('#solid-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -69,7 +69,7 @@ test.describe('Client only', () => {
 	});
 
 	test('Vue counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = await page.locator('#vue-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -87,7 +87,7 @@ test.describe('Client only', () => {
 	});
 
 	test('Svelte counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = await page.locator('#svelte-counter');
 		await expect(counter, 'component is visible').toBeVisible();

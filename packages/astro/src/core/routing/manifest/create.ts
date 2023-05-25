@@ -227,7 +227,9 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
-	const isPrenderDefault = isHybridOutput(settings.config);
+	const isPrerenderDefault = isHybridOutput(settings.config);
+
+	const foundInvalidFileExtensions: Set<string> = new Set();
 
 	function walk(
 		fs: typeof nodeFs,
@@ -252,6 +254,11 @@ export function createRouteManifest(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
+				if (!foundInvalidFileExtensions.has(ext)) {
+					foundInvalidFileExtensions.add(ext);
+					warn(logging, 'astro', `Invalid file extension for Pages: ${ext}`);
+				}
+
 				return;
 			}
 			const segment = isDir ? basename : name;
@@ -333,7 +340,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: isPrenderDefault,
+					prerender: isPrerenderDefault,
 				});
 			}
 		});
@@ -409,7 +416,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: isPrenderDefault,
+				prerender: isPrerenderDefault,
 			});
 		});
 

@@ -18,6 +18,8 @@
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
+    "test:unit": "cd packages/astro && pnpm run test:unit",
+    "test:unit:match": "cd packages/astro && pnpm run test:unit:match",
     "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
     "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
     "test:smoke:docs": "turbo run build --filter=docs",

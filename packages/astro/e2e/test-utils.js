@@ -1,7 +1,19 @@
+import fs from 'fs/promises';
+import path from 'path';
 import { test as testBase, expect } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export const isWindows = process.platform === 'win32';
+
+// Get all test files in directory, assign unique port for each of them so they don't conflict
+const testFiles = await fs.readdir(new URL('.', import.meta.url));
+const testFileToPort = new Map();
+for (let i = 0; i < testFiles.length; i++) {
+	const file = testFiles[i];
+	if (file.endsWith('.test.js')) {
+		testFileToPort.set(file.slice(0, -8), 4000 + i);
+	}
+}
 
 export function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.root)
@@ -12,6 +24,9 @@ export function loadFixture(inlineConfig) {
 	return baseLoadFixture({
 		...inlineConfig,
 		root: new URL(inlineConfig.root, import.meta.url).toString(),
+		server: {
+			port: testFileToPort.get(path.basename(inlineConfig.root)),
+		},
 	});
 }
 
@@ -73,4 +88,14 @@ export async function waitForHydrate(page, el) {
 		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
 		`astro-island[uid="${astroIslandId}"]`
 	);
+}
+
+/**
+ * Scroll to element manually without making sure the `el` is stable
+ * @param {import('@playwright/test').Locator} el
+ */
+export async function scrollToElement(el) {
+	await el.evaluate((node) => {
+		node.scrollIntoView({ behavior: 'auto' });
+	});
 }

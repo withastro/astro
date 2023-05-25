@@ -1,30 +1,72 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import Markdoc, {
-	type ConfigType as MarkdocConfig,
-	type RenderableTreeNode,
-} from '@markdoc/markdoc';
+import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
-import { nodes as astroNodes } from './nodes/index.js';
+import type { AstroMarkdocConfig } from './config.js';
+import { setupHeadingConfig } from './heading-ids.js';
+import { MarkdocError } from './utils.js';
 
-/** Used to reset Slugger cache on each build at runtime */
+/** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';
-export { headingSlugger } from './nodes/index.js';
 
-export function applyDefaultConfig(
-	config: MarkdocConfig,
-	entry: ContentEntryModule
-): MarkdocConfig {
+/**
+ * Merge user config with default config and set up context (ex. heading ID slugger)
+ * Called on each file's individual transform.
+ * TODO: virtual module to merge configs per-build instead of per-file?
+ */
+export function setupConfig(
+	userConfig: AstroMarkdocConfig,
+	entry: ContentEntryModule,
+	markdocConfigPath?: string
+): Omit<AstroMarkdocConfig, 'extends'> {
+	let defaultConfig: AstroMarkdocConfig = {
+		...setupHeadingConfig(),
+		variables: { entry },
+	};
+
+	if (userConfig.extends) {
+		for (const extension of userConfig.extends) {
+			if (extension instanceof Promise) {
+				throw new MarkdocError({
+					message: 'An extension passed to `extends` in your markdoc config returns a Promise.',
+					hint: 'Call `await` for async extensions. Example: `extends: [await myExtension()]`',
+					location: {
+						file: markdocConfigPath,
+					},
+				});
+			}
+
+			defaultConfig = mergeConfig(defaultConfig, extension);
+		}
+	}
+
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Merge function from `@markdoc/markdoc` internals */
+function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): AstroMarkdocConfig {
 	return {
-		...config,
-		variables: {
-			entry,
-			...config.variables,
+		...configA,
+		...configB,
+		ctx: {
+			...configA.ctx,
+			...configB.ctx,
+		},
+		tags: {
+			...configA.tags,
+			...configB.tags,
 		},
 		nodes: {
-			...astroNodes,
-			...config.nodes,
+			...configA.nodes,
+			...configB.nodes,
 		},
-		// TODO: Syntax highlighting
+		functions: {
+			...configA.functions,
+			...configB.functions,
+		},
+		variables: {
+			...configA.variables,
+			...configB.variables,
+		},
 	};
 }
 
