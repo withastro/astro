@@ -218,7 +218,7 @@ import shiki from '@astrojs/markdoc/shiki';
 
 export default defineMarkdocConfig({
   extends: [
-    await shiki({
+    shiki({
       // Choose from Shiki's built-in themes (or add your own)
       // Default: 'github-dark'
       // https://github.com/shikijs/shiki/blob/main/docs/themes.md

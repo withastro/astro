@@ -11,7 +11,7 @@ import shiki from '@astrojs/markdoc/shiki';
 
 export default defineMarkdocConfig({
   extends: [
-    await shiki({ /** Shiki config options */ }),
+    shiki({ /** Shiki config options */ }),
   ],
 })
 ```
