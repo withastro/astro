@@ -42,6 +42,7 @@
     "estree-util-visit": "^1.2.0",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
+    "hast-util-to-html": "^8.0.4",
     "kleur": "^4.1.4",
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
