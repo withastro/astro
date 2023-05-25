@@ -4143,6 +4143,9 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      hast-util-to-html:
+        specifier: ^8.0.4
+        version: 8.0.4
       kleur:
         specifier: ^4.1.4
         version: 4.1.5
@@ -4315,6 +4318,15 @@ importers:
       react-dom:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
+
+  packages/integrations/mdx/test/fixtures/mdx-optimize:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/mdx/test/fixtures/mdx-page:
     dependencies:
