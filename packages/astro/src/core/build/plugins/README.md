@@ -9,13 +9,6 @@ This plugin is responsible to retrieve the `src/middleware.{ts.js}` file and emi
 
 The final file is emitted only if the user has the middleware file. The final name of  the file is `middleware.mjs`.
 
-The file emitted has this content, more or less:
-
-```js
-import { onRequest } from "@astro-middleware";
-export { onRequest }
-```
-
 This is **not** a virtual module. The plugin will try to resolve the physical file.
 
 ## `plugin-renderers`
@@ -57,10 +50,12 @@ The mapping is as follows:
 src/pages/index.astro => @astro-page:src/pages/index@_@astro
 ```
 
-We replace the dot that belongs to the extension with an arbitrary string. 
+1. We add a fixed prefix, which is used as virtual module naming convention;
+2. We replace the dot that belongs extension with an arbitrary string.
 
 This kind of patterns will then allow us to retrieve the path physical path of the 
 file back from that string. This is important for the [code generation](#plugin-pages-code-generation)
+
 
 
 ### `plugin pages` code generation

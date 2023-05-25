@@ -1,5 +1,4 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from '../internal';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type OutputOptionsHook = Extract<VitePlugin['outputOptions'], Function>;

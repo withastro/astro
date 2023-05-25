@@ -14,9 +14,8 @@ import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
-import { extname } from 'node:path';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN, ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
+import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -57,16 +56,12 @@ function vitePluginSSR(
 				const pageMap: string[] = [];
 
 				for (const path of Object.keys(allPages)) {
-					const extension = extname(path);
-					const virtualModuleName = `${ASTRO_PAGE_MODULE_ID}${path.replace(
-						extension,
-						extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
-					)}`;
+					const virtualModuleName = getVirtualModulePageNameFromPath(path);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
 						const variable = `_page${i}`;
 						// we need to use the non-resolved ID in order to resolve correctly the virtual module
-						imports.push(`const ${variable}  = () => import("${virtualModuleName}")`);
+						imports.push(`const ${variable}  = () => import("${virtualModuleName}");`);
 
 						const pageData = internals.pagesByComponent.get(path);
 						if (pageData) {
@@ -110,8 +105,7 @@ const _start = 'start';
 if(_start in adapter) {
 	adapter[_start](_manifest, _args);
 }`;
-				const result = [imports.join('\n'), contents.join('\n'), content, exports.join('\n')];
-				return result.join('\n');
+				return `${imports.join('\n')}${contents.join('\n')}${content}${exports.join('\n')}`;
 			}
 			return void 0;
 		},
