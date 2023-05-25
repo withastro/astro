@@ -1,10 +1,10 @@
 import type { Rollup } from 'vite';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 import type { SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN, ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 export interface BuildInternals {
 	/**

@@ -1,3 +1,4 @@
+import { extname } from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
 import { addRollupInput } from '../add-rollup-input.js';
 import { type BuildInternals } from '../internal.js';
@@ -5,7 +6,6 @@ import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
-import { extname } from 'node:path';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
 export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0@astro-page:';

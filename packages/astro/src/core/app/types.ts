@@ -1,7 +1,6 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	AstroMiddlewareInstance,
-	ComponentInstance,
 	RouteData,
 	SerializedRouteData,
 	SSRComponentMetadata,
