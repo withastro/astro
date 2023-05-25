@@ -6,7 +6,6 @@ import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
-export const RESOLVED_MIDDLEWARE_MODULE_ID = '\0@astro-middleware';
 
 export function vitePluginMiddleware(
 	opts: StaticBuildOptions,
