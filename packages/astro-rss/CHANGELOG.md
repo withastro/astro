@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 2.4.3
+
+### Patch Changes
+
+- [#7153](https://github.com/withastro/astro/pull/7153) [`e17ed0727`](https://github.com/withastro/astro/commit/e17ed0727ef1acb512c77723a1b641326de8ca84) Thanks [@AkashRajpurohit](https://github.com/AkashRajpurohit)! - exposes RSSFeedItem type
+
 ## 2.4.2
 
 ### Patch Changes

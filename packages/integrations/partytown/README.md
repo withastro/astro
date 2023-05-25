@@ -132,6 +132,8 @@ export default defineConfig ({
 
 ## Troubleshooting
 
+- If you're getting a `Failed to fetch` error, make sure you're not using any browser extensions that are blocking the script.
+
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.

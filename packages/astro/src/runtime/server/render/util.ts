@@ -43,7 +43,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		// Use const instead of let as let global unsupported with Safari
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
-		output += `const ${toIdent(key)} = ${JSON.stringify(value).replace(
+		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
 			/<\/script>/g,
 			'\\x3C/script>'
 		)};\n`;
