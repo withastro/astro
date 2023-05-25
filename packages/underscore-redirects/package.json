@@ -12,6 +12,7 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js"
   },
