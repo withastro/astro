@@ -73,7 +73,7 @@ describe('Markdoc - syntax highlighting', () => {
 		it('transforms', async () => {
 			const ast = Markdoc.parse(entry);
 			const config = setupConfig({
-				extends: [await prism()],
+				extends: [prism()],
 			});
 			const content = Markdoc.transform(ast, config);
 

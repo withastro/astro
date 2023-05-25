@@ -3,7 +3,7 @@ import { unescapeHTML } from 'astro/runtime/server/index.js';
 import { runHighlighterWithAstro } from '@astrojs/prism/dist/highlighter';
 import { Markdoc, type AstroMarkdocConfig } from '../config.js';
 
-export default async function prism(): Promise<AstroMarkdocConfig> {
+export default function prism(): AstroMarkdocConfig {
 	return {
 		nodes: {
 			fence: {
