@@ -3,7 +3,6 @@ import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
 import type { ContentEntryModule } from 'astro';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
-import { MarkdocError } from './utils.js';
 
 /** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';

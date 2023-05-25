@@ -2,11 +2,11 @@
 // @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
 import { unescapeHTML } from 'astro/runtime/server/index.js';
 
+import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
 import type * as shikiTypes from 'shiki';
-import type { AstroMarkdocConfig } from '../config.js';
-import Markdoc from '@markdoc/markdoc';
 import { getHighlighter } from 'shiki';
+import type { AstroMarkdocConfig } from '../config.js';
 
 // Map of old theme names to new names to preserve compatibility when we upgrade shiki
 const compatThemes: Record<string, string> = {
