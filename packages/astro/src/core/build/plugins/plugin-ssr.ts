@@ -50,7 +50,7 @@ function vitePluginSSR(
 				let middleware;
 				const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
 				if (middlewareModule) {
-					imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}"`);
+					imports.push(`import * as _middleware from "${middlewareModule.id}"`);
 					middleware = 'middleware: _middleware';
 				}
 				let i = 0;
