@@ -72,7 +72,7 @@ describe('Markdoc - syntax highlighting', () => {
 	describe('prism', () => {
 		it('transforms', async () => {
 			const ast = Markdoc.parse(entry);
-			const config = setupConfig({
+			const config = await setupConfig({
 				extends: [prism()],
 			});
 			const content = Markdoc.transform(ast, config);
@@ -97,8 +97,8 @@ describe('Markdoc - syntax highlighting', () => {
  * @returns {import('../src/config.js').AstroMarkdocConfig}
  */
 async function getConfigExtendingShiki(config) {
-	return setupConfig({
-		extends: [await shiki(config)],
+	return await setupConfig({
+		extends: [shiki(config)],
 	});
 }
 

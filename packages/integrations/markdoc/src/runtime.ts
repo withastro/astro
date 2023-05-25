@@ -13,31 +13,37 @@ export { default as Markdoc } from '@markdoc/markdoc';
  * Called on each file's individual transform.
  * TODO: virtual module to merge configs per-build instead of per-file?
  */
-export function setupConfig(
+export async function setupConfig(
 	userConfig: AstroMarkdocConfig,
-	entry: ContentEntryModule,
-	markdocConfigPath?: string
-): Omit<AstroMarkdocConfig, 'extends'> {
+	entry: ContentEntryModule
+): Promise<Omit<AstroMarkdocConfig, 'extends'>> {
 	let defaultConfig: AstroMarkdocConfig = {
 		...setupHeadingConfig(),
 		variables: { entry },
 	};
 
 	if (userConfig.extends) {
-		for (const extension of userConfig.extends) {
+		for (let extension of userConfig.extends) {
 			if (extension instanceof Promise) {
-				throw new MarkdocError({
-					message: 'An extension passed to `extends` in your markdoc config returns a Promise.',
-					hint: 'Call `await` for async extensions. Example: `extends: [await myExtension()]`',
-					location: {
-						file: markdocConfigPath,
-					},
-				});
+				extension = await extension;
 			}
 
 			defaultConfig = mergeConfig(defaultConfig, extension);
 		}
 	}
+
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Used for synchronous `getHeadings()` function */
+export function setupConfigSync(
+	userConfig: AstroMarkdocConfig,
+	entry: ContentEntryModule
+): Omit<AstroMarkdocConfig, 'extends'> {
+	let defaultConfig: AstroMarkdocConfig = {
+		...setupHeadingConfig(),
+		variables: { entry },
+	};
 
 	return mergeConfig(defaultConfig, userConfig);
 }
