@@ -3630,6 +3630,9 @@ importers:
 
   packages/integrations/cloudflare:
     dependencies:
+      '@astrojs/underscore-redirects':
+        specifier: ^0.1.0
+        version: link:../../underscore-redirects
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
@@ -4360,6 +4363,9 @@ importers:
 
   packages/integrations/netlify:
     dependencies:
+      '@astrojs/underscore-redirects':
+        specifier: ^0.1.0
+        version: link:../../underscore-redirects
       '@astrojs/webapi':
         specifier: ^2.1.1
         version: link:../../webapi
@@ -5209,6 +5215,27 @@ importers:
       '@types/which-pm-runs':
         specifier: ^1.0.0
         version: 1.0.0
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      chai:
+        specifier: ^4.3.6
+        version: 4.3.6
+      mocha:
+        specifier: ^9.2.2
+        version: 9.2.2
+
+  packages/underscore-redirects:
+    devDependencies:
+      '@types/chai':
+        specifier: ^4.3.1
+        version: 4.3.3
+      '@types/mocha':
+        specifier: ^9.1.1
+        version: 9.1.1
+      astro:
+        specifier: workspace:*
+        version: link:../astro
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -8783,11 +8810,12 @@ packages:
   /@types/chai-subset@1.3.3:
     resolution: {integrity: sha512-frBecisrNGz+F4T6bcc+NLeolfiojh5FxW2klu669+8BARtyQv2C/GkNW6FUodVe4BroGMP/wER/YDGc7rEllw==}
     dependencies:
-      '@types/chai': 4.3.3
+      '@types/chai': 4.3.5
     dev: false
 
   /@types/chai@4.3.3:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
+    dev: true
 
   /@types/chai@4.3.5:
     resolution: {integrity: sha512-mEo1sAde+UCE6b2hxn332f1g1E8WfYRu6p5SvTKr2ZKC1f7gFJXk4h5PyGP9Dt6gCaG8y8XhwnXWC6Iy2cmBng==}

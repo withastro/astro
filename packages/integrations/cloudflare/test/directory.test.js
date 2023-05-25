@@ -11,6 +11,9 @@ describe('mode: "directory"', () => {
 			root: './fixtures/basics/',
 			output: 'server',
 			adapter: cloudflare({ mode: 'directory' }),
+			redirects: {
+				'/old': '/'
+			}
 		});
 		await fixture.build();
 	});
@@ -18,5 +21,17 @@ describe('mode: "directory"', () => {
 	it('generates functions folder inside the project root', async () => {
 		expect(await fixture.pathExists('../functions')).to.be.true;
 		expect(await fixture.pathExists('../functions/[[path]].js')).to.be.true;
+	});
+
+	it('generates a redirects file', async () => {
+		try {
+			let _redirects = await fixture.readFile('/_redirects');
+			let parts = _redirects.split(/\s+/);
+			expect(parts).to.deep.equal([
+				'/old', '/', '301'
+			]);
+		} catch {
+			expect(false).to.equal(true);
+		}
 	});
 });

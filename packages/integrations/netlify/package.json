@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^2.1.1",
+    "@astrojs/underscore-redirects": "^0.1.0",
     "@netlify/functions": "^1.0.0",
     "esbuild": "^0.15.18"
   },

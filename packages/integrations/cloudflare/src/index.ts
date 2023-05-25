@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import { createRedirectsFromAstroRoutes, type Redirects } from '@astrojs/underscore-redirects';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -88,7 +89,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = 'webworker';
 				}
 			},
-			'astro:build:done': async ({ pages }) => {
+			'astro:build:done': async ({ pages, routes, dir }) => {
 				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
 				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
 				const buildPath = fileURLToPath(entryUrl);
@@ -195,6 +196,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						if (redirects.length > 0) {
 							staticPathList.push(...redirects);
 						}
+					}
+
+					const redirectRoutes = routes.filter(r => r.type === 'redirect');
+					const trueRedirects = createRedirectsFromAstroRoutes({
+						config: _config,
+						routes: redirectRoutes,
+						dir,
+					});
+					if(!trueRedirects.empty()) {
+						await fs.promises.appendFile(
+							new URL('./_redirects', _config.outDir),
+							trueRedirects.print()
+						);
 					}
 
 					await fs.promises.writeFile(
