@@ -1,5 +1,59 @@
 # astro
 
+## 2.5.5
+
+### Patch Changes
+
+- [#6832](https://github.com/withastro/astro/pull/6832) [`904131aec`](https://github.com/withastro/astro/commit/904131aec3bacb2824ad60457a45772eba27b5ab) Thanks [@wulinsheng123](https://github.com/wulinsheng123)! - fix a bug when Fragment is as a slot
+
+- [#7178](https://github.com/withastro/astro/pull/7178) [`57e65d247`](https://github.com/withastro/astro/commit/57e65d247f67de61bcc3a585c2254feb61ed2e74) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: revert Markdoc asset bleed changes. Production build issues were discovered that deserve a different fix.
+
+## 2.5.4
+
+### Patch Changes
+
+- [#7125](https://github.com/withastro/astro/pull/7125) [`4ce8bf7c6`](https://github.com/withastro/astro/commit/4ce8bf7c62d2b19ff7bd3dd0fbad88fcac10feaa) Thanks [@bluwy](https://github.com/bluwy)! - Make vite-plugin-content-virtual-mod run `getEntrySlug` 10 at a time to prevent `EMFILE: too many open files` error
+
+- [#7166](https://github.com/withastro/astro/pull/7166) [`626dd41d0`](https://github.com/withastro/astro/commit/626dd41d0a80155f59962e3a1b70d8dfd2719d25) Thanks [@ematipico](https://github.com/ematipico)! - Move generation of renderers code into their own file
+
+- [#7174](https://github.com/withastro/astro/pull/7174) [`92d1f017e`](https://github.com/withastro/astro/commit/92d1f017e5c0a921973e028b90c7975e74dce433) Thanks [@ematipico](https://github.com/ematipico)! - Remove restriction around serialisable data for `Astro.locals`
+
+- [#7172](https://github.com/withastro/astro/pull/7172) [`2ca94269e`](https://github.com/withastro/astro/commit/2ca94269ed0b5046033c47985ef50b7e7a637caf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add types for `import.meta.env.ASSETS_PREFIX` and `import.meta.env.SITE`
+
+- [#7134](https://github.com/withastro/astro/pull/7134) [`5b6a0312a`](https://github.com/withastro/astro/commit/5b6a0312a822565404a6334576677fc574cfcd56) Thanks [@alexvuka1](https://github.com/alexvuka1)! - value of var can be undefined when using `define:vars`
+
+- [#7171](https://github.com/withastro/astro/pull/7171) [`79ba74832`](https://github.com/withastro/astro/commit/79ba74832fc46e6946c8235c33e9acfbb3a4139b) Thanks [@bluwy](https://github.com/bluwy)! - Prevent Vite watching on Astro config load
+
+## 2.5.3
+
+### Patch Changes
+
+- [#6758](https://github.com/withastro/astro/pull/6758) [`f558a9e20`](https://github.com/withastro/astro/commit/f558a9e2056fc8f2e2d5814e74f199e398159fc4) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve style and script handling across content collection files. This addresses style bleed present in `@astrojs/markdoc` v0.1.0
+
+- [#7143](https://github.com/withastro/astro/pull/7143) [`b41963b77`](https://github.com/withastro/astro/commit/b41963b775149b802eea9e12c5fe266bb9a02944) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Render 404 page content when a `Response` with status 404 is returned from a page
+
+## 2.5.2
+
+### Patch Changes
+
+- [#7144](https://github.com/withastro/astro/pull/7144) [`ba0636240`](https://github.com/withastro/astro/commit/ba0636240996f9f082d122a8414240196881cb96) Thanks [@lilnasy](https://github.com/lilnasy)! - Fixed an issue where scripts that weren't safe to inline were inlined.
+
+- [#7150](https://github.com/withastro/astro/pull/7150) [`8f418d13c`](https://github.com/withastro/astro/commit/8f418d13c5d5c9c40f05020205f24380b718654b) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - fix no matched path when using `getStaticPaths` without `prerender` export.
+
+## 2.5.1
+
+### Patch Changes
+
+- [#7128](https://github.com/withastro/astro/pull/7128) [`72f686a68`](https://github.com/withastro/astro/commit/72f686a68930de52f9a274c13c98acad59925b31) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Fix routes created by `injectRoute` for SSR
+
+- [#7132](https://github.com/withastro/astro/pull/7132) [`319a0a7a0`](https://github.com/withastro/astro/commit/319a0a7a0a6a950387c942b467746d590bb32fda) Thanks [@ematipico](https://github.com/ematipico)! - Emit middleware as an entrypoint during build
+
+- [#7036](https://github.com/withastro/astro/pull/7036) [`852d59a8d`](https://github.com/withastro/astro/commit/852d59a8d68e124f10852609e0f1619d5838ac76) Thanks [@ematipico](https://github.com/ematipico)! - Emit pages as dynamic import chunks during the build
+
+- [#7126](https://github.com/withastro/astro/pull/7126) [`530fb9ebe`](https://github.com/withastro/astro/commit/530fb9ebee77646921ec29d45d9b66484bdfb521) Thanks [@bluwy](https://github.com/bluwy)! - Add route information when warning of `getStaticPaths()` ignored
+
+- [#7118](https://github.com/withastro/astro/pull/7118) [`3257dd289`](https://github.com/withastro/astro/commit/3257dd28901c785a6a661211b98c5ef2cb3b9aa4) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning showing on start when a collection folder was empty. The warning was also enhanced to add more information about possible causes.
+
 ## 2.5.0
 
 ### Minor Changes

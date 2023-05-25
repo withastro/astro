@@ -203,6 +203,41 @@ export default defineMarkdocConfig({
 })
 ```
 
+### Syntax highlighting
+
+`@astrojs/markdoc` provides a [Shiki](https://github.com/shikijs/shiki) extension to highlight your code blocks.
+
+To use this extension, you must separately install `shiki` as a dependency:
+
+```bash
+npm i shiki
+```
+
+Then, apply the `shiki()` extension to your Markdoc config using the `extends` property. You can optionally pass a shiki configuration object:
+
+```js
+// markdoc.config.mjs
+import { defineMarkdocConfig, shiki } from '@astrojs/markdoc/config';
+
+export default defineMarkdocConfig({
+  extends: [
+    await shiki({
+      // Choose from Shiki's built-in themes (or add your own)
+      // Default: 'github-dark'
+      // https://github.com/shikijs/shiki/blob/main/docs/themes.md
+      theme: 'dracula',
+      // Enable word wrap to prevent horizontal scrolling
+      // Default: false
+      wrap: true,
+      // Pass custom languages
+      // Note: Shiki has countless langs built-in, including `.astro`!
+      // https://github.com/shikijs/shiki/blob/main/docs/languages.md
+      langs: [],
+    })
+  ],
+})
+```
+
 ### Access frontmatter and content collection information from your templates
 
 You can access content collection information from your Markdoc templates using the `$entry` variable. This includes the entry `slug`, `collection` name, and frontmatter `data` parsed by your content collection schema (if any). This example renders the `title` frontmatter property as a heading:

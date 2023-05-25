@@ -5,7 +5,6 @@ import {
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
@@ -100,7 +99,7 @@ export function rehypeApplyFrontmatterExport() {
 export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
-): Promise<MdxRollupPluginOptions['remarkPlugins']> {
+): Promise<PluggableList> {
 	let remarkPlugins: PluggableList = [
 		...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : []),
 	];
@@ -129,7 +128,7 @@ export async function getRemarkPlugins(
 	return remarkPlugins;
 }
 
-export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions['rehypePlugins'] {
+export function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 	let rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
