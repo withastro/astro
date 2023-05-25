@@ -107,12 +107,11 @@ export default function assets({
 						}
 
 						const url = new URL(req.url, 'file:');
-						const filePath = url.searchParams.get('href')?.slice('/@fs'.length);
-
-						if (!filePath) {
+						if (!url.searchParams.has('href')) {
 							return next();
 						}
 
+						const filePath = url.searchParams.get('href')?.slice('/@fs'.length);
 						const filePathURL = new URL('.' + filePath, 'file:');
 						const file = await fs.readFile(filePathURL);
 

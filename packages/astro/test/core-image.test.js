@@ -295,7 +295,7 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(7);
 			});
 
-			it('has proper source for directly used image ssss', () => {
+			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
 				expect($img.attr('src').startsWith('/')).to.equal(true);
 			});
