@@ -24,6 +24,9 @@ import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
+const rawRE = /(?:\?|&)raw(?:&|$)/;
+const urlRE = /(\?|&)url(?:&|$)/;
+
 export default function assets({
 	settings,
 	logging,
@@ -233,6 +236,11 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id) {
+				// If our import has the `?raw` or `?url` Vite query params, we'll let Vite handle it
+				if (rawRE.test(id) || urlRE.test(id)) {
+					return;
+				}
+
 				const cleanedUrl = removeQueryString(id);
 				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
 					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);

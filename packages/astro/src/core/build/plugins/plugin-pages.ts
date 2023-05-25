@@ -1,10 +1,11 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../../app/index.js';
-import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { eachPageData, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
+import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
+import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
 function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -24,44 +25,30 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 
 		async load(id) {
 			if (id === resolvedPagesVirtualModuleId) {
-				let middlewareId = null;
-				if (opts.settings.config.experimental.middleware) {
-					middlewareId = await this.resolve(
-						`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
-					);
-				}
-
 				let importMap = '';
-				let imports = [];
+				const imports: string[] = [];
+				const exports: string[] = [];
+				const content: string[] = [];
 				let i = 0;
+				imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
+				exports.push(`export { renderers };`);
 				for (const pageData of eachPageData(internals)) {
 					const variable = `_page${i}`;
-					imports.push(`import * as ${variable} from ${JSON.stringify(pageData.moduleSpecifier)};`);
+					imports.push(
+						`const ${variable} = () => import(${JSON.stringify(pageData.moduleSpecifier)});`
+					);
 					importMap += `[${JSON.stringify(pageData.component)}, ${variable}],`;
 					i++;
 				}
 
-				i = 0;
-				let rendererItems = '';
-				for (const renderer of opts.settings.renderers) {
-					const variable = `_renderer${i}`;
-					// Use unshift so that renderers are imported before user code, in case they set globals
-					// that user code depends on.
-					imports.unshift(`import ${variable} from '${renderer.serverEntrypoint}';`);
-					rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`;
-					i++;
+				if (opts.settings.config.experimental.middleware) {
+					imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}";`);
+					exports.push(`export const middleware = _middleware;`);
 				}
 
-				const def = `${imports.join('\n')}
+				content.push(`export const pageMap = new Map([${importMap}]);`);
 
-${middlewareId ? `import * as _middleware from "${middlewareId.id}";` : ''}
-
-export const pageMap = new Map([${importMap}]);
-export const renderers = [${rendererItems}];
-${middlewareId ? `export const middleware = _middleware;` : ''}
-`;
-
-				return def;
+				return `${imports.join('\n')}${content.join('\n')}${exports.join('\n')}`;
 			}
 		},
 	};

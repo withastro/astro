@@ -157,6 +157,15 @@ export async function renderPage(
 									}
 								}
 
+								// `chunk` might be a Response that contains a redirect,
+								// that was rendered eagerly and therefore bypassed the early check
+								// whether headers can still be modified. In that case, throw an error
+								if (chunk instanceof Response) {
+									throw new AstroError({
+										...AstroErrorData.ResponseSentError,
+									});
+								}
+
 								const bytes = chunkToByteArray(result, chunk);
 								controller.enqueue(bytes);
 								i++;

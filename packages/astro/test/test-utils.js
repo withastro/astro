@@ -151,7 +151,7 @@ export async function loadFixture(inlineConfig) {
 	};
 
 	const resolveUrl = (url) =>
-		`http://${config.server.host}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+		`http://${config.server.host || 'localhost'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
 	// A map of files that have been edited.
 	let fileEdits = new Map();
