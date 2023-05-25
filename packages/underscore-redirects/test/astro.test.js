@@ -13,8 +13,12 @@ describe('Astro', () => {
 			{ pathname: '/one', distURL: new URL('./one/index.html', import.meta.url), segments: [] }
 		];
 		const dynamicTarget = './.adapter/dist/entry.mjs';
-		const _redirects = createRedirectsFromAstroRoutes(serverConfig, routes,
-			new URL(import.meta.url), dynamicTarget);
+		const _redirects = createRedirectsFromAstroRoutes({
+			config: serverConfig,
+			routes,
+			dir: new URL(import.meta.url),
+			dynamicTarget
+		});
 
 		expect(_redirects.definitions).to.have.a.lengthOf(2);
 	});
