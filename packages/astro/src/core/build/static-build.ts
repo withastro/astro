@@ -177,6 +177,13 @@ async function ssrBuild(
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(chunkInfo.facadeModuleId);
+						} else if (
+							// checks if the path of the module we have middleware, e.g. middleware.js / middleware/index.js
+							chunkInfo.facadeModuleId?.includes('middleware') &&
+							// checks if the file actually export the `onRequest` function
+							chunkInfo.exports.includes('onRequest')
+						) {
+							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
