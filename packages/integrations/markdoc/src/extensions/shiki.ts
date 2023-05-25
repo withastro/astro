@@ -2,11 +2,11 @@
 // @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
 import { unescapeHTML } from 'astro/runtime/server/index.js';
 
-import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
 import type * as shikiTypes from 'shiki';
 import type { AstroMarkdocConfig } from '../config.js';
-import { MarkdocError } from '../utils.js';
+import Markdoc from '@markdoc/markdoc';
+import { getHighlighter } from 'shiki';
 
 // Map of old theme names to new names to preserve compatibility when we upgrade shiki
 const compatThemes: Record<string, string> = {
@@ -51,19 +51,11 @@ const INLINE_STYLE_SELECTOR = /style="(.*?)"/;
  */
 const highlighterCache = new Map<string, shikiTypes.Highlighter>();
 
-export async function shiki({
+export default async function shiki({
 	langs = [],
 	theme = 'github-dark',
 	wrap = false,
 }: ShikiConfig = {}): Promise<AstroMarkdocConfig> {
-	let getHighlighter: (options: shikiTypes.HighlighterOptions) => Promise<shikiTypes.Highlighter>;
-	try {
-		getHighlighter = (await import('shiki')).getHighlighter;
-	} catch {
-		throw new MarkdocError({
-			message: 'Shiki is not installed. Run `npm install shiki` to use the `shiki` extension.',
-		});
-	}
 	theme = normalizeTheme(theme);
 
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
