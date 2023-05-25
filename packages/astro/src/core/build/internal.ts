@@ -1,10 +1,10 @@
 import type { Rollup } from 'vite';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types';
-
 import type { SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
+import { ASTRO_PAGE_EXTENSION_POST_PATTERN, ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
 
 export interface BuildInternals {
 	/**
@@ -97,7 +97,6 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
-
 		pagesByComponent: new Map(),
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
@@ -213,6 +212,26 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
+}
+
+export function* eachPageDataFromEntryPoint(
+	internals: BuildInternals
+): Generator<[PageBuildData, string]> {
+	for (const [entryPoint, filePath] of internals.entrySpecifierToBundleMap) {
+		if (entryPoint.includes(ASTRO_PAGE_MODULE_ID)) {
+			const [, pageName] = entryPoint.split(':');
+			const pageData = internals.pagesByComponent.get(
+				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
+			);
+			if (!pageData) {
+				throw new Error(
+					"Build failed. Astro couldn't find the emitted page from " + pageName + ' pattern'
+				);
+			}
+
+			yield [pageData, filePath];
+		}
+	}
 }
 
 export function hasPrerenderedPages(internals: BuildInternals) {

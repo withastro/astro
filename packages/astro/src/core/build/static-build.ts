@@ -17,7 +17,6 @@ import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { isHybridOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { resolvedPagesVirtualModuleId } from '../app/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -25,10 +24,14 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
-import { RESOLVED_MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import {
+	ASTRO_PAGE_EXTENSION_POST_PATTERN,
+	ASTRO_PAGE_RESOLVED_MODULE_ID,
+} from './plugins/plugin-pages.js';
+import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -172,10 +175,17 @@ async function ssrBuild(
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
-						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
-							return opts.buildConfig.serverEntry;
-						} else if (chunkInfo.facadeModuleId === RESOLVED_MIDDLEWARE_MODULE_ID) {
+						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
+							return makeAstroPageEntryPointFileName(chunkInfo.facadeModuleId);
+						} else if (
+							// checks if the path of the module we have middleware, e.g. middleware.js / middleware/index.js
+							chunkInfo.facadeModuleId?.includes('middleware') &&
+							// checks if the file actually export the `onRequest` function
+							chunkInfo.exports.includes('onRequest')
+						) {
 							return 'middleware.mjs';
+						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
+							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
 						} else {
@@ -407,4 +417,30 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		);
 		removeEmptyDirs(serverAssets);
 	}
+}
+
+/**
+ * This function takes as input the virtual module name of an astro page and transform
+ * to generate an `.mjs` file:
+ *
+ * Input: `@astro-page:src/pages/index@_@astro`
+ *
+ * Output: `pages/index.astro.mjs`
+ *
+ * 1. We remove the module id prefix, `@astro-page:`
+ * 2. We remove `src/`
+ * 3. We replace square brackets with underscore, for example `[slug]`
+ * 4. At last, we replace the extension pattern with a simple dot
+ * 5. We append the `.mjs` string, so the file will always be a JS file
+ *
+ * @param facadeModuleId
+ */
+function makeAstroPageEntryPointFileName(facadeModuleId: string) {
+	return `${facadeModuleId
+		.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
+		.replace('src/', '')
+		.replaceAll('[', '_')
+		.replaceAll(']', '_')
+		// this must be last
+		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}.mjs`;
 }
