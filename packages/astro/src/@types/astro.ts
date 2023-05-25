@@ -1805,7 +1805,7 @@ export type MiddlewareNext<R> = () => Promise<R>;
 export type MiddlewareHandler<R> = (
 	context: APIContext,
 	next: MiddlewareNext<R>
-) => Promise<R> | Promise<void> | void;
+) => Promise<R> | R | Promise<void> | void;
 
 export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
 export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
