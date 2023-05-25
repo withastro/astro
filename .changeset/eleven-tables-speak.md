@@ -2,11 +2,13 @@
 '@astrojs/markdoc': patch
 ---
 
-Add support for syntax highlighting with Shiki. Install `shiki` in your project with `npm i shiki`, and apply to your Markdoc config using the `extends` option:
+Add support for syntax highlighting with Shiki. Apply to your Markdoc config using the `extends` property:
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig, shiki } from '@astrojs/markdoc/config';
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import shiki from '@astrojs/markdoc/shiki';
+
 export default defineMarkdocConfig({
   extends: [
     await shiki({ /** Shiki config options */ }),
