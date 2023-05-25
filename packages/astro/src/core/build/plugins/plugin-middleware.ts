@@ -4,7 +4,6 @@ import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
-import { existsSync } from 'node:fs';
 
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 
@@ -15,13 +14,11 @@ export function vitePluginMiddleware(
 	return {
 		name: '@astro/plugin-middleware',
 		options(options) {
-			if (middlewareFileExists(opts)) {
-				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
-			}
+			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
 		},
 
 		async resolveId(id) {
-			if (id === MIDDLEWARE_MODULE_ID && opts.settings.config.experimental.middleware) {
+			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
 					`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
 				);
