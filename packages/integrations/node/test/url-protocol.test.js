@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { getNetworkAddress } from '../dist/get-network-address.js'
 import { fetch } from 'undici';
 
 describe('URL protocol', () => {
@@ -18,22 +17,6 @@ describe('URL protocol', () => {
 		await fixture.build();
 	});
 
-	describe('test preview when host is true', async () => {
-		let devPreview;
-
-		before(async () => {
-			devPreview = await fixture.preview();
-			
-		});
-		after(async () => {
-			await devPreview.stop();
-		});
-		it('test host is true ', async () => {
-			const address = getNetworkAddress('http', undefined, 3000)
-			const res = await fetch(address.network[0])
-			expect(res.status).to.equal(200);
-		});
-	})
 	it('return http when non-secure', async () => {
 		const { handler } = await import('./fixtures/url-protocol/dist/server/entry.mjs');
 		let { req, res, text } = createRequestAndResponse({

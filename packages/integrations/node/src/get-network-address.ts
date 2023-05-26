@@ -1,5 +1,5 @@
 import os from 'os'
-interface ReturnValOpt {
+interface NetworkAddressOpt {
 	local: string[]
 	network: string[]
 }
@@ -11,9 +11,10 @@ const wildcardHosts = new Set([
 ])
 type Protocol = 'http' | 'https'
 
-export function getNetworkAddress(protocol: Protocol = 'http', hostname: string, port:number, base?:string) {
+// this code from vite https://github.com/vitejs/vite/blob/d09bbd093a4b893e78f0bbff5b17c7cf7821f403/packages/vite/src/node/utils.ts#L892-L914
+export function getNetworkAddress(protocol: Protocol = 'http', hostname: string | undefined, port:number, base?:string) {
 
-	const returnVal:ReturnValOpt = {
+	const NetworkAddress:NetworkAddressOpt = {
 		local: [],
 		network: []
 	}
@@ -36,12 +37,12 @@ export function getNetworkAddress(protocol: Protocol = 'http', hostname: string,
 		}
 		const url = `${protocol}://${host}:${port}${base ? base : ''}`
 		if (detail.address.includes('127.0.0.1')) {
-			returnVal.local.push(url)
+			NetworkAddress.local.push(url)
 		} else {
-			returnVal.network.push(url)
+			NetworkAddress.network.push(url)
 		}
 	})
-	return returnVal
+	return NetworkAddress
 }
 
 

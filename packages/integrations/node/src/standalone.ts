@@ -61,16 +61,11 @@ export default function startServer(app: NodeApp, options: Options) {
 	if(host === undefined ){
 		// eslint-disable-next-line no-console
 		console.log(
-			`Preview server listening on 
-			\t
-			local: ${address.local[0]}
-			\t
-			network: ${address.network[0]}
+			`Preview server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}
 			` );
 	}else{
 		// eslint-disable-next-line no-console
-		console.log(`Preview server listening on \t 
-		${address.local[0]}`);
+		console.log(`Preview server listening on ${address.local[0]}`);
 	}
 
 	return {
