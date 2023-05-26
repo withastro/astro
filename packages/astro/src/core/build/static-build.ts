@@ -444,7 +444,16 @@ function makeAstroPageEntryPointFileName(prefix: string, facadeModuleId: string,
 }
 
 /**
- * This function attempts
+ * This function attempts to prepend the `serverlessEntryPrefix` prefix to each entry point emitted.
+ *
+ * The `facadeModuleId` has a shape like: \0@astro-serverless-page:src/pages/index@_@astro.
+ *
+ * 1. We call `makeAstroPageEntryPointFileName` which normalise its name, making it like a file path
+ * 2. We split the file path using the file system separator and attempt to retrieve the last entry
+ * 3. The last entry should be the file
+ * 4. We prepend the file name with `serverlessEntryPrefix`
+ * 5. We built the file path again, using the new entry built in the previous step
+ *
  * @param facadeModuleId
  * @param opts
  */
