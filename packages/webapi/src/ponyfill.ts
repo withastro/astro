@@ -1,5 +1,6 @@
 // @ts-check
 import { Event, EventTarget } from 'event-target-shim' // Look into removing when Node 18 is dropped for Node 20
+import { webcrypto as crypto } from 'node:crypto' // Remove when Node 18 is dropped for Node 20
 import {
 	ByteLengthQueuingStrategy,
 	CountQueuingStrategy,
@@ -133,6 +134,7 @@ export {
 	cancelAnimationFrame,
 	cancelIdleCallback,
 	clearTimeout,
+	crypto,
 	fetch,
 	requestAnimationFrame,
 	requestIdleCallback,
