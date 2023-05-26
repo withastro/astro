@@ -3982,6 +3982,9 @@ importers:
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
+      fast-glob:
+        specifier: ^3.2.11
+        version: 3.2.12
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -3995,7 +3998,7 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       zod:
-        specifier: ^3.17.3
+        specifier: ^3.20.6
         version: 3.20.6
     devDependencies:
       '@astrojs/markdown-remark':
@@ -12400,7 +12403,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       glob: 7.2.3
       ignore: 5.2.4
       merge2: 1.4.1
@@ -12413,7 +12416,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
@@ -12425,7 +12428,7 @@ packages:
     dependencies:
       array-union: 3.0.1
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 4.0.0
@@ -12436,7 +12439,7 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 4.0.0

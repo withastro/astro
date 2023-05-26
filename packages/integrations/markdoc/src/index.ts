@@ -1,6 +1,8 @@
+import { isPropsDef, markdocAttributesFromZodProps, usedDefinePropsSymbol } from './props.js';
 /* eslint-disable no-console */
-import type { Node } from '@markdoc/markdoc';
+import type { Node, Schema } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
+import glob from 'fast-glob';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -11,6 +13,8 @@ import { bold, red, yellow } from 'kleur/colors';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
+import path from 'node:path';
+import type { Plugin } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -28,6 +32,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		process.exit(0);
 	}
 	let markdocConfigResult: MarkdocConfigResult | undefined;
+
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
@@ -37,12 +42,74 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					updateConfig,
 					addContentEntryType,
 				} = params as SetupHookParams;
+				const embedsVirtualModId = 'astro:markdoc-embeds';
+
+				const tagPropsModules = await glob(
+					fileURLToPath(new URL('./embeds/*.props.js', astroConfig.srcDir)),
+					{ absolute: true }
+				);
+				let componentAttrsByName: Record<string, Schema> = {};
+				let componentPathByName: Record<string, string> = {};
+				const embedsDir = new URL('embeds/', astroConfig.srcDir);
+				for (const tagPropsModule of tagPropsModules) {
+					const mod = await import(tagPropsModule);
+					if (typeof mod !== 'object' || mod == null) {
+						throw new MarkdocError({
+							message: `${tagPropsModule} does not export a \`props\` object.`,
+						});
+					}
+					const { props } = mod;
+					if (isPropsDef(props)) {
+						const compName = path
+							.relative(fileURLToPath(embedsDir), tagPropsModule)
+							.replace('.props.js', '');
+						componentAttrsByName[compName] = markdocAttributesFromZodProps(props);
+						componentPathByName[compName] = tagPropsModule.replace(/\.props\.js$/, '.astro');
+					} else {
+						throw new MarkdocError({
+							message: `\`props\` exports must use the \`defineProps()\` helper.`,
+						});
+					}
+				}
 
 				updateConfig({
 					vite: {
 						ssr: {
 							external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
 						},
+						plugins: [
+							{
+								name: 'astro:markdoc-embeds',
+								resolveId(id) {
+									if (id === embedsVirtualModId) {
+										return '\0' + embedsVirtualModId;
+									}
+								},
+								async load(id) {
+									if (id === '\0' + embedsVirtualModId) {
+										const code = `${Object.entries(componentPathByName)
+											.map(([name, path]) => {
+												return `import ${name} from ${JSON.stringify(
+													pathToFileURL(path).pathname
+												)}`;
+											})
+											.join('\n')}
+										export const tagConfig = {
+											${Object.entries(componentAttrsByName)
+												.map(([name, attributes]) => {
+													return `${JSON.stringify(name)}: {
+	attributes: ${JSON.stringify(attributes)},
+	render: ${name},
+}`;
+												})
+												.join(',\n')}
+									};`;
+										console.log(code);
+										return code;
+									}
+								},
+							} as Plugin,
+						],
 					},
 				});
 
@@ -72,6 +139,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 								// Variables can be configured at runtime,
 								// so we cannot validate them at build time.
 								e.error.id !== 'variable-undefined' &&
+								e.error.id !== 'tag-undefined' &&
 								(e.error.level === 'error' || e.error.level === 'critical')
 							);
 						});
@@ -101,8 +169,9 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						}
 
 						const res = `import { jsx as h } from 'astro/jsx-runtime';
-						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
+import { Renderer } from '@astrojs/markdoc/components';
+import { tagConfig } from ${JSON.stringify(embedsVirtualModId)};
+import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
 ${
 	markdocConfigResult
@@ -134,6 +203,10 @@ export function getHeadings() {
 export async function Content (props) {
 	const config = await setupConfig({
 		...userConfig,
+		tags: {
+			...tagConfig,
+			...userConfig.tags,
+		},
 		variables: { ...userConfig.variables, ...props },
 	}, entry);
 
