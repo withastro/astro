@@ -14,7 +14,7 @@ describe('Astro.redirect', () => {
 				adapter: testAdapter(),
 				redirects: {
 					'/api/redirect': '/'
-				}
+				},
 			});
 			await fixture.build();
 		});
@@ -67,6 +67,9 @@ describe('Astro.redirect', () => {
 			fixture = await loadFixture({
 				root: './fixtures/ssr-redirect/',
 				output: 'static',
+				experimental: {
+					middleware: true
+				},
 				redirects: {
 					'/one': '/',
 					'/two': '/',
@@ -108,6 +111,12 @@ describe('Astro.redirect', () => {
 			html = await fixture.readFile('/blog/two/index.html');
 			expect(html).to.include('http-equiv="refresh');
 			expect(html).to.include('url=/articles/two');
+		});
+
+		it('Generates redirect pages for redirects created by middleware', async () => {
+			let html = await fixture.readFile('/middleware-redirect/index.html');
+			expect(html).to.include('http-equiv="refresh');
+			expect(html).to.include('url=/');
 		});
 	});
 });
