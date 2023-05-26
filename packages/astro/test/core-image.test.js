@@ -114,6 +114,23 @@ describe('astro:image', () => {
 				expect(logs).to.have.a.lengthOf(1);
 				expect(logs[0].message).to.contain('Received unsupported format');
 			});
+
+			it('supports images from outside the project sssss', async () => {
+				let res = await fixture.fetch('/outsideProject');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(2);
+				expect(
+					$img.toArray().every((img) => {
+						return (
+							img.attribs['src'].startsWith('/@fs/') ||
+							img.attribs['src'].startsWith('/_image?href=%2F%40fs%2F')
+						);
+					})
+				).to.be.true;
+			});
 		});
 
 		describe('vite-isms', () => {
