@@ -19,6 +19,8 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/markdoc/",
   "exports": {
+    "./prism": "./dist/extensions/prism.js",
+    "./shiki": "./dist/extensions/shiki.js",
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./runtime": "./dist/runtime.js",
@@ -39,7 +41,9 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@markdoc/markdoc": "^0.2.2",
+    "shiki": "^0.14.1",
+    "@astrojs/prism": "^2.1.2",
+    "@markdoc/markdoc": "^0.3.0",
     "esbuild": "^0.17.12",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
@@ -47,13 +51,7 @@
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.5.5",
-    "shiki": "^0.14.1"
-  },
-  "peerDependenciesMeta": {
-    "shiki": {
-      "optional": true
-    }
+    "astro": "workspace:^2.5.5"
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^2.2.1",
@@ -67,7 +65,6 @@
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
     "rollup": "^3.20.1",
-    "shiki": "^0.14.1",
     "vite": "^4.3.1"
   },
   "engines": {

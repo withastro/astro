@@ -1,21 +1,21 @@
-import type { Plugin as VitePlugin } from 'vite';
-import type { AstroAdapter } from '../../../@types/astro';
-import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
-import type { StaticBuildOptions } from '../types';
-import type { AstroBuildPlugin } from '../plugin';
 import glob from 'fast-glob';
 import { fileURLToPath } from 'url';
+import type { Plugin as VitePlugin } from 'vite';
+import type { AstroAdapter } from '../../../@types/astro';
 import { runHookBuildSsr } from '../../../integrations/index.js';
 import { isHybridOutput } from '../../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
 import { joinPaths, prependForwardSlash } from '../../path.js';
 import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
+import type { AstroBuildPlugin } from '../plugin';
+import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
-import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
+import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;

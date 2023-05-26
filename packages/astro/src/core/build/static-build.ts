@@ -24,14 +24,14 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
-import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
-import type { PageBuildData, StaticBuildOptions } from './types';
-import { getTimeStat } from './util.js';
 import {
 	ASTRO_PAGE_EXTENSION_POST_PATTERN,
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 } from './plugins/plugin-pages.js';
+import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import type { PageBuildData, StaticBuildOptions } from './types';
+import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;

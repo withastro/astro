@@ -21,9 +21,9 @@ import {
 	getStaticImageList,
 } from '../../assets/generate.js';
 import {
+	eachPageDataFromEntryPoint,
 	hasPrerenderedPages,
 	type BuildInternals,
-	eachPageDataFromEntryPoint,
 } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -48,7 +48,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { cssOrder, eachPageData, getPageDataByComponent, mergeInlineCss } from './internal.js';
+import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
 import type {
 	PageBuildData,
 	SinglePageBuiltModule,
@@ -56,7 +56,6 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
-import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages';
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
