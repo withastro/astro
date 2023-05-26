@@ -37,6 +37,7 @@
     "@astrojs/markdown-remark": "^2.2.1",
     "@astrojs/prism": "^2.1.2",
     "@mdx-js/mdx": "^2.3.0",
+    "@mdx-js/rollup": "^2.3.0",
     "acorn": "^8.8.0",
     "es-module-lexer": "^1.1.1",
     "estree-util-visit": "^1.2.0",

@@ -25,14 +25,13 @@ import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
 import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
-import {
-	ASTRO_PAGE_EXTENSION_POST_PATTERN,
-	ASTRO_PAGE_RESOLVED_MODULE_ID,
-} from './plugins/plugin-pages.js';
+import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
-import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import { RESOLVED_SERVERLESS_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import type { AllPagesData, PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
+import { extname } from 'node:path';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -122,14 +121,14 @@ export async function staticBuild(opts: StaticBuildOptions, internals: BuildInte
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
-			await cleanServerOutput(opts);
+			// await cleanServerOutput(opts);
 			settings.timer.end('Static generate');
 			return;
 		}
 		case isServerLikeOutput(settings.config): {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
-			await cleanStaticOutput(opts, internals);
+			// await cleanStaticOutput(opts, internals);
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			settings.timer.end('Server generate');
@@ -176,7 +175,12 @@ async function ssrBuild(
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-							return makeAstroPageEntryPointFileName(chunkInfo.facadeModuleId, allPages);
+							return makeAstroPageEntryPointFileName(
+								ASTRO_PAGE_RESOLVED_MODULE_ID,
+								chunkInfo.facadeModuleId
+							);
+						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
+							return makeServerlessEntryPointFileName(chunkInfo.facadeModuleId, opts);
 						} else if (chunkInfo.facadeModuleId === MIDDLEWARE_MODULE_ID) {
 							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
@@ -430,11 +434,34 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
  * @param facadeModuleId string
  * @param pages AllPagesData
  */
-function makeAstroPageEntryPointFileName(facadeModuleId: string, pages: AllPagesData) {
+function makeAstroPageEntryPointFileName(prefix: string, facadeModuleId: string, pages: AllPagesData) {
 	const pageModuleId = facadeModuleId
-		.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
+		.replace(prefix, '')
 		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
 	let name = pages[pageModuleId]?.route?.route ?? pageModuleId;
 	if (name.endsWith('/')) name += 'index';
 	return `pages${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
+}
+
+/**
+ * This function attempts
+ * @param facadeModuleId
+ * @param opts
+ */
+function makeServerlessEntryPointFileName(facadeModuleId: string, opts: StaticBuildOptions) {
+	const filePath = `${makeAstroPageEntryPointFileName(
+		RESOLVED_SERVERLESS_MODULE_ID,
+		facadeModuleId
+	)}`;
+
+	const pathComponents = filePath.split(path.sep);
+	const lastPathComponent = pathComponents.pop();
+	if (lastPathComponent) {
+		const extension = extname(lastPathComponent);
+		if (extension.length > 0) {
+			const newFileName = `${opts.settings.config.build.serverlessEntryPrefix}.${lastPathComponent}`;
+			return [...pathComponents, newFileName].join(path.sep);
+		}
+	}
+	return filePath;
 }

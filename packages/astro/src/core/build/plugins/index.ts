@@ -11,7 +11,7 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginRenderers } from './plugin-renderers.js';
-import { pluginSSR } from './plugin-ssr.js';
+import { pluginSSRServer, pluginSSRServerless } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
 	register(pluginComponentEntry(internals));
@@ -26,5 +26,6 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginPrerender(options, internals));
 	register(astroConfigBuildPlugin(options, internals));
 	register(pluginHoistedScripts(options, internals));
-	register(pluginSSR(options, internals));
+	register(pluginSSRServer(options, internals));
+	register(pluginSSRServerless(options, internals));
 }

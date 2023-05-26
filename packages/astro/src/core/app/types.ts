@@ -30,16 +30,18 @@ export interface RouteInfo {
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
+
 type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
-export interface SSRManifest {
+export type SSRBaseManifest = SSRServerManifest | SSRServerlessManifest;
+
+export type SSRServerManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
 	base?: string;
 	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
-	pageMap: Map<ComponentPath, ImportComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
@@ -48,10 +50,32 @@ export interface SSRManifest {
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
-}
+	middleware?: AstroMiddlewareInstance<unknown>;
+	pageModule?: undefined;
+	pageMap: Map<ComponentPath, ImportComponentInstance>;
+};
+
+export type SSRServerlessManifest = {
+	adapterName: string;
+	routes: RouteInfo[];
+	site?: string;
+	base?: string;
+	assetsPrefix?: string;
+	markdown: MarkdownRenderingOptions;
+	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
+	entryModules: Record<string, string>;
+	assets: Set<string>;
+	componentMetadata: SSRResult['componentMetadata'];
+	pageModule: SinglePageBuiltModule;
+	pageMap?: undefined;
+};
 
 export type SerializedSSRManifest = Omit<
-	SSRManifest,
+	SSRBaseManifest,
 	'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
 > & {
 	routes: SerializedRouteInfo[];
@@ -61,6 +85,6 @@ export type SerializedSSRManifest = Omit<
 };
 
 export type AdapterCreateExports<T = any> = (
-	manifest: SSRManifest,
+	manifest: SSRBaseManifest,
 	args?: T
 ) => Record<string, any>;

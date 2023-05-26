@@ -1,4 +1,4 @@
-import { extname } from 'node:path';
+import { getVirtualModulePageNameFromPath, getPathFromVirtualModulePageName } from './util.js';
 import type { Plugin as VitePlugin } from 'vite';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -9,26 +9,7 @@ import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
-export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0@astro-page:';
-
-// This is an arbitrary string that we are going to replace the dot of the extension
-export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
-
-/**
- * 1. We add a fixed prefix, which is used as virtual module naming convention;
- * 2. We replace the dot that belongs extension with an arbitrary string.
- *
- * @param path
- */
-export function getVirtualModulePageNameFromPath(path: string) {
-	// we mask the extension, so this virtual file
-	// so rollup won't trigger other plugins in the process
-	const extension = extname(path);
-	return `${ASTRO_PAGE_MODULE_ID}${path.replace(
-		extension,
-		extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
-	)}`;
-}
+export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
 
 export function getVirtualModulePageIdFromPath(path: string) {
 	const name = getVirtualModulePageNameFromPath(path);
@@ -47,7 +28,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					inputs.add(getVirtualModulePageNameFromPath(path));
+					inputs.add(getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path));
 				}
 
 				return addRollupInput(options, Array.from(inputs));
@@ -64,13 +45,8 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (id.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const imports: string[] = [];
 				const exports: string[] = [];
-
-				// we remove the module name prefix from id, this will result into a string that will start with "src/..."
-				const pageName = id.slice(ASTRO_PAGE_RESOLVED_MODULE_ID.length);
-				// We replaced the `.` of the extension with ASTRO_PAGE_EXTENSION_POST_PATTERN, let's replace it back
-				const pageData = internals.pagesByComponent.get(
-					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
-				);
+				const pageName = getPathFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id);
+				const pageData = internals.pagesByComponent.get(pageName);
 				if (pageData) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {

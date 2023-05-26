@@ -1,5 +1,5 @@
 import type { RouteData } from '../../@types/astro';
-import type { SerializedSSRManifest, SSRManifest } from './types';
+import type { SerializedSSRManifest, SSRBaseManifest } from './types';
 
 import * as fs from 'fs';
 import { IncomingMessage } from 'http';
@@ -90,7 +90,7 @@ export class NodeApp extends App {
 	}
 }
 
-export async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
+export async function loadManifest(rootFolder: URL): Promise<SSRBaseManifest> {
 	const manifestFile = new URL('./manifest.json', rootFolder);
 	const rawManifest = await fs.promises.readFile(manifestFile, 'utf-8');
 	const serializedManifest: SerializedSSRManifest = JSON.parse(rawManifest);

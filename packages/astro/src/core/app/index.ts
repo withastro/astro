@@ -4,8 +4,9 @@ import type {
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
+	SSRBaseManifest,
 } from '../../@types/astro';
-import type { RouteInfo, SSRManifest as Manifest } from './types';
+import type { RouteInfo, SSRServerlessManifest, SSRServerManifest } from './types';
 
 import mime from 'mime';
 import type { SinglePageBuiltModule } from '../build/types';
@@ -41,7 +42,7 @@ export interface MatchOptions {
 
 export class App {
 	#env: Environment;
-	#manifest: Manifest;
+	#manifest: SSRBaseManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#encoder = new TextEncoder();
@@ -52,7 +53,17 @@ export class App {
 	#base: string;
 	#baseWithoutTrailingSlash: string;
 
-	constructor(manifest: Manifest, streaming = true) {
+	async #retrievePage(routeData: RouteData) {
+		if (isSsrServerManifest(this.#manifest)) {
+			const pageModule = await this.#manifest.pageMap.get(routeData.component)!();
+			return await pageModule.page();
+		} else {
+			const pageModule = await this.#manifest.pageModule;
+			return await pageModule.page();
+		}
+	}
+
+	constructor(manifest: SSRBaseManifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
@@ -139,6 +150,7 @@ export class App {
 		}
 
 		let mod = await this.#getModuleForRoute(routeData);
+		let mod = await this.#retrievePage(routeData);
 
 		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
@@ -147,6 +159,7 @@ export class App {
 			if (response.status === 500 || response.status === 404) {
 				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
 				if (errorRouteData && errorRouteData.route !== routeData.route) {
+					mod = await this.#retrievePage(errorPageData);
 					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
 						let errorResponse = await this.#renderPage(
@@ -318,4 +331,8 @@ export class App {
 			return response;
 		}
 	}
+}
+
+function isSsrServerManifest(manifest: any): manifest is SSRServerManifest {
+	return typeof manifest.pageMap !== 'undefined';
 }

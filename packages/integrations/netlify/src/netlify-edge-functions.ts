@@ -1,10 +1,10 @@
 import type { Context } from '@netlify/edge-functions';
-import type { SSRManifest } from 'astro';
+import type { SSRBaseManifest } from 'astro';
 import { App } from 'astro/app';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-export function createExports(manifest: SSRManifest) {
+export function createExports(manifest: SSRBaseManifest) {
 	const app = new App(manifest);
 
 	const handler = async (request: Request, context: Context): Promise<Response | void> => {

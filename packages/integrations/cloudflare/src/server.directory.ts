@@ -1,5 +1,5 @@
 import type { EventContext, Request as CFRequest } from '@cloudflare/workers-types';
-import type { SSRManifest } from 'astro';
+import type { SSRBaseManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
 
@@ -7,7 +7,7 @@ if (!isNode) {
 	process.env = getProcessEnvProxy();
 }
 
-export function createExports(manifest: SSRManifest) {
+export function createExports(manifest: SSRBaseManifest) {
 	const app = new App(manifest);
 
 	const onRequest = async ({
