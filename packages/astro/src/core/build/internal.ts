@@ -14,7 +14,7 @@ export interface BuildInternals {
 	 * components are the entrypoint instead. This map is used as a cache from the SSR
 	 * build so the client can pick up the same information and use the same chunk ids.
 	 */
-	cssModuleToChunkId: Map<string, string>;
+	cssModuleToChunkIdMap: Map<string, string>;
 
 	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
@@ -95,7 +95,7 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
-		cssModuleToChunkId: new Map(),
+		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),

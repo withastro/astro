@@ -77,12 +77,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// This causes CSS to be built into shared chunks when used by multiple pages.
 					if (isBuildableCSSRequest(id)) {
 						// For client builds that has hydrated components as entrypoints, there's no way
-						// to crawl up and find the pages that use it. So we lookup the cache here to derive
-						// the same chunk id so they match up on build.
-						// Some modules may not exist in cache (e.g. `client:only` components), and that's okay.
-						// We can use Rollup's default chunk strategy instead.
+						// to crawl up and find the pages that use it. So we lookup the cache during SSR
+						// build (that has the pages information) to derive the same chunk id so they
+						// match up on build, making sure both builds has the CSS deduped.
+						// NOTE: Components that are only used with `client:only` may not exist in the cache
+						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
+						// are outside of the SSR build scope, which no dedupe is needed.
 						if (options.target === 'client') {
-							return internals.cssModuleToChunkId.get(id)!;
+							return internals.cssModuleToChunkIdMap.get(id)!;
 						}
 
 						for (const [pageInfo] of walkParentInfos(id, {
@@ -92,12 +94,12 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
 								const chunkId = createNameHash(id, [id]);
-								internals.cssModuleToChunkId.set(id, chunkId);
+								internals.cssModuleToChunkIdMap.set(id, chunkId);
 								return chunkId;
 							}
 						}
 						const chunkId = createNameForParentPages(id, meta);
-						internals.cssModuleToChunkId.set(id, chunkId);
+						internals.cssModuleToChunkIdMap.set(id, chunkId);
 						return chunkId;
 					}
 				},
