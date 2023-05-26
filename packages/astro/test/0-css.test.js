@@ -265,6 +265,21 @@ describe('CSS', function () {
 					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
+
+			it('client:only and SSR in two pages, both should have styles', async () => {
+				const onlyHtml = await fixture.readFile('/client-only-and-ssr/only/index.html');
+				const $onlyHtml = cheerio.load(onlyHtml);
+				const onlyHtmlCssHref = $onlyHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const onlyHtmlCss = await fixture.readFile(onlyHtmlCssHref.replace(/^\/?/, '/'));
+
+				const ssrHtml = await fixture.readFile('/client-only-and-ssr/ssr/index.html');
+				const $ssrHtml = cheerio.load(ssrHtml);
+				const ssrHtmlCssHref = $ssrHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const ssrHtmlCss = await fixture.readFile(ssrHtmlCssHref.replace(/^\/?/, '/'));
+
+				expect(onlyHtmlCss).to.include('.svelte-only-and-ssr');
+				expect(ssrHtmlCss).to.include('.svelte-only-and-ssr');
+			});
 		});
 
 		describe('Vite features', () => {
