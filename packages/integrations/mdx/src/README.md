@@ -41,7 +41,7 @@ function _createMdxContent() {
 
 > NOTE: If one of the nodes in `pre` is MDX, the optimization will not be applied to `pre`, but could be applied to the inner MDX node if it's children is static.
 
-This results in lesser JSX nodes, lesser compiled JS output, lesser parsed AST, which results in faster Rollup builds and runtime rendering.
+This results in lesser JSX nodes, lesser compiled JS output, and lesser parsed AST, which results in faster Rollup builds and runtime rendering.
 
 To acheive this, we use an algorithm to detect `hast` subtrees that are entirely static to be inlined as `set:html` to the root of the subtree. "static" is defined as something that doesn't involve JSX at all.
 
@@ -69,10 +69,10 @@ Flow:
     - Q: Why? <br>
       A: Because if the `node` isn't static, that means all its ancestors (`elementStack`) have non-static children, so they couldn't be a subtree root to be optimized anymore.
     - Q: Why before step 2's `node` enter handling? <br>
-      A: If we're at non-static node, the `node` should still be considered in `allPossibleElements` as its children could be static.
+      A: If we find a non-static `node`, the `node` should still be considered in `allPossibleElements` as its children could be static.
 5. Walk done.
 6. We have `allPossibleElements` that only contain subtree roots that can be optimized. Add the `set:html` property to the `hast` node, and remove its children.
-7. 🎉 The rest of the MDX pipeline will do it's thing and generate the desired MDX like above.
+7. 🎉 The rest of the MDX pipeline will do it's thing and generate the desired JSX like above.
 
 ### Extra
 
