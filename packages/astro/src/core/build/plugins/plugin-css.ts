@@ -113,27 +113,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// Skip if the chunk has no CSS, we want to handle CSS chunks only
 				if (meta.importedCss.size < 1) continue;
 
-				// In the SSR build, keep track of all CSS chunks' modules as the client build may
-				// duplicate them, e.g. for `client:load` components that render in SSR and client
-				// for hydation.
-				if (options.target === 'server') {
-					for (const id of Object.keys(chunk.modules)) {
-						internals.cssChunkModuleIds.add(id);
-					}
-				}
-
-				// In the client build, we bail if the chunk is a duplicated CSS chunk tracked from
-				// above. We remove all the importedCss to prevent emitting the CSS asset.
-				if (options.target === 'client') {
-					if (Object.keys(chunk.modules).every((id) => internals.cssChunkModuleIds.has(id))) {
-						for (const importedCssImport of meta.importedCss) {
-							delete bundle[importedCssImport];
-							meta.importedCss.delete(importedCssImport);
-						}
-						return;
-					}
-				}
-
 				// For the client build, client:only styles need to be mapped
 				// over to their page. For this chunk, determine if it's a child of a
 				// client:only component and if so, add its CSS to the page it belongs to.

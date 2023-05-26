@@ -8,11 +8,6 @@ import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 export interface BuildInternals {
 	/**
-	 * The module ids of all CSS chunks, used to deduplicate CSS assets between
-	 * SSR build and client build in vite-plugin-css.
-	 */
-	cssChunkModuleIds: Set<string>;
-	/**
 	 * Each CSS module is named with a chunk id derived from the Astro pages they
 	 * are used in by default. It's easy to crawl this relation in the SSR build as
 	 * the Astro pages are the entrypoint, but not for the client build as hydratable
@@ -100,7 +95,6 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
-		cssChunkModuleIds: new Set(),
 		cssModuleToChunkId: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
