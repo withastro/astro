@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { fetch } from 'undici';
 
 describe('URL protocol', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -7,9 +6,6 @@ describe('URL protocol', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			server: {
-				host: true
-		},
 			root: './fixtures/url-protocol/',
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),

@@ -25,6 +25,9 @@ describe('behavior from middleware', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
+			server: {
+				host: true
+			},
 			adapter: nodejs({ mode: 'standalone' }),
 		});
 		await fixture.build();
