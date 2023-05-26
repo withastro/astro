@@ -693,6 +693,35 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` does not work outside of an Astro file. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
+	 */
+	AstroGlobUsedOutside: {
+		title: 'Astro.glob() used outside of an Astro file',
+		code: 3034,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` does not work outside of an Astro file. You can use \`import.meta.glob(${globStr})\` instead to acheive the same result.`,
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` does not match any files. There might be a typo in the glob pattern, or the files do not exist.
+	 */
+	AstroGlobNoMatch: {
+		title: 'Astro.glob() does not match any files',
+		code: 3035,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` does not match any files. Did you make a typo in the glob pattern?`,
+	},
+
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
