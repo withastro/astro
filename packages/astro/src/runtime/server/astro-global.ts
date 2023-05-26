@@ -4,6 +4,11 @@ import { ASTRO_VERSION } from '../../core/constants.js';
 /** Create the Astro.glob() runtime function. */
 function createAstroGlobFn() {
 	const globHandler = (importMetaGlobResult: Record<string, any>, globValue: () => any) => {
+		if (typeof importMetaGlobResult === 'string') {
+			throw new Error(
+				'Astro.glob() does not work outside of an Astro file. Use `import.meta.glob()` instead.'
+			);
+		}
 		let allEntries = [...Object.values(importMetaGlobResult)];
 		if (allEntries.length === 0) {
 			throw new Error(`Astro.glob(${JSON.stringify(globValue())}) - no matches found.`);
