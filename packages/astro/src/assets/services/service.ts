@@ -109,6 +109,7 @@ export type BaseServiceTransform = {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	validateOptions(options) {
+		// `src` is missing or is `undefined`.
 		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
 			throw new AstroError({
 				...AstroErrorData.ExpectedImage,
@@ -117,6 +118,14 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 
 		if (!isESMImportedImage(options.src)) {
+			// User passed an `/@fs/` path instead of the full image.
+			if (options.src.startsWith('/@fs/')) {
+				throw new AstroError({
+					...AstroErrorData.LocalImageUsedWrongly,
+					message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
+				});
+			}
+
 			// For remote images, width and height are explicitly required as we can't infer them from the file
 			let missingDimension: 'width' | 'height' | 'both' | undefined;
 			if (!options.width && !options.height) {
