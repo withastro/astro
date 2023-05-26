@@ -115,7 +115,16 @@ describe('astro:image', () => {
 				expect(logs[0].message).to.contain('Received unsupported format');
 			});
 
-			it('supports images from outside the project sssss', async () => {
+			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import ssss", async () => {
+				logs.length = 0;
+				let res = await fixture.fetch('/error-image-src-passed');
+				await res.text();
+
+				expect(logs).to.have.a.lengthOf(1);
+				expect(logs[0].message).to.contain('must be an imported image or an URL');
+			});
+
+			it('supports images from outside the project', async () => {
 				let res = await fixture.fetch('/outsideProject');
 				let html = await res.text();
 				$ = cheerio.load(html);
