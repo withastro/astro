@@ -6,13 +6,13 @@ describe('astro global', () => {
 		const Astro = createAstro(undefined);
 		expect(() => {
 			Astro.glob('./**/*.md');
-		}).to.throw(/does not work outside of an Astro file/);
+		}).to.throw(/can only be used in/);
 	});
 
 	it('Glob should error if has no results', async () => {
 		const Astro = createAstro(undefined);
 		expect(() => {
 			Astro.glob([], () => './**/*.md');
-		}).to.throw(/does not match any files/);
+		}).to.throw(/did not return any matching files/);
 	});
 });

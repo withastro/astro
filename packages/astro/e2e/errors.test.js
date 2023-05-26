@@ -100,12 +100,12 @@ test.describe('Error display', () => {
 	test('astro glob no match error', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/astro-glob-no-match'), { waitUntil: 'networkidle' });
 		const message = (await getErrorOverlayContent(page)).message;
-		expect(message).toMatch('does not match any files');
+		expect(message).toMatch('did not return any matching files');
 	});
 
 	test('astro glob used outside of an astro file', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/astro-glob-outside-astro'), { waitUntil: 'networkidle' });
 		const message = (await getErrorOverlayContent(page)).message;
-		expect(message).toMatch('does not work outside of an Astro file');
+		expect(message).toMatch('can only be used in');
 	});
 });
