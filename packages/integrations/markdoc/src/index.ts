@@ -1,6 +1,7 @@
 import { isPropsDef, markdocAttributesFromZodProps, usedDefinePropsSymbol } from './props.js';
 /* eslint-disable no-console */
 import type { Node, Schema } from '@markdoc/markdoc';
+import { transform, type TransformResult } from '@astrojs/compiler';
 import Markdoc from '@markdoc/markdoc';
 import glob from 'fast-glob';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
@@ -14,7 +15,7 @@ import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
 import path from 'node:path';
-import type { Plugin } from 'vite';
+import { normalizePath, transformWithEsbuild, type Plugin } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -52,6 +53,27 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				let componentPathByName: Record<string, string> = {};
 				const embedsDir = new URL('embeds/', astroConfig.srcDir);
 				for (const tagPropsModule of tagPropsModules) {
+					const astroFilePath = tagPropsModule.replace(/\.props\.js$/, '.astro');
+					const astroFileContent = await fs.promises.readFile(astroFilePath, 'utf-8');
+					const compiled = await compileAstroFile({
+						astroConfig,
+						filename: astroFilePath,
+						source: astroFileContent,
+					});
+					const builtJs = await transformWithEsbuild(compiled.code, astroFilePath, {
+						loader: 'ts',
+						target: 'esnext',
+						sourcemap: 'external',
+						tsconfigRaw: {
+							compilerOptions: {
+								// Ensure client:only imports are treeshaken
+								importsNotUsedAsValues: 'remove',
+								preserveValueImports: false,
+							},
+						},
+					});
+					const compiledAstroFilePath = tagPropsModule.replace(/\.props\.js$/, '.astro.js');
+					await fs.promises.writeFile(compiledAstroFilePath, builtJs.code);
 					const mod = await import(tagPropsModule);
 					if (typeof mod !== 'object' || mod == null) {
 						throw new MarkdocError({
@@ -104,7 +126,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 												})
 												.join(',\n')}
 									};`;
-										console.log(code);
+										// console.log(code);
 										return code;
 									}
 								},
@@ -280,4 +302,75 @@ async function emitOptimizedImages(
 function shouldOptimizeImage(src: string) {
 	// Optimize anything that is NOT external or an absolute path to `public/`
 	return !isValidUrl(src) && !src.startsWith('/');
+}
+
+async function compileAstroFile({
+	astroConfig,
+	filename,
+	source,
+}: {
+	astroConfig: AstroConfig;
+	filename: string;
+	source: string;
+}): Promise<TransformResult> {
+	let transformResult: TransformResult;
+
+	try {
+		// Transform from `.astro` to valid `.ts`
+		// use `sourcemap: "both"` so that sourcemap is included in the code
+		// result passed to esbuild, but also available in the catch handler.
+		transformResult = await transform(source, {
+			compact: astroConfig.compressHTML,
+			filename,
+			normalizedFilename: normalizeFilename(filename, astroConfig.root),
+			sourcemap: 'both',
+			internalURL: 'astro/server/index.js',
+			astroGlobalArgs: JSON.stringify(astroConfig.site),
+			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
+			resultScopedSlot: true,
+			async resolvePath(specifier) {
+				return resolvePath(specifier, filename);
+			},
+		});
+	} catch (err: any) {
+		// The compiler should be able to handle errors by itself, however
+		// for the rare cases where it can't let's directly throw here with as much info as possible
+		throw new MarkdocError({
+			message: 'Failed to transform embed',
+			location: {
+				file: filename,
+			},
+		});
+	}
+
+	return transformResult;
+}
+
+function normalizeFilename(filename: string, root: URL) {
+	const normalizedFilename = normalizePath(filename);
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	if (normalizedFilename.startsWith(normalizedRoot)) {
+		return normalizedFilename.slice(normalizedRoot.length - 1);
+	} else {
+		return normalizedFilename;
+	}
+}
+
+function resolvePath(specifier: string, importer: string) {
+	if (specifier.startsWith('.')) {
+		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
+		return resolveJsToTs(normalizePath(absoluteSpecifier));
+	} else {
+		return specifier;
+	}
+}
+
+function resolveJsToTs(filePath: string) {
+	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
+		const tryPath = filePath.slice(0, -4) + '.tsx';
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	return filePath;
 }

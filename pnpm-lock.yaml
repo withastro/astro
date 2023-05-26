@@ -3973,6 +3973,9 @@ importers:
 
   packages/integrations/markdoc:
     dependencies:
+      '@astrojs/compiler':
+        specifier: ^1.4.0
+        version: 1.4.0
       '@astrojs/prism':
         specifier: ^2.1.2
         version: link:../../astro-prism
