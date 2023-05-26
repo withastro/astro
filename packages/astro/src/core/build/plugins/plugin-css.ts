@@ -65,10 +65,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		name: 'astro:rollup-plugin-build-css',
 
 		outputOptions(outputOptions) {
-			// Skip in client builds as its module graph doesn't have reference to Astro pages
-			// to be able to chunk based on it's related top-level pages.
-			if (options.target === 'client') return;
-
 			const assetFileNames = outputOptions.assetFileNames;
 			const namingIncludesHash = assetFileNames?.toString().includes('[hash]');
 			const createNameForParentPages = namingIncludesHash
@@ -80,16 +76,29 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// For CSS, create a hash of all of the pages that use it.
 					// This causes CSS to be built into shared chunks when used by multiple pages.
 					if (isBuildableCSSRequest(id)) {
+						// For client builds that has hydrated components as entrypoints, there's no way
+						// to crawl up and find the pages that use it. So we lookup the cache here to derive
+						// the same chunk id so they match up on build.
+						// Some modules may not exist in cache (e.g. `client:only` components), and that's okay.
+						// We can use Rollup's default chunk strategy instead.
+						if (options.target === 'client') {
+							return internals.cssModuleToChunkId.get(id)!;
+						}
+
 						for (const [pageInfo] of walkParentInfos(id, {
 							getModuleInfo: meta.getModuleInfo,
 						})) {
 							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
-								return createNameHash(id, [id]);
+								const chunkId = createNameHash(id, [id]);
+								internals.cssModuleToChunkId.set(id, chunkId);
+								return chunkId;
 							}
 						}
-						return createNameForParentPages(id, meta);
+						const chunkId = createNameForParentPages(id, meta);
+						internals.cssModuleToChunkId.set(id, chunkId);
+						return chunkId;
 					}
 				},
 			});

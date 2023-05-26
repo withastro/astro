@@ -12,6 +12,14 @@ export interface BuildInternals {
 	 * SSR build and client build in vite-plugin-css.
 	 */
 	cssChunkModuleIds: Set<string>;
+	/**
+	 * Each CSS module is named with a chunk id derived from the Astro pages they
+	 * are used in by default. It's easy to crawl this relation in the SSR build as
+	 * the Astro pages are the entrypoint, but not for the client build as hydratable
+	 * components are the entrypoint instead. This map is used as a cache from the SSR
+	 * build so the client can pick up the same information and use the same chunk ids.
+	 */
+	cssModuleToChunkId: Map<string, string>;
 
 	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
@@ -93,6 +101,7 @@ export function createBuildInternals(): BuildInternals {
 
 	return {
 		cssChunkModuleIds: new Set(),
+		cssModuleToChunkId: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
