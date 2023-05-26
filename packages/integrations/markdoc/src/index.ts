@@ -19,6 +19,12 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
+const markdocTokenizer = new Markdoc.Tokenizer({
+	// Strip <!-- comments --> from rendered output
+	// Without this, they're rendered as strings!
+	allowComments: true,
+});
+
 export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
 	if (legacyConfig) {
 		console.log(
@@ -64,7 +70,8 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					getEntryInfo,
 					async getRenderModule({ contents, fileUrl, viteId }) {
 						const entry = getEntryInfo({ contents, fileUrl });
-						const ast = Markdoc.parse(entry.body);
+						const tokens = markdocTokenizer.tokenize(entry.body);
+						const ast = Markdoc.parse(tokens);
 						const pluginContext = this;
 						const markdocConfig = await setupConfig(userMarkdocConfig);
 
