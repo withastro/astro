@@ -3,7 +3,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import type { Readable } from 'stream';
 import { responseIterator } from './response-iterator';
 import type { Options } from './types';
-import { createOutgoingHttpHeaders } from "./createOutgoingHttpHeaders";
+import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
 
 export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (
@@ -48,7 +48,7 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
     
 		if (setCookieHeaders.length) {
       for (const setCookieHeader of setCookieHeaders) {
-        webResponse.headers.append("set-cookie", setCookieHeader);
+        webResponse.headers.append('set-cookie', setCookieHeader);
       }
 		}
 	}
