@@ -39,7 +39,7 @@ async function iterableToHTMLBytes(
 			if (i === 0) {
 				i++;
 				if (!/<!doctype html/i.test(String(chunk))) {
-					parts.append('<!DOCTYPE html>\n', result);
+					parts.append('<!DOCTYPE html>', result);
 					if (onDocTypeInjection) {
 						await onDocTypeInjection(parts);
 					}
