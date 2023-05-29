@@ -151,13 +151,3 @@ export function buffersToString(buffers) {
 
 // A convenience method for creating an astro module from a component
 export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
-
-export function createPromiseWithResolveAndReject() {
-	let resolve;
-	let reject;
-	const promise = new Promise((res, rej) => {
-		resolve = res;
-		reject = rej;
-	});
-	return { promise, resolve, reject };
-}
