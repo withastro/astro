@@ -59,7 +59,7 @@ Flow:
 1. Walk the `hast` tree.
 2. For each `node` we enter, if the `node` is static (`type` is `element` or `mdxJsxFlowElement`), record in `allPossibleElements` and push to `elementStack`.
     - Q: Why do we record `mdxJsxFlowElement`, it's MDX? <br>
-      A: Because we're looking for nodes whose children are static, the node itself doesn't need to be static.
+      A: Because we're looking for nodes whose children are static. The node itself doesn't need to be static.
     - Q: Are we sure this is the subtree root node in `allPossibleElements`? <br>
       A: No, but we'll clear that up later in step 3.
 3. For each `node` we leave, pop from `elementStack`. If the `node`'s parent is in `allPossibleElements`, we also remove the `node` from `allPossibleElements`.
