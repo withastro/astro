@@ -102,11 +102,6 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 				addClientDirective: ({ name, entrypoint }) => {
-					if (!settings.config.experimental.customClientDirectives) {
-						throw new Error(
-							`The "${integration.name}" integration is trying to add the "${name}" client directive, but the \`experimental.customClientDirectives\` config is not enabled.`
-						);
-					}
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
 						throw new Error(
 							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`
