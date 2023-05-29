@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
-import {} from '../../../dist/prerender/routing.js';
+import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
