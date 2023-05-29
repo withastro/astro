@@ -199,7 +199,7 @@ function waitForResolvedConfigPlugin(resolve) {
 	return {
 		name: 'wait-for-resolved-config',
 		hooks: {
-			'astro:config:done': () => {
+			'astro:server:setup': () => {
 				resolve();
 			},
 		},
