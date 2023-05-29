@@ -5,6 +5,8 @@ import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export const isWindows = process.platform === 'win32';
 
+export { silentLogging } from '../test/test-utils.js';
+
 // Get all test files in directory, assign unique port for each of them so they don't conflict
 const testFiles = await fs.readdir(new URL('.', import.meta.url));
 const testFileToPort = new Map();
