@@ -841,14 +841,48 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name build.serverlessEntryPrefix
+		 * @type {string}
+		 * @default `'entry'`
+		 * @description
+		 * Option used when `build.mode` is set to `"serverless"`. Astro will prepend
+		 * the emitted files using this option.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     serverlessEntryPrefix: 'main'
+		 *   }
+		 * }
+		 * ```
+		 */
+		serverlessEntryPrefix?: string;
+
+		/**
+		 * @docs
 		 * @name build.mode
 		 * @type {string}
-		 * @default `'server'`
+		 * @default {'server' | 'serverless'}
 		 * @description
 		 * Defines how the SSR should be bundled. SSR code for "server"
 		 * will be built in one single file.
 		 *
+		 * When "serverless" is specified, Astro will emit a file for each page.
+		 * Each file emitted will render only one page. The pages will be emitted
+		 * inside a `pages/` directory, and emitted file will keep the same file paths
+		 * of the `src/pages` directory.
 		 *
+		 * Each emitted file will be prefixed with `entry`. You can use {@link build.serverlessEntryPrefix}
+		 * to change the prefix.
+		 *
+		 * Inside the `dist/` directory, the pages
+		 * ```plaintext
+		 * ├── pages
+		 * │   ├── blog
+		 * │   │   ├── entry._slug_.astro.mjs
+		 * │   │   └── entry.about.astro.mjs
+		 * │   └── entry.index.astro.mjs
+		 * ```
 		 *
 		 * ```js
 		 * {
