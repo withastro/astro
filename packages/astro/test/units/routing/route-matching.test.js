@@ -1,5 +1,9 @@
 // @ts-check
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import {
+	createFs,
+	createPromiseWithResolveAndReject,
+	createRequestAndResponse,
+} from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'url';
 import { defaultLogging } from '../../test-utils.js';
@@ -82,9 +86,12 @@ describe('Route matching', () => {
 	let manifest;
 	let container;
 	let settings;
+	let resolvedConfigPromise;
 
 	before(async () => {
 		const fs = createFs(fileSystem, root);
+		const { resolve, promise } = createPromiseWithResolveAndReject();
+		resolvedConfigPromise = promise;
 		container = await createContainer({
 			fs,
 			root,
@@ -95,6 +102,9 @@ describe('Route matching', () => {
 					hybridOutput: true,
 				},
 				adapter: testAdapter(),
+				vite: {
+					plugins: [waitForResolvedConfigPlugin(resolve)],
+				},
 			},
 			disableTelemetry: true,
 		});
@@ -118,6 +128,7 @@ describe('Route matching', () => {
 
 	it('should sort matched routes correctly', async () => {
 		const matches = matchAllRoutes('/static-slug-here', manifest);
+		await resolvedConfigPromise;
 		const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 		const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
@@ -185,3 +196,12 @@ describe('Route matching', () => {
 		expect($('p').text()).to.equal('Nested server rest route! slug: a-random-slug-was-matched');
 	});
 });
+
+function waitForResolvedConfigPlugin(resolve) {
+	return {
+		name: 'wait-for-resolved-config',
+		async configResolved(config) {
+			resolve(config);
+		},
+	};
+}
