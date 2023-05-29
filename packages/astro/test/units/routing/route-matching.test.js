@@ -102,9 +102,7 @@ describe('Route matching', () => {
 					hybridOutput: true,
 				},
 				adapter: testAdapter(),
-				vite: {
-					plugins: [waitForResolvedConfigPlugin(resolve)],
-				},
+				integrations: [waitForResolvedConfigPlugin(resolve)],
 			},
 			disableTelemetry: true,
 		});
@@ -127,7 +125,7 @@ describe('Route matching', () => {
 	});
 
 	it('should sort matched routes correctly', async () => {
-		const matches = matchAllRoutes('/static-slug-here', manifest);
+		const matches = matchAllRoutes('/static-dynamic-route-here', manifest);
 		await resolvedConfigPromise;
 		const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 		const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
@@ -200,8 +198,10 @@ describe('Route matching', () => {
 function waitForResolvedConfigPlugin(resolve) {
 	return {
 		name: 'wait-for-resolved-config',
-		async configResolved(config) {
-			resolve(config);
+		hooks: {
+			'astro:config:done': () => {
+				resolve();
+			},
 		},
 	};
 }
