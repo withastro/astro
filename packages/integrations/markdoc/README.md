@@ -233,7 +233,7 @@ export default defineMarkdocConfig({
 
 ### Custom Markdoc nodes / elements
 
-You may want to render standard Markdown elements like paragraphs and bolded text with components. For this, you can configure a [Markdoc node][markdoc-nodes]. If a given node receives attributes, they will be available as component props.
+You may want to render standard Markdown elements, such as paragraphs and bolded text, as Astro components. For this, you can configure a [Markdoc node][markdoc-nodes]. If a given node receives attributes, they will be available as component props.
 
 This example renders blockquotes with a custom `Quote.astro` component:
 
