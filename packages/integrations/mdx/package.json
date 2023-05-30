@@ -31,6 +31,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "mocha --exit --timeout 20000",
+    "t": "mocha --exit --timeout 20000 test/astro-content-css.test.js",
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
