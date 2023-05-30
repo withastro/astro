@@ -1,5 +1,15 @@
 # @astrojs/mdx
 
+## 0.19.5
+
+### Patch Changes
+
+- [#7151](https://github.com/withastro/astro/pull/7151) [`ea16570b1`](https://github.com/withastro/astro/commit/ea16570b1e0929678170c10b06c011dc668d7013) Thanks [@bluwy](https://github.com/bluwy)! - Add `optimize` option for faster builds and rendering
+
+- [#7192](https://github.com/withastro/astro/pull/7192) [`7851f9258`](https://github.com/withastro/astro/commit/7851f9258fae2f54795470253df9ce4bcd5f9cb0) Thanks [@ematipico](https://github.com/ematipico)! - Detect `mdx` files using their full extension
+
+- [#7191](https://github.com/withastro/astro/pull/7191) [`27c6e0182`](https://github.com/withastro/astro/commit/27c6e01826a6da525f1f811d97784accd1ebbd96) Thanks [@bluwy](https://github.com/bluwy)! - Remove `@mdx-js/rollup` dependency
+
 ## 0.19.4
 
 ### Patch Changes
