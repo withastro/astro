@@ -214,7 +214,7 @@ export default defineMarkdocConfig({
 
 ### Set the root HTML element
 
-Markdoc wraps documents with an `article` tag by default. This can be changed from the `document` Markdoc node. This accepts an HTML element name or `null` if you prefer to remove the wrapper element:
+Markdoc wraps documents with an `<article>` tag by default. This can be changed from the `document` Markdoc node. This accepts an HTML element name or `null` if you prefer to remove the wrapper element:
 
 ```js
 // markdoc.config.mjs
