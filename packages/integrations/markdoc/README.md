@@ -99,7 +99,7 @@ const { Content } = await entry.render();
 
 ### Use Astro components as Markdoc tags
 
-You can configure [Markdoc tags][markdoc-tags] that map to components. You can add a new tag by creating a `markdoc.config.mjs|ts` file at the root of your project and configuring the `tag` attribute.
+You can configure [Markdoc tags][markdoc-tags] that map to `.astro` components. You can add a new tag by creating a `markdoc.config.mjs|ts` file at the root of your project and configuring the `tag` attribute.
 
 This example renders an `Aside` component, and allows a `type` prop to be passed as a string:
 
