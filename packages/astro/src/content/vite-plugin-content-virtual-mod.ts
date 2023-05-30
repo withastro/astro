@@ -45,6 +45,7 @@ export function astroContentVirtualModPlugin({
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(
 			'@@CONTENT_ENTRY_GLOB_PATH@@',
+			// [!_] = ignore files starting with "_"
 			`${relContentDir}**/[!_]*${getExtGlob(contentEntryExts)}`
 		)
 		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/[!_]*${getExtGlob(dataEntryExts)}`)
