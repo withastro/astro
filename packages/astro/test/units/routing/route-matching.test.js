@@ -74,7 +74,7 @@ const fileSystem = {
 			return [
 				{
 					params: {
-						aStaticRest: "another-static-rest-route-here",
+						aStaticRest: "another/static-rest-route-here",
 					},
 				},
 			];
@@ -237,7 +237,7 @@ describe('Route matching', () => {
 		it('should correctly match a static rest route II', async () => {
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
-				url: '/another-static-rest-route-here',
+				url: '/another/static-rest-route-here',
 			});
 			container.handle(req, res);
 			const html = await text();
