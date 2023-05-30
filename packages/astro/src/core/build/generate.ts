@@ -150,12 +150,8 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 			}
 		}
 		for(const pageData of eachRedirectPageData(internals)) {
-			// TODO MOVE
-			await generatePage(opts, internals, pageData, {
-				page: () => Promise.resolve(RedirectComponentInstance),
-				middleware: StaticMiddlewareInstance,
-				renderers: []
-			}, builtPaths);
+			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
 	} else {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
@@ -166,15 +162,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 		for(const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			if(pageData.route.redirectRoute) {
-				const filePath = getEntryFilePathFromComponentPath(internals, pageData.route.redirectRoute.component);
-			}
-
-			await generatePage(opts, internals, pageData, {
-				page: () => Promise.resolve(RedirectComponentInstance),
-				middleware: StaticMiddlewareInstance,
-				renderers: []
-			}, builtPaths);
+			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
 	}
 

@@ -15,7 +15,7 @@ import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { routeIsRedirect } from '../../redirects/index.js';
-import { getVirtualModulePageIdFromPath } from './plugin-pages.js';
+import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
@@ -60,7 +60,7 @@ function vitePluginSSR(
 					if(routeIsRedirect(pageData.route)) {
 						continue;
 					}
-					const virtualModuleName = getVirtualModulePageIdFromPath(path);
+					const virtualModuleName = getVirtualModulePageNameFromPath(path);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
 						const variable = `_page${i}`;

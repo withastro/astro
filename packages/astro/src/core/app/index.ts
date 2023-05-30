@@ -177,7 +177,7 @@ export class App {
 		} else {
 			const importComponentInstance = this.#manifest.pageMap.get(route.component);
 			if(!importComponentInstance) {
-				throw new Error(`Unexpected unable to find a component instance for route ${route.route}`);
+				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
 			}
 			const built = await importComponentInstance();
 			return built.page();
