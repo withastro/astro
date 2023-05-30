@@ -410,7 +410,7 @@ importers:
     dependencies:
       '@astrojs/markdoc':
         specifier: ^0.2.0
-        version: link:../../packages/integrations/markdoc
+        version: 0.2.0(astro@packages+astro)
       astro:
         specifier: ^2.4.1
         version: link:../../packages/astro
@@ -544,7 +544,7 @@ importers:
         specifier: ^2.1.1
         version: link:../telemetry
       '@astrojs/webapi':
-        specifier: ^2.1.1
+        specifier: ^2.2.0
         version: link:../webapi
       '@babel/core':
         specifier: ^7.21.8
@@ -4385,7 +4385,7 @@ importers:
   packages/integrations/netlify:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.1
+        specifier: ^2.2.0
         version: link:../../webapi
       '@netlify/functions':
         specifier: ^1.0.0
@@ -4470,7 +4470,7 @@ importers:
   packages/integrations/node:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.1
+        specifier: ^2.2.0
         version: link:../../webapi
       send:
         specifier: ^0.18.0
@@ -4837,7 +4837,7 @@ importers:
   packages/integrations/vercel:
     dependencies:
       '@astrojs/webapi':
-        specifier: ^2.1.1
+        specifier: ^2.2.0
         version: link:../../webapi
       '@vercel/analytics':
         specifier: ^0.1.8
@@ -5546,6 +5546,24 @@ packages:
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
       vscode-uri: 3.0.7
+    dev: false
+
+  /@astrojs/markdoc@0.2.0(astro@packages+astro):
+    resolution: {integrity: sha512-sGDdUooNq7I7LDWOrzuAiNvZLqtWzUvMdmWA6O7y54zMVVCx4OPsLCd+oIUGvF5lZ+Yvv1dHGCM1fWnqOc+B4A==}
+    engines: {node: '>=16.12.0'}
+    peerDependencies:
+      astro: '*'
+    dependencies:
+      '@markdoc/markdoc': 0.2.2
+      astro: link:packages/astro
+      esbuild: 0.17.18
+      github-slugger: 2.0.0
+      gray-matter: 4.0.3
+      kleur: 4.1.5
+      zod: 3.20.6
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
     dev: false
 
   /@babel/code-frame@7.21.4:
@@ -8068,6 +8086,21 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: false
+
+  /@markdoc/markdoc@0.2.2:
+    resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
+    engines: {node: '>=14.7.0'}
+    peerDependencies:
+      '@types/react': '*'
+      react: '*'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+    optionalDependencies:
+      '@types/markdown-it': 12.2.3
     dev: false
 
   /@markdoc/markdoc@0.3.0:
