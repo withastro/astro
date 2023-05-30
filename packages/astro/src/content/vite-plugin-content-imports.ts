@@ -17,7 +17,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
-	getContentEntryConfigByExtMap,
+	getEntryConfigByExtMap,
 	getContentEntryExts,
 	getContentEntryIdAndSlug,
 	getContentPaths,
@@ -31,7 +31,6 @@ import {
 	parseEntrySlug,
 	reloadContentConfigObserver,
 	type ContentConfig,
-	getDataEntryConfigByExtMap,
 } from './utils.js';
 
 function getContentRendererByViteId(
@@ -71,8 +70,8 @@ export function astroContentImportPlugin({
 	const contentEntryExts = getContentEntryExts(settings);
 	const dataEntryExts = getDataEntryExts(settings);
 
-	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
-	const dataEntryConfigByExt = getDataEntryConfigByExtMap(settings);
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
+	const dataEntryConfigByExt = getEntryConfigByExtMap(settings.dataEntryTypes);
 	const { contentDir } = contentPaths;
 
 	const plugins: Plugin[] = [

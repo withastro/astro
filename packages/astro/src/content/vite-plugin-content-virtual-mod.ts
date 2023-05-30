@@ -4,12 +4,12 @@ import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getContentEntryConfigByExtMap,
+	getEntryConfigByExtMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -32,7 +32,7 @@ export function astroContentVirtualModPlugin({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
@@ -92,7 +92,7 @@ export async function getStringifiedLookupMap({
 	root,
 	fs,
 }: {
-	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
+	contentEntryConfigByExt: Map<string, ContentEntryType>;
 	dataEntryExts: string[];
 	contentPaths: Pick<ContentPaths, 'contentDir' | 'config'>;
 	root: URL;
