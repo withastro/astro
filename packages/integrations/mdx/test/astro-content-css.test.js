@@ -7,7 +7,10 @@ describe('build css from the component', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: new URL('./fixtures/astro-content-css/', import.meta.url),integrations: [mdx()], });
+		fixture = await loadFixture({
+			root: new URL('./fixtures/astro-content-css/', import.meta.url),
+			integrations: [mdx()],
+		});
 		await fixture.build();
 	});
 
@@ -22,10 +25,10 @@ describe('build css from the component', async () => {
 			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
 			expect($('script[src$=".js"]').attr('src')).to.match(/^\/_astro\//);
 		});
-	})
+	});
 
 	describe('Dev', () => {
-		let devServer
+		let devServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
 		});
@@ -42,5 +45,5 @@ describe('build css from the component', async () => {
 			expect($.html()).to.include('CornflowerBlue');
 			expect($('script[src$=".js"]').attr('src')).to.include('astro');
 		});
-	})
-})
+	});
+});
