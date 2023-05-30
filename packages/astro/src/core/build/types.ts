@@ -49,8 +49,8 @@ export interface StaticBuildOptions {
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;
 
-export interface SingleFileBuiltModule {
-	pageMap: Map<ComponentPath, ImportComponentInstance>;
+export interface SinglePageBuiltModule {
+	page: ImportComponentInstance;
 	middleware: AstroMiddlewareInstance<unknown>;
 	renderers: SSRLoadedRenderer[];
 }

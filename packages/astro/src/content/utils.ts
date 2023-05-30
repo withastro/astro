@@ -111,7 +111,7 @@ export async function getEntryData(
 		}
 
 		schema = schema({
-			image: createImage({ config }, pluginContext, entry._internal.filePath),
+			image: createImage(pluginContext, entry._internal.filePath),
 		});
 	}
 

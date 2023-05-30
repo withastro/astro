@@ -518,7 +518,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
 	 * ```astro
 	 * ---
-	 * import rocket from '../assets/images/rocket.svg'
+	 * import rocket from '../assets/images/rocket.svg';
 	 * ---
 	 *
 	 * <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
@@ -627,7 +627,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
 	 */
 	ResponseSentError: {
-		title: 'Unable to set response',
+		title: 'Unable to set response.',
 		code: 3030,
 		message: 'The response has already been sent to the browser and cannot be altered.',
 	},
@@ -647,7 +647,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	MiddlewareNoDataOrNextCalled: {
-		title: "The middleware didn't return a response or call `next`",
+		title: "The middleware didn't return a response or call `next`.",
 		code: 3031,
 		message:
 			'The middleware needs to either return a `Response` object or call the `next` function.',
@@ -667,7 +667,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	MiddlewareNotAResponse: {
-		title: 'The middleware returned something that is not a `Response` object',
+		title: 'The middleware returned something that is not a `Response` object.',
 		code: 3032,
 		message: 'Any data returned from middleware must be a valid `Response` object.',
 	},
@@ -688,11 +688,66 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	LocalsNotAnObject: {
-		title: 'Value assigned to `locals` is not accepted',
+		title: 'Value assigned to `locals` is not accepted.',
 		code: 3033,
 		message:
 			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
+	},
+	/*
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
+	 *
+	 * ```astro
+	 * ---
+	 * import { Image } from "astro:assets";
+	 * import myImage from "../my_image.png";
+	 * ---
+	 *
+	 * <!-- GOOD: `src` is the full imported image. -->
+	 * <Image src={myImage} alt="Cool image" />
+	 *
+	 * <!-- BAD: `src` is an image's `src` path instead of the full image. -->
+	 * <Image src={myImage.src} alt="Cool image" />
+	 * ```
+	 */
+	LocalImageUsedWrongly: {
+		title: 'ESM imported images must be passed as-is.',
+		code: 3034,
+		message: (imageFilePath: string) =>
+			`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
+	 */
+	AstroGlobUsedOutside: {
+		title: 'Astro.glob() used outside of an Astro file.',
+		code: 3035,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
+		hint: "See Vite's documentation on `import.meta.glob` for more information: https://vitejs.dev/guide/features.html#glob-import",
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
+	 */
+	AstroGlobNoMatch: {
+		title: 'Astro.glob() did not match any files.',
+		code: 3036,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
 	},
 	/**
 		 * @docs
@@ -703,7 +758,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		 */
 	RedirectWithNoLocation: {
 		title: 'A redirect must be given a location with the `Location` header.',
-		code: 3035,
+		code: 3037,
 	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
@@ -973,7 +1028,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
-	 * @message A content collection schema should not contain `slug` since it is reserved for slug generation. Remove this from your `COLLECTION_NAME` collection schema.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
@@ -982,9 +1036,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
 		code: 9003,
-		message: (collection: string) => {
-			return `A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collection} collection schema.`;
-		},
+		message: (collectionName: string) =>
+			`A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collectionName} collection schema.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
 	},
 
@@ -997,9 +1050,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	CollectionDoesNotExistError: {
 		title: 'Collection does not exist',
 		code: 9004,
-		message: (collection: string) => {
-			return `The collection **${collection}** does not exist. Ensure a collection directory with this name exists.`;
-		},
+		message: (collectionName: string) =>
+			`The collection **${collectionName}** does not exist. Ensure a collection directory with this name exists.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
 	},
 	/**
