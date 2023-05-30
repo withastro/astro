@@ -59,7 +59,7 @@
     "@rollup/plugin-typescript": "^8.3.2",
     "@types/chai": "^4.3.1",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^14.18.21",
+    "@types/node": "^18.7.21",
     "@ungap/structured-clone": "^0.3.4",
     "chai": "^4.3.6",
     "event-target-shim": "^6.0.2",
