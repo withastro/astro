@@ -414,11 +414,10 @@ async function writeContentFiles({
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
-		const collectionType = collectionConfig?.type ?? collection.type;
 		if (
 			collectionConfig?.type &&
-			collectionType !== 'unknown' &&
-			collectionType !== collectionConfig.type
+			collection.type !== 'unknown' &&
+			collection.type !== collectionConfig.type
 		) {
 			viteServer.ws.send({
 				type: 'error',
@@ -438,7 +437,14 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		switch (collectionType) {
+		const resolvedType: 'content' | 'data' =
+			collection.type === 'unknown'
+				? // Add empty / unknown collections to the data type map by default
+				  // This ensures `getCollection('empty-collection')` doesn't raise a type error
+				  collectionConfig?.type ?? 'data'
+				: collection.type;
+
+		switch (resolvedType) {
 			case 'content':
 				contentTypesStr += `${collectionKey}: {\n`;
 				for (const entryKey of Object.keys(collection.entries).sort()) {
@@ -454,9 +460,6 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case 'data':
-			// Add empty / unknown collections to the data type map by default
-			// This ensures `getCollection('empty-collection')` doesn't raise a type error
-			case 'unknown':
 				dataTypesStr += `${collectionKey}: {\n`;
 				for (const entryKey of Object.keys(collection.entries).sort()) {
 					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';
