@@ -520,6 +520,10 @@ async function generatePath(
 
 		switch(true) {
 			case (response.status >= 300 && response.status < 400): {
+				// If redirects is set to false, don't output the HTML
+				if(!opts.settings.config.build.redirects) {
+					return;
+				}
 				const location = getRedirectLocationOrThrow(response.headers);
 				body = `<!doctype html>
 <title>Redirecting to: ${location}</title>

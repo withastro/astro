@@ -738,6 +738,28 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		serverEntry?: string;
+		/**
+		 * @docs
+		 * @name build.redirects
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Specifies whether redirects will be output to HTML during the build.
+		 * This option only applies to `output: 'static'` mode; in SSR redirects
+		 * are treated the same as all responses.
+		 * 
+		 * This option is mostly meant to be used by adapters that have special 
+		 * configuration files for redirects and do not need/want HTML based redirects.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     redirects: false
+		 *   }
+		 * }
+		 * ```
+		 */
+		redirects?: boolean;
 	};
 
 	/**

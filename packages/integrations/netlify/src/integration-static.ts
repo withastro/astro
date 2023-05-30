@@ -7,6 +7,14 @@ export function netlifyStatic(): AstroIntegration {
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
+			'astro:config:setup': ({ updateConfig }) => {
+				updateConfig({
+					build: {
+						// Do not output HTML redirects because we are building a `_redirects` file.
+						redirects: false,
+					},
+				});
+			},
 			'astro:config:done': ({ config }) => {
 				_config = config;
 			},

@@ -119,4 +119,29 @@ describe('Astro.redirect', () => {
 			expect(html).to.include('url=/');
 		});
 	});
+
+	describe('config.build.redirects = false', () => {
+		before(async () => {
+			process.env.STATIC_MODE = true;
+			fixture = await loadFixture({
+				root: './fixtures/ssr-redirect/',
+				output: 'static',
+				redirects: {
+					'/one': '/'
+				},
+				build: {
+					redirects: false
+				}
+			});
+			await fixture.build();
+		});
+
+		it('Does not output redirect HTML', async () => {
+			let oneHtml = undefined;
+			try {
+				oneHtml = await fixture.readFile('/one/index.html');
+			} catch {}
+			expect(oneHtml).be.an('undefined');
+		})
+	})
 });
