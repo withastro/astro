@@ -43,8 +43,12 @@ export function astroContentVirtualModPlugin({
 			new URL('reference-map.json', contentPaths.cacheDir).pathname
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace('@@CONTENT_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(contentEntryExts)}`)
-		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(dataEntryExts)}`)
+		.replace(
+			'@@CONTENT_ENTRY_GLOB_PATH@@',
+			// [!_] = ignore files starting with "_"
+			`${relContentDir}**/[!_]*${getExtGlob(contentEntryExts)}`
+		)
+		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/[!_]*${getExtGlob(dataEntryExts)}`)
 		.replace(
 			'@@RENDER_ENTRY_GLOB_PATH@@',
 			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
