@@ -51,6 +51,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						client: new URL(`.${config.base}`, config.outDir),
 						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
 						serverEntry: '_worker.mjs',
+						redirects: false,
 					},
 				});
 			},
