@@ -409,8 +409,8 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^0.2.3
-        version: 0.2.3(astro@packages+astro)
+        specifier: ^0.3.0
+        version: link:../../packages/integrations/markdoc
       astro:
         specifier: ^2.5.6
         version: link:../../packages/astro
@@ -5553,24 +5553,6 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdoc@0.2.3(astro@packages+astro):
-    resolution: {integrity: sha512-ehHphaLDjHHwbMwbnHQ7l+DhxUv/LAV8JaQ0BphngqCssaqvopGRjjWbo/GZVeGzIp44Gg0ZNockYe3yylqnfw==}
-    engines: {node: '>=16.12.0'}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@markdoc/markdoc': 0.2.2
-      astro: link:packages/astro
-      esbuild: 0.17.18
-      github-slugger: 2.0.0
-      gray-matter: 4.0.3
-      kleur: 4.1.5
-      zod: 3.20.6
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-    dev: false
-
   /@babel/code-frame@7.21.4:
     resolution: {integrity: sha512-LYvhNKfwWSPpocw8GI7gpK2nq3HSDuEPC/uSYaALSJu9xjsalaaYFOq0Pwt5KmVqwEbZlDu81aLXwBOmD/Fv9g==}
     engines: {node: '>=6.9.0'}
@@ -8102,21 +8084,6 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
-    dev: false
-
-  /@markdoc/markdoc@0.2.2:
-    resolution: {integrity: sha512-0TiD9jmA5h5znN4lxo7HECAu3WieU5g5vUsfByeucrdR/x88hEilpt16EydFyJwJddQ/3w5HQgW7Ovy62r4cyw==}
-    engines: {node: '>=14.7.0'}
-    peerDependencies:
-      '@types/react': '*'
-      react: '*'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      react:
-        optional: true
-    optionalDependencies:
-      '@types/markdown-it': 12.2.3
     dev: false
 
   /@markdoc/markdoc@0.3.0:
