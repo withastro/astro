@@ -414,18 +414,23 @@ async function writeContentFiles({
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
-		if (collectionConfig?.type && collection.type !== collectionConfig.type) {
+		const collectionType = collectionConfig?.type ?? collection.type;
+		if (
+			collectionConfig?.type &&
+			collectionType !== 'unknown' &&
+			collectionType !== collectionConfig.type
+		) {
 			viteServer.ws.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
 					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
 						collectionKey,
-						collection.type,
+						collectionType,
 						collectionConfig.type
 					),
 					hint:
-						collection.type === 'data'
+						collectionType === 'data'
 							? "Try adding `type: 'data'` to your collection config."
 							: undefined,
 					location: { file: '' /** required for error overlay `ws` messages */ },
@@ -433,7 +438,7 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		switch (collection.type) {
+		switch (collectionType) {
 			case 'content':
 				contentTypesStr += `${collectionKey}: {\n`;
 				for (const entryKey of Object.keys(collection.entries).sort()) {
