@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import markdoc from '../dist/index.js';
 
-const root = new URL('./fixtures/entry-prop/', import.meta.url);
+const root = new URL('./fixtures/variables/', import.meta.url);
 
 describe('Markdoc - Variables', () => {
 	let baseFixture;
