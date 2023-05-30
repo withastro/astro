@@ -245,7 +245,7 @@ import Quote from './src/components/Quote.astro';
 
 export default defineMarkdocConfig({
   nodes: {
-    heading: {
+    blockquote: {
       render: Quote,
       // Apply Markdoc's defaults for other options
       ...nodes.blockquote,
