@@ -45,7 +45,8 @@ describe('routing - createRouteManifest', () => {
 				base: '/search',
 				trailingSlash: 'never',
 				redirects: {
-					'/blog/[...slug]': '/'
+					'/blog/[...slug]': '/',
+					'/blog/contributing': '/another',
 				}
 			},
 			root
@@ -57,6 +58,7 @@ describe('routing - createRouteManifest', () => {
 		});
 		
 		expect(manifest.routes[1].route).to.equal('/blog/contributing');
+		expect(manifest.routes[1].type).to.equal('page');
 		expect(manifest.routes[2].route).to.equal('/blog/[...slug]');
 	})
 });

@@ -228,30 +228,6 @@ function areSiblings(a: RouteData, b: RouteData) {
 	return true;
 }
 
-// A fast insertion method based on binary search.
-function binaryInsert<T>(sorted: T[], item: T, insertComparator: (a: T, item: T) => boolean) {
-  if(sorted.length === 0) {
-    sorted.push(item);
-    return 0;
-  }
-  let low = 0, high = sorted.length - 1, mid = 0;
-  while (low <= high) {
-    mid = low + (high - low >> 1);
-    if(insertComparator(sorted[mid], item)) {
-      low = mid + 1;
-    } else {
-      high = mid -1;
-    }
-  }
-
-  if(insertComparator(sorted[mid], item)) {
-    mid++;
-  }
-
-  sorted.splice(mid, 0, item);
-  return mid;
-}
-
 export interface CreateRouteManifestParams {
 	/** Astro Settings object */
 	settings: AstroSettings;
@@ -505,17 +481,9 @@ export function createRouteManifest(
 			redirect: to,
 			redirectRoute: routes.find(r => r.route === to)
 		};
-		const isSpreadRoute = isSpread(route);
-
-		binaryInsert(routes, routeData, (a, item) => {
-			// If the routes are siblings and the redirect route is a spread
-			// Then it should come after the sibling unless it is also a spread.
-			// This essentially means that redirects are prioritized when *exactly* the same.
-			if(isSpreadRoute && areSiblings(a, item)) {				
-				return !isSpread(a.route);
-			}
-			return true;
-		});
+		
+		// Push so that redirects are selected last.
+		routes.push(routeData);
 	});
 
 	return {
