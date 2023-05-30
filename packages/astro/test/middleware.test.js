@@ -104,9 +104,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter({
-				// exports: ['manifest', 'createApp', 'middleware'],
-			}),
+			adapter: testAdapter({}),
 		});
 		await fixture.build();
 	});

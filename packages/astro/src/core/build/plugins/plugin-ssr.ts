@@ -47,12 +47,6 @@ function vitePluginSSR(
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
-				let middleware;
-				const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
-				if (middlewareModule) {
-					imports.push(`import * as _middleware from "${middlewareModule.id}"`);
-					middleware = 'middleware: _middleware';
-				}
 				let i = 0;
 				const pageMap: string[] = [];
 
@@ -81,7 +75,6 @@ import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap,
 	renderers,
-	${middleware}
 });
 _privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
