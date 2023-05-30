@@ -62,6 +62,10 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
+function areSamePart(a: RoutePart, b: RoutePart) {
+	return a.content === b.content && a.dynamic === b.dynamic && a.spread === b.spread;
+}
+
 function getPattern(
 	segments: RoutePart[][],
 	base: string,
@@ -202,6 +206,49 @@ function injectedRouteToItem(
 		isPage,
 		routeSuffix: pattern.slice(pattern.indexOf('.'), -ext.length),
 	};
+}
+
+// Seeings if the two routes are siblings of each other, with `b` being the route
+// in focus. If it is in the same parent folder as `a`, they are siblings.
+function areSiblings(a: RouteData, b: RouteData) {
+	if(a.segments.length < b.segments.length) return false;
+	for(let i = 0; i < b.segments.length - 1; i++) {
+		let segment = b.segments[i];
+		if(segment.length === a.segments[i].length) {
+			for(let j = 0; j < segment.length; j++) {
+				if(!areSamePart(segment[j], a.segments[i][j])) {
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+// A fast insertion method based on binary search.
+function binaryInsert<T>(sorted: T[], item: T, insertComparator: (a: T, item: T) => boolean) {
+  if(sorted.length === 0) {
+    sorted.push(item);
+    return 0;
+  }
+  let low = 0, high = sorted.length - 1, mid = 0;
+  while (low <= high) {
+    mid = low + (high - low >> 1);
+    if(insertComparator(sorted[mid], item)) {
+      low = mid + 1;
+    } else {
+      high = mid -1;
+    }
+  }
+
+  if(insertComparator(sorted[mid], item)) {
+    mid++;
+  }
+
+  sorted.splice(mid, 0, item);
+  return mid;
 }
 
 export interface CreateRouteManifestParams {
@@ -444,9 +491,7 @@ export function createRouteManifest(
 			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 			.join('/')}`.toLowerCase();
 
-		
-
-		routes.unshift({
+		const routeData: RouteData = {
 			type: 'redirect',
 			route,
 			pattern,
@@ -458,6 +503,17 @@ export function createRouteManifest(
 			prerender: false,
 			redirect: to,
 			redirectRoute: routes.find(r => r.route === to)
+		};
+		const isSpreadRoute = isSpread(route);
+
+		binaryInsert(routes, routeData, (a, item) => {
+			// If the routes are siblings and the redirect route is a spread
+			// Then it should come after the sibling unless it is also a spread.
+			// This essentially means that redirects are prioritized when *exactly* the same.
+			if(isSpreadRoute && areSiblings(a, item)) {				
+				return !isSpread(a.route);
+			}
+			return true;
 		});
 	});
 
@@ -465,3 +521,4 @@ export function createRouteManifest(
 		routes,
 	};
 }
+
