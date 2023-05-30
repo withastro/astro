@@ -223,9 +223,8 @@ import { defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
 export default defineMarkdocConfig({
   nodes: {
     document: {
-      render: null,
-      // Apply Markdoc's defaults for other options
-      ...nodes.document,
+      render: null, // default 'article'
+      ...nodes.document, // Apply defaults for other options
     },
   },
 })
