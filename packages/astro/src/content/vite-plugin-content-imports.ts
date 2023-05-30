@@ -14,16 +14,16 @@ import type {
 } from '../@types/astro.js';
 import { AstroErrorData } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/errors.js';
-import { escapeViteEnvReferences, getFileInfo } from '../vite-plugin-utils/index.js';
+import { escapeViteEnvReferences } from '../vite-plugin-utils/index.js';
 import { CONTENT_FLAG, DATA_FLAG } from './consts.js';
 import {
-	getEntryConfigByExtMap,
 	getContentEntryExts,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
 	getDataEntryId,
 	getEntryCollectionName,
+	getEntryConfigByExtMap,
 	getEntryData,
 	getEntryType,
 	globalContentConfigObserver,

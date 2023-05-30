@@ -9,12 +9,12 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getEntryConfigByExtMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
 	getDataEntryId,
 	getEntryCollectionName,
+	getEntryConfigByExtMap,
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,

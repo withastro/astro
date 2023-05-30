@@ -8,10 +8,10 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
+import path from 'node:path';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
-import path from 'node:path';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
