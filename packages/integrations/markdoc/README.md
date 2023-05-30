@@ -139,9 +139,9 @@ Use tags like this fancy "aside" to add some *flair* to your docs.
 
 ### Custom headings
 
-`@astrojs/markdoc` automatically adds anchor links to your headings, and [generates a list of `headings` via the content collections API.](https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html)
+`@astrojs/markdoc` automatically adds anchor links to your headings, and [generates a list of `headings` via the content collections API](https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html). To further customize how headings are rendered, you can apply an Astro component [as a Markdoc node][markdoc-nodes].
 
-To further customize how headings are rendered, you can apply an Astro component [as a Markdoc node.][markdoc-nodes] This example renders a `Heading.astro` component using the `render` property:
+This example renders a `Heading.astro` component using the `render` property:
 
 ```js
 // markdoc.config.mjs
