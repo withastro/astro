@@ -5,7 +5,7 @@ import markdoc from '../dist/index.js';
 
 const root = new URL('./fixtures/entry-prop/', import.meta.url);
 
-describe('Markdoc - Entry prop', () => {
+describe('Markdoc - Variables', () => {
 	let baseFixture;
 
 	before(async () => {
