@@ -27,14 +27,14 @@ describe('SSG - Redirects', () => {
 
 	it('Creates a redirects file', async () => {
 		let redirects = await fixture.readFile('/_redirects');
-		console.log(redirects)
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
-			'/nope', '/', '301',
-			'/other', '/', '301',
 			'/two', '/', '302',
-			'/team/articles/*', '/team/articles/*/index.html', '200',
+			'/other', '/', '301',
+			'/nope', '/', '301',
+
 			'/blog/*', '/team/articles/*/index.html', '301',
+			'/team/articles/*', '/team/articles/*/index.html', '200',
 		]);
 	});
 });
