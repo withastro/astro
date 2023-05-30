@@ -5201,8 +5201,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       '@types/node':
-        specifier: ^14.18.21
-        version: 14.18.21
+        specifier: ^18.7.21
+        version: 18.16.3
       '@types/which-pm-runs':
         specifier: ^1.0.0
         version: 1.0.0
@@ -5241,8 +5241,8 @@ importers:
         specifier: ^9.1.1
         version: 9.1.1
       '@types/node':
-        specifier: ^14.18.21
-        version: 14.18.21
+        specifier: ^18.7.21
+        version: 18.16.3
       '@ungap/structured-clone':
         specifier: ^0.3.4
         version: 0.3.4

@@ -10,7 +10,10 @@ const StaticHtml = defineComponent({
 	props: {
 		value: String,
 		name: String,
-		hydrate: Boolean,
+		hydrate: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	setup({ name, value, hydrate }) {
 		if (!value) return () => null;
