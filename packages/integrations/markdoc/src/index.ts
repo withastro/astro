@@ -8,6 +8,7 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
+import path from 'node:path';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
@@ -32,7 +33,19 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const { config: astroConfig, addContentEntryType } = params as SetupHookParams;
+				const {
+					config: astroConfig,
+					updateConfig,
+					addContentEntryType,
+				} = params as SetupHookParams;
+
+				updateConfig({
+					vite: {
+						ssr: {
+							external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
+						},
+					},
+				});
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
@@ -49,10 +62,13 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					async getRenderModule({ entry, viteId }) {
+					async getRenderModule({ contents, fileUrl, viteId }) {
+						const entry = getEntryInfo({ contents, fileUrl });
 						const ast = Markdoc.parse(entry.body);
 						const pluginContext = this;
-						const markdocConfig = setupConfig(userMarkdocConfig, entry);
+						const markdocConfig = await setupConfig(userMarkdocConfig);
+
+						const filePath = fileURLToPath(fileUrl);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -65,10 +81,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						});
 						if (validationErrors.length) {
 							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
-							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
+							const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
+							const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
 							throw new MarkdocError({
 								message: [
-									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									`**${String(rootRelativePath)}** contains invalid content:`,
 									...validationErrors.map((e) => `- ${e.error.message}`),
 								].join('\n'),
 								location: {
@@ -84,13 +101,13 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							await emitOptimizedImages(ast.children, {
 								astroConfig,
 								pluginContext,
-								filePath: entry._internal.filePath,
+								filePath,
 							});
 						}
 
 						const res = `import { jsx as h } from 'astro/jsx-runtime';
 						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, setupConfig, Markdoc } from '@astrojs/markdoc/runtime';
+						import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
 import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
 ${
 	markdocConfigResult
@@ -114,13 +131,13 @@ export function getHeadings() {
 		''
 	}
 	const headingConfig = userConfig.nodes?.heading;
-	const config = setupConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 export async function Content (props) {
-	const config = setupConfig({
+	const config = await setupConfig({
 		...userConfig,
 		variables: { ...userConfig.variables, ...props },
 	}, entry);

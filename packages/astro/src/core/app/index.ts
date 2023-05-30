@@ -33,8 +33,6 @@ export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
@@ -177,7 +175,12 @@ export class App {
 		if(route.type === 'redirect') {
 			return RedirectComponentInstance;
 		} else {
-			return  await this.#manifest.pageMap.get(route.component)!();
+			const importComponentInstance = this.#manifest.pageMap.get(route.component);
+			if(!importComponentInstance) {
+				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+			}
+			const built = await importComponentInstance();
+			return built.page();
 		}
 	}
 

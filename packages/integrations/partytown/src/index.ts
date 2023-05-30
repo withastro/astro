@@ -9,17 +9,15 @@ import { fileURLToPath } from 'url';
 import sirv from './sirv.js';
 const resolve = createRequire(import.meta.url).resolve;
 
-type PartytownOptions =
-	| {
-			config?: PartytownConfig;
-	  }
-	| undefined;
+type PartytownOptions = {
+	config?: PartytownConfig;
+};
 
 function appendForwardSlash(str: string) {
 	return str.endsWith('/') ? str : str + '/';
 }
 
-export default function createPlugin(options: PartytownOptions): AstroIntegration {
+export default function createPlugin(options?: PartytownOptions): AstroIntegration {
 	let config: AstroConfig;
 	let partytownSnippetHtml: string;
 	const partytownEntrypoint = resolve('@builder.io/partytown/package.json');
