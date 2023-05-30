@@ -38,8 +38,8 @@ importers:
   packages/language-server:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^1.4.2
+        version: 1.4.2
       '@jridgewell/trace-mapping':
         specifier: ^0.3.14
         version: 0.3.15
@@ -53,8 +53,8 @@ importers:
         specifier: ^2.8.8
         version: 2.8.8
       prettier-plugin-astro:
-        specifier: ^0.8.1
-        version: 0.8.1
+        specifier: ^0.9.1
+        version: 0.9.1
       vscode-css-languageservice:
         specifier: ^6.2.1
         version: 6.2.1
@@ -132,8 +132,8 @@ importers:
   packages/ts-plugin:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^1.4.2
+        version: 1.4.2
       '@jridgewell/trace-mapping':
         specifier: ^0.3.15
         version: 0.3.15
@@ -178,8 +178,8 @@ importers:
         specifier: ^2.8.8
         version: 2.8.8
       prettier-plugin-astro:
-        specifier: ^0.9.0
-        version: 0.9.0
+        specifier: ^0.9.1
+        version: 0.9.1
     devDependencies:
       '@astrojs/language-server':
         specifier: 1.0.5
@@ -262,8 +262,8 @@ packages:
     resolution: {integrity: sha512-1CCf+dktc8IQCdmsNNSIor3rcJE5OIirFnFtQWp1VUxqCacefqRRlsl9lH7JcKKpRvz1taL43yHYJP8dxNfVww==}
     dev: true
 
-  /@astrojs/compiler@1.4.1:
-    resolution: {integrity: sha512-aXAxapNWZwGN41P+Am/ma/2kAzKOhMNaY6YuvLkUHFv+UZkmDHD6F0fE1sQA2Up0bLjgPQa1VQzoAaii5tZWaA==}
+  /@astrojs/compiler@1.4.2:
+    resolution: {integrity: sha512-xoRp7JpiMZPK/beUcZEM5kM44Z/h20wwwQcl54duPqQMyySG9vZ5xMM6dYiQmn7b3XzpZs0cT6TRDoJJ5gwHAQ==}
     dev: false
 
   /@astrojs/language-server@0.28.3:
@@ -5370,21 +5370,11 @@ packages:
       synckit: 0.8.4
     dev: true
 
-  /prettier-plugin-astro@0.8.1:
-    resolution: {integrity: sha512-lJ/mG/Lz/ccSwNtwqpFS126mtMVzFVyYv0ddTF9wqwrEG4seECjKDAyw/oGv915rAcJi8jr89990nqfpmG+qdg==}
+  /prettier-plugin-astro@0.9.1:
+    resolution: {integrity: sha512-pYZXSbdq0eElvzoIMArzv1SBn1NUXzopjlcnt6Ql8VW32PjC12NovwBjXJ6rh8qQLi7vF8jNqAbraKW03UPfag==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.4.1
-      prettier: 2.8.8
-      sass-formatter: 0.7.5
-      synckit: 0.8.4
-    dev: false
-
-  /prettier-plugin-astro@0.9.0:
-    resolution: {integrity: sha512-LZ47EzCz0RvJBzC2GhtP5MI4ygEci/N5z73MMWAZFIOfSrn53sWCz0pN2HDwDGI7tvGg5Q5dnaX4EBrzkdb2Hg==}
-    engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
-    dependencies:
-      '@astrojs/compiler': 1.4.1
+      '@astrojs/compiler': 1.4.2
       prettier: 2.8.8
       sass-formatter: 0.7.5
       synckit: 0.8.4
