@@ -54,11 +54,10 @@ async function preloadAndSetPrerenderStatus({
 
 function prioritizePrerenderedMatchesComparator(a: RouteData, b: RouteData): number {
 	if (areRegexesEqual(a.pattern, b.pattern)) {
-		if (a.prerender && !b.prerender) {
-			return -1;
-		} else if (!a.prerender && b.prerender) {
-			return 1;
+		if (a.prerender !== b.prerender) {
+			return a.prerender ? -1 : 1;
 		}
+		return a.component < b.component ? -1 : 1;
 	}
 	return 0;
 }
