@@ -719,6 +719,36 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (imageFilePath: string) =>
 			`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
 	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
+	 */
+	AstroGlobUsedOutside: {
+		title: 'Astro.glob() used outside of an Astro file.',
+		code: 3035,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
+		hint: "See Vite's documentation on `import.meta.glob` for more information: https://vitejs.dev/guide/features.html#glob-import",
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
+	 */
+	AstroGlobNoMatch: {
+		title: 'Astro.glob() did not match any files.',
+		code: 3036,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
+	},
+
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
