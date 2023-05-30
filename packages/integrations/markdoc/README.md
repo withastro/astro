@@ -270,7 +270,7 @@ import Aside from './Aside';
 <Aside {...Astro.props} client:load />
 ```
 
-This component can be passed to the `render` prop for any [tag][markdoc-tags] or [node][markdoc-nodes] in your config:
+This Astro component can now be passed to the `render` prop for any [tag][markdoc-tags] or [node][markdoc-nodes] in your config:
 
 ```js
 // markdoc.config.mjs
