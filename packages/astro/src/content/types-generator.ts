@@ -425,11 +425,11 @@ async function writeContentFiles({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
 					message: AstroErrorData.ContentCollectionTypeMismatchError.message(
 						collectionKey,
-						collectionType,
+						collection.type,
 						collectionConfig.type
 					),
 					hint:
-						collectionType === 'data'
+						collection.type === 'data'
 							? "Try adding `type: 'data'` to your collection config."
 							: undefined,
 					location: { file: '' /** required for error overlay `ws` messages */ },
