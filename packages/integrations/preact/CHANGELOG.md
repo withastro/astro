@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 2.2.1
+
+### Patch Changes
+
+- [#7196](https://github.com/withastro/astro/pull/7196) [`1c77779dd`](https://github.com/withastro/astro/commit/1c77779dd66a6db77c81ed235da076a6118decde) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro-static-slot` hydration mismatch error
+
 ## 2.2.0
 
 ### Minor Changes

@@ -1270,8 +1270,9 @@ export interface ContentEntryType {
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
+			contents: string;
+			fileUrl: URL;
 			viteId: string;
-			entry: ContentEntryModule;
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
@@ -1697,7 +1698,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
-	 *   next();
+	 *   return next();
 	 * });
 	 * ```
 	 * Inside a `.astro` file:
