@@ -259,7 +259,7 @@ export default defineMarkdocConfig({
 
 Tags and nodes are restricted to Astro components today. To embed client-side UI components, create a wrapper `.astro` file to import your component and apply a `client:` directive manually.
 
-This example wraps a `Aside.tsx` component with a `ClientAside.astro` wrapper:
+This example wraps a React `Aside.tsx` component with a `ClientAside.astro` wrapper:
 
 ```astro
 ---
