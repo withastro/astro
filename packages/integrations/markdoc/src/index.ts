@@ -114,7 +114,6 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						} from 'astro/runtime/server/index.js';
 						import { Renderer } from '@astrojs/markdoc/components';
 						import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
-import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
 ${
 	markdocConfigResult
 		? `import _userConfig from ${JSON.stringify(
@@ -137,18 +136,18 @@ export function getHeadings() {
 		''
 	}
 	const headingConfig = userConfig.nodes?.heading;
-	const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {});
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 
 export const Content = createComponent({
-	factory(result, props) {
-		const config = setupConfig({
+	async factory(result, props) {
+		const config = await setupConfig({
 			...userConfig,
 			variables: { ...userConfig.variables, ...props },
-		}, entry);
+		});
 		
 		return renderComponent(
 			result,
