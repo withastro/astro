@@ -11,7 +11,7 @@ import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getContentEntryConfigByExtMap,
+	getEntryConfigByExtMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
@@ -74,7 +74,7 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
-	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 

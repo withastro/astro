@@ -4044,15 +4044,6 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/markdoc/test/fixtures/entry-prop:
-    dependencies:
-      '@astrojs/markdoc':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/markdoc/test/fixtures/headings:
     dependencies:
       '@astrojs/markdoc':
@@ -4112,6 +4103,15 @@ importers:
         version: 0.14.1
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/markdoc/test/fixtures/variables:
     dependencies:
       '@astrojs/markdoc':
         specifier: workspace:*
