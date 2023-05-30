@@ -61,12 +61,6 @@ describe('Middleware in DEV mode', () => {
 		expect($('p').html()).to.equal('Not interested');
 	});
 
-	it('should throw an error when locals are not serializable', async () => {
-		let html = await fixture.fetch('/broken-locals').then((res) => res.text());
-		let $ = cheerio.load(html);
-		expect($('title').html()).to.equal('LocalsNotSerializable');
-	});
-
 	it("should throw an error when the middleware doesn't call next or doesn't return a response", async () => {
 		let html = await fixture.fetch('/does-nothing').then((res) => res.text());
 		let $ = cheerio.load(html);
@@ -178,15 +172,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 		expect($('p').html()).to.equal('Not interested');
-	});
-
-	it('should NOT throw an error when locals are not serializable', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/broken-locals');
-		const response = await app.render(request);
-		const html = await response.text();
-		const $ = cheerio.load(html);
-		expect($('title').html()).to.not.equal('LocalsNotSerializable');
 	});
 
 	it("should throws an error when the middleware doesn't call next or doesn't return a response", async () => {

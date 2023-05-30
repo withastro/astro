@@ -227,7 +227,7 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
-	const isPrenderDefault = isHybridOutput(settings.config);
+	const isPrerenderDefault = isHybridOutput(settings.config);
 
 	const foundInvalidFileExtensions: Set<string> = new Set();
 
@@ -340,7 +340,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: isPrenderDefault,
+					prerender: isPrerenderDefault,
 				});
 			}
 		});
@@ -416,7 +416,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: isPrenderDefault,
+				prerender: isPrerenderDefault,
 			});
 		});
 
