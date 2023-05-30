@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.0.7
+
+### Patch Changes
+
+- c6cf1d7: Update Prettier plugin version
+
 ## 1.0.6
 
 ### Patch Changes

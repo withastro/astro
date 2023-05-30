@@ -172,7 +172,7 @@ importers:
   packages/vscode:
     dependencies:
       '@astrojs/ts-plugin':
-        specifier: 1.0.6
+        specifier: 1.0.7
         version: link:../ts-plugin
       prettier:
         specifier: ^2.8.8
@@ -182,7 +182,7 @@ importers:
         version: 0.9.1
     devDependencies:
       '@astrojs/language-server':
-        specifier: 1.0.5
+        specifier: 1.0.8
         version: link:../language-server
       '@types/mocha':
         specifier: ^9.1.0

@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 1.0.8
+
+### Patch Changes
+
+- c6cf1d7: Update Prettier plugin version
+- Updated dependencies [c6cf1d7]
+  - @astrojs/ts-plugin@1.0.7
+
 ## 1.0.7
 
 ### Patch Changes

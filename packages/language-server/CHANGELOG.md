@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 1.0.8
+
+### Patch Changes
+
+- c6cf1d7: Update Prettier plugin version
+
 ## 1.0.5
 
 ### Patch Changes
