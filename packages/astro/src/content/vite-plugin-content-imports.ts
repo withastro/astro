@@ -182,6 +182,140 @@ export const _internal = {
 	return plugins;
 }
 
+type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> = {
+	fs: typeof fsMod;
+	fileId: string;
+	contentDir: URL;
+	pluginContext: PluginContext;
+	entryConfigByExt: Map<string, TEntryType>;
+	config: AstroConfig;
+};
+
+async function getContentEntryModule(
+	params: GetEntryModuleParams<ContentEntryType>
+): Promise<ContentEntryModule> {
+	const { fileId, contentDir, pluginContext, config } = params;
+	const { collectionConfig, entryConfig, entry, rawContents, collection } =
+		await getEntryModuleBaseInfo(params);
+
+	const {
+		rawData,
+		data: unvalidatedData,
+		body,
+		slug: frontmatterSlug,
+	} = await entryConfig.getEntryInfo({
+		fileUrl: pathToFileURL(fileId),
+		contents: rawContents,
+	});
+	const _internal = { filePath: fileId, rawData };
+	const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
+
+	const slug = parseEntrySlug({
+		id,
+		collection,
+		generatedSlug,
+		frontmatterSlug,
+	});
+
+	const data = collectionConfig
+		? await getEntryData(
+				{ id, collection, _internal, unvalidatedData },
+				collectionConfig,
+				pluginContext,
+				config
+		  )
+		: unvalidatedData;
+
+	const contentEntryModule: ContentEntryModule = {
+		id,
+		slug,
+		collection,
+		data,
+		body,
+		_internal,
+	};
+
+	return contentEntryModule;
+}
+
+async function getDataEntryModule(
+	params: GetEntryModuleParams<DataEntryType>
+): Promise<DataEntryModule> {
+	const { fileId, contentDir, pluginContext, config } = params;
+	const { collectionConfig, entryConfig, entry, rawContents, collection } =
+		await getEntryModuleBaseInfo(params);
+
+	const { rawData = '', data: unvalidatedData } = await entryConfig.getEntryInfo({
+		fileUrl: pathToFileURL(fileId),
+		contents: rawContents,
+	});
+	const _internal = { filePath: fileId, rawData };
+	const id = getDataEntryId({ entry, contentDir, collection });
+
+	const data = collectionConfig
+		? await getEntryData(
+				{ id, collection, _internal, unvalidatedData },
+				collectionConfig,
+				pluginContext,
+				config
+		  )
+		: unvalidatedData;
+
+	const dataEntryModule: DataEntryModule = {
+		id,
+		collection,
+		data,
+		_internal,
+	};
+
+	return dataEntryModule;
+}
+
+// Shared logic for `getContentEntryModule` and `getDataEntryModule`
+// Extracting to a helper was easier that conditionals and generics :)
+async function getEntryModuleBaseInfo<TEntryType extends ContentEntryType | DataEntryType>({
+	fileId,
+	entryConfigByExt,
+	contentDir,
+	fs,
+}: GetEntryModuleParams<TEntryType>) {
+	const contentConfig = await getContentConfigFromGlobal();
+	let rawContents;
+	try {
+		rawContents = await fs.promises.readFile(fileId, 'utf-8');
+	} catch (e) {
+		throw new AstroError({
+			...AstroErrorData.UnknownContentCollectionError,
+			message: `Unexpected error reading entry ${JSON.stringify(fileId)}.`,
+			stack: e instanceof Error ? e.stack : undefined,
+		});
+	}
+	const fileExt = extname(fileId);
+	const entryConfig = entryConfigByExt.get(fileExt);
+
+	if (!entryConfig) {
+		throw new AstroError({
+			...AstroErrorData.UnknownContentCollectionError,
+			message: `No parser found for data entry ${JSON.stringify(
+				fileId
+			)}. Did you apply an integration for this file type?`,
+		});
+	}
+	const entry = pathToFileURL(fileId);
+	const collection = getEntryCollectionName({ entry, contentDir });
+	if (collection === undefined) throw new AstroError(AstroErrorData.UnknownContentCollectionError);
+
+	const collectionConfig = contentConfig?.collections[collection];
+
+	return {
+		collectionConfig,
+		entry,
+		entryConfig,
+		collection,
+		rawContents,
+	};
+}
+
 async function getContentConfigFromGlobal() {
 	const observable = globalContentConfigObserver.get();
 
@@ -217,135 +351,4 @@ async function getContentConfigFromGlobal() {
 	}
 
 	return contentConfig;
-}
-
-type GetEntryModuleParams<TEntryType = ContentEntryType> = {
-	fs: typeof fsMod;
-	fileId: string;
-	contentDir: URL;
-	pluginContext: PluginContext;
-	entryConfigByExt: Map<string, TEntryType>;
-	config: AstroConfig;
-};
-
-async function getContentEntryModule({
-	fileId,
-	pluginContext,
-	fs,
-	config,
-	contentDir,
-	entryConfigByExt,
-}: GetEntryModuleParams): Promise<ContentEntryModule> {
-	const contentConfig = await getContentConfigFromGlobal();
-	const rawContents = await fs.promises.readFile(fileId, 'utf-8');
-	const fileExt = extname(fileId);
-	if (!entryConfigByExt.has(fileExt)) {
-		throw new AstroError({
-			...AstroErrorData.UnknownContentCollectionError,
-			message: `No parser found for content entry ${JSON.stringify(
-				fileId
-			)}. Did you apply an integration for this file type?`,
-		});
-	}
-	const contentEntryConfig = entryConfigByExt.get(fileExt)!;
-	const {
-		rawData,
-		body,
-		slug: frontmatterSlug,
-		data: unvalidatedData,
-	} = await contentEntryConfig.getEntryInfo({
-		fileUrl: pathToFileURL(fileId),
-		contents: rawContents,
-	});
-	const entry = pathToFileURL(fileId);
-	const collection = getEntryCollectionName({ entry, contentDir });
-	if (collection === undefined) throw new AstroError(AstroErrorData.UnknownContentCollectionError);
-
-	const { id, slug: generatedSlug } = getContentEntryIdAndSlug({ entry, contentDir, collection });
-
-	const _internal = { filePath: fileId, rawData: rawData };
-	// TODO: move slug calculation to the start of the build
-	// to generate a performant lookup map for `getEntryBySlug`
-	const slug = parseEntrySlug({
-		id,
-		collection,
-		generatedSlug,
-		frontmatterSlug,
-	});
-
-	const collectionConfig = contentConfig?.collections[collection];
-	let data = collectionConfig
-		? await getEntryData(
-				{ id, collection, _internal, unvalidatedData },
-				collectionConfig,
-				pluginContext,
-				config
-		  )
-		: unvalidatedData;
-
-	const contentEntryModule: ContentEntryModule = {
-		id,
-		slug,
-		collection,
-		data,
-		body,
-		_internal,
-	};
-
-	return contentEntryModule;
-}
-
-async function getDataEntryModule({
-	fileId,
-	entryConfigByExt,
-	contentDir,
-	fs,
-	pluginContext,
-	config,
-}: GetEntryModuleParams<DataEntryType>): Promise<DataEntryModule> {
-	const contentConfig = await getContentConfigFromGlobal();
-	let rawContents;
-	try {
-		rawContents = await fs.promises.readFile(fileId, 'utf-8');
-	} catch (e) {
-		throw new AstroError({
-			...AstroErrorData.UnknownContentCollectionError,
-			message: `Unexpected error reading entry ${JSON.stringify(fileId)}.`,
-			stack: e instanceof Error ? e.stack : undefined,
-		});
-	}
-	const fileExt = extname(fileId);
-	const dataEntryConfig = entryConfigByExt.get(fileExt);
-
-	if (!dataEntryConfig) {
-		throw new AstroError({
-			...AstroErrorData.UnknownContentCollectionError,
-			message: `No parser found for data entry ${JSON.stringify(
-				fileId
-			)}. Did you apply an integration for this file type?`,
-		});
-	}
-	const { data: unvalidatedData, rawData = '' } = await dataEntryConfig.getEntryInfo({
-		fileUrl: pathToFileURL(fileId),
-		contents: rawContents,
-	});
-	const entry = pathToFileURL(fileId);
-	const collection = getEntryCollectionName({ entry, contentDir });
-	if (collection === undefined) throw new AstroError(AstroErrorData.UnknownContentCollectionError);
-
-	const id = getDataEntryId({ entry, contentDir, collection });
-
-	const _internal = { filePath: fileId, rawData };
-
-	const collectionConfig = contentConfig?.collections[collection];
-	const data = collectionConfig
-		? await getEntryData(
-				{ id, collection, _internal, unvalidatedData },
-				collectionConfig,
-				pluginContext,
-				config
-		  )
-		: unvalidatedData;
-
-	return { id, collection, data, _internal };
 }
