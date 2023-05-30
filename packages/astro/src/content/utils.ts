@@ -10,6 +10,7 @@ import type {
 	AstroConfig,
 	AstroSettings,
 	ContentEntryType,
+	DataEntryType,
 	ImageInputFormat,
 } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
@@ -175,6 +176,16 @@ export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>
 export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
 	const map: Map<string, ContentEntryType> = new Map();
 	for (const entryType of settings.contentEntryTypes) {
+		for (const ext of entryType.extensions) {
+			map.set(ext, entryType);
+		}
+	}
+	return map;
+}
+// TODO: refactor to one helper
+export function getDataEntryConfigByExtMap(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
+	const map: Map<string, DataEntryType> = new Map();
+	for (const entryType of settings.dataEntryTypes) {
 		for (const ext of entryType.extensions) {
 			map.set(ext, entryType);
 		}
