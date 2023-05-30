@@ -13,9 +13,9 @@ type Props = {
  * As a bonus, we can signal to Preact that this subtree is
  * entirely static and will never change via `shouldComponentUpdate`.
  */
-const StaticHtml = ({ value, name, hydrate }: Props) => {
+const StaticHtml = ({ value, name, hydrate = true }: Props) => {
 	if (!value) return null;
-	const tagName = hydrate === false ? 'astro-static-slot' : 'astro-slot';
+	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
 	return h(tagName, { name, dangerouslySetInnerHTML: { __html: value } });
 };
 

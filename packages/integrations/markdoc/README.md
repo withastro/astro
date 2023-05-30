@@ -203,6 +203,54 @@ export default defineMarkdocConfig({
 })
 ```
 
+### Syntax highlighting
+
+`@astrojs/markdoc` provides [Shiki](https://github.com/shikijs/shiki) and [Prism](https://github.com/PrismJS) extensions to highlight your code blocks.
+
+#### Shiki
+
+Apply the `shiki()` extension to your Markdoc config using the `extends` property. You can optionally pass a shiki configuration object:
+
+```js
+// markdoc.config.mjs
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import shiki from '@astrojs/markdoc/shiki';
+
+export default defineMarkdocConfig({
+  extends: [
+    shiki({
+      // Choose from Shiki's built-in themes (or add your own)
+      // Default: 'github-dark'
+      // https://github.com/shikijs/shiki/blob/main/docs/themes.md
+      theme: 'dracula',
+      // Enable word wrap to prevent horizontal scrolling
+      // Default: false
+      wrap: true,
+      // Pass custom languages
+      // Note: Shiki has countless langs built-in, including `.astro`!
+      // https://github.com/shikijs/shiki/blob/main/docs/languages.md
+      langs: [],
+    })
+  ],
+})
+```
+
+#### Prism
+
+Apply the `prism()` extension to your Markdoc config using the `extends` property.
+
+```js
+// markdoc.config.mjs
+import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import prism from '@astrojs/markdoc/prism';
+
+export default defineMarkdocConfig({
+  extends: [prism()],
+})
+```
+
+📚 To learn about configuring Prism stylesheets, [see our syntax highlighting guide.](https://docs.astro.build/en/guides/markdown-content/#prism-configuration)
+
 ### Access frontmatter and content collection information from your templates
 
 You can access content collection information from your Markdoc templates using the `$entry` variable. This includes the entry `slug`, `collection` name, and frontmatter `data` parsed by your content collection schema (if any). This example renders the `title` frontmatter property as a heading:
