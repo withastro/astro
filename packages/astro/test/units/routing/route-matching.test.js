@@ -33,7 +33,21 @@ const fileSystem = {
 		}
 		---
 		<p>Prerendered dynamic route!</p>
-`,
+		`,
+	'/src/pages/[aStaticDynamic].astro': `
+			---
+			export function getStaticPaths() {
+				return [
+					{
+						params: {
+							aStaticDynamic: "another-static-dynamic-route-here",
+						},
+					},
+				];
+			}
+			---
+			<p>Another prerendered dynamic route!</p>
+	`,
 	'/src/pages/[...serverRest].astro': `
 	---
 	export const prerender = false;
@@ -53,6 +67,20 @@ const fileSystem = {
 		}
 		---
 		<p>Prerendered rest route!</p>
+`,
+	'/src/pages/[...aStaticRest].astro': `
+		---
+		export function getStaticPaths() {
+			return [
+				{
+					params: {
+						aStaticRest: "another-static-rest-route-here",
+					},
+				},
+			];
+		}
+		---
+		<p>Another prerendered rest route!</p>
 `,
 
 	'/src/pages/nested/[...serverRest].astro': `
@@ -74,6 +102,20 @@ const fileSystem = {
 		}
 		---
 		<p>Nested prerendered rest route!</p>
+`,
+	'/src/pages/nested/[...aStaticRest].astro': `
+		---
+		export function getStaticPaths() {
+			return [
+				{
+					params: {
+						aStaticRest: "another-nested-static-dynamic-rest-route-here",
+					},
+				},
+			];
+		}
+		---
+		<p>Another nested prerendered rest route!</p>
 `,
 };
 
@@ -116,72 +158,125 @@ describe('Route matching', () => {
 		await container.close();
 	});
 
-	it('should sort matched routes correctly', async () => {
-		const matches = matchAllRoutes('/static-dynamic-route-here', manifest);
-		const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
-		const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
+	describe('Matched routes', () => {
+		it('should be sorted correctly', async () => {
+			const matches = matchAllRoutes('/try-matching-a-route', manifest);
+			const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
+			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
-		expect(sortedRouteNames).to.deep.equal([
-			'/[xstaticdynamic]',
-			'/[serverdynamic]',
-			'/[...xstaticrest]',
-			'/[...serverrest]',
-		]);
+			expect(sortedRouteNames).to.deep.equal([
+				'/[astaticdynamic]',
+				'/[xstaticdynamic]',
+				'/[serverdynamic]',
+				'/[...astaticrest]',
+				'/[...xstaticrest]',
+				'/[...serverrest]',
+			]);
+		});
+		it('nested should be sorted correctly', async () => {
+			const matches = matchAllRoutes('/nested/try-matching-a-route', manifest);
+			const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
+			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
+
+			expect(sortedRouteNames).to.deep.equal([
+				'/nested/[...astaticrest]',
+				'/nested/[...xstaticrest]',
+				'/nested/[...serverrest]',
+				'/[...astaticrest]',
+				'/[...xstaticrest]',
+				'/[...serverrest]',
+			]);
+		});
 	});
 
-	it('should correctly match a static dynamic route', async () => {
-		const { req, res, text } = createRequestAndResponse({
-			method: 'GET',
-			url: '/static-dynamic-route-here',
+	describe('Request', () => {
+		it('should correctly match a static dynamic route I', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/static-dynamic-route-here',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Prerendered dynamic route!');
 		});
-		container.handle(req, res);
-		const html = await text();
-		const $ = cheerio.load(html);
-		expect($('p').text()).to.equal('Prerendered dynamic route!');
-	});
 
-	it('should correctly match a server dynamic route', async () => {
-		const { req, res, text } = createRequestAndResponse({
-			method: 'GET',
-			url: '/a-random-slug-was-matched',
+		it('should correctly match a static dynamic route II', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/another-static-dynamic-route-here',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Another prerendered dynamic route!');
 		});
-		container.handle(req, res);
-		const html = await text();
-		const $ = cheerio.load(html);
-		expect($('p').text()).to.equal('Server dynamic route! slug:a-random-slug-was-matched');
-	});
 
-	it('should correctly match a static rest route', async () => {
-		const { req, res, text } = createRequestAndResponse({
-			method: 'GET',
-			url: '',
+		it('should correctly match a server dynamic route', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/a-random-slug-was-matched',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Server dynamic route! slug:a-random-slug-was-matched');
 		});
-		container.handle(req, res);
-		const html = await text();
-		const $ = cheerio.load(html);
-		expect($('p').text()).to.equal('Prerendered rest route!');
-	});
 
-	it('should correctly match a nested static rest route', async () => {
-		const { req, res, text } = createRequestAndResponse({
-			method: 'GET',
-			url: '/nested',
+		it('should correctly match a static rest route I', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Prerendered rest route!');
 		});
-		container.handle(req, res);
-		const html = await text();
-		const $ = cheerio.load(html);
-		expect($('p').text()).to.equal('Nested prerendered rest route!');
-	});
 
-	it('should correctly match a nested server rest route', async () => {
-		const { req, res, text } = createRequestAndResponse({
-			method: 'GET',
-			url: '/nested/a-random-slug-was-matched',
+		it('should correctly match a static rest route II', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/another-static-rest-route-here',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Another prerendered rest route!');
 		});
-		container.handle(req, res);
 
-		const html = await text();
-		const $ = cheerio.load(html);
-		expect($('p').text()).to.equal('Nested server rest route! slug: a-random-slug-was-matched');
+		it('should correctly match a nested static rest route index', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/nested',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Nested prerendered rest route!');
+		});
+
+		it('should correctly match a nested static rest route', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/nested/another-nested-static-dynamic-rest-route-here',
+			});
+			container.handle(req, res);
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Another nested prerendered rest route!');
+		});
+
+		it('should correctly match a nested server rest route', async () => {
+			const { req, res, text } = createRequestAndResponse({
+				method: 'GET',
+				url: '/nested/a-random-slug-was-matched',
+			});
+			container.handle(req, res);
+
+			const html = await text();
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('Nested server rest route! slug: a-random-slug-was-matched');
+		});
 	});
 });
