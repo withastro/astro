@@ -133,6 +133,9 @@ describe('Route matching', () => {
 			userConfig: {
 				trailingSlash: 'never',
 				output: 'hybrid',
+				experimental: {
+					hybridOutput: true,
+				},
 				adapter: testAdapter(),
 			},
 			disableTelemetry: true,

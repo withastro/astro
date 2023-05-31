@@ -144,6 +144,9 @@ describe('Prerender', () => {
 					adapter: testAdapter(),
 					base: '/blog',
 					output: 'hybrid',
+					experimental: {
+						hybridOutput: true,
+					},
 					vite: {
 						plugins: [vitePluginRemovePrerenderExport()],
 					},

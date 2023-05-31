@@ -3,7 +3,7 @@ import { basename, join } from 'node:path/posix';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { warn } from '../core/logger/core.js';
 import { prependForwardSlash } from '../core/path.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isHybridOutput } from '../prerender/utils.js';
 import { getConfiguredImageService, isESMImportedImage } from './internal.js';
 import type { LocalImageService } from './services/service.js';
 import type { ImageTransform } from './types.js';
@@ -47,7 +47,7 @@ export async function generateImage(
 	}
 
 	let serverRoot: URL, clientRoot: URL;
-	if (isServerLikeOutput(buildOpts.settings.config)) {
+	if (buildOpts.settings.config.output === 'server' || isHybridOutput(buildOpts.settings.config)) {
 		serverRoot = buildOpts.settings.config.build.server;
 		clientRoot = buildOpts.settings.config.build.client;
 	} else {

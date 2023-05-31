@@ -3,7 +3,7 @@ import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
-import { isServerLikeOutput } from './utils/prerender.js';
+import { isHybridOutput } from './utils/prerender.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
@@ -85,7 +85,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					vite: getViteConfiguration(command === 'dev'),
 				});
 
-				if (command === 'dev' || isServerLikeOutput(config)) {
+				if (command === 'dev' || config.output === 'server' || isHybridOutput(config)) {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
 						entryPoint: '@astrojs/image/endpoint',

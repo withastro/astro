@@ -38,6 +38,9 @@ describe('Hybrid rendering', () => {
 		fixture = await loadFixture({
 			root: './fixtures/prerender/',
 			output: 'hybrid',
+			experimental: {
+				hybridOutput: true,
+			},
 		});
 		await fixture.build();
 	});
