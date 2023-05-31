@@ -457,13 +457,17 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name redirects
+	 * @name redirects (Experimental)
 	 * @type {RedirectConfig}
 	 * @default `{}`
 	 * @version 2.6.0
 	 * @description Specify a mapping of redirects where the key is the route to match
-	 * and the value is the path to redirect to. Either of these can also be a dynamic route
+	 * and the value is the path to redirect to. These can also be dynamic routes,
 	 * following the same convention as in file-based routes.
+	 * 
+	 * > *Note*: If using dynamic routes, both *sides* of the declaration must
+	 * have the same syntax. For example you cannot have a `'/article': '/blog/[...slug]'` redirect.
+	 * 
 	 * 
 	 * ```js
 	 * {
