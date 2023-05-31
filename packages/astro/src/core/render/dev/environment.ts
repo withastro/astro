@@ -1,5 +1,5 @@
 import type { AstroSettings, RuntimeMode } from '../../../@types/astro';
-import { isServerLikeOutput } from '../../../prerender/utils.js';
+import { isHybridOutput } from '../../../prerender/utils.js';
 import type { LogOptions } from '../../logger/core.js';
 import type { ModuleLoader } from '../../module-loader/index';
 import type { Environment } from '../index';
@@ -30,7 +30,7 @@ export function createDevelopmentEnvironment(
 		resolve: createResolve(loader, settings.config.root),
 		routeCache: new RouteCache(logging, mode),
 		site: settings.config.site,
-		ssr: isServerLikeOutput(settings.config),
+		ssr: settings.config.output === 'server' || isHybridOutput(settings.config),
 		streaming: true,
 		telemetry: Boolean(settings.forceDisableTelemetry),
 	});

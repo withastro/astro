@@ -27,6 +27,9 @@ describe('Serverless hybrid rendering', () => {
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
 			output: 'hybrid',
+			experimental: {
+				hybridOutput: true,
+			},
 		});
 	});
 

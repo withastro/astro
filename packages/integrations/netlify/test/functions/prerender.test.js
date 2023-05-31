@@ -46,6 +46,9 @@ describe('Mixed Hybrid rendering with SSR', () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/prerender/', import.meta.url).toString(),
 			output: 'hybrid',
+			experimental: {
+				hybridOutput: true,
+			},
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/prerender/dist/', import.meta.url),
 			}),

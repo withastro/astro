@@ -39,6 +39,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	legacy: {},
 	experimental: {
 		assets: false,
+		hybridOutput: false,
 		customClientDirectives: false,
 		inlineStylesheets: 'never',
 		middleware: false,
@@ -207,6 +208,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
 			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
+			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 		})
 		.passthrough()
 		.refine(

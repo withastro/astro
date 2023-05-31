@@ -18,7 +18,7 @@ import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
+import { isHybridOutput } from '../prerender/utils.js';
 import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -339,7 +339,8 @@ export async function runHookBuildGenerated({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
+	const dir =
+		config.output === 'server' || isHybridOutput(config) ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
@@ -365,7 +366,8 @@ export async function runHookBuildDone({
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
-	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
+	const dir =
+		config.output === 'server' || isHybridOutput(config) ? buildConfig.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {

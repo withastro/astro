@@ -8,7 +8,7 @@ import {
 } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
 import { emptyDir, getVercelOutput, writeJson } from '../lib/fs.js';
-import { isServerLikeOutput } from '../lib/prerender.js';
+import { isHybridOutput } from '../lib/prerender.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/static';
@@ -55,7 +55,7 @@ export default function vercelStatic({
 				setAdapter(getAdapter());
 				_config = config;
 
-				if (isServerLikeOutput(config)) {
+				if (config.output === 'server' || isHybridOutput(config)) {
 					throw new Error(`${PACKAGE_NAME} should be used with output: 'static'`);
 				}
 			},
