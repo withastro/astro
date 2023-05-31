@@ -213,7 +213,7 @@ async function generatePage(
 	}
 
 	let timeStart = performance.now();
-	const renderers = ssrEntry?.renderers;
+	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
@@ -225,8 +225,8 @@ async function generatePage(
 		.map(({ sheet }) => sheet)
 		.reduce(mergeInlineCss, []);
 
-	let pageModulePromise = ssrEntry?.page;
-	const middleware = ssrEntry?.middleware;
+	const pageModulePromise = ssrEntry.page;
+	const middleware = ssrEntry.middleware;
 
 	if (!pageModulePromise) {
 		throw new Error(
