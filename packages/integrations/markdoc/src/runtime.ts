@@ -32,13 +32,9 @@ export async function setupConfig(
 
 /** Used for synchronous `getHeadings()` function */
 export function setupConfigSync(
-	userConfig: AstroMarkdocConfig,
-	entry: ContentEntryModule
+	userConfig: AstroMarkdocConfig
 ): Omit<AstroMarkdocConfig, 'extends'> {
-	let defaultConfig: AstroMarkdocConfig = {
-		...setupHeadingConfig(),
-		variables: { entry },
-	};
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	return mergeConfig(defaultConfig, userConfig);
 }

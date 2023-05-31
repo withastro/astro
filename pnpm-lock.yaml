@@ -4071,6 +4071,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/propagated-assets:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/markdoc/test/fixtures/render-null:
     dependencies:
       '@astrojs/markdoc':
