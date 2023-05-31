@@ -1,10 +1,11 @@
 name: Check mergeability
 
-on: pull_request # run on pull request events
+on: pull_request
 
 permissions:
-  # grant write permission on the pull-requests endpoint
   pull-requests: write
+  checks: write
+  statuses: write
 
 jobs:
   check:
@@ -14,14 +15,15 @@ jobs:
         id: set-blocks
         uses: actions/github-script@v6
         env:
-          issue_number: context.issue.number
+          issue_number:  ${{ github.event.number }}
         with:
           script: |
-            const reviews = await github.rest.pulls.listReviewComments({
+            const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: process.env.issue_number,
             });
+            console.log(reviews);
             for (const review of reviews) {
               if (review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
                 return 'block';
