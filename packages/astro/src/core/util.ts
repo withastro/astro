@@ -139,9 +139,7 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
-	return (
-		isServerLikeOutput(settings.config) && !settings.adapter
-	);
+	return isServerLikeOutput(settings.config) && !settings.adapter;
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
