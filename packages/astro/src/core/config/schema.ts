@@ -44,6 +44,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		assets: false,
 		hybridOutput: false,
 		redirects: false,
+		customClientDirectives: false,
+		inlineStylesheets: 'never',
+		middleware: false,
 	},
 };
 
@@ -208,6 +211,15 @@ export const AstroConfigSchema = z.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
 			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirects),
+			customClientDirectives: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.customClientDirecives),
+			inlineStylesheets: z
+				.enum(['always', 'auto', 'never'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
+			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 		})
 		.passthrough()
 		.refine(

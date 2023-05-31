@@ -17,7 +17,7 @@ import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
-import { isHybridOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
@@ -59,7 +59,7 @@ export async function matchRoute(
 			routeCache,
 			pathname: pathname,
 			logging,
-			ssr: settings.config.output === 'server' || isHybridOutput(settings.config),
+			ssr: isServerLikeOutput(settings.config),
 		});
 
 		if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
@@ -142,7 +142,7 @@ export async function handleRoute(
 	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { route, preloadedComponent, mod } = matchedRoute;
-	const buildingToSSR = config.output === 'server' || isHybridOutput(config);
+	const buildingToSSR = isServerLikeOutput(config);
 
 	// Headers are only available when using SSR.
 	const request = createRequest({
@@ -168,7 +168,7 @@ export async function handleRoute(
 		routeCache: env.routeCache,
 		pathname: pathname,
 		logging,
-		ssr: config.output === 'server' || isHybridOutput(config),
+		ssr: isServerLikeOutput(config),
 	});
 
 	const options: SSROptions = {

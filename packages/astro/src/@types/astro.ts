@@ -1168,7 +1168,29 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.hybridOutput
+		 * @name experimental.inlineStylesheets
+		 * @type {('always' | 'auto' | 'never')}
+		 * @default `never`
+		 * @version 2.4.0
+		 * @description
+		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
+		 *  - `'always'` - all styles are inlined into `<style>` tags
+		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
+		 *  - `'never'` - all styles are sent in external stylesheets
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		inlineStylesheets: `auto`,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name experimental.customClientDirectives
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 2.5.0
