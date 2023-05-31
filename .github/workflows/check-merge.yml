@@ -13,15 +13,17 @@ jobs:
       - name: Check if there is already a block on this PR
         id: set-blocks
         uses: actions/github-script@v6
+        env:
+          issue_number: context.issue.number
         with:
           script: |
-            const url = 'https://api.github.com/repos/' + context.repo.owner + '/' + context.repo.repo + '/pulls/' + context.issue.number + '/reviews';
-            console.log('reviews URL', url);
-            const result = await github.request(url);
-            console.log(result);
-            const reviews = result.data;
-            for(const review of reviews) {
-              if(review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
+            const reviews = await github.rest.pulls.listReviewComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: process.env.issue_number,
+            });
+            for (const review of reviews) {
+              if (review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
                 return 'block';
               }
             }
@@ -54,25 +56,7 @@ jobs:
             fi
           done
 
-      - name: Find Comment
-        uses: peter-evans/find-comment@v2
-        id: fc
-        with:
-          issue-number: ${{ github.event.number }}
-          comment-author: 'github-actions[bot]'
-
-      - name: Send PR review
-        if: steps.find-blockers.outputs.found == 'true'
-        uses: peter-evans/create-or-update-comment@v3
-        continue-on-error: true
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.number }}
-          body: |
-            This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.
-          edit-mode: replace
-      
-      - name: Change PR Status
+      - name: Add label
         uses: actions/github-script@v6
         if: steps.find-blockers.outputs.found == 'true'
         env:
@@ -86,11 +70,18 @@ jobs:
               labels: ['semver minor']
             });
 
-            github.rest.pulls.submitReview({
+      - name: Change PR Status
+        uses: actions/github-script@v6
+        if: steps.find-blockers.outputs.found == 'true'
+        env:
+          issue_number: ${{ github.event.number }}
+        with:
+          script: |
+            github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: process.env.issue_number,
               event: 'REQUEST_CHANGES',
-              body: ''
+              body: 'This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.'
             });
 
