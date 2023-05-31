@@ -13,7 +13,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { isHybridOutput } from '../../../prerender/utils.js';
+import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
@@ -228,7 +228,7 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
-	const isPrerenderDefault = isHybridOutput(settings.config);
+	const prerender = getPrerenderDefault(settings.config);
 
 	const foundInvalidFileExtensions: Set<string> = new Set();
 
@@ -341,7 +341,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: isPrerenderDefault,
+					prerender,
 				});
 			}
 		});
@@ -417,7 +417,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: isPrerenderDefault,
+				prerender,
 			});
 		});
 
