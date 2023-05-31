@@ -5,8 +5,7 @@ on: pull_request # run on pull request events
 permissions:
   # grant write permission on the pull-requests endpoint
   pull-requests: write
-  checks: write
-  statuses: write
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -76,10 +75,12 @@ jobs:
       - name: Change PR Status
         uses: actions/github-script@v6
         if: steps.find-blockers.outputs.found == 'true'
+        env:
+          issue_number: ${{ github.event.number }}
         with:
           script: |
             github.rest.issues.addLabels({
-              issue_number: context.event.number,
+              issue_number: process.env.issue_number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: ['semver minor']
@@ -88,7 +89,7 @@ jobs:
             github.rest.pulls.submitReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.event.number,
+              pull_number: process.env.issue_number,
               event: 'REQUEST_CHANGES',
               body: ''
             });
