@@ -1141,44 +1141,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		middleware?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.hybridOutput
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.5.0
-		 * @description
-		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
-		 *
-		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
-		 *
-		 * ```js
-		 * {
-		 *  output: 'hybrid',
-		 * 	experimental: {
-		 *		hybridOutput: true,
-		 * 	},
-		 * }
-		 * ```
-		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
-		 * ```astro
-		 * ---
-		 * // pages/contact.astro
-		 * export const prerender = false
-		 *
-		 * if (Astro.request.method === 'POST') {
-		 *  // handle form submission
-		 * }
-		 * ---
-		 * <form method="POST">
-		 * 	<input type="text" name="name" />
-		 * 	<input type="email" name="email" />
-		 * 	<button type="submit">Submit</button>
-		 * </form>
-		 * ```
-		 */
-		hybridOutput?: boolean;
 	};
 
 	// Legacy options to be removed

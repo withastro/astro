@@ -31,7 +31,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
-import { isHybridOutput } from '../../prerender/utils.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
@@ -94,7 +94,7 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config); // hybrid mode is essentially SSR with prerender by default
+	const ssr = isServerLikeOutput(opts.settings.config);
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
@@ -237,7 +237,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config),
+			ssr: isServerLikeOutput(opts.settings.config),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -413,7 +413,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
+	const ssr = isServerLikeOutput(settings.config);
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,

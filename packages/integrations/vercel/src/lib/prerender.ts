@@ -1,5 +1,5 @@
 import type { AstroConfig } from 'astro';
 
-export function isHybridOutput(config: AstroConfig) {
-	return config.experimental.hybridOutput && config.output === 'hybrid';
+export function isServerLikeOutput(config: AstroConfig) {
+	return config.output === 'server' || config.output === 'hybrid';
 }
