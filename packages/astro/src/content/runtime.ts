@@ -1,6 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { string as zodString, ZodIssueCode } from 'zod';
-import { AstroInstance } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
