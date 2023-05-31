@@ -209,7 +209,6 @@ export const Content = createComponent({
 								// When a given Markdoc file actually uses that component.
 								// Add the `astroPropagatedAssets` flag to inject only when rendered.
 								resolveId(this: rollup.TransformPluginContext, id: string, importer: string) {
-									console.log("IS", markdocConfigResultId, importer)
 									if (importer === markdocConfigResultId && id.endsWith('.astro')) {
 										return this.resolve(id + '?astroPropagatedAssets', importer, {
 											skipSelf: true,
