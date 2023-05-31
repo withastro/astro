@@ -1228,7 +1228,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.redirectgs
+		 * @name experimental.redirects
 		 * @type {boolean}
 		 * @default `false`
 		 * @version 2.6.0
