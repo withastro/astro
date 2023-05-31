@@ -462,16 +462,38 @@ export interface AstroUserConfig {
 	 * @default `{}`
 	 * @version 2.6.0
 	 * @description Specify a mapping of redirects where the key is the route to match
-	 * and the value is the path to redirect to. Either of these an also be a dynamic route
+	 * and the value is the path to redirect to. Either of these can also be a dynamic route
 	 * following the same convention as in file-based routes.
 	 * 
 	 * ```js
 	 * {
 	 *   redirects: {
-	 *     '/old': '/new'
+	 *     '/old': '/new',
+	 *     '/blog/[...slug]': '/articles/[...slug]',
 	 *   }
 	 * }
 	 * ```
+	 *
+	 * Astro will serve redirected GET requests with a status of `301`
+	 * and use a status of `308` for any other request method.
+	 * You can customize the status code using an object in the redirect config:
+	 * 
+	 * ```js
+	 * {
+	 *   redirects: {
+	 *     '/other': {
+	 *       status: 302,
+	 *       destination: '/place',
+	 *     },
+	 *   }
+	 * }
+	 * ```
+	 *
+	 * Status codes are only set when using SSR or with a static adapter that
+	 * supports it (Netlify, Cloudflare, and Vercel).
+	 * Elsewhere, builds will fall back to a client redirect using a
+	 * [`<meta http-equiv="refresh">` tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv)
+	 * and do not support status codes.
 	 */
 	redirects?: RedirectConfig;
 
