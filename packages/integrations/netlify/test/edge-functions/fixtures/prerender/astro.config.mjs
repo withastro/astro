@@ -6,6 +6,13 @@ const isHybridMode = process.env.PRERENDER === "false";
 /** @type {import('astro').AstroConfig} */
 const partialConfig = {
   output: isHybridMode ? "hybrid" : "server",
+  ...(isHybridMode
+    ? ({
+      experimental: {
+        hybridOutput: true,
+      },
+    })
+    : ({})),
 };
 
 export default defineConfig({
