@@ -20,6 +20,7 @@ import path from 'node:path';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
+import { normalizePath } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -37,6 +38,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		process.exit(0);
 	}
 	let markdocConfigResult: MarkdocConfigResult | undefined;
+	let markdocConfigResultId = '';
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
@@ -48,6 +50,9 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				} = params as SetupHookParams;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
+				if(markdocConfigResult) {
+					markdocConfigResultId = normalizePath(fileURLToPath(markdocConfigResult.fileUrl));
+				}
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
@@ -117,7 +122,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 ${
 	markdocConfigResult
 		? `import _userConfig from ${JSON.stringify(
-				markdocConfigResult.fileUrl.pathname
+			markdocConfigResultId
 		  )};\nconst userConfig = _userConfig ?? {};`
 		: 'const userConfig = {};'
 }${
@@ -177,7 +182,7 @@ export const Content = createComponent({
 								if (
 									markdocConfigResult &&
 									hasContentFlag(id, PROPAGATED_ASSET_FLAG) &&
-									getModuleInfo(id)?.importers?.includes(markdocConfigResult.fileUrl.pathname)
+									getModuleInfo(id)?.importers?.includes(markdocConfigResultId)
 								) {
 									return createNameHash(id, [id]);
 								}
@@ -204,7 +209,8 @@ export const Content = createComponent({
 								// When a given Markdoc file actually uses that component.
 								// Add the `astroPropagatedAssets` flag to inject only when rendered.
 								resolveId(this: rollup.TransformPluginContext, id: string, importer: string) {
-									if (importer === markdocConfigResult?.fileUrl.pathname && id.endsWith('.astro')) {
+									console.log("IS", markdocConfigResultId, importer)
+									if (importer === markdocConfigResultId && id.endsWith('.astro')) {
 										return this.resolve(id + '?astroPropagatedAssets', importer, {
 											skipSelf: true,
 										});
@@ -217,7 +223,7 @@ export const Content = createComponent({
 			},
 			'astro:server:setup': async ({ server }) => {
 				server.watcher.on('all', (event, entry) => {
-					if (pathToFileURL(entry).pathname === markdocConfigResult?.fileUrl.pathname) {
+					if (prependForwardSlash(pathToFileURL(entry).pathname) === markdocConfigResultId) {
 						console.log(
 							yellow(
 								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
