@@ -15,6 +15,9 @@ describe('Astro.redirect', () => {
 				redirects: {
 					'/api/redirect': '/'
 				},
+				experimental: {
+					redirects: true,
+				},
 			});
 			await fixture.build();
 		});
@@ -68,7 +71,8 @@ describe('Astro.redirect', () => {
 				root: './fixtures/ssr-redirect/',
 				output: 'static',
 				experimental: {
-					middleware: true
+					middleware: true,
+					redirects: true,
 				},
 				redirects: {
 					'/one': '/',
@@ -131,7 +135,10 @@ describe('Astro.redirect', () => {
 				},
 				build: {
 					redirects: false
-				}
+				},
+				experimental: {
+					redirects: true,
+				},
 			});
 			await fixture.build();
 		});

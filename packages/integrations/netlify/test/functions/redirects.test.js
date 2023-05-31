@@ -19,7 +19,10 @@ describe('SSG - Redirects', () => {
 			integrations: [testIntegration()],
 			redirects: {
 				'/other': '/'
-			}
+			},
+			experimental: {
+				redirects: true,
+			},
 		});
 		await fixture.build();
 	});

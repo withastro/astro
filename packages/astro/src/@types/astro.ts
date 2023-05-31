@@ -109,6 +109,7 @@ export interface CLIFlags {
 	open?: boolean;
 	experimentalAssets?: boolean;
 	experimentalMiddleware?: boolean;
+	experimentalRedirects?: boolean;
 }
 
 export interface BuildConfig {
@@ -452,10 +453,26 @@ export interface AstroUserConfig {
 	 */
 	cacheDir?: string;
 
+	
+
 	/**
-	 * TODO
+	 * @docs
+	 * @name redirects
+	 * @type {RedirectConfig}
+	 * @default `{}`
+	 * @description Specify a mapping of redirects where the key is the route to match
+	 * and the value is the path to redirect to. Either of these an also be a dynamic route
+	 * following the same convention as in file-based routes.
+	 * 
+	 * ```js
+	 * {
+	 *   redirects: {
+	 *     '/old': '/new'
+	 *   }
+	 * }
+	 * ```
 	 */
-	redirects?: Record<string, string>;
+	redirects?: RedirectConfig;
 
 	/**
 	 * @docs
@@ -1206,6 +1223,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		hybridOutput?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.redirectgs
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.6.0
+		 * @description
+		 * Enable experimental support for redirect configuration. With this enabled
+		 * you can set redirects via the top-level redirects property. To enable
+		 * this feature, set `experimental.redirects` to `true`.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		redirects: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		 redirects?: boolean;
 	};
 
 	// Legacy options to be removed

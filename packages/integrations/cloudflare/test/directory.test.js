@@ -13,7 +13,10 @@ describe('mode: "directory"', () => {
 			adapter: cloudflare({ mode: 'directory' }),
 			redirects: {
 				'/old': '/'
-			}
+			},
+			experimental: {
+				redirects: true,
+			},
 		});
 		await fixture.build();
 	});

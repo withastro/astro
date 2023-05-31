@@ -106,6 +106,8 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
 		experimentalMiddleware:
 			typeof flags.experimentalMiddleware === 'boolean' ? flags.experimentalMiddleware : undefined,
+		experimentalRedirects:
+			typeof flags.experimentalRedirects === 'boolean' ? flags.experimentalRedirects : undefined
 	};
 }
 

@@ -17,7 +17,10 @@ describe('Redirects', () => {
 					destination: '/'
 				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
-			}
+			},
+			experimental: {
+				redirects: true,
+			},
 		});
 		await fixture.build();
 	});

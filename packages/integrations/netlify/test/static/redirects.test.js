@@ -11,6 +11,9 @@ describe('SSG - Redirects', () => {
 			root: new URL('./fixtures/redirects/', import.meta.url).toString(),
 			output: 'static',
 			adapter: netlifyStatic(),
+			experimental: {
+				redirects: true,
+			},
 			site: `http://example.com`,
 			integrations: [testIntegration()],
 			redirects: {

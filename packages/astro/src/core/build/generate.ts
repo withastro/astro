@@ -42,7 +42,7 @@ import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { getRedirectLocationOrThrow, RedirectComponentInstance } from '../redirects/index.js';
+import { getRedirectLocationOrThrow, RedirectComponentInstance, routeIsRedirect } from '../redirects/index.js';
 import {	
 	createAssetLink,
 	createModuleScriptsSet,
@@ -155,7 +155,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		}
 	} else {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
-			const ssrEntryURLPage =createEntryURL(filePath, outFolder);
+			const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 			const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
 			await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
@@ -208,6 +208,10 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>
 ) {
+	if(routeIsRedirect(pageData.route) &&!opts.settings.config.experimental.redirects) {
+		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
+	}
+
 	let timeStart = performance.now();
 	const renderers = ssrEntry?.renderers;
 
