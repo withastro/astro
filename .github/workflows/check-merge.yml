@@ -5,6 +5,8 @@ on: pull_request # run on pull request events
 permissions:
   # grant write permission on the pull-requests endpoint
   pull-requests: write
+  checks: write
+  statuses: write
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -53,16 +55,6 @@ jobs:
             fi
           done
 
-      - name: Add label
-        if: steps.find-blockers.outputs.found == 'true'
-        run: |
-          curl --request POST \
-            --url https://api.github.com/repos/${{github.repository}}/issues/${{github.event.number}}/labels \
-            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-            --header 'content-type: application/json' \
-            -d '["semver minor"]'
-
-
       - name: Find Comment
         uses: peter-evans/find-comment@v2
         id: fc
@@ -80,12 +72,24 @@ jobs:
           body: |
             This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.
           edit-mode: replace
-      - name: Change PR status
+      
+      - name: Change PR Status
+        uses: actions/github-script@v6
         if: steps.find-blockers.outputs.found == 'true'
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          -d '{"event":"REQUEST_CHANGES", body: ""}'
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.event.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['semver minor']
+            });
+
+            github.rest.pulls.submitReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.event.number,
+              event: 'REQUEST_CHANGES',
+              body: ''
+            });
 
