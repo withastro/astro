@@ -1,10 +1,12 @@
 name: Check mergeability
 
-on: pull_request # run on pull request events
+on: pull_request
 
 permissions:
-  # grant write permission on the pull-requests endpoint
   pull-requests: write
+  checks: write
+  statuses: write
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -12,15 +14,18 @@ jobs:
       - name: Check if there is already a block on this PR
         id: set-blocks
         uses: actions/github-script@v6
+        env:
+          issue_number:  ${{ github.event.number }}
         with:
           script: |
-            const url = 'https://api.github.com/repos/' + context.repo.owner + '/' + context.repo.repo + '/pulls/' + context.issue.number + '/reviews';
-            console.log('reviews URL', url);
-            const result = await github.request(url);
-            console.log(result);
-            const reviews = result.data;
-            for(const review of reviews) {
-              if(review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: process.env.issue_number,
+            });
+            console.log(reviews);
+            for (const review of reviews) {
+              if (review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
                 return 'block';
               }
             }
@@ -54,38 +59,31 @@ jobs:
           done
 
       - name: Add label
+        uses: actions/github-script@v6
         if: steps.find-blockers.outputs.found == 'true'
-        run: |
-          curl --request POST \
-            --url https://api.github.com/repos/${{github.repository}}/issues/${{github.event.number}}/labels \
-            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-            --header 'content-type: application/json' \
-            -d '["semver minor"]'
-
-
-      - name: Find Comment
-        uses: peter-evans/find-comment@v2
-        id: fc
+        env:
+          issue_number: ${{ github.event.number }}
         with:
-          issue-number: ${{ github.event.number }}
-          comment-author: 'github-actions[bot]'
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: process.env.issue_number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['semver minor']
+            });
 
-      - name: Send PR review
+      - name: Change PR Status
+        uses: actions/github-script@v6
         if: steps.find-blockers.outputs.found == 'true'
-        uses: peter-evans/create-or-update-comment@v3
-        continue-on-error: true
+        env:
+          issue_number: ${{ github.event.number }}
         with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.number }}
-          body: |
-            This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.
-          edit-mode: replace
-      - name: Change PR status
-        if: steps.find-blockers.outputs.found == 'true'
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          -d '{"event":"REQUEST_CHANGES", body: ""}'
+          script: |
+            github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: process.env.issue_number,
+              event: 'REQUEST_CHANGES',
+              body: 'This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.'
+            });
 
