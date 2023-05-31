@@ -70,7 +70,7 @@
       ]
     },
     "patchedDependencies": {
-      "@changesets/cli@2.26.1": "patches/@changesets__cli@2.26.1.patch"
+      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch"
     }
   },
   "dependencies": {
@@ -78,8 +78,8 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "0.4.8",
-    "@changesets/cli": "2.26.1",
+    "@changesets/changelog-github": "0.4.4",
+    "@changesets/cli": "2.23.0",
     "@types/node": "^18.7.21",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
