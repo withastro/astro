@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -116,7 +116,7 @@
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",
     "@astrojs/telemetry": "^2.1.1",
-    "@astrojs/webapi": "^2.1.1",
+    "@astrojs/webapi": "^2.2.0",
     "@babel/core": "^7.21.8",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",

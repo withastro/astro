@@ -1270,8 +1270,9 @@ export interface ContentEntryType {
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
+			contents: string;
+			fileUrl: URL;
 			viteId: string;
-			entry: ContentEntryModule;
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;

@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'url';
 import type {
 	AstroMiddlewareInstance,
 	AstroSettings,
@@ -65,7 +64,7 @@ export async function preload({
 
 	try {
 		// Load the module from the Vite SSR Runtime.
-		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
+		const mod = (await env.loader.import(viteID(filePath))) as ComponentInstance;
 
 		return [renderers, mod];
 	} catch (error) {

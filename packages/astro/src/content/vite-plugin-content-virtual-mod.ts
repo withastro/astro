@@ -4,17 +4,17 @@ import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getContentEntryConfigByExtMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
 	getDataEntryId,
 	getEntryCollectionName,
+	getEntryConfigByExtMap,
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
@@ -32,7 +32,7 @@ export function astroContentVirtualModPlugin({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
@@ -43,8 +43,12 @@ export function astroContentVirtualModPlugin({
 			new URL('reference-map.json', contentPaths.cacheDir).pathname
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace('@@CONTENT_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(contentEntryExts)}`)
-		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(dataEntryExts)}`)
+		.replace(
+			'@@CONTENT_ENTRY_GLOB_PATH@@',
+			// [!_] = ignore files starting with "_"
+			`${relContentDir}**/[!_]*${getExtGlob(contentEntryExts)}`
+		)
+		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/[!_]*${getExtGlob(dataEntryExts)}`)
 		.replace(
 			'@@RENDER_ENTRY_GLOB_PATH@@',
 			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
@@ -92,7 +96,7 @@ export async function getStringifiedLookupMap({
 	root,
 	fs,
 }: {
-	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
+	contentEntryConfigByExt: Map<string, ContentEntryType>;
 	dataEntryExts: string[];
 	contentPaths: Pick<ContentPaths, 'contentDir' | 'config'>;
 	root: URL;

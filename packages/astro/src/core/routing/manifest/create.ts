@@ -173,6 +173,7 @@ function comparator(a: Item, b: Item) {
 		}
 	}
 
+	// endpoints are prioritized over pages
 	if (a.isPage !== b.isPage) {
 		return a.isPage ? 1 : -1;
 	}
