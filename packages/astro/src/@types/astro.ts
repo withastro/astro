@@ -460,6 +460,7 @@ export interface AstroUserConfig {
 	 * @name redirects
 	 * @type {RedirectConfig}
 	 * @default `{}`
+	 * @version 2.6.0
 	 * @description Specify a mapping of redirects where the key is the route to match
 	 * and the value is the path to redirect to. Either of these an also be a dynamic route
 	 * following the same convention as in file-based routes.
