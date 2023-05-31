@@ -1,5 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { string as zodString, ZodIssueCode } from 'zod';
+import { AstroInstance } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import {
@@ -269,13 +270,10 @@ async function render({
 
 	const baseMod = await renderEntryImport();
 	if (baseMod == null || typeof baseMod !== 'object') throw UnexpectedRenderError;
+	const { default: defaultMod } = baseMod;
 
-	if (
-		baseMod.default != null &&
-		typeof baseMod.default === 'object' &&
-		baseMod.default.__astroPropagation === true
-	) {
-		const { collectedStyles, collectedLinks, collectedScripts, getMod } = baseMod.default;
+	if (isPropagatedAssetsModule(defaultMod)) {
+		const { collectedStyles, collectedLinks, collectedScripts, getMod } = defaultMod;
 		if (typeof getMod !== 'function') throw UnexpectedRenderError;
 		const propagationMod = await getMod();
 		if (propagationMod == null || typeof propagationMod !== 'object') throw UnexpectedRenderError;
@@ -381,4 +379,16 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 			return { id: lookupId, collection };
 		});
 	};
+}
+
+type PropagatedAssetsModule = {
+	__astroPropagation: true;
+	getMod: () => Promise<any>;
+	collectedStyles: string[];
+	collectedLinks: string[];
+	collectedScripts: string[];
+};
+
+function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
+	return typeof module === 'object' && module != null && '__astroPropagation' in module;
 }
