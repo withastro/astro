@@ -1,5 +1,5 @@
 {
-  "name": "@test/markdoc-entry-prop",
+  "name": "@test/markdoc-variables",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

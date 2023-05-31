@@ -8,6 +8,7 @@ import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from 
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
+import path from 'node:path';
 import type * as rollup from 'rollup';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
@@ -17,6 +18,12 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// Add type defs here
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
+
+const markdocTokenizer = new Markdoc.Tokenizer({
+	// Strip <!-- comments --> from rendered output
+	// Without this, they're rendered as strings!
+	allowComments: true,
+});
 
 export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
 	if (legacyConfig) {
@@ -61,10 +68,14 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				addContentEntryType({
 					extensions: ['.mdoc'],
 					getEntryInfo,
-					async getRenderModule({ entry, viteId }) {
-						const ast = Markdoc.parse(entry.body);
+					async getRenderModule({ contents, fileUrl, viteId }) {
+						const entry = getEntryInfo({ contents, fileUrl });
+						const tokens = markdocTokenizer.tokenize(entry.body);
+						const ast = Markdoc.parse(tokens);
 						const pluginContext = this;
-						const markdocConfig = await setupConfig(userMarkdocConfig, entry);
+						const markdocConfig = await setupConfig(userMarkdocConfig);
+
+						const filePath = fileURLToPath(fileUrl);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -77,10 +88,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						});
 						if (validationErrors.length) {
 							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
-							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
+							const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
+							const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
 							throw new MarkdocError({
 								message: [
-									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									`**${String(rootRelativePath)}** contains invalid content:`,
 									...validationErrors.map((e) => `- ${e.error.message}`),
 								].join('\n'),
 								location: {
@@ -96,7 +108,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							await emitOptimizedImages(ast.children, {
 								astroConfig,
 								pluginContext,
-								filePath: entry._internal.filePath,
+								filePath,
 							});
 						}
 

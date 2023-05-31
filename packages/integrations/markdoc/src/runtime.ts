@@ -13,13 +13,9 @@ export { default as Markdoc } from '@markdoc/markdoc';
  * TODO: virtual module to merge configs per-build instead of per-file?
  */
 export async function setupConfig(
-	userConfig: AstroMarkdocConfig,
-	entry: ContentEntryModule
+	userConfig: AstroMarkdocConfig
 ): Promise<Omit<AstroMarkdocConfig, 'extends'>> {
-	let defaultConfig: AstroMarkdocConfig = {
-		...setupHeadingConfig(),
-		variables: { entry },
-	};
+	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	if (userConfig.extends) {
 		for (let extension of userConfig.extends) {
