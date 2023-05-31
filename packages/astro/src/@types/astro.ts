@@ -761,6 +761,7 @@ export interface AstroUserConfig {
 		 * @name build.redirects
 		 * @type {boolean}
 		 * @default `true`
+		 * @version 2.6.0
 		 * @description
 		 * Specifies whether redirects will be output to HTML during the build.
 		 * This option only applies to `output: 'static'` mode; in SSR redirects
