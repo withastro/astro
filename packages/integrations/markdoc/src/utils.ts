@@ -1,6 +1,6 @@
+import matter from 'gray-matter';
 import crypto from 'node:crypto';
 import path from 'node:path';
-import matter from 'gray-matter';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
 /**

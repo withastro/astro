@@ -82,7 +82,7 @@ export async function* crawlGraph(
 						}
 					}
 				}
-				if(!isPropagationStoppingPoint) {
+				if (!isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}

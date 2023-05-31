@@ -1,6 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
-import type { ContentEntryModule } from 'astro';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 

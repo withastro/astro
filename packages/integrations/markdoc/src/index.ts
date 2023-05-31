@@ -18,9 +18,9 @@ import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
 import path from 'node:path';
 import type * as rollup from 'rollup';
+import { normalizePath } from 'vite';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
-import { normalizePath } from 'vite';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -56,7 +56,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				} = params as SetupHookParams;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
-				if(markdocConfigResult) {
+				if (markdocConfigResult) {
 					markdocConfigResultId = normalizePath(fileURLToPath(markdocConfigResult.fileUrl));
 				}
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
@@ -129,7 +129,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 ${
 	markdocConfigResult
 		? `import _userConfig from ${JSON.stringify(
-			markdocConfigResultId
+				markdocConfigResultId
 		  )};\nconst userConfig = _userConfig ?? {};`
 		: 'const userConfig = {};'
 }${
