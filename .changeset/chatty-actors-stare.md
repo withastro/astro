@@ -25,7 +25,7 @@ import { defineConfig } from 'astro/config';
 
 export defineConfig({
   redirects: {
-    '/blog/[...slug]': '/articles/[...slog]'
+    '/blog/[...slug]': '/articles/[...slug]'
   }
 });
 ```
