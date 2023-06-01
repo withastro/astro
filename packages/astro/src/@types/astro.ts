@@ -477,9 +477,15 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 *
+	 *  
+	 * For statically-generated sites with no adapter installed, this will produce a client redirect using a [`<meta http-equiv="refresh">` tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv) and does not support status codes.
+	 *
+	 * When using SSR or with a `/static` adapter in `output: static`
+	 * mode (Netlify, Cloudflare, and Vercel), status codes are supported.
 	 * Astro will serve redirected GET requests with a status of `301`
 	 * and use a status of `308` for any other request method.
-	 * You can customize the status code using an object in the redirect config:
+	 * 
+	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
 	 * 
 	 * ```js
 	 * {
@@ -491,12 +497,6 @@ export interface AstroUserConfig {
 	 *   }
 	 * }
 	 * ```
-	 *
-	 * Status codes are only set when using SSR or with a static adapter that
-	 * supports it (Netlify, Cloudflare, and Vercel).
-	 * Elsewhere, builds will fall back to a client redirect using a
-	 * [`<meta http-equiv="refresh">` tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv)
-	 * and do not support status codes.
 	 */
 	redirects?: RedirectConfig;
 
