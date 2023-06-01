@@ -1,3 +1,8 @@
+/**
+ * A set of common path utilities commonly used through the Astro core and integration
+ * projects. These do things like ensure a forward slash prepends paths.
+ */
+
 export function appendExtension(path: string, extension: string) {
 	return path + '.' + extension;
 }
@@ -77,5 +82,5 @@ export function removeQueryString(path: string) {
 }
 
 export function isRemotePath(src: string) {
-	return /^(http|ftp|https):?\/\//.test(src) || src.startsWith('data:');
+	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
 }

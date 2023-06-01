@@ -566,27 +566,23 @@ async function generatePath(
 			throw err;
 		}
 
-		switch(true) {
-			case (response.status >= 300 && response.status < 400): {
-				// If redirects is set to false, don't output the HTML
-				if(!opts.settings.config.build.redirects) {
-					return;
-				}
-				const location = getRedirectLocationOrThrow(response.headers);
-				body = `<!doctype html>
+		if(response.status >= 300 && response.status < 400) {
+			// If redirects is set to false, don't output the HTML
+			if(!opts.settings.config.build.redirects) {
+				return;
+			}
+			const location = getRedirectLocationOrThrow(response.headers);
+			body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
 <meta http-equiv="refresh" content="0;url=${location}" />`;
-				// A dynamic redirect, set the location so that integrations know about it.
-				if(pageData.route.type !== 'redirect') {
-					pageData.route.redirect = location;
-				}
-				break;
+			// A dynamic redirect, set the location so that integrations know about it.
+			if(pageData.route.type !== 'redirect') {
+				pageData.route.redirect = location;
 			}
-			default: {
-				// If there's no body, do nothing
-				if (!response.body) return;
-				body = await response.text();
-			}
+		} else {
+			// If there's no body, do nothing
+			if (!response.body) return;
+			body = await response.text();
 		}
 	}
 
