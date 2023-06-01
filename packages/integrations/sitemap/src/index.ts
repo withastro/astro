@@ -118,6 +118,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return urls;
 					}, []);
 
+					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
+
 					try {
 						if (filter) {
 							pageUrls = pageUrls.filter(filter);
@@ -126,8 +128,6 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						logger.error(`Error filtering pages\n${(err as any).toString()}`);
 						return;
 					}
-
-					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
 					if (pageUrls.length === 0) {
 						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
