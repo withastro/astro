@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check if there is already a block on this PR
-        id: set-blocks
+        id: blocked
         uses: actions/github-script@v6
         env:
           issue_number:  ${{ github.event.number }}
@@ -23,31 +23,31 @@ jobs:
               repo: context.repo.repo,
               pull_number: process.env.issue_number,
             });
-            console.log(reviews);
+
             for (const review of reviews) {
-              if (review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
-                return 'block';
+              if (review.user.login === 'github-actions[bot]' && review.state === 'CHANGES_REQUESTED') {
+                return 'true'
               }
             }
-            return '';
+            return 'false'
           result-encoding: string
 
       - uses: actions/checkout@v3
-        if: steps.set-blocks.outputs.blocks == ''
+        if: steps.blocked.outputs.result != 'true'
         with:
           fetch-depth: 0
 
       - name: Get changed files in the .changeset folder
         id: changed-files
         uses: tj-actions/changed-files@v35
-        if: steps.set-blocks.outputs.blocks == ''
+        if: steps.blocked.outputs.result != 'true'
         with:
           files: |
             .changeset/**/*.md
 
       - name: Check if any changesets contain minor changes
-        id: find-blockers
-        if: steps.set-blocks.outputs.blocks == ''
+        id: minor
+        if: steps.blocked.outputs.result != 'true'
         run: |
           echo "Checking for changesets marked as minor"
           echo '::set-output name=found::false'
@@ -60,7 +60,7 @@ jobs:
 
       - name: Add label
         uses: actions/github-script@v6
-        if: steps.find-blockers.outputs.found == 'true'
+        if: steps.minor.outputs.found == 'true'
         env:
           issue_number: ${{ github.event.number }}
         with:
@@ -74,7 +74,7 @@ jobs:
 
       - name: Change PR Status
         uses: actions/github-script@v6
-        if: steps.find-blockers.outputs.found == 'true'
+        if: steps.minor.outputs.found == 'true'
         env:
           issue_number: ${{ github.event.number }}
         with:
@@ -86,4 +86,3 @@ jobs:
               event: 'REQUEST_CHANGES',
               body: 'This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved.'
             });
-
