@@ -8,6 +8,7 @@ import {
 	throwIfAssetsNotEnabled,
 	type VercelImageConfig,
 } from '../image/shared.js';
+import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
@@ -50,12 +51,16 @@ export default function vercelServerless({
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
+				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
+					},
+					vite: {
+						define: viteDefine,
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});
@@ -70,7 +75,7 @@ export default function vercelServerless({
 
 				if (config.output === 'static') {
 					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` is required to use the serverless adapter.
+		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the serverless adapter.
 
 	`);
 				}

@@ -3,9 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/preact": "workspace:*",
     "@astrojs/react": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "solid-js": "^1.7.4",
+    "svelte": "^3.58.0",
+    "vue": "^3.2.47",
+    "preact": "^10.13.2"
   }
 }

@@ -1,13 +1,13 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	AstroMiddlewareInstance,
-	ComponentInstance,
 	RouteData,
 	SerializedRouteData,
 	SSRComponentMetadata,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import type { SinglePageBuiltModule } from '../build/types';
 
 export type ComponentPath = string;
 
@@ -31,6 +31,7 @@ export interface RouteInfo {
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
+type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
 export interface SSRManifest {
 	adapterName: string;
@@ -39,18 +40,26 @@ export interface SSRManifest {
 	base?: string;
 	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
-	pageMap: Map<ComponentPath, ComponentInstance>;
+	pageMap: Map<ComponentPath, ImportComponentInstance>;
 	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middleware?: AstroMiddlewareInstance<unknown>;
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets' | 'componentMetadata'> & {
+export type SerializedSSRManifest = Omit<
+	SSRManifest,
+	'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
+> & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
+	clientDirectives: [string, string][];
 };
 
 export type AdapterCreateExports<T = any> = (

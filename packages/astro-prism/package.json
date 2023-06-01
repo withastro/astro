@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/prism",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Add Prism syntax highlighting support to your Astro site",
   "author": "withastro",
   "type": "module",
@@ -23,6 +23,10 @@
     "./Prism.astro": "./Prism.astro",
     "./dist/highlighter": "./dist/highlighter.js"
   },
+  "files": [
+    "dist",
+    "Prism.astro"
+  ],
   "keywords": [
     "astro",
     "astro-component"

@@ -15,8 +15,8 @@ import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
+import { isHybridOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { resolvedPagesVirtualModuleId } from '../app/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -24,6 +24,12 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import {
+	ASTRO_PAGE_EXTENSION_POST_PATTERN,
+	ASTRO_PAGE_RESOLVED_MODULE_ID,
+} from './plugins/plugin-pages.js';
+import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
+import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -111,15 +117,16 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 export async function staticBuild(opts: StaticBuildOptions, internals: BuildInternals) {
 	const { settings } = opts;
-	switch (settings.config.output) {
-		case 'static': {
+	const hybridOutput = isHybridOutput(settings.config);
+	switch (true) {
+		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
 			await generatePages(opts, internals);
 			await cleanServerOutput(opts);
 			settings.timer.end('Static generate');
 			return;
 		}
-		case 'server': {
+		case settings.config.output === 'server' || hybridOutput: {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
@@ -138,7 +145,7 @@ async function ssrBuild(
 	container: AstroBuildPluginContainer
 ) {
 	const { settings, viteConfig } = opts;
-	const ssr = settings.config.output === 'server';
+	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
 
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
@@ -168,8 +175,19 @@ async function ssrBuild(
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
-						if (chunkInfo.facadeModuleId === resolvedPagesVirtualModuleId) {
-							return opts.buildConfig.serverEntry;
+						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
+							return makeAstroPageEntryPointFileName(chunkInfo.facadeModuleId);
+						} else if (
+							// checks if the path of the module we have middleware, e.g. middleware.js / middleware/index.js
+							chunkInfo.facadeModuleId?.includes('middleware') &&
+							// checks if the file actually export the `onRequest` function
+							chunkInfo.exports.includes('onRequest')
+						) {
+							return 'middleware.mjs';
+						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
+							return opts.settings.config.build.serverEntry;
+						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {
+							return 'renderers.mjs';
 						} else {
 							return '[name].mjs';
 						}
@@ -207,7 +225,7 @@ async function clientBuild(
 ) {
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = settings.config.output === 'server';
+	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
 	const out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
 
 	// Nothing to do if there is no client-side JS.
@@ -273,7 +291,7 @@ async function runPostBuildHooks(
 	const buildConfig = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
 		const root =
-			config.output === 'server'
+			config.output === 'server' || isHybridOutput(config)
 				? mutation.build === 'server'
 					? buildConfig.server
 					: buildConfig.client
@@ -294,7 +312,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 		if (pageData.route.prerender)
 			allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
 	}
-	const ssr = opts.settings.config.output === 'server';
+	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config);
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
@@ -399,4 +417,30 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		);
 		removeEmptyDirs(serverAssets);
 	}
+}
+
+/**
+ * This function takes as input the virtual module name of an astro page and transform
+ * to generate an `.mjs` file:
+ *
+ * Input: `@astro-page:src/pages/index@_@astro`
+ *
+ * Output: `pages/index.astro.mjs`
+ *
+ * 1. We remove the module id prefix, `@astro-page:`
+ * 2. We remove `src/`
+ * 3. We replace square brackets with underscore, for example `[slug]`
+ * 4. At last, we replace the extension pattern with a simple dot
+ * 5. We append the `.mjs` string, so the file will always be a JS file
+ *
+ * @param facadeModuleId
+ */
+function makeAstroPageEntryPointFileName(facadeModuleId: string) {
+	return `${facadeModuleId
+		.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
+		.replace('src/', '')
+		.replaceAll('[', '_')
+		.replaceAll(']', '_')
+		// this must be last
+		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}.mjs`;
 }

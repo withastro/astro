@@ -48,7 +48,7 @@ export const AstroErrorData = {
 		title: '`Astro.redirect` is not available in static mode.',
 		code: 3001,
 		message:
-			"Redirects are only available when using `output: 'server'`. Update your Astro config if you need SSR features.",
+			"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
 	/**
@@ -79,7 +79,7 @@ export const AstroErrorData = {
 		title: '`Astro.clientAddress` is not available in static mode.',
 		code: 3003,
 		message:
-			"`Astro.clientAddress` is only available when using `output: 'server'`. Update your Astro config if you need SSR features.",
+			"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
 	},
 	/**
@@ -167,10 +167,10 @@ export const AstroErrorData = {
 
 ${
 	validRenderersCount > 0
-		? `There ${plural ? 'are.' : 'is.'} ${validRenderersCount} renderer${
-				plural ? 's.' : ''
+		? `There ${plural ? 'are' : 'is'} ${validRenderersCount} renderer${
+				plural ? 's' : ''
 		  } configured in your \`astro.config.mjs\` file,
-but ${plural ? 'none were.' : 'it was not.'} able to server-side render \`${componentName}\`.`
+but ${plural ? 'none were' : 'it was not'} able to server-side render \`${componentName}\`.`
 		: `No valid renderer was found ${
 				componentExtension
 					? `for the \`.${componentExtension}\` file extension.`
@@ -390,7 +390,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	NoAdapterInstalled: {
 		title: 'Cannot use Server-side Rendering without an adapter.',
 		code: 3017,
-		message: `Cannot use \`output: 'server'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
+		message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 	},
 	/**
@@ -416,10 +416,12 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	InvalidPrerenderExport: {
 		title: 'Invalid prerender export.',
 		code: 3019,
-		message: (prefix: string, suffix: string) => {
+		message: (prefix: string, suffix: string, isHydridOuput: boolean) => {
+			const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
 			let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
 			if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
-			if (suffix !== 'true') msg += `\nExpected \`true\` value but got \`${suffix}\`.`;
+			if (suffix !== 'true')
+				msg += `\nExpected \`${defaultExpectedValue}\` value but got \`${suffix}\`.`;
 			return msg;
 		},
 		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const prerender = true`.',
@@ -515,7 +517,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * For unsupported formats such as SVGs and GIFs, you may be able to use an `img` tag directly:
 	 * ```astro
 	 * ---
-	 * import rocket from '../assets/images/rocket.svg'
+	 * import rocket from '../assets/images/rocket.svg';
 	 * ---
 	 *
 	 * <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
@@ -624,7 +626,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
 	 */
 	ResponseSentError: {
-		title: 'Unable to set response',
+		title: 'Unable to set response.',
 		code: 3030,
 		message: 'The response has already been sent to the browser and cannot be altered.',
 	},
@@ -644,7 +646,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	MiddlewareNoDataOrNextCalled: {
-		title: "The middleware didn't return a response or call `next`",
+		title: "The middleware didn't return a response or call `next`.",
 		code: 3031,
 		message:
 			'The middleware needs to either return a `Response` object or call the `next` function.',
@@ -664,7 +666,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	MiddlewareNotAResponse: {
-		title: 'The middleware returned something that is not a `Response` object',
+		title: 'The middleware returned something that is not a `Response` object.',
 		code: 3032,
 		message: 'Any data returned from middleware must be a valid `Response` object.',
 	},
@@ -685,38 +687,68 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * ```
 	 */
 	LocalsNotAnObject: {
-		title: 'Value assigned to `locals` is not accepted',
+		title: 'Value assigned to `locals` is not accepted.',
 		code: 3033,
 		message:
 			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
+	 * @description
+	 * When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or an URL, it cannot be a filepath.
+	 *
+	 * ```astro
+	 * ---
+	 * import { Image } from "astro:assets";
+	 * import myImage from "../my_image.png";
+	 * ---
+	 *
+	 * <!-- GOOD: `src` is the full imported image. -->
+	 * <Image src={myImage} alt="Cool image" />
+	 *
+	 * <!-- BAD: `src` is an image's `src` path instead of the full image. -->
+	 * <Image src={myImage.src} alt="Cool image" />
+	 * ```
+	 */
+	LocalImageUsedWrongly: {
+		title: 'ESM imported images must be passed as-is.',
+		code: 3034,
+		message: (imageFilePath: string) =>
+			`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
+	},
 
 	/**
 	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 * @description
-	 * Thrown in development mode when a user attempts to store something that is not serializable in `locals`.
-	 *
-	 * For example:
-	 * ```ts
-	 * import {defineMiddleware} from "astro/middleware";
-	 * export const onRequest = defineMiddleware((context, next) => {
-	 *   context.locals = {
-	 *     foo() {
-	 *       alert("Hello world!")
-	 *     }
-	 *   };
-	 *   return next();
-	 * });
-	 * ```
+	 * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vitejs.dev/guide/features.html#glob-import) instead to acheive the same result.
 	 */
-	LocalsNotSerializable: {
-		title: '`Astro.locals` is not serializable',
-		code: 3034,
-		message: (href: string) => {
-			return `The information stored in \`Astro.locals\` for the path "${href}" is not serializable.\nMake sure you store only serializable data.`;
-		},
+	AstroGlobUsedOutside: {
+		title: 'Astro.glob() used outside of an Astro file.',
+		code: 3035,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
+		hint: "See Vite's documentation on `import.meta.glob` for more information: https://vitejs.dev/guide/features.html#glob-import",
 	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * @description
+	 * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
+	 */
+	AstroGlobNoMatch: {
+		title: 'Astro.glob() did not match any files.',
+		code: 3036,
+		message: (globStr: string) =>
+			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
+	},
+
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
@@ -985,7 +1017,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
-	 * @message A content collection schema should not contain `slug` since it is reserved for slug generation. Remove this from your `COLLECTION_NAME` collection schema.
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
@@ -994,10 +1025,68 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
 		code: 9003,
-		message: (collection: string) => {
-			return `A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collection} collection schema.`;
-		},
+		message: (collectionName: string) =>
+			`A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collectionName} collection schema.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
+	},
+
+	/**
+	 * @docs
+	 * @message A collection queried via `getCollection()` does not exist.
+	 * @description
+	 * When querying a collection, ensure a collection directory with the requested name exists under `src/content/`.
+	 */
+	CollectionDoesNotExistError: {
+		title: 'Collection does not exist',
+		code: 9004,
+		message: (collectionName: string) =>
+			`The collection **${collectionName}** does not exist. Ensure a collection directory with this name exists.`,
+		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains a mix of content and data entries. All entries must be of the same type.
+	 * @see
+	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+	 * @description
+	 * A content collection cannot contain a mix of content and data entries. You must store entries in separate collections by type.
+	 */
+	MixedContentDataCollectionError: {
+		title: 'Content and data cannot be in same collection.',
+		code: 9005,
+		message: (collection: string) => {
+			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
+		},
+		hint: 'Store data entries in a new collection separate from your content collection.',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains entries of type `ACTUAL_TYPE`, but is configured as a `EXPECTED_TYPE` collection.
+	 * @see
+	 * - [Defining content collections](https://docs.astro.build/en/guides/content-collections/#defining-collections)
+	 * @description
+	 * Content collections must contain entries of the type configured. Collections are `type: 'content'` by default. Try adding `type: 'data'` to your collection config for data collections.
+	 */
+	ContentCollectionTypeMismatchError: {
+		title: 'Collection contains entries of a different type.',
+		code: 9006,
+		message: (collection: string, expectedType: string, actualType: string) => {
+			return `${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`;
+		},
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_ENTRY_NAME` failed to parse.
+	 * @description
+	 * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).
+	 */
+	DataCollectionEntryParseError: {
+		title: 'Data collection entry failed to parse.',
+		code: 9007,
+		message: (entryId: string, errorMessage: string) => {
+			return `**${entryId}** failed to parse: ${errorMessage}`;
+		},
+		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
 	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip

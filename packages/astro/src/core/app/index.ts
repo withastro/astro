@@ -10,11 +10,11 @@ import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { call as callEndpoint, createAPIContext } from '../endpoint/index.js';
+import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { removeTrailingForwardSlash } from '../path.js';
+import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -32,8 +32,6 @@ export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
@@ -65,6 +63,7 @@ export class App {
 			markdown: manifest.markdown,
 			mode: 'production',
 			renderers: manifest.renderers,
+			clientDirectives: manifest.clientDirectives,
 			async resolve(specifier: string) {
 				if (!(specifier in manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -101,7 +100,7 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) {
 			return undefined;
 		}
-		let pathname = '/' + this.removeBase(url.pathname);
+		let pathname = prependForwardSlash(this.removeBase(url.pathname));
 		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
@@ -138,24 +137,26 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let mod = this.#manifest.pageMap.get(routeData.component)!;
+		let page = await this.#manifest.pageMap.get(routeData.component)!();
+		let mod = await page.page();
 
 		if (routeData.type === 'page') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
-			// If there was a 500 error, try sending the 500 page.
-			if (response.status === 500) {
-				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
-				if (fiveHundredRouteData) {
-					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
+			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+			if (response.status === 500 || response.status === 404) {
+				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorPageData && errorPageData.route !== routeData.route) {
+					page = await this.#manifest.pageMap.get(errorPageData.component)!();
+					mod = await page.page();
 					try {
-						let fiveHundredResponse = await this.#renderPage(
+						let errorResponse = await this.#renderPage(
 							request,
-							fiveHundredRouteData,
+							errorPageData,
 							mod,
-							500
+							response.status
 						);
-						return fiveHundredResponse;
+						return errorResponse;
 					} catch {}
 				}
 			}
@@ -178,7 +179,7 @@ export class App {
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
-		const pathname = '/' + this.removeBase(url.pathname);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
@@ -224,6 +225,7 @@ export class App {
 			let response;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
+					this.#env.logging,
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {

@@ -18,6 +18,8 @@
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
+    "test:unit": "cd packages/astro && pnpm run test:unit",
+    "test:unit:match": "cd packages/astro && pnpm run test:unit:match",
     "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
     "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
     "test:smoke:docs": "turbo run build --filter=docs",
@@ -68,7 +70,7 @@
       ]
     },
     "patchedDependencies": {
-      "@changesets/cli@2.26.1": "patches/@changesets__cli@2.26.1.patch"
+      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch"
     }
   },
   "dependencies": {
@@ -76,8 +78,8 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "0.4.8",
-    "@changesets/cli": "2.26.1",
+    "@changesets/changelog-github": "0.4.4",
+    "@changesets/cli": "2.23.0",
     "@types/node": "^18.7.21",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",

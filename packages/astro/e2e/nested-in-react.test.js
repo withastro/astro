@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/nested-in-react/' });
 
@@ -14,76 +14,102 @@ test.afterAll(async () => {
 });
 
 test.describe('Nested Frameworks in React', () => {
-	test('React counter', async ({ astro, page }) => {
-		await page.goto('/');
+	test('No hydration mismatch', async ({ page, astro }) => {
+		// Get browser logs
+		const logs = [];
+		page.on('console', (msg) => logs.push(msg.text()));
 
-		const counter = await page.locator('#react-counter');
+		await page.goto(astro.resolveUrl('/'));
+
+		// wait for root island to hydrate
+		const counter = page.locator('#react-counter');
+		await waitForHydrate(page, counter);
+
+		for (const log of logs) {
+			expect(log, 'React hydration mismatch').not.toMatch('An error occurred during hydration');
+		}
+	});
+
+	test('React counter', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const counter = page.locator('#react-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
-		const count = await counter.locator('#react-counter-count');
+		const count = counter.locator('#react-counter-count');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const increment = await counter.locator('#react-counter-increment');
+		await waitForHydrate(page, counter);
+
+		const increment = counter.locator('#react-counter-increment');
 		await increment.click();
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('Preact counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
-		const counter = await page.locator('#preact-counter');
+		const counter = page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
-		const count = await counter.locator('#preact-counter-count');
+		const count = counter.locator('#preact-counter-count');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const increment = await counter.locator('#preact-counter-increment');
+		await waitForHydrate(page, counter);
+
+		const increment = counter.locator('#preact-counter-increment');
 		await increment.click();
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('Solid counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
-		const counter = await page.locator('#solid-counter');
+		const counter = page.locator('#solid-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
-		const count = await counter.locator('#solid-counter-count');
+		const count = counter.locator('#solid-counter-count');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const increment = await counter.locator('#solid-counter-increment');
+		await waitForHydrate(page, counter);
+
+		const increment = counter.locator('#solid-counter-increment');
 		await increment.click();
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('Vue counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
-		const counter = await page.locator('#vue-counter');
+		const counter = page.locator('#vue-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
-		const count = await counter.locator('#vue-counter-count');
+		const count = counter.locator('#vue-counter-count');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const increment = await counter.locator('#vue-counter-increment');
+		await waitForHydrate(page, counter);
+
+		const increment = counter.locator('#vue-counter-increment');
 		await increment.click();
 
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('Svelte counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
-		const counter = await page.locator('#svelte-counter');
+		const counter = page.locator('#svelte-counter');
 		await expect(counter, 'component is visible').toBeVisible();
 
-		const count = await counter.locator('#svelte-counter-count');
+		const count = counter.locator('#svelte-counter-count');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const increment = await counter.locator('#svelte-counter-increment');
+		await waitForHydrate(page, counter);
+
+		const increment = counter.locator('#svelte-counter-increment');
 		await increment.click();
 
 		await expect(count, 'count incremented by 1').toHaveText('1');

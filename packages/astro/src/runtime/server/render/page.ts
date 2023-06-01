@@ -79,7 +79,6 @@ export async function renderPage(
 		result._metadata.headInTree =
 			result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
-
 		let output: ComponentIterable;
 		let head = '';
 		try {
@@ -156,6 +155,15 @@ export async function renderPage(
 											controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 										}
 									}
+								}
+
+								// `chunk` might be a Response that contains a redirect,
+								// that was rendered eagerly and therefore bypassed the early check
+								// whether headers can still be modified. In that case, throw an error
+								if (chunk instanceof Response) {
+									throw new AstroError({
+										...AstroErrorData.ResponseSentError,
+									});
 								}
 
 								const bytes = chunkToByteArray(result, chunk);

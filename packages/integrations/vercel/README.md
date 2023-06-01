@@ -108,7 +108,7 @@ export default defineConfig({
 });
 ```
 
-### imageConfig
+### imagesConfig
 
 **Type:** `VercelImageConfig`<br>
 **Available for:** Edge, Serverless, Static
@@ -124,7 +124,7 @@ import vercel from '@astrojs/vercel/static';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    imageConfig: {
+    imagesConfig: {
       sizes: [320, 640, 1280]
     }
   })

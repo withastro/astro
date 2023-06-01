@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'url';
 import type {
 	AstroMiddlewareInstance,
 	AstroSettings,
@@ -65,7 +64,8 @@ export async function preload({
 
 	try {
 		// Load the module from the Vite SSR Runtime.
-		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
+		const mod = (await env.loader.import(viteID(filePath))) as ComponentInstance;
+
 		return [renderers, mod];
 	} catch (error) {
 		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
@@ -190,7 +190,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 			});
 
 			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
-			const response = await callMiddleware<Response>(onRequest, apiContext, () => {
+			const response = await callMiddleware<Response>(env.logging, onRequest, apiContext, () => {
 				return coreRenderPage({ mod, renderContext, env: options.env });
 			});
 

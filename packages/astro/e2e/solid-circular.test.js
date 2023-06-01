@@ -15,7 +15,7 @@ test.afterAll(async () => {
 
 test.describe('Circular imports with Solid', () => {
 	test('Context', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const wrapper = page.locator('#context');
 		await expect(wrapper, 'context should not be duplicated').toHaveText('fr');

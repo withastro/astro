@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { scrollToElement, testFactory, waitForHydrate } from './test-utils.js';
 
 export function prepareTestFactory(opts) {
 	const test = testFactory(opts);
@@ -39,6 +39,8 @@ export function prepareTestFactory(opts) {
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
 
+			await waitForHydrate(page, counter);
+
 			const inc = counter.locator('.increment');
 			await inc.click();
 
@@ -54,6 +56,8 @@ export function prepareTestFactory(opts) {
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
 
+			await waitForHydrate(page, counter);
+
 			const inc = counter.locator('.increment');
 			await inc.click();
 
@@ -65,11 +69,17 @@ export function prepareTestFactory(opts) {
 
 			// Make sure the component is on screen to trigger hydration
 			const counter = page.locator('#client-visible');
-			await counter.scrollIntoViewIfNeeded();
+			// NOTE: Use custom implementation instead of `counter.scrollIntoViewIfNeeded`
+			// as Playwright's function doesn't take into account of `counter` being hydrated
+			// and losing the original DOM reference.
+			await scrollToElement(counter);
+
 			await expect(counter, 'component is visible').toBeVisible();
 
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
+
+			await waitForHydrate(page, counter);
 
 			const inc = counter.locator('.increment');
 			await inc.click();
@@ -85,13 +95,14 @@ export function prepareTestFactory(opts) {
 
 			const count = counter.locator('pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
-
 			const inc = counter.locator('.increment');
 			await inc.click();
 			await expect(count, 'component not hydrated yet').toHaveText('0');
 
 			// Reset the viewport to hydrate the component (max-width: 50rem)
 			await page.setViewportSize({ width: 414, height: 1124 });
+			await waitForHydrate(page, counter);
+
 			await inc.click();
 			await expect(count, 'count incremented by 1').toHaveText('1');
 		});
