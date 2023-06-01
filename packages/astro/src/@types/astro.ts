@@ -1259,7 +1259,7 @@ export interface AstroUserConfig {
 		 * @version 2.6.0
 		 * @description
 		 * Enable experimental support for redirect configuration. With this enabled
-		 * you can set redirects via the top-level redirects property. To enable
+		 * you can set redirects via the top-level `redirects` property. To enable
 		 * this feature, set `experimental.redirects` to `true`.
 		 *
 		 * ```js
