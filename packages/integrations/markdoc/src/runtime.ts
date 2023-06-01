@@ -1,6 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
-import type { ContentEntryModule } from 'astro';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 
@@ -32,13 +31,9 @@ export async function setupConfig(
 
 /** Used for synchronous `getHeadings()` function */
 export function setupConfigSync(
-	userConfig: AstroMarkdocConfig,
-	entry: ContentEntryModule
+	userConfig: AstroMarkdocConfig
 ): Omit<AstroMarkdocConfig, 'extends'> {
-	let defaultConfig: AstroMarkdocConfig = {
-		...setupHeadingConfig(),
-		variables: { entry },
-	};
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	return mergeConfig(defaultConfig, userConfig);
 }
