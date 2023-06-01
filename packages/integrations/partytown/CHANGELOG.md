@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 1.2.3
+
+### Patch Changes
+
+- [#7175](https://github.com/withastro/astro/pull/7175) [`59d8c50b8`](https://github.com/withastro/astro/commit/59d8c50b8426cd6825abc07405041779b7999022) Thanks [@AkashRajpurohit](https://github.com/AkashRajpurohit)! - fix typescript type for partytown options
+
 ## 1.2.2
 
 ### Patch Changes

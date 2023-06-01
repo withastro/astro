@@ -37,12 +37,12 @@
     "test": "npm run test-fn"
   },
   "dependencies": {
-    "@astrojs/webapi": "^2.1.1",
+    "@astrojs/webapi": "^2.2.0",
     "@netlify/functions": "^1.0.0",
     "esbuild": "^0.15.18"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.5.5"
+    "astro": "workspace:^2.5.6"
   },
   "devDependencies": {
     "@netlify/edge-functions": "^2.0.0",

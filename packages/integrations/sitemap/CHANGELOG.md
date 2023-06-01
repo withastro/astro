@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 1.3.2
+
+### Patch Changes
+
+- [#7028](https://github.com/withastro/astro/pull/7028) [`6ca3b5a9e`](https://github.com/withastro/astro/commit/6ca3b5a9e8b9aa19a9436043f8ead41e7938c32e) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - exported enum type to support typescript > 5.0
+
 ## 1.3.1
 
 ### Patch Changes
