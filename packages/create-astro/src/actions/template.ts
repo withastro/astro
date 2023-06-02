@@ -68,11 +68,11 @@ const FILES_TO_UPDATE = {
 		}),
 };
 
-function getTemplateTarget(template: string, ref: string = 'latest') {
-	const isThirdParty = template.includes('/');
-	if (isThirdParty) return template;
-	if (template === 'starlight') return `withastro/starlight/examples/basics`;
-	return `github:withastro/astro/examples/${template}#${ref}`;
+function getTemplateTarget(tmpl: string, ref = 'latest') {
+	const isThirdParty = tmpl.includes('/');
+	if (isThirdParty) return tmpl;
+	if (tmpl === 'starlight') return `withastro/starlight/examples/basics`;
+	return `github:withastro/astro/examples/${tmpl}#${ref}`;
 }
 
 export default async function copyTemplate(tmpl: string, ctx: Context) {
