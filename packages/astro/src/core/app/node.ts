@@ -14,11 +14,12 @@ function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Arra
 		req.socket instanceof TLSSocket || req.headers['x-forwarded-proto'] === 'https'
 			? 'https'
 			: 'http';
-	let url = `${protocol}://${req.headers.host}${req.url}`;
-	let rawHeaders = req.headers as Record<string, any>;
+  const hostname = req.headers.host || req.headers[':authority'];
+	const url = `${protocol}://${hostname}${req.url}`;
+	const rawHeaders = req.headers as Record<string, any>;
 	const entries = Object.entries(rawHeaders);
 	const method = req.method || 'GET';
-	let request = new Request(url, {
+	const request = new Request(url, {
 		method,
 		headers: new Headers(entries),
 		body: ['HEAD', 'GET'].includes(method) ? null : body,
