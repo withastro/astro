@@ -1,4 +1,5 @@
 ---
+//! astro-head-inject
 import type { Config } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { ComponentNode, createTreeNode } from './TreeNode.js';
@@ -14,4 +15,4 @@ const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 const content = Markdoc.transform(ast, config);
 ---
 
-<ComponentNode treeNode={createTreeNode(content)} />
+<ComponentNode treeNode={await createTreeNode(content)} />

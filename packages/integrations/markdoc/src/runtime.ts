@@ -1,9 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
-import type { ContentEntryModule } from 'astro';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
-import { MarkdocError } from './utils.js';
 
 /** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';
@@ -13,31 +11,29 @@ export { default as Markdoc } from '@markdoc/markdoc';
  * Called on each file's individual transform.
  * TODO: virtual module to merge configs per-build instead of per-file?
  */
-export function setupConfig(
-	userConfig: AstroMarkdocConfig,
-	entry: ContentEntryModule,
-	markdocConfigPath?: string
-): Omit<AstroMarkdocConfig, 'extends'> {
-	let defaultConfig: AstroMarkdocConfig = {
-		...setupHeadingConfig(),
-		variables: { entry },
-	};
+export async function setupConfig(
+	userConfig: AstroMarkdocConfig
+): Promise<Omit<AstroMarkdocConfig, 'extends'>> {
+	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	if (userConfig.extends) {
-		for (const extension of userConfig.extends) {
+		for (let extension of userConfig.extends) {
 			if (extension instanceof Promise) {
-				throw new MarkdocError({
-					message: 'An extension passed to `extends` in your markdoc config returns a Promise.',
-					hint: 'Call `await` for async extensions. Example: `extends: [await myExtension()]`',
-					location: {
-						file: markdocConfigPath,
-					},
-				});
+				extension = await extension;
 			}
 
 			defaultConfig = mergeConfig(defaultConfig, extension);
 		}
 	}
+
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Used for synchronous `getHeadings()` function */
+export function setupConfigSync(
+	userConfig: AstroMarkdocConfig
+): Omit<AstroMarkdocConfig, 'extends'> {
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	return mergeConfig(defaultConfig, userConfig);
 }

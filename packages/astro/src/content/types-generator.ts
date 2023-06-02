@@ -11,12 +11,12 @@ import { info, warn, type LogOptions } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import { CONTENT_TYPES_FILE, VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getContentEntryConfigByExtMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
 	getDataEntryId,
 	getEntryCollectionName,
+	getEntryConfigByExtMap,
 	getEntrySlug,
 	getEntryType,
 	reloadContentConfigObserver,
@@ -74,7 +74,7 @@ export async function createContentTypesGenerator({
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
-	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
@@ -414,7 +414,11 @@ async function writeContentFiles({
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
-		if (collectionConfig?.type && collection.type !== collectionConfig.type) {
+		if (
+			collectionConfig?.type &&
+			collection.type !== 'unknown' &&
+			collection.type !== collectionConfig.type
+		) {
 			viteServer.ws.send({
 				type: 'error',
 				err: new AstroError({
@@ -433,7 +437,14 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		switch (collection.type) {
+		const resolvedType: 'content' | 'data' =
+			collection.type === 'unknown'
+				? // Add empty / unknown collections to the data type map by default
+				  // This ensures `getCollection('empty-collection')` doesn't raise a type error
+				  collectionConfig?.type ?? 'data'
+				: collection.type;
+
+		switch (resolvedType) {
 			case 'content':
 				contentTypesStr += `${collectionKey}: {\n`;
 				for (const entryKey of Object.keys(collection.entries).sort()) {
@@ -449,9 +460,6 @@ async function writeContentFiles({
 				contentTypesStr += `};\n`;
 				break;
 			case 'data':
-			// Add empty / unknown collections to the data type map by default
-			// This ensures `getCollection('empty-collection')` doesn't raise a type error
-			case 'unknown':
 				dataTypesStr += `${collectionKey}: {\n`;
 				for (const entryKey of Object.keys(collection.entries).sort()) {
 					const dataType = collectionConfig?.schema ? `InferEntrySchema<${collectionKey}>` : 'any';

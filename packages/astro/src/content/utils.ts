@@ -10,10 +10,12 @@ import type {
 	AstroConfig,
 	AstroSettings,
 	ContentEntryType,
+	DataEntryType,
 	ImageInputFormat,
 } from '../@types/astro.js';
 import { VALID_INPUT_FORMATS } from '../assets/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+
 import { formatYAMLException, isYAMLException } from '../core/errors/utils.js';
 import { CONTENT_FLAGS, CONTENT_TYPES_FILE } from './consts.js';
 import { errorMap } from './error-map.js';
@@ -111,7 +113,7 @@ export async function getEntryData(
 		}
 
 		schema = schema({
-			image: createImage({ config }, pluginContext, entry._internal.filePath),
+			image: createImage(pluginContext, entry._internal.filePath),
 		});
 	}
 
@@ -172,9 +174,11 @@ export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>
 	return settings.dataEntryTypes.map((t) => t.extensions).flat();
 }
 
-export function getContentEntryConfigByExtMap(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
-	const map: Map<string, ContentEntryType> = new Map();
-	for (const entryType of settings.contentEntryTypes) {
+export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(
+	entryTypes: TEntryType[]
+): Map<string, TEntryType> {
+	const map: Map<string, TEntryType> = new Map();
+	for (const entryType of entryTypes) {
 		for (const ext of entryType.extensions) {
 			map.set(ext, entryType);
 		}
@@ -328,7 +332,7 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
  */
 export const globalContentConfigObserver = contentObservable({ status: 'init' });
 
-export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]) {
+export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[number]): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
 }

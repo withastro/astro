@@ -12,7 +12,6 @@ export type ResolvedAstroMarkdocConfig = Omit<AstroMarkdocConfig, 'extends'>;
 
 export const Markdoc = _Markdoc;
 export const nodes = { ...Markdoc.nodes, heading };
-export { shiki } from './extensions/shiki.js';
 
 export function defineMarkdocConfig(config: AstroMarkdocConfig): AstroMarkdocConfig {
 	return config;
