@@ -14,7 +14,7 @@ function createRequestFromNodeRequest(req: NodeIncomingMessage, body?: Uint8Arra
 		req.socket instanceof TLSSocket || req.headers['x-forwarded-proto'] === 'https'
 			? 'https'
 			: 'http';
-  const hostname = req.headers.host || req.headers[':authority'];
+	const hostname = req.headers.host || req.headers[':authority'];
 	const url = `${protocol}://${hostname}${req.url}`;
 	const rawHeaders = req.headers as Record<string, any>;
 	const entries = Object.entries(rawHeaders);
