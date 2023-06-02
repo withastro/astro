@@ -3,10 +3,10 @@ import type { TextDocument } from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
 import type { AstroFile } from '../../core/index.js';
 import {
-	PointToPosition,
 	ensureRangeIsInFrontmatter,
 	getNewFrontmatterEdit,
 	getOpenFrontmatterEdit,
+	PointToPosition,
 } from '../../utils.js';
 
 // Q: Why provideCodeActions instead of resolveCodeAction?

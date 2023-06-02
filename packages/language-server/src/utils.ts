@@ -1,9 +1,9 @@
-import type { AttributeNode, Position as CompilerPosition, Point } from '@astrojs/compiler/types';
+import type { AttributeNode, Point, Position as CompilerPosition } from '@astrojs/compiler/types';
 import path from 'node:path';
 import {
 	HTMLDocument,
-	Position as LSPPosition,
 	Node,
+	Position as LSPPosition,
 	Range,
 	TextEdit,
 } from 'vscode-html-languageservice';
