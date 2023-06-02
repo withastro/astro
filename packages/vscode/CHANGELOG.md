@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.0.13
+
+### Patch Changes
+
+- ab364c5: Fix missing import in `client.ts`
+
 ## 2.0.0
 
 ### Major Changes
