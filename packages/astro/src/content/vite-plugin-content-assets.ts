@@ -1,4 +1,5 @@
-import { pathToFileURL } from 'url';
+import { extname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
@@ -11,16 +12,13 @@ import { joinPaths, prependForwardSlash } from '../core/path.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { getScriptsForURL } from '../core/render/dev/scripts.js';
 import {
+	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
 	SCRIPTS_PLACEHOLDER,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
-
-function isPropagatedAsset(viteId: string) {
-	const flags = new URLSearchParams(viteId.split('?')[1]);
-	return flags.has(PROPAGATED_ASSET_FLAG);
-}
+import { hasContentFlag } from './utils.js';
 
 export function astroContentAssetPropagationPlugin({
 	mode,
@@ -32,13 +30,31 @@ export function astroContentAssetPropagationPlugin({
 	let devModuleLoader: ModuleLoader;
 	return {
 		name: 'astro:content-asset-propagation',
+		enforce: 'pre',
+		async resolveId(id, importer, opts) {
+			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
+				const base = id.split('?')[0];
+
+				for (const { extensions, handlePropagation = true } of settings.contentEntryTypes) {
+					if (handlePropagation && extensions.includes(extname(base))) {
+						return this.resolve(`${base}?${PROPAGATED_ASSET_FLAG}`, importer, {
+							skipSelf: true,
+							...opts,
+						});
+					}
+				}
+				// Resolve to the base id (no content flags)
+				// if Astro doesn't need to handle propagation.
+				return this.resolve(base, importer, { skipSelf: true, ...opts });
+			}
+		},
 		configureServer(server) {
 			if (mode === 'dev') {
 				devModuleLoader = createViteLoader(server);
 			}
 		},
 		async transform(_, id, options) {
-			if (isPropagatedAsset(id)) {
+			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string, stringifiedScripts: string;
 
@@ -73,14 +89,17 @@ export function astroContentAssetPropagationPlugin({
 				}
 
 				const code = `
-					export async function getMod() {
+					async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
-					export const collectedLinks = ${stringifiedLinks};
-					export const collectedStyles = ${stringifiedStyles};
-					export const collectedScripts = ${stringifiedScripts};
+					const collectedLinks = ${stringifiedLinks};
+					const collectedStyles = ${stringifiedStyles};
+					const collectedScripts = ${stringifiedScripts};
+					const defaultMod = { __astroPropagation: true, getMod, collectedLinks, collectedStyles, collectedScripts };
+					export default defaultMod;
 				`;
-
+				// ^ Use a default export for tools like Markdoc
+				// to catch the `__astroPropagation` identifier
 				return { code, map: { mappings: '' } };
 			}
 		},

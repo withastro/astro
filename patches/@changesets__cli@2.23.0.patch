@@ -1,0 +1,14 @@
+diff --git a/dist/cli.cjs.dev.js b/dist/cli.cjs.dev.js
+index 5511d0c05d3b7472876dcc8410e938ccf612654f..aa75e3982b68e1226ba1877a7f32017e517480f5 100644
+--- a/dist/cli.cjs.dev.js
++++ b/dist/cli.cjs.dev.js
+@@ -279,6 +279,9 @@ async function confirmMajorRelease(pkgJSON) {
+ }
+ 
+ async function getPackagesToRelease(changedPackages, allPackages) {
++  const isPrivate = (name) => name === 'astro-scripts' || name.startsWith('@example/') || name.startsWith('@test/') || name.startsWith('@e2e/');
++  changedPackages = changedPackages.filter(name => !isPrivate(name));
++  allPackages = allPackages.filter(({ packageJson: { name }}) => !isPrivate(name));
+   function askInitialReleaseQuestion(defaultChoiceList) {
+     return askCheckboxPlus( // TODO: Make this wording better
+     // TODO: take objects and be fancy with matching
