@@ -2,7 +2,7 @@
 
 // TODO: Merge this file with `client-base.d.ts` in 3.0, when the `astro:assets` feature isn't under a flag anymore.
 
-type InputFormat = import('./dist/assets/types.js').InputFormat;
+type InputFormat = import('./dist/assets/types.js').ImageInputFormat;
 
 interface ImageMetadata {
 	src: string;

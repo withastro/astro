@@ -119,4 +119,32 @@ title: Post
 			expect(e.hint).to.include("Try adding `type: 'data'`");
 		}
 	});
+
+	it('does not raise error for empty collection with config', async () => {
+		const fs = createFsWithFallback(
+			{
+				// Add placeholder to ensure directory exists
+				'/src/content/i18n/_placeholder.txt': 'Need content here',
+				'/src/content/config.ts': `
+					import { z, defineCollection } from 'astro:content';
+					
+					const i18n = defineCollection({
+						type: 'data',
+						schema: z.object({
+							greeting: z.string(),
+						}),
+					});
+							
+					export const collections = { i18n };`,
+			},
+			root
+		);
+
+		try {
+			const res = await sync({ fs });
+			expect(res).to.equal(0);
+		} catch (e) {
+			expect.fail(0, 1, `Did not expect sync to throw: ${e.message}`);
+		}
+	});
 });

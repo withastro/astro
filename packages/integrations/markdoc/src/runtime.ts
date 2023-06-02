@@ -1,32 +1,52 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import Markdoc, {
-	type ConfigType as MarkdocConfig,
-	type RenderableTreeNode,
-} from '@markdoc/markdoc';
-import type { ContentEntryModule } from 'astro';
-import { setupHeadingConfig } from './nodes/index.js';
+import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
+import type { AstroMarkdocConfig } from './config.js';
+import { setupHeadingConfig } from './heading-ids.js';
 
 /** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';
 
 /**
  * Merge user config with default config and set up context (ex. heading ID slugger)
- * Called on each file's individual transform
+ * Called on each file's individual transform.
+ * TODO: virtual module to merge configs per-build instead of per-file?
  */
-export function setupConfig(userConfig: MarkdocConfig, entry: ContentEntryModule): MarkdocConfig {
-	const defaultConfig: MarkdocConfig = {
-		// `setupXConfig()` could become a "plugin" convention as well?
-		...setupHeadingConfig(),
-		variables: { entry },
-	};
+export async function setupConfig(
+	userConfig: AstroMarkdocConfig
+): Promise<Omit<AstroMarkdocConfig, 'extends'>> {
+	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
+
+	if (userConfig.extends) {
+		for (let extension of userConfig.extends) {
+			if (extension instanceof Promise) {
+				extension = await extension;
+			}
+
+			defaultConfig = mergeConfig(defaultConfig, extension);
+		}
+	}
+
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Used for synchronous `getHeadings()` function */
+export function setupConfigSync(
+	userConfig: AstroMarkdocConfig
+): Omit<AstroMarkdocConfig, 'extends'> {
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
+
 	return mergeConfig(defaultConfig, userConfig);
 }
 
 /** Merge function from `@markdoc/markdoc` internals */
-function mergeConfig(configA: MarkdocConfig, configB: MarkdocConfig): MarkdocConfig {
+function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): AstroMarkdocConfig {
 	return {
 		...configA,
 		...configB,
+		ctx: {
+			...configA.ctx,
+			...configB.ctx,
+		},
 		tags: {
 			...configA.tags,
 			...configB.tags,

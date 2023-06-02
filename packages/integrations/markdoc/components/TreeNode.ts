@@ -11,12 +11,14 @@ import {
 	createHeadAndContent,
 	unescapeHTML,
 	renderTemplate,
+	HTMLString,
+	isHTMLString,
 } from 'astro/runtime/server/index.js';
 
 export type TreeNode =
 	| {
 			type: 'text';
-			content: string;
+			content: string | HTMLString;
 	  }
 	| {
 			type: 'component';
@@ -37,6 +39,7 @@ export type TreeNode =
 export const ComponentNode = createComponent({
 	factory(result: any, { treeNode }: { treeNode: TreeNode }) {
 		if (treeNode.type === 'text') return render`${treeNode.content}`;
+
 		const slots = {
 			default: () =>
 				render`${treeNode.children.map((child) =>
@@ -50,7 +53,7 @@ export const ComponentNode = createComponent({
 			if (Array.isArray(treeNode.collectedStyles)) {
 				styles = treeNode.collectedStyles
 					.map((style: any) =>
-						renderUniqueStylesheet({
+						renderUniqueStylesheet(result, {
 							type: 'inline',
 							content: style,
 						})
@@ -61,7 +64,8 @@ export const ComponentNode = createComponent({
 				links = treeNode.collectedLinks
 					.map((link: any) => {
 						return renderUniqueStylesheet(result, {
-							href: link[0] === '/' ? link : '/' + link,
+							type: 'external',
+							src: link[0] === '/' ? link : '/' + link,
 						});
 					})
 					.join('');
@@ -102,10 +106,10 @@ export const ComponentNode = createComponent({
 	propagation: 'self',
 });
 
-export async function createTreeNode(
-	node: RenderableTreeNode | RenderableTreeNode[]
-): Promise<TreeNode> {
-	if (typeof node === 'string' || typeof node === 'number') {
+export async function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]): TreeNode {
+	if (isHTMLString(node)) {
+		return { type: 'text', content: node as HTMLString };
+	} else if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
 	} else if (Array.isArray(node)) {
 		return {

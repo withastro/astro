@@ -107,13 +107,12 @@ export default function assets({
 						}
 
 						const url = new URL(req.url, 'file:');
-						const filePath = url.searchParams.get('href');
-
-						if (!filePath) {
+						if (!url.searchParams.has('href')) {
 							return next();
 						}
 
-						const filePathURL = new URL('.' + filePath, settings.config.root);
+						const filePath = url.searchParams.get('href')?.slice('/@fs'.length);
+						const filePathURL = new URL('.' + filePath, 'file:');
 						const file = await fs.readFile(filePathURL);
 
 						// Get the file's metadata from the URL
@@ -243,7 +242,7 @@ export default function assets({
 
 				const cleanedUrl = removeQueryString(id);
 				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
-					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);
+					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},

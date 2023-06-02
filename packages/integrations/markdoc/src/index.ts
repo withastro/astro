@@ -4,11 +4,21 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
+import {
+	createNameHash,
+	hasContentFlag,
+	isValidUrl,
+	MarkdocError,
+	parseFrontmatter,
+	prependForwardSlash,
+	PROPAGATED_ASSET_FLAG,
+} from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { bold, red, yellow } from 'kleur/colors';
+import path from 'node:path';
 import type * as rollup from 'rollup';
+import { normalizePath } from 'vite';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
 
@@ -17,6 +27,12 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// Add type defs here
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
+
+const markdocTokenizer = new Markdoc.Tokenizer({
+	// Strip <!-- comments --> from rendered output
+	// Without this, they're rendered as strings!
+	allowComments: true,
+});
 
 export default function markdocIntegration(legacyConfig?: any): AstroIntegration {
 	if (legacyConfig) {
@@ -28,6 +44,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		process.exit(0);
 	}
 	let markdocConfigResult: MarkdocConfigResult | undefined;
+	let markdocConfigResultId = '';
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
@@ -39,6 +56,9 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				} = params as SetupHookParams;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
+				if (markdocConfigResult) {
+					markdocConfigResultId = normalizePath(fileURLToPath(markdocConfigResult.fileUrl));
+				}
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
@@ -56,10 +76,14 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					// Markdoc handles script / style propagation
 					// for Astro components internally
 					handlePropagation: false,
-					async getRenderModule({ entry, viteId }) {
-						const ast = Markdoc.parse(entry.body);
+					async getRenderModule({ contents, fileUrl, viteId }) {
+						const entry = getEntryInfo({ contents, fileUrl });
+						const tokens = markdocTokenizer.tokenize(entry.body);
+						const ast = Markdoc.parse(tokens);
 						const pluginContext = this;
-						const markdocConfig = setupConfig(userMarkdocConfig, entry);
+						const markdocConfig = await setupConfig(userMarkdocConfig);
+
+						const filePath = fileURLToPath(fileUrl);
 
 						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
 							return (
@@ -72,10 +96,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						});
 						if (validationErrors.length) {
 							// Heuristic: take number of newlines for `rawData` and add 2 for the `---` fences
-							const frontmatterBlockOffset = entry._internal.rawData.split('\n').length + 2;
+							const frontmatterBlockOffset = entry.rawData.split('\n').length + 2;
+							const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
 							throw new MarkdocError({
 								message: [
-									`**${String(entry.collection)} → ${String(entry.id)}** contains invalid content:`,
+									`**${String(rootRelativePath)}** contains invalid content:`,
 									...validationErrors.map((e) => `- ${e.error.message}`),
 								].join('\n'),
 								location: {
@@ -91,7 +116,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							await emitOptimizedImages(ast.children, {
 								astroConfig,
 								pluginContext,
-								filePath: entry._internal.filePath,
+								filePath,
 							});
 						}
 
@@ -100,12 +125,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							renderComponent,
 						} from 'astro/runtime/server/index.js';
 						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, setupConfig, Markdoc } from '@astrojs/markdoc/runtime';
-import * as entry from ${JSON.stringify(viteId + '?astroContentCollectionEntry')};
+						import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
 ${
 	markdocConfigResult
 		? `import _userConfig from ${JSON.stringify(
-				markdocConfigResult.fileUrl.pathname
+				markdocConfigResultId
 		  )};\nconst userConfig = _userConfig ?? {};`
 		: 'const userConfig = {};'
 }${
@@ -124,18 +148,18 @@ export function getHeadings() {
 		''
 	}
 	const headingConfig = userConfig.nodes?.heading;
-	const config = setupConfig(headingConfig ? { nodes: { heading: headingConfig } } : {}, entry);
+	const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {});
 	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 	const content = Markdoc.transform(ast, config);
 	return collectHeadings(Array.isArray(content) ? content : content.children);
 }
 
 export const Content = createComponent({
-	factory(result, props) {
-		const config = setupConfig({
+	async factory(result, props) {
+		const config = await setupConfig({
 			...userConfig,
 			variables: { ...userConfig.variables, ...props },
-		}, entry);
+		});
 		
 		return renderComponent(
 			result,
@@ -155,8 +179,35 @@ export const Content = createComponent({
 					),
 				});
 
+				let rollupOptions: rollup.RollupOptions = {};
+				if (markdocConfigResult) {
+					rollupOptions = {
+						output: {
+							// Split Astro components from your `markdoc.config`
+							// to only inject component styles and scripts at runtime.
+							manualChunks(id, { getModuleInfo }) {
+								if (
+									markdocConfigResult &&
+									hasContentFlag(id, PROPAGATED_ASSET_FLAG) &&
+									getModuleInfo(id)?.importers?.includes(markdocConfigResultId)
+								) {
+									return createNameHash(id, [id]);
+								}
+							},
+						},
+					};
+				}
+
 				updateConfig({
 					vite: {
+						vite: {
+							ssr: {
+								external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
+							},
+						},
+						build: {
+							rollupOptions,
+						},
 						plugins: [
 							{
 								name: '@astrojs/markdoc:astro-propagated-assets',
@@ -165,7 +216,7 @@ export const Content = createComponent({
 								// When a given Markdoc file actually uses that component.
 								// Add the `astroPropagatedAssets` flag to inject only when rendered.
 								resolveId(this: rollup.TransformPluginContext, id: string, importer: string) {
-									if (importer === markdocConfigResult?.fileUrl.pathname && id.endsWith('.astro')) {
+									if (importer === markdocConfigResultId && id.endsWith('.astro')) {
 										return this.resolve(id + '?astroPropagatedAssets', importer, {
 											skipSelf: true,
 										});
@@ -178,7 +229,7 @@ export const Content = createComponent({
 			},
 			'astro:server:setup': async ({ server }) => {
 				server.watcher.on('all', (event, entry) => {
-					if (pathToFileURL(entry).pathname === markdocConfigResult?.fileUrl.pathname) {
+					if (prependForwardSlash(pathToFileURL(entry).pathname) === markdocConfigResultId) {
 						console.log(
 							yellow(
 								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
