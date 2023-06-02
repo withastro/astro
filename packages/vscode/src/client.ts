@@ -1,5 +1,6 @@
 import { protocol } from '@astrojs/language-server';
 import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
+import type { ExportsInfoForLabs } from '@volar/vscode';
 import {
 	activateAutoInsertion,
 	activateFindFileReferences,
