@@ -26,7 +26,9 @@ export class ProjectAstroFilesManager {
 	}
 
 	updateProjectConfig(serviceHost: ts.LanguageServiceHost) {
-		const parsedCommandLine = serviceHost.getParsedCommandLine?.(getConfigPathForProject(this.project));
+		const parsedCommandLine = serviceHost.getParsedCommandLine?.(
+			getConfigPathForProject(this.project)
+		);
 
 		if (!parsedCommandLine) {
 			return;
@@ -49,7 +51,9 @@ export class ProjectAstroFilesManager {
 	 */
 	private setupWatchers() {
 		for (const directory in this.parsedCommandLine.wildcardDirectories) {
-			if (!Object.prototype.hasOwnProperty.call(this.parsedCommandLine.wildcardDirectories, directory)) {
+			if (
+				!Object.prototype.hasOwnProperty.call(this.parsedCommandLine.wildcardDirectories, directory)
+			) {
 				continue;
 			}
 
@@ -77,7 +81,11 @@ export class ProjectAstroFilesManager {
 	}
 
 	private updateProjectAstroFiles() {
-		const fileNamesAfter = readProjectAstroFilesFromFs(this.typescript, this.project, this.parsedCommandLine);
+		const fileNamesAfter = readProjectAstroFilesFromFs(
+			this.typescript,
+			this.project,
+			this.parsedCommandLine
+		);
 		const removedFiles = new Set(...this.files);
 		const newFiles = fileNamesAfter.filter((fileName) => {
 			const has = this.files.has(fileName);

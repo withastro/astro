@@ -2,7 +2,10 @@ import type ts from 'typescript/lib/tsserverlibrary';
 import type { AstroSnapshotManager } from '../astro-snapshots.js';
 import { isAstroFilePath, isNotNullOrUndefined } from '../utils.js';
 
-export function decorateGetFileReferences(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager): void {
+export function decorateGetFileReferences(
+	ls: ts.LanguageService,
+	snapshotManager: AstroSnapshotManager
+): void {
 	const getFileReferences = ls.getFileReferences;
 	ls.getFileReferences = (fileName) => {
 		const references = getFileReferences(fileName);

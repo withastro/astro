@@ -1,6 +1,8 @@
+import { dirname, resolve } from 'node:path';
+
+// Those three imports needs to always be `type` imports, as we always want to import them dynamically
 import type * as svelte from '@astrojs/svelte/dist/editor.cjs';
-import type * as vue from '@astrojs/svelte/dist/editor.cjs';
-import { dirname, resolve } from 'path';
+import type * as vue from '@astrojs/vue/dist/editor.cjs';
 import type * as prettier from 'prettier';
 
 let isTrusted = true;
@@ -50,13 +52,22 @@ export function importVueIntegration(fromPath: string): typeof vue | undefined {
 	return importEditorIntegration('@astrojs/vue', fromPath);
 }
 
-export function importPrettier(fromPath: string): typeof prettier {
-	// This shouldn't ever fail, because we bundle Prettier in the extension itself
-	const prettierPkg = getPackagePath('prettier', [fromPath, __dirname])!;
+export function importPrettier(fromPath: string): typeof prettier | undefined {
+	const prettierPkg = getPackagePath('prettier', [fromPath, __dirname]);
+
+	if (!prettierPkg) {
+		return undefined;
+	}
 
 	return require(prettierPkg);
 }
 
-export function getPrettierPluginPath(fromPath: string): string {
-	return getPackagePath('prettier-plugin-astro', [fromPath, __dirname])!;
+export function getPrettierPluginPath(fromPath: string): string | undefined {
+	const prettierPluginPath = getPackagePath('prettier-plugin-astro', [fromPath, __dirname]);
+
+	if (!prettierPluginPath) {
+		return undefined;
+	}
+
+	return prettierPluginPath;
 }

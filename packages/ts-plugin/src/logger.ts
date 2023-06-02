@@ -1,7 +1,11 @@
 import type ts from 'typescript/lib/tsserverlibrary';
 
 export class Logger {
-	constructor(private tsLogService: ts.server.Logger, suppressNonAstroLogs = false, private logDebug = false) {
+	constructor(
+		private tsLogService: ts.server.Logger,
+		suppressNonAstroLogs = false,
+		private logDebug = false
+	) {
 		if (suppressNonAstroLogs) {
 			const log = this.tsLogService.info.bind(this.tsLogService);
 			this.tsLogService.info = (s: string) => {

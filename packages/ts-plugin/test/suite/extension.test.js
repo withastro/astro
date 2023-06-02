@@ -15,7 +15,9 @@ suite('Extension Test Suite', () => {
 			}
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
-		throw new Error(`TypeScript plugin never started or condition never resolved for command ${command}`);
+		throw new Error(
+			`TypeScript plugin never started or condition never resolved for command ${command}`
+		);
 	}
 
 	test('extension is enabled', async () => {
@@ -26,7 +28,9 @@ suite('Extension Test Suite', () => {
 	});
 
 	test('can find references inside Astro files', async () => {
-		const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')));
+		const doc = await vscode.workspace.openTextDocument(
+			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))
+		);
 
 		const references = await waitForTS(
 			'vscode.executeReferenceProvider',
@@ -39,7 +43,9 @@ suite('Extension Test Suite', () => {
 	}).timeout(22000);
 
 	test('can get completions for Astro components', async () => {
-		const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')));
+		const doc = await vscode.workspace.openTextDocument(
+			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))
+		);
 
 		const completions = await waitForTS(
 			'vscode.executeCompletionItemProvider',
@@ -54,7 +60,9 @@ suite('Extension Test Suite', () => {
 	}).timeout(12000);
 
 	test('can get implementations inside Astro files', async () => {
-		const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')));
+		const doc = await vscode.workspace.openTextDocument(
+			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts'))
+		);
 
 		const implementations = await waitForTS(
 			'vscode.executeImplementationProvider',
@@ -62,7 +70,9 @@ suite('Extension Test Suite', () => {
 			(result) => result.length > 1
 		);
 
-		const hasAstroImplementation = implementations.some((impl) => impl.uri.path.includes('MyAstroComponent'));
+		const hasAstroImplementation = implementations.some((impl) =>
+			impl.uri.path.includes('MyAstroComponent')
+		);
 		expect(hasAstroImplementation).to.be.true;
 	}).timeout(12000);
 });

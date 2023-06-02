@@ -2,7 +2,10 @@ import type ts from 'typescript/lib/tsserverlibrary';
 import type { AstroSnapshotManager } from '../astro-snapshots';
 import { isAstroFilePath, isNotNullOrUndefined } from '../utils';
 
-export function decorateGetDefinition(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager): void {
+export function decorateGetDefinition(
+	ls: ts.LanguageService,
+	snapshotManager: AstroSnapshotManager
+): void {
 	const getDefinitionAndBoundSpan = ls.getDefinitionAndBoundSpan;
 	ls.getDefinitionAndBoundSpan = (fileName, position) => {
 		const definition = getDefinitionAndBoundSpan(fileName, position);

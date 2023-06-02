@@ -2,12 +2,11 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
-.vercel
-_site/
 *.log
 package-lock.json
 .turbo/
 .vscode-test/
+*.vsix
 
 # .vscode files other than at top-level
 **/.vscode

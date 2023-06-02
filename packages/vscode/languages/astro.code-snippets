@@ -26,7 +26,15 @@
 		"prefix": "page_layout",
 		"isFileTemplate": true,
 		"scope": "astro",
-		"body": ["---", "import ${1:Layout} from \"../layouts/$1.astro\"", "---", "", "<$1>", "\t$0", "</$1>"],
+		"body": [
+			"---",
+			"import ${1:Layout} from \"../layouts/$1.astro\"",
+			"---",
+			"",
+			"<$1>",
+			"\t$0",
+			"</$1>"
+		],
 		"description": "Page from Layout"
 	},
 	"component": {

@@ -46,7 +46,11 @@ switch (process.platform) {
 		break;
 	default:
 		systemDefaultPlatform =
-			process.arch === 'arm64' ? 'linux-arm64' : process.arch === 'arm' ? 'linux-armhf' : 'linux-x64';
+			process.arch === 'arm64'
+				? 'linux-arm64'
+				: process.arch === 'arm'
+				? 'linux-armhf'
+				: 'linux-x64';
 }
 
 /**

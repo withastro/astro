@@ -36,7 +36,10 @@ function decorateSemanticDiagnostics(ls: ts.LanguageService, typescript: _ts): v
 
 		let diagnostics = getSemanticDiagnostics(fileName);
 		diagnostics = diagnostics.map((diag) => {
-			const message = typescript.flattenDiagnosticMessageText(diag.messageText, typescript.sys.newLine);
+			const message = typescript.flattenDiagnosticMessageText(
+				diag.messageText,
+				typescript.sys.newLine
+			);
 			if (
 				diag.code === DiagnosticCodes.CANNOT_FIND_MODULE &&
 				message.includes('astro:content') &&

@@ -210,7 +210,10 @@ repository:
     name: comment.block.astro
     patterns:
       # Validations
-      - { match: '\G-?>|<!--(?!>)|<!-(?=-->)|--!>', name: invalid.illegal.characters-not-allowed-here.astro }
+      - {
+          match: '\G-?>|<!--(?!>)|<!-(?=-->)|--!>',
+          name: invalid.illegal.characters-not-allowed-here.astro,
+        }
 
   # ------
   #  MISC
@@ -265,7 +268,7 @@ repository:
                 captures:
                   0: { name: source.js }
                   1: { patterns: [{ include: source.js }] }
-              - begin: (['"])
+              - begin: (["])
                 end: \1
                 beginCaptures: { 0: { name: punctuation.definition.string.begin.astro } }
                 endCaptures: { 0: { name: punctuation.definition.string.end.astro } }
@@ -281,6 +284,24 @@ repository:
                   - begin: /\*
                     beginCaptures: { 0: { name: punctuation.definition.comment.begin.js } }
                     end: (?=\")|\*/
+                    endCaptures: { 0: { name: punctuation.definition.comment.end.js } }
+                    name: comment.block.js
+              - begin: (['])
+                end: \1
+                beginCaptures: { 0: { name: punctuation.definition.string.begin.astro } }
+                endCaptures: { 0: { name: punctuation.definition.string.end.astro } }
+                name: string.quoted.astro
+                patterns:
+                  - match: ([^\n\'/]|/(?![/*]))+
+                    captures: { 0: { patterns: [{ include: source.js }] } }
+                  # Special handling for comments so they stay scoped inside the quotes
+                  - begin: //
+                    beginCaptures: { 0: { name: punctuation.definition.comment.js } }
+                    end: (?=\')|\n
+                    name: comment.line.double-slash.js
+                  - begin: /\*
+                    beginCaptures: { 0: { name: punctuation.definition.comment.begin.js } }
+                    end: (?=\')|\*/
                     endCaptures: { 0: { name: punctuation.definition.comment.end.js } }
                     name: comment.block.js
 

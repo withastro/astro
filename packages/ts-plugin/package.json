@@ -4,6 +4,11 @@
   "description": "A TypeScript Plugin providing Astro intellisense",
   "main": "dist/index.js",
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/language-tools",
+    "directory": "packages/ts-plugin"
+  },
   "keywords": [
     "astro",
     "typescript",
@@ -11,31 +16,25 @@
     "plugin"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "tsc",
+    "dev": "tsc --watch",
     "test": "node ./test/runTest.js"
   },
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/compiler": "^1.4.2",
+    "@astrojs/compiler": "^1.5.0",
     "@jridgewell/trace-mapping": "^0.3.15"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^16.11.58",
+    "@types/node": "^16.18.26",
     "@types/vscode": "^1.67.0",
     "@vscode/test-electron": "^2.1.5",
-    "astro-scripts": "*",
     "chai": "^4.3.6",
     "glob": "^8.0.3",
     "mocha": "^9.2.2",
-    "typescript": "~5.0.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/withastro/language-tools",
-    "directory": "packages/ts-plugin"
+    "typescript": "~5.0.0"
   }
 }

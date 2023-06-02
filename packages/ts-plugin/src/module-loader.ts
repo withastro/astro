@@ -20,7 +20,11 @@ class ModuleResolutionCache {
 	/**
 	 * Caches resolved module, if it is not undefined.
 	 */
-	set(moduleName: string, containingFile: string, resolvedModule: ts.ResolvedModuleFull | undefined) {
+	set(
+		moduleName: string,
+		containingFile: string,
+		resolvedModule: ts.ResolvedModuleFull | undefined
+	) {
 		if (!resolvedModule) {
 			return;
 		}
@@ -99,8 +103,13 @@ export function patchModuleLoader(
 		// astro file and if so, are resolved, too. This way we can defer
 		// all module resolving logic except for astro files to TypeScript.
 		const resolved =
-			origResolveModuleNames?.(moduleNames, containingFile, reusedNames, redirectedReference, compilerOptions) ||
-			Array.from<undefined>(Array(moduleNames.length));
+			origResolveModuleNames?.(
+				moduleNames,
+				containingFile,
+				reusedNames,
+				redirectedReference,
+				compilerOptions
+			) || Array.from<undefined>(Array(moduleNames.length));
 
 		return resolved.map((moduleName, idx) => {
 			const fileName = moduleNames[idx];
@@ -178,7 +187,10 @@ export function patchModuleLoader(
 
 		return resolved.map((tsResolvedModule, idx) => {
 			const moduleName = moduleLiterals[idx].text;
-			if (tsResolvedModule.resolvedModule || !ensureRealAstroFilePath(moduleName).endsWith('.astro')) {
+			if (
+				tsResolvedModule.resolvedModule ||
+				!ensureRealAstroFilePath(moduleName).endsWith('.astro')
+			) {
 				return tsResolvedModule;
 			}
 
@@ -186,7 +198,11 @@ export function patchModuleLoader(
 		});
 	}
 
-	function resolveAstroModuleNameFromCache(moduleName: string, containingFile: string, options: ts.CompilerOptions) {
+	function resolveAstroModuleNameFromCache(
+		moduleName: string,
+		containingFile: string,
+		options: ts.CompilerOptions
+	) {
 		const cachedModule = moduleCache.get(moduleName, containingFile);
 		if (cachedModule) {
 			return {

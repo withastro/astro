@@ -2,7 +2,10 @@ import type ts from 'typescript/lib/tsserverlibrary';
 import type { AstroSnapshotManager } from '../astro-snapshots.js';
 import { isAstroFilePath, isNotNullOrUndefined } from '../utils.js';
 
-export function decorateGetImplementation(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager): void {
+export function decorateGetImplementation(
+	ls: ts.LanguageService,
+	snapshotManager: AstroSnapshotManager
+): void {
 	const getImplementationAtPosition = ls.getImplementationAtPosition;
 	ls.getImplementationAtPosition = (fileName, position) => {
 		const implementation = getImplementationAtPosition(fileName, position);

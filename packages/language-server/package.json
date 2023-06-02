@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -10,52 +10,65 @@
   },
   "type": "commonjs",
   "main": "dist/index.js",
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
   "bin": {
     "astro-ls": "./bin/nodeServer.js"
   },
-  "files": [
-    "dist",
-    "bin",
-    "types"
-  ],
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 20000 --require ts-node/register \"test/**/*.ts\" --exclude \"test/**/*.d.ts\"",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "mocha --timeout 10000 --require tsx --require test/takedown.ts test/misc/init.test.ts test/**/*.test.ts",
     "test:match": "pnpm run test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.4.2",
-    "@jridgewell/trace-mapping": "^0.3.14",
-    "@vscode/emmet-helper": "^2.8.4",
-    "events": "^3.3.0",
-    "prettier": "^2.8.8",
-    "prettier-plugin-astro": "^0.9.1",
-    "vscode-css-languageservice": "^6.2.1",
-    "vscode-html-languageservice": "^5.0.0",
-    "vscode-languageserver": "^8.0.1",
-    "vscode-languageserver-protocol": "^3.17.1",
-    "vscode-languageserver-textdocument": "^1.0.4",
-    "vscode-languageserver-types": "^3.17.1",
-    "vscode-uri": "^3.0.3"
+    "@astrojs/compiler": "^1.5.0",
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@volar/kit": "^1.6.9",
+    "@volar/language-core": "^1.6.9",
+    "@volar/language-server": "^1.6.9",
+    "@volar/language-service": "^1.6.9",
+    "@volar/source-map": "^1.6.9",
+    "fast-glob": "^3.2.12",
+    "muggle-string": "^0.3.1",
+    "volar-service-css": "^0.0.4",
+    "volar-service-emmet": "^0.0.4",
+    "volar-service-html": "^0.0.4",
+    "volar-service-prettier": "^0.0.4",
+    "volar-service-typescript": "^0.0.4",
+    "volar-service-typescript-twoslash-queries": "^0.0.4",
+    "vscode-html-languageservice": "^5.0.5",
+    "vscode-uri": "^3.0.7"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^1.0.0",
-    "@astrojs/vue": "^1.0.0",
-    "@types/chai": "^4.3.0",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^16.11.58",
-    "@types/prettier": "^2.7.0",
-    "@types/sinon": "^10.0.11",
-    "astro": "^1.6.2",
-    "astro-scripts": "*",
-    "chai": "^4.3.6",
-    "cross-env": "^7.0.3",
-    "mocha": "^9.2.2",
-    "sinon": "^13.0.1",
-    "svelte": "^3.49.0",
-    "ts-node": "^10.7.0",
-    "typescript": "~5.0.2",
-    "vue": "^3.2.37"
+    "@astrojs/svelte": "^2.2.0",
+    "@astrojs/vue": "^2.2.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^16.18.26",
+    "@types/prettier": "^2.7.2",
+    "astro": "^2.5.4",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "tsx": "^3.12.7",
+    "typescript": "~5.0.4",
+    "vscode-languageserver-protocol": "^3.17.3",
+    "vscode-languageserver-textdocument": "^1.0.8"
+  },
+  "peerDependencies": {
+    "prettier": "^2.8.8",
+    "prettier-plugin-astro": "^0.10.0"
+  },
+  "peerDependenciesMeta": {
+    "prettier": {
+      "optional": true
+    },
+    "prettier-plugin-astro": {
+      "optional": true
+    }
   }
 }

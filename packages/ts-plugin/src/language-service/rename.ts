@@ -3,9 +3,19 @@ import type { AstroSnapshotManager } from '../astro-snapshots.js';
 import type { Logger } from '../logger.js';
 import { isAstroFilePath, isNotNullOrUndefined } from '../utils.js';
 
-export function decorateRename(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager, logger: Logger): void {
+export function decorateRename(
+	ls: ts.LanguageService,
+	snapshotManager: AstroSnapshotManager,
+	logger: Logger
+): void {
 	const findRenameLocations = ls.findRenameLocations;
-	ls.findRenameLocations = (fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename) => {
+	ls.findRenameLocations = (
+		fileName,
+		position,
+		findInStrings,
+		findInComments,
+		providePrefixAndSuffixTextForRename
+	) => {
 		const renameLocations = findRenameLocations(
 			fileName,
 			position,

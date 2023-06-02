@@ -11,7 +11,9 @@ function init(modules: { typescript: typeof import('typescript/lib/tsserverlibra
 
 	function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
 		const logger = new Logger(info.project.projectService.logger);
-		const parsedCommandLine = info.languageServiceHost.getParsedCommandLine?.(getConfigPathForProject(info.project));
+		const parsedCommandLine = info.languageServiceHost.getParsedCommandLine?.(
+			getConfigPathForProject(info.project)
+		);
 
 		if (!isAstroProject(info.project, parsedCommandLine)) {
 			logger.log('Detected that this is not an Astro project, abort patching TypeScript');
@@ -24,7 +26,11 @@ function init(modules: { typescript: typeof import('typescript/lib/tsserverlibra
 
 		logger.log('Starting Astro plugin');
 
-		const snapshotManager = new AstroSnapshotManager(modules.typescript, info.project.projectService, logger);
+		const snapshotManager = new AstroSnapshotManager(
+			modules.typescript,
+			info.project.projectService,
+			logger
+		);
 		if (parsedCommandLine) {
 			new ProjectAstroFilesManager(
 				modules.typescript,
@@ -35,7 +41,13 @@ function init(modules: { typescript: typeof import('typescript/lib/tsserverlibra
 			);
 		}
 
-		patchModuleLoader(logger, snapshotManager, modules.typescript, info.languageServiceHost, info.project);
+		patchModuleLoader(
+			logger,
+			snapshotManager,
+			modules.typescript,
+			info.languageServiceHost,
+			info.project
+		);
 		return decorateLanguageService(info.languageService, snapshotManager, ts, logger);
 	}
 
@@ -43,7 +55,10 @@ function init(modules: { typescript: typeof import('typescript/lib/tsserverlibra
 		return ProjectAstroFilesManager.getInstance(project.getProjectName())?.getFiles() ?? [];
 	}
 
-	function isAstroProject(project: ts.server.Project, parsedCommandLine: ts.ParsedCommandLine | undefined) {
+	function isAstroProject(
+		project: ts.server.Project,
+		parsedCommandLine: ts.ParsedCommandLine | undefined
+	) {
 		if (parsedCommandLine) {
 			const astroFiles = readProjectAstroFilesFromFs(ts, project, parsedCommandLine);
 

@@ -26,7 +26,15 @@ export function decorateCompletions(ls: ts.LanguageService, logger: Logger): voi
 	};
 
 	const getCompletionEntryDetails = ls.getCompletionEntryDetails;
-	ls.getCompletionEntryDetails = (fileName, position, entryName, formatOptions, source, preferences, data) => {
+	ls.getCompletionEntryDetails = (
+		fileName,
+		position,
+		entryName,
+		formatOptions,
+		source,
+		preferences,
+		data
+	) => {
 		if (!isAstroFilePath(source || '')) {
 			const details = getCompletionEntryDetails(
 				fileName,

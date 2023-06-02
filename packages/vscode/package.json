@@ -13,6 +13,7 @@
     "node",
     "typescript",
     "javascript",
+    "react",
     "vue",
     "svelte",
     "Static site generator"
@@ -23,23 +24,10 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "1.0.8",
+  "version": "2.0.12",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
-  "scripts": {
-    "build": "pnpm build:node & pnpm build:browser",
-    "dev": "pnpm build:node --watch & pnpm build:browser --watch",
-    "build:node": "node ./scripts/build-node.js",
-    "build:browser": "node ./scripts/build-browser.js",
-    "build:ci:node": "pnpm build:node & pnpm build:browser --empty",
-    "build:ci:browser": "pnpm build:browser & pnpm build:node --empty",
-    "build:grammar": "npx js-yaml syntaxes/astro.tmLanguage.src.yaml > syntaxes/astro.tmLanguage.json",
-    "test": "pnpm test:vscode && pnpm test:grammar",
-    "test:vscode": "node ./test/runTest.js",
-    "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
-    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
-  },
   "engines": {
     "vscode": "^1.67.0"
   },
@@ -47,33 +35,12 @@
     "onLanguage:astro",
     "workspaceContains:astro.config.*"
   ],
-  "dependencies": {
-    "@astrojs/ts-plugin": "1.0.7",
-    "prettier": "^2.8.8",
-    "prettier-plugin-astro": "^0.9.1"
-  },
-  "devDependencies": {
-    "@astrojs/language-server": "1.0.8",
-    "@types/mocha": "^9.1.0",
-    "@types/vscode": "^1.67.0",
-    "@vscode/test-electron": "^2.1.3",
-    "esbuild": "0.14.54",
-    "esbuild-plugin-copy": "^2.1.1",
-    "glob": "^8.0.3",
-    "js-yaml": "^4.1.0",
-    "kleur": "^4.1.5",
-    "mocha": "^9.2.2",
-    "path-browserify": "^1.0.1",
-    "typescript": "~5.0.2",
-    "vscode-languageclient": "^8.0.1",
-    "vscode-tmgrammar-test": "^0.1.1"
-  },
   "main": "./dist/node/client.js",
-  "browser": "./dist/browser/client.js",
   "files": [
     "dist/",
     "languages/",
-    "syntaxes/"
+    "syntaxes/",
+    "assets/"
   ],
   "repository": {
     "type": "git",
@@ -95,30 +62,30 @@
     ],
     "commands": [
       {
-        "command": "astro.restartLanguageServer",
-        "title": "Astro: Restart Language Server"
+        "command": "astro.reloadProjects",
+        "title": "Astro: Reload Projects"
       },
       {
-        "command": "astro.showTSXOutput",
-        "title": "Astro: Debug: Show TSX Output"
+        "command": "astro.findFileReferences",
+        "title": "Astro: Find File References"
       },
       {
         "command": "astro.selectTypescriptVersion",
         "title": "Astro: Select Typescript Version..."
       },
       {
-        "command": "astro.findFileReferences",
-        "title": "Astro: Find File References"
+        "command": "astro.openTsConfig",
+        "title": "Astro: Open TypeScript config"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "astro.restartLanguageServer",
+          "command": "astro.reloadProjects",
           "when": "editorLangId == astro"
         },
         {
-          "command": "astro.showTSXOutput",
+          "command": "astro.findFileReferences",
           "when": "editorLangId == astro"
         },
         {
@@ -126,7 +93,7 @@
           "when": "editorLangId == astro"
         },
         {
-          "command": "astro.findFileReferences",
+          "command": "astro.openTsConfig",
           "when": "editorLangId == astro"
         }
       ],
@@ -181,158 +148,6 @@
           ],
           "default": "off",
           "description": "Traces the communication between VS Code and the language server."
-        },
-        "astro.typescript.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript",
-          "description": "Enable TypeScript features"
-        },
-        "astro.typescript.allowArbitraryAttributes": {
-          "type": "boolean",
-          "default": false,
-          "title": "TypeScript: Allow arbitrary attributes on HTML elements",
-          "description": "Enable the usage of non-standard HTML attributes, such as the ones added by AlpineJS or petite-vue"
-        },
-        "astro.typescript.diagnostics.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Diagnostics",
-          "description": "Enable diagnostic messages for TypeScript"
-        },
-        "astro.typescript.hover.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Hover Info",
-          "description": "Enable hover info for TypeScript"
-        },
-        "astro.typescript.documentSymbols.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Symbols in Outline",
-          "description": "Enable document symbols for TypeScript"
-        },
-        "astro.typescript.completions.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Completions",
-          "description": "Enable completions for TypeScript"
-        },
-        "astro.typescript.definitions.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Go to Definition",
-          "description": "Enable go to definition for TypeScript"
-        },
-        "astro.typescript.codeActions.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Code Actions",
-          "description": "Enable code actions for TypeScript"
-        },
-        "astro.typescript.signatureHelp.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Signature Help",
-          "description": "Enable signature help (parameter hints) for TypeScript"
-        },
-        "astro.typescript.rename.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Rename",
-          "description": "Enable rename functionality for JS/TS variables inside Astro files"
-        },
-        "astro.typescript.semanticTokens.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Semantic Tokens",
-          "description": "Enable semantic tokens (used for semantic highlighting) for TypeScript."
-        },
-        "astro.html.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "HTML",
-          "description": "Enable HTML features"
-        },
-        "astro.html.hover.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "HTML: Hover Info",
-          "description": "Enable hover info for HTML"
-        },
-        "astro.html.completions.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "HTML: Completions",
-          "description": "Enable completions for HTML"
-        },
-        "astro.html.completions.emmet": {
-          "type": "boolean",
-          "default": true,
-          "title": "HTML: Emmet Completions",
-          "description": "Enable Emmet completions for HTML"
-        },
-        "astro.html.tagComplete.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "HTML: Tag Completion",
-          "description": "Enable tag completion for HTML"
-        },
-        "astro.html.documentSymbols.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "HTML: Symbols in Outline",
-          "description": "Enable document symbols for CSS"
-        },
-        "astro.css.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "CSS",
-          "description": "Enable CSS features"
-        },
-        "astro.css.hover.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "CSS: Hover Info",
-          "description": "Enable hover info for CSS"
-        },
-        "astro.css.completions.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "CSS: Completions",
-          "description": "Enable completions for CSS"
-        },
-        "astro.css.completions.emmet": {
-          "type": "boolean",
-          "default": true,
-          "title": "CSS: Emmet Completions",
-          "description": "Enable Emmet completions for CSS"
-        },
-        "astro.css.documentColors.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "CSS: Document Colors",
-          "description": "Enable color picker for CSS"
-        },
-        "astro.css.documentSymbols.enabled": {
-          "type": "boolean",
-          "default": true,
-          "title": "CSS: Symbols in Outline",
-          "description": "Enable document symbols for CSS"
-        },
-        "astro.format.indentFrontmatter": {
-          "deprecationMessage": "The `astro.format` settings are deprecated. Formatting is now powered by Prettier and can be configured through a Prettier configuration file.",
-          "type": "boolean",
-          "default": false,
-          "title": "Formatting: Indent frontmatter",
-          "description": "Indent the formatter by one level of indentation"
-        },
-        "astro.format.newLineAfterFrontmatter": {
-          "deprecationMessage": "The `astro.format` settings are deprecated. Formatting is now powered by Prettier and can be configured through a Prettier configuration file.",
-          "type": "boolean",
-          "default": true,
-          "title": "Formatting: Add line return after the frontmatter",
-          "description": "Add a line return between the frontmatter and the template"
         }
       }
     },
@@ -391,5 +206,39 @@
         }
       }
     ]
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs -- --watch",
+    "build:grammar": "npx js-yaml syntaxes/astro.tmLanguage.src.yaml > syntaxes/astro.tmLanguage.json",
+    "test": "pnpm test:vscode && pnpm test:grammar",
+    "test:vscode": "node ./test/runTest.js",
+    "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
+  },
+  "devDependencies": {
+    "@astrojs/language-server": "^2.0.0",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^16.18.26",
+    "@types/vscode": "1.67.0",
+    "@volar/language-server": "1.6.9",
+    "@volar/vscode": "1.6.9",
+    "@vscode/test-electron": "^2.3.2",
+    "@vscode/vsce": "latest",
+    "esbuild": "^0.17.19",
+    "esbuild-plugin-copy": "^2.1.1",
+    "glob": "^8.0.3",
+    "js-yaml": "^4.1.0",
+    "kleur": "^4.1.5",
+    "mocha": "^10.2.0",
+    "typescript": "~5.0.4",
+    "vscode-languageclient": "^8.1.0",
+    "vscode-tmgrammar-test": "^0.1.1"
+  },
+  "dependencies": {
+    "@astrojs/ts-plugin": "^1.0.7",
+    "prettier": "^2.8.8",
+    "prettier-plugin-astro": "^0.10.0"
   }
 }

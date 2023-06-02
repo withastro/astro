@@ -20,7 +20,9 @@ async function main() {
 			const files = readdirSync(vscodeTestPath);
 			files.forEach((file) => {
 				if (file.startsWith('vscode-')) {
-					vsPath = downloadDirToExecutablePath(path.resolve(__dirname, '../../vscode/.vscode-test/', file));
+					vsPath = downloadDirToExecutablePath(
+						path.resolve(__dirname, '../../vscode/.vscode-test/', file)
+					);
 					return;
 				}
 			});

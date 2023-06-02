@@ -13,3 +13,13 @@ The Astro language server, implement the [language server protocol](https://micr
 ├── test            # Tests
 └── types           # Types injected into Astro files by the language server under certain conditions
 ```
+
+## Troubleshooting
+
+### Formatting does not work
+
+> Using VS Code? This section does not apply to you, the VS Code extension includes both Prettier and the Astro plugin by default.
+
+The Astro language server uses Prettier to format Astro files, but does not include `prettier` or `prettier-plugin-astro` by itself as dependencies in order to keep the dependency count low and allow users to better control the version of Prettier they want to use.
+
+As such, if you want to use formatting, you'll need to install `prettier` and `prettier-plugin-astro` as dependencies in your project.

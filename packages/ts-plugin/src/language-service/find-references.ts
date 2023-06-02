@@ -12,7 +12,11 @@ export function decorateFindReferences(
 	_decorateFindReferences(ls, snapshotManager, logger);
 }
 
-function _decorateFindReferences(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager, logger: Logger) {
+function _decorateFindReferences(
+	ls: ts.LanguageService,
+	snapshotManager: AstroSnapshotManager,
+	logger: Logger
+) {
 	const findReferences = ls.findReferences;
 	ls.findReferences = (fileName, position) => {
 		const references = findReferences(fileName, position);

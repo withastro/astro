@@ -2,7 +2,10 @@ import type ts from 'typescript/lib/tsserverlibrary';
 import type { AstroSnapshotManager } from '../astro-snapshots';
 import { isAstroFilePath } from '../utils';
 
-export function decorateLineColumnOffset(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager) {
+export function decorateLineColumnOffset(
+	ls: ts.LanguageService,
+	snapshotManager: AstroSnapshotManager
+) {
 	if (!ls.toLineColumnOffset) {
 		return;
 	}

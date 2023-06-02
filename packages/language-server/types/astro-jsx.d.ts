@@ -32,7 +32,12 @@ declare namespace astroHTML.JSX {
 	}
 
 	interface AstroBuiltinAttributes {
-		'class:list'?: Record<string, boolean> | Record<any, any> | Iterable<string> | Iterable<any> | string;
+		'class:list'?:
+			| Record<string, boolean>
+			| Record<any, any>
+			| Iterable<string>
+			| Iterable<any>
+			| string;
 		'set:html'?: any;
 		'set:text'?: any;
 		'is:raw'?: boolean;
@@ -236,7 +241,17 @@ declare namespace astroHTML.JSX {
 		 */
 		'aria-controls'?: string | undefined | null;
 		/** Indicates the element that represents the current item within a container or set of related elements. */
-		'aria-current'?: boolean | 'false' | 'true' | 'page' | 'step' | 'location' | 'date' | 'time' | undefined | null;
+		'aria-current'?:
+			| boolean
+			| 'false'
+			| 'true'
+			| 'page'
+			| 'step'
+			| 'location'
+			| 'date'
+			| 'time'
+			| undefined
+			| null;
 		/**
 		 * Identifies the element (or elements) that describes the object.
 		 * @see aria-labelledby
@@ -275,7 +290,17 @@ declare namespace astroHTML.JSX {
 		 */
 		'aria-grabbed'?: boolean | 'false' | 'true' | undefined | null;
 		/** Indicates the availability and type of interactive popup element, such as menu or dialog, that can be triggered by an element. */
-		'aria-haspopup'?: boolean | 'false' | 'true' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' | undefined | null;
+		'aria-haspopup'?:
+			| boolean
+			| 'false'
+			| 'true'
+			| 'menu'
+			| 'listbox'
+			| 'tree'
+			| 'grid'
+			| 'dialog'
+			| undefined
+			| null;
 		/**
 		 * Indicates whether the element is exposed to an accessibility API.
 		 * @see aria-disabled.
@@ -478,11 +503,30 @@ declare namespace astroHTML.JSX {
 		contenteditable?: 'true' | 'false' | boolean | 'inherit' | string | undefined | null;
 		dir?: string | undefined | null;
 		draggable?: 'true' | 'false' | boolean | undefined | null;
-		enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | undefined | null;
+		enterkeyhint?:
+			| 'enter'
+			| 'done'
+			| 'go'
+			| 'next'
+			| 'previous'
+			| 'search'
+			| 'send'
+			| undefined
+			| null;
 		hidden?: boolean | string | undefined | null;
 		id?: string | undefined | null;
 		inert?: boolean | string | undefined | null;
-		inputmode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | undefined | null;
+		inputmode?:
+			| 'none'
+			| 'text'
+			| 'tel'
+			| 'url'
+			| 'email'
+			| 'numeric'
+			| 'decimal'
+			| 'search'
+			| undefined
+			| null;
 		is?: string | undefined | null;
 		itemid?: string | undefined | null;
 		itemprop?: string | undefined | null;

@@ -21,7 +21,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['**/scripts/**/*.js'],
+      files: ['**/scripts/**', '**/bin/**'],
       rules: {
         'no-console': 'off',
       },

@@ -1,78 +1,113 @@
-import type { Diagnostic } from 'vscode-languageserver-types';
-import { ConfigManager, LSConfig } from './core/config';
-import { DocumentManager } from './core/documents';
-import { PluginHost, TypeScriptPlugin } from './plugins';
-import { LanguageServiceManager } from './plugins/typescript/LanguageServiceManager';
-import { normalizeUri } from './utils';
-export { DiagnosticSeverity } from 'vscode-languageserver-types';
-export { Diagnostic };
+import * as kit from '@volar/kit';
+import fg from 'fast-glob';
+import { pathToFileURL } from 'node:url';
+import { getLanguageModule } from './core/index.js';
+import { getSvelteLanguageModule } from './core/svelte.js';
+import { getAstroInstall } from './core/utils.js';
+import { getVueLanguageModule } from './core/vue.js';
+import createAstroService from './plugins/astro.js';
+import createTypeScriptService from './plugins/typescript/index.js';
 
-export interface GetDiagnosticsResult {
-	fileUri: string;
-	text: string;
-	diagnostics: Diagnostic[];
+// Export those for downstream consumers
+export { DiagnosticSeverity, type Diagnostic } from '@volar/language-server';
+
+export interface CheckResult {
+	errors: kit.Diagnostic[];
+	fileUrl: URL;
+	fileContent: string;
 }
 
 export class AstroCheck {
-	private docManager = DocumentManager.newInstance();
-	private configManager = new ConfigManager();
-	private pluginHost = new PluginHost(this.docManager);
+	private ts!: typeof import('typescript/lib/tsserverlibrary.js');
+	private project!: ReturnType<typeof kit.createProject>;
+	private linter!: ReturnType<typeof kit.createLinter>;
 
-	constructor(workspacePath: string, typescriptPath: string, options?: LSConfig) {
-		try {
-			const ts = require(typescriptPath);
-			this.initialize(workspacePath, ts);
-		} catch (e) {
-			throw new Error(`Couldn't load TypeScript from path ${typescriptPath}`);
+	constructor(
+		private readonly workspacePath: string,
+		private readonly typescriptPath: string | undefined
+	) {
+		this.initialize();
+	}
+
+	/**
+	 * Lint a list of files or the entire project and optionally log the errors found
+	 * @param fileNames List of files to lint, if undefined, all files included in the project will be linted
+	 * @param logErrors Whether to log errors by itself. This is disabled by default.
+	 * @return {CheckResult} The result of the lint, including a list of errors, the file's content and its file path.
+	 */
+	public async lint(
+		fileNames: string[] | undefined = undefined,
+		logErrors = false
+	): Promise<CheckResult[]> {
+		const files =
+			fileNames !== undefined
+				? fileNames
+				: this.project.languageServiceHost
+						.getScriptFileNames()
+						.filter((file) => file.endsWith('.astro'));
+
+		const errors: CheckResult[] = [];
+		for (const file of files) {
+			const fileErrors = await this.linter.check(file);
+			if (logErrors) {
+				this.linter.logErrors(file, fileErrors);
+			}
+
+			if (fileErrors.length > 0) {
+				const fileSnapshot = this.project.languageServiceHost.getScriptSnapshot(file);
+				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
+
+				errors.push({
+					errors: fileErrors,
+					fileContent: fileContent ?? '',
+					fileUrl: pathToFileURL(file),
+				});
+			}
 		}
 
-		if (options) {
-			this.configManager.updateGlobalConfig(options);
-		}
+		return errors;
 	}
 
-	upsertDocument(doc: { text: string; uri: string }) {
-		this.docManager.openDocument({
-			text: doc.text,
-			uri: doc.uri,
-		});
-		this.docManager.markAsOpenedInClient(doc.uri);
-	}
+	private initialize() {
+		this.ts = this.typescriptPath ? require(this.typescriptPath) : require('typescript');
+		const tsconfigPath = this.getTsconfig();
 
-	removeDocument(uri: string): void {
-		if (!this.docManager.get(uri)) {
-			return;
-		}
-
-		this.docManager.closeDocument(uri);
-		this.docManager.releaseDocument(uri);
-	}
-
-	async getDiagnostics(): Promise<GetDiagnosticsResult[]> {
-		return await Promise.all(
-			this.docManager.getAllOpenedByClient().map(async (doc) => {
-				const uri = doc[1].uri;
-				return await this.getDiagnosticsForFile(uri);
-			})
-		);
-	}
-
-	private initialize(workspacePath: string, ts: typeof import('typescript/lib/tsserverlibrary')) {
-		const languageServiceManager = new LanguageServiceManager(
-			this.docManager,
-			[normalizeUri(workspacePath)],
-			this.configManager,
-			ts
-		);
-		this.pluginHost.registerPlugin(new TypeScriptPlugin(this.configManager, languageServiceManager));
-	}
-
-	private async getDiagnosticsForFile(uri: string) {
-		const diagnostics = await this.pluginHost.getDiagnostics({ uri });
-		return {
-			fileUri: uri || '',
-			text: this.docManager.get(uri)?.getText() || '',
-			diagnostics,
+		const config: kit.Config = {
+			languages: {
+				astro: getLanguageModule(getAstroInstall([this.workspacePath]), this.ts),
+				svelte: getSvelteLanguageModule(),
+				vue: getVueLanguageModule(),
+			},
+			services: {
+				typescript: createTypeScriptService(),
+				astro: createAstroService(),
+			},
 		};
+
+		if (tsconfigPath) {
+			this.project = kit.createProject(tsconfigPath, [
+				{ extension: 'astro', isMixedContent: true, scriptKind: 7 },
+				{ extension: 'vue', isMixedContent: true, scriptKind: 7 },
+				{ extension: 'svelte', isMixedContent: true, scriptKind: 7 },
+			]);
+		} else {
+			this.project = kit.createInferredProject(this.workspacePath, () => {
+				return fg.sync('**/*.astro', {
+					cwd: this.workspacePath,
+					ignore: ['node_modules'],
+					absolute: true,
+				});
+			});
+		}
+
+		this.linter = kit.createLinter(config, this.project.languageServiceHost);
+	}
+
+	private getTsconfig() {
+		const tsconfig =
+			this.ts.findConfigFile(this.workspacePath, this.ts.sys.fileExists) ||
+			this.ts.findConfigFile(this.workspacePath, this.ts.sys.fileExists, 'jsconfig.json');
+
+		return tsconfig;
 	}
 }

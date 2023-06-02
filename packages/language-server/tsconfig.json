@@ -1,11 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "emitDeclarationOnly": false,
     "outDir": "dist",
-    "target": "ES2020",
-    "module": "CommonJS"
+    "rootDir": "src",
+    "emitDeclarationOnly": false,
+    "sourceMap": true
   },
-  "include": ["src", "test"],
-  "exclude": ["node_modules"]
+  "include": ["src"]
 }

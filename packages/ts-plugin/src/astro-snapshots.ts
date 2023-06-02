@@ -139,7 +139,9 @@ export class AstroSnapshot {
 
 		const lineOffset = lineOffsets[position.line];
 		const nextLineOffset =
-			position.line + 1 < lineOffsets.length ? lineOffsets[position.line + 1] : this.astroCode.length;
+			position.line + 1 < lineOffsets.length
+				? lineOffsets[position.line + 1]
+				: this.astroCode.length;
 
 		return this.clamp(nextLineOffset, lineOffset, lineOffset + position.character);
 	}
@@ -201,7 +203,11 @@ export class AstroSnapshot {
 export class AstroSnapshotManager {
 	private snapshots = new Map<string, AstroSnapshot>();
 
-	constructor(private typescript: typeof ts, private projectService: ts.server.ProjectService, private logger: Logger) {
+	constructor(
+		private typescript: typeof ts,
+		private projectService: ts.server.ProjectService,
+		private logger: Logger
+	) {
 		this.patchProjectServiceReadFile();
 	}
 
@@ -231,7 +237,10 @@ export class AstroSnapshotManager {
 		}
 		const snapshot = this.snapshots.get(fileName);
 		if (!snapshot) {
-			this.logger.log('Astro snapshot was not found after trying to load script snapshot for', fileName);
+			this.logger.log(
+				'Astro snapshot was not found after trying to load script snapshot for',
+				fileName
+			);
 			return; // should never get here
 		}
 		snapshot.setAndPatchScriptInfo(scriptInfo);

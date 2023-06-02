@@ -1,14 +1,5 @@
-src/
-tsconfig.base.json
+out
+scripts
+src
 tsconfig.json
-CONTRIBUTING.md
-test/
-scripts/
-.turbo
-.vscode-test
-syntaxes/astro.tmLanguage.src.yaml
-
-# ESM libs we don't use
-node_modules/prettier/esm
-node_modules/vscode-html-languageservice/lib/esm
-node_modules/vscode-css-languageservice/lib/esm
+tsconfig.tsbuildinfo

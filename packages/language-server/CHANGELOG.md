@@ -1,5 +1,87 @@
 # @astrojs/language-server
 
+## 2.0.0
+
+### Major Changes
+
+- 0c747db: The Astro VS Code extension and language server are now powered by Volar (https://volarjs.github.io/)! This updates massively improve performance and add numerous features such as selection ranges, document highlights, support for intellisense on inline JavaScript, CodeLens helper for `Astro.glob` and more.
+
+  In the background, this update means that we now have to maintain a lot less code ourselves, which means we'll be able to dedicate more time to offering fun, Astro-specific features instead of maintaining core features.
+
+### Patch Changes
+
+- 8b82179: Remove buggy links and paths completions on certain HTML attributes
+- 8b82179: Fix color pickers not showing for inline styles (style attributes)
+- 5a4e068: Fix completions not appearing for Svelte and Vue components in certain cases
+- 5a4e068: Fix Prettier config not being considered when formatting
+- d5e2d51: Fix certain types being wrongly included into projects
+- 4038ca5: Attempt to solve crash in packaged version
+- 8b82179: Remove completion for certain irrelevant properties
+- af88980: Fix packaging error
+- d5e2d51: Added back "Select TypeScript version" command
+- df6cd5a: Fix crash at start
+- 8b82179: Fix signature helpers not working
+- b108370: Fix crash on empty glob pattern
+- 8b82179: Fix auto imports and code actions not working under certain circumstances
+- 5a4e068: Fix auto-imports and quickfixes sometimes not properly inserting the import
+
+## 2.0.0-next.12
+
+### Patch Changes
+
+- b108370: Fix crash on empty glob pattern
+
+## 2.0.0-next.11
+
+### Patch Changes
+
+- af88980: Fix packaging error
+
+## 2.0.0-next.10
+
+### Patch Changes
+
+- d5e2d51: Fix certain types being wrongly included into projects
+- d5e2d51: Added back "Select TypeScript version" command
+
+## 2.0.0-next.9
+
+### Patch Changes
+
+- 8b82179: Remove buggy links and paths completions on certain HTML attributes
+- 8b82179: Fix color pickers not showing for inline styles (style attributes)
+- 8b82179: Remove completion for certain irrelevant properties
+- 8b82179: Fix signature helpers not working
+- 8b82179: Fix auto imports and code actions not working under certain circumstances
+
+## 2.0.0-next.8
+
+### Patch Changes
+
+- 5a4e068: Fix completions not appearing for Svelte and Vue components in certain cases
+- 5a4e068: Fix Prettier config not being considered when formatting
+- 5a4e068: Fix auto-imports and quickfixes sometimes not properly inserting the import
+
+## 2.0.0-next.7
+
+### Patch Changes
+
+- df6cd5a: Fix crash at start
+
+## 2.0.0-next.6
+
+### Patch Changes
+
+- 4038ca5: Attempt to solve crash in packaged version
+
+## 2.0.0-next.0
+
+### Major Changes
+
+- The Astro VS Code extension and language server are now powered by Volar (https://volarjs.github.io/)! This updates massively improve performance and add numerous features such as selection ranges, document highlights, support for intellisense on inline JavaScript, CodeLens helper for `Astro.glob` and more.
+
+In the background, this update means that we now have to maintain a lot less code ourselves, which means we'll be able to dedicate more time to offering fun, Astro-specific features instead of maintaining core features.
+
 ## 1.0.8
 
 ### Patch Changes

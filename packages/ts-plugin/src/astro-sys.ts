@@ -5,7 +5,10 @@ import { ensureRealAstroFilePath, isVirtualAstroFilePath, toRealAstroFilePath } 
 /**
  * This should only be accessed by TS astro module resolution.
  */
-export function createAstroSys(logger: Logger, typescript: typeof import('typescript/lib/tsserverlibrary')) {
+export function createAstroSys(
+	logger: Logger,
+	typescript: typeof import('typescript/lib/tsserverlibrary')
+) {
 	const astroSys: ts.System = {
 		...typescript.sys,
 		fileExists(path: string) {

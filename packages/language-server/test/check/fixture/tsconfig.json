@@ -1,0 +1,4 @@
+{
+  // A `tsconfig.json` isn't needed for astro check to work, however if we don't have this file,
+  // TypeScript will pick up the root `tsconfig.json` from the monorepo, which does not include the `.astro` files in this folder
+}
