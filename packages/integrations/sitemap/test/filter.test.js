@@ -10,9 +10,11 @@ describe('Filter support', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/static/',
-        integrations: [sitemap({
-          filter: (page) => page !== 'http://example.com/two/'
-        })],
+				integrations: [
+					sitemap({
+						filter: (page) => page !== 'http://example.com/two/',
+					}),
+				],
 			});
 			await fixture.build();
 		});
@@ -28,9 +30,11 @@ describe('Filter support', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/ssr/',
-        integrations: [sitemap({
-          filter: (page) => page !== 'http://example.com/two/'
-        })],
+				integrations: [
+					sitemap({
+						filter: (page) => page !== 'http://example.com/two/',
+					}),
+				],
 			});
 			await fixture.build();
 		});
@@ -41,6 +45,4 @@ describe('Filter support', () => {
 			expect(urls.length).to.equal(1);
 		});
 	});
-
 });
-
