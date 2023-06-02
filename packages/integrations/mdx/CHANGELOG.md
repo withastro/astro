@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.19.6
+
+### Patch Changes
+
+- [#7185](https://github.com/withastro/astro/pull/7185) [`339529fc8`](https://github.com/withastro/astro/commit/339529fc820bac2d514b63198ecf54a1d88c0917) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Bring back improved style and script handling across content collection files. This addresses bugs found in a previous release to `@astrojs/markdoc`.
+
 ## 0.19.5
 
 ### Patch Changes
