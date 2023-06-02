@@ -7,7 +7,6 @@ import {
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
 	supportLabsVersion,
-	type ExportsInfoForLabs,
 } from '@volar/vscode';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
