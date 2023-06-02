@@ -7,6 +7,7 @@ import {
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
 	supportLabsVersion,
+	type ExportsInfoForLabs,
 } from '@volar/vscode';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
@@ -14,7 +15,7 @@ import * as lsp from 'vscode-languageclient/node';
 
 let client: lsp.BaseLanguageClient;
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext): Promise<ExportsInfoForLabs> {
 	const runtimeConfig = vscode.workspace.getConfiguration('astro.language-server');
 
 	const { workspaceFolders } = vscode.workspace;
@@ -92,7 +93,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			languageClients: [client],
 			languageServerProtocol: protocol,
 		},
-	} satisfies ExportsInfoForLabs;
+	};
 }
 
 export function deactivate(): Thenable<any> | undefined {
