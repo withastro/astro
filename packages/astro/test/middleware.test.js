@@ -66,6 +66,11 @@ describe('Middleware in DEV mode', () => {
 		let $ = cheerio.load(html);
 		expect($('title').html()).to.equal('MiddlewareNoDataOrNextCalled');
 	});
+
+	it('should allow setting cookies', async () => {
+		let res = await fixture.fetch('/');
+		expect(res.headers.get('set-cookie')).to.equal('foo=bar');
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {
