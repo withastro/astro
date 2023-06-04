@@ -6,6 +6,11 @@ import {
 	createComponent,
 	renderComponent,
 	render,
+	renderScriptElement,
+	renderUniqueStylesheet,
+	createHeadAndContent,
+	unescapeHTML,
+	renderTemplate,
 	HTMLString,
 	isHTMLString,
 } from 'astro/runtime/server/index.js';
@@ -18,6 +23,9 @@ export type TreeNode =
 	| {
 			type: 'component';
 			component: AstroInstance['default'];
+			collectedLinks?: string[];
+			collectedStyles?: string[];
+			collectedScripts?: string[];
 			props: Record<string, any>;
 			children: TreeNode[];
 	  }
@@ -39,20 +47,66 @@ export const ComponentNode = createComponent({
 				)}`,
 		};
 		if (treeNode.type === 'component') {
-			return renderComponent(
-				result,
-				treeNode.component.name,
-				treeNode.component,
-				treeNode.props,
-				slots
+			let styles = '',
+				links = '',
+				scripts = '';
+			if (Array.isArray(treeNode.collectedStyles)) {
+				styles = treeNode.collectedStyles
+					.map((style: any) =>
+						renderUniqueStylesheet(result, {
+							type: 'inline',
+							content: style,
+						})
+					)
+					.join('');
+			}
+			if (Array.isArray(treeNode.collectedLinks)) {
+				links = treeNode.collectedLinks
+					.map((link: any) => {
+						return renderUniqueStylesheet(result, {
+							type: 'external',
+							src: link[0] === '/' ? link : '/' + link,
+						});
+					})
+					.join('');
+			}
+			if (Array.isArray(treeNode.collectedScripts)) {
+				scripts = treeNode.collectedScripts
+					.map((script: any) => renderScriptElement(script))
+					.join('');
+			}
+
+			const head = unescapeHTML(styles + links + scripts);
+
+			let headAndContent = createHeadAndContent(
+				head,
+				renderTemplate`${renderComponent(
+					result,
+					treeNode.component.name,
+					treeNode.component,
+					treeNode.props,
+					slots
+				)}`
 			);
+
+			// Let the runtime know that this component is being used.
+			result.propagators.set(
+				{},
+				{
+					init() {
+						return headAndContent;
+					},
+				}
+			);
+
+			return headAndContent;
 		}
 		return renderComponent(result, treeNode.tag, treeNode.tag, treeNode.attributes, slots);
 	},
-	propagation: 'none',
+	propagation: 'self',
 });
 
-export function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]): TreeNode {
+export async function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]): TreeNode {
 	if (isHTMLString(node)) {
 		return { type: 'text', content: node as HTMLString };
 	} else if (typeof node === 'string' || typeof node === 'number') {
@@ -62,20 +116,35 @@ export function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]):
 			type: 'component',
 			component: Fragment,
 			props: {},
-			children: node.map((child) => createTreeNode(child)),
+			children: await Promise.all(node.map((child) => createTreeNode(child))),
 		};
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return { type: 'text', content: '' };
 	}
 
+	const children = await Promise.all(node.children.map((child) => createTreeNode(child)));
+
 	if (typeof node.name === 'function') {
 		const component = node.name;
 		const props = node.attributes;
-		const children = node.children.map((child) => createTreeNode(child));
 
 		return {
 			type: 'component',
 			component,
+			props,
+			children,
+		};
+	} else if (isPropagatedAssetsModule(node.name)) {
+		const { collectedStyles, collectedLinks, collectedScripts } = node.name;
+		const component = (await node.name.getMod())?.default ?? Fragment;
+		const props = node.attributes;
+
+		return {
+			type: 'component',
+			component,
+			collectedStyles,
+			collectedLinks,
+			collectedScripts,
 			props,
 			children,
 		};
@@ -84,7 +153,19 @@ export function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]):
 			type: 'element',
 			tag: node.name,
 			attributes: node.attributes,
-			children: node.children.map((child) => createTreeNode(child)),
+			children,
 		};
 	}
+}
+
+type PropagatedAssetsModule = {
+	__astroPropagation: true;
+	getMod: () => Promise<AstroInstance['default']>;
+	collectedStyles: string[];
+	collectedLinks: string[];
+	collectedScripts: string[];
+};
+
+function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule {
+	return typeof module === 'object' && module != null && '__astroPropagation' in module;
 }
