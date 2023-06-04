@@ -108,7 +108,7 @@ export type RenderPage = {
 	renderContext: RenderContext;
 	env: Environment;
 	apiContext?: APIContext;
-	isCompressHTMl?: boolean
+	isCompressHTML?: boolean
 };
 
 export async function renderPage({ mod, renderContext, env, apiContext, isCompressHTML = false }: RenderPage) {
@@ -153,7 +153,7 @@ export async function renderPage({ mod, renderContext, env, apiContext, isCompre
 		renderContext.props,
 		null,
 		env.streaming,
-		isCompressHTMl,
+		isCompressHTML,
 		renderContext.route
 	);
 
