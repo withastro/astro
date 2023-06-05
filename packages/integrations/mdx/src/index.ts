@@ -11,6 +11,7 @@ import { SourceMapGenerator } from 'source-map';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
+import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
@@ -21,6 +22,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkPlugins: PluggableList;
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
+	optimize: boolean | OptimizeOptions;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -54,6 +56,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+					// MDX can import scripts and styles,
+					// so wrap all MDX files with script / style propagation checks
+					handlePropagation: true,
 				});
 
 				const extendMarkdownConfig =
@@ -194,6 +199,7 @@ function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefault
 		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
 		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
 		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
+		optimize: false,
 	};
 }
 
@@ -214,6 +220,7 @@ function applyDefaultOptions({
 		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
+		optimize: options.optimize ?? defaults.optimize,
 	};
 }
 

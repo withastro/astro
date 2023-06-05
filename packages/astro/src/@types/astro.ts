@@ -1270,11 +1270,18 @@ export interface ContentEntryType {
 	getRenderModule?(
 		this: rollup.PluginContext,
 		params: {
+			contents: string;
+			fileUrl: URL;
 			viteId: string;
-			entry: ContentEntryModule;
 		}
 	): rollup.LoadResult | Promise<rollup.LoadResult>;
 	contentModuleTypes?: string;
+	/**
+	 * Handle asset propagation for rendered content to avoid bleed.
+	 * Ex. MDX content can import styles and scripts, so `handlePropagation` should be true.
+	 * @default true
+	 */
+	handlePropagation?: boolean;
 }
 
 type GetContentEntryInfoReturnType = {
@@ -1691,7 +1698,7 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *
 	 * export const onRequest = defineMiddleware((context, next) => {
 	 *   context.locals.greeting = "Hello!";
-	 *   next();
+	 *   return next();
 	 * });
 	 * ```
 	 * Inside a `.astro` file:

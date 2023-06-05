@@ -1,6 +1,6 @@
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
-import { resolvedPagesVirtualModuleId } from '../app/index.js';
+import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 
 // This walks up the dependency graph and yields out each ModuleInfo object.
 export function* walkParentInfos(
@@ -43,8 +43,8 @@ export function* walkParentInfos(
 // it is imported by the top-level virtual module.
 export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 	return (
-		info.importers[0] === resolvedPagesVirtualModuleId ||
-		info.dynamicImporters[0] == resolvedPagesVirtualModuleId
+		info.importers[0]?.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+		info.dynamicImporters[0]?.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)
 	);
 }
 

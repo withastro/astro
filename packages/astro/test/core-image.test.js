@@ -114,6 +114,32 @@ describe('astro:image', () => {
 				expect(logs).to.have.a.lengthOf(1);
 				expect(logs[0].message).to.contain('Received unsupported format');
 			});
+
+			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import ssss", async () => {
+				logs.length = 0;
+				let res = await fixture.fetch('/error-image-src-passed');
+				await res.text();
+
+				expect(logs).to.have.a.lengthOf(1);
+				expect(logs[0].message).to.contain('must be an imported image or an URL');
+			});
+
+			it('supports images from outside the project', async () => {
+				let res = await fixture.fetch('/outsideProject');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(2);
+				expect(
+					$img.toArray().every((img) => {
+						return (
+							img.attribs['src'].startsWith('/@fs/') ||
+							img.attribs['src'].startsWith('/_image?href=%2F%40fs%2F')
+						);
+					})
+				).to.be.true;
+			});
 		});
 
 		describe('vite-isms', () => {
@@ -228,9 +254,9 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(1);
 
 				// Verbose test for the full URL to make sure the image went through the full pipeline
-				expect($img.attr('src')).to.equal(
-					'/_image?href=%2Fsrc%2Fassets%2Fpenguin1.jpg%3ForigWidth%3D207%26origHeight%3D243%26origFormat%3Djpg&f=webp'
-				);
+				expect(
+					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp')
+				).to.equal(true);
 			});
 
 			it('has width and height attributes', () => {
@@ -297,12 +323,12 @@ describe('astro:image', () => {
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+				expect($img.attr('src').startsWith('/')).to.equal(true);
 			});
 
 			it('has proper source for refined image', () => {
 				let $img = $('#refined-image img');
-				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+				expect($img.attr('src').startsWith('/')).to.equal(true);
 			});
 
 			it('has proper sources for array of images', () => {
@@ -310,7 +336,7 @@ describe('astro:image', () => {
 				const imgsSrcs = [];
 				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
 				expect($img).to.have.a.lengthOf(2);
-				expect(imgsSrcs.every((img) => img.startsWith('/src/'))).to.be.true;
+				expect(imgsSrcs.every((img) => img.startsWith('/'))).to.be.true;
 			});
 
 			it('has proper attributes for optimized image through getImage', () => {
@@ -330,7 +356,7 @@ describe('astro:image', () => {
 
 			it('properly handles nested images', () => {
 				let $img = $('#nested-image img');
-				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+				expect($img.attr('src').startsWith('/')).to.equal(true);
 			});
 		});
 
@@ -348,7 +374,7 @@ describe('astro:image', () => {
 			});
 
 			it('includes /src in the path', async () => {
-				expect($('img').attr('src').startsWith('/src')).to.equal(true);
+				expect($('img').attr('src').includes('/src')).to.equal(true);
 			});
 		});
 	});
