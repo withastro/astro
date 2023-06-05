@@ -822,7 +822,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		 inlineStylesheets?: 'always' | 'auto' | 'never';
+		inlineStylesheets?: 'always' | 'auto' | 'never';
 	};
 
 	/**
