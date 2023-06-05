@@ -109,9 +109,16 @@ export type RenderPage = {
 	renderContext: RenderContext;
 	env: Environment;
 	apiContext?: APIContext;
+	isCompressHTML?: boolean;
 };
 
-export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
+export async function renderPage({
+  mod,
+  renderContext,
+  env,
+  apiContext,
+  isCompressHTML = false,
+}: RenderPage) {
 	if(routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -148,6 +155,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
+		cookies: apiContext?.cookies,
 		locals,
 	});
 
@@ -162,6 +170,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		renderContext.props,
 		null,
 		env.streaming,
+		isCompressHTML,
 		renderContext.route
 	);
 

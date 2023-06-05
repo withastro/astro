@@ -53,6 +53,7 @@ export interface CreateResultArgs {
 	request: Request;
 	status: number;
 	locals: App.Locals;
+	cookies?: AstroCookies;
 }
 
 function getFunctionExpression(slot: any) {
@@ -155,7 +156,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	});
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
-	let cookies: AstroCookies | undefined = undefined;
+	let cookies: AstroCookies | undefined = args.cookies;
 	let componentMetadata = args.componentMetadata ?? new Map();
 
 	// Create the result object that will be passed into the render function.
