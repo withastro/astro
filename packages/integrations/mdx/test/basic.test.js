@@ -30,6 +30,59 @@ describe('basic - dev', () => {
 			expect($('script[src$=".js"]').attr('src')).to.include('astro');
 		});
 	});
+
+	describe('[slots]', () => {
+		it('supports top-level imports', async () => {
+			const res = await fixture.fetch('/slots/');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('h1');
+			const defaultSlot = document.querySelector('[data-default-slot]');
+			const namedSlot = document.querySelector('[data-named-slot]');
+
+			expect(h1.textContent).to.equal('Hello slotted component!');
+			expect(defaultSlot.textContent).to.equal('Default content.');
+			expect(namedSlot.textContent).to.equal('Content for named slot.');
+		});
+
+		it('supports glob imports - <Component.default />', async () => {
+			const res = await fixture.fetch('/slots/glob');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-default-export] h1');
+			const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]');
+			const namedSlot = document.querySelector('[data-default-export] [data-named-slot]');
+
+			expect(h1.textContent).to.equal('Hello slotted component!');
+			expect(defaultSlot.textContent).to.equal('Default content.');
+			expect(namedSlot.textContent).to.equal('Content for named slot.');
+		});
+
+		it('supports glob imports - <Content />', async () => {
+			const res = await fixture.fetch('/slots/glob');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-content-export] h1');
+			const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]');
+			const namedSlot = document.querySelector('[data-content-export] [data-named-slot]');
+
+			expect(h1.textContent).to.equal('Hello slotted component!');
+			expect(defaultSlot.textContent).to.equal('Default content.');
+			expect(namedSlot.textContent).to.equal('Content for named slot.');
+		});
+	});
 });
 
 describe('basic - build', () => {
@@ -49,6 +102,47 @@ describe('basic - build', () => {
 			const $ = cheerio.load(html);
 			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
 			expect($('script[src$=".js"]').attr('src')).to.match(/^\/_astro\//);
+		});
+	});
+
+	describe('[slots]', () => {
+		it('supports top-level imports', async () => {
+			const html = await fixture.readFile('/slots/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('h1');
+			const defaultSlot = document.querySelector('[data-default-slot]');
+			const namedSlot = document.querySelector('[data-named-slot]');
+
+			expect(h1.textContent).to.equal('Hello slotted component!');
+			expect(defaultSlot.textContent).to.equal('Default content.');
+			expect(namedSlot.textContent).to.equal('Content for named slot.');
+		});
+
+		it('supports glob imports - <Component.default />', async () => {
+			const html = await fixture.readFile('/slots/glob/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-default-export] h1');
+			const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]');
+			const namedSlot = document.querySelector('[data-default-export] [data-named-slot]');
+
+			expect(h1.textContent).to.equal('Hello slotted component!');
+			expect(defaultSlot.textContent).to.equal('Default content.');
+			expect(namedSlot.textContent).to.equal('Content for named slot.');
+		});
+
+		it('supports glob imports - <Content />', async () => {
+			const html = await fixture.readFile('/slots/glob/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-content-export] h1');
+			const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]');
+			const namedSlot = document.querySelector('[data-content-export] [data-named-slot]');
+
+			expect(h1.textContent).to.equal('Hello slotted component!');
+			expect(defaultSlot.textContent).to.equal('Default content.');
+			expect(namedSlot.textContent).to.equal('Content for named slot.');
 		});
 	});
 
