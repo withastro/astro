@@ -4253,7 +4253,7 @@ importers:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@18.16.3)(sass@1.52.2)
 
-  packages/integrations/mdx/test/fixtures/astro-content-css:
+  packages/integrations/mdx/test/fixtures/basic:
     dependencies:
       '@astrojs/mdx':
         specifier: workspace:*
@@ -4381,15 +4381,6 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
-
-  packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
 
   packages/integrations/netlify:
     dependencies:
