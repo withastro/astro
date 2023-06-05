@@ -3,6 +3,8 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
+export type MaybePromise<T> = T | Promise<T>;
+
 /**
  * Match YAML exception handling from Astro core errors
  * @see 'astro/src/core/errors.ts'
