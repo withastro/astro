@@ -31,6 +31,27 @@ describe('basic - dev', () => {
 		});
 	});
 
+	describe('[images] astro image support', () => {
+		it('optimize images in MDX', async () => {
+			const res = await fixture.fetch('/images/');
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const imgs = document.getElementsByTagName('img');
+			expect(imgs.length).to.equal(4);
+			// Image using a relative path
+			expect(imgs.item(0).src.startsWith('/_image')).to.be.true;
+			// Image using an aliased path
+			expect(imgs.item(1).src.startsWith('/_image')).to.be.true;
+			// Image with title
+			expect(imgs.item(2).title).to.equal('Houston title');
+			// Image with spaces in the path
+			expect(imgs.item(3).src.startsWith('/_image')).to.be.true;
+		});
+	});
+
 	describe('[namespace] import namespaced components', () => {
 		it('works for object', async () => {
 			const res = await fixture.fetch('/namespace/object');
@@ -176,7 +197,7 @@ describe('basic - build', () => {
 	describe('[get-static-paths]', () => {
 		it('Provides file and url', async () => {
 			const html = await fixture.readFile('/get-static-paths/one/index.html');
-	
+
 			const $ = cheerio.load(html);
 			expect($('p').text()).to.equal('First mdx file');
 			expect($('#one').text()).to.equal('hello', 'Frontmatter included');
@@ -186,7 +207,7 @@ describe('basic - build', () => {
 				'file is included'
 			);
 		});
-	})
+	});
 
 	describe('[namespace] import namespaced components', () => {
 		it('works for object', async () => {
