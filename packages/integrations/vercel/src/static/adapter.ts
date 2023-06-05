@@ -43,6 +43,7 @@ export default function vercelStatic({
 					outDir,
 					build: {
 						format: 'directory',
+						redirects: false,
 					},
 					vite: {
 						define: viteDefine,

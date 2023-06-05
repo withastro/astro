@@ -56,6 +56,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+					// MDX can import scripts and styles,
+					// so wrap all MDX files with script / style propagation checks
+					handlePropagation: true,
 				});
 
 				const extendMarkdownConfig =

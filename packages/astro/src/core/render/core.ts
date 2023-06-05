@@ -3,6 +3,7 @@ import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
+import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
@@ -108,9 +109,25 @@ export type RenderPage = {
 	renderContext: RenderContext;
 	env: Environment;
 	apiContext?: APIContext;
+	isCompressHTML?: boolean;
 };
 
-export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
+export async function renderPage({
+	mod,
+	renderContext,
+	env,
+	apiContext,
+	isCompressHTML = false,
+}: RenderPage) {
+	if (routeIsRedirect(renderContext.route)) {
+		return new Response(null, {
+			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
+			headers: {
+				location: redirectRouteGenerate(renderContext.route, renderContext.params),
+			},
+		});
+	}
+
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)
@@ -138,6 +155,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
+		cookies: apiContext?.cookies,
 		locals,
 	});
 
@@ -152,6 +170,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		renderContext.props,
 		null,
 		env.streaming,
+		isCompressHTML,
 		renderContext.route
 	);
 
