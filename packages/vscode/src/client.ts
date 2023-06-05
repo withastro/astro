@@ -65,12 +65,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Export
 		documentSelector: [{ language: 'astro' }],
 		initializationOptions,
 	};
-	client = new lsp.LanguageClient(
-		'astro',
-		'Astro Language Server',
-		serverOptions,
-		clientOptions
-	);
+	client = new lsp.LanguageClient('astro', 'Astro Language Server', serverOptions, clientOptions);
 	await client.start();
 
 	// support for auto close tag
