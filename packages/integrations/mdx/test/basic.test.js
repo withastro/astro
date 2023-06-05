@@ -127,6 +127,17 @@ describe('basic - build', () => {
 		});
 	});
 
+	describe('[plus-react]', () => {
+		it('can be used in the same project', async () => {
+			const html = await fixture.readFile('/plus-react/index.html');
+			const { document } = parseHTML(html);
+
+			const p = document.querySelector('p');
+
+			expect(p.textContent).to.equal('Hello world');
+		});
+	});
+
 	describe('[script-style-raw]', () => {
 		it('works with with raw script and style strings', async () => {
 			const html = await fixture.readFile('/script-style-raw/index.html');

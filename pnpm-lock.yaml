@@ -4258,9 +4258,18 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../react
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
     dependencies:
@@ -4354,24 +4363,6 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-
-  packages/integrations/mdx/test/fixtures/mdx-plus-react:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../react
       astro:
         specifier: workspace:*
         version: link:../../../../../astro

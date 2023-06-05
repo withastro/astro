@@ -4,6 +4,9 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/mdx": "workspace:*"
+    "@astrojs/react": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
