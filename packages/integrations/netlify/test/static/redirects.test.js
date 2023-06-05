@@ -20,10 +20,10 @@ describe('SSG - Redirects', () => {
 				'/other': '/',
 				'/two': {
 					status: 302,
-					destination: '/'
+					destination: '/',
 				},
-				'/blog/[...slug]': '/team/articles/[...slug]'
-			}
+				'/blog/[...slug]': '/team/articles/[...slug]',
+			},
 		});
 		await fixture.build();
 	});
@@ -32,12 +32,22 @@ describe('SSG - Redirects', () => {
 		let redirects = await fixture.readFile('/_redirects');
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
-			'/two', '/', '302',
-			'/other', '/', '301',
-			'/nope', '/', '301',
+			'/two',
+			'/',
+			'302',
+			'/other',
+			'/',
+			'301',
+			'/nope',
+			'/',
+			'301',
 
-			'/blog/*', '/team/articles/*/index.html', '301',
-			'/team/articles/*', '/team/articles/*/index.html', '200',
+			'/blog/*',
+			'/team/articles/*/index.html',
+			'301',
+			'/team/articles/*',
+			'/team/articles/*/index.html',
+			'200',
 		]);
 	});
 });

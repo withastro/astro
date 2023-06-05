@@ -18,7 +18,7 @@ describe('SSG - Redirects', () => {
 			site: `http://example.com`,
 			integrations: [testIntegration()],
 			redirects: {
-				'/other': '/'
+				'/other': '/',
 			},
 			experimental: {
 				redirects: true,
@@ -31,14 +31,22 @@ describe('SSG - Redirects', () => {
 		let redirects = await fixture.readFile('/_redirects');
 		let parts = redirects.split(/\s+/);
 		expect(parts).to.deep.equal([
-			'/other', '/', '301',
+			'/other',
+			'/',
+			'301',
 			// This uses the dynamic Astro.redirect, so we don't know that it's a redirect
 			// until runtime. This is correct!
-			'/nope', '/.netlify/functions/entry', '200',
-			'/', '/.netlify/functions/entry', '200',
+			'/nope',
+			'/.netlify/functions/entry',
+			'200',
+			'/',
+			'/.netlify/functions/entry',
+			'200',
 
 			// A real route
-			'/team/articles/*', '/.netlify/functions/entry', '200',
+			'/team/articles/*',
+			'/.netlify/functions/entry',
+			'200',
 		]);
 	});
 });

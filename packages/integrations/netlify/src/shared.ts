@@ -1,5 +1,5 @@
-import type { AstroConfig, RouteData } from 'astro';
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import type { AstroConfig, RouteData } from 'astro';
 import fs from 'node:fs';
 
 export async function createRedirects(
@@ -14,7 +14,10 @@ export async function createRedirects(
 	const _redirectsURL = new URL('./_redirects', dir);
 
 	const _redirects = createRedirectsFromAstroRoutes({
-		config, routes, dir, dynamicTarget
+		config,
+		routes,
+		dir,
+		dynamicTarget,
 	});
 	const content = _redirects.print();
 
