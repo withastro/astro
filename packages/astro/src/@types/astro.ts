@@ -1168,66 +1168,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.inlineStylesheets
-		 * @type {('always' | 'auto' | 'never')}
-		 * @default `never`
-		 * @version 2.4.0
-		 * @description
-		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
-		 *  - `'always'` - all styles are inlined into `<style>` tags
-		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
-		 *  - `'never'` - all styles are sent in external stylesheets
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		inlineStylesheets: `auto`,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		inlineStylesheets?: 'always' | 'auto' | 'never';
-
-		/**
-		 * @docs
-		 * @name experimental.customClientDirectives
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.5.0
-		 * @description
-		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
-		 *
-		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
-		 *
-		 * ```js
-		 * {
-		 *  output: 'hybrid',
-		 * 	experimental: {
-		 *		hybridOutput: true,
-		 * 	},
-		 * }
-		 * ```
-		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
-		 * ```astro
-		 * ---
-		 * // pages/contact.astro
-		 * export const prerender = false
-		 *
-		 * if (Astro.request.method === 'POST') {
-		 *  // handle form submission
-		 * }
-		 * ---
-		 * <form method="POST">
-		 * 	<input type="text" name="name" />
-		 * 	<input type="email" name="email" />
-		 * 	<button type="submit">Submit</button>
-		 * </form>
-		 * ```
-		 */
-		hybridOutput?: boolean;
-
-		/**
-		 * @docs
 		 * @name experimental.redirects
 		 * @type {boolean}
 		 * @default `false`
