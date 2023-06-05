@@ -52,6 +52,19 @@ describe('basic - build', () => {
 		});
 	});
 
+	describe('url export', () => {
+		it('generates correct urls in glob result', async () => {
+			const { urls } = JSON.parse(await fixture.readFile('/url-export/pages.json'));
+			expect(urls).to.include('/url-export/test-1');
+			expect(urls).to.include('/url-export/test-2');
+		});
+
+		it('respects "export url" overrides in glob result', async () => {
+			const { urls } = JSON.parse(await fixture.readFile('/url-export/pages.json'));
+			expect(urls).to.include('/AH!');
+		});
+	});
+
 	describe('vite env vars', () => {
 		it('Avoids transforming `import.meta.env` outside JSX expressions', async () => {
 			const html = await fixture.readFile('/vite-env-vars/index.html');
