@@ -506,11 +506,11 @@ async function generatePath(
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env, apiContext });
+						return renderPage({ mod, renderContext, env, apiContext, isCompressHTML: settings.config.compressHTML });
 					}
 				);
 			} else {
-				response = await renderPage({ mod, renderContext, env, apiContext });
+				response = await renderPage({ mod, renderContext, env, apiContext, isCompressHTML: settings.config.compressHTML });
 			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
