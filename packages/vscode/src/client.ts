@@ -66,7 +66,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Export
 		initializationOptions,
 	};
 	client = new lsp.LanguageClient(
-		'astro-language-server',
+		'astro',
 		'Astro Language Server',
 		serverOptions,
 		clientOptions
