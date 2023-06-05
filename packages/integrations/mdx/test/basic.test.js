@@ -31,6 +31,38 @@ describe('basic - dev', () => {
 		});
 	});
 
+	describe('[namespace] import namespaced components', () => {
+		it('works for object', async () => {
+			const res = await fixture.fetch('/namespace/object');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const island = document.querySelector('astro-island');
+			const component = document.querySelector('#component');
+
+			expect(island).not.undefined;
+			expect(component.textContent).equal('Hello world');
+		});
+
+		it('works for star', async () => {
+			const res = await fixture.fetch('/namespace/star');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const island = document.querySelector('astro-island');
+			const component = document.querySelector('#component');
+
+			expect(island).not.undefined;
+			expect(component.textContent).equal('Hello world');
+		});
+	});
+
 	describe('[page] MDX as page file', () => {
 		it('works', async () => {
 			const res = await fixture.fetch('/page/');
@@ -138,6 +170,30 @@ describe('basic - build', () => {
 			const $ = cheerio.load(html);
 			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
 			expect($('script[src$=".js"]').attr('src')).to.match(/^\/_astro\//);
+		});
+	});
+
+	describe('[namespace] import namespaced components', () => {
+		it('works for object', async () => {
+			const html = await fixture.readFile('/namespace/object/index.html');
+			const { document } = parseHTML(html);
+
+			const island = document.querySelector('astro-island');
+			const component = document.querySelector('#component');
+
+			expect(island).not.undefined;
+			expect(component.textContent).equal('Hello world');
+		});
+
+		it('works for star', async () => {
+			const html = await fixture.readFile('/namespace/star/index.html');
+			const { document } = parseHTML(html);
+
+			const island = document.querySelector('astro-island');
+			const component = document.querySelector('#component');
+
+			expect(island).not.undefined;
+			expect(component.textContent).equal('Hello world');
 		});
 	});
 
