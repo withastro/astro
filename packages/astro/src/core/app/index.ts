@@ -15,7 +15,7 @@ import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
-import { RedirectComponentInstance } from '../redirects/index.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -172,9 +172,9 @@ export class App {
 		return getSetCookiesFromResponse(response);
 	}
 
-	async #getModuleForRoute(route: RouteData): Promise<ComponentInstance> {
+	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
 		if (route.type === 'redirect') {
-			return RedirectComponentInstance;
+			return RedirectSinglePageBuiltModule;
 		} else {
 			const importComponentInstance = this.#manifest.pageMap.get(route.component);
 			if (!importComponentInstance) {
@@ -183,7 +183,7 @@ export class App {
 				);
 			}
 			const built = await importComponentInstance();
-			return built.page();
+			return built;
 		}
 	}
 

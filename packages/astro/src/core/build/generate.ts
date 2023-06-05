@@ -41,7 +41,7 @@ import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
 	getRedirectLocationOrThrow,
-	RedirectComponentInstance,
+	RedirectSinglePageBuiltModule,
 	routeIsRedirect,
 } from '../redirects/index.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
@@ -69,10 +69,6 @@ import type {
 } from './types';
 import { getTimeStat } from './util.js';
 
-const StaticMiddlewareInstance: AstroMiddlewareInstance<unknown> = {
-	onRequest: (ctx, next) => next(),
-};
-
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
 }
@@ -94,11 +90,7 @@ async function getEntryForRedirectRoute(
 		}
 	}
 
-	return {
-		page: () => Promise.resolve(RedirectComponentInstance),
-		middleware: StaticMiddlewareInstance,
-		renderers: [],
-	};
+	return RedirectSinglePageBuiltModule;
 }
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
