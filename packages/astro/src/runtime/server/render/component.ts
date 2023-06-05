@@ -51,7 +51,7 @@ function isFragmentComponent(Component: unknown) {
 }
 
 function isHTMLComponent(Component: unknown) {
-	return Component && (Component as any)['astro:html'];
+	return Component && (Component as any)['astro:html'] === true;
 }
 
 const ASTRO_SLOT_EXP = /\<\/?astro-slot\b[^>]*>/g;
