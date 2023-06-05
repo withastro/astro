@@ -14,7 +14,6 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
-import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 

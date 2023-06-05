@@ -1,5 +1,4 @@
 import type {
-	ComponentInstance,
 	EndpointHandler,
 	ManifestData,
 	MiddlewareResponseHandler,
@@ -9,6 +8,7 @@ import type {
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
+import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
@@ -29,7 +29,6 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import type { SinglePageBuiltModule } from '../build/types';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

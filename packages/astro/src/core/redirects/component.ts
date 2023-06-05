@@ -18,4 +18,4 @@ export const RedirectSinglePageBuiltModule: SinglePageBuiltModule = {
 	page: () => Promise.resolve(RedirectComponentInstance),
 	middleware: StaticMiddlewareInstance,
 	renderers: [],
-}
+};
