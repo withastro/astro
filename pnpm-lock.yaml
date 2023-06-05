@@ -47,16 +47,16 @@ importers:
         specifier: ^1.6.9
         version: 1.6.9(typescript@5.0.4)
       '@volar/language-core':
-        specifier: ^1.6.9
+        specifier: 1.6.9
         version: 1.6.9
       '@volar/language-server':
-        specifier: ^1.6.9
+        specifier: 1.6.9
         version: 1.6.9
       '@volar/language-service':
-        specifier: ^1.6.9
+        specifier: 1.6.9
         version: 1.6.9
       '@volar/source-map':
-        specifier: ^1.6.9
+        specifier: 1.6.9
         version: 1.6.9
       fast-glob:
         specifier: ^3.2.12
@@ -65,22 +65,22 @@ importers:
         specifier: ^0.3.1
         version: 0.3.1
       volar-service-css:
-        specifier: ^0.0.4
+        specifier: 0.0.4
         version: 0.0.4
       volar-service-emmet:
-        specifier: ^0.0.4
+        specifier: 0.0.4
         version: 0.0.4
       volar-service-html:
-        specifier: ^0.0.4
+        specifier: 0.0.4
         version: 0.0.4
       volar-service-prettier:
-        specifier: ^0.0.4
+        specifier: 0.0.4
         version: 0.0.4(prettier@2.8.8)
       volar-service-typescript:
-        specifier: ^0.0.4
+        specifier: 0.0.4
         version: 0.0.4
       volar-service-typescript-twoslash-queries:
-        specifier: ^0.0.4
+        specifier: 0.0.4
         version: 0.0.4
       vscode-html-languageservice:
         specifier: ^5.0.5
