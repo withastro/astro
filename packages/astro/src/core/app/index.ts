@@ -28,6 +28,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import { RedirectComponentInstance } from '../redirects/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -137,22 +138,20 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let page = await this.#manifest.pageMap.get(routeData.component)!();
-		let mod = await page.page();
+		let mod = await this.#getModuleForRoute(routeData);
 
-		if (routeData.type === 'page') {
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
 			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 			if (response.status === 500 || response.status === 404) {
-				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
-				if (errorPageData && errorPageData.route !== routeData.route) {
-					page = await this.#manifest.pageMap.get(errorPageData.component)!();
-					mod = await page.page();
+				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorRouteData && errorRouteData.route !== routeData.route) {
+					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
 						let errorResponse = await this.#renderPage(
 							request,
-							errorPageData,
+							errorRouteData,
 							mod,
 							response.status
 						);
@@ -170,6 +169,19 @@ export class App {
 
 	setCookieHeaders(response: Response) {
 		return getSetCookiesFromResponse(response);
+	}
+
+	async #getModuleForRoute(route: RouteData): Promise<ComponentInstance> {
+		if(route.type === 'redirect') {
+			return RedirectComponentInstance;
+		} else {
+			const importComponentInstance = this.#manifest.pageMap.get(route.component);
+			if(!importComponentInstance) {
+				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+			}
+			const built = await importComponentInstance();
+			return built.page();
+		}
 	}
 
 	async #renderPage(

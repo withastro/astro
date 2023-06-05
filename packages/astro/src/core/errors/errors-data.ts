@@ -43,6 +43,7 @@ export const AstroErrorData = {
 	 * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
 	 *
 	 * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
+	 * @deprecated since version 2.6
 	 */
 	StaticRedirectNotAvailable: {
 		title: '`Astro.redirect` is not available in static mode.',
@@ -693,7 +694,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
-	/**
+	/*
 	 * @docs
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
@@ -748,7 +749,17 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (globStr: string) =>
 			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
 	},
-
+	/**
+		 * @docs
+		 * @see
+		 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+		 * @description
+		 * A redirect must be given a location with the `Location` header.
+		 */
+	RedirectWithNoLocation: {
+		title: 'A redirect must be given a location with the `Location` header.',
+		code: 3037,
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**

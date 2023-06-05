@@ -50,6 +50,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "^0.1.0",
     "@astrojs/webapi": "^2.2.0",
     "@vercel/analytics": "^0.1.8",
     "@vercel/nft": "^0.22.1",

@@ -37,6 +37,7 @@
     "test": "npm run test-fn"
   },
   "dependencies": {
+    "@astrojs/underscore-redirects": "^0.1.0",
     "@astrojs/webapi": "^2.2.0",
     "@netlify/functions": "^1.0.0",
     "esbuild": "^0.15.18"

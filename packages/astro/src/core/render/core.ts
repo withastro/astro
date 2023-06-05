@@ -8,6 +8,7 @@ import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
+import { routeIsRedirect, redirectRouteGenerate, redirectRouteStatus } from '../redirects/index.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -112,12 +113,21 @@ export type RenderPage = {
 };
 
 export async function renderPage({
-	mod,
-	renderContext,
-	env,
-	apiContext,
-	isCompressHTML = false,
+  mod,
+  renderContext,
+  env,
+  apiContext,
+  isCompressHTML = false,
 }: RenderPage) {
+	if(routeIsRedirect(renderContext.route)) {
+		return new Response(null, {
+			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
+			headers: {
+				location: redirectRouteGenerate(renderContext.route, renderContext.params)
+			}
+		});
+	}
+
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)

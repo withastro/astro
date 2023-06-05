@@ -62,6 +62,10 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
+function areSamePart(a: RoutePart, b: RoutePart) {
+	return a.content === b.content && a.dynamic === b.dynamic && a.spread === b.spread;
+}
+
 function getPattern(
 	segments: RoutePart[][],
 	base: string,
@@ -203,6 +207,25 @@ function injectedRouteToItem(
 		isPage,
 		routeSuffix: pattern.slice(pattern.indexOf('.'), -ext.length),
 	};
+}
+
+// Seeings if the two routes are siblings of each other, with `b` being the route
+// in focus. If it is in the same parent folder as `a`, they are siblings.
+function areSiblings(a: RouteData, b: RouteData) {
+	if(a.segments.length < b.segments.length) return false;
+	for(let i = 0; i < b.segments.length - 1; i++) {
+		let segment = b.segments[i];
+		if(segment.length === a.segments[i].length) {
+			for(let j = 0; j < segment.length; j++) {
+				if(!areSamePart(segment[j], a.segments[i][j])) {
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+	return true;
 }
 
 export interface CreateRouteManifestParams {
@@ -421,7 +444,50 @@ export function createRouteManifest(
 			});
 		});
 
+	Object.entries(settings.config.redirects).forEach(([from, to]) => {
+		const trailingSlash = config.trailingSlash;
+
+		const segments = removeLeadingForwardSlash(from)
+		.split(path.posix.sep)
+		.filter(Boolean)
+		.map((s: string) => {
+			validateSegment(s);
+			return getParts(s, from);
+		});
+
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+			? `/${segments.map((segment) => segment[0].content).join('/')}`
+			: null;
+		const params = segments
+			.flat()
+			.filter((p) => p.dynamic)
+			.map((p) => p.content);
+		const route = `/${segments
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+			.join('/')}`.toLowerCase();
+
+		const routeData: RouteData = {
+			type: 'redirect',
+			route,
+			pattern,
+			segments,
+			params,
+			component: from,
+			generate,
+			pathname: pathname || void 0,
+			prerender: false,
+			redirect: to,
+			redirectRoute: routes.find(r => r.route === to)
+		};
+		
+		// Push so that redirects are selected last.
+		routes.push(routeData);
+	});
+
 	return {
 		routes,
 	};
 }
+

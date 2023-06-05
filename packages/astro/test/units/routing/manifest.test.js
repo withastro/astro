@@ -31,4 +31,34 @@ describe('routing - createRouteManifest', () => {
 		expect(pattern.test('')).to.equal(true);
 		expect(pattern.test('/')).to.equal(false);
 	});
+
+	it('redirects are sorted alongside the filesystem routes', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': `<h1>test</h1>`,
+				'/src/pages/blog/contributing.astro': `<h1>test</h1>`,
+			},
+			root
+		);
+		const settings = await createDefaultDevSettings(
+			{
+				base: '/search',
+				trailingSlash: 'never',
+				redirects: {
+					'/blog/[...slug]': '/',
+					'/blog/contributing': '/another',
+				}
+			},
+			root
+		);
+		const manifest = createRouteManifest({
+			cwd: fileURLToPath(root),
+			settings,
+			fsMod: fs,
+		});
+		
+		expect(manifest.routes[1].route).to.equal('/blog/contributing');
+		expect(manifest.routes[1].type).to.equal('page');
+		expect(manifest.routes[2].route).to.equal('/blog/[...slug]');
+	})
 });

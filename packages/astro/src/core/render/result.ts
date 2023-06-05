@@ -209,23 +209,21 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				locals,
 				request,
 				url,
-				redirect: args.ssr
-					? (path, status) => {
-							// If the response is already sent, error as we cannot proceed with the redirect.
-							if ((request as any)[responseSentSymbol]) {
-								throw new AstroError({
-									...AstroErrorData.ResponseSentError,
-								});
-							}
+				redirect(path, status) {
+					// If the response is already sent, error as we cannot proceed with the redirect.
+					if ((request as any)[responseSentSymbol]) {
+						throw new AstroError({
+							...AstroErrorData.ResponseSentError,
+						});
+					}
 
-							return new Response(null, {
-								status: status || 302,
-								headers: {
-									Location: path,
-								},
-							});
-					  }
-					: onlyAvailableInSSR('Astro.redirect'),
+					return new Response(null, {
+						status: status || 302,
+						headers: {
+							Location: path,
+						},
+					});
+				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
 			};

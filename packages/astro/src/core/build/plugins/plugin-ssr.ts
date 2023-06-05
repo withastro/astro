@@ -14,6 +14,7 @@ import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
+import { routeIsRedirect } from '../../redirects/index.js';
 import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
@@ -55,7 +56,10 @@ function vitePluginSSR(
 				let i = 0;
 				const pageMap: string[] = [];
 
-				for (const path of Object.keys(allPages)) {
+				for (const [path, pageData] of Object.entries(allPages)) {
+					if(routeIsRedirect(pageData.route)) {
+						continue;
+					}
 					const virtualModuleName = getVirtualModulePageNameFromPath(path);
 					let module = await this.resolve(virtualModuleName);
 					if (module) {
@@ -63,9 +67,9 @@ function vitePluginSSR(
 						// we need to use the non-resolved ID in order to resolve correctly the virtual module
 						imports.push(`const ${variable}  = () => import("${virtualModuleName}");`);
 
-						const pageData = internals.pagesByComponent.get(path);
-						if (pageData) {
-							pageMap.push(`[${JSON.stringify(pageData.component)}, ${variable}]`);
+						const pageData2 = internals.pagesByComponent.get(path);
+						if (pageData2) {
+							pageMap.push(`[${JSON.stringify(pageData2.component)}, ${variable}]`);
 						}
 						i++;
 					}
