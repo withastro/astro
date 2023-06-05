@@ -31,6 +31,97 @@ describe('basic - dev', () => {
 		});
 	});
 
+	describe('[component] MDX component', () => {
+		it('supports top-level imports', async () => {
+			const res = await fixture.fetch('/component/');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('h1');
+			const foo = document.querySelector('#foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Component.default />', async () => {
+			const res = await fixture.fetch('/component/glob');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-default-export] h1');
+			const foo = document.querySelector('[data-default-export] #foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Content />', async () => {
+			const res = await fixture.fetch('/component/glob');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-content-export] h1');
+			const foo = document.querySelector('[data-content-export] #foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		describe('with <Fragment>', () => {
+			it('supports top-level imports', async () => {
+				const res = await fixture.fetch('/component/w-fragment');
+				expect(res.status).to.equal(200);
+
+				const html = await res.text();
+				const { document } = parseHTML(html);
+
+				const h1 = document.querySelector('h1');
+				const p = document.querySelector('p');
+
+				expect(h1.textContent).to.equal('MDX containing <Fragment />');
+				expect(p.textContent).to.equal('bar');
+			});
+
+			it('supports glob imports - <Component.default />', async () => {
+				const res = await fixture.fetch('/component/glob');
+				expect(res.status).to.equal(200);
+
+				const html = await res.text();
+				const { document } = parseHTML(html);
+
+				const h = document.querySelector('[data-default-export] [data-file="WithFragment.mdx"] h1');
+				const p = document.querySelector('[data-default-export] [data-file="WithFragment.mdx"] p');
+
+				expect(h.textContent).to.equal('MDX containing <Fragment />');
+				expect(p.textContent).to.equal('bar');
+			});
+
+			it('supports glob imports - <Content />', async () => {
+				const res = await fixture.fetch('/component/glob');
+				expect(res.status).to.equal(200);
+
+				const html = await res.text();
+				const { document } = parseHTML(html);
+
+				const h = document.querySelector('[data-content-export] [data-file="WithFragment.mdx"] h1');
+				const p = document.querySelector('[data-content-export] [data-file="WithFragment.mdx"] p');
+
+				expect(h.textContent).to.equal('MDX containing <Fragment />');
+				expect(p.textContent).to.equal('bar');
+			});
+		});
+	});
+
 	describe('[images] astro image support', () => {
 		it('optimize images in MDX', async () => {
 			const res = await fixture.fetch('/images/');
@@ -191,6 +282,76 @@ describe('basic - build', () => {
 			const $ = cheerio.load(html);
 			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
 			expect($('script[src$=".js"]').attr('src')).to.match(/^\/_astro\//);
+		});
+	});
+
+	describe('[component] MDX component', () => {
+		it('supports top-level imports', async () => {
+			const html = await fixture.readFile('/component/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('h1');
+			const foo = document.querySelector('#foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Component.default />', async () => {
+			const html = await fixture.readFile('/component/glob/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-default-export] h1');
+			const foo = document.querySelector('[data-default-export] #foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Content />', async () => {
+			const html = await fixture.readFile('/component/glob/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-content-export] h1');
+			const foo = document.querySelector('[data-content-export] #foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		describe('with <Fragment>', () => {
+			it('supports top-level imports', async () => {
+				const html = await fixture.readFile('/component/w-fragment/index.html');
+				const { document } = parseHTML(html);
+
+				const h1 = document.querySelector('h1');
+				const p = document.querySelector('p');
+
+				expect(h1.textContent).to.equal('MDX containing <Fragment />');
+				expect(p.textContent).to.equal('bar');
+			});
+
+			it('supports glob imports - <Component.default />', async () => {
+				const html = await fixture.readFile('/component/glob/index.html');
+				const { document } = parseHTML(html);
+
+				const h = document.querySelector('[data-default-export] [data-file="WithFragment.mdx"] h1');
+				const p = document.querySelector('[data-default-export] [data-file="WithFragment.mdx"] p');
+
+				expect(h.textContent).to.equal('MDX containing <Fragment />');
+				expect(p.textContent).to.equal('bar');
+			});
+
+			it('supports glob imports - <Content />', async () => {
+				const html = await fixture.readFile('/component/glob/index.html');
+				const { document } = parseHTML(html);
+
+				const h = document.querySelector('[data-content-export] [data-file="WithFragment.mdx"] h1');
+				const p = document.querySelector('[data-content-export] [data-file="WithFragment.mdx"] p');
+
+				expect(h.textContent).to.equal('MDX containing <Fragment />');
+				expect(p.textContent).to.equal('bar');
+			});
 		});
 	});
 
