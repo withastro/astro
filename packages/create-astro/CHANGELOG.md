@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.6
+
+### Patch Changes
+
+- [#7277](https://github.com/withastro/astro/pull/7277) [`229affca4`](https://github.com/withastro/astro/commit/229affca405ce77bf80bcea6a91891f689a3161b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add `starlight` template alias
+
 ## 3.1.5
 
 ### Patch Changes
