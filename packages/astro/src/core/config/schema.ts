@@ -23,6 +23,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
 		redirects: true,
+		inlineStylesheets: 'never',
 	},
 	compressHTML: false,
 	server: {
@@ -43,7 +44,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		assets: false,
 		hybridOutput: false,
 		customClientDirectives: false,
-		inlineStylesheets: 'never',
 		middleware: false,
 		redirects: false,
 	},
@@ -119,6 +119,10 @@ export const AstroConfigSchema = z.object({
 			assetsPrefix: z.string().optional(),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
+			inlineStylesheets: z
+				.enum(['always', 'auto', 'never'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 		})
 		.optional()
 		.default({}),
@@ -208,10 +212,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.customClientDirecives),
-			inlineStylesheets: z
-				.enum(['always', 'auto', 'never'])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
 			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirects),
@@ -284,6 +284,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 				assetsPrefix: z.string().optional(),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
+				inlineStylesheets: z
+					.enum(['always', 'auto', 'never'])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 			})
 			.optional()
 			.default({}),
