@@ -44,7 +44,7 @@ importers:
         specifier: ^1.4.15
         version: 1.4.15
       '@volar/kit':
-        specifier: ^1.6.9
+        specifier: 1.6.9
         version: 1.6.9(typescript@5.0.4)
       '@volar/language-core':
         specifier: 1.6.9
