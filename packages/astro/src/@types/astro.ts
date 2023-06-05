@@ -109,6 +109,7 @@ export interface CLIFlags {
 	open?: boolean;
 	experimentalAssets?: boolean;
 	experimentalMiddleware?: boolean;
+	experimentalRedirects?: boolean;
 }
 
 export interface BuildConfig {
@@ -454,6 +455,51 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name redirects (Experimental)
+	 * @type {RedirectConfig}
+	 * @default `{}`
+	 * @version 2.6.0
+	 * @description Specify a mapping of redirects where the key is the route to match
+	 * and the value is the path to redirect to.
+	 *
+	 * You can redirect both static and dynamic routes, but only to the same kind of route.
+	 * For example you cannot have a `'/article': '/blog/[...slug]'` redirect.
+	 *
+	 *
+	 * ```js
+	 * {
+	 *   redirects: {
+	 *     '/old': '/new',
+	 *     '/blog/[...slug]': '/articles/[...slug]',
+	 *   }
+	 * }
+	 * ```
+	 *
+	 *
+	 * For statically-generated sites with no adapter installed, this will produce a client redirect using a [`<meta http-equiv="refresh">` tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv) and does not support status codes.
+	 *
+	 * When using SSR or with a static adapter in `output: static`
+	 * mode, status codes are supported.
+	 * Astro will serve redirected GET requests with a status of `301`
+	 * and use a status of `308` for any other request method.
+	 *
+	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
+	 *
+	 * ```js
+	 * {
+	 *   redirects: {
+	 *     '/other': {
+	 *       status: 302,
+	 *       destination: '/place',
+	 *     },
+	 *   }
+	 * }
+	 * ```
+	 */
+	redirects?: RedirectConfig;
+
+	/**
+	 * @docs
 	 * @name site
 	 * @type {string}
 	 * @description
@@ -733,6 +779,50 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		serverEntry?: string;
+		/**
+		 * @docs
+		 * @name build.redirects
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 2.6.0
+		 * @description
+		 * Specifies whether redirects will be output to HTML during the build.
+		 * This option only applies to `output: 'static'` mode; in SSR redirects
+		 * are treated the same as all responses.
+		 *
+		 * This option is mostly meant to be used by adapters that have special
+		 * configuration files for redirects and do not need/want HTML based redirects.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     redirects: false
+		 *   }
+		 * }
+		 * ```
+		 */
+		redirects?: boolean;
+		/**
+		 * @docs
+		 * @name build.inlineStylesheets
+		 * @type {('always' | 'auto' | 'never')}
+		 * @default `never`
+		 * @version 2.6.0
+		 * @description
+		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
+		 *  - `'always'` - all styles are inlined into `<style>` tags
+		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
+		 *  - `'never'` - all styles are sent in external stylesheets
+		 *
+		 * ```js
+		 * {
+		 * 	build: {
+		 *		inlineStylesheets: `auto`,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		inlineStylesheets?: 'always' | 'auto' | 'never';
 	};
 
 	/**
@@ -1079,28 +1169,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.inlineStylesheets
-		 * @type {('always' | 'auto' | 'never')}
-		 * @default `never`
-		 * @version 2.4.0
-		 * @description
-		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
-		 *  - `'always'` - all styles are inlined into `<style>` tags
-		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
-		 *  - `'never'` - all styles are sent in external stylesheets
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		inlineStylesheets: `auto`,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		inlineStylesheets?: 'always' | 'auto' | 'never';
-
-		/**
-		 * @docs
 		 * @name experimental.customClientDirectives
 		 * @type {boolean}
 		 * @default `false`
@@ -1179,6 +1247,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		hybridOutput?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.redirects
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.6.0
+		 * @description
+		 * Enable experimental support for redirect configuration. With this enabled
+		 * you can set redirects via the top-level `redirects` property. To enable
+		 * this feature, set `experimental.redirects` to `true`.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		redirects: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		redirects?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1578,6 +1667,8 @@ export interface AstroAdapter {
 
 type Body = string;
 
+export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
 	/**
@@ -1607,7 +1698,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Redirect to another page (**SSR Only**).
 	 */
-	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
+	redirect(path: string, status?: ValidRedirectStatus): Response;
 
 	/**
 	 * Object accessed via Astro middleware
@@ -1805,7 +1896,7 @@ export type MiddlewareNext<R> = () => Promise<R>;
 export type MiddlewareHandler<R> = (
 	context: APIContext,
 	next: MiddlewareNext<R>
-) => Promise<R> | Promise<void> | void;
+) => Promise<R> | R | Promise<void> | void;
 
 export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
 export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
@@ -1822,13 +1913,20 @@ export interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-export type RouteType = 'page' | 'endpoint';
+export type RouteType = 'page' | 'endpoint' | 'redirect';
 
 export interface RoutePart {
 	content: string;
 	dynamic: boolean;
 	spread: boolean;
 }
+
+type RedirectConfig =
+	| string
+	| {
+			status: ValidRedirectStatus;
+			destination: string;
+	  };
 
 export interface RouteData {
 	route: string;
@@ -1842,7 +1940,13 @@ export interface RouteData {
 	segments: RoutePart[][];
 	type: RouteType;
 	prerender: boolean;
+	redirect?: RedirectConfig;
+	redirectRoute?: RouteData;
 }
+
+export type RedirectRouteData = RouteData & {
+	redirect: string;
+};
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;
