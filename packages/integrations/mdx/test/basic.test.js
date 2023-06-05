@@ -194,6 +194,22 @@ describe('basic - build', () => {
 		});
 	});
 
+	describe('[escape] escape html', () => {
+		it('does not have unescaped HTML at top-level', async () => {
+			const html = await fixture.readFile('/escape/index.html');
+			const { document } = parseHTML(html);
+
+			expect(document.body.textContent).to.not.include('<em');
+		});
+
+		it('does not have unescaped HTML inside html tags', async () => {
+			const html = await fixture.readFile('/escape/html-tag/index.html');
+			const { document } = parseHTML(html);
+
+			expect(document.body.textContent).to.not.include('<em');
+		});
+	});
+
 	describe('[get-static-paths]', () => {
 		it('Provides file and url', async () => {
 			const html = await fixture.readFile('/get-static-paths/one/index.html');
