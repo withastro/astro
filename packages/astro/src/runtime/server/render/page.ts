@@ -40,7 +40,7 @@ async function iterableToHTMLBytes(
 			if (i === 0) {
 				i++;
 				if (!/<!doctype html/i.test(String(chunk))) {
-					parts.append(`${isCompressHTML ? '<!DOCTYPE html>' :  '<!DOCTYPE html>\n'}`, result);
+					parts.append(`${isCompressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n'}`, result);
 					if (onDocTypeInjection) {
 						await onDocTypeInjection(parts);
 					}
@@ -154,7 +154,11 @@ export async function renderPage(
 								if (isHTMLString(chunk)) {
 									if (i === 0) {
 										if (!/<!doctype html/i.test(String(chunk))) {
-											controller.enqueue(encoder.encode(`${isCompressHTML ? '<!DOCTYPE html>' :  '<!DOCTYPE html>\n'}`));
+											controller.enqueue(
+												encoder.encode(
+													`${isCompressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n'}`
+												)
+											);
 										}
 									}
 								}
