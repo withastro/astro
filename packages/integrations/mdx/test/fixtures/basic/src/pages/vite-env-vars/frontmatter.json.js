@@ -1,4 +1,4 @@
-import { frontmatter } from './vite-env-vars.mdx';
+import { frontmatter } from './index.mdx';
 
 export function get() {
 	return {
