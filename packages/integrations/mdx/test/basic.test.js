@@ -173,6 +173,21 @@ describe('basic - build', () => {
 		});
 	});
 
+	describe('[get-static-paths]', () => {
+		it('Provides file and url', async () => {
+			const html = await fixture.readFile('/get-static-paths/one/index.html');
+	
+			const $ = cheerio.load(html);
+			expect($('p').text()).to.equal('First mdx file');
+			expect($('#one').text()).to.equal('hello', 'Frontmatter included');
+			expect($('#url').text()).to.equal('src/content/get-static-paths/1.mdx', 'url is included');
+			expect($('#file').text()).to.contain(
+				'fixtures/basic/src/content/get-static-paths/1.mdx',
+				'file is included'
+			);
+		});
+	})
+
 	describe('[namespace] import namespaced components', () => {
 		it('works for object', async () => {
 			const html = await fixture.readFile('/namespace/object/index.html');
