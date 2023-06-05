@@ -1,4 +1,9 @@
 import type { AstroConfig, RouteData, RoutePart } from 'astro';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import nodePath from 'node:path';
+
+const pathJoin = nodePath.posix.join;
+
 
 // https://vercel.com/docs/project-configuration#legacy/routes
 interface VercelRoute {
@@ -54,28 +59,51 @@ function getReplacePattern(segments: RoutePart[][]) {
 	return result;
 }
 
+function getRedirectLocation(route: RouteData, config: AstroConfig): string {
+	if(route.redirectRoute) {
+		const pattern = getReplacePattern(route.redirectRoute.segments);
+		const path = (config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern);
+		return pathJoin(config.base, path);
+	} else if(typeof route.redirect === 'object') {
+		return pathJoin(config.base, route.redirect.destination);
+	} else {
+		return pathJoin(config.base, route.redirect || '');
+	}	
+}
+
+function getRedirectStatus(route: RouteData): number {
+	if(typeof route.redirect === 'object') {
+		return route.redirect.status;
+	}
+	return 301;
+}
+
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
 	let redirects: VercelRoute[] = [];
 
-	if (config.trailingSlash === 'always') {
-		for (const route of routes) {
-			if (route.type !== 'page' || route.segments.length === 0) continue;
 
+
+	for(const route of routes) {
+		if(route.type === 'redirect') {
 			redirects.push({
 				src: config.base + getMatchPattern(route.segments),
-				headers: { Location: config.base + getReplacePattern(route.segments) + '/' },
-				status: 308,
+				headers: { Location: getRedirectLocation(route, config) },
+				status: getRedirectStatus(route)
 			});
-		}
-	} else if (config.trailingSlash === 'never') {
-		for (const route of routes) {
-			if (route.type !== 'page' || route.segments.length === 0) continue;
-
-			redirects.push({
-				src: config.base + getMatchPattern(route.segments) + '/',
-				headers: { Location: config.base + getReplacePattern(route.segments) },
-				status: 308,
-			});
+		} else if (route.type === 'page') {
+			if (config.trailingSlash === 'always') {
+				redirects.push({
+					src: config.base + getMatchPattern(route.segments),
+					headers: { Location: config.base + getReplacePattern(route.segments) + '/' },
+					status: 308,
+				});
+			} else if (config.trailingSlash === 'never') {
+				redirects.push({
+					src: config.base + getMatchPattern(route.segments) + '/',
+					headers: { Location: config.base + getReplacePattern(route.segments) },
+					status: 308,
+				});
+			}
 		}
 	}
 
