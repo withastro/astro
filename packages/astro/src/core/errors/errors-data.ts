@@ -750,12 +750,12 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
 	},
 	/**
-		 * @docs
-		 * @see
-		 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
-		 * @description
-		 * A redirect must be given a location with the `Location` header.
-		 */
+	 * @docs
+	 * @see
+	 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * @description
+	 * A redirect must be given a location with the `Location` header.
+	 */
 	RedirectWithNoLocation: {
 		title: 'A redirect must be given a location with the `Location` header.',
 		code: 3037,

@@ -12,7 +12,6 @@ import type {
 	EndpointOutput,
 	ImageTransform,
 	MiddlewareResponseHandler,
-	RedirectRouteData,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -24,9 +23,9 @@ import {
 } from '../../assets/generate.js';
 import {
 	eachPageDataFromEntryPoint,
+	eachRedirectPageData,
 	hasPrerenderedPages,
 	type BuildInternals,
-	eachRedirectPageData,
 } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
@@ -40,10 +39,14 @@ import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../en
 import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
+import {
+	getRedirectLocationOrThrow,
+	RedirectComponentInstance,
+	routeIsRedirect,
+} from '../redirects/index.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { getRedirectLocationOrThrow, RedirectComponentInstance, routeIsRedirect } from '../redirects/index.js';
-import {	
+import {
 	createAssetLink,
 	createModuleScriptsSet,
 	createStylesheetElementSet,
@@ -52,7 +55,12 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { cssOrder, getPageDataByComponent, mergeInlineCss, getEntryFilePathFromComponentPath } from './internal.js';
+import {
+	cssOrder,
+	getEntryFilePathFromComponentPath,
+	getPageDataByComponent,
+	mergeInlineCss,
+} from './internal.js';
 import type {
 	PageBuildData,
 	SinglePageBuiltModule,
@@ -62,24 +70,24 @@ import type {
 import { getTimeStat } from './util.js';
 
 const StaticMiddlewareInstance: AstroMiddlewareInstance<unknown> = {
-	onRequest: (ctx, next) => next()
+	onRequest: (ctx, next) => next(),
 };
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-} 
+}
 
 async function getEntryForRedirectRoute(
 	route: RouteData,
 	internals: BuildInternals,
 	outFolder: URL
 ): Promise<SinglePageBuiltModule> {
-	if(route.type !== 'redirect') {
+	if (route.type !== 'redirect') {
 		throw new Error(`Expected a redirect route.`);
 	}
-	if(route.redirectRoute) {
+	if (route.redirectRoute) {
 		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
-		if(filePath) {
+		if (filePath) {
 			const url = createEntryURL(filePath, outFolder);
 			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
 			return ssrEntryPage;
@@ -89,8 +97,8 @@ async function getEntryForRedirectRoute(
 	return {
 		page: () => Promise.resolve(RedirectComponentInstance),
 		middleware: StaticMiddlewareInstance,
-		renderers: []
-	}
+		renderers: [],
+	};
 }
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
@@ -143,13 +151,13 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	if (ssr) {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			if (pageData.route.prerender) {
-				const ssrEntryURLPage =createEntryURL(filePath, outFolder);
+				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
 				await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
 			}
 		}
-		for(const pageData of eachRedirectPageData(internals)) {
+		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
 			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
@@ -160,7 +168,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 			await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
 		}
-		for(const pageData of eachRedirectPageData(internals)) {
+		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
 			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
@@ -208,7 +216,7 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>
 ) {
-	if(routeIsRedirect(pageData.route) &&!opts.settings.config.experimental.redirects) {
+	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
 		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
 	}
 
@@ -578,9 +586,9 @@ async function generatePath(
 			throw err;
 		}
 
-		if(response.status >= 300 && response.status < 400) {
+		if (response.status >= 300 && response.status < 400) {
 			// If redirects is set to false, don't output the HTML
-			if(!opts.settings.config.build.redirects) {
+			if (!opts.settings.config.build.redirects) {
 				return;
 			}
 			const location = getRedirectLocationOrThrow(response.headers);
@@ -588,7 +596,7 @@ async function generatePath(
 <title>Redirecting to: ${location}</title>
 <meta http-equiv="refresh" content="0;url=${location}" />`;
 			// A dynamic redirect, set the location so that integrations know about it.
-			if(pageData.route.type !== 'redirect') {
+			if (pageData.route.type !== 'redirect') {
 				pageData.route.redirect = location;
 			}
 		} else {

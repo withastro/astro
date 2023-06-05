@@ -1,11 +1,11 @@
 import { extname } from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
+import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
-import { routeIsRedirect } from '../../redirects/index.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
@@ -44,7 +44,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 				const inputs: Set<string> = new Set();
 
 				for (const [path, pageData] of Object.entries(opts.allPages)) {
-					if(routeIsRedirect(pageData.route)) {
+					if (routeIsRedirect(pageData.route)) {
 						continue;
 					}
 					inputs.add(getVirtualModulePageNameFromPath(path));

@@ -13,7 +13,7 @@ describe('Astro.redirect', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				redirects: {
-					'/api/redirect': '/'
+					'/api/redirect': '/',
 				},
 				experimental: {
 					redirects: true,
@@ -21,7 +21,7 @@ describe('Astro.redirect', () => {
 			});
 			await fixture.build();
 		});
-	
+
 		it('Returns a 302 status', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/secret');
@@ -29,7 +29,7 @@ describe('Astro.redirect', () => {
 			expect(response.status).to.equal(302);
 			expect(response.headers.get('location')).to.equal('/login');
 		});
-	
+
 		it('Warns when used inside a component', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/late');
@@ -56,7 +56,7 @@ describe('Astro.redirect', () => {
 			it('Uses 308 for non-GET methods', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/api/redirect', {
-					method: 'POST'
+					method: 'POST',
 				});
 				const response = await app.render(request);
 				expect(response.status).to.equal(308);
@@ -80,13 +80,13 @@ describe('Astro.redirect', () => {
 					'/blog/[...slug]': '/articles/[...slug]',
 					'/three': {
 						status: 302,
-						destination: '/'
-					}
-				}
+						destination: '/',
+					},
+				},
 			});
 			await fixture.build();
 		});
-	
+
 		it('Includes the meta refresh tag in Astro.redirect pages', async () => {
 			const html = await fixture.readFile('/secret/index.html');
 			expect(html).to.include('http-equiv="refresh');
@@ -131,10 +131,10 @@ describe('Astro.redirect', () => {
 				root: './fixtures/ssr-redirect/',
 				output: 'static',
 				redirects: {
-					'/one': '/'
+					'/one': '/',
 				},
 				build: {
-					redirects: false
+					redirects: false,
 				},
 				experimental: {
 					redirects: true,
@@ -149,6 +149,6 @@ describe('Astro.redirect', () => {
 				oneHtml = await fixture.readFile('/one/index.html');
 			} catch {}
 			expect(oneHtml).be.an('undefined');
-		})
-	})
+		});
+	});
 });

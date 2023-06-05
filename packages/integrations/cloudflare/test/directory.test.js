@@ -12,7 +12,7 @@ describe('mode: "directory"', () => {
 			output: 'server',
 			adapter: cloudflare({ mode: 'directory' }),
 			redirects: {
-				'/old': '/'
+				'/old': '/',
 			},
 			experimental: {
 				redirects: true,
@@ -30,9 +30,7 @@ describe('mode: "directory"', () => {
 		try {
 			let _redirects = await fixture.readFile('/_redirects');
 			let parts = _redirects.split(/\s+/);
-			expect(parts).to.deep.equal([
-				'/old', '/', '301'
-			]);
+			expect(parts).to.deep.equal(['/old', '/', '301']);
 		} catch {
 			expect(false).to.equal(true);
 		}

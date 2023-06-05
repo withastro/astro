@@ -453,8 +453,6 @@ export interface AstroUserConfig {
 	 */
 	cacheDir?: string;
 
-	
-
 	/**
 	 * @docs
 	 * @name redirects (Experimental)
@@ -462,12 +460,12 @@ export interface AstroUserConfig {
 	 * @default `{}`
 	 * @version 2.6.0
 	 * @description Specify a mapping of redirects where the key is the route to match
-	 * and the value is the path to redirect to. 
+	 * and the value is the path to redirect to.
 	 *
 	 * You can redirect both static and dynamic routes, but only to the same kind of route.
 	 * For example you cannot have a `'/article': '/blog/[...slug]'` redirect.
-	 * 
-	 * 
+	 *
+	 *
 	 * ```js
 	 * {
 	 *   redirects: {
@@ -477,16 +475,16 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 *
-	 *  
+	 *
 	 * For statically-generated sites with no adapter installed, this will produce a client redirect using a [`<meta http-equiv="refresh">` tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv) and does not support status codes.
 	 *
 	 * When using SSR or with a static adapter in `output: static`
 	 * mode, status codes are supported.
 	 * Astro will serve redirected GET requests with a status of `301`
 	 * and use a status of `308` for any other request method.
-	 * 
+	 *
 	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
-	 * 
+	 *
 	 * ```js
 	 * {
 	 *   redirects: {
@@ -791,8 +789,8 @@ export interface AstroUserConfig {
 		 * Specifies whether redirects will be output to HTML during the build.
 		 * This option only applies to `output: 'static'` mode; in SSR redirects
 		 * are treated the same as all responses.
-		 * 
-		 * This option is mostly meant to be used by adapters that have special 
+		 *
+		 * This option is mostly meant to be used by adapters that have special
 		 * configuration files for redirects and do not need/want HTML based redirects.
 		 *
 		 * ```js
@@ -1270,7 +1268,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		 redirects?: boolean;
+		redirects?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1924,10 +1922,12 @@ export interface RoutePart {
 	spread: boolean;
 }
 
-type RedirectConfig = string | {
-	status: ValidRedirectStatus;
-	destination: string;
-}
+type RedirectConfig =
+	| string
+	| {
+			status: ValidRedirectStatus;
+			destination: string;
+	  };
 
 export interface RouteData {
 	route: string;
@@ -1947,7 +1947,7 @@ export interface RouteData {
 
 export type RedirectRouteData = RouteData & {
 	redirect: string;
-}
+};
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;

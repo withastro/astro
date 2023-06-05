@@ -58,7 +58,7 @@ export function stringifyChunk(
 				return renderAllHeadContent(result);
 			}
 			default: {
-				if(chunk instanceof Response) {
+				if (chunk instanceof Response) {
 					return '';
 				}
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
@@ -108,7 +108,7 @@ export function chunkToByteArray(
 	if (chunk instanceof Uint8Array) {
 		return chunk as Uint8Array;
 	}
-	
+
 	// stringify chunk might return a HTMLString
 	let stringified = stringifyChunk(result, chunk);
 	return encoder.encode(stringified.toString());

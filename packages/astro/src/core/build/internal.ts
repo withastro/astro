@@ -3,7 +3,11 @@ import type { SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import { ASTRO_PAGE_EXTENSION_POST_PATTERN, ASTRO_PAGE_MODULE_ID, getVirtualModulePageIdFromPath } from './plugins/plugin-pages.js';
+import {
+	ASTRO_PAGE_EXTENSION_POST_PATTERN,
+	ASTRO_PAGE_MODULE_ID,
+	getVirtualModulePageIdFromPath,
+} from './plugins/plugin-pages.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 export interface BuildInternals {
@@ -218,8 +222,8 @@ export function* eachPageData(internals: BuildInternals) {
 }
 
 export function* eachRedirectPageData(internals: BuildInternals) {
-	for(const pageData of eachPageData(internals)) {
-		if(pageData.route.type === 'redirect') {
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.type === 'redirect') {
 			yield pageData;
 		}
 	}

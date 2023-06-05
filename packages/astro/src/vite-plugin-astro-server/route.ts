@@ -129,10 +129,13 @@ export async function handleRoute(
 		return handle404Response(origin, req, res);
 	}
 
-	if(matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
-		writeWebResponse(res, new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
-			status: 400
-		}));
+	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
+		writeWebResponse(
+			res,
+			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
+				status: 400,
+			})
+		);
 		return;
 	}
 

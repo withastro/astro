@@ -4,7 +4,7 @@ import type { ComponentInstance } from '../../@types/astro';
 export const RedirectComponentInstance: ComponentInstance = {
 	default() {
 		return new Response(null, {
-			status: 301
+			status: 301,
 		});
-	}
+	},
 };

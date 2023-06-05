@@ -17,7 +17,7 @@ export function print(
 	let _redirects = '';
 
 	// Loop over the definitions
-	for(let i = 0; i < definitions.length; i++) {
+	for (let i = 0; i < definitions.length; i++) {
 		let definition = definitions[i];
 		// Figure out the number of spaces to add. We want at least 4 spaces
 		// after the input. This ensure that all targets line up together.

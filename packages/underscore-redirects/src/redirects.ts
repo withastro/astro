@@ -46,24 +46,26 @@ export class Redirects {
 }
 
 function binaryInsert<T>(sorted: T[], item: T, comparator: (a: T, b: T) => boolean) {
-  if(sorted.length === 0) {
-    sorted.push(item);
-    return 0;
-  }
-  let low = 0, high = sorted.length - 1, mid = 0;
-  while (low <= high) {
-    mid = low + (high - low >> 1);
-    if(comparator(sorted[mid], item)) {
-      low = mid + 1;
-    } else {
-      high = mid -1;
-    }
-  }
+	if (sorted.length === 0) {
+		sorted.push(item);
+		return 0;
+	}
+	let low = 0,
+		high = sorted.length - 1,
+		mid = 0;
+	while (low <= high) {
+		mid = low + ((high - low) >> 1);
+		if (comparator(sorted[mid], item)) {
+			low = mid + 1;
+		} else {
+			high = mid - 1;
+		}
+	}
 
-  if(comparator(sorted[mid], item)) {
-    mid++;
-  }
+	if (comparator(sorted[mid], item)) {
+		mid++;
+	}
 
-  sorted.splice(mid, 0, item);
-  return mid;
+	sorted.splice(mid, 0, item);
+	return mid;
 }

@@ -1,8 +1,2 @@
-export {
-	Redirects,
-	type RedirectDefinition
-} from './redirects.js';
-
-export {
-	createRedirectsFromAstroRoutes
-} from './astro.js';
+export { createRedirectsFromAstroRoutes } from './astro.js';
+export { Redirects, type RedirectDefinition } from './redirects.js';

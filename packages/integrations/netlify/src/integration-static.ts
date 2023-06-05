@@ -1,5 +1,4 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
-import type { Args } from './netlify-functions.js';
+import type { AstroIntegration } from 'astro';
 import { createRedirects } from './shared.js';
 
 export function netlifyStatic(): AstroIntegration {
@@ -20,7 +19,7 @@ export function netlifyStatic(): AstroIntegration {
 			},
 			'astro:build:done': async ({ dir, routes }) => {
 				await createRedirects(_config, routes, dir, '', 'static');
-			}
-		}
+			},
+		},
 	};
 }

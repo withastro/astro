@@ -15,6 +15,7 @@ import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { RedirectComponentInstance } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -28,7 +29,6 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { RedirectComponentInstance } from '../redirects/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -172,12 +172,14 @@ export class App {
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<ComponentInstance> {
-		if(route.type === 'redirect') {
+		if (route.type === 'redirect') {
 			return RedirectComponentInstance;
 		} else {
 			const importComponentInstance = this.#manifest.pageMap.get(route.component);
-			if(!importComponentInstance) {
-				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`
+				);
 			}
 			const built = await importComponentInstance();
 			return built.page();

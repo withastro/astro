@@ -1,11 +1,11 @@
 import type { AstroConfig, RouteData, ValidRedirectStatus } from 'astro';
-import { Redirects } from './redirects.js';
 import { posix } from 'node:path';
+import { Redirects } from './redirects.js';
 
 const pathJoin = posix.join;
 
 function getRedirectStatus(route: RouteData): ValidRedirectStatus {
-	if(typeof route.redirect === 'object') {
+	if (typeof route.redirect === 'object') {
 		return route.redirect.status;
 	}
 	return 301;
@@ -33,7 +33,7 @@ export function createRedirectsFromAstroRoutes({
 	for (const route of routes) {
 		// A route with a `pathname` is as static route.
 		if (route.pathname) {
-			if(route.redirect) {
+			if (route.redirect) {
 				// A redirect route without dynamic parts. Get the redirect status
 				// from the user if provided.
 				_redirects.add({
@@ -41,17 +41,15 @@ export function createRedirectsFromAstroRoutes({
 					input: route.pathname,
 					target: typeof route.redirect === 'object' ? route.redirect.destination : route.redirect,
 					status: getRedirectStatus(route),
-					weight: 2
+					weight: 2,
 				});
 				continue;
 			}
 
 			// If this is a static build we don't want to add redirects to the HTML file.
-			if(output === 'static') {
+			if (output === 'static') {
 				continue;
-			}
-
-			else if (route.distURL) {
+			} else if (route.distURL) {
 				_redirects.add({
 					dynamic: false,
 					input: route.pathname,
@@ -88,7 +86,7 @@ export function createRedirectsFromAstroRoutes({
 				const targetRoute = route.redirectRoute ?? route;
 				const targetPattern = generateDynamicPattern(targetRoute);
 				let target = targetPattern;
-				if(config.build.format === 'directory') {
+				if (config.build.format === 'directory') {
 					target = pathJoin(target, 'index.html');
 				} else {
 					target += '.html';
