@@ -15,6 +15,7 @@ import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { RedirectComponentInstance } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -138,21 +139,21 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let page = await this.#manifest.pageMap.get(routeData.component)!();
+		let mod = await this.#getModuleForRoute(routeData);
 
-		if (routeData.type === 'page') {
-			let response = await this.#renderPage(request, routeData, page, defaultStatus);
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
+			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
 			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 			if (response.status === 500 || response.status === 404) {
-				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
-				if (errorPageData && errorPageData.route !== routeData.route) {
-					page = await this.#manifest.pageMap.get(errorPageData.component)!();
+				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorRouteData && errorRouteData.route !== routeData.route) {
+					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
 						let errorResponse = await this.#renderPage(
 							request,
-							errorPageData,
-							page,
+							errorRouteData,
+							mod,
 							response.status
 						);
 						return errorResponse;
@@ -161,7 +162,7 @@ export class App {
 			}
 			return response;
 		} else if (routeData.type === 'endpoint') {
-			return this.#callEndpoint(request, routeData, page, defaultStatus);
+			return this.#callEndpoint(request, routeData, mod, defaultStatus);
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
 		}
@@ -169,6 +170,21 @@ export class App {
 
 	setCookieHeaders(response: Response) {
 		return getSetCookiesFromResponse(response);
+	}
+
+	async #getModuleForRoute(route: RouteData): Promise<ComponentInstance> {
+		if (route.type === 'redirect') {
+			return RedirectComponentInstance;
+		} else {
+			const importComponentInstance = this.#manifest.pageMap.get(route.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`
+				);
+			}
+			const built = await importComponentInstance();
+			return built.page();
+		}
 	}
 
 	async #renderPage(
