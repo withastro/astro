@@ -1,4 +1,5 @@
 import type {
+	AstroCookies,
 	ComponentInstance,
 	Params,
 	Props,
@@ -23,6 +24,7 @@ export interface RenderContext {
 	componentMetadata?: SSRResult['componentMetadata'];
 	route?: RouteData;
 	status?: number;
+	cookies?: AstroCookies;
 	params: Params;
 	props: Props;
 }

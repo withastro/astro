@@ -14,7 +14,9 @@ import { viteID } from '../core/util.js';
  * in our JS representation of modules like Markdown
  */
 export function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
+	return code
+		.replace(/import\.meta\.env/g, 'import\\u002Emeta.env')
+		.replace(/process\.env/g, 'process\\u002Eenv');
 }
 
 export function getFileInfo(id: string, config: AstroConfig) {

@@ -1,6 +1,5 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
-	AstroMiddlewareInstance,
 	RouteData,
 	SerializedRouteData,
 	SSRComponentMetadata,
@@ -49,7 +48,6 @@ export interface SSRManifest {
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
-	middleware?: AstroMiddlewareInstance<unknown>;
 }
 
 export type SerializedSSRManifest = Omit<
