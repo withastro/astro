@@ -145,6 +145,7 @@ export async function renderPage({
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
+		cookies: apiContext?.cookies,
 		locals,
 	});
 
