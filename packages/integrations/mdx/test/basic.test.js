@@ -31,6 +31,20 @@ describe('basic - dev', () => {
 		});
 	});
 
+	describe('[page] MDX as page file', () => {
+		it('works', async () => {
+			const res = await fixture.fetch('/page/');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('h1');
+			expect(h1.textContent).to.equal('Hello page!');
+		});
+	});
+
 	describe('[script-style-raw]', () => {
 		it('works with with raw script and style strings', async () => {
 			const res = await fixture.fetch('/script-style-raw/index.html');
@@ -124,6 +138,24 @@ describe('basic - build', () => {
 			const $ = cheerio.load(html);
 			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
 			expect($('script[src$=".js"]').attr('src')).to.match(/^\/_astro\//);
+		});
+	});
+
+	describe('[page] MDX as page file', () => {
+		it('works', async () => {
+			const html = await fixture.readFile('/page/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('h1');
+			expect(h1.textContent).to.equal('Hello page!');
+		});
+
+		it('injects style imports when layout is not applied', async () => {
+			const html = await fixture.readFile('/page/index.html');
+			const { document } = parseHTML(html);
+
+			const stylesheet = document.querySelector('link[rel="stylesheet"]');
+			expect(stylesheet).to.not.be.null;
 		});
 	});
 
