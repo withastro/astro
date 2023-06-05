@@ -1,9 +1,8 @@
-import type { AstroConfig, RouteData, RoutePart } from 'astro';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import type { AstroConfig, RouteData, RoutePart } from 'astro';
 import nodePath from 'node:path';
 
 const pathJoin = nodePath.posix.join;
-
 
 // https://vercel.com/docs/project-configuration#legacy/routes
 interface VercelRoute {
@@ -60,19 +59,19 @@ function getReplacePattern(segments: RoutePart[][]) {
 }
 
 function getRedirectLocation(route: RouteData, config: AstroConfig): string {
-	if(route.redirectRoute) {
+	if (route.redirectRoute) {
 		const pattern = getReplacePattern(route.redirectRoute.segments);
-		const path = (config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern);
+		const path = config.trailingSlash === 'always' ? appendForwardSlash(pattern) : pattern;
 		return pathJoin(config.base, path);
-	} else if(typeof route.redirect === 'object') {
+	} else if (typeof route.redirect === 'object') {
 		return pathJoin(config.base, route.redirect.destination);
 	} else {
 		return pathJoin(config.base, route.redirect || '');
-	}	
+	}
 }
 
 function getRedirectStatus(route: RouteData): number {
-	if(typeof route.redirect === 'object') {
+	if (typeof route.redirect === 'object') {
 		return route.redirect.status;
 	}
 	return 301;
@@ -81,14 +80,12 @@ function getRedirectStatus(route: RouteData): number {
 export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRoute[] {
 	let redirects: VercelRoute[] = [];
 
-
-
-	for(const route of routes) {
-		if(route.type === 'redirect') {
+	for (const route of routes) {
+		if (route.type === 'redirect') {
 			redirects.push({
 				src: config.base + getMatchPattern(route.segments),
 				headers: { Location: getRedirectLocation(route, config) },
-				status: getRedirectStatus(route)
+				status: getRedirectStatus(route),
 			});
 		} else if (route.type === 'page') {
 			if (config.trailingSlash === 'always') {
