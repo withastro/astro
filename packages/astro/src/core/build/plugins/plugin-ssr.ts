@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter } from '../../../@types/astro';
 import { runHookBuildSsr } from '../../../integrations/index.js';
-import { isHybridOutput } from '../../../prerender/utils.js';
+import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
 import { joinPaths, prependForwardSlash } from '../../path.js';
@@ -269,8 +269,7 @@ export function pluginSSR(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const ssr =
-		options.settings.config.output === 'server' || isHybridOutput(options.settings.config);
+	const ssr = isServerLikeOutput(options.settings.config);
 	return {
 		build: 'ssr',
 		hooks: {

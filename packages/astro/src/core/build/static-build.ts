@@ -15,7 +15,7 @@ import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { isHybridOutput } from '../../prerender/utils.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
@@ -117,7 +117,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 export async function staticBuild(opts: StaticBuildOptions, internals: BuildInternals) {
 	const { settings } = opts;
-	const hybridOutput = isHybridOutput(settings.config);
 	switch (true) {
 		case settings.config.output === 'static': {
 			settings.timer.start('Static generate');
@@ -126,7 +125,7 @@ export async function staticBuild(opts: StaticBuildOptions, internals: BuildInte
 			settings.timer.end('Static generate');
 			return;
 		}
-		case settings.config.output === 'server' || hybridOutput: {
+		case isServerLikeOutput(settings.config): {
 			settings.timer.start('Server generate');
 			await generatePages(opts, internals);
 			await cleanStaticOutput(opts, internals);
@@ -145,7 +144,7 @@ async function ssrBuild(
 	container: AstroBuildPluginContainer
 ) {
 	const { settings, viteConfig } = opts;
-	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
+	const ssr = isServerLikeOutput(settings.config);
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
 
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
@@ -225,7 +224,7 @@ async function clientBuild(
 ) {
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
+	const ssr = isServerLikeOutput(settings.config);
 	const out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
 
 	// Nothing to do if there is no client-side JS.
@@ -290,12 +289,11 @@ async function runPostBuildHooks(
 	const config = container.options.settings.config;
 	const buildConfig = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
-		const root =
-			config.output === 'server' || isHybridOutput(config)
-				? mutation.build === 'server'
-					? buildConfig.server
-					: buildConfig.client
-				: config.outDir;
+		const root = isServerLikeOutput(config)
+			? mutation.build === 'server'
+				? buildConfig.server
+				: buildConfig.client
+			: config.outDir;
 		const fileURL = new URL(fileName, root);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
 		await fs.promises.writeFile(fileURL, mutation.code, 'utf-8');
@@ -312,7 +310,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 		if (pageData.route.prerender)
 			allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
 	}
-	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config);
+	const ssr = isServerLikeOutput(opts.settings.config);
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {

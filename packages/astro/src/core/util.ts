@@ -4,7 +4,7 @@ import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
-import { isHybridOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
@@ -139,9 +139,7 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
-	return (
-		(settings.config.output === 'server' || isHybridOutput(settings.config)) && !settings.adapter
-	);
+	return isServerLikeOutput(settings.config) && !settings.adapter;
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
