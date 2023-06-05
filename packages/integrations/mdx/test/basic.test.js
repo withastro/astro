@@ -31,6 +31,28 @@ describe('basic - dev', () => {
 		});
 	});
 
+	describe('[script-style-raw]', () => {
+		it('works with with raw script and style strings', async () => {
+			const res = await fixture.fetch('/script-style-raw/index.html');
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const scriptContent = document.getElementById('test-script').innerHTML;
+			expect(scriptContent).to.include(
+				"console.log('raw script')",
+				'script should not be html-escaped'
+			);
+
+			const styleContent = document.getElementById('test-style').innerHTML;
+			expect(styleContent).to.include(
+				'h1[id="script-style-raw"]',
+				'style should not be html-escaped'
+			);
+		});
+	});
+
 	describe('[slots]', () => {
 		it('supports top-level imports', async () => {
 			const res = await fixture.fetch('/slots/');
@@ -102,6 +124,25 @@ describe('basic - build', () => {
 			const $ = cheerio.load(html);
 			expect($('link[href$=".css"]').attr('href')).to.match(/^\/_astro\//);
 			expect($('script[src$=".js"]').attr('src')).to.match(/^\/_astro\//);
+		});
+	});
+
+	describe('[script-style-raw]', () => {
+		it('works with with raw script and style strings', async () => {
+			const html = await fixture.readFile('/script-style-raw/index.html');
+			const { document } = parseHTML(html);
+
+			const scriptContent = document.getElementById('test-script').innerHTML;
+			expect(scriptContent).to.include(
+				"console.log('raw script')",
+				'script should not be html-escaped'
+			);
+
+			const styleContent = document.getElementById('test-style').innerHTML;
+			expect(styleContent).to.include(
+				'h1[id="script-style-raw"]',
+				'style should not be html-escaped'
+			);
 		});
 	});
 
