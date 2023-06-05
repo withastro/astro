@@ -26,7 +26,7 @@ function getVirtualFileTSX(
 	ts: typeof import('typescript/lib/tsserverlibrary.js'),
 	htmlDocument: HTMLDocument
 ): VirtualFile {
-	tsx.code = patchTSX(tsx.code);
+	tsx.code = patchTSX(tsx.code, fileName);
 	const v3Mappings = decode(tsx.map.mappings);
 	const sourcedDoc = TextDocument.create(fileName, 'astro', 0, input);
 	const genDoc = TextDocument.create(fileName + '.tsx', 'typescriptreact', 0, tsx.code);

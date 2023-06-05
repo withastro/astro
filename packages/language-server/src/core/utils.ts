@@ -83,7 +83,7 @@ export function framework2tsx(
 	}
 
 	const className = classNameFromFilename(filePath);
-	const tsx = patchTSX(integrationEditorEntrypoint.toTSX(sourceCode, className));
+	const tsx = patchTSX(integrationEditorEntrypoint.toTSX(sourceCode, className), fileName);
 
 	return getVirtualFile(tsx);
 
@@ -147,6 +147,11 @@ export function classNameFromFilename(filename: string): string {
 }
 
 // TODO: Patch the upstream packages with these changes
-export function patchTSX(code: string) {
-	return code.replace('__AstroComponent_', '');
+export function patchTSX(code: string, fileName: string) {
+	const basename = path.basename(fileName, path.extname(fileName));
+	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
+
+	return code.replace(/\b(\S*)__AstroComponent_/, (_, m1: string) =>
+		isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1)
+	);
 }
