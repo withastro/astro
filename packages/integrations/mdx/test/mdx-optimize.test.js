@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-optimize/', import.meta.url);
 

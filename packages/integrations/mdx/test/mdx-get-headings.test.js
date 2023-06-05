@@ -4,7 +4,7 @@ import { visit } from 'unist-util-visit';
 
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('MDX getHeadings', () => {
 	let fixture;

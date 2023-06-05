@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('basic - dev', () => {
 	/** @type {import('../../../astro/test/test-utils.js').Fixture} */

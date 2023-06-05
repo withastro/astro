@@ -2,7 +2,7 @@ import mdx from '@astrojs/mdx';
 
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.js';
 import shikiTwoslash from 'remark-shiki-twoslash';
 import rehypePrettyCode from 'rehype-pretty-code';
 
