@@ -8,6 +8,6 @@ export default defineConfig({
 		mode: 'standalone',
 	}),
 	experimental: {
-		middleware: true,
+		middleware: true
 	},
 });

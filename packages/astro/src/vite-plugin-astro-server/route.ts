@@ -180,11 +180,9 @@ export async function handleRoute(
 		request,
 		route,
 	};
-	if (env.settings.config.experimental.middleware) {
-		const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
-		if (middleware) {
-			options.middleware = middleware;
-		}
+	const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
+	if (middleware) {
+		options.middleware = middleware;
 	}
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {

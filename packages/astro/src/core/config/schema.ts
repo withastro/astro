@@ -212,7 +212,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.customClientDirecives),
-			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
 			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirects),
 		})

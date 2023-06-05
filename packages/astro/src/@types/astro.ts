@@ -108,7 +108,6 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
-	experimentalMiddleware?: boolean;
 	experimentalRedirects?: boolean;
 }
 
@@ -1188,27 +1187,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		customClientDirectives?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.middleware
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.4.0
-		 * @description
-		 * Enable experimental support for Astro middleware.
-		 *
-		 * To enable this feature, set `experimental.middleware` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		middleware: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		middleware?: boolean;
 
 		/**
 		 * @docs

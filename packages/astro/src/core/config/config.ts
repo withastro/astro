@@ -104,8 +104,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 		experimentalAssets:
 			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-		experimentalMiddleware:
-			typeof flags.experimentalMiddleware === 'boolean' ? flags.experimentalMiddleware : undefined,
 		experimentalRedirects:
 			typeof flags.experimentalRedirects === 'boolean' ? flags.experimentalRedirects : undefined,
 	};
@@ -140,9 +138,6 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
 		// TODO: Come back here and refactor to remove this expected error.
 		astroConfig.server.open = flags.open;
-	}
-	if (typeof flags.experimentalMiddleware === 'boolean') {
-		astroConfig.experimental.middleware = true;
 	}
 	return astroConfig;
 }
