@@ -20,7 +20,7 @@ describe('basic - dev', () => {
 		await devServer.stop();
 	});
 
-	describe('build css from the component', () => {
+	describe('[astro-content-css] build css from the component', () => {
 		it('including css and js from the component', async () => {
 			let res = await fixture.fetch(`/astro-content-css/`);
 			expect(res.status).to.equal(200);
@@ -43,7 +43,7 @@ describe('basic - build', () => {
 		await fixture.build();
 	});
 
-	describe('build css from the component', () => {
+	describe('[astro-content-css] build css from the component', () => {
 		it('including css and js from the component', async () => {
 			const html = await fixture.readFile('/astro-content-css/index.html');
 			const $ = cheerio.load(html);
@@ -52,7 +52,7 @@ describe('basic - build', () => {
 		});
 	});
 
-	describe('url export', () => {
+	describe('[url-export]', () => {
 		it('generates correct urls in glob result', async () => {
 			const { urls } = JSON.parse(await fixture.readFile('/url-export/pages.json'));
 			expect(urls).to.include('/url-export/test-1');
@@ -65,7 +65,7 @@ describe('basic - build', () => {
 		});
 	});
 
-	describe('vite env vars', () => {
+	describe('[vite-env-vars]', () => {
 		it('Avoids transforming `import.meta.env` outside JSX expressions', async () => {
 			const html = await fixture.readFile('/vite-env-vars/index.html');
 			const { document } = parseHTML(html);
