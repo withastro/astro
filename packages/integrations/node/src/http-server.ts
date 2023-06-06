@@ -31,6 +31,8 @@ export function createServer(
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
 			const encodedURI = parsePathname(pathname, host, port);
 
+			console.log(req.url);
+
 			if (!encodedURI) {
 				res.writeHead(400);
 				res.end('Bad request.');
@@ -57,9 +59,13 @@ export function createServer(
 			});
 			stream.on('directory', () => {
 				// On directory find, redirect to the trailing slash
-				const [url='', query] = (req.url || '').split('?')
-				
-				const location =  `${url}/${query ? '?'+ query : ''}`
+				let location: string;
+				if (req.url!.includes('?')) {
+					const [url = '', search] = req.url!.split('?');
+					location = `${url}/?${search}`
+				} else {
+					location = req.url + '/'
+				}
 
 				res.statusCode = 301;
 				res.setHeader('Location', location);
