@@ -1,5 +1,13 @@
 # @astrojs/language-server
 
+## 2.0.14
+
+### Patch Changes
+
+- 60500b3: pin the @volar/_ and volar-service-_ versions to avoid regression
+- 5d10499: pin @volar/kit version
+- 0205f03: Fixed TypeScript error showing when deconstructing from Astro.props a variable with the same name as the normalized file name
+
 ## 2.0.0
 
 ### Major Changes

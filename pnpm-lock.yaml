@@ -179,7 +179,7 @@ importers:
         version: 0.10.0
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.0.0
+        specifier: ^2.0.14
         version: link:../language-server
       '@types/glob':
         specifier: ^8.1.0
