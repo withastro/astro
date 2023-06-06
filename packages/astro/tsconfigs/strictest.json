@@ -19,6 +19,8 @@
     // Report an error for unreachable code instead of just a warning.
     "allowUnreachableCode": false,
     // Report an error for unused labels instead of just a warning.
-    "allowUnusedLabels": false
+    "allowUnusedLabels": false,
+    // Disallow JavaScript files from being imported
+    "allowJs": false
   }
 }

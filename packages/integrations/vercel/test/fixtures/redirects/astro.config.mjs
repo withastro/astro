@@ -1,7 +1,9 @@
+import vercel from '@astrojs/vercel/static';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
+	adapter: vercel({imageService: true}),
 	experimental: {
-		middleware: true
+		assets: true
 	}
 });

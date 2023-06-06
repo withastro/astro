@@ -10,7 +10,7 @@ describe('Setting inlineStylesheets to never in static output', () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-inline-stylesheets/never/',
 			output: 'static',
-			experimental: {
+			build: {
 				inlineStylesheets: 'never',
 			},
 		});
@@ -44,7 +44,7 @@ describe('Setting inlineStylesheets to never in server output', () => {
 			root: './fixtures/css-inline-stylesheets/never/',
 			output: 'server',
 			adapter: testAdapter(),
-			experimental: {
+			build: {
 				inlineStylesheets: 'never',
 			},
 		});
@@ -79,7 +79,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-inline-stylesheets/auto/',
 			output: 'static',
-			experimental: {
+			build: {
 				inlineStylesheets: 'auto',
 			},
 			vite: {
@@ -120,7 +120,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 			root: './fixtures/css-inline-stylesheets/auto/',
 			output: 'server',
 			adapter: testAdapter(),
-			experimental: {
+			build: {
 				inlineStylesheets: 'auto',
 			},
 			vite: {
@@ -163,7 +163,7 @@ describe('Setting inlineStylesheets to always in static output', () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-inline-stylesheets/always/',
 			output: 'static',
-			experimental: {
+			build: {
 				inlineStylesheets: 'always',
 			},
 		});
@@ -196,7 +196,7 @@ describe('Setting inlineStylesheets to always in server output', () => {
 			root: './fixtures/css-inline-stylesheets/always/',
 			output: 'server',
 			adapter: testAdapter(),
-			experimental: {
+			build: {
 				inlineStylesheets: 'always',
 			},
 		});

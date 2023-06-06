@@ -5,6 +5,7 @@ import {
 	renderAstroTemplateResult,
 } from './astro/index.js';
 import { SlotString } from './slot.js';
+import { bufferIterators } from './util.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
@@ -16,8 +17,9 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 	} else if (isHTMLString(child)) {
 		yield child;
 	} else if (Array.isArray(child)) {
-		for (const value of child) {
-			yield markHTMLString(await renderChild(value));
+		const bufferedIterators = bufferIterators(child.map((c) => renderChild(c)));
+		for (const value of bufferedIterators) {
+			yield markHTMLString(await value);
 		}
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.

@@ -1,4 +1,4 @@
-/// <reference path="./client.d.ts" />
+/// <reference path="./client-base.d.ts" />
 
 // Caution! The types here are only available inside Astro files (injected automatically by our language server)
 // As such, if the typings you're trying to add should be available inside ex: React components, they should instead
@@ -18,6 +18,6 @@ declare const Astro: Readonly<Astro>;
 declare const Fragment: any;
 
 declare module '*.html' {
-	const Component: { render(opts: { slots: Record<string, string> }): string };
+	const Component: (opts?: { slots?: Record<string, string> }) => string;
 	export default Component;
 }

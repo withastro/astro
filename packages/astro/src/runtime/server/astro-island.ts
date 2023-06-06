@@ -53,7 +53,8 @@ declare const Astro: {
 						// Wait with a mutation observer
 						new MutationObserver((_, mo) => {
 							mo.disconnect();
-							this.childrenConnectedCallback();
+							// Wait until the next macrotask to ensure children are really rendered
+							setTimeout(() => this.childrenConnectedCallback(), 0);
 						}).observe(this, { childList: true });
 					}
 				}
@@ -98,7 +99,11 @@ declare const Astro: {
 				hydrate = () => {
 					if (
 						!this.hydrator ||
-						(this.parentElement && this.parentElement.closest('astro-island[ssr]'))
+						// Make sure the island is mounted on the DOM before hydrating. It could be unmounted
+						// when the parent island hydrates and re-creates this island.
+						!this.isConnected ||
+						// Wait for parent island to hydrate first so we hydrate top-down.
+						this.parentElement?.closest('astro-island[ssr]')
 					) {
 						return;
 					}
@@ -129,7 +134,7 @@ declare const Astro: {
 					window.dispatchEvent(new CustomEvent('astro:hydrate'));
 				};
 				attributeChangedCallback() {
-					if (this.hydrator) this.hydrate();
+					this.hydrate();
 				}
 			}
 		);

@@ -158,9 +158,6 @@ describe('Hybrid rendering', () => {
 				base: '/some-base',
 				root: './fixtures/prerender/',
 				output: 'hybrid',
-				experimental: {
-					hybridOutput: true,
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -226,9 +223,6 @@ describe('Hybrid rendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'hybrid',
-				experimental: {
-					hybridOutput: true,
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
