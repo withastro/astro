@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "5.1.4",
+  "version": "5.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -38,7 +38,7 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.5.7"
+    "astro": "workspace:^2.6.0"
   },
   "devDependencies": {
     "@types/node": "^18.7.21",
