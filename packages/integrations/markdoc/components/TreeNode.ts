@@ -79,25 +79,24 @@ export const ComponentNode = createComponent({
 
 			let headAndContent = createHeadAndContent(
 				head,
-				renderTemplate`${
-					treeNode.component === null
-						? slots
-						: renderComponent(
-								result,
-								treeNode.component.name,
-								treeNode.component,
-								treeNode.props,
-								slots
-						  )
-				}`
+				renderTemplate`${renderComponent(
+					result,
+					treeNode.component.name,
+					treeNode.component,
+					treeNode.props,
+					slots
+				)}`
 			);
 
 			// Let the runtime know that this component is being used.
-			result.propagators.set(treeNode.component, {
-				init() {
-					return headAndContent;
-				},
-			});
+			result.propagators.set(
+				{},
+				{
+					init() {
+						return headAndContent;
+					},
+				}
+			);
 
 			return headAndContent;
 		}
