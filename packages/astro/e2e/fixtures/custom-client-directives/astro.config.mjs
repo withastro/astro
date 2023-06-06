@@ -4,9 +4,6 @@ import { fileURLToPath } from 'url';
 
 export default defineConfig({
   integrations: [astroClientClickDirective(), astroClientPasswordDirective(), react()],
-  experimental: {
-    customClientDirectives: true
-  }
 });
 
 function astroClientClickDirective() {

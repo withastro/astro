@@ -9,15 +9,13 @@ import type {
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
-import { isHybridOutput } from '../../prerender/utils.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
-import { isValueSerializable } from '../render/core.js';
-
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -117,12 +115,6 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 			onRequest,
 			context,
 			async () => {
-				if (env.mode === 'development' && !isValueSerializable(context.locals)) {
-					throw new AstroError({
-						...AstroErrorData.LocalsNotSerializable,
-						message: AstroErrorData.LocalsNotSerializable.message(ctx.pathname),
-					});
-				}
 				return await renderEndpoint(mod, context, env.ssr);
 			}
 		);
@@ -138,7 +130,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		};
 	}
 
-	if (env.ssr && !mod.prerender) {
+	if (env.ssr && !ctx.route?.prerender) {
 		if (response.hasOwnProperty('headers')) {
 			warn(
 				logging,
@@ -169,7 +161,7 @@ function isRedirect(statusCode: number) {
 }
 
 export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (config.output !== 'server' && !isHybridOutput(config) && isRedirect(response.status)) {
+	if (!isServerLikeOutput(config) && isRedirect(response.status)) {
 		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
 	}
 }

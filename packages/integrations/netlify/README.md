@@ -74,6 +74,30 @@ export default defineConfig({
 });
 ```
 
+### Static sites
+
+For static sites you usually don't need an adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format. 
+
+```js
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/static';
+
+export default defineConfig({
+  adapter: netlify(),
+
+  redirects: {
+    '/blog/old-post': '/blog/new-post'
+  },
+  experimental: {
+    redirects: true
+  }
+});
+```
+
+Once you run `astro build` there will be a `dist/_redirects` file. Netlify will use that to properly route pages in production.
+
+> __Note__, you can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
+
 ## Usage
 
 [Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/netlify/)

@@ -5,7 +5,7 @@ import testAdapter from './test-adapter.js';
 const NEW_LINES = /[\r\n]+/gm;
 
 /**
- * The doctype declaration is on a line between the rest of the HTML.
+ * The doctype declaration is on a line between the rest of the HTML in SSG.
  * This function removes the doctype so that we can check if the rest of the HTML is without
  * whitespace.
  */
@@ -53,7 +53,7 @@ describe('HTML minification', () => {
 
 		it('should emit compressed HTML in the emitted file', async () => {
 			const html = await fixture.readFile('/index.html');
-			expect(NEW_LINES.test(removeDoctypeLine(html))).to.equal(false);
+			expect(NEW_LINES.test(html)).to.equal(false);
 		});
 	});
 

@@ -1,5 +1,4 @@
 import type {
-	ComponentInstance,
 	EndpointHandler,
 	ManifestData,
 	MiddlewareResponseHandler,
@@ -9,12 +8,14 @@ import type {
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
+import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -32,8 +33,6 @@ export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
@@ -139,24 +138,24 @@ export class App {
 			defaultStatus = 404;
 		}
 
-		let mod = await this.#manifest.pageMap.get(routeData.component)!();
+		let mod = await this.#getModuleForRoute(routeData);
 
-		if (routeData.type === 'page') {
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
-			// If there was a 500 error, try sending the 500 page.
-			if (response.status === 500) {
-				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
-				if (fiveHundredRouteData) {
-					mod = await this.#manifest.pageMap.get(fiveHundredRouteData.component)!();
+			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+			if (response.status === 500 || response.status === 404) {
+				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorRouteData && errorRouteData.route !== routeData.route) {
+					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
-						let fiveHundredResponse = await this.#renderPage(
+						let errorResponse = await this.#renderPage(
 							request,
-							fiveHundredRouteData,
+							errorRouteData,
 							mod,
-							500
+							response.status
 						);
-						return fiveHundredResponse;
+						return errorResponse;
 					} catch {}
 				}
 			}
@@ -172,10 +171,25 @@ export class App {
 		return getSetCookiesFromResponse(response);
 	}
 
+	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		if (route.type === 'redirect') {
+			return RedirectSinglePageBuiltModule;
+		} else {
+			const importComponentInstance = this.#manifest.pageMap.get(route.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`
+				);
+			}
+			const built = await importComponentInstance();
+			return built;
+		}
+	}
+
 	async #renderPage(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance,
+		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
@@ -200,6 +214,7 @@ export class App {
 		}
 
 		try {
+			const mod = (await page.page()) as any;
 			const renderContext = await createRenderContext({
 				request,
 				origin: url.origin,
@@ -210,7 +225,7 @@ export class App {
 				links,
 				route: routeData,
 				status,
-				mod: mod as any,
+				mod,
 				env: this.#env,
 			});
 
@@ -221,7 +236,7 @@ export class App {
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
-			const onRequest = this.#manifest.middleware?.onRequest;
+			const onRequest = page.middleware?.onRequest;
 			let response;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
@@ -254,11 +269,12 @@ export class App {
 	async #callEndpoint(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance,
+		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = '/' + this.removeBase(url.pathname);
+		const mod = await page.page();
 		const handler = mod as unknown as EndpointHandler;
 
 		const ctx = await createRenderContext({
@@ -271,13 +287,7 @@ export class App {
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(
-			handler,
-			this.#env,
-			ctx,
-			this.#logging,
-			this.#manifest.middleware
-		);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.middleware);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

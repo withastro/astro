@@ -26,6 +26,7 @@ export function getOutFolder(
 		case 'endpoint':
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 		case 'page':
+		case 'redirect':
 			switch (astroConfig.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
@@ -51,6 +52,7 @@ export function getOutFile(
 		case 'endpoint':
 			return new URL(npath.basename(pathname), outFolder);
 		case 'page':
+		case 'redirect':
 			switch (astroConfig.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {

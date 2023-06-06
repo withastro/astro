@@ -35,8 +35,8 @@ describe('Markdoc - Image assets', () => {
 			const res = await baseFixture.fetch('/');
 			const html = await res.text();
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#relative > img')?.src).to.equal(
-				'/_image?href=%2Fsrc%2Fassets%2Frelative%2Foar.jpg%3ForigWidth%3D420%26origHeight%3D630%26origFormat%3Djpg&f=webp'
+			expect(document.querySelector('#relative > img')?.src).to.match(
+				/\/_image\?href=.*%2Fsrc%2Fassets%2Frelative%2Foar.jpg%3ForigWidth%3D420%26origHeight%3D630%26origFormat%3Djpg&f=webp/
 			);
 		});
 
@@ -44,8 +44,8 @@ describe('Markdoc - Image assets', () => {
 			const res = await baseFixture.fetch('/');
 			const html = await res.text();
 			const { document } = parseHTML(html);
-			expect(document.querySelector('#alias > img')?.src).to.equal(
-				'/_image?href=%2Fsrc%2Fassets%2Falias%2Fcityscape.jpg%3ForigWidth%3D420%26origHeight%3D280%26origFormat%3Djpg&f=webp'
+			expect(document.querySelector('#alias > img')?.src).to.match(
+				/\/_image\?href=.*%2Fsrc%2Fassets%2Falias%2Fcityscape.jpg%3ForigWidth%3D420%26origHeight%3D280%26origFormat%3Djpg&f=webp/
 			);
 		});
 	});

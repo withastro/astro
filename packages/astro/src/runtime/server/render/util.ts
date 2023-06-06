@@ -43,7 +43,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		// Use const instead of let as let global unsupported with Safari
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
-		output += `const ${toIdent(key)} = ${JSON.stringify(value).replace(
+		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
 			/<\/script>/g,
 			'\\x3C/script>'
 		)};\n`;
@@ -137,6 +137,23 @@ export function renderElement(
 		return `<${name}${internalSpreadAttributes(props, shouldEscape)} />`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+}
+
+/**
+ * This will take an array of async iterables and start buffering them eagerly.
+ * To avoid useless buffering, it will only start buffering the next tick, so the
+ * first sync iterables won't be buffered.
+ */
+export function bufferIterators<T>(iterators: AsyncIterable<T>[]): AsyncIterable<T>[] {
+	// all async iterators start running in non-buffered mode to avoid useless caching
+	const eagerIterators = iterators.map((it) => new EagerAsyncIterableIterator(it));
+	// once the execution of the next for loop is suspended due to an async component,
+	// this timeout triggers and we start buffering the other iterators
+	setTimeout(() => {
+		// buffer all iterators that haven't started yet
+		eagerIterators.forEach((it) => !it.isStarted() && it.buffer());
+	}, 0);
+	return eagerIterators;
 }
 
 // This wrapper around an AsyncIterable can eagerly consume its values, so that

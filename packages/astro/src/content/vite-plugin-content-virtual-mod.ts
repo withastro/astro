@@ -2,18 +2,19 @@ import glob from 'fast-glob';
 import fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
-import type { AstroSettings } from '../@types/astro.js';
+import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
-	getContentEntryConfigByExtMap,
 	getContentEntryIdAndSlug,
 	getContentPaths,
 	getDataEntryExts,
 	getDataEntryId,
 	getEntryCollectionName,
+	getEntryConfigByExtMap,
 	getEntrySlug,
 	getEntryType,
 	getExtGlob,
@@ -31,7 +32,7 @@ export function astroContentVirtualModPlugin({
 	const contentPaths = getContentPaths(settings.config);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
-	const contentEntryConfigByExt = getContentEntryConfigByExtMap(settings);
+	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
 
@@ -42,11 +43,22 @@ export function astroContentVirtualModPlugin({
 			new URL('reference-map.json', contentPaths.cacheDir).pathname
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
-		.replace('@@CONTENT_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(contentEntryExts)}`)
-		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/*${getExtGlob(dataEntryExts)}`)
 		.replace(
-			'@@RENDER_ENTRY_GLOB_PATH@@',
-			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
+			"'@@CONTENT_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, contentEntryExts))
+		)
+		.replace(
+			"'@@DATA_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, dataEntryExts))
+		)
+		.replace(
+			"'@@RENDER_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(
+				globWithUnderscoresIgnored(
+					relContentDir,
+					/** Note: data collections excluded */ contentEntryExts
+				)
+			)
 		);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -91,7 +103,7 @@ export async function getStringifiedLookupMap({
 	root,
 	fs,
 }: {
-	contentEntryConfigByExt: ReturnType<typeof getContentEntryConfigByExtMap>;
+	contentEntryConfigByExt: Map<string, ContentEntryType>;
 	dataEntryExts: string[];
 	contentPaths: Pick<ContentPaths, 'contentDir' | 'config'>;
 	root: URL;
@@ -114,59 +126,68 @@ export async function getStringifiedLookupMap({
 		}
 	);
 
-	await Promise.all(
-		contentGlob.map(async (filePath) => {
-			const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
-			// Globbed ignored or unsupported entry.
-			// Logs warning during type generation, should ignore in lookup map.
-			if (entryType !== 'content' && entryType !== 'data') return;
+	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
+	// Each await shouldn't take too long for the work to be noticably slow too.
+	const limit = pLimit(10);
+	const promises: Promise<void>[] = [];
 
-			const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
-			if (!collection) throw UnexpectedLookupMapError;
+	for (const filePath of contentGlob) {
+		promises.push(
+			limit(async () => {
+				const entryType = getEntryType(filePath, contentPaths, contentEntryExts, dataEntryExts);
+				// Globbed ignored or unsupported entry.
+				// Logs warning during type generation, should ignore in lookup map.
+				if (entryType !== 'content' && entryType !== 'data') return;
 
-			if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
-				throw new AstroError({
-					...AstroErrorData.MixedContentDataCollectionError,
-					message: AstroErrorData.MixedContentDataCollectionError.message(collection),
-				});
-			}
+				const collection = getEntryCollectionName({ contentDir, entry: pathToFileURL(filePath) });
+				if (!collection) throw UnexpectedLookupMapError;
 
-			if (entryType === 'content') {
-				const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
-				if (!contentEntryType) throw UnexpectedLookupMapError;
+				if (lookupMap[collection]?.type && lookupMap[collection].type !== entryType) {
+					throw new AstroError({
+						...AstroErrorData.MixedContentDataCollectionError,
+						message: AstroErrorData.MixedContentDataCollectionError.message(collection),
+					});
+				}
 
-				const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
-					entry: pathToFileURL(filePath),
-					contentDir,
-					collection,
-				});
-				const slug = await getEntrySlug({
-					id,
-					collection,
-					generatedSlug,
-					fs,
-					fileUrl: pathToFileURL(filePath),
-					contentEntryType,
-				});
-				lookupMap[collection] = {
-					type: 'content',
-					entries: {
-						...lookupMap[collection]?.entries,
-						[slug]: rootRelativePath(root, filePath),
-					},
-				};
-			} else {
-				const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
-				lookupMap[collection] = {
-					type: 'data',
-					entries: {
-						...lookupMap[collection]?.entries,
-						[id]: rootRelativePath(root, filePath),
-					},
-				};
-			}
-		})
-	);
+				if (entryType === 'content') {
+					const contentEntryType = contentEntryConfigByExt.get(extname(filePath));
+					if (!contentEntryType) throw UnexpectedLookupMapError;
+
+					const { id, slug: generatedSlug } = await getContentEntryIdAndSlug({
+						entry: pathToFileURL(filePath),
+						contentDir,
+						collection,
+					});
+					const slug = await getEntrySlug({
+						id,
+						collection,
+						generatedSlug,
+						fs,
+						fileUrl: pathToFileURL(filePath),
+						contentEntryType,
+					});
+					lookupMap[collection] = {
+						type: 'content',
+						entries: {
+							...lookupMap[collection]?.entries,
+							[slug]: rootRelativePath(root, filePath),
+						},
+					};
+				} else {
+					const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
+					lookupMap[collection] = {
+						type: 'data',
+						entries: {
+							...lookupMap[collection]?.entries,
+							[id]: rootRelativePath(root, filePath),
+						},
+					};
+				}
+			})
+		);
+	}
+
+	await Promise.all(promises);
 
 	return JSON.stringify(lookupMap);
 }
@@ -175,3 +196,8 @@ const UnexpectedLookupMapError = new AstroError({
 	...AstroErrorData.UnknownContentCollectionError,
 	message: `Unexpected error while parsing content entry IDs and slugs.`,
 });
+
+function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	return [`${relContentDir}/**/*${extGlob}`, `!**/_*/**${extGlob}`, `!**/_*${extGlob}`];
+}

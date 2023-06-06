@@ -32,7 +32,7 @@ export type RSSOptions = {
 	trailingSlash?: z.infer<typeof rssOptionsValidator>['trailingSlash'];
 };
 
-type RSSFeedItem = {
+export type RSSFeedItem = {
 	/** Link to item */
 	link: string;
 	/** Full content of the item. Should be valid HTML */
