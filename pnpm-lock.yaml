@@ -4497,6 +4497,9 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
     devDependencies:
+      '@types/node':
+        specifier: ^18.7.21
+        version: 18.16.3
       '@types/send':
         specifier: ^0.17.1
         version: 0.17.1
@@ -4553,6 +4556,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/errors:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/headers:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
