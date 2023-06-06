@@ -1,5 +1,16 @@
 # @astrojs/markdoc
 
+## 0.3.2
+
+### Patch Changes
+
+- [#7311](https://github.com/withastro/astro/pull/7311) [`a11b62ee1`](https://github.com/withastro/astro/commit/a11b62ee1f5d524b0ba942818525b623a6d6eb99) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix Markdoc type errors for `render` and `defineMarkdocConfig()` when using a TypeScript Markdoc config file.
+
+- [#7309](https://github.com/withastro/astro/pull/7309) [`2a4bb23b2`](https://github.com/withastro/astro/commit/2a4bb23b2f7f82b3fabdad4d64101fcc778acaa4) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix missing styles and scripts for components when using `document: { render: null }` in the Markdoc config.
+
+- Updated dependencies [[`8034edd9e`](https://github.com/withastro/astro/commit/8034edd9ecf805073395ba7f68f73cd5fc4d2c73)]:
+  - astro@2.6.1
+
 ## 0.3.1
 
 ### Patch Changes
