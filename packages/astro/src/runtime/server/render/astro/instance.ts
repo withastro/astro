@@ -50,9 +50,6 @@ export class AstroComponentInstance {
 			value = await value;
 		}
 		if (isHeadAndContent(value)) {
-			if (this.result.extraHead.length === 0 && value.head) {
-				yield renderChild(value.head);
-			}
 			yield* value.content;
 		} else {
 			yield* renderChild(value);
