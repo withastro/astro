@@ -96,7 +96,8 @@ export default defineConfig({
 
 Once you run `astro build` there will be a `dist/_redirects` file. Netlify will use that to properly route pages in production.
 
-> __Note__, you can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
+> **Note**
+> You can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
 
 ## Usage
 
