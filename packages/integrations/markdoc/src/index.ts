@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { Node } from '@markdoc/markdoc';
+import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
@@ -85,7 +85,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 						const filePath = fileURLToPath(fileUrl);
 
-						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
+						const validationErrors = Markdoc.validate(
+							ast,
+							/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
+							markdocConfig as MarkdocConfig
+						).filter((e) => {
 							return (
 								// Ignore `variable-undefined` errors.
 								// Variables can be configured at runtime,
