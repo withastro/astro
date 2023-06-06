@@ -151,7 +151,12 @@ export function patchTSX(code: string, fileName: string) {
 	const basename = path.basename(fileName, path.extname(fileName));
 	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
 
-	return code.replace(/\b(\S*)__AstroComponent_/, (_, m1: string) =>
-		isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1)
-	);
+	return code.replace(/\b(\S*)__AstroComponent_/gm, (fullMatch, m1: string) => {
+		// If we don't have a match here, it usually means the file has a weird name that couldn't be expressed with valid identifier characters
+		if (!m1) {
+			if (basename === '404') return 'FourOhFour';
+			return fullMatch;
+		}
+		return isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
+	});
 }
