@@ -57,7 +57,14 @@ export function createServer(
 			});
 			stream.on('directory', () => {
 				// On directory find, redirect to the trailing slash
-				const location = req.url + '/';
+				let location: string;
+				if (req.url!.includes('?')) {
+					const [url = '', search] = req.url!.split('?');
+					location = `${url}/?${search}`
+				} else {
+					location = req.url + '/'
+				}
+
 				res.statusCode = 301;
 				res.setHeader('Location', location);
 				res.end(location);
