@@ -69,6 +69,7 @@ export default async function prebuild(...args) {
 				sourcefile: filepath,
 			},
 			format: 'iife',
+			target: ['es2018'],
 			minify,
 			bundle: true,
 			write: false,
