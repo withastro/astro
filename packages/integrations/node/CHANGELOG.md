@@ -1,5 +1,20 @@
 # @astrojs/node
 
+## 5.2.0
+
+### Minor Changes
+
+- [#7227](https://github.com/withastro/astro/pull/7227) [`4929332c3`](https://github.com/withastro/astro/commit/4929332c3210d1634b8607c7736d9049860a2079) Thanks [@alex-sherwin](https://github.com/alex-sherwin)! - Fixes NodeJS adapter for multiple set-cookie headers and combining AstroCookies and Response.headers cookies
+
+### Patch Changes
+
+- [#7243](https://github.com/withastro/astro/pull/7243) [`409c60028`](https://github.com/withastro/astro/commit/409c60028aaab09b8f2383ef5730531cd23db4ba) Thanks [@Riki-WangJJ](https://github.com/Riki-WangJJ)! - Support directory redirects and query params at the same time
+
+- [#7260](https://github.com/withastro/astro/pull/7260) [`39403c32f`](https://github.com/withastro/astro/commit/39403c32faea58399c61d3344b770f195be60d5b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Unflags support for `output: 'hybrid'` mode, which enables pre-rendering by default. The additional `experimental.hybridOutput` flag can be safely removed from your configuration.
+
+- Updated dependencies [[`57f8d14c0`](https://github.com/withastro/astro/commit/57f8d14c027c30919363e12c664ccff4ed64d0fc), [`414eb19d2`](https://github.com/withastro/astro/commit/414eb19d2fcb55758f9d053076773b11b62f4c97), [`a7e2b37ff`](https://github.com/withastro/astro/commit/a7e2b37ff73871c46895c615846a86a539f45330), [`dd1a6b6c9`](https://github.com/withastro/astro/commit/dd1a6b6c941aeb7af934bd12db22412af262f5a1), [`d72cfa7ca`](https://github.com/withastro/astro/commit/d72cfa7cad758192163712ceb269405659fd14bc), [`144813f73`](https://github.com/withastro/astro/commit/144813f7308dcb9de64ebe3f0f2c6cba9ad81eb1), [`b5213654b`](https://github.com/withastro/astro/commit/b5213654b1b7f3ba573a48d3be688b2bdde7870f), [`e3b8c6296`](https://github.com/withastro/astro/commit/e3b8c62969d680d1915a122c610d281d6711aa63), [`890a2bc98`](https://github.com/withastro/astro/commit/890a2bc9891a2449ab99b01b65468f6dddba6b12), [`39403c32f`](https://github.com/withastro/astro/commit/39403c32faea58399c61d3344b770f195be60d5b), [`101f03209`](https://github.com/withastro/astro/commit/101f032098148b3daaac8d46ff1e535b79232e43)]:
+  - astro@2.6.0
+
 ## 5.1.4
 
 ### Patch Changes
