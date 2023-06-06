@@ -60,9 +60,9 @@ export function createServer(
 				let location: string;
 				if (req.url!.includes('?')) {
 					const [url = '', search] = req.url!.split('?');
-					location = `${url}/?${search}`
+					location = `${url}/?${search}`;
 				} else {
-					location = req.url + '/'
+					location = req.url + '/';
 				}
 
 				res.statusCode = 301;
