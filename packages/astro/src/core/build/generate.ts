@@ -33,7 +33,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
-import { isHybridOutput } from '../../prerender/utils.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
@@ -41,7 +41,7 @@ import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
 	getRedirectLocationOrThrow,
-	RedirectComponentInstance,
+	RedirectSinglePageBuiltModule,
 	routeIsRedirect,
 } from '../redirects/index.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
@@ -69,10 +69,6 @@ import type {
 } from './types';
 import { getTimeStat } from './util.js';
 
-const StaticMiddlewareInstance: AstroMiddlewareInstance<unknown> = {
-	onRequest: (ctx, next) => next(),
-};
-
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
 }
@@ -94,11 +90,7 @@ async function getEntryForRedirectRoute(
 		}
 	}
 
-	return {
-		page: () => Promise.resolve(RedirectComponentInstance),
-		middleware: StaticMiddlewareInstance,
-		renderers: [],
-	};
+	return RedirectSinglePageBuiltModule;
 }
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
@@ -138,7 +130,8 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config); // hybrid mode is essentially SSR with prerender by default
+	const ssr = isServerLikeOutput(opts.settings.config);
+	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
 	if (ssr && !hasPrerenderedPages(internals)) return;
@@ -292,7 +285,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config),
+			ssr: isServerLikeOutput(opts.settings.config),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -468,7 +461,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
+	const ssr = isServerLikeOutput(settings.config);
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,

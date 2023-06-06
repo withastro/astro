@@ -51,7 +51,7 @@ function isFragmentComponent(Component: unknown) {
 }
 
 function isHTMLComponent(Component: unknown) {
-	return Component && typeof Component === 'object' && (Component as any)['astro:html'];
+	return Component && (Component as any)['astro:html'] === true;
 }
 
 const ASTRO_SLOT_EXP = /\<\/?astro-slot\b[^>]*>/g;
@@ -364,7 +364,7 @@ async function renderHTMLComponent(
 	slots: any = {}
 ) {
 	const { slotInstructions, children } = await renderSlots(result, slots);
-	const html = (Component as any).render({ slots: children });
+	const html = (Component as any)({ slots: children });
 	const hydrationHtml = slotInstructions
 		? slotInstructions.map((instr) => stringifyChunk(result, instr)).join('')
 		: '';

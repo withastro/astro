@@ -80,9 +80,10 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
 						exports.push(`export { renderers };`);
 
-						if (opts.settings.config.experimental.middleware) {
-							imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}";`);
-							exports.push(`export const middleware = _middleware;`);
+						const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
+						if (middlewareModule) {
+							imports.push(`import * as middleware from "${middlewareModule.id}";`);
+							exports.push(`export { middleware };`);
 						}
 
 						return `${imports.join('\n')}${exports.join('\n')}`;

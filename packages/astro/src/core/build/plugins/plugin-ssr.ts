@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter } from '../../../@types/astro';
 import { runHookBuildSsr } from '../../../integrations/index.js';
-import { isHybridOutput } from '../../../prerender/utils.js';
+import { isServerLikeOutput } from '../../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../../app/types';
 import { joinPaths, prependForwardSlash } from '../../path.js';
@@ -14,7 +14,6 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
-import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 
@@ -48,11 +47,6 @@ function vitePluginSSR(
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
-				let middleware;
-				if (config.experimental?.middleware === true) {
-					imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}"`);
-					middleware = 'middleware: _middleware';
-				}
 				let i = 0;
 				const pageMap: string[] = [];
 
@@ -84,7 +78,6 @@ import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap,
 	renderers,
-	${middleware}
 });
 _privateSetManifestDontUseThis(_manifest);
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
@@ -276,8 +269,7 @@ export function pluginSSR(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const ssr =
-		options.settings.config.output === 'server' || isHybridOutput(options.settings.config);
+	const ssr = isServerLikeOutput(options.settings.config);
 	return {
 		build: 'ssr',
 		hooks: {

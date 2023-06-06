@@ -71,7 +71,6 @@ describe('Astro.redirect', () => {
 				root: './fixtures/ssr-redirect/',
 				output: 'static',
 				experimental: {
-					middleware: true,
 					redirects: true,
 				},
 				redirects: {

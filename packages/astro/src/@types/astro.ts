@@ -108,7 +108,6 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
-	experimentalMiddleware?: boolean;
 	experimentalRedirects?: boolean;
 }
 
@@ -1166,87 +1165,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		assets?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.customClientDirectives
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.5.0
-		 * @description
-		 * Allow integrations to use the [experimental `addClientDirective` API](/en/reference/integrations-reference/#addclientdirective-option) in the `astro:config:setup` hook
-		 * to add custom client directives in Astro files.
-		 *
-		 * To enable this feature, set `experimental.customClientDirectives` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		customClientDirectives: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		customClientDirectives?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.middleware
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.4.0
-		 * @description
-		 * Enable experimental support for Astro middleware.
-		 *
-		 * To enable this feature, set `experimental.middleware` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		middleware: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		middleware?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.hybridOutput
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.5.0
-		 * @description
-		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
-		 *
-		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
-		 *
-		 * ```js
-		 * {
-		 *  output: 'hybrid',
-		 * 	experimental: {
-		 *		hybridOutput: true,
-		 * 	},
-		 * }
-		 * ```
-		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
-		 * ```astro
-		 * ---
-		 * // pages/contact.astro
-		 * export const prerender = false
-		 *
-		 * if (Astro.request.method === 'POST') {
-		 *  // handle form submission
-		 * }
-		 * ---
-		 * <form method="POST">
-		 * 	<input type="text" name="name" />
-		 * 	<input type="email" name="email" />
-		 * 	<button type="submit">Submit</button>
-		 * </form>
-		 * ```
-		 */
-		hybridOutput?: boolean;
 
 		/**
 		 * @docs

@@ -1,4 +1,5 @@
-import type { ComponentInstance } from '../../@types/astro';
+import type { AstroMiddlewareInstance, ComponentInstance } from '../../@types/astro';
+import type { SinglePageBuiltModule } from '../build/types';
 
 // A stub of a component instance for a given route
 export const RedirectComponentInstance: ComponentInstance = {
@@ -7,4 +8,14 @@ export const RedirectComponentInstance: ComponentInstance = {
 			status: 301,
 		});
 	},
+};
+
+const StaticMiddlewareInstance: AstroMiddlewareInstance<unknown> = {
+	onRequest: (ctx, next) => next(),
+};
+
+export const RedirectSinglePageBuiltModule: SinglePageBuiltModule = {
+	page: () => Promise.resolve(RedirectComponentInstance),
+	middleware: StaticMiddlewareInstance,
+	renderers: [],
 };
