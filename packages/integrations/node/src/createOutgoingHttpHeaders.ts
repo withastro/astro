@@ -3,38 +3,40 @@ import type { OutgoingHttpHeaders } from 'http';
 /**
  * Takes in a nullable WebAPI Headers object and produces a NodeJS OutgoingHttpHeaders object suitable for usage
  * with ServerResponse.writeHead(..) or ServerResponse.setHeader(..)
- * 
+ *
  * @param webHeaders WebAPI Headers object
  * @returns NodeJS OutgoingHttpHeaders object with multiple set-cookie handled as an array of values
  */
-export const createOutgoingHttpHeaders = (webHeaders: Headers | undefined | null): OutgoingHttpHeaders | undefined => {
-  if (!webHeaders) {
-    return undefined;
-  }
+export const createOutgoingHttpHeaders = (
+	webHeaders: Headers | undefined | null
+): OutgoingHttpHeaders | undefined => {
+	if (!webHeaders) {
+		return undefined;
+	}
 
-  // re-type to access Header.getSetCookie()
-  const headers = webHeaders as HeadersWithGetSetCookie;
+	// re-type to access Header.getSetCookie()
+	const headers = webHeaders as HeadersWithGetSetCookie;
 
-  // at this point, a multi-value'd set-cookie header is invalid (it was concatenated as a single CSV, which is not valid for set-cookie)
-  const nodeHeaders: OutgoingHttpHeaders = Object.fromEntries(headers.entries());
+	// at this point, a multi-value'd set-cookie header is invalid (it was concatenated as a single CSV, which is not valid for set-cookie)
+	const nodeHeaders: OutgoingHttpHeaders = Object.fromEntries(headers.entries());
 
-  if (Object.keys(nodeHeaders).length === 0) {
-    return undefined;
-  }
+	if (Object.keys(nodeHeaders).length === 0) {
+		return undefined;
+	}
 
-  // if there is > 1 set-cookie header, we have to fix it to be an array of values
-  if (headers.has('set-cookie')) {
-    const cookieHeaders = headers.getSetCookie();
-    if (cookieHeaders.length > 1) {
-      // the Headers.entries() API already normalized all header names to lower case so we can safely index this as 'set-cookie'
-      nodeHeaders['set-cookie'] = cookieHeaders;
-    }
-  }
+	// if there is > 1 set-cookie header, we have to fix it to be an array of values
+	if (headers.has('set-cookie')) {
+		const cookieHeaders = headers.getSetCookie();
+		if (cookieHeaders.length > 1) {
+			// the Headers.entries() API already normalized all header names to lower case so we can safely index this as 'set-cookie'
+			nodeHeaders['set-cookie'] = cookieHeaders;
+		}
+	}
 
-  return nodeHeaders;
+	return nodeHeaders;
 };
 
 interface HeadersWithGetSetCookie extends Headers {
-  // the @astrojs/webapi polyfill makes this available (as of undici@5.19.0), but tsc doesn't pick it up on the built-in Headers type from DOM lib
-  getSetCookie(): string[];
+	// the @astrojs/webapi polyfill makes this available (as of undici@5.19.0), but tsc doesn't pick it up on the built-in Headers type from DOM lib
+	getSetCookie(): string[];
 }

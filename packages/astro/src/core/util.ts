@@ -112,7 +112,7 @@ function isInPagesDir(file: URL, config: AstroConfig): boolean {
 
 function isInjectedRoute(file: URL, settings: AstroSettings) {
 	for (const route of settings.injectedRoutes) {
-		if(file.toString().endsWith(route.entryPoint)) return true;
+		if (file.toString().endsWith(route.entryPoint)) return true;
 	}
 	return false;
 }
