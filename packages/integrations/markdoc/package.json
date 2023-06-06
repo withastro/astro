@@ -19,14 +19,36 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/markdoc/",
   "exports": {
-    "./prism": "./dist/extensions/prism.js",
-    "./shiki": "./dist/extensions/shiki.js",
+    "./prism": {
+      "types": "./dist/extensions/prism.d.ts",
+      "node": "./dist/extensions/prism.js"
+    },
+    "./shiki": {
+      "types": "./dist/extensions/shiki.d.ts",
+      "node": "./dist/extensions/shiki.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "node": "./dist/config.js"
+    },
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./runtime": "./dist/runtime.js",
-    "./config": "./dist/config.js",
     "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "config": [
+        "./dist/config.d.ts"
+      ],
+      "prism": [
+        "./dist/extensions/prism.d.ts"
+      ],
+      "shiki": [
+        "./dist/extensions/shiki.d.ts"
+      ]
+    }
   },
   "files": [
     "components",
