@@ -38,7 +38,7 @@ export const AstroErrorData = {
 	 * @docs
 	 * @see
 	 * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
-	 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
 	 * @description
 	 * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
 	 *
@@ -752,7 +752,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
-	 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
 	 * @description
 	 * A redirect must be given a location with the `Location` header.
 	 */
