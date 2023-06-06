@@ -20,7 +20,8 @@ describe('<Code />', () => {
 
 		it('uses the bundles themes for built-in themes', async () => {
 			const { resolveHighlighterOptions } = mod;
-			const opts = await resolveHighlighterOptions({ theme: 'css-variables' });
+			// NOTE: pass empty `langs` to prevent Shiki from loading all langs by default, which slows down the test
+			const opts = await resolveHighlighterOptions({ theme: 'css-variables', langs: [] });
 			const themes = opts.themes;
 
 			expect(themes).to.have.a.lengthOf(1);
@@ -29,7 +30,8 @@ describe('<Code />', () => {
 
 		it('uses the string theme name for custom themes', async () => {
 			const { resolveHighlighterOptions } = mod;
-			const opts = await resolveHighlighterOptions({ theme: 'some-custom-theme' });
+			// NOTE: pass empty `langs` to prevent Shiki from loading all langs by default, which slows down the test
+			const opts = await resolveHighlighterOptions({ theme: 'some-custom-theme', langs: [] });
 			const themes = opts.themes;
 
 			expect(themes).to.have.a.lengthOf(1);
