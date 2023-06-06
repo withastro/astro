@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.0.15
+
+### Patch Changes
+
+- 9d1cd4d: Fix crash when a file named 404.astro was present in the project
+
 ## 2.0.14
 
 ### Patch Changes
