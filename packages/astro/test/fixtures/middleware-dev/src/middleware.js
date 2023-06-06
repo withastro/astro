@@ -19,6 +19,10 @@ const first = defineMiddleware(async (context, next) => {
 			headers: response.headers,
 		});
 	} else {
+		if(context.url.pathname === '/') {
+			context.cookies.set('foo', 'bar');
+		}
+
 		context.locals.name = 'bar';
 	}
 	return await next();
