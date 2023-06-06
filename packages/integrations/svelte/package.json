@@ -38,18 +38,18 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^2.1.1",
-    "svelte2tsx": "^0.5.11"
+    "@sveltejs/vite-plugin-svelte": "^2.4.1",
+    "svelte2tsx": "^0.6.15"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^3.54.0",
+    "svelte": "^3.55.0",
     "vite": "^4.3.1"
   },
   "peerDependencies": {
     "astro": "workspace:^2.6.1",
-    "svelte": "^3.54.0"
+    "svelte": "^3.55.0"
   },
   "engines": {
     "node": ">=16.12.0"
