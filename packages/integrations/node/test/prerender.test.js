@@ -58,6 +58,15 @@ describe('Prerendering', () => {
 			expect($('h1').text()).to.equal('Two');
 		});
 
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
+		});
+
 		it('Can render prerendered route with query params', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/two/?foo=bar`);
 			const html = await res.text();
@@ -109,6 +118,15 @@ describe('Prerendering', () => {
 
 		it('Can render prerendered route', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two?foo=bar`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
@@ -171,6 +189,15 @@ describe('Hybrid rendering', () => {
 			expect($('h1').text()).to.equal('One');
 		});
 
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
 		it('Can render prerendered route with query params', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/one/?foo=bar`);
 			const html = await res.text();
@@ -221,6 +248,15 @@ describe('Hybrid rendering', () => {
 
 		it('Can render prerendered route', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one?foo=bar`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
