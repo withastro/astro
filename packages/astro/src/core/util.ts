@@ -110,6 +110,13 @@ function isInPagesDir(file: URL, config: AstroConfig): boolean {
 	return file.toString().startsWith(pagesDir.toString());
 }
 
+function isInjectedRoute(file: URL, settings: AstroSettings) {
+	for (const route of settings.injectedRoutes) {
+		if(file.toString().endsWith(route.entryPoint)) return true;
+	}
+	return false;
+}
+
 function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	const pagesDir = resolvePages(config);
 	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
@@ -127,7 +134,7 @@ function endsWithPageExt(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isPage(file: URL, settings: AstroSettings): boolean {
-	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isInPagesDir(file, settings.config) && !isInjectedRoute(file, settings)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
 	return endsWithPageExt(file, settings);
 }

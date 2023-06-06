@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import { tailwind } from './fixtures/astro-scripts/deps.mjs';
 
 describe('Scripts (hoisted and not)', () => {
 	describe('Build', () => {
@@ -139,6 +140,21 @@ describe('Scripts (hoisted and not)', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-scripts/',
+				integrations: [
+					tailwind(),
+					{
+						name: 'test-script-injection-with-injected-route',
+						hooks: {
+							'astro:config:setup': ({ injectRoute, injectScript }) => {
+								injectScript(
+									'page',
+									`import '/src/scripts/something.js';`
+								);
+								injectRoute({ pattern: 'injected-route', entryPoint: 'src/external-page.astro' });
+							},
+						},
+					}
+				],
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -177,6 +193,20 @@ describe('Scripts (hoisted and not)', () => {
 			let moduleScripts = $('[type=module]');
 			moduleScripts.each((i, el) => {
 				if ($(el).attr('src').includes('?astro&type=script&index=0&lang.ts')) {
+					found++;
+				}
+			});
+			expect(found).to.equal(1);
+		});
+
+		it('Injected scripts are injected to injected routes', async () => {
+			let res = await fixture.fetch('/injected-route');
+			let html = await res.text();
+			let $ = cheerio.load(html);
+			let found = 0;
+			let moduleScripts = $('[type=module]');
+			moduleScripts.each((i, el) => {
+				if ($(el).attr('src').includes('@id/astro:scripts/page.js')) {
 					found++;
 				}
 			});
