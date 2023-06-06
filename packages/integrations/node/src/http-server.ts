@@ -31,8 +31,6 @@ export function createServer(
 			pathname = pathname[0] === '/' ? pathname : '/' + pathname;
 			const encodedURI = parsePathname(pathname, host, port);
 
-			console.log(req.url);
-
 			if (!encodedURI) {
 				res.writeHead(400);
 				res.end('Bad request.');
