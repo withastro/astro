@@ -34,7 +34,7 @@ describe('build css from the component', async () => {
 		});
 
 		after(async () => {
-			devServer.stop();
+			await devServer.stop();
 		});
 
 		it('ncluding css and js from the component in Dev', async () => {
