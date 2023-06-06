@@ -1,5 +1,11 @@
 import type { AstroInstance } from 'astro';
-import type { ConfigType as MarkdocConfig, Config, NodeType, Schema } from '@markdoc/markdoc';
+import type {
+	ConfigType as MarkdocConfig,
+	Config,
+	NodeType,
+	Schema,
+	MaybePromise,
+} from '@markdoc/markdoc';
 import _Markdoc from '@markdoc/markdoc';
 import { heading } from './heading-ids.js';
 
@@ -8,12 +14,13 @@ type Render = AstroInstance['default'] | string;
 export type AstroMarkdocConfig<C extends Record<string, any> = Record<string, any>> = Omit<
 	MarkdocConfig,
 	'tags' | 'nodes'
-> & {
-	tags?: Record<string, Schema<Config, Render>>;
-	nodes?: Partial<Record<NodeType, Schema<Config, Render>>>;
-	ctx?: C;
-	extends?: ResolvedAstroMarkdocConfig[];
-};
+> &
+	Partial<{
+		tags: Record<string, Schema<Config, Render>>;
+		nodes: Partial<Record<NodeType, Schema<Config, Render>>>;
+		ctx: C;
+		extends: MaybePromise<ResolvedAstroMarkdocConfig>[];
+	}>;
 
 export type ResolvedAstroMarkdocConfig = Omit<AstroMarkdocConfig, 'extends'>;
 
