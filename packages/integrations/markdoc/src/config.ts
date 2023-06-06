@@ -1,12 +1,12 @@
-import type { AstroInstance } from 'astro';
 import type {
-	ConfigType as MarkdocConfig,
 	Config,
+	ConfigType as MarkdocConfig,
+	MaybePromise,
 	NodeType,
 	Schema,
-	MaybePromise,
 } from '@markdoc/markdoc';
 import _Markdoc from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
 import { heading } from './heading-ids.js';
 
 type Render = AstroInstance['default'] | string;

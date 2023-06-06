@@ -1,7 +1,7 @@
 import Markdoc, {
+	type Config as MarkdocConfig,
 	type RenderableTreeNode,
 	type Schema,
-	type Config as MarkdocConfig,
 } from '@markdoc/markdoc';
 import Slugger from 'github-slugger';
 import { getTextContent } from './runtime.js';
