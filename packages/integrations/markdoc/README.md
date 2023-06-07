@@ -151,9 +151,8 @@ import Heading from './src/components/Heading.astro';
 export default defineMarkdocConfig({
   nodes: {
     heading: {
+      ...nodes.heading, // Preserve default anchor link generation
       render: Heading,
-      // Preserve default anchor link generation
-      ...nodes.heading,
     },
   },
 })
@@ -225,8 +224,8 @@ import { defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
 export default defineMarkdocConfig({
   nodes: {
     document: {
-      render: null, // default 'article'
       ...nodes.document, // Apply defaults for other options
+      render: null, // default 'article'
     },
   },
 })
@@ -246,9 +245,8 @@ import Quote from './src/components/Quote.astro';
 export default defineMarkdocConfig({
   nodes: {
     blockquote: {
+      ...nodes.blockquote, // Apply Markdoc's defaults for other options
       render: Quote,
-      // Apply Markdoc's defaults for other options
-      ...nodes.blockquote,
     },
   },
 })

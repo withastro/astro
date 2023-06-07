@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.19.7
+
+### Patch Changes
+
+- [#7307](https://github.com/withastro/astro/pull/7307) [`8034edd9e`](https://github.com/withastro/astro/commit/8034edd9ecf805073395ba7f68f73cd5fc4d2c73) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix [Object AsyncGenerator] appearing in markup for Markdoc documents
+
 ## 0.19.6
 
 ### Patch Changes
