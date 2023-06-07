@@ -130,12 +130,8 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 							renderComponent,
 						} from 'astro/runtime/server/index.js';
 						import { Renderer } from '@astrojs/markdoc/components';
-						import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
-						import userConfig from ${JSON.stringify(markdocConfigId)};${
-							astroConfig.experimental.assets
-								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
-								: ''
-						}
+						import { collectHeadings, Markdoc } from '@astrojs/markdoc/runtime';
+						import { getConfig, getConfigSync } from ${JSON.stringify(markdocConfigId)};
 						const stringifiedAst = ${JSON.stringify(
 							/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
 						)};
@@ -146,8 +142,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 								instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
 								''
 							}
-							const headingConfig = userConfig.nodes?.heading;
-							const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {});
+							const config = getConfigSync();
 							const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 							const content = Markdoc.transform(ast, config);
 							return collectHeadings(Array.isArray(content) ? content : content.children);
@@ -155,9 +150,8 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 						export const Content = createComponent({
 							async factory(result, props) {
-								const config = await setupConfig({
-									...userConfig,
-									variables: { ...userConfig.variables, ...props },
+								const config = await getConfig({
+									variables: props,
 								});
 								
 								return renderComponent(

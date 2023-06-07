@@ -5,6 +5,7 @@ import { loadMarkdocConfig } from './load-config.js';
 import type { AstroMarkdocConfig } from './config.js';
 import type { Schema } from '@markdoc/markdoc';
 import type { Render } from './config.js';
+import { setupConfig } from './runtime.js';
 
 export const markdocConfigId = 'astro:markdoc-config';
 export const resolvedMarkdocConfigId = '\x00' + markdocConfigId;
@@ -26,20 +27,32 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 			if (!markdocConfigResult) {
 				return `export default {}`;
 			}
-			const { config, fileUrl } = markdocConfigResult;
+			const { config: unresolvedConfig, fileUrl } = markdocConfigResult;
+			const config = await setupConfig(unresolvedConfig);
 			const tagRenderPathnameMap = getRenderUrlMap(config.tags ?? {});
 			const nodeRenderPathnameMap = getRenderUrlMap(config.nodes ?? {});
 
-			const code = `import { resolveComponentImports } from '@astrojs/markdoc/runtime';
-			import markdocConfig from ${JSON.stringify(fileUrl.pathname)};
+			const code = `import { setupConfig, setupConfigSync, resolveComponentImports } from '@astrojs/markdoc/runtime';
+			import userConfig from ${JSON.stringify(fileUrl.pathname)};${
+				astroConfig.experimental.assets
+					? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
+					: ''
+			}
 			${getStringifiedImports(tagRenderPathnameMap, 'Tag')};
 			${getStringifiedImports(nodeRenderPathnameMap, 'Node')};
 
 			const tagComponentMap = ${getStringifiedMap(tagRenderPathnameMap, 'Tag')};
 			const nodeComponentMap = ${getStringifiedMap(nodeRenderPathnameMap, 'Node')};
-			export default resolveComponentImports(markdocConfig, tagComponentMap, nodeComponentMap);`;
 
-			console.log('$$$markdoc-config', code);
+			export async function getConfig(configOverrides = {}) {
+				const config = await setupConfig(userConfig, configOverrides);
+				return resolveComponentImports(config, tagComponentMap, nodeComponentMap);
+			}
+			
+			${/* used by `getHeadings()`. This bypasses `extends` resolution, which can be async */ ''}
+			export function getConfigSync() {
+				return setupConfigSync(userConfig);
+			}`;
 			return code;
 		},
 	};
