@@ -2,6 +2,9 @@ import type { AstroConfig } from 'astro';
 import type { Plugin } from 'vite';
 import type { PluginContext } from 'rollup';
 import { loadMarkdocConfig } from './load-config.js';
+import type { AstroMarkdocConfig } from './config.js';
+import type { Schema } from '@markdoc/markdoc';
+import type { Render } from './config.js';
 
 export const markdocConfigId = 'astro:markdoc-config';
 export const resolvedMarkdocConfigId = '\x00' + markdocConfigId;
@@ -24,31 +27,49 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 				return `export default {}`;
 			}
 			const { config, fileUrl } = markdocConfigResult;
-			let componentPathnameByTag: Record<string, string> = {};
-			const { tags = {}, nodes = {} /* TODO: nodes */ } = config;
-			for (const [name, value] of Object.entries(tags)) {
-				if (value.render instanceof URL) {
-					componentPathnameByTag[name] = value.render.pathname;
-				}
-			}
-			let stringifiedComponentImports = '';
-			let stringifiedComponentMap = '{';
-			for (const [tag, componentPathname] of Object.entries(componentPathnameByTag)) {
-				stringifiedComponentImports += `import ${tag} from ${JSON.stringify(
-					componentPathname + '?astroPropagatedAssets'
-				)};\n`;
-				stringifiedComponentMap += `${tag},\n`;
-			}
-			stringifiedComponentMap += '}';
-			const code = `import { resolveComponentImports } from '@astrojs/markdoc/runtime';
-										import markdocConfig from ${JSON.stringify(fileUrl.pathname)};
-										${stringifiedComponentImports};
+			const tagRenderPathnameMap = getRenderUrlMap(config.tags ?? {});
+			const nodeRenderPathnameMap = getRenderUrlMap(config.nodes ?? {});
 
-										const tagComponentMap = ${stringifiedComponentMap};
-										export default resolveComponentImports(markdocConfig, tagComponentMap);`;
+			const code = `import { resolveComponentImports } from '@astrojs/markdoc/runtime';
+			import markdocConfig from ${JSON.stringify(fileUrl.pathname)};
+			${getStringifiedImports(tagRenderPathnameMap, 'Tag')};
+			${getStringifiedImports(nodeRenderPathnameMap, 'Node')};
+
+			const tagComponentMap = ${getStringifiedMap(tagRenderPathnameMap, 'Tag')};
+			const nodeComponentMap = ${getStringifiedMap(nodeRenderPathnameMap, 'Node')};
+			export default resolveComponentImports(markdocConfig, tagComponentMap, nodeComponentMap);`;
 
 			console.log('$$$markdoc-config', code);
 			return code;
 		},
 	};
+}
+
+function getRenderUrlMap(tagsOrNodes: Record<string, Schema<AstroMarkdocConfig, Render>>) {
+	const renderPathnameMap: Record<string, string> = {};
+	for (const [name, value] of Object.entries(tagsOrNodes)) {
+		if (value.render instanceof URL) {
+			renderPathnameMap[name] = value.render.pathname;
+		}
+	}
+	return renderPathnameMap;
+}
+
+function getStringifiedImports(renderUrlMap: Record<string, string>, componentNamePrefix: string) {
+	let stringifiedComponentImports = '';
+	for (const [key, renderUrl] of Object.entries(renderUrlMap)) {
+		stringifiedComponentImports += `import ${componentNamePrefix + key} from ${JSON.stringify(
+			renderUrl + '?astroPropagatedAssets'
+		)};\n`;
+	}
+	return stringifiedComponentImports;
+}
+
+function getStringifiedMap(renderUrlMap: Record<string, string>, componentNamePrefix: string) {
+	let stringifiedComponentMap = '{';
+	for (const key in renderUrlMap) {
+		stringifiedComponentMap += `${key}: ${componentNamePrefix + key},\n`;
+	}
+	stringifiedComponentMap += '}';
+	return stringifiedComponentMap;
 }
