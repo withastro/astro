@@ -21,6 +21,7 @@ import type * as rollup from 'rollup';
 import { normalizePath } from 'vite';
 import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
+import { markdocConfigId, vitePluginMarkdocConfig } from './vite-plugin-config.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API
@@ -60,9 +61,6 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 					markdocConfigResultId = normalizePath(fileURLToPath(markdocConfigResult.fileUrl));
 				}
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
-
-				const markdocConfigId = 'astro:markdoc-config';
-				const resolvedMarkdocConfigId = '\x00' + markdocConfigId;
 
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
@@ -224,48 +222,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 									}
 								},
 							},
-							{
-								name: '@astrojs/markdoc:config',
-								resolveId(this: rollup.PluginContext, id: string) {
-									if (id === markdocConfigId) {
-										return resolvedMarkdocConfigId;
-									}
-								},
-								load(id: string) {
-									if (id !== resolvedMarkdocConfigId) return;
-
-									// TODO: migrate config loader, invalidate on change
-									if (!markdocConfigResult) {
-										return `export default {}`;
-									}
-									const { config, fileUrl } = markdocConfigResult;
-									let componentPathnameByTag: Record<string, string> = {};
-									const { tags = {}, nodes = {} /* TODO: nodes */ } = config;
-									for (const [name, value] of Object.entries(tags)) {
-										if (value.render instanceof URL) {
-											componentPathnameByTag[name] = value.render.pathname;
-										}
-									}
-									let stringifiedComponentImports = '';
-									let stringifiedComponentMap = '{';
-									for (const [tag, componentPathname] of Object.entries(componentPathnameByTag)) {
-										stringifiedComponentImports += `import ${tag} from ${JSON.stringify(
-											componentPathname + '?astroPropagatedAssets'
-										)};\n`;
-										stringifiedComponentMap += `${tag},\n`;
-									}
-									stringifiedComponentMap += '}';
-									const code = `import { resolveComponentImports } from '@astrojs/markdoc/runtime';
-										import markdocConfig from ${JSON.stringify(fileUrl.pathname)};
-										${stringifiedComponentImports};
-
-										const tagComponentMap = ${stringifiedComponentMap};
-										export default resolveComponentImports(markdocConfig, tagComponentMap);`;
-
-									console.log('$$$markdoc-config', code);
-									return code;
-								},
-							},
+							vitePluginMarkdocConfig({ astroConfig }),
 						],
 					},
 				});
