@@ -1,6 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import type { AstroInstance } from 'astro';
-import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
+import Markdoc, { type NodeType, type RenderableTreeNode } from '@markdoc/markdoc';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 
@@ -68,23 +68,19 @@ function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): 
 }
 
 export function resolveComponentImports(
-	markdocConfig: AstroMarkdocConfig,
-	tagComponentMap: Record<string, AstroInstance['default']>
+	markdocConfig: Required<Pick<AstroMarkdocConfig, 'tags' | 'nodes'>>,
+	tagComponentMap: Record<string, AstroInstance['default']>,
+	nodeComponentMap: Record<NodeType, AstroInstance['default']>
 ) {
-	const resolvedTags = { ...markdocConfig.tags };
-	for (const [tagName, tagConfig] of Object.entries(resolvedTags)) {
-		if (tagName in tagComponentMap) {
-			resolvedTags[tagName] = {
-				...tagConfig,
-				render: tagComponentMap[tagName],
-			};
-		}
+	for (const [tag, render] of Object.entries(tagComponentMap)) {
+		const config = markdocConfig.tags[tag];
+		if (config) config.render = render;
 	}
-	console.log('resolvedTags', resolvedTags);
-	return {
-		...markdocConfig,
-		tags: resolvedTags,
-	};
+	for (const [node, render] of Object.entries(nodeComponentMap)) {
+		const config = markdocConfig.nodes[node as NodeType];
+		if (config) config.render = render;
+	}
+	return markdocConfig;
 }
 
 /**
