@@ -126,3 +126,30 @@ export function findPathItemByKey(
 	}
 	debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
 }
+
+// the regular expression to match it such as 'example-[foo]-[bar]' and {params: {foo: 'hell-no', bar: 'world2'}}
+// I spliced the routing and then compared
+export function isEqualRoute(
+	staticPaths: GetStaticPathsResultKeyed,
+	route: RouteData,
+	pathname: string
+):Params | undefined {
+	for (let index = 0; index < staticPaths.length; index++) {
+		const arg = staticPaths[index];
+		let substr = '';
+		if (arg.params) {
+			route.segments[route.segments.length - 1]?.forEach((seg) => {
+				if (!seg.dynamic) {
+					substr += seg.content;
+				} else {
+					substr += arg.params[seg.content];
+				}
+			});
+			
+			if (pathname.endsWith(substr)) {
+				return arg.params as Params;
+			}
+		}
+	}
+	return
+}

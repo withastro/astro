@@ -8,7 +8,7 @@ import { getParams } from '../routing/params.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
-import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
+import { callGetStaticPaths, findPathItemByKey, RouteCache, isEqualRoute } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -89,6 +89,12 @@ export async function getParamsAndProps(
 			routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
 			routeCache.set(route, routeCacheEntry);
 		}
+		// related to https://github.com/withastro/astro/issues/6968
+		const state = isEqualRoute(routeCacheEntry.staticPaths, route, pathname);
+		if (state !== undefined) {
+			params = state;
+		}
+
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
 		if (!matchedStaticPath && (ssr ? route.prerender : true)) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;

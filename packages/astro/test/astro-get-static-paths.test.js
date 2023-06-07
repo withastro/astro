@@ -122,4 +122,8 @@ describe('getStaticPaths - dev calls', () => {
 			);
 		}
 	});
+	it('Validation regularity loopholes', async () => {
+		let res = await fixture.fetch(`/test/example-hell-no-world2`);
+			expect(res.status).to.equal(200);
+	})
 });
