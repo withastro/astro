@@ -72,7 +72,7 @@ const COMPATIBLE_NODE_MODULES = [
 	// 'wasi',
 	// 'webcrypto',
 	'worker_threads',
-	'zlib'
+	'zlib',
 ];
 
 // We shim deno-specific imports so we can run the code in Node
@@ -107,11 +107,8 @@ const denoImportsShimPlugin = {
 const denoRenameNodeModulesPlugin = {
 	name: '@astrojs/esbuild-rename-node-modules',
 	setup(build: esbuild.PluginBuild) {
-		const filter = new RegExp(COMPATIBLE_NODE_MODULES.map(mod => `(^${mod}$)`).join('|'))
-		build.onResolve(
-			{ filter },
-			args => ({ path: 'node:' + args.path, external: true })
-		)
+		const filter = new RegExp(COMPATIBLE_NODE_MODULES.map((mod) => `(^${mod}$)`).join('|'));
+		build.onResolve({ filter }, (args) => ({ path: 'node:' + args.path, external: true }));
 	},
 };
 
@@ -142,7 +139,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.build = vite.build ?? {};
 					vite.build.rollupOptions = vite.build.rollupOptions ?? {};
 					vite.build.rollupOptions.external = vite.build.rollupOptions.external ?? [];
-                    
+
 					const aliases = [{ find: 'react-dom/server', replacement: 'react-dom/server.browser' }];
 
 					if (Array.isArray(vite.resolve.alias)) {
@@ -153,7 +150,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						}
 					}
 					vite.ssr = {
-						noExternal: COMPATIBLE_NODE_MODULES
+						noExternal: COMPATIBLE_NODE_MODULES,
 					};
 
 					if (Array.isArray(vite.build.rollupOptions.external)) {
@@ -178,7 +175,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					external: [...COMPATIBLE_NODE_MODULES.map(mod => `node:${mod}`),'@astrojs/markdown-remark'],
+					external: [
+						...COMPATIBLE_NODE_MODULES.map((mod) => `node:${mod}`),
+						'@astrojs/markdown-remark',
+					],
 					plugins: [denoImportsShimPlugin, denoRenameNodeModulesPlugin],
 					banner: {
 						js: SHIM,
