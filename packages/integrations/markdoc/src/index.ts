@@ -61,6 +61,9 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				}
 				const userMarkdocConfig = markdocConfigResult?.config ?? {};
 
+				const markdocConfigId = 'astro:markdoc-config';
+				const resolvedMarkdocConfigId = '\x00' + markdocConfigId;
+
 				function getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
 					const parsed = parseFrontmatter(contents, fileURLToPath(fileUrl));
 					return {
@@ -130,51 +133,45 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 						} from 'astro/runtime/server/index.js';
 						import { Renderer } from '@astrojs/markdoc/components';
 						import { collectHeadings, setupConfig, setupConfigSync, Markdoc } from '@astrojs/markdoc/runtime';
-${
-	markdocConfigResult
-		? `import _userConfig from ${JSON.stringify(
-				markdocConfigResultId
-		  )};\nconst userConfig = _userConfig ?? {};`
-		: 'const userConfig = {};'
-}${
+						import userConfig from ${JSON.stringify(markdocConfigId)};${
 							astroConfig.experimental.assets
 								? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
 								: ''
 						}
-const stringifiedAst = ${JSON.stringify(
+						const stringifiedAst = ${JSON.stringify(
 							/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
 						)};
-export function getHeadings() {
-	${
-		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
-		TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
-		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
-		''
-	}
-	const headingConfig = userConfig.nodes?.heading;
-	const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {});
-	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
-	const content = Markdoc.transform(ast, config);
-	return collectHeadings(Array.isArray(content) ? content : content.children);
-}
+						export function getHeadings() {
+							${
+								/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
+								TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
+								instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
+								''
+							}
+							const headingConfig = userConfig.nodes?.heading;
+							const config = setupConfigSync(headingConfig ? { nodes: { heading: headingConfig } } : {});
+							const ast = Markdoc.Ast.fromJSON(stringifiedAst);
+							const content = Markdoc.transform(ast, config);
+							return collectHeadings(Array.isArray(content) ? content : content.children);
+						}
 
-export const Content = createComponent({
-	async factory(result, props) {
-		const config = await setupConfig({
-			...userConfig,
-			variables: { ...userConfig.variables, ...props },
-		});
-		
-		return renderComponent(
-			result,
-			Renderer.name,
-			Renderer,
-			{ stringifiedAst, config },
-			{}
-		);
-	},
-	propagation: 'self',
-});`;
+						export const Content = createComponent({
+							async factory(result, props) {
+								const config = await setupConfig({
+									...userConfig,
+									variables: { ...userConfig.variables, ...props },
+								});
+								
+								return renderComponent(
+									result,
+									Renderer.name,
+									Renderer,
+									{ stringifiedAst, config },
+									{}
+								);
+							},
+							propagation: 'self',
+						});`;
 						return { code: res };
 					},
 					contentModuleTypes: await fs.promises.readFile(
@@ -225,6 +222,48 @@ export const Content = createComponent({
 											skipSelf: true,
 										});
 									}
+								},
+							},
+							{
+								name: '@astrojs/markdoc:config',
+								resolveId(this: rollup.PluginContext, id: string) {
+									if (id === markdocConfigId) {
+										return resolvedMarkdocConfigId;
+									}
+								},
+								load(id: string) {
+									if (id !== resolvedMarkdocConfigId) return;
+
+									// TODO: migrate config loader, invalidate on change
+									if (!markdocConfigResult) {
+										return `export default {}`;
+									}
+									const { config, fileUrl } = markdocConfigResult;
+									let componentPathnameByTag: Record<string, string> = {};
+									const { tags = {}, nodes = {} /* TODO: nodes */ } = config;
+									for (const [name, value] of Object.entries(tags)) {
+										if (value.render instanceof URL) {
+											componentPathnameByTag[name] = value.render.pathname;
+										}
+									}
+									let stringifiedComponentImports = '';
+									let stringifiedComponentMap = '{';
+									for (const [tag, componentPathname] of Object.entries(componentPathnameByTag)) {
+										stringifiedComponentImports += `import ${tag} from ${JSON.stringify(
+											componentPathname + '?astroPropagatedAssets'
+										)};\n`;
+										stringifiedComponentMap += `${tag},\n`;
+									}
+									stringifiedComponentMap += '}';
+									const code = `import { resolveComponentImports } from '@astrojs/markdoc/runtime';
+										import markdocConfig from ${JSON.stringify(fileUrl.pathname)};
+										${stringifiedComponentImports};
+
+										const tagComponentMap = ${stringifiedComponentMap};
+										export default resolveComponentImports(markdocConfig, tagComponentMap);`;
+
+									console.log('$$$markdoc-config', code);
+									return code;
 								},
 							},
 						],

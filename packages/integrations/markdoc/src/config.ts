@@ -9,7 +9,7 @@ import _Markdoc from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
 import { heading } from './heading-ids.js';
 
-type Render = AstroInstance['default'] | string;
+type Render = AstroInstance['default'] | URL | string;
 
 export type AstroMarkdocConfig<C extends Record<string, any> = Record<string, any>> = Omit<
 	MarkdocConfig,
