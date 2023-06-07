@@ -2,8 +2,7 @@ import type { AstroConfig } from 'astro';
 import type { Plugin } from 'vite';
 import type { PluginContext } from 'rollup';
 import { loadMarkdocConfig } from './load-config.js';
-import type { AstroMarkdocConfig } from './config.js';
-import type { Schema } from '@markdoc/markdoc';
+import type { Schema, Config as MarkdocConfig } from '@markdoc/markdoc';
 import type { Render } from './config.js';
 import { setupConfig } from './runtime.js';
 
@@ -58,7 +57,7 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 	};
 }
 
-function getRenderUrlMap(tagsOrNodes: Record<string, Schema<AstroMarkdocConfig, Render>>) {
+function getRenderUrlMap(tagsOrNodes: Record<string, Schema<MarkdocConfig, Render>>) {
 	const renderPathnameMap: Record<string, string> = {};
 	for (const [name, value] of Object.entries(tagsOrNodes)) {
 		if (value.render instanceof URL) {
