@@ -1,4 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { AstroInstance } from 'astro';
 import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
@@ -63,6 +64,26 @@ function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): 
 			...configA.variables,
 			...configB.variables,
 		},
+	};
+}
+
+export function resolveComponentImports(
+	markdocConfig: AstroMarkdocConfig,
+	tagComponentMap: Record<string, AstroInstance['default']>
+) {
+	const resolvedTags = { ...markdocConfig.tags };
+	for (const [tagName, tagConfig] of Object.entries(resolvedTags)) {
+		if (tagName in tagComponentMap) {
+			resolvedTags[tagName] = {
+				...tagConfig,
+				render: tagComponentMap[tagName],
+			};
+		}
+	}
+	console.log('resolvedTags', resolvedTags);
+	return {
+		...markdocConfig,
+		tags: resolvedTags,
 	};
 }
 
