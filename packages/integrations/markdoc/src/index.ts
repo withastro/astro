@@ -150,10 +150,7 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 						export const Content = createComponent({
 							async factory(result, props) {
-								const config = await getConfig({
-									variables: props,
-								});
-								
+								const config = await getConfig({ variables: props });
 								return renderComponent(
 									result,
 									Renderer.name,
