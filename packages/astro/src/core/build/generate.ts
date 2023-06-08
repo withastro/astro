@@ -37,7 +37,7 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
-import { AstroError } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
@@ -346,21 +346,25 @@ function getInvalidRouteSegmentError(
 	route: RouteData,
 	staticPath: GetStaticPathsItem
 ): AstroError {
-	const badParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
+	const invalidParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
 	let hint: string | undefined = undefined;
-	if (badParam) {
-		const matchingSegment = route.segments.find((segment) => segment[0]?.content === badParam)?.[0];
+	if (invalidParam) {
+		const matchingSegment = route.segments.find(
+			(segment) => segment[0]?.content === invalidParam
+		)?.[0];
 		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
 		if (mightBeMissingSpread) {
-			hint = `If the route has multiple slashes, try using a rest parameter: **[...${badParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+			hint = `If the route has multiple slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
 		}
 	}
 	return new AstroError({
-		code: 99999,
-		message: badParam
-			? `The ${JSON.stringify(badParam)} param for route ${route.route} is invalid. ${
-					staticPath.params[badParam] ? `Received **${staticPath.params[badParam]}**` : ''
-			  }`
+		...AstroErrorData.InvalidDynamicRoute,
+		message: invalidParam
+			? AstroErrorData.InvalidDynamicRoute.message(
+					route.route,
+					JSON.stringify(invalidParam),
+					JSON.stringify(staticPath.params[invalidParam])
+			  )
 			: `Generated path for ${route.route} is invalid.`,
 		hint,
 	});
