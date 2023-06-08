@@ -22,9 +22,22 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 
 			// TODO: invalidate on change
 			const markdocConfigResult = await loadMarkdocConfig(astroConfig);
+			// Only add `astro/assets` import when `experimental.assets` is enabled. Would throw without this check!
+			const injectAssetsConfig = astroConfig.experimental.assets;
 
 			if (!markdocConfigResult) {
-				return `export default {}`;
+				return `${
+					injectAssetsConfig
+						? `import { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\n`
+						: ''
+				}export async function getConfig(configOverrides = {}) { return ${
+					injectAssetsConfig
+						? '{ ...experimentalAssetsConfig, ...configOverrides }'
+						: 'configOverrides'
+				} }
+				export function getConfigSync() { return ${
+					injectAssetsConfig ? 'experimentalAssetsConfig' : '{}'
+				} }`;
 			}
 			const { config: unresolvedConfig, fileUrl } = markdocConfigResult;
 			const config = await setupConfig(unresolvedConfig);
