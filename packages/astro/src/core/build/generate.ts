@@ -348,7 +348,7 @@ function getInvalidRouteSegmentError(
 ): AstroError {
 	const invalidParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
 	const received = invalidParam ? staticPath.params[invalidParam] : undefined;
-	let hint: string =
+	let hint =
 		'Learn about dynamic routes at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes';
 	if (invalidParam && typeof received === 'string') {
 		const matchingSegment = route.segments.find(
