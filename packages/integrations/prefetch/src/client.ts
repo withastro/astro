@@ -1,5 +1,5 @@
+/// <reference types="../@types/network-information.d.ts" />
 import throttles from 'throttles';
-import '../@types/network-information.d.ts';
 import requestIdleCallback from './requestIdleCallback.js';
 
 const events = ['mouseenter', 'touchstart', 'focus'];

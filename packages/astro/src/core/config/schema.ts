@@ -22,7 +22,10 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		server: './dist/server/',
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
+		redirects: true,
+		inlineStylesheets: 'never',
 	},
+	compressHTML: false,
 	server: {
 		host: false,
 		port: 3000,
@@ -36,11 +39,10 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
+	redirects: {},
 	experimental: {
 		assets: false,
-		customClientDirecives: false,
-		inlineStylesheets: 'never',
-		middleware: false,
+		redirects: false,
 	},
 };
 
@@ -71,13 +73,14 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 		.transform((val) => new URL(val)),
 	site: z.string().url().optional(),
+	compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-		.union([z.literal('static'), z.literal('server')])
+		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
 		.default('static'),
 	scopedStyleStrategy: z
@@ -112,6 +115,11 @@ export const AstroConfigSchema = z.object({
 			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 			assetsPrefix: z.string().optional(),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
+			inlineStylesheets: z
+				.enum(['always', 'auto', 'never'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 		})
 		.optional()
 		.default({}),
@@ -134,6 +142,7 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
+	redirects: z.record(z.string(), z.string()).default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
 			service: z.object({
@@ -196,16 +205,26 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
-			customClientDirectives: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.customClientDirecives),
-			inlineStylesheets: z
-				.enum(['always', 'auto', 'never'])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
-			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
+			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirects),
 		})
+		.passthrough()
+		.refine(
+			(d) => {
+				const validKeys = Object.keys(ASTRO_CONFIG_DEFAULTS.experimental);
+				const invalidKeys = Object.keys(d).filter((key) => !validKeys.includes(key));
+				if (invalidKeys.length > 0) return false;
+				return true;
+			},
+			(d) => {
+				const validKeys = Object.keys(ASTRO_CONFIG_DEFAULTS.experimental);
+				const invalidKeys = Object.keys(d).filter((key) => !validKeys.includes(key));
+				return {
+					message: `Invalid experimental key: \`${invalidKeys.join(
+						', '
+					)}\`. \nMake sure the spelling is correct, and that your Astro version supports this experiment.\nSee https://docs.astro.build/en/reference/configuration-reference/#experimental-flags for more information.`,
+				};
+			}
+		)
 		.optional()
 		.default({}),
 	legacy: z.object({}).optional().default({}),
@@ -223,6 +242,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+		compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 		publicDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
@@ -254,6 +274,11 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				assetsPrefix: z.string().optional(),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
+				inlineStylesheets: z
+					.enum(['always', 'auto', 'never'])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 			})
 			.optional()
 			.default({}),

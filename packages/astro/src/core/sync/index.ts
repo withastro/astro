@@ -1,7 +1,7 @@
 import { dim } from 'kleur/colors';
 import type fsMod from 'node:fs';
 import { performance } from 'node:perf_hooks';
-import { createServer } from 'vite';
+import { createServer, type HMRPayload } from 'vite';
 import type { Arguments } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -10,7 +10,7 @@ import { runHookConfigSetup } from '../../integrations/index.js';
 import { setUpEnvTs } from '../../vite-plugin-inject-env-ts/index.js';
 import { getTimeStat } from '../build/util.js';
 import { createVite } from '../create-vite.js';
-import { AstroError, AstroErrorData, createSafeError } from '../errors/index.js';
+import { AstroError, AstroErrorData, createSafeError, isAstroError } from '../errors/index.js';
 import { info, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 
@@ -65,7 +65,7 @@ export async function sync(
 	const tempViteServer = await createServer(
 		await createVite(
 			{
-				server: { middlewareMode: true, hmr: false },
+				server: { middlewareMode: true, hmr: false, watch: { ignored: ['**'] } },
 				optimizeDeps: { disabled: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
@@ -73,6 +73,16 @@ export async function sync(
 			{ settings, logging, mode: 'build', command: 'build', fs }
 		)
 	);
+
+	// Patch `ws.send` to bubble up error events
+	// `ws.on('error')` does not fire for some reason
+	const wsSend = tempViteServer.ws.send;
+	tempViteServer.ws.send = (payload: HMRPayload) => {
+		if (payload.type === 'error') {
+			throw payload.err;
+		}
+		return wsSend(payload);
+	};
 
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({
@@ -99,6 +109,9 @@ export async function sync(
 		}
 	} catch (e) {
 		const safeError = createSafeError(e);
+		if (isAstroError(e)) {
+			throw e;
+		}
 		throw new AstroError(
 			{
 				...AstroErrorData.GenerateContentTypesError,

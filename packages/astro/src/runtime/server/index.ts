@@ -1,7 +1,14 @@
 export { createComponent } from './astro-component.js';
 export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';
-export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from './escape.js';
+export {
+	escapeHTML,
+	HTMLBytes,
+	HTMLString,
+	isHTMLString,
+	markHTMLString,
+	unescapeHTML,
+} from './escape.js';
 export { renderJSX } from './jsx.js';
 export {
 	addAttribute,
@@ -62,7 +69,7 @@ export function __astro_tag_component__(Component: unknown, rendererName: string
 
 // Adds support for `<Component {...value} />
 export function spreadAttributes(
-	values: Record<any, any>,
+	values: Record<any, any> = {},
 	_name?: string,
 	{ class: scopedClassName }: { class?: string } = {}
 ) {

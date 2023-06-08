@@ -75,7 +75,7 @@ export default function vercelServerless({
 
 				if (config.output === 'static') {
 					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` is required to use the serverless adapter.
+		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the serverless adapter.
 
 	`);
 				}

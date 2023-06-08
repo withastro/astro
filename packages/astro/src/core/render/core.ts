@@ -3,6 +3,7 @@ import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
+import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
@@ -89,7 +90,7 @@ export async function getParamsAndProps(
 			routeCache.set(route, routeCacheEntry);
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
-		if (!matchedStaticPath && (ssr ? mod.prerender : true)) {
+		if (!matchedStaticPath && (ssr ? route.prerender : true)) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
 		// Note: considered using Object.create(...) for performance
@@ -108,24 +109,32 @@ export type RenderPage = {
 	renderContext: RenderContext;
 	env: Environment;
 	apiContext?: APIContext;
+	isCompressHTML?: boolean;
 };
 
-export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
+export async function renderPage({
+	mod,
+	renderContext,
+	env,
+	apiContext,
+	isCompressHTML = false,
+}: RenderPage) {
+	if (routeIsRedirect(renderContext.route)) {
+		return new Response(null, {
+			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
+			headers: {
+				location: redirectRouteGenerate(renderContext.route, renderContext.params),
+			},
+		});
+	}
+
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
-	let locals = {};
-	if (apiContext) {
-		if (env.mode === 'development' && !isValueSerializable(apiContext.locals)) {
-			throw new AstroError({
-				...AstroErrorData.LocalsNotSerializable,
-				message: AstroErrorData.LocalsNotSerializable.message(renderContext.pathname),
-			});
-		}
-		locals = apiContext.locals;
-	}
+	let locals = apiContext?.locals ?? {};
+
 	const result = createResult({
 		adapterName: env.adapterName,
 		links: renderContext.links,
@@ -146,6 +155,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
+		cookies: apiContext?.cookies,
 		locals,
 	});
 
@@ -160,6 +170,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		renderContext.props,
 		null,
 		env.streaming,
+		isCompressHTML,
 		renderContext.route
 	);
 
@@ -170,58 +181,4 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 	}
 
 	return response;
-}
-
-/**
- * Checks whether any value can is serializable.
- *
- * A serializable value contains plain values. For example, `Proxy`, `Set`, `Map`, functions, etc.
- * are not serializable objects.
- *
- * @param object
- */
-export function isValueSerializable(value: unknown): boolean {
-	let type = typeof value;
-	let plainObject = true;
-	if (type === 'object' && isPlainObject(value)) {
-		for (const [, nestedValue] of Object.entries(value)) {
-			if (!isValueSerializable(nestedValue)) {
-				plainObject = false;
-				break;
-			}
-		}
-	} else {
-		plainObject = false;
-	}
-	let result =
-		value === null ||
-		type === 'string' ||
-		type === 'number' ||
-		type === 'boolean' ||
-		Array.isArray(value) ||
-		plainObject;
-
-	return result;
-}
-
-/**
- *
- * From [redux-toolkit](https://github.com/reduxjs/redux-toolkit/blob/master/packages/toolkit/src/isPlainObject.ts)
- *
- * Returns true if the passed value is "plain" object, i.e. an object whose
- * prototype is the root `Object.prototype`. This includes objects created
- * using object literals, but not for instance for class instances.
- */
-function isPlainObject(value: unknown): value is object {
-	if (typeof value !== 'object' || value === null) return false;
-
-	let proto = Object.getPrototypeOf(value);
-	if (proto === null) return true;
-
-	let baseProto = proto;
-	while (Object.getPrototypeOf(baseProto) !== null) {
-		baseProto = Object.getPrototypeOf(baseProto);
-	}
-
-	return proto === baseProto;
 }

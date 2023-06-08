@@ -4,6 +4,10 @@ import { fileURLToPath } from 'url';
 
 export { fixLineEndings } from '../../../astro/test/test-utils.js';
 
+/**
+ * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
+ */
+
 export function loadFixture(config) {
 	if (config?.root) {
 		config.root = new URL(config.root, import.meta.url);

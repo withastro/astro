@@ -11,9 +11,6 @@ describe('SSR: prerender 404', () => {
 			root: './fixtures/ssr-prerender-404/',
 			output: 'server',
 			adapter: testAdapter(),
-			experimental: {
-				prerender: true,
-			},
 		});
 		await fixture.build();
 	});

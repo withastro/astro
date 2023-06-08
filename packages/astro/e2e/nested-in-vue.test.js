@@ -14,8 +14,24 @@ test.afterAll(async () => {
 });
 
 test.describe('Nested Frameworks in Vue', () => {
+	test('no hydration mismatch', async ({ page, astro }) => {
+		// Get browser logs
+		const logs = [];
+		page.on('console', (msg) => logs.push(msg.text()));
+
+		await page.goto(astro.resolveUrl('/'));
+
+		// wait for root island to hydrate
+		const counter = page.locator('#vue-counter');
+		await waitForHydrate(page, counter);
+
+		for (const log of logs) {
+			expect(log, 'Vue hydration mismatch').not.toMatch('Hydration node mismatch');
+		}
+	});
+
 	test('React counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#react-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -32,7 +48,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Preact counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#preact-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -49,7 +65,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Solid counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#solid-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -66,7 +82,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Vue counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#vue-counter');
 		await expect(counter, 'component is visible').toBeVisible();
@@ -83,7 +99,7 @@ test.describe('Nested Frameworks in Vue', () => {
 	});
 
 	test('Svelte counter', async ({ astro, page }) => {
-		await page.goto('/');
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#svelte-counter');
 		await expect(counter, 'component is visible').toBeVisible();

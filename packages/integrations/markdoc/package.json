@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
-  "description": "Add support for Markdoc pages in your Astro site",
-  "version": "0.1.3",
+  "description": "Add support for Markdoc in your Astro site",
+  "version": "0.3.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,12 +19,36 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/markdoc/",
   "exports": {
+    "./prism": {
+      "types": "./dist/extensions/prism.d.ts",
+      "node": "./dist/extensions/prism.js"
+    },
+    "./shiki": {
+      "types": "./dist/extensions/shiki.d.ts",
+      "node": "./dist/extensions/shiki.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "node": "./dist/config.js"
+    },
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./runtime": "./dist/runtime.js",
-    "./config": "./dist/config.js",
     "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "config": [
+        "./dist/config.d.ts"
+      ],
+      "prism": [
+        "./dist/extensions/prism.d.ts"
+      ],
+      "shiki": [
+        "./dist/extensions/shiki.d.ts"
+      ]
+    }
   },
   "files": [
     "components",
@@ -39,7 +63,9 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@markdoc/markdoc": "^0.2.2",
+    "shiki": "^0.14.1",
+    "@astrojs/prism": "^2.1.2",
+    "@markdoc/markdoc": "^0.3.0",
     "esbuild": "^0.17.12",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
@@ -47,10 +73,10 @@
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.4.5"
+    "astro": "workspace:^2.6.1"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^2.2.0",
+    "@astrojs/markdown-remark": "^2.2.1",
     "@types/chai": "^4.3.1",
     "@types/html-escaper": "^3.0.0",
     "@types/mocha": "^9.1.1",

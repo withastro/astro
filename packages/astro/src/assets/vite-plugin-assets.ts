@@ -24,6 +24,9 @@ import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
+const rawRE = /(?:\?|&)raw(?:&|$)/;
+const urlRE = /(\?|&)url(?:&|$)/;
+
 export default function assets({
 	settings,
 	logging,
@@ -104,13 +107,12 @@ export default function assets({
 						}
 
 						const url = new URL(req.url, 'file:');
-						const filePath = url.searchParams.get('href');
-
-						if (!filePath) {
+						if (!url.searchParams.has('href')) {
 							return next();
 						}
 
-						const filePathURL = new URL('.' + filePath, settings.config.root);
+						const filePath = url.searchParams.get('href')?.slice('/@fs'.length);
+						const filePathURL = new URL('.' + filePath, 'file:');
 						const file = await fs.readFile(filePathURL);
 
 						// Get the file's metadata from the URL
@@ -233,9 +235,14 @@ export default function assets({
 				resolvedConfig = viteConfig;
 			},
 			async load(id) {
+				// If our import has the `?raw` or `?url` Vite query params, we'll let Vite handle it
+				if (rawRE.test(id) || urlRE.test(id)) {
+					return;
+				}
+
 				const cleanedUrl = removeQueryString(id);
 				if (/\.(jpeg|jpg|png|tiff|webp|gif|svg)$/.test(cleanedUrl)) {
-					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile, settings);
+					const meta = await emitESMImage(id, this.meta.watchMode, this.emitFile);
 					return `export default ${JSON.stringify(meta)}`;
 				}
 			},

@@ -1,5 +1,17 @@
 # @astrojs/prefetch
 
+## 0.2.3
+
+### Patch Changes
+
+- [#7123](https://github.com/withastro/astro/pull/7123) [`147373722`](https://github.com/withastro/astro/commit/147373722b37126af949bb054a1cdfb0aed6c2ff) Thanks [@connor-baer](https://github.com/connor-baer)! - Fix the inclusion of `@types/network-information`.
+
+## 0.2.2
+
+### Patch Changes
+
+- [#7104](https://github.com/withastro/astro/pull/7104) [`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa) Thanks [@bluwy](https://github.com/bluwy)! - Specify `"files"` field to only publish necessary files
+
 ## 0.2.1
 
 ### Patch Changes

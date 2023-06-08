@@ -16,6 +16,8 @@ import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
+import { getSortedPreloadedMatches } from '../prerender/routing.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
@@ -45,20 +47,19 @@ export async function matchRoute(
 ): Promise<MatchedRoute | undefined> {
 	const { logging, settings, routeCache } = env;
 	const matches = matchAllRoutes(pathname, manifest);
+	const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 
-	for await (const maybeRoute of matches) {
-		const filePath = new URL(`./${maybeRoute.component}`, settings.config.root);
-		const preloadedComponent = await preload({ env, filePath });
-		const [, mod] = preloadedComponent;
+	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
+		const [, mod] = preloadedComponent;
 		const paramsAndPropsRes = await getParamsAndProps({
 			mod,
 			route: maybeRoute,
 			routeCache,
 			pathname: pathname,
 			logging,
-			ssr: settings.config.output === 'server',
+			ssr: isServerLikeOutput(settings.config),
 		});
 
 		if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
@@ -128,10 +129,20 @@ export async function handleRoute(
 		return handle404Response(origin, req, res);
 	}
 
+	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
+		writeWebResponse(
+			res,
+			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
+				status: 400,
+			})
+		);
+		return;
+	}
+
 	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { route, preloadedComponent, mod } = matchedRoute;
-	const buildingToSSR = config.output === 'server';
+	const buildingToSSR = isServerLikeOutput(config);
 
 	// Headers are only available when using SSR.
 	const request = createRequest({
@@ -157,7 +168,7 @@ export async function handleRoute(
 		routeCache: env.routeCache,
 		pathname: pathname,
 		logging,
-		ssr: config.output === 'server',
+		ssr: isServerLikeOutput(config),
 	});
 
 	const options: SSROptions = {
@@ -169,11 +180,9 @@ export async function handleRoute(
 		request,
 		route,
 	};
-	if (env.settings.config.experimental.middleware) {
-		const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
-		if (middleware) {
-			options.middleware = middleware;
-		}
+	const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
+	if (middleware) {
+		options.middleware = middleware;
 	}
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
@@ -197,7 +206,7 @@ export async function handleRoute(
 			await writeWebResponse(res, result.response);
 		} else {
 			let contentType = 'text/plain';
-			// Dynamic routes don’t include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
+			// Dynamic routes don't include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
 			const filepath =
 				route.pathname ||
 				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');

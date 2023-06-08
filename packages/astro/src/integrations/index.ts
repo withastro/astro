@@ -9,6 +9,7 @@ import type {
 	AstroSettings,
 	BuildConfig,
 	ContentEntryType,
+	DataEntryType,
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
@@ -17,6 +18,7 @@ import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -100,11 +102,6 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 				addClientDirective: ({ name, entrypoint }) => {
-					if (!settings.config.experimental.customClientDirectives) {
-						throw new Error(
-							`The "${integration.name}" integration is trying to add the "${name}" client directive, but the \`experimental.customClientDirectives\` config is not enabled.`
-						);
-					}
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
 						throw new Error(
 							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`
@@ -126,6 +123,9 @@ export async function runHookConfigSetup({
 			function addContentEntryType(contentEntryType: ContentEntryType) {
 				updatedSettings.contentEntryTypes.push(contentEntryType);
 			}
+			function addDataEntryType(dataEntryType: DataEntryType) {
+				updatedSettings.dataEntryTypes.push(dataEntryType);
+			}
 
 			Object.defineProperty(hooks, 'addPageExtension', {
 				value: addPageExtension,
@@ -134,6 +134,11 @@ export async function runHookConfigSetup({
 			});
 			Object.defineProperty(hooks, 'addContentEntryType', {
 				value: addContentEntryType,
+				writable: false,
+				enumerable: false,
+			});
+			Object.defineProperty(hooks, 'addDataEntryType', {
+				value: addDataEntryType,
 				writable: false,
 				enumerable: false,
 			});
@@ -329,7 +334,7 @@ export async function runHookBuildGenerated({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
@@ -355,7 +360,7 @@ export async function runHookBuildDone({
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
-	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {

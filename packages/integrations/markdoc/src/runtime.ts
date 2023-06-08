@@ -1,30 +1,68 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import Markdoc, {
-	type RenderableTreeNode,
-	type ConfigType as MarkdocConfig,
-} from '@markdoc/markdoc';
-import type { ContentEntryModule } from 'astro';
-import { nodes as astroNodes } from './nodes/index.js';
+import Markdoc, { type RenderableTreeNode } from '@markdoc/markdoc';
+import type { AstroMarkdocConfig } from './config.js';
+import { setupHeadingConfig } from './heading-ids.js';
 
-/** Used to reset Slugger cache on each build at runtime */
-export { headingSlugger } from './nodes/index.js';
+/** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
 export { default as Markdoc } from '@markdoc/markdoc';
 
-export function applyDefaultConfig(
-	config: MarkdocConfig,
-	entry: ContentEntryModule
-): MarkdocConfig {
+/**
+ * Merge user config with default config and set up context (ex. heading ID slugger)
+ * Called on each file's individual transform.
+ * TODO: virtual module to merge configs per-build instead of per-file?
+ */
+export async function setupConfig(
+	userConfig: AstroMarkdocConfig
+): Promise<Omit<AstroMarkdocConfig, 'extends'>> {
+	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
+
+	if (userConfig.extends) {
+		for (let extension of userConfig.extends) {
+			if (extension instanceof Promise) {
+				extension = await extension;
+			}
+
+			defaultConfig = mergeConfig(defaultConfig, extension);
+		}
+	}
+
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Used for synchronous `getHeadings()` function */
+export function setupConfigSync(
+	userConfig: AstroMarkdocConfig
+): Omit<AstroMarkdocConfig, 'extends'> {
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
+
+	return mergeConfig(defaultConfig, userConfig);
+}
+
+/** Merge function from `@markdoc/markdoc` internals */
+function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): AstroMarkdocConfig {
 	return {
-		...config,
-		variables: {
-			entry,
-			...config.variables,
+		...configA,
+		...configB,
+		ctx: {
+			...configA.ctx,
+			...configB.ctx,
+		},
+		tags: {
+			...configA.tags,
+			...configB.tags,
 		},
 		nodes: {
-			...astroNodes,
-			...config.nodes,
+			...configA.nodes,
+			...configB.nodes,
 		},
-		// TODO: Syntax highlighting
+		functions: {
+			...configA.functions,
+			...configB.functions,
+		},
+		variables: {
+			...configA.variables,
+			...configB.variables,
+		},
 	};
 }
 

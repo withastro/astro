@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "5.1.3",
+  "version": "5.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -33,14 +33,15 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^2.1.1",
+    "@astrojs/webapi": "^2.2.0",
     "send": "^0.18.0",
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.4.5"
+    "astro": "workspace:^2.6.1"
   },
   "devDependencies": {
+    "@types/node": "^18.7.21",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
     "astro": "workspace:*",

@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 2.2.0
+
+### Minor Changes
+
+- [#6981](https://github.com/withastro/astro/pull/6981) [`bf63f615f`](https://github.com/withastro/astro/commit/bf63f615fc1b97d6fb84db55f7639084e3ada5af) Thanks [@andremralves](https://github.com/andremralves)! - Add polyfill for `crypto`
+
 ## 2.1.1
 
 ### Patch Changes

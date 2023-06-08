@@ -12,6 +12,7 @@ import { generateSitemap } from './generate-sitemap.js';
 import { Logger } from './utils/logger.js';
 import { validateOptions } from './validate-options.js';
 
+export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
 export type ChangeFreq = `${EnumChangefreq}`;
 export type SitemapItem = Pick<
 	SitemapItemLoose,
@@ -117,6 +118,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return urls;
 					}, []);
 
+					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
+
 					try {
 						if (filter) {
 							pageUrls = pageUrls.filter(filter);
@@ -125,8 +128,6 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						logger.error(`Error filtering pages\n${(err as any).toString()}`);
 						return;
 					}
-
-					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
 					if (pageUrls.length === 0) {
 						logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);

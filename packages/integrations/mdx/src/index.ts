@@ -1,8 +1,7 @@
 import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import { toRemarkInitializeAstroData } from '@astrojs/markdown-remark/dist/internal.js';
-import { compile as mdxCompile } from '@mdx-js/mdx';
+import { compile as mdxCompile, type CompileOptions } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import mdxPlugin, { type Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import fs from 'node:fs/promises';
@@ -12,6 +11,7 @@ import { SourceMapGenerator } from 'source-map';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { getRehypePlugins, getRemarkPlugins, recmaInjectImportMetaEnvPlugin } from './plugins.js';
+import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { getFileInfo, ignoreStringPlugins, parseFrontmatter } from './utils.js';
 
 export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
@@ -22,6 +22,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkPlugins: PluggableList;
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
+	optimize: boolean | OptimizeOptions;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -55,6 +56,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 						new URL('../template/content-module-types.d.ts', import.meta.url),
 						'utf-8'
 					),
+					// MDX can import scripts and styles,
+					// so wrap all MDX files with script / style propagation checks
+					handlePropagation: true,
 				});
 
 				const extendMarkdownConfig =
@@ -67,7 +71,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					),
 				});
 
-				const mdxPluginOpts: MdxRollupPluginOptions = {
+				const mdxPluginOpts: CompileOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions),
 					recmaPlugins: mdxOptions.recmaPlugins,
@@ -87,15 +91,15 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					vite: {
 						plugins: [
 							{
+								name: '@mdx-js/rollup',
 								enforce: 'pre',
-								...mdxPlugin(mdxPluginOpts),
 								configResolved(resolved) {
 									importMetaEnv = { ...importMetaEnv, ...resolved.env };
 								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
 								async transform(_, id) {
-									if (!id.endsWith('mdx')) return;
+									if (!id.endsWith('.mdx')) return;
 
 									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
 									const { fileId } = getFileInfo(id, config);
@@ -195,6 +199,7 @@ function markdownConfigToMdxOptions(markdownConfig: typeof markdownConfigDefault
 		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins),
 		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins),
 		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
+		optimize: false,
 	};
 }
 
@@ -215,6 +220,7 @@ function applyDefaultOptions({
 		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
+		optimize: options.optimize ?? defaults.optimize,
 	};
 }
 

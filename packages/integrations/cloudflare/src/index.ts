@@ -1,3 +1,4 @@
+import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
@@ -50,6 +51,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						client: new URL(`.${config.base}`, config.outDir),
 						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
 						serverEntry: '_worker.mjs',
+						redirects: false,
 					},
 				});
 			},
@@ -60,7 +62,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				if (config.output === 'static') {
 					throw new Error(`
-  [@astrojs/cloudflare] \`output: "server"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
+  [@astrojs/cloudflare] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
 
 `);
 				}
@@ -88,7 +90,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = 'webworker';
 				}
 			},
-			'astro:build:done': async ({ pages }) => {
+			'astro:build:done': async ({ pages, routes, dir }) => {
 				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
 				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
 				const buildPath = fileURLToPath(entryUrl);
@@ -195,6 +197,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						if (redirects.length > 0) {
 							staticPathList.push(...redirects);
 						}
+					}
+
+					const redirectRoutes = routes.filter((r) => r.type === 'redirect');
+					const trueRedirects = createRedirectsFromAstroRoutes({
+						config: _config,
+						routes: redirectRoutes,
+						dir,
+					});
+					if (!trueRedirects.empty()) {
+						await fs.promises.appendFile(
+							new URL('./_redirects', _config.outDir),
+							trueRedirects.print()
+						);
 					}
 
 					await fs.promises.writeFile(
