@@ -10,6 +10,7 @@ import type {
 	ComponentInstance,
 	EndpointHandler,
 	EndpointOutput,
+	GetStaticPathsItem,
 	ImageTransform,
 	MiddlewareResponseHandler,
 	RouteData,
@@ -306,7 +307,16 @@ async function getPathsForRoute(
 		opts.routeCache.set(route, result);
 
 		paths = result.staticPaths
-			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
+			.map((staticPath) => {
+				try {
+					return route.generate(staticPath.params);
+				} catch (e) {
+					if (e instanceof TypeError) {
+						throw getInvalidRouteSegmentError(e, route, staticPath);
+					}
+					throw e;
+				}
+			})
 			.filter((staticPath) => {
 				// The path hasn't been built yet, include it
 				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
@@ -329,6 +339,31 @@ async function getPathsForRoute(
 	}
 
 	return paths;
+}
+
+function getInvalidRouteSegmentError(
+	e: TypeError,
+	route: RouteData,
+	staticPath: GetStaticPathsItem
+): AstroError {
+	const badParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
+	let hint: string | undefined = undefined;
+	if (badParam) {
+		const matchingSegment = route.segments.find((segment) => segment[0]?.content === badParam)?.[0];
+		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
+		if (mightBeMissingSpread) {
+			hint = `If the route has multiple slashes, try using a rest parameter: **[...${badParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+		}
+	}
+	return new AstroError({
+		code: 99999,
+		message: badParam
+			? `The ${JSON.stringify(badParam)} param for route ${route.route} is invalid. ${
+					staticPath.params[badParam] ? `Received **${staticPath.params[badParam]}**` : ''
+			  }`
+			: `Generated path for ${route.route} is invalid.`,
+		hint,
+	});
 }
 
 interface GeneratePathOptions {
