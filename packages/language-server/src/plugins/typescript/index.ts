@@ -49,8 +49,7 @@ export default (): Service =>
 				const file = source?.root;
 				if (!(file instanceof AstroFile) || !context.host) return codeActions;
 
-				const newLine = context.host.getNewLine ? context.host.getNewLine() : '\n';
-
+				const newLine = context.host.getCompilationSettings().newLine?.toString() ?? '\n';
 				return enhancedProvideCodeActions(
 					codeActions,
 					file,

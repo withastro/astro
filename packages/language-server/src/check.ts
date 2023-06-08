@@ -42,9 +42,7 @@ export class AstroCheck {
 		const files =
 			fileNames !== undefined
 				? fileNames
-				: this.project.languageServiceHost
-						.getScriptFileNames()
-						.filter((file) => file.endsWith('.astro'));
+				: this.project.languageHost.getScriptFileNames().filter((file) => file.endsWith('.astro'));
 
 		const errors: CheckResult[] = [];
 		for (const file of files) {
@@ -54,7 +52,7 @@ export class AstroCheck {
 			}
 
 			if (fileErrors.length > 0) {
-				const fileSnapshot = this.project.languageServiceHost.getScriptSnapshot(file);
+				const fileSnapshot = this.project.languageHost.getScriptSnapshot(file);
 				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
 
 				errors.push({
@@ -100,7 +98,7 @@ export class AstroCheck {
 			});
 		}
 
-		this.linter = kit.createLinter(config, this.project.languageServiceHost);
+		this.linter = kit.createLinter(config, this.project.languageHost);
 	}
 
 	private getTsconfig() {

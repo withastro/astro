@@ -49,7 +49,7 @@ export function enhancedResolveCompletionItem(
 	if (!(file instanceof AstroFile) || !context.host) return resolvedCompletion;
 	if (file.scriptFiles.includes(originalItem.data.fileName)) return resolvedCompletion;
 
-	const newLine = context.host.getNewLine ? context.host.getNewLine() : '\n';
+	const newLine = context.host.getCompilationSettings().newLine?.toString() ?? '\n';
 	resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits?.map((edit) => {
 		// HACK: There's a weird situation sometimes where some components (especially Svelte) will get imported as type imports
 		// for some unknown reason. This work around the problem by always ensuring a normal import for components

@@ -12,6 +12,7 @@ import {
 } from '@volar/language-server';
 import fg from 'fast-glob';
 import { dirname } from 'node:path';
+import type { Provide } from 'volar-service-typescript';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroFile } from '../core/index.js';
 import { isJSDocument } from '../utils.js';
@@ -62,11 +63,13 @@ export default (): Service =>
 			},
 			provideCodeLenses(document, token) {
 				if (token.isCancellationRequested) return;
-				if (!modules?.typescript || !context?.typescript || !isJSDocument(document.languageId))
-					return;
+				if (!context || !modules?.typescript || !isJSDocument(document.languageId)) return;
+
+				const languageService = context.inject<keyof Provide>('typescript/languageService');
+				if (!languageService) return;
 
 				const ts = modules?.typescript;
-				const tsProgram = context.typescript.languageService.getProgram();
+				const tsProgram = languageService.getProgram();
 				if (!tsProgram) return;
 
 				const globcodeLens: CodeLens[] = [];
