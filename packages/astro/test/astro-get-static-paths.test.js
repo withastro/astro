@@ -51,7 +51,7 @@ describe('getStaticPaths - dev calls', () => {
 	});
 
 	after(async () => {
-		devServer.stop();
+		await devServer.stop();
 	});
 
 	it('only calls getStaticPaths once', async () => {
