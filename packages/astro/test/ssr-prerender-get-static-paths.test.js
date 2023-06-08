@@ -56,7 +56,7 @@ describe('Prerender', () => {
 			});
 
 			after(async () => {
-				devServer.stop();
+				await devServer.stop();
 			});
 
 			it('only calls prerender getStaticPaths once', async () => {
@@ -188,7 +188,7 @@ describe('Prerender', () => {
 			});
 
 			after(async () => {
-				devServer.stop();
+				await devServer.stop();
 			});
 
 			it('only calls hybrid getStaticPaths once', async () => {
