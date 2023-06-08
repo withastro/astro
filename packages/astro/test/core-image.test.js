@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
-import { fileURLToPath } from 'node:url';
 import { removeDir } from '../dist/core/fs/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+import { testImageService } from './test-image-service.js';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -22,6 +22,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image/',
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService({ foo: 'bar' }),
 				},
 			});
 
@@ -377,6 +380,32 @@ describe('astro:image', () => {
 				expect($('img').attr('src').includes('/src')).to.equal(true);
 			});
 		});
+
+		describe('custom service', () => {
+			it('custom service implements getHTMLAttributes', async () => {
+				const response = await fixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				expect($('#local img').attr('data-service')).to.equal('my-custom-service');
+			});
+
+			it('custom service works in Markdown', async () => {
+				const response = await fixture.fetch('/post');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				expect($('img').attr('data-service')).to.equal('my-custom-service');
+			});
+
+			it('gets service config', async () => {
+				const response = await fixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				expect($('#local img').attr('data-service-config')).to.equal('bar');
+			});
+		});
 	});
 
 	describe('proper errors', () => {
@@ -390,6 +419,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-errors/',
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService(),
 				},
 			});
 
@@ -456,6 +488,9 @@ describe('astro:image', () => {
 				experimental: {
 					assets: true,
 				},
+				image: {
+					service: testImageService(),
+				},
 				base: '/blog',
 			});
 			await fixture.build();
@@ -509,6 +544,9 @@ describe('astro:image', () => {
 				experimental: {
 					assets: true,
 				},
+				image: {
+					service: testImageService(),
+				},
 				base: '/blog',
 			});
 			await fixtureWithBase.build();
@@ -529,6 +567,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService(),
 				},
 			});
 			// Remove cache directory
@@ -693,6 +734,9 @@ describe('astro:image', () => {
 				experimental: {
 					assets: true,
 				},
+				image: {
+					service: testImageService(),
+				},
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -716,6 +760,9 @@ describe('astro:image', () => {
 				adapter: testAdapter(),
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService(),
 				},
 			});
 			await fixture.build();
@@ -744,52 +791,6 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			expect(imgData).to.be.an.instanceOf(Buffer);
-		});
-	});
-
-	describe('custom service', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image/',
-				experimental: {
-					assets: true,
-				},
-				image: {
-					service: {
-						entrypoint: fileURLToPath(
-							new URL('./fixtures/core-image/service.mjs', import.meta.url)
-						),
-						config: { foo: 'bar' },
-					},
-				},
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		it('custom service implements getHTMLAttributes', async () => {
-			const response = await fixture.fetch('/');
-			const html = await response.text();
-
-			const $ = cheerio.load(html);
-			expect($('#local img').attr('data-service')).to.equal('my-custom-service');
-		});
-
-		it('custom service works in Markdown', async () => {
-			const response = await fixture.fetch('/post');
-			const html = await response.text();
-
-			const $ = cheerio.load(html);
-			expect($('img').attr('data-service')).to.equal('my-custom-service');
-		});
-
-		it('gets service config', async () => {
-			const response = await fixture.fetch('/');
-			const html = await response.text();
-
-			const $ = cheerio.load(html);
-			expect($('#local img').attr('data-service-config')).to.equal('bar');
 		});
 	});
 });
