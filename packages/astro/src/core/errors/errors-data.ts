@@ -765,7 +765,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes)
 	 * @description
-	 * A dynamic route parameter is invalid. This is often caused by a missing [rest parameter](https://docs.astro.build/en/core-concepts/routing/#rest-parameters).
+	 * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/core-concepts/routing/#rest-parameters).
 	 */
 	InvalidDynamicRoute: {
 		title: 'Invalid dynamic route.',
