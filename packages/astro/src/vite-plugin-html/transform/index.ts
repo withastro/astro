@@ -10,10 +10,8 @@ export async function transform(code: string, id: string) {
 
 	const vfile = new VFile({ value: code, path: id });
 	await parser.process(vfile);
-	s.prepend(
-		`export default {\n\t"astro:html": true,\n\trender({ slots: ${SLOT_PREFIX} }) {\n\t\treturn \``
-	);
-	s.append('`\n\t}\n}');
+	s.prepend(`function render({ slots: ${SLOT_PREFIX} }) {\n\t\treturn \``);
+	s.append('`\n\t}\nrender["astro:html"] = true;\nexport default render;');
 
 	return {
 		code: s.toString(),

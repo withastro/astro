@@ -1,5 +1,103 @@
 # astro
 
+## 2.6.1
+
+### Patch Changes
+
+- [#7307](https://github.com/withastro/astro/pull/7307) [`8034edd9e`](https://github.com/withastro/astro/commit/8034edd9ecf805073395ba7f68f73cd5fc4d2c73) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix [Object AsyncGenerator] appearing in markup for Markdoc documents
+
+## 2.6.0
+
+### Minor Changes
+
+- [#7067](https://github.com/withastro/astro/pull/7067) [`57f8d14c0`](https://github.com/withastro/astro/commit/57f8d14c027c30919363e12c664ccff4ed64d0fc) Thanks [@matthewp](https://github.com/matthewp)! - Experimental redirects support
+
+  This change adds support for the redirects RFC, currently in stage 3: https://github.com/withastro/roadmap/pull/587
+
+  Now you can specify redirects in your Astro config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export defineConfig({
+    redirects: {
+      '/blog/old-post': '/blog/new-post'
+    }
+  });
+  ```
+
+  You can also specify spread routes using the same syntax as in file-based routing:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export defineConfig({
+    redirects: {
+      '/blog/[...slug]': '/articles/[...slug]'
+    }
+  });
+  ```
+
+  By default Astro will build HTML files that contain the `<meta http-equiv="refresh">` tag. Adapters can also support redirect routes and create configuration for real HTTP-level redirects in production.
+
+- [#7237](https://github.com/withastro/astro/pull/7237) [`414eb19d2`](https://github.com/withastro/astro/commit/414eb19d2fcb55758f9d053076773b11b62f4c97) Thanks [@bluwy](https://github.com/bluwy)! - Remove experimental flag for custom client directives
+
+- [#7274](https://github.com/withastro/astro/pull/7274) [`b5213654b`](https://github.com/withastro/astro/commit/b5213654b1b7f3ba573a48d3be688b2bdde7870f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update base `tsconfig.json` template with `allowJs: true` to provide a better relaxed experience for users unfamilliar with TypeScript. `allowJs` is still set to `false` (its default value) when using the `strictest` preset.
+
+- [#7180](https://github.com/withastro/astro/pull/7180) [`e3b8c6296`](https://github.com/withastro/astro/commit/e3b8c62969d680d1915a122c610d281d6711aa63) Thanks [@lilnasy](https://github.com/lilnasy)! - The Inline Stylesheets RFC is now stable!
+
+  You can now control how Astro bundles your css with a configuration change:
+
+  ```ts
+  export default defineConfig({
+      ...
+      build: {
+          inlineStylesheets: "auto"
+      }
+      ...
+  })
+  ```
+
+  The options:
+
+  - `inlineStylesheets: "never"`: This is the behavior you are familiar with. Every stylesheet is external, and added to the page via a `<link>` tag. Default.
+  - `inlineStylesheets: "auto"`: Small stylesheets are inlined into `<style>` tags and inserted into `<head>`, while larger ones remain external.
+  - `inlineStylesheets: "always"`: Every style required by the page is inlined.
+
+  As always, css files in the `public` folder are not affected.
+
+- [#7260](https://github.com/withastro/astro/pull/7260) [`39403c32f`](https://github.com/withastro/astro/commit/39403c32faea58399c61d3344b770f195be60d5b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Unflags support for `output: 'hybrid'` mode, which enables pre-rendering by default. The additional `experimental.hybridOutput` flag can be safely removed from your configuration.
+
+- [#7109](https://github.com/withastro/astro/pull/7109) [`101f03209`](https://github.com/withastro/astro/commit/101f032098148b3daaac8d46ff1e535b79232e43) Thanks [@ematipico](https://github.com/ematipico)! - Remove experimental flag for the middleware
+
+### Patch Changes
+
+- [#7296](https://github.com/withastro/astro/pull/7296) [`a7e2b37ff`](https://github.com/withastro/astro/commit/a7e2b37ff73871c46895c615846a86a539f45330) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix HTML component type causing an error when imported in the editor
+
+- [#7294](https://github.com/withastro/astro/pull/7294) [`dd1a6b6c9`](https://github.com/withastro/astro/commit/dd1a6b6c941aeb7af934bd12db22412af262f5a1) Thanks [@matthewp](https://github.com/matthewp)! - Fix cookies not being set by middleware
+
+- [#7197](https://github.com/withastro/astro/pull/7197) [`d72cfa7ca`](https://github.com/withastro/astro/commit/d72cfa7cad758192163712ceb269405659fd14bc) Thanks [@bluwy](https://github.com/bluwy)! - Fix nested astro-island hydration race condition
+
+- [#7262](https://github.com/withastro/astro/pull/7262) [`144813f73`](https://github.com/withastro/astro/commit/144813f7308dcb9de64ebe3f0f2c6cba9ad81eb1) Thanks [@andremralves](https://github.com/andremralves)! - Fix injected scripts not injected to injected routes
+
+- [#7242](https://github.com/withastro/astro/pull/7242) [`890a2bc98`](https://github.com/withastro/astro/commit/890a2bc9891a2449ab99b01b65468f6dddba6b12) Thanks [@JerryWu1234](https://github.com/JerryWu1234)! - remove the white space after the doctype according to the property compressHTML
+
+## 2.5.7
+
+### Patch Changes
+
+- [#7215](https://github.com/withastro/astro/pull/7215) [`6e27f2f6d`](https://github.com/withastro/astro/commit/6e27f2f6dbd52f980c487e875faf1b066f65cffd) Thanks [@bmenant](https://github.com/bmenant)! - Node adapter fallbacks to `:authority` http2 pseudo-header when `host` is nullish.
+
+- [#7233](https://github.com/withastro/astro/pull/7233) [`96ae37eb0`](https://github.com/withastro/astro/commit/96ae37eb09f7406f40fba93e14b2a26ccd46640c) Thanks [@bluwy](https://github.com/bluwy)! - Fix `getViteConfig` and Vitest setup with content collections
+
+- [#7136](https://github.com/withastro/astro/pull/7136) [`fea306936`](https://github.com/withastro/astro/commit/fea30693609cc517d8660972151f4d12a0dd4e82) Thanks [@johannesspohr](https://github.com/johannesspohr)! - Render arrays of components in parallel
+
+- [#7257](https://github.com/withastro/astro/pull/7257) [`5156c4f90`](https://github.com/withastro/astro/commit/5156c4f90e0922f62d25fa0c82bbefae39f4c2b6) Thanks [@thiti-y](https://github.com/thiti-y)! - fix: build fail upon have 'process.env' in \*.md file.
+
+- [#7268](https://github.com/withastro/astro/pull/7268) [`9e7366567`](https://github.com/withastro/astro/commit/9e7366567e2b83d46a46db35e74ad508d1978039) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: ignore `.json` files within content collection directories starting with an `_` underscore.
+
+- [#7185](https://github.com/withastro/astro/pull/7185) [`339529fc8`](https://github.com/withastro/astro/commit/339529fc820bac2d514b63198ecf54a1d88c0917) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Bring back improved style and script handling across content collection files. This addresses bugs found in a previous release to `@astrojs/markdoc`.
+
 ## 2.5.6
 
 ### Patch Changes

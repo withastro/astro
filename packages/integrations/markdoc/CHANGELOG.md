@@ -1,5 +1,27 @@
 # @astrojs/markdoc
 
+## 0.3.2
+
+### Patch Changes
+
+- [#7311](https://github.com/withastro/astro/pull/7311) [`a11b62ee1`](https://github.com/withastro/astro/commit/a11b62ee1f5d524b0ba942818525b623a6d6eb99) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix Markdoc type errors for `render` and `defineMarkdocConfig()` when using a TypeScript Markdoc config file.
+
+- [#7309](https://github.com/withastro/astro/pull/7309) [`2a4bb23b2`](https://github.com/withastro/astro/commit/2a4bb23b2f7f82b3fabdad4d64101fcc778acaa4) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix missing styles and scripts for components when using `document: { render: null }` in the Markdoc config.
+
+- Updated dependencies [[`8034edd9e`](https://github.com/withastro/astro/commit/8034edd9ecf805073395ba7f68f73cd5fc4d2c73)]:
+  - astro@2.6.1
+
+## 0.3.1
+
+### Patch Changes
+
+- [#7224](https://github.com/withastro/astro/pull/7224) [`563293c5d`](https://github.com/withastro/astro/commit/563293c5d67e2bf13b9c735581969a0341861b44) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Allow HTML comments `<!--like this-->` in Markdoc files.
+
+- [#7185](https://github.com/withastro/astro/pull/7185) [`339529fc8`](https://github.com/withastro/astro/commit/339529fc820bac2d514b63198ecf54a1d88c0917) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Bring back improved style and script handling across content collection files. This addresses bugs found in a previous release to `@astrojs/markdoc`.
+
+- Updated dependencies [[`6e27f2f6d`](https://github.com/withastro/astro/commit/6e27f2f6dbd52f980c487e875faf1b066f65cffd), [`96ae37eb0`](https://github.com/withastro/astro/commit/96ae37eb09f7406f40fba93e14b2a26ccd46640c), [`fea306936`](https://github.com/withastro/astro/commit/fea30693609cc517d8660972151f4d12a0dd4e82), [`5156c4f90`](https://github.com/withastro/astro/commit/5156c4f90e0922f62d25fa0c82bbefae39f4c2b6), [`9e7366567`](https://github.com/withastro/astro/commit/9e7366567e2b83d46a46db35e74ad508d1978039), [`339529fc8`](https://github.com/withastro/astro/commit/339529fc820bac2d514b63198ecf54a1d88c0917)]:
+  - astro@2.5.7
+
 ## 0.3.0
 
 ### Minor Changes

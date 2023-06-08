@@ -14,17 +14,21 @@ export function getViteConfig(inlineConfig: UserConfig) {
 
 		// Use dynamic import to avoid pulling in deps unless used
 		const [
+			fs,
 			{ mergeConfig },
 			{ nodeLogDestination },
 			{ openConfig, createSettings },
 			{ createVite },
 			{ runHookConfigSetup, runHookConfigDone },
+			{ astroContentListenPlugin },
 		] = await Promise.all([
+			import('fs'),
 			import('vite'),
 			import('../core/logger/node.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
 			import('../integrations/index.js'),
+			import('./vite-plugin-content-listen.js'),
 		]);
 		const logging: LogOptions = {
 			dest: nodeLogDestination,
@@ -39,6 +43,10 @@ export function getViteConfig(inlineConfig: UserConfig) {
 		const viteConfig = await createVite(
 			{
 				mode,
+				plugins: [
+					// Initialize the content listener
+					astroContentListenPlugin({ settings, logging, fs }),
+				],
 			},
 			{ settings, logging: logging, mode }
 		);

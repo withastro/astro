@@ -12,6 +12,7 @@ import type {
 	EndpointOutput,
 	ImageTransform,
 	MiddlewareResponseHandler,
+	RouteData,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
@@ -22,6 +23,7 @@ import {
 } from '../../assets/generate.js';
 import {
 	eachPageDataFromEntryPoint,
+	eachRedirectPageData,
 	hasPrerenderedPages,
 	type BuildInternals,
 } from '../../core/build/internal.js';
@@ -31,12 +33,17 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
-import { isHybridOutput } from '../../prerender/utils.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
+import {
+	getRedirectLocationOrThrow,
+	RedirectSinglePageBuiltModule,
+	routeIsRedirect,
+} from '../redirects/index.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
@@ -48,7 +55,12 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { cssOrder, getPageDataByComponent, mergeInlineCss } from './internal.js';
+import {
+	cssOrder,
+	getEntryFilePathFromComponentPath,
+	getPageDataByComponent,
+	mergeInlineCss,
+} from './internal.js';
 import type {
 	PageBuildData,
 	SinglePageBuiltModule,
@@ -56,6 +68,30 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
+
+function createEntryURL(filePath: string, outFolder: URL) {
+	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
+}
+
+async function getEntryForRedirectRoute(
+	route: RouteData,
+	internals: BuildInternals,
+	outFolder: URL
+): Promise<SinglePageBuiltModule> {
+	if (route.type !== 'redirect') {
+		throw new Error(`Expected a redirect route.`);
+	}
+	if (route.redirectRoute) {
+		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		if (filePath) {
+			const url = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+			return ssrEntryPage;
+		}
+	}
+
+	return RedirectSinglePageBuiltModule;
+}
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
@@ -94,7 +130,7 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config); // hybrid mode is essentially SSR with prerender by default
+	const ssr = isServerLikeOutput(opts.settings.config);
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
@@ -108,18 +144,26 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	if (ssr) {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			if (pageData.route.prerender) {
-				const ssrEntryURLPage = new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-				const ssrEntryPage = await import(ssrEntryURLPage.toString());
+				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
+				const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
 				await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
 			}
 		}
+		for (const pageData of eachRedirectPageData(internals)) {
+			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+			await generatePage(opts, internals, pageData, entry, builtPaths);
+		}
 	} else {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
-			const ssrEntryURLPage = new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-			const ssrEntryPage = await import(ssrEntryURLPage.toString());
+			const ssrEntryURLPage = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
 
 			await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+		}
+		for (const pageData of eachRedirectPageData(internals)) {
+			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
 	}
 
@@ -165,6 +209,10 @@ async function generatePage(
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>
 ) {
+	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
+		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
+	}
+
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
 
@@ -237,7 +285,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server' || isHybridOutput(opts.settings.config),
+			ssr: isServerLikeOutput(opts.settings.config),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -413,7 +461,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server' || isHybridOutput(settings.config);
+	const ssr = isServerLikeOutput(settings.config);
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,
@@ -506,11 +554,23 @@ async function generatePath(
 					onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env, apiContext });
+						return renderPage({
+							mod,
+							renderContext,
+							env,
+							apiContext,
+							isCompressHTML: settings.config.compressHTML,
+						});
 					}
 				);
 			} else {
-				response = await renderPage({ mod, renderContext, env, apiContext });
+				response = await renderPage({
+					mod,
+					renderContext,
+					env,
+					apiContext,
+					isCompressHTML: settings.config.compressHTML,
+				});
 			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
@@ -518,10 +578,25 @@ async function generatePath(
 			}
 			throw err;
 		}
-		throwIfRedirectNotAllowed(response, opts.settings.config);
-		// If there's no body, do nothing
-		if (!response.body) return;
-		body = await response.text();
+
+		if (response.status >= 300 && response.status < 400) {
+			// If redirects is set to false, don't output the HTML
+			if (!opts.settings.config.build.redirects) {
+				return;
+			}
+			const location = getRedirectLocationOrThrow(response.headers);
+			body = `<!doctype html>
+<title>Redirecting to: ${location}</title>
+<meta http-equiv="refresh" content="0;url=${location}" />`;
+			// A dynamic redirect, set the location so that integrations know about it.
+			if (pageData.route.type !== 'redirect') {
+				pageData.route.redirect = location;
+			}
+		} else {
+			// If there's no body, do nothing
+			if (!response.body) return;
+			body = await response.text();
+		}
 	}
 
 	const outFolder = getOutFolder(settings.config, pathname, pageData.route.type);

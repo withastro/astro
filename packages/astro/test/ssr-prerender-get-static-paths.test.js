@@ -56,7 +56,7 @@ describe('Prerender', () => {
 			});
 
 			after(async () => {
-				devServer.stop();
+				await devServer.stop();
 			});
 
 			it('only calls prerender getStaticPaths once', async () => {
@@ -144,9 +144,6 @@ describe('Prerender', () => {
 					adapter: testAdapter(),
 					base: '/blog',
 					output: 'hybrid',
-					experimental: {
-						hybridOutput: true,
-					},
 					vite: {
 						plugins: [vitePluginRemovePrerenderExport()],
 					},
@@ -191,7 +188,7 @@ describe('Prerender', () => {
 			});
 
 			after(async () => {
-				devServer.stop();
+				await devServer.stop();
 			});
 
 			it('only calls hybrid getStaticPaths once', async () => {
