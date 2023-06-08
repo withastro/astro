@@ -26,14 +26,14 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 			const injectAssetsConfig = astroConfig.experimental.assets;
 
 			if (!markdocConfigResult) {
-				return `${
+				return `import { mergeConfig } from '@astrojs/markdoc/runtime';${
 					injectAssetsConfig
-						? `import { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\n`
+						? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';`
 						: ''
-				}export async function getConfig(configOverrides = {}) { return ${
+				}export async function getConfig(runtimeConfig = {}) { return ${
 					injectAssetsConfig
-						? '{ ...experimentalAssetsConfig, ...configOverrides }'
-						: 'configOverrides'
+						? 'mergeConfig(experimentalAssetsConfig, runtimeConfig)'
+						: 'runtimeConfig'
 				} }
 				export function getConfigSync() { return ${
 					injectAssetsConfig ? 'experimentalAssetsConfig' : '{}'
@@ -44,7 +44,7 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 			const tagRenderPathnameMap = getRenderUrlMap(config.tags ?? {});
 			const nodeRenderPathnameMap = getRenderUrlMap(config.nodes ?? {});
 
-			const code = `import { setupConfig, setupConfigSync, resolveComponentImports } from '@astrojs/markdoc/runtime';
+			const code = `import { setupConfig, mergeConfig, setupConfigSync, resolveComponentImports } from '@astrojs/markdoc/runtime';
 			import userConfig from ${JSON.stringify(fileUrl.pathname)};${
 				astroConfig.experimental.assets
 					? `\nimport { experimentalAssetsConfig } from '@astrojs/markdoc/experimental-assets-config';\nuserConfig.nodes = { ...experimentalAssetsConfig.nodes, ...userConfig.nodes };`
@@ -56,8 +56,8 @@ export function vitePluginMarkdocConfig({ astroConfig }: { astroConfig: AstroCon
 			const tagComponentMap = ${getStringifiedMap(tagRenderPathnameMap, 'Tag')};
 			const nodeComponentMap = ${getStringifiedMap(nodeRenderPathnameMap, 'Node')};
 
-			export async function getConfig(configOverrides = {}) {
-				const config = await setupConfig(userConfig, configOverrides);
+			export async function getConfig(runtimeConfig = {}) {
+				const config = await setupConfig(mergeConfig(userConfig, runtimeConfig));
 				return resolveComponentImports(config, tagComponentMap, nodeComponentMap);
 			}
 			

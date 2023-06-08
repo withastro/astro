@@ -40,7 +40,10 @@ export function setupConfigSync(
 }
 
 /** Merge function from `@markdoc/markdoc` internals */
-function mergeConfig(configA: AstroMarkdocConfig, configB: AstroMarkdocConfig): AstroMarkdocConfig {
+export function mergeConfig(
+	configA: AstroMarkdocConfig,
+	configB: AstroMarkdocConfig
+): AstroMarkdocConfig {
 	return {
 		...configA,
 		...configB,
