@@ -356,7 +356,7 @@ function getInvalidRouteSegmentError(
 		)?.[0];
 		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
 		if (mightBeMissingSpread) {
-			hint = `If the route has multiple slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
 		}
 	}
 	return new AstroError({
