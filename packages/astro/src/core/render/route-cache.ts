@@ -1,3 +1,4 @@
+import { object } from 'zod';
 import type {
 	ComponentInstance,
 	GetStaticPathsItem,
@@ -133,23 +134,40 @@ export function isEqualRoute(
 	staticPaths: GetStaticPathsResultKeyed,
 	route: RouteData,
 	pathname: string
-):Params | undefined {
+): Params | undefined {
 	for (let index = 0; index < staticPaths.length; index++) {
 		const arg = staticPaths[index];
 		let substr = '';
 		if (arg.params) {
-			route.segments[route.segments.length - 1]?.forEach((seg) => {
-				if (!seg.dynamic) {
-					substr += seg.content;
-				} else {
-					substr += arg.params[seg.content];
-				}
+			route?.segments.forEach((segs) => {
+				substr += '/';
+				segs?.forEach((seg) => {
+					if (!seg.dynamic) {
+						substr += seg.content;
+					} else {
+						// such as ...slug
+						if (seg.content.startsWith('...')) {
+							substr += arg.params[seg.content.slice(3)];
+						} else {
+							substr += arg.params[seg.content];
+						}
+					}
+				});
 			});
-			
 			if (pathname.endsWith(substr)) {
-				return arg.params as Params;
+				const params = Object.keys(arg.params as Params);
+				// related to routing-priority.test.js /empty-slug/undefined
+				// if the params is undefined, it will be 'undefined'
+				return params.reduce((obj, key: string) => {
+					if (arg.params?.[key] === undefined) {
+						obj[key] = 'undefined';
+					} else {
+						obj[key] = arg.params[key] as string;
+					}
+					return obj;
+				}, {} as Params);
 			}
 		}
 	}
-	return
+	return;
 }
