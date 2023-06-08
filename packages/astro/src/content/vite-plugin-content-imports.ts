@@ -365,10 +365,8 @@ function stringifyEntryData(data: Record<string, any>): string {
 	} catch (e) {
 		if (e instanceof Error) {
 			throw new AstroError({
-				code: 99999,
-				title: 'Invalid Zod transform()',
-				message: `\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${e.message}`,
-				hint: 'See the Devalue library for all supported types: https://github.com/rich-harris/devalue',
+				...AstroErrorData.UnsupportedConfigTransformError,
+				message: AstroErrorData.UnsupportedConfigTransformError.message(e.message),
 				stack: e.stack,
 			});
 		} else {
