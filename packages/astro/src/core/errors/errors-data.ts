@@ -760,6 +760,19 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'A redirect must be given a location with the `Location` header.',
 		code: 3037,
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes)
+	 * @description
+	 * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/core-concepts/routing/#rest-parameters).
+	 */
+	InvalidDynamicRoute: {
+		title: 'Invalid dynamic route.',
+		code: 3038,
+		message: (route: string, invalidParam: string, received: string) =>
+			`The ${invalidParam} param for route ${route} is invalid. Received **${received}**.`,
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
