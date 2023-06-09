@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 2.0.17
+
+### Patch Changes
+
+- b6a98e0: Better handle when the Astro compiler fails to parse a file
+- Updated dependencies [b6a98e0]
+  - @astrojs/ts-plugin@1.0.9
+
 ## 2.0.16
 
 ### Patch Changes

@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.0.16",
+  "version": "2.0.17",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -217,7 +217,7 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.0.16",
+    "@astrojs/language-server": "^2.0.17",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^16.18.26",
@@ -237,7 +237,7 @@
     "vscode-tmgrammar-test": "^0.1.1"
   },
   "dependencies": {
-    "@astrojs/ts-plugin": "^1.0.8",
+    "@astrojs/ts-plugin": "^1.0.9",
     "prettier": "^2.8.8",
     "prettier-plugin-astro": "^0.10.0"
   }

@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.0.17
+
+### Patch Changes
+
+- b6a98e0: Better handle when the Astro compiler fails to parse a file
+
 ## 2.0.16
 
 ### Patch Changes

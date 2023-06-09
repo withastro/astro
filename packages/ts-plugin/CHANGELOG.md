@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.0.9
+
+### Patch Changes
+
+- b6a98e0: Better handle when the Astro compiler fails to parse a file
+
 ## 1.0.8
 
 ### Patch Changes
