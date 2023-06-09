@@ -9,19 +9,13 @@ export function decorateRename(
 	logger: Logger
 ): void {
 	const findRenameLocations = ls.findRenameLocations;
-	ls.findRenameLocations = (
-		fileName,
-		position,
-		findInStrings,
-		findInComments,
-		providePrefixAndSuffixTextForRename
-	) => {
+	ls.findRenameLocations = (fileName, position, findInStrings, findInComments, preferences) => {
 		const renameLocations = findRenameLocations(
 			fileName,
 			position,
 			findInStrings,
 			findInComments,
-			providePrefixAndSuffixTextForRename
+			preferences as ts.UserPreferences
 		);
 		return renameLocations
 			?.map((renameLocation) => {
