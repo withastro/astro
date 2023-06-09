@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.0.17",
+  "version": "2.0.18",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -237,7 +237,7 @@
     "vscode-tmgrammar-test": "^0.1.1"
   },
   "dependencies": {
-    "@astrojs/ts-plugin": "^1.0.9",
+    "@astrojs/ts-plugin": "^1.0.10",
     "prettier": "^2.8.8",
     "prettier-plugin-astro": "^0.10.0"
   }

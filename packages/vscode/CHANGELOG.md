@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 2.0.18
+
+### Patch Changes
+
+- 60e4ce0: Fix packaging error causing TypeScript plugin to not work
+- Updated dependencies [60e4ce0]
+  - @astrojs/ts-plugin@1.0.10
+
 ## 2.0.17
 
 ### Patch Changes
