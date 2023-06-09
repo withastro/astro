@@ -45,7 +45,6 @@ export function enhanceViteSSRError({
 			safeError.name = 'FailedToLoadModuleSSR';
 			safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
 			safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
-			safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
 			const line = lns.findIndex((ln) => ln.includes(importName!));
 
 			if (line !== -1) {
@@ -84,7 +83,6 @@ export function enhanceViteSSRError({
 				safeError.message = AstroErrorData.InvalidGlob.message(globPattern);
 				safeError.name = 'InvalidGlob';
 				safeError.hint = AstroErrorData.InvalidGlob.hint;
-				safeError.code = AstroErrorData.InvalidGlob.code;
 				safeError.title = AstroErrorData.InvalidGlob.title;
 
 				const line = lns.findIndex((ln) => ln.includes(globPattern));

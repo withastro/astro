@@ -1,10 +1,6 @@
-import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
-import type { AstroErrorCodes } from './errors-data.js';
 import { codeFrame } from './printer.js';
-import { getErrorDataByCode } from './utils.js';
 
 interface ErrorProperties {
-	code: AstroErrorCodes | DiagnosticCode;
 	title?: string;
 	name?: string;
 	message?: string;
@@ -33,10 +29,6 @@ export function isAstroError(e: unknown): e is AstroError {
 }
 
 export class AstroError extends Error {
-	// NOTE: If this property is named `code`, Rollup will use it to fill the `pluginCode` property downstream
-	// This cause issues since we expect `pluginCode` to be a string containing code
-	// @see https://github.com/rollup/rollup/blob/9a741639f69f204ded8ea404675f725b8d56adca/src/utils/error.ts#L725
-	public errorCode: AstroErrorCodes | DiagnosticCode;
 	public loc: ErrorLocation | undefined;
 	public title: string | undefined;
 	public hint: string | undefined;
@@ -47,14 +39,10 @@ export class AstroError extends Error {
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const { code, name, title, message, stack, location, hint, frame } = props;
+		const { name, title, message, stack, location, hint, frame } = props;
 
-		this.errorCode = code;
 		if (name && name !== 'Error') {
 			this.name = name;
-		} else {
-			// If we don't have a name, let's generate one from the code
-			this.name = getErrorDataByCode(this.errorCode)?.name ?? 'UnknownError';
 		}
 		this.title = title;
 		if (message) this.message = message;
@@ -63,10 +51,6 @@ export class AstroError extends Error {
 		this.loc = location;
 		this.hint = hint;
 		this.frame = frame;
-	}
-
-	public setErrorCode(errorCode: AstroErrorCodes) {
-		this.errorCode = errorCode;
 	}
 
 	public setLocation(location: ErrorLocation): void {
@@ -97,7 +81,7 @@ export class AstroError extends Error {
 export class CompilerError extends AstroError {
 	type: ErrorTypes = 'CompilerError';
 
-	constructor(props: Omit<ErrorProperties, 'code'> & { code: DiagnosticCode }, ...params: any) {
+	constructor(props: ErrorProperties, ...params: any) {
 		super(props, ...params);
 
 		this.name = 'CompilerError';
@@ -160,7 +144,6 @@ export interface ErrorWithMetadata {
 	type?: ErrorTypes;
 	message: string;
 	stack: string;
-	errorCode?: number;
 	hint?: string;
 	id?: string;
 	frame?: string;

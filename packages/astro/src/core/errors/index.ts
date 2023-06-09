@@ -1,12 +1,12 @@
 export type { ErrorLocation, ErrorWithMetadata } from './errors';
-export { AstroErrorData, type AstroErrorCodes } from './errors-data.js';
+export { AstroErrorData } from './errors-data.js';
 export {
 	AggregateError,
 	AstroError,
-	CompilerError,
 	CSSError,
-	isAstroError,
+	CompilerError,
 	MarkdownError,
+	isAstroError,
 } from './errors.js';
 export { codeFrame } from './printer.js';
 export { createSafeError, positionAt } from './utils.js';

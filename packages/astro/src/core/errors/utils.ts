@@ -1,8 +1,6 @@
-import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
 import type { YAMLException } from 'js-yaml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../@types/astro.js';
-import { AstroErrorData, type AstroErrorCodes, type ErrorData } from './errors-data.js';
 
 /**
  * Get the line and character based on the offset
@@ -105,15 +103,4 @@ export function createSafeError(err: any): Error {
 
 export function normalizeLF(code: string) {
 	return code.replace(/\r\n|\r(?!\n)|\n/g, '\n');
-}
-
-export function getErrorDataByCode(code: AstroErrorCodes | DiagnosticCode) {
-	const entry = Object.entries(AstroErrorData).find((data) => data[1].code === code);
-
-	if (entry) {
-		return {
-			name: entry[0],
-			data: entry[1] as ErrorData,
-		};
-	}
 }
