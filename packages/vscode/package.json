@@ -208,7 +208,7 @@
     ]
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node scripts/build.mjs -- --minify",
     "dev": "node scripts/build.mjs -- --watch",
     "build:grammar": "npx js-yaml syntaxes/astro.tmLanguage.src.yaml > syntaxes/astro.tmLanguage.json",
     "test": "pnpm test:vscode && pnpm test:grammar",

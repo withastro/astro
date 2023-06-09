@@ -1,5 +1,5 @@
-import { protocol } from '@astrojs/language-server';
 import { DiagnosticModel, InitializationOptions } from '@volar/language-server';
+import * as protocol from '@volar/language-server/protocol';
 import {
 	activateAutoInsertion,
 	activateFindFileReferences,

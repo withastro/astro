@@ -1,12 +1,15 @@
+// @ts-check
 import esbuild from 'esbuild';
 import { copy } from 'esbuild-plugin-copy';
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { rebuildPlugin } from './shared.mjs';
 
 const require = createRequire(import.meta.url);
 
-export default async function build(...args) {
+export default async function build() {
 	const isDev = process.argv.includes('--watch');
+	const metaFile = process.argv.includes('--metafile');
 
 	/**
 	 * @type {import('esbuild').BuildOptions}
@@ -17,7 +20,7 @@ export default async function build(...args) {
 			server: './node_modules/@astrojs/language-server/bin/nodeServer.js',
 		},
 		bundle: true,
-		metafile: process.argv.includes('--metafile'),
+		metafile: metaFile,
 		sourcemap: isDev,
 		outdir: './dist/node',
 		external: ['vscode'],
@@ -52,16 +55,20 @@ export default async function build(...args) {
 	};
 
 	if (!isDev) {
-		await esbuild.build(config);
+		const result = await esbuild.build(config);
+		if (metaFile) fs.writeFileSync('meta.json', JSON.stringify(result.metafile));
 		return;
 	}
 
-	const builder = await esbuild.context({ ...config, plugins: [rebuildPlugin, ...config.plugins] });
+	const builder = await esbuild.context({
+		...config,
+		plugins: [rebuildPlugin, ...(config.plugins ?? [])],
+	});
 
 	await builder.watch();
 
 	process.on('beforeExit', () => {
-		builder.stop && builder.stop();
+		builder.dispose && builder.dispose();
 	});
 }
 
