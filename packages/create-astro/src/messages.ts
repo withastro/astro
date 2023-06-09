@@ -1,9 +1,9 @@
 /* eslint no-console: 'off' */
 import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
+import { execa } from 'execa';
 import { exec } from 'node:child_process';
 import { get } from 'node:https';
-import { execa } from 'execa';
 import preferredPM from 'preferred-pm';
 import stripAnsi from 'strip-ansi';
 
