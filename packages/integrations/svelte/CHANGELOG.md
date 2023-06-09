@@ -1,5 +1,16 @@
 # @astrojs/svelte
 
+## 3.0.0
+
+### Major Changes
+
+- [#7314](https://github.com/withastro/astro/pull/7314) [`e47e53dc0`](https://github.com/withastro/astro/commit/e47e53dc0c38468c9cf7ffaf6e21c80291d013cc) Thanks [@wackbyte](https://github.com/wackbyte)! - Update to svelte2tsx 0.6.15 and vite-plugin-svelte 2.4.1
+
+### Patch Changes
+
+- Updated dependencies [[`52f0480d1`](https://github.com/withastro/astro/commit/52f0480d14c328ab69bd1f2681ddfd83f7385ab1), [`e3271f8c1`](https://github.com/withastro/astro/commit/e3271f8c167288dc60b94242d01d459c162ec06d), [`e6bff651f`](https://github.com/withastro/astro/commit/e6bff651ff80466b3e862e637d2a6a3334d8cfda), [`bbcf69e7b`](https://github.com/withastro/astro/commit/bbcf69e7b8d4bbb759fe0c7e5fd2d2ed58090b59), [`1430ffb47`](https://github.com/withastro/astro/commit/1430ffb4734edbb67cbeaaee7e89a9f78e00473c)]:
+  - astro@2.6.2
+
 ## 2.2.0
 
 ### Minor Changes
