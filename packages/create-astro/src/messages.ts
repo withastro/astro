@@ -3,7 +3,19 @@ import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit'
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { exec } from 'node:child_process';
 import { get } from 'node:https';
+import { execa } from 'execa';
+import preferredPM from 'preferred-pm';
 import stripAnsi from 'strip-ansi';
+
+// Users might lack access to the global npm registry, this function
+// checks the user's project type and will return the proper npm registry
+//
+// A copy of this function also exists in the astro package
+async function getRegistry(): Promise<string> {
+	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+	return stdout || 'https://registry.npmjs.org';
+}
 
 let stdout = process.stdout;
 /** @internal Used to mock `process.stdout.write` for testing purposes */
@@ -63,9 +75,10 @@ export const getName = () =>
 
 let v: string;
 export const getVersion = () =>
-	new Promise<string>((resolve) => {
+	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
-		get('https://registry.npmjs.org/astro/latest', (res) => {
+		const registry = await getRegistry();
+		get(`${registry}/astro/latest`, (res) => {
 			let body = '';
 			res.on('data', (chunk) => (body += chunk));
 			res.on('end', () => {

@@ -3554,6 +3554,9 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+      preferred-pm:
+        specifier: ^3.0.3
+        version: 3.0.3
     devDependencies:
       '@types/which-pm-runs':
         specifier: ^1.0.0

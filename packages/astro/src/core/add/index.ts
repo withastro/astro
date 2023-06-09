@@ -73,6 +73,16 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	deno: '@astrojs/deno',
 };
 
+// Users might lack access to the global npm registry, this function
+// checks the user's project type and will return the proper npm registry
+//
+// A copy of this function also exists in the create-astro package
+async function getRegistry(): Promise<string> {
+	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+	return stdout || 'https://registry.npmjs.org';
+}
+
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
@@ -673,7 +683,8 @@ async function fetchPackageJson(
 	tag: string
 ): Promise<object | Error> {
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
-	const res = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`);
+	const registry = await getRegistry();
+	const res = await fetch(`${registry}/${packageName}/${tag}`);
 	if (res.status === 404) {
 		return new Error();
 	} else {
