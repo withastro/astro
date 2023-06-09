@@ -21,15 +21,15 @@
   "exports": {
     "./prism": {
       "types": "./dist/extensions/prism.d.ts",
-      "node": "./dist/extensions/prism.js"
+      "default": "./dist/extensions/prism.js"
     },
     "./shiki": {
       "types": "./dist/extensions/shiki.d.ts",
-      "node": "./dist/extensions/shiki.js"
+      "default": "./dist/extensions/shiki.js"
     },
     "./config": {
       "types": "./dist/config.d.ts",
-      "node": "./dist/config.js"
+      "default": "./dist/config.js"
     },
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
