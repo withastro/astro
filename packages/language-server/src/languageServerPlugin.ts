@@ -9,12 +9,12 @@ import createPrettierService from 'volar-service-prettier';
 import createTypeScriptTwoSlashService from 'volar-service-typescript-twoslash-queries';
 import { getLanguageModule } from './core';
 import { getSvelteLanguageModule } from './core/svelte.js';
-import { getAstroInstall } from './core/utils';
 import { getVueLanguageModule } from './core/vue.js';
 import { getPrettierPluginPath, importPrettier } from './importPackage.js';
 import createAstroService from './plugins/astro.js';
 import createHtmlService from './plugins/html.js';
 import createTypeScriptService from './plugins/typescript/index.js';
+import { getAstroInstall } from './utils.js';
 
 export const plugin: LanguageServerPlugin = (
 	initOptions,

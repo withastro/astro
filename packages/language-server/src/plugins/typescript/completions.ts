@@ -1,15 +1,4 @@
-import {
-	CompletionItem,
-	CompletionItemKind,
-	CompletionList,
-	ServiceContext,
-} from '@volar/language-server';
-import { AstroFile } from '../../core/index.js';
-import {
-	ensureRangeIsInFrontmatter,
-	getNewFrontmatterEdit,
-	getOpenFrontmatterEdit,
-} from '../../utils.js';
+import { CompletionItem, CompletionItemKind, CompletionList } from '@volar/language-server';
 
 export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
 	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
@@ -30,11 +19,7 @@ export function enhancedProvideCompletionItems(completions: CompletionList): Com
 	return completions;
 }
 
-export function enhancedResolveCompletionItem(
-	resolvedCompletion: CompletionItem,
-	originalItem: CompletionItem,
-	context: ServiceContext
-): CompletionItem {
+export function enhancedResolveCompletionItem(resolvedCompletion: CompletionItem): CompletionItem {
 	// Make sure we keep our icons even when the completion is resolved
 	if (resolvedCompletion.data.isComponent) {
 		resolvedCompletion.detail = getDetailForFileCompletion(
@@ -42,34 +27,6 @@ export function enhancedResolveCompletionItem(
 			resolvedCompletion.data.originalItem.source
 		);
 	}
-
-	// Properly handle completions with actions to make sure their edits end up in the frontmatter when needed
-	const [_, source] = context.documents.getVirtualFileByUri(originalItem.data.uri);
-	const file = source?.root;
-	if (!(file instanceof AstroFile) || !context.host) return resolvedCompletion;
-	if (file.scriptFiles.includes(originalItem.data.fileName)) return resolvedCompletion;
-
-	const newLine = context.host.getCompilationSettings().newLine?.toString() ?? '\n';
-	resolvedCompletion.additionalTextEdits = resolvedCompletion.additionalTextEdits?.map((edit) => {
-		// HACK: There's a weird situation sometimes where some components (especially Svelte) will get imported as type imports
-		// for some unknown reason. This work around the problem by always ensuring a normal import for components
-		if (resolvedCompletion.data.isComponent && edit.newText.includes('import type')) {
-			edit.newText.replace('import type', 'import');
-		}
-
-		// Return a different edit depending on the state of the formatter
-		if (file.astroMeta.frontmatter.status === 'doesnt-exist') {
-			return getNewFrontmatterEdit(edit, newLine);
-		}
-
-		if (file.astroMeta.frontmatter.status === 'open') {
-			return getOpenFrontmatterEdit(edit, newLine);
-		}
-
-		edit.range = ensureRangeIsInFrontmatter(edit.range, file.astroMeta.frontmatter);
-
-		return edit;
-	});
 
 	return resolvedCompletion;
 }

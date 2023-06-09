@@ -4,8 +4,9 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import * as html from 'vscode-html-languageservice';
 import { Node } from 'vscode-html-languageservice';
+import * as compilerUtils from '../../src/core/compilerUtils.js';
 import { getAstroMetadata } from '../../src/core/parseAstro.js';
-import * as utils from '../../src/utils.js';
+import * as utils from '../../src/plugins/utils.js';
 
 describe('Utilities', async () => {
 	it('isTsDocument - properly return if a document is JavaScript', () => {
@@ -68,8 +69,8 @@ describe('Utilities', async () => {
 			column: 2,
 			offset: 3,
 		};
-		expect(utils.PointToPosition(point)).to.deep.equal({
-			line: 1,
+		expect(compilerUtils.PointToPosition(point)).to.deep.equal({
+			line: 0,
 			character: 1,
 		});
 	});

@@ -1,8 +1,8 @@
 import { CompletionItemKind, Service } from '@volar/language-server';
 import createHtmlService from 'volar-service-html';
 import { AstroFile } from '../core/index.js';
-import { isInComponentStartTag } from '../utils.js';
 import { astroAttributes, astroElements, classListAttribute } from './html-data.js';
+import { isInComponentStartTag } from './utils.js';
 
 export default (): Service =>
 	(context, modules): ReturnType<Service> => {

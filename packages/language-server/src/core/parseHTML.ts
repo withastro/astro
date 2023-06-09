@@ -1,7 +1,7 @@
 import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
 import type ts from 'typescript/lib/tsserverlibrary';
 import * as html from 'vscode-html-languageservice';
-import { isInsideExpression } from '../utils';
+import { isInsideExpression } from '../plugins/utils';
 
 const htmlLs = html.getLanguageService();
 

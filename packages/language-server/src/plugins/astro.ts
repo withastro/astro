@@ -15,7 +15,7 @@ import { dirname } from 'node:path';
 import type { Provide } from 'volar-service-typescript';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { AstroFile } from '../core/index.js';
-import { isJSDocument } from '../utils.js';
+import { isJSDocument } from './utils.js';
 
 export default (): Service =>
 	(context, modules): ReturnType<Service> => {

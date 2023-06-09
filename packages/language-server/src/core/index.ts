@@ -9,12 +9,12 @@ import {
 import * as path from 'node:path';
 import type ts from 'typescript/lib/tsserverlibrary';
 import type { HTMLDocument } from 'vscode-html-languageservice';
+import type { AstroInstall } from '../utils.js';
 import { astro2tsx } from './astro2tsx';
 import { FrontmatterStatus, getAstroMetadata } from './parseAstro';
 import { extractStylesheets } from './parseCSS';
 import { parseHTML } from './parseHTML';
 import { extractScriptTags } from './parseJS.js';
-import type { AstroInstall } from './utils';
 
 export function getLanguageModule(
 	astroInstall: AstroInstall | undefined,

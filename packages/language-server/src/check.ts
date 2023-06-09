@@ -3,10 +3,10 @@ import fg from 'fast-glob';
 import { pathToFileURL } from 'node:url';
 import { getLanguageModule } from './core/index.js';
 import { getSvelteLanguageModule } from './core/svelte.js';
-import { getAstroInstall } from './core/utils.js';
 import { getVueLanguageModule } from './core/vue.js';
 import createAstroService from './plugins/astro.js';
 import createTypeScriptService from './plugins/typescript/index.js';
+import { getAstroInstall } from './utils.js';
 
 // Export those for downstream consumers
 export { DiagnosticSeverity, type Diagnostic } from '@volar/language-server';

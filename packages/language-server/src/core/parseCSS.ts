@@ -5,7 +5,7 @@ import * as SourceMap from '@volar/source-map';
 import * as muggle from 'muggle-string';
 import type ts from 'typescript/lib/tsserverlibrary';
 import type { HTMLDocument } from 'vscode-html-languageservice';
-import type { AttributeNodeWithPosition } from '../utils.js';
+import type { AttributeNodeWithPosition } from './compilerUtils.js';
 
 export function extractStylesheets(
 	fileName: string,

@@ -71,3 +71,13 @@ export function getPrettierPluginPath(fromPath: string): string | undefined {
 
 	return prettierPluginPath;
 }
+
+export function getWorkspacePnpPath(workspacePath: string): string | null {
+	try {
+		const possiblePath = resolve(workspacePath, '.pnp.cjs');
+		require.resolve(possiblePath);
+		return possiblePath;
+	} catch {
+		return null;
+	}
+}
