@@ -18,7 +18,7 @@ import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
-import { isHybridOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -102,11 +102,6 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 				addClientDirective: ({ name, entrypoint }) => {
-					if (!settings.config.experimental.customClientDirectives) {
-						throw new Error(
-							`The "${integration.name}" integration is trying to add the "${name}" client directive, but the \`experimental.customClientDirectives\` config is not enabled.`
-						);
-					}
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
 						throw new Error(
 							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`
@@ -339,8 +334,7 @@ export async function runHookBuildGenerated({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	const dir =
-		config.output === 'server' || isHybridOutput(config) ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
@@ -366,8 +360,7 @@ export async function runHookBuildDone({
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
-	const dir =
-		config.output === 'server' || isHybridOutput(config) ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {

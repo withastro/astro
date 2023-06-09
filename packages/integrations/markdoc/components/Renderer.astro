@@ -15,4 +15,10 @@ const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 const content = Markdoc.transform(ast, config);
 ---
 
-<ComponentNode treeNode={await createTreeNode(content)} />
+{
+	Array.isArray(content) ? (
+		content.map(async (c) => <ComponentNode treeNode={await createTreeNode(c)} />)
+	) : (
+		<ComponentNode treeNode={await createTreeNode(content)} />
+	)
+}

@@ -2,7 +2,7 @@ import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
 import { isEndpoint, isPage } from '../core/util.js';
 
-import { isHybridOutput } from '../prerender/utils.js';
+import { getPrerenderDefault } from '../prerender/utils.js';
 import { scan } from './scan.js';
 
 export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
@@ -25,11 +25,11 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const hybridOutput = isHybridOutput(settings.config);
-			const pageOptions = await scan(code, id, hybridOutput);
+			const defaultPrerender = getPrerenderDefault(settings.config);
+			const pageOptions = await scan(code, id, settings.config.output === 'hybrid');
 
 			if (typeof pageOptions.prerender === 'undefined') {
-				pageOptions.prerender = hybridOutput ? true : false;
+				pageOptions.prerender = defaultPrerender;
 			}
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};

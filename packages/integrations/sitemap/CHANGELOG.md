@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 1.3.3
+
+### Patch Changes
+
+- [#7263](https://github.com/withastro/astro/pull/7263) [`dff0d0dda`](https://github.com/withastro/astro/commit/dff0d0dda2f20c02901594739a654834d3451c8e) Thanks [@andremralves](https://github.com/andremralves)! - Fix sitemap does not filter pages
+
 ## 1.3.2
 
 ### Patch Changes

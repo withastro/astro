@@ -69,7 +69,7 @@ export function __astro_tag_component__(Component: unknown, rendererName: string
 
 // Adds support for `<Component {...value} />
 export function spreadAttributes(
-	values: Record<any, any>,
+	values: Record<any, any> = {},
 	_name?: string,
 	{ class: scopedClassName }: { class?: string } = {}
 ) {

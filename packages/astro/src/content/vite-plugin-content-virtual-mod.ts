@@ -44,14 +44,21 @@ export function astroContentVirtualModPlugin({
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(
-			'@@CONTENT_ENTRY_GLOB_PATH@@',
-			// [!_] = ignore files starting with "_"
-			`${relContentDir}**/[!_]*${getExtGlob(contentEntryExts)}`
+			"'@@CONTENT_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, contentEntryExts))
 		)
-		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/[!_]*${getExtGlob(dataEntryExts)}`)
 		.replace(
-			'@@RENDER_ENTRY_GLOB_PATH@@',
-			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
+			"'@@DATA_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, dataEntryExts))
+		)
+		.replace(
+			"'@@RENDER_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(
+				globWithUnderscoresIgnored(
+					relContentDir,
+					/** Note: data collections excluded */ contentEntryExts
+				)
+			)
 		);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -189,3 +196,8 @@ const UnexpectedLookupMapError = new AstroError({
 	...AstroErrorData.UnknownContentCollectionError,
 	message: `Unexpected error while parsing content entry IDs and slugs.`,
 });
+
+function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	return [`${relContentDir}/**/*${extGlob}`, `!**/_*/**${extGlob}`, `!**/_*${extGlob}`];
+}
