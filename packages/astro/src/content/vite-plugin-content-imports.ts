@@ -94,7 +94,7 @@ export function astroContentImportPlugin({
 					const code = escapeViteEnvReferences(`
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
-export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+export const data = ${stringifyEntryData(data)};
 export const _internal = {
 	type: 'data',
 	filePath: ${JSON.stringify(_internal.filePath)},
@@ -118,7 +118,7 @@ export const _internal = {
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
 						export const body = ${JSON.stringify(body)};
-						export const data = ${devalue.uneval(data) /* TODO: reuse astro props serializer */};
+						export const data = ${stringifyEntryData(data)};
 						export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
@@ -351,4 +351,29 @@ async function getContentConfigFromGlobal() {
 	}
 
 	return contentConfig;
+}
+
+/** Stringify entry `data` at build time to be used as a Vite module */
+function stringifyEntryData(data: Record<string, any>): string {
+	try {
+		return devalue.uneval(data, (value) => {
+			// Add support for URL objects
+			if (value instanceof URL) {
+				return `new URL(${JSON.stringify(value.href)})`;
+			}
+		});
+	} catch (e) {
+		if (e instanceof Error) {
+			throw new AstroError({
+				...AstroErrorData.UnsupportedConfigTransformError,
+				message: AstroErrorData.UnsupportedConfigTransformError.message(e.message),
+				stack: e.stack,
+			});
+		} else {
+			throw new AstroError({
+				code: 99999,
+				message: 'Unexpected error processing content collection data.',
+			});
+		}
+	}
 }

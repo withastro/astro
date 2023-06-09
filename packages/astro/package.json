@@ -134,7 +134,7 @@
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
     "deepmerge-ts": "^4.2.2",
-    "devalue": "^4.2.0",
+    "devalue": "^4.3.2",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.1.0",
     "esbuild": "^0.17.18",

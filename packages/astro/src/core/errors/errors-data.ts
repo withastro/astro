@@ -1113,6 +1113,21 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
 	},
 
+	/**
+	 * @docs
+	 * @see
+	 * - [devalue library](https://github.com/rich-harris/devalue)
+	 * @description
+	 * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+	 */
+	UnsupportedConfigTransformError: {
+		title: 'Unsupported transform in content config.',
+		code: 9008,
+		message: (parseError: string) =>
+			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+	},
+
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',
