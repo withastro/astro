@@ -166,6 +166,19 @@ export async function getStringifiedLookupMap({
 						fileUrl: pathToFileURL(filePath),
 						contentEntryType,
 					});
+					if (lookupMap[collection]?.entries?.[slug]) {
+						throw new AstroError({
+							code: 99999,
+							title: 'Duplicate content entry slug',
+							message: `Multiple content entries in **${collection}** with slug ${JSON.stringify(
+								slug
+							)}. Slugs must be unique.`,
+							hint:
+								slug !== generatedSlug
+									? `Check the \`slug\` frontmatter property in **${id}**.`
+									: undefined,
+						});
+					}
 					lookupMap[collection] = {
 						type: 'content',
 						entries: {
