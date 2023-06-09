@@ -48,7 +48,7 @@ export default (): Service =>
 
 				function compilerMessageToDiagnostic(message: DiagnosticMessage): Diagnostic {
 					return {
-						message: message.text + '\n\n' + message.hint,
+						message: message.text + (message.hint ? '\n\n' + message.hint : ''),
 						range: Range.create(
 							message.location.line - 1,
 							message.location.column - 1,

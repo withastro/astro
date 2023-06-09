@@ -1,9 +1,40 @@
 import { convertToTSX } from '@astrojs/compiler/sync';
-import type { TSXResult } from '@astrojs/compiler/types';
+import type { ConvertToTSXOptions, TSXResult } from '@astrojs/compiler/types';
 import { decode } from '@jridgewell/sourcemap-codec';
 import { FileKind, FileRangeCapabilities, VirtualFile } from '@volar/language-core';
 import { HTMLDocument, TextDocument } from 'vscode-html-languageservice';
 import { patchTSX } from './utils.js';
+
+function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
+	try {
+		const tsx = convertToTSX(content, { filename: options.filename });
+		return tsx;
+	} catch (e) {
+		console.error(
+			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`
+		);
+
+		return {
+			code: '',
+			map: {
+				file: options.filename ?? '',
+				sources: [],
+				sourcesContent: [],
+				names: [],
+				mappings: '',
+				version: 0,
+			},
+			diagnostics: [
+				{
+					code: 1000,
+					location: { file: options.filename!, line: 1, column: 1, length: content.length },
+					severity: 1,
+					text: `The Astro compiler encountered an unknown error while parsing this file. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
+				},
+			],
+		} satisfies TSXResult;
+	}
+}
 
 export function astro2tsx(
 	input: string,
@@ -11,7 +42,7 @@ export function astro2tsx(
 	ts: typeof import('typescript/lib/tsserverlibrary.js'),
 	htmlDocument: HTMLDocument
 ) {
-	const tsx = convertToTSX(input, { filename: fileName });
+	const tsx = safeConvertToTSX(input, { filename: fileName });
 
 	return {
 		virtualFile: getVirtualFileTSX(input, tsx, fileName, ts, htmlDocument),
@@ -113,11 +144,13 @@ function getVirtualFileTSX(
 	});
 
 	const ast = ts.createSourceFile('/a.tsx', tsx.code, ts.ScriptTarget.ESNext);
-	mappings.push({
-		sourceRange: [0, input.length],
-		generatedRange: [ast.statements[0].getStart(ast), tsx.code.length],
-		data: {},
-	});
+	if (ast.statements[0]) {
+		mappings.push({
+			sourceRange: [0, input.length],
+			generatedRange: [ast.statements[0].getStart(ast), tsx.code.length],
+			data: {},
+		});
+	}
 
 	return {
 		fileName: fileName + '.tsx',
