@@ -4,8 +4,8 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import crypto from 'node:crypto';
 import {
-	createNameHash,
 	hasContentFlag,
 	isValidUrl,
 	MarkdocError,
@@ -291,4 +291,19 @@ async function emitOptimizedImages(
 function shouldOptimizeImage(src: string) {
 	// Optimize anything that is NOT external or an absolute path to `public/`
 	return !isValidUrl(src) && !src.startsWith('/');
+}
+
+/**
+ * Create build hash for manual Rollup chunks.
+ * @see 'packages/astro/src/core/build/plugins/plugin-css.ts'
+ */
+function createNameHash(baseId: string, hashIds: string[]): string {
+	const baseName = baseId ? path.parse(baseId).name : 'index';
+	const hash = crypto.createHash('sha256');
+	for (const id of hashIds) {
+		hash.update(id, 'utf-8');
+	}
+	const h = hash.digest('hex').slice(0, 8);
+	const proposedName = baseName + '.' + h;
+	return proposedName;
 }
