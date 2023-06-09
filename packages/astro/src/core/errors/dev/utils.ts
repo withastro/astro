@@ -24,9 +24,13 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 			? (e.errors as SSRError[])
 			: [e as SSRError];
 
-	err.forEach((error) => {
-		if (error.stack) {
-			error = collectInfoFromStacktrace(e);
+	err.forEach((error, idx) => {
+		if (e.stack || error.stack) {
+			const collected = collectInfoFromStacktrace(e);
+			error.stack = collected.stack;
+			error.loc = collected.loc;
+			error.plugin = collected.plugin;
+			error.pluginCode = collected.pluginCode;
 		}
 
 		// Make sure the file location is absolute, otherwise:
@@ -65,6 +69,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 		// Generic error (probably from Vite, and already formatted)
 		error.hint = generateHint(e);
+		err[idx] = error;
 	});
 
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
