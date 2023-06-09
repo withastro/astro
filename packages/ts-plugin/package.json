@@ -15,6 +15,10 @@
     "javascript",
     "plugin"
   ],
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
