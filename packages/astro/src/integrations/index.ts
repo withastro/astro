@@ -150,15 +150,6 @@ export async function runHookConfigSetup({
 				logging,
 			});
 
-			// Add MDX content entry type to support older `@astrojs/mdx` versions
-			// TODO: remove in next Astro minor release
-			if (
-				integration.name === '@astrojs/mdx' &&
-				!updatedSettings.contentEntryTypes.find((c) => c.extensions.includes('.mdx'))
-			) {
-				addContentEntryType(mdxContentEntryType);
-			}
-
 			// Add custom client directives to settings, waiting for compiled code by esbuild
 			for (const [name, compiled] of addedClientDirectives) {
 				updatedSettings.clientDirectives.set(name, await compiled);
