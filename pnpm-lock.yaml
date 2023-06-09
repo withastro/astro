@@ -371,10 +371,10 @@ importers:
     dependencies:
       '@astrojs/markdoc':
         specifier: ^0.3.0
-        version: 0.3.2(astro@2.6.2)
+        version: link:../../packages/integrations/markdoc
       astro:
         specifier: ^2.6.2
-        version: 2.6.2
+        version: link:../../packages/astro
 
   examples/with-markdown-plugins:
     dependencies:
@@ -4232,15 +4232,6 @@ importers:
         specifier: 0.2.3
         version: 0.2.3
 
-  packages/integrations/mdx/test/fixtures/invalid-mdx-component:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
       '@astrojs/mdx':
@@ -5454,10 +5445,6 @@ packages:
   /@astrojs/compiler@1.4.2:
     resolution: {integrity: sha512-xoRp7JpiMZPK/beUcZEM5kM44Z/h20wwwQcl54duPqQMyySG9vZ5xMM6dYiQmn7b3XzpZs0cT6TRDoJJ5gwHAQ==}
 
-  /@astrojs/internal-helpers@0.1.0:
-    resolution: {integrity: sha512-OSwvoFkTqVowiyP+codQeQZWoq/HOwY32x17NxDglWoCx2sdyXzplDZoVV4/3odmSEY6/A+48WMl5qkjmP1CXw==}
-    dev: false
-
   /@astrojs/language-server@1.0.0:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
@@ -5478,56 +5465,6 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdoc@0.3.2(astro@2.6.2):
-    resolution: {integrity: sha512-zbWIoNRArqHbPy58vLjhjzqStcJ6FIsBd13Zrs43+EY1TG7EnUOutYea8Qt3ovDTp0jbbTaVLYTDPpCHCDV/hQ==}
-    engines: {node: '>=16.12.0'}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/prism': 2.1.2
-      '@markdoc/markdoc': 0.3.0
-      astro: 2.6.2
-      esbuild: 0.17.18
-      github-slugger: 2.0.0
-      gray-matter: 4.0.3
-      kleur: 4.1.5
-      shiki: 0.14.1
-      zod: 3.20.6
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-    dev: false
-
-  /@astrojs/markdown-remark@2.2.1(astro@2.6.2):
-    resolution: {integrity: sha512-VF0HRv4GpC1XEMLnsKf6jth7JSmlt9qpqP0josQgA2eSpCIAC/Et+y94mgdBIZVBYH/yFnMoIxgKVe93xfO2GA==}
-    peerDependencies:
-      astro: '*'
-    dependencies:
-      '@astrojs/prism': 2.1.2
-      astro: 2.6.2
-      github-slugger: 1.4.0
-      import-meta-resolve: 2.1.0
-      rehype-raw: 6.1.1
-      rehype-stringify: 9.0.3
-      remark-gfm: 3.0.1
-      remark-parse: 10.0.1
-      remark-rehype: 10.1.0
-      remark-smartypants: 2.0.0
-      shiki: 0.14.1
-      unified: 10.1.2
-      unist-util-visit: 4.1.0
-      vfile: 5.3.2
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/prism@2.1.2:
-    resolution: {integrity: sha512-3antim1gb34689GHRQFJ88JEo93HuZKQBnmxDT5W/nxiNz1p/iRxnCTEhIbJhqMOTRbbo5h2ldm5qSxx+TMFQA==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      prismjs: 1.28.0
-    dev: false
-
   /@astrojs/svelte@2.2.0(astro@packages+astro)(svelte@3.58.0)(typescript@5.0.2):
     resolution: {integrity: sha512-4kfh3GEIIOqH/wwTwLloRsZJ3z7rJ1eZWZ1oFrfEIjiQny5XqxyRJp/tUseKfaeDwKQGL+9t31ePTuwxx5oung==}
     engines: {node: '>=16.12.0'}
@@ -5543,28 +5480,6 @@ packages:
       - supports-color
       - typescript
       - vite
-    dev: false
-
-  /@astrojs/telemetry@2.1.1:
-    resolution: {integrity: sha512-4pRhyeQr0MLB5PKYgkdu+YE8sSpMbHL8dUuslBWBIdgcYjtD1SufPMBI8pgXJ+xlwrQJHKKfK2X1KonHYuOS9A==}
-    engines: {node: '>=16.12.0'}
-    dependencies:
-      ci-info: 3.3.1
-      debug: 4.3.4
-      dlv: 1.1.3
-      dset: 3.1.2
-      is-docker: 3.0.0
-      is-wsl: 2.2.0
-      undici: 5.22.0
-      which-pm-runs: 1.1.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /@astrojs/webapi@2.2.0:
-    resolution: {integrity: sha512-mHAOApWyjqSe5AQMOUD9rsZJqbMQqe3Wosb1a40JV6Okvyxj1G6GTlthwYadWCymq/lbgwh0PLiY8Fr4eFxtuQ==}
-    dependencies:
-      undici: 5.22.0
     dev: false
 
   /@babel/code-frame@7.21.4:
@@ -9822,83 +9737,6 @@ packages:
       he: 1.2.0
       marked: 4.3.0
       ultrahtml: 0.1.3
-    dev: false
-
-  /astro@2.6.2:
-    resolution: {integrity: sha512-yscuSbZAtlg3jlHxsGWrzEfbBHz+l5iwl1tfUKVOE4FijepRpwJgFDSCaVI5Z2+af2nXKZpst5H9qAUx+uZ6zg==}
-    engines: {node: '>=16.12.0', npm: '>=6.14.0'}
-    hasBin: true
-    peerDependencies:
-      sharp: '>=0.31.0'
-    peerDependenciesMeta:
-      sharp:
-        optional: true
-    dependencies:
-      '@astrojs/compiler': 1.4.2
-      '@astrojs/internal-helpers': 0.1.0
-      '@astrojs/language-server': 1.0.0
-      '@astrojs/markdown-remark': 2.2.1(astro@2.6.2)
-      '@astrojs/telemetry': 2.1.1
-      '@astrojs/webapi': 2.2.0
-      '@babel/core': 7.21.8
-      '@babel/generator': 7.21.9
-      '@babel/parser': 7.21.9
-      '@babel/plugin-transform-react-jsx': 7.17.12(@babel/core@7.21.8)
-      '@babel/traverse': 7.21.5
-      '@babel/types': 7.21.5
-      '@types/babel__core': 7.1.19
-      '@types/yargs-parser': 21.0.0
-      acorn: 8.8.2
-      boxen: 6.2.1
-      chokidar: 3.5.3
-      ci-info: 3.3.1
-      common-ancestor-path: 1.0.1
-      cookie: 0.5.0
-      debug: 4.3.4
-      deepmerge-ts: 4.2.2
-      devalue: 4.2.0
-      diff: 5.1.0
-      es-module-lexer: 1.1.1
-      esbuild: 0.17.18
-      estree-walker: 3.0.0
-      execa: 6.1.0
-      fast-glob: 3.2.12
-      github-slugger: 2.0.0
-      gray-matter: 4.0.3
-      html-escaper: 3.0.3
-      js-yaml: 4.1.0
-      kleur: 4.1.5
-      magic-string: 0.27.0
-      mime: 3.0.0
-      ora: 6.1.0
-      p-limit: 4.0.0
-      path-to-regexp: 6.2.1
-      preferred-pm: 3.0.3
-      prompts: 2.4.2
-      rehype: 12.0.1
-      semver: 7.5.1
-      server-destroy: 1.0.1
-      shiki: 0.14.1
-      slash: 4.0.0
-      string-width: 5.1.2
-      strip-ansi: 7.0.1
-      supports-esm: 1.0.0
-      tsconfig-resolver: 3.0.1
-      typescript: 5.0.2
-      unist-util-visit: 4.1.0
-      vfile: 5.3.2
-      vite: 4.3.1
-      vitefu: 0.2.4(vite@4.3.1)
-      yargs-parser: 21.1.1
-      zod: 3.20.6
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
     dev: false
 
   /async-sema@3.1.1:
@@ -17792,38 +17630,6 @@ packages:
       - supports-color
     dev: false
 
-  /vite@4.3.1:
-    resolution: {integrity: sha512-EPmfPLAI79Z/RofuMvkIS0Yr091T2ReUoXQqc5ppBX/sjFRhHKiPPF/R46cTdoci/XgeQpB23diiJxq5w30vdg==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.17.18
-      postcss: 8.4.23
-      rollup: 3.21.8
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
-
   /vite@4.3.1(@types/node@18.16.3)(sass@1.52.2):
     resolution: {integrity: sha512-EPmfPLAI79Z/RofuMvkIS0Yr091T2ReUoXQqc5ppBX/sjFRhHKiPPF/R46cTdoci/XgeQpB23diiJxq5w30vdg==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -17865,7 +17671,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.3.1
+      vite: 4.3.1(@types/node@18.16.3)(sass@1.52.2)
     dev: false
 
   /vitest@0.31.0:
@@ -18491,6 +18297,7 @@ packages:
   /yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
+    dev: true
 
   /yargs-unparser@2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
