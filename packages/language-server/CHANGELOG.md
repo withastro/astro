@@ -1,5 +1,13 @@
 # @astrojs/language-server
 
+## 2.0.16
+
+### Patch Changes
+
+- f72d8d2: Fix auto imports and quick fixes not working in certain situations
+- 2b889dc: Update to latest version of Volar
+- 170a193: Update dependencies
+
 ## 2.0.15
 
 ### Patch Changes
