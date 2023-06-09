@@ -1,4 +1,5 @@
 import { codeFrame } from './printer.js';
+import { getErrorDataByTitle } from './utils.js';
 
 interface ErrorProperties {
 	title?: string;
@@ -40,11 +41,18 @@ export class AstroError extends Error {
 		super(...params);
 
 		const { name, title, message, stack, location, hint, frame } = props;
+		this.title = title;
 
 		if (name && name !== 'Error') {
 			this.name = name;
+		} else if (this.title) {
+			const errorData = getErrorDataByTitle(this.title)?.name;
+
+			if (errorData) {
+				this.name = errorData;
+			}
 		}
-		this.title = title;
+
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
 		this.stack = stack ? stack : this.stack;

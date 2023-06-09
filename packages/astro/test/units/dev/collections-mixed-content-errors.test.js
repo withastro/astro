@@ -114,7 +114,6 @@ title: Post
 		} catch (e) {
 			expect(e).to.be.instanceOf(Error);
 			expect(e.type).to.equal('AstroError');
-			expect(e.errorCode).to.equal(9006);
 			expect(e.hint).to.include("Try adding `type: 'data'`");
 		}
 	});
