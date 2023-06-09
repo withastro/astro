@@ -86,37 +86,37 @@ describe('Astro.redirect', () => {
 				});
 				await fixture.build();
 			});
-	
+
 			it('Includes the meta refresh tag in Astro.redirect pages', async () => {
 				const html = await fixture.readFile('/secret/index.html');
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/login');
 			});
-	
+
 			it('Includes the meta refresh tag in `redirect` config pages', async () => {
 				let html = await fixture.readFile('/one/index.html');
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/');
-	
+
 				html = await fixture.readFile('/two/index.html');
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/');
-	
+
 				html = await fixture.readFile('/three/index.html');
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/');
 			});
-	
+
 			it('Generates page for dynamic routes', async () => {
 				let html = await fixture.readFile('/blog/one/index.html');
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/articles/one');
-	
+
 				html = await fixture.readFile('/blog/two/index.html');
 				expect(html).to.include('http-equiv="refresh');
 				expect(html).to.include('url=/articles/two');
 			});
-	
+
 			it('Generates redirect pages for redirects created by middleware', async () => {
 				let html = await fixture.readFile('/middleware-redirect/index.html');
 				expect(html).to.include('http-equiv="refresh');
@@ -145,10 +145,10 @@ describe('Astro.redirect', () => {
 			after(async () => {
 				await devServer.stop();
 			});
-	
+
 			it('Returns 301', async () => {
 				let res = await fixture.fetch('/one', {
-					redirect: 'manual'
+					redirect: 'manual',
 				});
 				expect(res.status).to.equal(301);
 			});
