@@ -168,11 +168,10 @@ export async function getStringifiedLookupMap({
 					});
 					if (lookupMap[collection]?.entries?.[slug]) {
 						throw new AstroError({
+							...AstroErrorData.DuplicateContentEntrySlugError,
 							code: 99999,
 							title: 'Duplicate content entry slug',
-							message: `Multiple content entries in **${collection}** with slug ${JSON.stringify(
-								slug
-							)}. Slugs must be unique.`,
+							message: AstroErrorData.DuplicateContentEntrySlugError.message(collection, slug),
 							hint:
 								slug !== generatedSlug
 									? `Check the \`slug\` frontmatter property in **${id}**.`
