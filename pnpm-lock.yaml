@@ -4231,6 +4231,15 @@ importers:
         specifier: 0.2.3
         version: 0.2.3
 
+  packages/integrations/mdx/test/fixtures/invalid-mdx-component:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
       '@astrojs/mdx':
