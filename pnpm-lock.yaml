@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
 
 overrides:
   tsconfig-resolver>type-fest: 3.0.0
