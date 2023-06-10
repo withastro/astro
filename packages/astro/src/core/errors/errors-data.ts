@@ -1112,6 +1112,18 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
 	},
+	/**
+	 * @docs
+	 * @description
+	 * Content collection entries must have unique slugs. Duplicates are often caused by the `slug` frontmatter property.
+	 */
+	DuplicateContentEntrySlugError: {
+		title: 'Duplicate content entry slug.',
+		code: 9008,
+		message: (collection: string, slug: string) => {
+			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+		},
+	},
 
 	/**
 	 * @docs
