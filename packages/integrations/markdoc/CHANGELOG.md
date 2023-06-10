@@ -1,5 +1,16 @@
 # @astrojs/markdoc
 
+## 0.3.3
+
+### Patch Changes
+
+- [#7351](https://github.com/withastro/astro/pull/7351) [`a30f2f3de`](https://github.com/withastro/astro/commit/a30f2f3de440c39c88a4e0ed3f47064a6b5a54f7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix cloudflare build errors for a bad "./config" entrypoint and "node:crypto" getting included unexpectedly.
+
+- [#7341](https://github.com/withastro/astro/pull/7341) [`491c2db42`](https://github.com/withastro/astro/commit/491c2db424434167327e780ad57b8f665498003d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve error message for unsupported Zod transforms from the content config.
+
+- Updated dependencies [[`491c2db42`](https://github.com/withastro/astro/commit/491c2db424434167327e780ad57b8f665498003d), [`0a8d178c9`](https://github.com/withastro/astro/commit/0a8d178c90f033fbba40666c54bcfc58c53ac905)]:
+  - astro@2.6.3
+
 ## 0.3.2
 
 ### Patch Changes
