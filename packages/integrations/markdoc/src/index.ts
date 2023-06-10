@@ -2,9 +2,9 @@
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import crypto from 'node:crypto';
 import {
 	hasContentFlag,
 	isValidUrl,
