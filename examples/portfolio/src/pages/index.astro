@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from '@astrojs/image/components';
 
 // Layout import — provides basic page elements: <head>, <nav>, <footer> etc.
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -15,6 +16,7 @@ import PortfolioPreview from '../components/PortfolioPreview.astro';
 // Page section components
 import ContactCTA from '../components/ContactCTA.astro';
 import Skills from '../components/Skills.astro';
+
 
 // Content Fetching: List four most recent work projects
 const projects = (await getCollection('work'))
@@ -40,12 +42,12 @@ const projects = (await getCollection('work'))
 						<Pill><Icon icon="pencil-line" size="1.33em" /> Writer</Pill>
 					</div>
 				</Hero>
-
-				<img
+				<Image
 					alt="Jeanine White smiling in a red plaid shirt and tortoise shell glasses"
 					width="480"
 					height="620"
 					src="/assets/portrait.jpg"
+					format="webp"
 				/>
 			</header>
 

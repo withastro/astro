@@ -1,4 +1,6 @@
 ---
+import { Image } from "@astrojs/image/components";
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 import ContactCTA from '../components/ContactCTA.astro';
@@ -12,11 +14,12 @@ import Hero from '../components/Hero.astro';
 				title="About"
 				tagline="Thanks for stopping by. Read below to learn more about myself and my background."
 			>
-				<img
+				<Image
 					width="1553"
 					height="873"
 					src="/assets/at-work.jpg"
 					alt="Jeanine White at work with a colleague"
+					format="webp"
 				/>
 			</Hero>
 
