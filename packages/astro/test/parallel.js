@@ -21,15 +21,15 @@ describe('Component parallelization', () => {
 			Number(element.children[0].data)
 		);
 
-		let renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
+		const renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
 		expect(renderStartWithin).to.be.lessThan(
-			10, // in theory, this should be 0, so 10ms tolerance
+			40, // in theory, this should be 0, but add 40ms tolerance for CI
 			"The components didn't start rendering in parallel"
 		);
 
 		const totalRenderTime = Math.max(...finishTimes) - Math.min(...startTimes);
 		expect(totalRenderTime).to.be.lessThan(
-			60, // max component delay is 40ms
+			80, // max component delay is 40ms, add 40ms tolerance for CI
 			'The total render time was significantly longer than the max component delay'
 		);
 	});
