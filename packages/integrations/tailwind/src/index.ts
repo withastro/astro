@@ -1,7 +1,7 @@
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
-import tailwindPlugin, { type Config as TailwindConfig } from 'tailwindcss';
-
+import type { ResultPlugin } from 'postcss-load-config';
+import tailwindPlugin from 'tailwindcss';
 import type { CSSOptions, UserConfig } from 'vite';
 
 async function getPostCssConfig(
@@ -23,18 +23,19 @@ async function getPostCssConfig(
 }
 
 async function getViteConfiguration(
-	tailwindConfig: TailwindConfig | { config: string } | undefined,
+	tailwindConfigPath: string | undefined,
 	viteConfig: UserConfig
 ) {
 	// We need to manually load postcss config files because when inlining the tailwind and autoprefixer plugins,
 	// that causes vite to ignore postcss config files
 	const postcssConfigResult = await getPostCssConfig(viteConfig.root, viteConfig.css?.postcss);
 
-	const postcssOptions = (postcssConfigResult && postcssConfigResult.options) || {};
+	const postcssOptions = postcssConfigResult?.options ?? {};
+	const postcssPlugins = postcssConfigResult?.plugins?.slice() ?? [];
 
-	const postcssPlugins =
-		postcssConfigResult && postcssConfigResult.plugins ? postcssConfigResult.plugins.slice() : [];
-	postcssPlugins.push(tailwindPlugin(tailwindConfig));
+	postcssPlugins.push(
+		tailwindPlugin(tailwindConfigPath ? { config: tailwindConfigPath } : undefined) as ResultPlugin
+	);
 
 	postcssPlugins.push(autoprefixerPlugin());
 	return {
@@ -60,7 +61,7 @@ type TailwindOptions =
 				 * Disabling this is useful when further customization of Tailwind styles
 				 * and directives is required. See {@link https://tailwindcss.com/docs/functions-and-directives#tailwind Tailwind's docs}
 				 * for more details on directives and customization.
-				 * @default: true
+				 * @default true
 				 */
 				applyBaseStyles?: boolean;
 			};
@@ -76,14 +77,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 			'astro:config:setup': async ({ config, updateConfig, injectScript }) => {
 				// Inject the Tailwind postcss plugin
 				updateConfig({
-					vite: await getViteConfiguration(
-						customConfigPath
-							? {
-									config: customConfigPath,
-							  }
-							: void 0,
-						config.vite as UserConfig
-					),
+					vite: await getViteConfiguration(customConfigPath, config.vite),
 				});
 
 				if (applyBaseStyles) {
