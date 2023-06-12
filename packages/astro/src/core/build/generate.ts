@@ -10,6 +10,7 @@ import type {
 	ComponentInstance,
 	EndpointHandler,
 	EndpointOutput,
+	GetStaticPathsItem,
 	ImageTransform,
 	MiddlewareResponseHandler,
 	RouteData,
@@ -36,7 +37,7 @@ import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
-import { AstroError } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
@@ -306,7 +307,16 @@ async function getPathsForRoute(
 		opts.routeCache.set(route, result);
 
 		paths = result.staticPaths
-			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
+			.map((staticPath) => {
+				try {
+					return route.generate(staticPath.params);
+				} catch (e) {
+					if (e instanceof TypeError) {
+						throw getInvalidRouteSegmentError(e, route, staticPath);
+					}
+					throw e;
+				}
+			})
 			.filter((staticPath) => {
 				// The path hasn't been built yet, include it
 				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
@@ -329,6 +339,37 @@ async function getPathsForRoute(
 	}
 
 	return paths;
+}
+
+function getInvalidRouteSegmentError(
+	e: TypeError,
+	route: RouteData,
+	staticPath: GetStaticPathsItem
+): AstroError {
+	const invalidParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
+	const received = invalidParam ? staticPath.params[invalidParam] : undefined;
+	let hint =
+		'Learn about dynamic routes at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes';
+	if (invalidParam && typeof received === 'string') {
+		const matchingSegment = route.segments.find(
+			(segment) => segment[0]?.content === invalidParam
+		)?.[0];
+		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
+		if (mightBeMissingSpread) {
+			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+		}
+	}
+	return new AstroError({
+		...AstroErrorData.InvalidDynamicRoute,
+		message: invalidParam
+			? AstroErrorData.InvalidDynamicRoute.message(
+					route.route,
+					JSON.stringify(invalidParam),
+					JSON.stringify(received)
+			  )
+			: `Generated path for ${route.route} is invalid.`,
+		hint,
+	});
 }
 
 interface GeneratePathOptions {

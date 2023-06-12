@@ -760,6 +760,19 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'A redirect must be given a location with the `Location` header.',
 		code: 3037,
 	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes)
+	 * @description
+	 * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/core-concepts/routing/#rest-parameters).
+	 */
+	InvalidDynamicRoute: {
+		title: 'Invalid dynamic route.',
+		code: 3038,
+		message: (route: string, invalidParam: string, received: string) =>
+			`The ${invalidParam} param for route ${route} is invalid. Received **${received}**.`,
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
@@ -1098,6 +1111,34 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			return `**${entryId}** failed to parse: ${errorMessage}`;
 		},
 		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains multiple entries with the same slug: `SLUG`. Slugs must be unique.
+	 * @description
+	 * Content collection entries must have unique slugs. Duplicates are often caused by the `slug` frontmatter property.
+	 */
+	DuplicateContentEntrySlugError: {
+		title: 'Duplicate content entry slug.',
+		code: 9008,
+		message: (collection: string, slug: string) => {
+			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+		},
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [devalue library](https://github.com/rich-harris/devalue)
+	 * @description
+	 * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+	 */
+	UnsupportedConfigTransformError: {
+		title: 'Unsupported transform in content config.',
+		code: 9008,
+		message: (parseError: string) =>
+			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip

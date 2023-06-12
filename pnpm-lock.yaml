@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
 
 overrides:
   tsconfig-resolver>type-fest: 3.0.0
@@ -205,7 +209,7 @@ importers:
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
         specifier: ^2.2.0
-        version: link:../../packages/integrations/svelte
+        version: 2.2.0(astro@packages+astro)(svelte@3.58.0)(typescript@5.0.2)
       '@astrojs/vue':
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
@@ -283,7 +287,7 @@ importers:
     dependencies:
       '@astrojs/svelte':
         specifier: ^2.2.0
-        version: link:../../packages/integrations/svelte
+        version: 2.2.0(astro@packages+astro)(svelte@3.58.0)(typescript@5.0.2)
       astro:
         specifier: ^2.5.6
         version: link:../../packages/astro
@@ -355,7 +359,7 @@ importers:
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^2.2.0
-        version: link:../../packages/integrations/svelte
+        version: 2.2.0(astro@packages+astro)(svelte@3.58.0)(typescript@5.0.2)
       astro:
         specifier: ^2.5.6
         version: link:../../packages/astro
@@ -369,11 +373,8 @@ importers:
         specifier: ^0.3.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^2.5.6
+        specifier: ^2.6.2
         version: link:../../packages/astro
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
 
   examples/with-markdown-plugins:
     dependencies:
@@ -555,8 +556,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       devalue:
-        specifier: ^4.2.0
-        version: 4.2.0
+        specifier: ^4.3.2
+        version: 4.3.2
       diff:
         specifier: ^5.1.0
         version: 5.1.0
@@ -3554,6 +3555,9 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+      preferred-pm:
+        specifier: ^3.0.3
+        version: 3.0.3
     devDependencies:
       '@types/which-pm-runs':
         specifier: ^1.0.0
@@ -4004,8 +4008,8 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
       devalue:
-        specifier: ^4.2.0
-        version: 4.2.0
+        specifier: ^4.3.2
+        version: 4.3.2
       linkedom:
         specifier: ^0.14.12
         version: 0.14.17
@@ -5461,13 +5465,12 @@ packages:
 
   /@astrojs/compiler@1.4.2:
     resolution: {integrity: sha512-xoRp7JpiMZPK/beUcZEM5kM44Z/h20wwwQcl54duPqQMyySG9vZ5xMM6dYiQmn7b3XzpZs0cT6TRDoJJ5gwHAQ==}
-    dev: true
 
   /@astrojs/language-server@1.0.0:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
     dependencies:
-      '@astrojs/compiler': 1.4.0
+      '@astrojs/compiler': 1.4.2
       '@jridgewell/trace-mapping': 0.3.18
       '@vscode/emmet-helper': 2.8.8
       events: 3.3.0
@@ -5481,6 +5484,23 @@ packages:
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
       vscode-uri: 3.0.7
+    dev: false
+
+  /@astrojs/svelte@2.2.0(astro@packages+astro)(svelte@3.58.0)(typescript@5.0.2):
+    resolution: {integrity: sha512-4kfh3GEIIOqH/wwTwLloRsZJ3z7rJ1eZWZ1oFrfEIjiQny5XqxyRJp/tUseKfaeDwKQGL+9t31ePTuwxx5oung==}
+    engines: {node: '>=16.12.0'}
+    peerDependencies:
+      astro: '*'
+      svelte: ^3.54.0
+    dependencies:
+      '@sveltejs/vite-plugin-svelte': 2.4.1(svelte@3.58.0)(vite@4.3.1)
+      astro: link:packages/astro
+      svelte: 3.58.0
+      svelte2tsx: 0.5.23(svelte@3.58.0)(typescript@5.0.2)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+      - vite
     dev: false
 
   /@babel/code-frame@7.21.4:
@@ -5832,14 +5852,6 @@ packages:
 
   /@babel/parser@7.18.4:
     resolution: {integrity: sha512-FDge0dFazETFcxGw/EXzOkN8uJp0PC7Qbm+Pe9T+av2zlBpOgunFHkQPPn+eRuClU73JF+98D531UgayY89tow==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-    dependencies:
-      '@babel/types': 7.21.5
-    dev: false
-
-  /@babel/parser@7.21.8:
-    resolution: {integrity: sha512-6zavDGdzG3gUqAdWvlLFfk+36RilI+Pwyuuh7HItyeScCWP3k6i8vKclAQ0bM/0y/Kz/xiwvxhMv9MgTJP5gmA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
@@ -8679,7 +8691,7 @@ packages:
   /@types/babel__core@7.1.19:
     resolution: {integrity: sha512-WEOTgRsbYkvA/KCsDwVEGkd7WAr1e3g31VHQ8zy5gul/V1qKullU/BU5I68X5v7V3GnB9eotmom4v5a5gjxorw==}
     dependencies:
-      '@babel/parser': 7.21.8
+      '@babel/parser': 7.21.9
       '@babel/types': 7.21.5
       '@types/babel__generator': 7.6.4
       '@types/babel__template': 7.4.1
@@ -8694,7 +8706,7 @@ packages:
   /@types/babel__template@7.4.1:
     resolution: {integrity: sha512-azBFKemX6kMg5Io+/rdGT0dkGreboUVR0Cdm3fz9QJWpaQGJRQXl7C+6hOTCZcMll7KFyEQpgbYI2lHdsS4U7g==}
     dependencies:
-      '@babel/parser': 7.18.4
+      '@babel/parser': 7.21.9
       '@babel/types': 7.21.5
     dev: false
 
@@ -10858,8 +10870,8 @@ packages:
     resolution: {integrity: sha512-463v3ZeIrcWtdgIg6vI6XUncguvr2TnGl4SzDXinkt9mSLpBJKXT3mW6xT3VQdDN11+WVs29pgvivTc4Lp8v+w==}
     engines: {node: '>=8'}
 
-  /devalue@4.2.0:
-    resolution: {integrity: sha512-mbjoAaCL2qogBKgeFxFPOXAUsZchircF+B/79LD4sHH0+NHfYm8gZpQrskKDn5gENGt35+5OI1GUF7hLVnkPDw==}
+  /devalue@4.3.2:
+    resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
@@ -15502,7 +15514,7 @@ packages:
     resolution: {integrity: sha512-lJ/mG/Lz/ccSwNtwqpFS126mtMVzFVyYv0ddTF9wqwrEG4seECjKDAyw/oGv915rAcJi8jr89990nqfpmG+qdg==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.4.0
+      '@astrojs/compiler': 1.4.2
       prettier: 2.8.8
       sass-formatter: 0.7.6
       synckit: 0.8.5
@@ -16803,6 +16815,21 @@ packages:
       svelte: '>=3.19.0'
     dependencies:
       svelte: 3.58.0
+    dev: false
+
+  /svelte2tsx@0.5.23(svelte@3.58.0)(typescript@5.0.2):
+    resolution: {integrity: sha512-jYFnugTQRFmUpvLXPQrKzVYcW5ErT+0QCxg027Zx9BuvYefMZFuoBSTDYe7viPEFGrPPiLgT2m7f5n9khE7f7Q==}
+    peerDependencies:
+      svelte: ^3.24
+      typescript: ^4.1.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      dedent-js: 1.0.1
+      pascal-case: 3.1.2
+      svelte: 3.58.0
+      typescript: 5.0.2
     dev: false
 
   /svelte2tsx@0.6.15(svelte@3.58.0)(typescript@5.0.2):
