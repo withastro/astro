@@ -41,7 +41,7 @@
     "node": ">=16.12.0",
     "pnpm": ">=8.2.0"
   },
-  "packageManager": "pnpm@8.2.0",
+  "packageManager": "pnpm@8.6.0",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {

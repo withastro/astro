@@ -1112,6 +1112,33 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		},
 		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
 	},
+	/**
+	 * @docs
+	 * @description
+	 * Content collection entries must have unique slugs. Duplicates are often caused by the `slug` frontmatter property.
+	 */
+	DuplicateContentEntrySlugError: {
+		title: 'Duplicate content entry slug.',
+		code: 9008,
+		message: (collection: string, slug: string) => {
+			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+		},
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [devalue library](https://github.com/rich-harris/devalue)
+	 * @description
+	 * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+	 */
+	UnsupportedConfigTransformError: {
+		title: 'Unsupported transform in content config.',
+		code: 9008,
+		message: (parseError: string) =>
+			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
