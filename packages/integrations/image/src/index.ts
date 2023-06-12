@@ -3,6 +3,7 @@ import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
+import { isServerLikeOutput } from './utils/prerender.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
@@ -84,7 +85,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					vite: getViteConfiguration(command === 'dev'),
 				});
 
-				if (command === 'dev' || config.output === 'server') {
+				if (command === 'dev' || isServerLikeOutput(config)) {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
 						entryPoint: '@astrojs/image/endpoint',
@@ -130,7 +131,11 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					// Doing this here makes sure that base is ignored when building
 					// staticImages to /dist, but the rendered HTML will include the
 					// base prefix for `src`.
-					return prependForwardSlash(joinPaths(_config.base, _buildConfig.assets, filename));
+					if (_config.build.assetsPrefix) {
+						return joinPaths(_config.build.assetsPrefix, _buildConfig.assets, filename);
+					} else {
+						return prependForwardSlash(joinPaths(_config.base, _buildConfig.assets, filename));
+					}
 				}
 
 				// Helpers for building static images should only be available for SSG

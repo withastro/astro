@@ -96,3 +96,17 @@ export function isValidUrl(str: string): boolean {
 		return false;
 	}
 }
+
+/**
+ * Identifies Astro components with propagated assets
+ * @see 'packages/astro/src/content/consts.ts'
+ */
+export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
+
+/**
+ * @see 'packages/astro/src/content/utils.ts'
+ */
+export function hasContentFlag(viteId: string, flag: string): boolean {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	return flags.has(flag);
+}

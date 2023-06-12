@@ -1,9 +1,55 @@
 /// <reference path="./import-meta.d.ts" />
 
+// eslint-disable-next-line  @typescript-eslint/no-namespace
+declare namespace App {
+	// eslint-disable-next-line  @typescript-eslint/no-empty-interface
+	export interface Locals {}
+}
+
+interface ImportMetaEnv {
+	/**
+	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
+	 */
+	readonly ASSETS_PREFIX: string;
+	/**
+	 * This is set to the site option specified in your project’s Astro config file.
+	 */
+	readonly SITE: string;
+}
+
+interface ImportMeta {
+	/**
+	 * Astro and Vite expose environment variables through `import.meta.env`. For a complete list of the environment variables available, see the two references below.
+	 *
+	 * - [Astro reference](https://docs.astro.build/en/guides/environment-variables/#default-environment-variables)
+	 * - [Vite reference](https://vitejs.dev/guide/env-and-mode.html#env-variables)
+	 */
+	readonly env: ImportMetaEnv;
+}
+
 declare module 'astro:assets' {
 	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
 	type AstroAssets = {
-		getImage: typeof import('./dist/assets/index.js').getImage;
+		// getImage's type here is different from the internal function since the Vite module implicitly pass the service config
+		/**
+		 * Get an optimized image and the necessary attributes to render it.
+		 *
+		 * **Example**
+		 * ```astro
+		 * ---
+		 * import { getImage } from 'astro:assets';
+		 * import originalImage from '../assets/image.png';
+		 *
+		 * const optimizedImage = await getImage({src: originalImage, width: 1280 });
+		 * ---
+		 * <img src={optimizedImage.src} {...optimizedImage.attributes} />
+		 * ```
+		 *
+		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
+		 */
+		getImage: (
+			options: import('./dist/assets/types.js').ImageTransform
+		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
 	};
@@ -178,6 +224,10 @@ declare module '*.module.pcss' {
 	const classes: CSSModuleClasses;
 	export default classes;
 }
+declare module '*.module.sss' {
+	const classes: CSSModuleClasses;
+	export default classes;
+}
 
 // CSS
 declare module '*.css' {
@@ -208,9 +258,31 @@ declare module '*.pcss' {
 	const css: string;
 	export default css;
 }
+declare module '*.sss' {
+	const css: string;
+	export default css;
+}
 
 // Built-in asset types
-// see `src/constants.ts`
+// see `src/node/constants.ts`
+
+// images
+declare module '*.jfif' {
+	const src: string;
+	export default src;
+}
+declare module '*.pjpeg' {
+	const src: string;
+	export default src;
+}
+declare module '*.pjp' {
+	const src: string;
+	export default src;
+}
+declare module '*.ico' {
+	const src: string;
+	export default src;
+}
 
 // media
 declare module '*.mp4' {
@@ -242,6 +314,11 @@ declare module '*.aac' {
 	export default src;
 }
 
+declare module '*.opus' {
+	const src: string;
+	export default src;
+}
+
 // fonts
 declare module '*.woff' {
 	const src: string;
@@ -265,10 +342,6 @@ declare module '*.otf' {
 }
 
 // other
-declare module '*.wasm' {
-	const initWasm: (options: WebAssembly.Imports) => Promise<WebAssembly.Exports>;
-	export default initWasm;
-}
 declare module '*.webmanifest' {
 	const src: string;
 	export default src;
@@ -280,6 +353,12 @@ declare module '*.pdf' {
 declare module '*.txt' {
 	const src: string;
 	export default src;
+}
+
+// wasm?init
+declare module '*.wasm?init' {
+	const initWasm: (options: WebAssembly.Imports) => Promise<WebAssembly.Instance>;
+	export default initWasm;
 }
 
 // web worker
@@ -297,11 +376,28 @@ declare module '*?worker&inline' {
 	export default workerConstructor;
 }
 
+declare module '*?worker&url' {
+	const src: string;
+	export default src;
+}
+
 declare module '*?sharedworker' {
 	const sharedWorkerConstructor: {
 		new (): SharedWorker;
 	};
 	export default sharedWorkerConstructor;
+}
+
+declare module '*?sharedworker&inline' {
+	const sharedWorkerConstructor: {
+		new (): SharedWorker;
+	};
+	export default sharedWorkerConstructor;
+}
+
+declare module '*?sharedworker&url' {
+	const src: string;
+	export default src;
 }
 
 declare module '*?raw' {

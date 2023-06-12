@@ -7,7 +7,9 @@ import { renderChild } from './any.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
-export type ComponentSlotValue = (result: SSRResult) => RenderTemplateResult;
+export type ComponentSlotValue = (
+	result: SSRResult
+) => RenderTemplateResult | Promise<RenderTemplateResult>;
 
 const slotString = Symbol.for('astro:slot-string');
 
@@ -25,32 +27,40 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function renderSlot(
+export async function* renderSlot(
+	result: SSRResult,
+	slotted: ComponentSlotValue | RenderTemplateResult,
+	fallback?: ComponentSlotValue | RenderTemplateResult
+): AsyncGenerator<any, void, undefined> {
+	if (slotted) {
+		let iterator = renderChild(typeof slotted === 'function' ? slotted(result) : slotted);
+		yield* iterator;
+	}
+
+	if (fallback && !slotted) {
+		yield* renderSlot(result, fallback);
+	}
+}
+
+export async function renderSlotToString(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
 	fallback?: ComponentSlotValue | RenderTemplateResult
 ): Promise<string> {
-	if (slotted) {
-		let iterator = renderChild(typeof slotted === 'function' ? slotted(result) : slotted);
-		let content = '';
-		let instructions: null | RenderInstruction[] = null;
-		for await (const chunk of iterator) {
-			if (typeof (chunk as any).type === 'string') {
-				if (instructions === null) {
-					instructions = [];
-				}
-				instructions.push(chunk);
-			} else {
-				content += chunk;
+	let content = '';
+	let instructions: null | RenderInstruction[] = null;
+	let iterator = renderSlot(result, slotted, fallback);
+	for await (const chunk of iterator) {
+		if (typeof (chunk as any).type === 'string') {
+			if (instructions === null) {
+				instructions = [];
 			}
+			instructions.push(chunk);
+		} else {
+			content += chunk;
 		}
-		return markHTMLString(new SlotString(content, instructions));
 	}
-
-	if (fallback) {
-		return renderSlot(result, fallback);
-	}
-	return '';
+	return markHTMLString(new SlotString(content, instructions));
 }
 
 interface RenderSlotsResult {
@@ -67,7 +77,7 @@ export async function renderSlots(
 	if (slots) {
 		await Promise.all(
 			Object.entries(slots).map(([key, value]) =>
-				renderSlot(result, value).then((output: any) => {
+				renderSlotToString(result, value).then((output: any) => {
 					if (output.instructions) {
 						if (slotInstructions === null) {
 							slotInstructions = [];

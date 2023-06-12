@@ -4,6 +4,7 @@ import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
@@ -109,6 +110,13 @@ function isInPagesDir(file: URL, config: AstroConfig): boolean {
 	return file.toString().startsWith(pagesDir.toString());
 }
 
+function isInjectedRoute(file: URL, settings: AstroSettings) {
+	for (const route of settings.injectedRoutes) {
+		if (file.toString().endsWith(route.entryPoint)) return true;
+	}
+	return false;
+}
+
 function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	const pagesDir = resolvePages(config);
 	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
@@ -126,7 +134,7 @@ function endsWithPageExt(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isPage(file: URL, settings: AstroSettings): boolean {
-	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isInPagesDir(file, settings.config) && !isInjectedRoute(file, settings)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
 	return endsWithPageExt(file, settings);
 }
@@ -138,7 +146,7 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 }
 
 export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
-	return settings.config.output === 'server' && !settings.adapter;
+	return isServerLikeOutput(settings.config) && !settings.adapter;
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
@@ -151,14 +159,22 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
-export function rootRelativePath(config: AstroConfig, idOrUrl: URL | string) {
+export function rootRelativePath(
+	root: URL,
+	idOrUrl: URL | string,
+	shouldPrependForwardSlash = true
+) {
 	let id: string;
 	if (typeof idOrUrl !== 'string') {
 		id = unwrapId(viteID(idOrUrl));
 	} else {
 		id = idOrUrl;
 	}
-	return prependForwardSlash(id.slice(normalizePath(fileURLToPath(config.root)).length));
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	if (id.startsWith(normalizedRoot)) {
+		id = id.slice(normalizedRoot.length);
+	}
+	return shouldPrependForwardSlash ? prependForwardSlash(id) : id;
 }
 
 export function emoji(char: string, fallback: string) {

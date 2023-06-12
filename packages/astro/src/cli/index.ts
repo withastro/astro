@@ -3,7 +3,7 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
-import { z } from 'zod';
+import { ZodError } from 'zod';
 import {
 	createSettings,
 	openConfig,
@@ -94,15 +94,19 @@ function resolveCommand(flags: Arguments): CLICommand {
 
 async function handleConfigError(
 	e: any,
-	{ cwd, flags, logging }: { cwd?: string; flags?: Flags; logging: LogOptions }
+	{ cmd, cwd, flags, logging }: { cmd: string; cwd?: string; flags?: Flags; logging: LogOptions }
 ) {
 	const path = await resolveConfigPath({ cwd, flags, fs });
-	if (e instanceof Error) {
-		if (path) {
-			error(logging, 'astro', `Unable to load ${colors.bold(path)}\n`);
-		}
+	error(logging, 'astro', `Unable to load ${path ? colors.bold(path) : 'your Astro config'}\n`);
+	if (e instanceof ZodError) {
+		console.error(formatConfigErrorMessage(e) + '\n');
+	} else if (e instanceof Error) {
 		console.error(formatErrorMessage(collectErrorMetadata(e)) + '\n');
 	}
+	const telemetryPromise = telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
+	await telemetryPromise.catch((err2: Error) =>
+		debug('telemetry', `record() error: ${err2.message}`)
+	);
 }
 
 /**
@@ -181,7 +185,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		cmd,
 		logging,
 	}).catch(async (e) => {
-		await handleConfigError(e, { cwd: root, flags, logging });
+		await handleConfigError(e, { cmd, cwd: root, flags, logging });
 		return {} as any;
 	});
 	if (!initialAstroConfig) return;
@@ -207,7 +211,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				logging,
 				telemetry,
 				handleConfigError(e) {
-					handleConfigError(e, { cwd: root, flags, logging });
+					handleConfigError(e, { cmd, cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');
 				},
 			});
@@ -284,14 +288,9 @@ async function throwAndExit(cmd: string, err: unknown) {
 		process.exit(1);
 	}
 
-	if (err instanceof z.ZodError) {
-		telemetryPromise = telemetry.record(eventConfigError({ cmd, err, isFatal: true }));
-		errorMessage = formatConfigErrorMessage(err);
-	} else {
-		const errorWithMetadata = collectErrorMetadata(createSafeError(err));
-		telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
-		errorMessage = formatErrorMessage(errorWithMetadata);
-	}
+	const errorWithMetadata = collectErrorMetadata(createSafeError(err));
+	telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
+	errorMessage = formatErrorMessage(errorWithMetadata);
 
 	// Timeout the error reporter (very short) because the user is waiting.
 	// NOTE(fks): It is better that we miss some events vs. holding too long.

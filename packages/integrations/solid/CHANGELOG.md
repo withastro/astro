@@ -1,5 +1,37 @@
 # @astrojs/solid-js
 
+## 2.2.0
+
+### Minor Changes
+
+- [#7093](https://github.com/withastro/astro/pull/7093) [`3d525efc9`](https://github.com/withastro/astro/commit/3d525efc95cfb2deb5d9e04856d02965d66901c9) Thanks [@matthewp](https://github.com/matthewp)! - Prevent removal of nested slots within islands
+
+  This change introduces a new flag that renderers can add called `supportsAstroStaticSlot`. What this does is let Astro know that the render is sending `<astro-static-slot>` as placeholder values for static (non-hydrated) slots which Astro will then remove.
+
+  This change is completely backwards compatible, but fixes bugs caused by combining ssr-only and client-side framework components like so:
+
+  ```astro
+  <Component>
+    <div>
+      <Component client:load>
+        <span>Nested</span>
+      </Component>
+    </div>
+  </Component>
+  ```
+
+### Patch Changes
+
+- [#7101](https://github.com/withastro/astro/pull/7101) [`2994bc52d`](https://github.com/withastro/astro/commit/2994bc52d360bf7ca3681c5f6976e64577cf5209) Thanks [@bluwy](https://github.com/bluwy)! - Always build edge/worker runtime with Vite `webworker` SSR target
+
+- [#7104](https://github.com/withastro/astro/pull/7104) [`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa) Thanks [@bluwy](https://github.com/bluwy)! - Specify `"files"` field to only publish necessary files
+
+## 2.1.1
+
+### Patch Changes
+
+- [#6934](https://github.com/withastro/astro/pull/6934) [`b6797fc85`](https://github.com/withastro/astro/commit/b6797fc8583f7cb0749e69e72a56fe9fba6f815b) Thanks [@matthewp](https://github.com/matthewp)! - Allow Solid ecosystem packages to not need special export map configuration. By default Solid is now treated as an external package in SSR, so any other dependent packages will receive the same instance.
+
 ## 2.1.0
 
 ### Minor Changes

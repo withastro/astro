@@ -2,11 +2,17 @@ function check(Component) {
 	return Component['render'] && Component['$$render'];
 }
 
-async function renderToStaticMarkup(Component, props, slotted) {
+function needsHydration(metadata) {
+	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
+	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+}
+
+async function renderToStaticMarkup(Component, props, slotted, metadata) {
+	const tagName = needsHydration(metadata) ? 'astro-slot' : 'astro-static-slot';
 	const slots = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		slots[key] = () =>
-			`<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${value}</astro-slot>`;
+			`<${tagName}${key === 'default' ? '' : ` name="${key}"`}>${value}</${tagName}>`;
 	}
 	const { html } = Component.render(props, { $$slots: slots });
 	return { html };
@@ -15,4 +21,5 @@ async function renderToStaticMarkup(Component, props, slotted) {
 export default {
 	check,
 	renderToStaticMarkup,
+	supportsAstroStaticSlot: true,
 };

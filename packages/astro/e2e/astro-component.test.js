@@ -44,6 +44,9 @@ test.describe('Astro component HMR', () => {
 		await page.goto(astro.resolveUrl('/'));
 		await initialLog;
 
+		const el = page.locator('#hoisted-script');
+		expect(await el.innerText()).toContain('Hoisted success');
+
 		const updatedLog = page.waitForEvent(
 			'console',
 			(message) => message.text() === 'Hello, updated Astro!'

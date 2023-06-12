@@ -1,5 +1,23 @@
 # @astrojs/partytown
 
+## 1.2.3
+
+### Patch Changes
+
+- [#7175](https://github.com/withastro/astro/pull/7175) [`59d8c50b8`](https://github.com/withastro/astro/commit/59d8c50b8426cd6825abc07405041779b7999022) Thanks [@AkashRajpurohit](https://github.com/AkashRajpurohit)! - fix typescript type for partytown options
+
+## 1.2.2
+
+### Patch Changes
+
+- [#7104](https://github.com/withastro/astro/pull/7104) [`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa) Thanks [@bluwy](https://github.com/bluwy)! - Specify `"files"` field to only publish necessary files
+
+## 1.2.1
+
+### Patch Changes
+
+- [#7001](https://github.com/withastro/astro/pull/7001) [`ad5c75447`](https://github.com/withastro/astro/commit/ad5c75447af9cfbdcb1f288c5c17229fbd3d6dd2) Thanks [@Waxer59](https://github.com/Waxer59)! - Fixed a code example that was wrongly closed
+
 ## 1.2.0
 
 ### Minor Changes

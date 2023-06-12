@@ -1,11 +1,10 @@
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds, remarkCollectImages } from '@astrojs/markdown-remark';
 import {
 	InvalidAstroDataError,
 	safelyGetAstroData,
 } from '@astrojs/markdown-remark/dist/internal.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
-import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig } from 'astro';
 import type { Literal, MemberExpression } from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
@@ -16,6 +15,8 @@ import type { VFile } from 'vfile';
 import type { MdxOptions } from './index.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import rehypeMetaString from './rehype-meta-string.js';
+import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
+import { remarkImageToComponent } from './remark-images-to-component.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
@@ -98,8 +99,10 @@ export function rehypeApplyFrontmatterExport() {
 export async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
-): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [];
+): Promise<PluggableList> {
+	let remarkPlugins: PluggableList = [
+		...(config.experimental.assets ? [remarkCollectImages, remarkImageToComponent] : []),
+	];
 
 	if (!isPerformanceBenchmark) {
 		if (mdxOptions.gfm) {
@@ -125,7 +128,7 @@ export async function getRemarkPlugins(
 	return remarkPlugins;
 }
 
-export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions['rehypePlugins'] {
+export function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 	let rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
@@ -142,6 +145,13 @@ export function getRehypePlugins(mdxOptions: MdxOptions): MdxRollupPluginOptions
 		// computed from `astro.data.frontmatter` in VFile data
 		rehypeApplyFrontmatterExport,
 	];
+
+	if (mdxOptions.optimize) {
+		// Convert user `optimize` option to compatible `rehypeOptimizeStatic` option
+		const options = mdxOptions.optimize === true ? undefined : mdxOptions.optimize;
+		rehypePlugins.push([rehypeOptimizeStatic, options]);
+	}
+
 	return rehypePlugins;
 }
 

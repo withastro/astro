@@ -86,18 +86,17 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 
 				let html = renderResult.code;
 				const { headings } = renderResult.metadata;
+
+				// Resolve all the extracted images from the content
 				let imagePaths: { raw: string; resolved: string }[] = [];
-				if (settings.config.experimental.assets) {
-					let paths = (renderResult.vfile.data.imagePaths as string[]) ?? [];
-					imagePaths = await Promise.all(
-						paths.map(async (imagePath) => {
-							return {
-								raw: imagePath,
-								resolved:
-									(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
-							};
-						})
-					);
+				if (settings.config.experimental.assets && renderResult.vfile.data.imagePaths) {
+					for (let imagePath of renderResult.vfile.data.imagePaths.values()) {
+						imagePaths.push({
+							raw: imagePath,
+							resolved:
+								(await this.resolve(imagePath, id))?.id ?? path.join(path.dirname(id), imagePath),
+						});
+					}
 				}
 
 				const astroData = safelyGetAstroData(renderResult.vfile.data);
@@ -129,7 +128,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 						(entry) =>
 							`'${entry.raw}': await getImageSafely((await import("${entry.raw}")).default, "${
 								entry.raw
-							}", "${rootRelativePath(settings.config, entry.resolved)}")`
+							}", "${rootRelativePath(settings.config.root, entry.resolved)}")`
 					)}
 				}
 

@@ -45,9 +45,8 @@ async function getViteConfiguration(isDev: boolean, astroConfig: AstroConfig) {
 			exclude: ['@astrojs/solid-js/server.js', ...solidPkgsConfig.optimizeDeps.exclude],
 		},
 		ssr: {
-			target: 'node',
 			external: ['babel-preset-solid', ...solidPkgsConfig.ssr.external],
-			noExternal: ['solid-js', ...solidPkgsConfig.ssr.noExternal],
+			noExternal: [...solidPkgsConfig.ssr.noExternal],
 		},
 	};
 }

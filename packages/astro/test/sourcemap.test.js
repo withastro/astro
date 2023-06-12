@@ -16,7 +16,7 @@ describe('Sourcemap', async () => {
 	});
 
 	it('Builds non-empty sourcemap', async () => {
-		const map = await fixture.readFile('entry.mjs.map');
+		const map = await fixture.readFile('renderers.mjs.map');
 		expect(map).to.not.include('"sources":[]');
 	});
 });

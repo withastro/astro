@@ -1,18 +1,21 @@
 import type {
-	ComponentInstance,
 	EndpointHandler,
 	ManifestData,
+	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
+import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { call as callEndpoint } from '../endpoint/index.js';
+import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
+import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -21,14 +24,15 @@ import {
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
-	createLinkStylesheetElementSet,
+	createAssetLink,
 	createModuleScriptElement,
+	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
 
-export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
+const clientLocalsSymbol = Symbol.for('astro.locals');
+
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface MatchOptions {
@@ -60,6 +64,7 @@ export class App {
 			markdown: manifest.markdown,
 			mode: 'production',
 			renderers: manifest.renderers,
+			clientDirectives: manifest.clientDirectives,
 			async resolve(specifier: string) {
 				if (!(specifier in manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -71,7 +76,7 @@ export class App {
 						return bundlePath;
 					}
 					default: {
-						return prependForwardSlash(joinPaths(manifest.base, bundlePath));
+						return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 					}
 				}
 			},
@@ -96,7 +101,7 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) {
 			return undefined;
 		}
-		let pathname = '/' + this.removeBase(url.pathname);
+		let pathname = prependForwardSlash(this.removeBase(url.pathname));
 		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
@@ -126,29 +131,31 @@ export class App {
 			}
 		}
 
+		Reflect.set(request, clientLocalsSymbol, {});
+
 		// Use the 404 status code for 404.astro components
 		if (routeData.route === '/404') {
 			defaultStatus = 404;
 		}
 
-		let mod = this.#manifest.pageMap.get(routeData.component)!;
+		let mod = await this.#getModuleForRoute(routeData);
 
-		if (routeData.type === 'page') {
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
-			// If there was a 500 error, try sending the 500 page.
-			if (response.status === 500) {
-				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
-				if (fiveHundredRouteData) {
-					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
+			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+			if (response.status === 500 || response.status === 404) {
+				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorRouteData && errorRouteData.route !== routeData.route) {
+					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
-						let fiveHundredResponse = await this.#renderPage(
+						let errorResponse = await this.#renderPage(
 							request,
-							fiveHundredRouteData,
+							errorRouteData,
 							mod,
-							500
+							response.status
 						);
-						return fiveHundredResponse;
+						return errorResponse;
 					} catch {}
 				}
 			}
@@ -164,16 +171,33 @@ export class App {
 		return getSetCookiesFromResponse(response);
 	}
 
+	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		if (route.type === 'redirect') {
+			return RedirectSinglePageBuiltModule;
+		} else {
+			const importComponentInstance = this.#manifest.pageMap.get(route.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`
+				);
+			}
+			const built = await importComponentInstance();
+			return built;
+		}
+	}
+
 	async #renderPage(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance,
+		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
-		const pathname = '/' + this.removeBase(url.pathname);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
-		const links = createLinkStylesheetElementSet(info.links);
+		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+		const links = new Set<never>();
+		const styles = createStylesheetElementSet(info.styles);
 
 		let scripts = new Set<SSRElement>();
 		for (const script of info.scripts) {
@@ -190,18 +214,47 @@ export class App {
 		}
 
 		try {
-			const ctx = createRenderContext({
+			const mod = (await page.page()) as any;
+			const renderContext = await createRenderContext({
 				request,
 				origin: url.origin,
 				pathname,
 				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
+				styles,
 				links,
 				route: routeData,
 				status,
+				mod,
+				env: this.#env,
 			});
 
-			const response = await renderPage(mod, ctx, this.#env);
+			const apiContext = createAPIContext({
+				request: renderContext.request,
+				params: renderContext.params,
+				props: renderContext.props,
+				site: this.#env.site,
+				adapterName: this.#env.adapterName,
+			});
+			const onRequest = page.middleware?.onRequest;
+			let response;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					this.#env.logging,
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage({ mod, renderContext, env: this.#env, apiContext });
+					}
+				);
+			} else {
+				response = await renderPage({
+					mod,
+					renderContext,
+					env: this.#env,
+					apiContext,
+				});
+			}
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
@@ -216,22 +269,25 @@ export class App {
 	async #callEndpoint(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance,
+		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = '/' + this.removeBase(url.pathname);
+		const mod = await page.page();
 		const handler = mod as unknown as EndpointHandler;
 
-		const ctx = createRenderContext({
+		const ctx = await createRenderContext({
 			request,
 			origin: url.origin,
 			pathname,
 			route: routeData,
 			status,
+			env: this.#env,
+			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.middleware);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

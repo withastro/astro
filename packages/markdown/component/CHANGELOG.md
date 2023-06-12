@@ -1,5 +1,17 @@
 # @astrojs/markdown-component
 
+## 1.0.5
+
+### Patch Changes
+
+- [#7343](https://github.com/withastro/astro/pull/7343) [`3d9a392a0`](https://github.com/withastro/astro/commit/3d9a392a09133aeb7a6efeb59c307f27a9b83198) Thanks [@matthewp](https://github.com/matthewp)! - Fix Markdown component error message false positive
+
+## 1.0.4
+
+### Patch Changes
+
+- [#7104](https://github.com/withastro/astro/pull/7104) [`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa) Thanks [@bluwy](https://github.com/bluwy)! - Specify `"files"` field to only publish necessary files
+
 ## 1.0.3
 
 ### Patch Changes

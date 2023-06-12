@@ -1,5 +1,31 @@
 # @astrojs/rss
 
+## 2.4.3
+
+### Patch Changes
+
+- [#7153](https://github.com/withastro/astro/pull/7153) [`e17ed0727`](https://github.com/withastro/astro/commit/e17ed0727ef1acb512c77723a1b641326de8ca84) Thanks [@AkashRajpurohit](https://github.com/AkashRajpurohit)! - exposes RSSFeedItem type
+
+## 2.4.2
+
+### Patch Changes
+
+- [#7066](https://github.com/withastro/astro/pull/7066) [`a37e67b52`](https://github.com/withastro/astro/commit/a37e67b520dc35dbf40313c77490a97446de2f74) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix pubDate schema tranformation
+
+- [#7104](https://github.com/withastro/astro/pull/7104) [`826e02890`](https://github.com/withastro/astro/commit/826e0289005f645b902375b98d5549c6a95ccafa) Thanks [@bluwy](https://github.com/bluwy)! - Specify `"files"` field to only publish necessary files
+
+## 2.4.1
+
+### Patch Changes
+
+- [#6970](https://github.com/withastro/astro/pull/6970) [`b5482cee2`](https://github.com/withastro/astro/commit/b5482cee2387149ff397447e546130ba3dea58db) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: remove accidental stripping of trailing `/1/` on canonical URLs
+
+## 2.4.0
+
+### Minor Changes
+
+- [#6707](https://github.com/withastro/astro/pull/6707) [`4ea716e56`](https://github.com/withastro/astro/commit/4ea716e5692d23361e9301330ce52733b3d05b01) Thanks [@philnash](https://github.com/philnash)! - Added extra elements to the RSS items, including categories and enclosure
+
 ## 2.3.2
 
 ### Patch Changes

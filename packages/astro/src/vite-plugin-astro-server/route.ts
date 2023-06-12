@@ -1,23 +1,23 @@
 import type http from 'http';
 import mime from 'mime';
-import type { AstroSettings, ComponentInstance, ManifestData, RouteData } from '../@types/astro';
-import type {
-	ComponentPreload,
-	DevelopmentEnvironment,
-	SSROptions,
-} from '../core/render/dev/index';
-
+import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
-import { appendForwardSlash } from '../core/path.js';
+import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
+import type {
+	ComponentPreload,
+	DevelopmentEnvironment,
+	SSROptions,
+} from '../core/render/dev/index';
 import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
-import { resolvePages } from '../core/util.js';
+import { getSortedPreloadedMatches } from '../prerender/routing.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
@@ -35,11 +35,9 @@ interface MatchedRoute {
 	mod: ComponentInstance;
 }
 
-function getCustom404Route({ config }: AstroSettings, manifest: ManifestData) {
-	// For Windows compat, use relative page paths to match the 404 route
-	const relPages = resolvePages(config).href.replace(config.root.href, '');
-	const pattern = new RegExp(`${appendForwardSlash(relPages)}404.(astro|md)`);
-	return manifest.routes.find((r) => r.component.match(pattern));
+function getCustom404Route(manifest: ManifestData): RouteData | undefined {
+	const route404 = /^\/404\/?$/;
+	return manifest.routes.find((r) => route404.test(r.route));
 }
 
 export async function matchRoute(
@@ -49,20 +47,19 @@ export async function matchRoute(
 ): Promise<MatchedRoute | undefined> {
 	const { logging, settings, routeCache } = env;
 	const matches = matchAllRoutes(pathname, manifest);
+	const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 
-	for await (const maybeRoute of matches) {
-		const filePath = new URL(`./${maybeRoute.component}`, settings.config.root);
-		const preloadedComponent = await preload({ env, filePath });
-		const [, mod] = preloadedComponent;
+	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
+		const [, mod] = preloadedComponent;
 		const paramsAndPropsRes = await getParamsAndProps({
 			mod,
 			route: maybeRoute,
 			routeCache,
 			pathname: pathname,
 			logging,
-			ssr: settings.config.output === 'server',
+			ssr: isServerLikeOutput(settings.config),
 		});
 
 		if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
@@ -97,7 +94,7 @@ export async function matchRoute(
 	}
 
 	log404(logging, pathname);
-	const custom404 = getCustom404Route(settings, manifest);
+	const custom404 = getCustom404Route(manifest);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, settings.config.root);
@@ -132,10 +129,20 @@ export async function handleRoute(
 		return handle404Response(origin, req, res);
 	}
 
+	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
+		writeWebResponse(
+			res,
+			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
+				status: 400,
+			})
+		);
+		return;
+	}
+
 	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { route, preloadedComponent, mod } = matchedRoute;
-	const buildingToSSR = config.output === 'server';
+	const buildingToSSR = isServerLikeOutput(config);
 
 	// Headers are only available when using SSR.
 	const request = createRequest({
@@ -161,7 +168,7 @@ export async function handleRoute(
 		routeCache: env.routeCache,
 		pathname: pathname,
 		logging,
-		ssr: config.output === 'server',
+		ssr: isServerLikeOutput(config),
 	});
 
 	const options: SSROptions = {
@@ -173,7 +180,10 @@ export async function handleRoute(
 		request,
 		route,
 	};
-
+	const middleware = await loadMiddleware(env.loader, env.settings.config.srcDir);
+	if (middleware) {
+		options.middleware = middleware;
+	}
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
 		const result = await callEndpoint(options, logging);
@@ -196,7 +206,7 @@ export async function handleRoute(
 			await writeWebResponse(res, result.response);
 		} else {
 			let contentType = 'text/plain';
-			// Dynamic routes don’t include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
+			// Dynamic routes don't include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
 			const filepath =
 				route.pathname ||
 				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');

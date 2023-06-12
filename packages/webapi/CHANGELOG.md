@@ -1,5 +1,17 @@
 # @astrojs/webapi
 
+## 2.2.0
+
+### Minor Changes
+
+- [#6981](https://github.com/withastro/astro/pull/6981) [`bf63f615f`](https://github.com/withastro/astro/commit/bf63f615fc1b97d6fb84db55f7639084e3ada5af) Thanks [@andremralves](https://github.com/andremralves)! - Add polyfill for `crypto`
+
+## 2.1.1
+
+### Patch Changes
+
+- [#6929](https://github.com/withastro/astro/pull/6929) [`ac57b5549`](https://github.com/withastro/astro/commit/ac57b5549f828a17bdbebdaca7ace075307a3c9d) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade undici to v5.22.0
+
 ## 2.1.0
 
 ### Minor Changes

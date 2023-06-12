@@ -85,11 +85,12 @@ export interface MarkdownMetadata {
 export interface MarkdownVFile extends VFile {
 	data: {
 		__astroHeadings?: MarkdownHeading[];
+		imagePaths?: Set<string>;
 	};
 }
 
 export interface MarkdownRenderingResult {
 	metadata: MarkdownMetadata;
-	vfile: VFile;
+	vfile: MarkdownVFile;
 	code: string;
 }

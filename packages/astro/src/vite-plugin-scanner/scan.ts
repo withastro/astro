@@ -13,9 +13,28 @@ function includesExport(code: string) {
 	return false;
 }
 
+// Support quoted values to allow statically known `import.meta.env` variables to be used
+function isQuoted(value: string) {
+	return (value[0] === '"' || value[0] === "'") && value[value.length - 1] === value[0];
+}
+
+function isTruthy(value: string) {
+	if (isQuoted(value)) {
+		value = value.slice(1, -1);
+	}
+	return value === 'true' || value === '1';
+}
+
+function isFalsy(value: string) {
+	if (isQuoted(value)) {
+		value = value.slice(1, -1);
+	}
+	return value === 'false' || value === '0';
+}
+
 let didInit = false;
 
-export async function scan(code: string, id: string): Promise<PageOptions> {
+export async function scan(code: string, id: string, isHybridOutput = false): Promise<PageOptions> {
 	if (!includesExport(code)) return {};
 	if (!didInit) {
 		await eslexer.init;
@@ -26,6 +45,7 @@ export async function scan(code: string, id: string): Promise<PageOptions> {
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
+		// mark that a `prerender` export was found
 		if (BOOLEAN_EXPORTS.has(name)) {
 			// For a given export, check the value of the local declaration
 			// Basically extract the `const` from the statement `export const prerender = true`
@@ -39,14 +59,14 @@ export async function scan(code: string, id: string): Promise<PageOptions> {
 			// For a given export, check the value of the first non-whitespace token.
 			// Basically extract the `true` from the statement `export const prerender = true`
 			const suffix = code.slice(endOfLocalName).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
-			if (prefix !== 'const' || !(suffix === 'true' || suffix === 'false')) {
+			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
-					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix),
+					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, isHybridOutput),
 					location: { file: id },
 				});
 			} else {
-				pageOptions[name as keyof PageOptions] = suffix === 'true';
+				pageOptions[name as keyof PageOptions] = isTruthy(suffix);
 			}
 		}
 	}

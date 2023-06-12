@@ -1,17 +1,24 @@
-import type { OutputChunk, RenderedChunk } from 'rollup';
-import type { PageBuildData, ViteID } from './types';
-
+import type { Rollup } from 'vite';
 import type { SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
+import {
+	ASTRO_PAGE_EXTENSION_POST_PATTERN,
+	ASTRO_PAGE_MODULE_ID,
+	getVirtualModulePageIdFromPath,
+} from './plugins/plugin-pages.js';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 export interface BuildInternals {
 	/**
-	 * The module ids of all CSS chunks, used to deduplicate CSS assets between
-	 * SSR build and client build in vite-plugin-css.
+	 * Each CSS module is named with a chunk id derived from the Astro pages they
+	 * are used in by default. It's easy to crawl this relation in the SSR build as
+	 * the Astro pages are the entrypoint, but not for the client build as hydratable
+	 * components are the entrypoint instead. This map is used as a cache from the SSR
+	 * build so the client can pick up the same information and use the same chunk ids.
 	 */
-	cssChunkModuleIds: Set<string>;
+	cssModuleToChunkIdMap: Map<string, string>;
 
 	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
@@ -76,7 +83,7 @@ export interface BuildInternals {
 	// A list of all static files created during the build. Used for SSR.
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
-	ssrEntryChunk?: OutputChunk;
+	ssrEntryChunk?: Rollup.OutputChunk;
 	componentMetadata: SSRResult['componentMetadata'];
 }
 
@@ -92,12 +99,11 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
-		cssChunkModuleIds: new Set(),
+		cssModuleToChunkIdMap: new Map(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pageToBundleMap: new Map<string, string>(),
-
 		pagesByComponent: new Map(),
 		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
@@ -146,7 +152,7 @@ export function trackClientOnlyPageDatas(
 
 export function* getPageDatasByChunk(
 	internals: BuildInternals,
-	chunk: RenderedChunk
+	chunk: Rollup.RenderedChunk
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByViteID = internals.pagesByViteID;
 	for (const [modulePath] of Object.entries(chunk.modules)) {
@@ -215,64 +221,93 @@ export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
 }
 
+export function* eachRedirectPageData(internals: BuildInternals) {
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.type === 'redirect') {
+			yield pageData;
+		}
+	}
+}
+
+export function* eachPageDataFromEntryPoint(
+	internals: BuildInternals
+): Generator<[PageBuildData, string]> {
+	for (const [entryPoint, filePath] of internals.entrySpecifierToBundleMap) {
+		if (entryPoint.includes(ASTRO_PAGE_MODULE_ID)) {
+			const [, pageName] = entryPoint.split(':');
+			const pageData = internals.pagesByComponent.get(
+				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
+			);
+			if (!pageData) {
+				throw new Error(
+					"Build failed. Astro couldn't find the emitted page from " + pageName + ' pattern'
+				);
+			}
+
+			yield [pageData, filePath];
+		}
+	}
+}
+
 export function hasPrerenderedPages(internals: BuildInternals) {
-	for (const id of internals.pagesByViteID.keys()) {
-		if (internals.pageOptionsByPage.get(id)?.prerender) {
+	for (const pageData of eachPageData(internals)) {
+		if (pageData.route.prerender) {
 			return true;
 		}
 	}
 	return false;
 }
 
-export function* eachPrerenderedPageData(internals: BuildInternals) {
-	for (const [id, pageData] of internals.pagesByViteID.entries()) {
-		if (internals.pageOptionsByPage.get(id)?.prerender) {
-			yield pageData;
-		}
-	}
-}
-
-export function* eachServerPageData(internals: BuildInternals) {
-	for (const [id, pageData] of internals.pagesByViteID.entries()) {
-		if (!internals.pageOptionsByPage.get(id)?.prerender) {
-			yield pageData;
-		}
-	}
+interface OrderInfo {
+	depth: number;
+	order: number;
 }
 
 /**
  * Sort a page's CSS by depth. A higher depth means that the CSS comes from shared subcomponents.
  * A lower depth means it comes directly from the top-level page.
- * The return of this function is an array of CSS paths, with shared CSS on top
- * and page-level CSS on bottom.
+ * Can be used to sort stylesheets so that shared rules come first
+ * and page-specific rules come after.
  */
-export function sortedCSS(pageData: PageBuildData) {
-	return Array.from(pageData.css)
-		.sort((a, b) => {
-			let depthA = a[1].depth,
-				depthB = b[1].depth,
-				orderA = a[1].order,
-				orderB = b[1].order;
+export function cssOrder(a: OrderInfo, b: OrderInfo) {
+	let depthA = a.depth,
+		depthB = b.depth,
+		orderA = a.order,
+		orderB = b.order;
 
-			if (orderA === -1 && orderB >= 0) {
-				return 1;
-			} else if (orderB === -1 && orderA >= 0) {
-				return -1;
-			} else if (orderA > orderB) {
-				return 1;
-			} else if (orderA < orderB) {
-				return -1;
-			} else {
-				if (depthA === -1) {
-					return -1;
-				} else if (depthB === -1) {
-					return 1;
-				} else {
-					return depthA > depthB ? -1 : 1;
-				}
-			}
-		})
-		.map(([id]) => id);
+	if (orderA === -1 && orderB >= 0) {
+		return 1;
+	} else if (orderB === -1 && orderA >= 0) {
+		return -1;
+	} else if (orderA > orderB) {
+		return 1;
+	} else if (orderA < orderB) {
+		return -1;
+	} else {
+		if (depthA === -1) {
+			return -1;
+		} else if (depthB === -1) {
+			return 1;
+		} else {
+			return depthA > depthB ? -1 : 1;
+		}
+	}
+}
+
+export function mergeInlineCss(
+	acc: Array<StylesheetAsset>,
+	current: StylesheetAsset
+): Array<StylesheetAsset> {
+	const lastAdded = acc.at(acc.length - 1);
+	const lastWasInline = lastAdded?.type === 'inline';
+	const currentIsInline = current?.type === 'inline';
+	if (lastWasInline && currentIsInline) {
+		const merged = { type: 'inline' as const, content: lastAdded.content + current.content };
+		acc[acc.length - 1] = merged;
+		return acc;
+	}
+	acc.push(current);
+	return acc;
 }
 
 export function isHoistedScript(internals: BuildInternals, id: string): boolean {
@@ -292,4 +327,10 @@ export function* getPageDatasByHoistedScriptId(
 			}
 		}
 	}
+}
+
+// From a component path such as pages/index.astro find the entrypoint module
+export function getEntryFilePathFromComponentPath(internals: BuildInternals, path: string) {
+	const id = getVirtualModulePageIdFromPath(path);
+	return internals.entrySpecifierToBundleMap.get(id);
 }

@@ -3,6 +3,7 @@ import type { RenderInstruction } from '../types';
 import { HTMLBytes, markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
+import { bufferIterators } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
@@ -35,12 +36,15 @@ export class RenderTemplateResult {
 	async *[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 
+		let iterables = bufferIterators(expressions.map((e) => renderChild(e)));
 		for (let i = 0; i < htmlParts.length; i++) {
 			const html = htmlParts[i];
-			const expression = expressions[i];
+			const iterable = iterables[i];
 
 			yield markHTMLString(html);
-			yield* renderChild(expression);
+			if (iterable) {
+				yield* iterable;
+			}
 		}
 	}
 }

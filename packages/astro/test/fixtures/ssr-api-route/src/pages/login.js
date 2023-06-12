@@ -1,11 +1,12 @@
-
-export function post() {
-  const headers = new Headers();
-  headers.append('Set-Cookie', `foo=foo; HttpOnly`);
-  headers.append('Set-Cookie', `bar=bar; HttpOnly`);
-
+/** @type {import('astro').APIRoute} */
+export function post({ cookies }) {
+	cookies.set('foo', 'foo', {
+		httpOnly: true
+	});
+	cookies.set('bar', 'bar', {
+		httpOnly: true
+	});
   return new Response('', {
     status: 201,
-    headers,
   });
 }

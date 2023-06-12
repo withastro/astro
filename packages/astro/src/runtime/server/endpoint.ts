@@ -19,13 +19,13 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(mod: EndpointHandler, context: APIContext, ssr: boolean) {
-	const { request, params } = context;
+	const { request, params, locals } = context;
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'get') {
 		// eslint-disable-next-line no-console
 		console.warn(`
-${chosenMethod} requests are not available when building a static site. Update your config to output: 'server' to handle ${chosenMethod} requests.`);
+${chosenMethod} requests are not available when building a static site. Update your config to \`output: 'server'\` or \`output: 'hybrid'\` with an \`export const prerender = false\` to handle ${chosenMethod} requests.`);
 	}
 	if (!handler || typeof handler !== 'function') {
 		// No handler found, so this should be a 404. Using a custom header
@@ -40,6 +40,7 @@ ${chosenMethod} requests are not available when building a static site. Update y
 		return response;
 	}
 
+	// TODO: Remove support for old API in Astro 3.0
 	if (handler.length > 1) {
 		// eslint-disable-next-line no-console
 		console.warn(`
@@ -57,6 +58,7 @@ Update your code to remove this warning.`);
 			if (prop in target) {
 				return Reflect.get(target, prop);
 			} else if (prop in params) {
+				// TODO: Remove support for old API in Astro 3.0
 				// eslint-disable-next-line no-console
 				console.warn(`
 API routes no longer pass params as the first argument. Instead an object containing a params property is provided in the form of:

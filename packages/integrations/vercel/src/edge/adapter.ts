@@ -5,6 +5,13 @@ import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+	defaultImageConfig,
+	getImageConfig,
+	throwIfAssetsNotEnabled,
+	type VercelImageConfig,
+} from '../image/shared.js';
+import { exposeEnv } from '../lib/env.js';
+import {
 	copyFilesToFunction,
 	getFilesFromFolder,
 	getVercelOutput,
@@ -26,11 +33,15 @@ function getAdapter(): AstroAdapter {
 export interface VercelEdgeConfig {
 	includeFiles?: string[];
 	analytics?: boolean;
+	imageService?: boolean;
+	imagesConfig?: VercelImageConfig;
 }
 
 export default function vercelEdge({
 	includeFiles = [],
 	analytics,
+	imageService,
+	imagesConfig,
 }: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -45,6 +56,7 @@ export default function vercelEdge({
 					injectScript('page', 'import "@astrojs/vercel/analytics"');
 				}
 				const outDir = getVercelOutput(config.root);
+				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
 				updateConfig({
 					outDir,
 					build: {
@@ -52,9 +64,14 @@ export default function vercelEdge({
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
 					},
+					vite: {
+						define: viteDefine,
+					},
+					...getImageConfig(imageService, imagesConfig, command),
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
+				throwIfAssetsNotEnabled(config, imageService);
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;
@@ -63,8 +80,8 @@ export default function vercelEdge({
 
 				if (config.output === 'static') {
 					throw new Error(`
-		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
-	
+		[@astrojs/vercel] \`output: "server"\` or \`output: "hybrid"\` is required to use the edge adapter.
+
 	`);
 				}
 			},
@@ -84,7 +101,14 @@ export default function vercelEdge({
 					}
 
 					vite.ssr ||= {};
-					vite.ssr.target ||= 'webworker';
+					vite.ssr.target = 'webworker';
+
+					// Vercel edge runtime is a special webworker-ish environment that supports process.env,
+					// but Vite would replace away `process.env` in webworkers, so we set a define here to prevent it
+					vite.define = {
+						'process.env': 'process.env',
+						...vite.define,
+					};
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
@@ -95,6 +119,8 @@ export default function vercelEdge({
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
+					// https://runtime-keys.proposal.wintercg.org/#edge-light
+					conditions: ['edge-light', 'worker', 'browser'],
 					entryPoints: [entryPath],
 					outfile: entryPath,
 					allowOverwrite: true,
@@ -128,6 +154,9 @@ export default function vercelEdge({
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
+					...(imageService || imagesConfig
+						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
+						: {}),
 				});
 			},
 		},

@@ -1,3 +1,4 @@
+import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
@@ -50,6 +51,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						client: new URL(`.${config.base}`, config.outDir),
 						server: new URL(`.${SERVER_BUILD_FOLDER}`, config.outDir),
 						serverEntry: '_worker.mjs',
+						redirects: false,
 					},
 				});
 			},
@@ -60,7 +62,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				if (config.output === 'static') {
 					throw new Error(`
-  [@astrojs/cloudflare] \`output: "server"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
+  [@astrojs/cloudflare] \`output: "server"\` or \`output: "hybrid"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
 
 `);
 				}
@@ -72,8 +74,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					vite.resolve = vite.resolve || {};
-					vite.resolve.alias = vite.resolve.alias || {};
+					vite.resolve ||= {};
+					vite.resolve.alias ||= {};
 
 					const aliases = [{ find: 'react-dom/server', replacement: 'react-dom/server.browser' }];
 
@@ -84,11 +86,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
 						}
 					}
-					vite.ssr = vite.ssr || {};
-					vite.ssr.target = vite.ssr.target || 'webworker';
+					vite.ssr ||= {};
+					vite.ssr.target = 'webworker';
 				}
 			},
-			'astro:build:done': async ({ pages }) => {
+			'astro:build:done': async ({ pages, routes, dir }) => {
 				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
 				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
 				const buildPath = fileURLToPath(entryUrl);
@@ -98,12 +100,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				await esbuild.build({
 					target: 'es2020',
 					platform: 'browser',
+					conditions: ['workerd', 'worker', 'browser'],
 					entryPoints: [entryPath],
 					outfile: buildPath,
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					minify: true,
+					minify: _config.vite?.build?.minify !== false,
 					banner: {
 						js: SHIM,
 					},
@@ -194,6 +197,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						if (redirects.length > 0) {
 							staticPathList.push(...redirects);
 						}
+					}
+
+					const redirectRoutes = routes.filter((r) => r.type === 'redirect');
+					const trueRedirects = createRedirectsFromAstroRoutes({
+						config: _config,
+						routes: redirectRoutes,
+						dir,
+					});
+					if (!trueRedirects.empty()) {
+						await fs.promises.appendFile(
+							new URL('./_redirects', _config.outDir),
+							trueRedirects.print()
+						);
 					}
 
 					await fs.promises.writeFile(

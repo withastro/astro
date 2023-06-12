@@ -39,7 +39,7 @@ export function stringifyChunk(
 					? 'directive'
 					: null;
 				if (prescriptType) {
-					let prescripts = getPrescripts(prescriptType, hydration.directive);
+					let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';
@@ -56,6 +56,12 @@ export function stringifyChunk(
 					return '';
 				}
 				return renderAllHeadContent(result);
+			}
+			default: {
+				if (chunk instanceof Response) {
+					return '';
+				}
+				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}
 		}
 	} else {
@@ -102,6 +108,7 @@ export function chunkToByteArray(
 	if (chunk instanceof Uint8Array) {
 		return chunk as Uint8Array;
 	}
+
 	// stringify chunk might return a HTMLString
 	let stringified = stringifyChunk(result, chunk);
 	return encoder.encode(stringified.toString());

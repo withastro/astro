@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
+import { incrementId } from './context.js';
 
 const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
@@ -57,12 +58,27 @@ async function getNodeWritable() {
 	return Writable;
 }
 
+function needsHydration(metadata) {
+	// Adjust how this is hydrated only when the version of Astro supports `astroStaticSlot`
+	return metadata.astroStaticSlot ? !!metadata.hydrate : true;
+}
+
 async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
+	let prefix;
+	if (this && this.result) {
+		prefix = incrementId(this.result);
+	}
+	const attrs = { prefix };
+
 	delete props['class'];
 	const slots = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		const name = slotName(key);
-		slots[name] = React.createElement(StaticHtml, { value, name });
+		slots[name] = React.createElement(StaticHtml, {
+			hydrate: needsHydration(metadata),
+			value,
+			name,
+		});
 	}
 	// Note: create newProps to avoid mutating `props` before they are serialized
 	const newProps = {
@@ -71,32 +87,39 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	};
 	const newChildren = children ?? props.children;
 	if (newChildren != null) {
-		newProps.children = React.createElement(StaticHtml, { value: newChildren });
+		newProps.children = React.createElement(StaticHtml, {
+			hydrate: needsHydration(metadata),
+			value: newChildren,
+		});
 	}
 	const vnode = React.createElement(Component, newProps);
+	const renderOptions = {
+		identifierPrefix: prefix,
+	};
 	let html;
 	if (metadata && metadata.hydrate) {
 		if ('renderToReadableStream' in ReactDOM) {
-			html = await renderToReadableStreamAsync(vnode);
+			html = await renderToReadableStreamAsync(vnode, renderOptions);
 		} else {
-			html = await renderToPipeableStreamAsync(vnode);
+			html = await renderToPipeableStreamAsync(vnode, renderOptions);
 		}
 	} else {
 		if ('renderToReadableStream' in ReactDOM) {
-			html = await renderToReadableStreamAsync(vnode);
+			html = await renderToReadableStreamAsync(vnode, renderOptions);
 		} else {
-			html = await renderToStaticNodeStreamAsync(vnode);
+			html = await renderToStaticNodeStreamAsync(vnode, renderOptions);
 		}
 	}
-	return { html };
+	return { html, attrs };
 }
 
-async function renderToPipeableStreamAsync(vnode) {
+async function renderToPipeableStreamAsync(vnode, options) {
 	const Writable = await getNodeWritable();
 	let html = '';
 	return new Promise((resolve, reject) => {
 		let error = undefined;
 		let stream = ReactDOM.renderToPipeableStream(vnode, {
+			...options,
 			onError(err) {
 				error = err;
 				reject(error);
@@ -118,11 +141,11 @@ async function renderToPipeableStreamAsync(vnode) {
 	});
 }
 
-async function renderToStaticNodeStreamAsync(vnode) {
+async function renderToStaticNodeStreamAsync(vnode, options) {
 	const Writable = await getNodeWritable();
 	let html = '';
 	return new Promise((resolve, reject) => {
-		let stream = ReactDOM.renderToStaticNodeStream(vnode);
+		let stream = ReactDOM.renderToStaticNodeStream(vnode, options);
 		stream.on('error', (err) => {
 			reject(err);
 		});
@@ -164,11 +187,12 @@ async function readResult(stream) {
 	}
 }
 
-async function renderToReadableStreamAsync(vnode) {
-	return await readResult(await ReactDOM.renderToReadableStream(vnode));
+async function renderToReadableStreamAsync(vnode, options) {
+	return await readResult(await ReactDOM.renderToReadableStream(vnode, options));
 }
 
 export default {
 	check,
 	renderToStaticMarkup,
+	supportsAstroStaticSlot: true,
 };

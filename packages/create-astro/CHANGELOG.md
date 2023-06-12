@@ -1,5 +1,35 @@
 # create-astro
 
+## 3.1.7
+
+### Patch Changes
+
+- [#7326](https://github.com/withastro/astro/pull/7326) [`1430ffb47`](https://github.com/withastro/astro/commit/1430ffb4734edbb67cbeaaee7e89a9f78e00473c) Thanks [@calebdwilliams](https://github.com/calebdwilliams)! - Ensure create-astro respects package manager registry configuration
+
+## 3.1.6
+
+### Patch Changes
+
+- [#7277](https://github.com/withastro/astro/pull/7277) [`229affca4`](https://github.com/withastro/astro/commit/229affca405ce77bf80bcea6a91891f689a3161b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add `starlight` template alias
+
+## 3.1.5
+
+### Patch Changes
+
+- [#7086](https://github.com/withastro/astro/pull/7086) [`c5f1275e9`](https://github.com/withastro/astro/commit/c5f1275e9d2f212a08e56bc25e0b59c7d7e9f11d) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Fix create astro regression
+
+## 3.1.4
+
+### Patch Changes
+
+- [#7052](https://github.com/withastro/astro/pull/7052) [`8c14bffbd`](https://github.com/withastro/astro/commit/8c14bffbd9ea63bc4b4e9f9417352fdf4e7e65b4) Thanks [@ematipico](https://github.com/ematipico)! - Don't exit if dependencies fail to install
+
+## 3.1.3
+
+### Patch Changes
+
+- [#6682](https://github.com/withastro/astro/pull/6682) [`335602344`](https://github.com/withastro/astro/commit/33560234437647f2d768578e7b285c858bff7898) Thanks [@andremralves](https://github.com/andremralves)! - add validation for non-printable characters
+
 ## 3.1.2
 
 ### Patch Changes

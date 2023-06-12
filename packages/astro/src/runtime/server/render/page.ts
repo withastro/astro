@@ -30,6 +30,7 @@ function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): b
 async function iterableToHTMLBytes(
 	result: SSRResult,
 	iterable: ComponentIterable,
+	isCompressHTML: boolean,
 	onDocTypeInjection?: (parts: HTMLParts) => Promise<void>
 ): Promise<Uint8Array> {
 	const parts = new HTMLParts();
@@ -39,7 +40,7 @@ async function iterableToHTMLBytes(
 			if (i === 0) {
 				i++;
 				if (!/<!doctype html/i.test(String(chunk))) {
-					parts.append('<!DOCTYPE html>\n', result);
+					parts.append(`${isCompressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n'}`, result);
 					if (onDocTypeInjection) {
 						await onDocTypeInjection(parts);
 					}
@@ -73,11 +74,13 @@ export async function renderPage(
 	props: any,
 	children: any,
 	streaming: boolean,
+	isCompressHTML: boolean,
 	route?: RouteData | undefined
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
+		result._metadata.headInTree =
+			result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
-
 		let output: ComponentIterable;
 		let head = '';
 		try {
@@ -112,7 +115,7 @@ export async function renderPage(
 		}
 
 		// Accumulate the HTML string and append the head if necessary.
-		const bytes = await iterableToHTMLBytes(result, output, async (parts) => {
+		const bytes = await iterableToHTMLBytes(result, output, isCompressHTML, async (parts) => {
 			parts.append(head, result);
 		});
 
@@ -151,9 +154,22 @@ export async function renderPage(
 								if (isHTMLString(chunk)) {
 									if (i === 0) {
 										if (!/<!doctype html/i.test(String(chunk))) {
-											controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+											controller.enqueue(
+												encoder.encode(
+													`${isCompressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n'}`
+												)
+											);
 										}
 									}
+								}
+
+								// `chunk` might be a Response that contains a redirect,
+								// that was rendered eagerly and therefore bypassed the early check
+								// whether headers can still be modified. In that case, throw an error
+								if (chunk instanceof Response) {
+									throw new AstroError({
+										...AstroErrorData.ResponseSentError,
+									});
 								}
 
 								const bytes = chunkToByteArray(result, chunk);
@@ -177,7 +193,7 @@ export async function renderPage(
 				},
 			});
 		} else {
-			body = await iterableToHTMLBytes(result, iterable);
+			body = await iterableToHTMLBytes(result, iterable, isCompressHTML);
 			headers.set('Content-Length', body.byteLength.toString());
 		}
 

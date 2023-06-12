@@ -3,7 +3,7 @@ import https from 'https';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from './http-server.js';
-import middleware from './middleware.js';
+import middleware from './nodeMiddleware.js';
 import type { Options } from './types';
 
 function resolvePaths(options: Options) {

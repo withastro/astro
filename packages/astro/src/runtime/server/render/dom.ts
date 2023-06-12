@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { renderSlot } from './slot.js';
+import { renderSlotToString } from './slot.js';
 import { toAttributeString } from './util.js';
 
 export function componentIsHTMLElement(Component: unknown) {
@@ -23,7 +23,7 @@ export async function renderHTMLElement(
 	}
 
 	return markHTMLString(
-		`<${name}${attrHTML}>${await renderSlot(result, slots?.default)}</${name}>`
+		`<${name}${attrHTML}>${await renderSlotToString(result, slots?.default)}</${name}>`
 	);
 }
 

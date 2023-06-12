@@ -1,15 +1,19 @@
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
-import npath from 'path';
 import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
+	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
+	EndpointOutput,
+	GetStaticPathsItem,
 	ImageTransform,
+	MiddlewareResponseHandler,
+	RouteData,
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
@@ -17,34 +21,78 @@ import type {
 import {
 	generateImage as generateImageInternal,
 	getStaticImageList,
-} from '../../assets/internal.js';
-import { deleteWasmFiles } from '../../assets/services/vendor/squoosh/copy-wasm.js';
-import { hasPrerenderedPages, type BuildInternals } from '../../core/build/internal.js';
+} from '../../assets/generate.js';
+import {
+	eachPageDataFromEntryPoint,
+	eachRedirectPageData,
+	hasPrerenderedPages,
+	type BuildInternals,
+} from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
-import { AstroError } from '../errors/index.js';
+import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
+import {
+	getRedirectLocationOrThrow,
+	RedirectSinglePageBuiltModule,
+	routeIsRedirect,
+} from '../redirects/index.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
+import {
+	createAssetLink,
+	createModuleScriptsSet,
+	createStylesheetElementSet,
+} from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import {
-	eachPageData,
-	eachPrerenderedPageData,
+	cssOrder,
+	getEntryFilePathFromComponentPath,
 	getPageDataByComponent,
-	sortedCSS,
+	mergeInlineCss,
 } from './internal.js';
-import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
+import type {
+	PageBuildData,
+	SinglePageBuiltModule,
+	StaticBuildOptions,
+	StylesheetAsset,
+} from './types';
 import { getTimeStat } from './util.js';
+
+function createEntryURL(filePath: string, outFolder: URL) {
+	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
+}
+
+async function getEntryForRedirectRoute(
+	route: RouteData,
+	internals: BuildInternals,
+	outFolder: URL
+): Promise<SinglePageBuiltModule> {
+	if (route.type !== 'redirect') {
+		throw new Error(`Expected a redirect route.`);
+	}
+	if (route.redirectRoute) {
+		const filePath = getEntryFilePathFromComponentPath(internals, route.redirectRoute.component);
+		if (filePath) {
+			const url = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
+			return ssrEntryPage;
+		}
+	}
+
+	return RedirectSinglePageBuiltModule;
+}
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
@@ -83,26 +131,40 @@ export function chunkIsPage(
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
-	const ssr = opts.settings.config.output === 'server';
+	const ssr = isServerLikeOutput(opts.settings.config);
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
-	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
+	if (ssr && !hasPrerenderedPages(internals)) return;
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 
-	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
-	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	if (opts.settings.config.output === 'server') {
-		for (const pageData of eachPrerenderedPageData(internals)) {
-			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+	if (ssr) {
+		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
+			if (pageData.route.prerender) {
+				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
+				const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
+
+				await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+			}
+		}
+		for (const pageData of eachRedirectPageData(internals)) {
+			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
 	} else {
-		for (const pageData of eachPageData(internals)) {
-			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
+			const ssrEntryURLPage = createEntryURL(filePath, outFolder);
+			const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
+
+			await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+		}
+		for (const pageData of eachRedirectPageData(internals)) {
+			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
+			await generatePage(opts, internals, pageData, entry, builtPaths);
 		}
 	}
 
@@ -110,15 +172,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		info(opts.logging, null, `\n${bgGreen(black(` generating optimized images `))}`);
 		for (const imageData of getStaticImageList()) {
 			await generateImage(opts, imageData[1].options, imageData[1].path);
-		}
-
-		// Our Squoosh image service loads `.wasm` files relatively, so we need to copy the WASM files to the dist
-		// for the image generation to work. In static output, we can remove those after the build is done.
-		if (
-			opts.settings.config.image.service === 'astro/assets/services/squoosh' &&
-			opts.settings.config.output === 'static'
-		) {
-			await deleteWasmFiles(new URL('./chunks', opts.settings.config.outDir));
 		}
 
 		delete globalThis.astroAsset.addStaticImage;
@@ -144,37 +197,45 @@ async function generateImage(opts: StaticBuildOptions, transform: ImageTransform
 	const timeEnd = performance.now();
 	const timeChange = getTimeStat(timeStart, timeEnd);
 	const timeIncrease = `(+${timeChange})`;
-	info(
-		opts.logging,
-		null,
-		`  ${green('▶')} ${path} ${dim(
-			`(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`
-		)} ${dim(timeIncrease)}`
-	);
+	const statsText = generationData.cached
+		? `(reused cache entry)`
+		: `(before: ${generationData.weight.before}kb, after: ${generationData.weight.after}kb)`;
+	info(opts.logging, null, `  ${green('▶')} ${path} ${dim(statsText)} ${dim(timeIncrease)}`);
 }
 
 async function generatePage(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	ssrEntry: SingleFileBuiltModule,
+	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>
 ) {
+	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
+		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
+	}
+
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
-	const linkIds: string[] = sortedCSS(pageData);
+
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const linkIds: [] = [];
 	const scripts = pageInfo?.hoistedScript ?? null;
+	const styles = pageData.styles
+		.sort(cssOrder)
+		.map(({ sheet }) => sheet)
+		.reduce(mergeInlineCss, []);
 
-	const pageModule = ssrEntry.pageMap?.get(pageData.component);
+	const pageModulePromise = ssrEntry.page;
+	const middleware = ssrEntry.middleware;
 
-	if (!pageModule) {
+	if (!pageModulePromise) {
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
 		);
 	}
-
+	const pageModule = await pageModulePromise();
 	if (shouldSkipDraft(pageModule, opts.settings)) {
 		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
 		return;
@@ -185,6 +246,7 @@ async function generatePage(
 		internals,
 		linkIds,
 		scripts,
+		styles,
 		mod: pageModule,
 		renderers,
 	};
@@ -197,7 +259,7 @@ async function generatePage(
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions);
+		await generatePath(path, opts, generationOptions, middleware);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -224,7 +286,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server',
+			ssr: isServerLikeOutput(opts.settings.config),
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -245,7 +307,16 @@ async function getPathsForRoute(
 		opts.routeCache.set(route, result);
 
 		paths = result.staticPaths
-			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
+			.map((staticPath) => {
+				try {
+					return route.generate(staticPath.params);
+				} catch (e) {
+					if (e instanceof TypeError) {
+						throw getInvalidRouteSegmentError(e, route, staticPath);
+					}
+					throw e;
+				}
+			})
 			.filter((staticPath) => {
 				// The path hasn't been built yet, include it
 				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
@@ -270,11 +341,43 @@ async function getPathsForRoute(
 	return paths;
 }
 
+function getInvalidRouteSegmentError(
+	e: TypeError,
+	route: RouteData,
+	staticPath: GetStaticPathsItem
+): AstroError {
+	const invalidParam = e.message.match(/^Expected "([^"]+)"/)?.[1];
+	const received = invalidParam ? staticPath.params[invalidParam] : undefined;
+	let hint =
+		'Learn about dynamic routes at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes';
+	if (invalidParam && typeof received === 'string') {
+		const matchingSegment = route.segments.find(
+			(segment) => segment[0]?.content === invalidParam
+		)?.[0];
+		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
+		if (mightBeMissingSpread) {
+			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+		}
+	}
+	return new AstroError({
+		...AstroErrorData.InvalidDynamicRoute,
+		message: invalidParam
+			? AstroErrorData.InvalidDynamicRoute.message(
+					route.route,
+					JSON.stringify(invalidParam),
+					JSON.stringify(received)
+			  )
+			: `Generated path for ${route.route} is invalid.`,
+		hint,
+	});
+}
+
 interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
 	linkIds: string[];
 	scripts: { type: 'inline' | 'external'; value: string } | null;
+	styles: StylesheetAsset[];
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }
@@ -339,10 +442,19 @@ function getUrlForPath(
 async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
-	gopts: GeneratePathOptions
+	gopts: GeneratePathOptions,
+	middleware?: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
+	const {
+		mod,
+		internals,
+		linkIds,
+		scripts: hoistedScripts,
+		styles: _styles,
+		pageData,
+		renderers,
+	} = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -351,10 +463,17 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const links = createLinkStylesheetElementSet(linkIds, settings.config.base);
+	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+	const links = new Set<never>();
 	const scripts = createModuleScriptsSet(
 		hoistedScripts ? [hoistedScripts] : [],
-		settings.config.base
+		settings.config.base,
+		settings.config.build.assetsPrefix
+	);
+	const styles = createStylesheetElementSet(
+		_styles,
+		settings.config.base,
+		settings.config.build.assetsPrefix
 	);
 
 	if (settings.scripts.some((script) => script.stage === 'page')) {
@@ -362,7 +481,11 @@ async function generatePath(
 		if (typeof hashedFilePath !== 'string') {
 			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
 		}
-		const src = prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
+		const src = createAssetLink(
+			hashedFilePath,
+			settings.config.base,
+			settings.config.build.assetsPrefix
+		);
 		scripts.add({
 			props: { type: 'module', src },
 			children: '',
@@ -379,7 +502,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = settings.config.output === 'server';
+	const ssr = isServerLikeOutput(settings.config);
 	const url = getUrlForPath(
 		pathname,
 		opts.settings.config.base,
@@ -393,6 +516,7 @@ async function generatePath(
 		markdown: settings.config.markdown,
 		mode: opts.mode,
 		renderers,
+		clientDirectives: settings.clientDirectives,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {
@@ -403,7 +527,11 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			return prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
+			return createAssetLink(
+				hashedFilePath,
+				settings.config.base,
+				settings.config.build.assetsPrefix
+			);
 		},
 		routeCache,
 		site: settings.config.site
@@ -412,21 +540,32 @@ async function generatePath(
 		ssr,
 		streaming: true,
 	});
-	const ctx = createRenderContext({
+
+	const renderContext = await createRenderContext({
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		componentMetadata: internals.componentMetadata,
 		scripts,
+		styles,
 		links,
 		route: pageData.route,
+		env,
+		mod,
 	});
 
 	let body: string | Uint8Array;
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
-		const result = await callEndpoint(endpointHandler, env, ctx, logging);
+
+		const result = await callEndpoint(
+			endpointHandler,
+			env,
+			renderContext,
+			logging,
+			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+		);
 
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
@@ -441,17 +580,64 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			response = await renderPage(mod, ctx, env);
+			const apiContext = createAPIContext({
+				request: renderContext.request,
+				params: renderContext.params,
+				props: renderContext.props,
+				site: env.site,
+				adapterName: env.adapterName,
+			});
+
+			const onRequest = middleware?.onRequest;
+			if (onRequest) {
+				response = await callMiddleware<Response>(
+					env.logging,
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage({
+							mod,
+							renderContext,
+							env,
+							apiContext,
+							isCompressHTML: settings.config.compressHTML,
+						});
+					}
+				);
+			} else {
+				response = await renderPage({
+					mod,
+					renderContext,
+					env,
+					apiContext,
+					isCompressHTML: settings.config.compressHTML,
+				});
+			}
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;
 			}
 			throw err;
 		}
-		throwIfRedirectNotAllowed(response, opts.settings.config);
-		// If there's no body, do nothing
-		if (!response.body) return;
-		body = await response.text();
+
+		if (response.status >= 300 && response.status < 400) {
+			// If redirects is set to false, don't output the HTML
+			if (!opts.settings.config.build.redirects) {
+				return;
+			}
+			const location = getRedirectLocationOrThrow(response.headers);
+			body = `<!doctype html>
+<title>Redirecting to: ${location}</title>
+<meta http-equiv="refresh" content="0;url=${location}" />`;
+			// A dynamic redirect, set the location so that integrations know about it.
+			if (pageData.route.type !== 'redirect') {
+				pageData.route.redirect = location;
+			}
+		} else {
+			// If there's no body, do nothing
+			if (!response.body) return;
+			body = await response.text();
+		}
 	}
 
 	const outFolder = getOutFolder(settings.config, pathname, pageData.route.type);

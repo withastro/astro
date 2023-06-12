@@ -13,6 +13,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
@@ -59,6 +60,10 @@ function getParts(part: string, file: string) {
 	});
 
 	return result;
+}
+
+function areSamePart(a: RoutePart, b: RoutePart) {
+	return a.content === b.content && a.dynamic === b.dynamic && a.spread === b.spread;
 }
 
 function getPattern(
@@ -172,6 +177,7 @@ function comparator(a: Item, b: Item) {
 		}
 	}
 
+	// endpoints are prioritized over pages
 	if (a.isPage !== b.isPage) {
 		return a.isPage ? 1 : -1;
 	}
@@ -203,6 +209,25 @@ function injectedRouteToItem(
 	};
 }
 
+// Seeings if the two routes are siblings of each other, with `b` being the route
+// in focus. If it is in the same parent folder as `a`, they are siblings.
+function areSiblings(a: RouteData, b: RouteData) {
+	if (a.segments.length < b.segments.length) return false;
+	for (let i = 0; i < b.segments.length - 1; i++) {
+		let segment = b.segments[i];
+		if (segment.length === a.segments[i].length) {
+			for (let j = 0; j < segment.length; j++) {
+				if (!areSamePart(segment[j], a.segments[i][j])) {
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
 export interface CreateRouteManifestParams {
 	/** Astro Settings object */
 	settings: AstroSettings;
@@ -226,6 +251,9 @@ export function createRouteManifest(
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
+	const prerender = getPrerenderDefault(settings.config);
+
+	const foundInvalidFileExtensions: Set<string> = new Set();
 
 	function walk(
 		fs: typeof nodeFs,
@@ -250,6 +278,11 @@ export function createRouteManifest(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
+				if (!foundInvalidFileExtensions.has(ext)) {
+					foundInvalidFileExtensions.add(ext);
+					warn(logging, 'astro', `Invalid file extension for Pages: ${ext}`);
+				}
+
 				return;
 			}
 			const segment = isDir ? basename : name;
@@ -322,7 +355,6 @@ export function createRouteManifest(
 				const route = `/${segments
 					.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
 					.join('/')}`.toLowerCase();
-
 				routes.push({
 					route,
 					type: item.isPage ? 'page' : 'endpoint',
@@ -332,7 +364,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: false,
+					prerender,
 				});
 			}
 		});
@@ -408,9 +440,51 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: false,
+				prerender,
 			});
 		});
+
+	Object.entries(settings.config.redirects).forEach(([from, to]) => {
+		const trailingSlash = config.trailingSlash;
+
+		const segments = removeLeadingForwardSlash(from)
+			.split(path.posix.sep)
+			.filter(Boolean)
+			.map((s: string) => {
+				validateSegment(s);
+				return getParts(s, from);
+			});
+
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+			? `/${segments.map((segment) => segment[0].content).join('/')}`
+			: null;
+		const params = segments
+			.flat()
+			.filter((p) => p.dynamic)
+			.map((p) => p.content);
+		const route = `/${segments
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+			.join('/')}`.toLowerCase();
+
+		const routeData: RouteData = {
+			type: 'redirect',
+			route,
+			pattern,
+			segments,
+			params,
+			component: from,
+			generate,
+			pathname: pathname || void 0,
+			prerender: false,
+			redirect: to,
+			redirectRoute: routes.find((r) => r.route === to),
+		};
+
+		// Push so that redirects are selected last.
+		routes.push(routeData);
+	});
 
 	return {
 		routes,

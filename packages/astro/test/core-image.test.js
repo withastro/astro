@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { basename } from 'node:path';
 import { Writable } from 'node:stream';
-import { fileURLToPath } from 'node:url';
+import { removeDir } from '../dist/core/fs/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+import { testImageService } from './test-image-service.js';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -20,6 +22,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image/',
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService({ foo: 'bar' }),
 				},
 			});
 
@@ -97,6 +102,13 @@ describe('astro:image', () => {
 				expect(res.status).to.equal(200);
 			});
 
+			it('returns proper content-type', async () => {
+				let $img = $('#local img');
+				let src = $img.attr('src');
+				let res = await fixture.fetch(src);
+				expect(res.headers.get('content-type')).to.equal('image/webp');
+			});
+
 			it('errors on unsupported formats', async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/unsupported-format');
@@ -104,6 +116,59 @@ describe('astro:image', () => {
 
 				expect(logs).to.have.a.lengthOf(1);
 				expect(logs[0].message).to.contain('Received unsupported format');
+			});
+
+			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import ssss", async () => {
+				logs.length = 0;
+				let res = await fixture.fetch('/error-image-src-passed');
+				await res.text();
+
+				expect(logs).to.have.a.lengthOf(1);
+				expect(logs[0].message).to.contain('must be an imported image or an URL');
+			});
+
+			it('supports images from outside the project', async () => {
+				let res = await fixture.fetch('/outsideProject');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(2);
+				expect(
+					$img.toArray().every((img) => {
+						return (
+							img.attribs['src'].startsWith('/@fs/') ||
+							img.attribs['src'].startsWith('/_image?href=%2F%40fs%2F')
+						);
+					})
+				).to.be.true;
+			});
+		});
+
+		describe('vite-isms', () => {
+			/**
+			 * @type {cheerio.CheerioAPI}
+			 */
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/vite');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
+			it('support ?url imports', () => {
+				let $url = $('#url');
+				expect($url.text()).to.equal('string');
+			});
+
+			it('support ?raw imports', () => {
+				let $raw = $('#raw');
+				expect($raw.text()).to.equal('string');
+			});
+
+			it('support glob import as raw', () => {
+				let $raw = $('#glob-import');
+				expect($raw.text()).to.equal('string');
 			});
 		});
 
@@ -192,9 +257,9 @@ describe('astro:image', () => {
 				expect($img).to.have.a.lengthOf(1);
 
 				// Verbose test for the full URL to make sure the image went through the full pipeline
-				expect($img.attr('src')).to.equal(
-					'/_image?href=%2Fsrc%2Fassets%2Fpenguin1.jpg%3ForigWidth%3D207%26origHeight%3D243%26origFormat%3Djpg&f=webp'
-				);
+				expect(
+					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp')
+				).to.equal(true);
 			});
 
 			it('has width and height attributes', () => {
@@ -210,6 +275,19 @@ describe('astro:image', () => {
 
 				let $img = $('img');
 				expect($img.attr('src').startsWith('/_image')).to.equal(true);
+			});
+
+			it('properly handles remote images', async () => {
+				let res = await fixture.fetch('/httpImage');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(2);
+				const remoteUrls = ['https://example.com/image.png', '/image.png'];
+				$img.each((index, element) => {
+					expect(element.attribs['src']).to.equal(remoteUrls[index]);
+				});
 			});
 		});
 
@@ -243,12 +321,25 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				expect($img).to.have.a.lengthOf(4);
+				expect($img).to.have.a.lengthOf(7);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+				expect($img.attr('src').startsWith('/')).to.equal(true);
+			});
+
+			it('has proper source for refined image', () => {
+				let $img = $('#refined-image img');
+				expect($img.attr('src').startsWith('/')).to.equal(true);
+			});
+
+			it('has proper sources for array of images', () => {
+				let $img = $('#array-of-images img');
+				const imgsSrcs = [];
+				$img.each((i, img) => imgsSrcs.push(img.attribs['src']));
+				expect($img).to.have.a.lengthOf(2);
+				expect(imgsSrcs.every((img) => img.startsWith('/'))).to.be.true;
 			});
 
 			it('has proper attributes for optimized image through getImage', () => {
@@ -268,7 +359,7 @@ describe('astro:image', () => {
 
 			it('properly handles nested images', () => {
 				let $img = $('#nested-image img');
-				expect($img.attr('src').startsWith('/src/')).to.equal(true);
+				expect($img.attr('src').startsWith('/')).to.equal(true);
 			});
 		});
 
@@ -286,7 +377,33 @@ describe('astro:image', () => {
 			});
 
 			it('includes /src in the path', async () => {
-				expect($('img').attr('src').startsWith('/src')).to.equal(true);
+				expect($('img').attr('src').includes('/src')).to.equal(true);
+			});
+		});
+
+		describe('custom service', () => {
+			it('custom service implements getHTMLAttributes', async () => {
+				const response = await fixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				expect($('#local img').attr('data-service')).to.equal('my-custom-service');
+			});
+
+			it('custom service works in Markdown', async () => {
+				const response = await fixture.fetch('/post');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				expect($('img').attr('data-service')).to.equal('my-custom-service');
+			});
+
+			it('gets service config', async () => {
+				const response = await fixture.fetch('/');
+				const html = await response.text();
+
+				const $ = cheerio.load(html);
+				expect($('#local img').attr('data-service-config')).to.equal('bar');
 			});
 		});
 	});
@@ -302,6 +419,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-errors/',
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService(),
 				},
 			});
 
@@ -345,7 +465,7 @@ describe('astro:image', () => {
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/blog/one');
-			const text = await res.text();
+			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('does not exist. Is the path correct?');
@@ -354,7 +474,7 @@ describe('astro:image', () => {
 		it('properly error image in Markdown content is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/post');
-			const text = await res.text();
+			await res.text();
 
 			expect(logs).to.have.a.lengthOf(1);
 			expect(logs[0].message).to.contain('Could not find requested image');
@@ -367,6 +487,9 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-base/',
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService(),
 				},
 				base: '/blog',
 			});
@@ -412,6 +535,30 @@ describe('astro:image', () => {
 			expect(src.length).to.be.greaterThan(0);
 			expect(src.startsWith('/blog')).to.be.true;
 		});
+
+		it('has base path prefix in SSR', async () => {
+			const fixtureWithBase = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+				image: {
+					service: testImageService(),
+				},
+				base: '/blog',
+			});
+			await fixtureWithBase.build();
+			const app = await fixtureWithBase.loadTestAdapterApp();
+			const request = new Request('http://example.com/blog/');
+			const response = await app.render(request);
+			expect(response.status).to.equal(200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			const src = $('#local img').attr('src');
+			expect(src.startsWith('/blog')).to.be.true;
+		});
 	});
 
 	describe('build ssg', () => {
@@ -421,7 +568,13 @@ describe('astro:image', () => {
 				experimental: {
 					assets: true,
 				},
+				image: {
+					service: testImageService(),
+				},
 			});
+			// Remove cache directory
+			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+
 			await fixture.build();
 		});
 
@@ -536,6 +689,67 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			expect($('#no-format img').attr('src')).to.not.equal($('#format-avif img').attr('src'));
 		});
+
+		it('has cache entries', async () => {
+			const generatedImages = (await fixture.glob('_astro/**/*.webp')).map((path) =>
+				basename(path)
+			);
+			const cachedImages = (await fixture.glob('../node_modules/.astro/assets/**/*.webp')).map(
+				(path) => basename(path)
+			);
+
+			expect(generatedImages).to.deep.equal(cachedImages);
+		});
+
+		it('uses cache entries', async () => {
+			const logs = [];
+			const logging = {
+				dest: {
+					write(chunk) {
+						logs.push(chunk);
+					},
+				},
+			};
+
+			await fixture.build({ logging });
+			const generatingImageIndex = logs.findIndex((logLine) =>
+				logLine.message.includes('generating optimized images')
+			);
+			const relevantLogs = logs.slice(generatingImageIndex + 1, -1);
+			const isReusingCache = relevantLogs.every((logLine) =>
+				logLine.message.includes('(reused cache entry)')
+			);
+
+			expect(isReusingCache).to.be.true;
+		});
+	});
+
+	describe('dev ssr', () => {
+		let devServer;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				adapter: testAdapter(),
+				experimental: {
+					assets: true,
+				},
+				image: {
+					service: testImageService(),
+				},
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('does not interfere with query params', async () => {
+			let res = await fixture.fetch('/api?src=image.png');
+			const html = await res.text();
+			expect(html).to.equal('An image: "image.png"');
+		});
 	});
 
 	describe('prod ssr', () => {
@@ -546,6 +760,9 @@ describe('astro:image', () => {
 				adapter: testAdapter(),
 				experimental: {
 					assets: true,
+				},
+				image: {
+					service: testImageService(),
 				},
 			});
 			await fixture.build();
@@ -574,39 +791,6 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			expect(imgData).to.be.an.instanceOf(Buffer);
-		});
-	});
-
-	describe('custom service', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image/',
-				experimental: {
-					assets: true,
-				},
-				image: {
-					service: fileURLToPath(new URL('./fixtures/core-image/service.mjs', import.meta.url)),
-				},
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		it('custom service implements getHTMLAttributes', async () => {
-			const response = await fixture.fetch('/');
-			const html = await response.text();
-
-			const $ = cheerio.load(html);
-			expect($('#local img').attr('data-service')).to.equal('my-custom-service');
-		});
-
-		it('custom service works in Markdown', async () => {
-			const response = await fixture.fetch('/post');
-			const html = await response.text();
-
-			const $ = cheerio.load(html);
-			expect($('img').attr('data-service')).to.equal('my-custom-service');
 		});
 	});
 });

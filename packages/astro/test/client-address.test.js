@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, silentLogging } from './test-utils.js';
 import testAdapter from './test-adapter.js';
-import { nodeLogDestination } from '../dist/core/logger/node.js';
 import * as cheerio from 'cheerio';
 
 describe('Astro.clientAddress', () => {
@@ -110,11 +109,7 @@ describe('Astro.clientAddress', () => {
 
 			before(async () => {
 				// We expect an error, so silence the output
-				const logging = {
-					dest: nodeLogDestination,
-					level: 'silent',
-				};
-				devServer = await fixture.startDevServer({ logging });
+				devServer = await fixture.startDevServer({ logging: silentLogging });
 			});
 
 			after(async () => {

@@ -6,7 +6,7 @@ import {
 } from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
-import fsMod, * as fs from 'fs';
+import fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
 import { join } from 'node:path';
@@ -136,7 +136,7 @@ type CheckerConstructor = {
 
 	logging: Readonly<LogOptions>;
 
-	fileSystem: typeof fsMod;
+	fileSystem: typeof fs;
 };
 
 /**
@@ -153,7 +153,7 @@ export class AstroChecker {
 	readonly #settings: AstroSettings;
 
 	readonly #logging: LogOptions;
-	readonly #fs: typeof fsMod;
+	readonly #fs: typeof fs;
 	#watcher?: FSWatcher;
 
 	#filesCount: number;

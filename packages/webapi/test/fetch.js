@@ -13,13 +13,13 @@ describe('Fetch', () => {
 	it('Fetch with https', async () => {
 		const { fetch } = target
 
-		const response = await fetch('https://api.openbrewerydb.org/breweries')
+		const response = await fetch('https://astro.build')
 
 		expect(response.constructor).to.equal(target.Response)
 
-		const json = await response.json()
+		const html = await response.text()
 
-		expect(json).to.be.an('array')
+		expect(html).to.include('<html')
 	})
 
 	it('Fetch with data', async () => {

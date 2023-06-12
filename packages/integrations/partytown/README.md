@@ -100,7 +100,7 @@ export default defineConfig({
   integrations: [partytown({
     // Example: Disable debug mode.
     config: { debug: false },
-  
+  })]
 })
 ```
 
@@ -131,6 +131,8 @@ export default defineConfig ({
 - [Browse projects with Astro Partytown on GitHub](https://github.com/search?q=%22@astrojs/partytown%22+filename:package.json&type=Code) for more examples! 
 
 ## Troubleshooting
+
+- If you're getting a `Failed to fetch` error, make sure you're not using any browser extensions that are blocking the script.
 
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 

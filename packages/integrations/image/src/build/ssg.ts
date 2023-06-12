@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { debug, info, warn, type LoggerLevel } from '../utils/logger.js';
-import { isRemoteImage } from '../utils/paths.js';
+import { isRemoteImage, prependForwardSlash } from '../utils/paths.js';
 import { ImageCache } from './cache.js';
 
 async function loadLocalImage(src: string | URL) {
@@ -135,10 +135,15 @@ export async function ssgBuild({
 		// tracks the cache duration for the original source image
 		let expires = 0;
 
-		// Vite will prefix a hashed image with the base path, we need to strip this
-		// off to find the actual file relative to /dist
-		if (config.base && src.startsWith(config.base)) {
-			src = src.substring(config.base.length - +config.base.endsWith('/'));
+		// Strip leading assetsPrefix or base added by addStaticImage
+		if (config.build.assetsPrefix) {
+			if (src.startsWith(config.build.assetsPrefix)) {
+				src = prependForwardSlash(src.slice(config.build.assetsPrefix.length));
+			}
+		} else if (config.base) {
+			if (src.startsWith(config.base)) {
+				src = prependForwardSlash(src.slice(config.base.length));
+			}
 		}
 
 		if (isRemoteImage(src)) {
