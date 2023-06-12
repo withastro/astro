@@ -455,7 +455,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name redirects (Experimental)
-	 * @type {RedirectConfig}
+	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
 	 * @version 2.6.0
 	 * @description Specify a mapping of redirects where the key is the route to match
@@ -495,7 +495,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	redirects?: RedirectConfig;
+	redirects?: Record<string, RedirectConfig>;
 
 	/**
 	 * @docs
@@ -1839,14 +1839,12 @@ export interface RoutePart {
 	spread: boolean;
 }
 
-type RedirectConfig = Record<
-	string,
+type RedirectConfig =
 	| string
 	| {
 			status: ValidRedirectStatus;
 			destination: string;
-	  }
->;
+	  };
 
 export interface RouteData {
 	route: string;
