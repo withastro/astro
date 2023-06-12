@@ -2,4 +2,4 @@
 '@astrojs/tailwind': major
 ---
 
-Remove redundant work
+Let tailwind postcss plugin load its config file itself
