@@ -25,7 +25,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 			: [e as SSRError];
 
 	err.forEach((error, idx) => {
-		if (e.stack || error.stack) {
+		if (e.stack) {
 			const stackInfo = collectInfoFromStacktrace(e);
 			error.stack = stackInfo.stack;
 			error.loc = stackInfo.loc;
