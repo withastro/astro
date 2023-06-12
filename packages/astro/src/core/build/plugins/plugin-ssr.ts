@@ -13,8 +13,6 @@ import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
-import type { StaticBuildOptions } from '../types';
-import { getVirtualModulePageNameFromPath } from './plugin-pages.js';
 import type { OutputChunk, StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
@@ -107,15 +105,13 @@ export function pluginSSRServer(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const ssr =
-		options.settings.config.output === 'server' || isHybridOutput(options.settings.config);
+	const ssr = isServerLikeOutput(options.settings.config);
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					// config.build object is optional, so we check NOT EQUAL against "serverless" instead
-					ssr && options.settings.config.build?.mode !== 'serverless'
+					ssr && options.settings.config.build.ssrMode === 'server'
 						? vitePluginSSRServer(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -129,7 +125,7 @@ export function pluginSSRServer(
 					return;
 				}
 
-				if (options.settings.config.build?.mode === 'serverless') {
+				if (options.settings.config.build.ssrMode === 'serverless') {
 					return;
 				}
 
@@ -158,7 +154,7 @@ function vitePluginSSRServerless(
 		name: '@astrojs/vite-plugin-astro-ssr-serverless',
 		enforce: 'post',
 		options(opts) {
-			if (options.settings.config.build?.mode === 'serverless') {
+			if (options.settings.config.build.ssrMode === 'serverless') {
 				const inputs: Set<string> = new Set();
 
 				for (const path of Object.keys(options.allPages)) {
@@ -232,14 +228,13 @@ export function pluginSSRServerless(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
-	const ssr =
-		options.settings.config.output === 'server' || isHybridOutput(options.settings.config);
+	const ssr = isServerLikeOutput(options.settings.config);
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr && options.settings.config.build.mode === 'serverless'
+					ssr && options.settings.config.build.ssrMode === 'serverless'
 						? vitePluginSSRServerless(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -252,7 +247,7 @@ export function pluginSSRServerless(
 				if (!ssr) {
 					return;
 				}
-				if (options.settings.config.build?.mode === 'server') {
+				if (options.settings.config.build.ssrMode === 'server') {
 					return;
 				}
 
@@ -275,13 +270,8 @@ export function pluginSSRServerless(
 function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 	const imports: string[] = [];
 	const contents: string[] = [];
-	let middleware;
-	if (config.experimental?.middleware === true) {
-		imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}";`);
-		middleware = 'middleware: _middleware';
-	}
 	let pageMap;
-	if (config.build.mode === 'serverless') {
+	if (config.build.ssrMode === 'serverless') {
 		pageMap = 'pageModule';
 	} else {
 		pageMap = 'pageMap';
@@ -335,7 +325,7 @@ export async function injectManifest(
 	internals: BuildInternals,
 	chunk: Readonly<OutputChunk>
 ) {
-	if (buildOpts.settings.config.build.mode === 'serverless') {
+	if (buildOpts.settings.config.build.ssrMode === 'serverless') {
 		if (internals.ssrServerlessEntryChunks.size === 0) {
 			throw new Error(`Did not generate an entry chunk for SSR in serverless mode`);
 		}
@@ -474,40 +464,4 @@ function buildManifest(
 	};
 
 	return ssrManifest;
-}
-
-export function pluginSSR(
-	options: StaticBuildOptions,
-	internals: BuildInternals
-): AstroBuildPlugin {
-	const ssr = isServerLikeOutput(options.settings.config);
-	return {
-		build: 'ssr',
-		hooks: {
-			'build:before': () => {
-				let vitePlugin = ssr
-					? vitePluginSSR(internals, options.settings.adapter!, options)
-					: undefined;
-
-				return {
-					enforce: 'after-user-plugins',
-					vitePlugin,
-				};
-			},
-			'build:post': async ({ mutate }) => {
-				if (!ssr) {
-					return;
-				}
-
-				if (!internals.ssrEntryChunk) {
-					throw new Error(`Did not generate an entry chunk for SSR`);
-				}
-				// Mutate the filename
-				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
-
-				const code = await injectManifest(options, internals);
-				mutate(internals.ssrEntryChunk, 'server', code);
-			},
-		},
-	};
 }

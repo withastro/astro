@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 import * as cheerio from 'cheerio';
 
-describe('astro:ssr-manifest', () => {
+describe('astro:ssr-manifest, serverless', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 

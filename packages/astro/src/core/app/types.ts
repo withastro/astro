@@ -31,7 +31,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
 
-type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
+export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
 export type SSRBaseManifest = SSRServerManifest | SSRServerlessManifest;
 
@@ -50,7 +50,6 @@ export type SSRServerManifest = {
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
-	middleware?: AstroMiddlewareInstance<unknown>;
 	pageModule?: undefined;
 	pageMap: Map<ComponentPath, ImportComponentInstance>;
 };

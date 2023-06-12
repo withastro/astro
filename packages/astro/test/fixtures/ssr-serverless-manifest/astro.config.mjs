@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 export default defineConfig({
     build: {
-        mode: "serverless"
+        ssrMode: "serverless"
     },
     output: "server"
 })

@@ -860,22 +860,22 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name build.mode
-		 * @type {string}
-		 * @default {'server' | 'serverless'}
+		 * @name build.ssrMode
+		 * @type {'server' | 'serverless'}
+		 * @default {'server'}
 		 * @description
-		 * Defines how the SSR should be bundled. SSR code for "server"
+		 * Defines how the SSR code should be bundled. SSR code for "server"
 		 * will be built in one single file.
 		 *
-		 * When "serverless" is specified, Astro will emit a file for each page.
+		 * When "serverless" is passed, Astro will emit a file for each page.
 		 * Each file emitted will render only one page. The pages will be emitted
-		 * inside a `pages/` directory, and emitted file will keep the same file paths
+		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
 		 * of the `src/pages` directory.
 		 *
 		 * Each emitted file will be prefixed with `entry`. You can use {@link build.serverlessEntryPrefix}
 		 * to change the prefix.
 		 *
-		 * Inside the `dist/` directory, the pages
+		 * Inside the `dist/` directory, the pages will look like this:
 		 * ```plaintext
 		 * ├── pages
 		 * │   ├── blog
@@ -892,7 +892,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		mode?: 'server' | 'serverless';
+		ssrMode?: 'server' | 'serverless';
 	};
 
 	/**

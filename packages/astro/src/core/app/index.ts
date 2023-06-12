@@ -6,7 +6,7 @@ import type {
 	SSRElement,
 	SSRBaseManifest,
 } from '../../@types/astro';
-import type { RouteInfo, SSRServerlessManifest, SSRServerManifest } from './types';
+import type { RouteInfo, SSRServerManifest } from './types';
 
 import mime from 'mime';
 import type { SinglePageBuiltModule } from '../build/types';
@@ -150,7 +150,6 @@ export class App {
 		}
 
 		let mod = await this.#getModuleForRoute(routeData);
-		let mod = await this.#retrievePage(routeData);
 
 		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
@@ -159,7 +158,6 @@ export class App {
 			if (response.status === 500 || response.status === 404) {
 				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
 				if (errorRouteData && errorRouteData.route !== routeData.route) {
-					mod = await this.#retrievePage(errorPageData);
 					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
 						let errorResponse = await this.#renderPage(
@@ -188,14 +186,19 @@ export class App {
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {
-			const importComponentInstance = this.#manifest.pageMap.get(route.component);
-			if (!importComponentInstance) {
-				throw new Error(
-					`Unexpectedly unable to find a component instance for route ${route.route}`
-				);
+			if (isSsrServerManifest(this.#manifest)) {
+				const importComponentInstance = this.#manifest.pageMap.get(route.component);
+				if (!importComponentInstance) {
+					throw new Error(
+						`Unexpectedly unable to find a component instance for route ${route.route}`
+					);
+				}
+				const pageModule = await importComponentInstance();
+				return pageModule;
+			} else {
+				const importComponentInstance = this.#manifest.pageModule;
+				return importComponentInstance;
 			}
-			const built = await importComponentInstance();
-			return built;
 		}
 	}
 
