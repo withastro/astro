@@ -44,6 +44,7 @@ export interface ModuleNode {
 	ssrModule: Record<string, any> | null;
 	ssrError: Error | null;
 	importedModules: Set<ModuleNode>;
+	importers: Set<ModuleNode>;
 }
 
 export interface ModuleInfo {

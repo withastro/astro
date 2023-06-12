@@ -82,7 +82,7 @@ export async function* crawlGraph(
 						}
 					}
 				}
-				if (!isPropagationStoppingPoint) {
+				if (isImportedBy(id, importedModule) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -99,4 +99,15 @@ export async function* crawlGraph(
 		yield importedModule;
 		yield* crawlGraph(loader, importedModule.id, false, scanned);
 	}
+}
+
+// Verify true imports. If the child module has the parent as an importers, it's
+// a real import.
+function isImportedBy(parent: string, entry: ModuleNode) {
+	for(const importer of entry.importers) {
+		if(importer.id === parent) {
+			return true;
+		}
+	}
+	return false;
 }
