@@ -23,8 +23,15 @@ const workspaceDirs = await glob(rootPackageJson.workspaces, {
 });
 for (const workspaceDir of workspaceDirs) {
 	const packageJsonPath = path.join(workspaceDir, './package.json');
-	const packageJson = await tryParsePackageJson(packageJsonPath);
+	const packageJson = await readAndParsePackageJson(packageJsonPath);
 	if (!packageJson) continue;
+
+	if (!packageJson.name) {
+		throw new Error(`${packageJsonPath} does not contain a "name" field.`);
+	}
+	if (!packageJson.version) {
+		throw new Error(`${packageJsonPath} does not contain a "version" field.`);
+	}
 
 	packageToVersions.set(packageJson.name, packageJson.version);
 }
@@ -36,7 +43,7 @@ const exampleDirs = await glob('examples/*', {
 });
 for (const exampleDir of exampleDirs) {
 	const packageJsonPath = path.join(exampleDir, './package.json');
-	const packageJson = await tryParsePackageJson(packageJsonPath);
+	const packageJson = await readAndParsePackageJson(packageJsonPath);
 	if (!packageJson) continue;
 
 	// Update dependencies
@@ -58,8 +65,9 @@ for (const exampleDir of exampleDirs) {
 
 /**
  * @param {string} packageJsonPath
+ * @returns {Promise<Record<string, any> | undefined>}
  */
-async function tryParsePackageJson(packageJsonPath) {
+async function readAndParsePackageJson(packageJsonPath) {
 	try {
 		return JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
 	} catch {}
