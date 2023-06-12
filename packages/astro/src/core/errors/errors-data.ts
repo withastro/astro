@@ -1114,6 +1114,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @message `COLLECTION_NAME` contains multiple entries with the same slug: `SLUG`. Slugs must be unique.
 	 * @description
 	 * Content collection entries must have unique slugs. Duplicates are often caused by the `slug` frontmatter property.
 	 */
