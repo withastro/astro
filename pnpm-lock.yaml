@@ -3729,9 +3729,6 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     devDependencies:
-      '@playwright/test':
-        specifier: ^1.29.2
-        version: 1.29.2
       '@types/http-cache-semantics':
         specifier: ^4.0.1
         version: 4.0.1
@@ -3768,21 +3765,6 @@ importers:
       vite:
         specifier: ^4.3.1
         version: 4.3.1(@types/node@18.16.3)(sass@1.52.2)
-
-  packages/integrations/image/e2e/fixtures/basic-picture:
-    dependencies:
-      '@astrojs/image':
-        specifier: workspace:*
-        version: link:../../..
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../node
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-      sharp:
-        specifier: ^0.32.1
-        version: 0.32.1
 
   packages/integrations/image/test/fixtures/assets-prefix:
     dependencies:
