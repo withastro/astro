@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.14",
+    "postcss": "^8.4.24",
     "postcss-load-config": "^4.0.1"
   },
   "devDependencies": {
@@ -44,7 +44,7 @@
   },
   "peerDependencies": {
     "astro": "workspace:^2.6.3",
-    "tailwindcss": "^3.3.1"
+    "tailwindcss": "^3.3.2"
   },
   "pnpm": {
     "peerDependencyRules": {
