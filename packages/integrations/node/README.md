@@ -150,6 +150,10 @@ You can pass the path to your key and certification via the environment variable
 SERVER_KEY_PATH=./private/key.pem SERVER_CERT_PATH=./private/cert.pem node ./dist/server/entry.mjs
 ```
 
+#### Runtime environment variables
+
+If an `.env` file is present when the build process is run, the values of environment variables provided by this file will be hard-coded in the output, same as when generating a static website. Special handling is required for values that have to be provided at run-time. Such variables must exist with any value during the build process: `RUNTIME_VALUE=placeholder astro build`. The placeholder value will be ignored by the build process, however its existence will signal to Astro that the actual value will be available as an environment variable when the built application will be run. In the case of multiple variables, you can store them in a file like `.env.runtime` and then start the build with the following command: `export $(cat .env.runtime) && astro build`. Note that these variables **must be absent** in the `.env` file.
+
 ## Troubleshooting
 
 ### SyntaxError: Named export 'compile' not found
