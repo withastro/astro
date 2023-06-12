@@ -1,4 +1,3 @@
-import { object } from 'zod';
 import type {
 	ComponentInstance,
 	GetStaticPathsItem,

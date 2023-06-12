@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': patch
 ---
 
-Regex sometimes fails to match. I splice the complete path and match it to ensure that it is completely correct.
+Fix edge case with file-based routing match logic
