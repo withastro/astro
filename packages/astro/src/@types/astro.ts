@@ -1839,12 +1839,14 @@ export interface RoutePart {
 	spread: boolean;
 }
 
-type RedirectConfig =
+type RedirectConfig = Record<
+	string,
 	| string
 	| {
 			status: ValidRedirectStatus;
 			destination: string;
-	  };
+	  }
+>;
 
 export interface RouteData {
 	route: string;
