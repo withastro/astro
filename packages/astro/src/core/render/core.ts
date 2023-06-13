@@ -111,7 +111,7 @@ export type RenderPage = {
 	isCompressHTML?: boolean;
 };
 
-export async function renderPage({ mod, renderContext, env,isCompressHTML = false, }: RenderPage) {
+export async function renderPage({ mod, renderContext, env, isCompressHTML = false }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -125,15 +125,6 @@ export async function renderPage({ mod, renderContext, env,isCompressHTML = fals
 	const Component = mod.default;
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-
-	if (renderContext.locals) {
-		if (env.mode === 'development' && !isValueSerializable(renderContext.locals)) {
-			throw new AstroError({
-				...AstroErrorData.LocalsNotSerializable,
-				message: AstroErrorData.LocalsNotSerializable.message(renderContext.pathname),
-			});
-		}
-	}
 
 	const result = createResult({
 		adapterName: env.adapterName,
@@ -155,7 +146,7 @@ export async function renderPage({ mod, renderContext, env,isCompressHTML = fals
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
-		cookies: apiContext?.cookies,
+		cookies: renderContext.cookies,
 		locals: renderContext.locals ?? {},
 	});
 
