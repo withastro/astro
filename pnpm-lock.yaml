@@ -1,8 +1,4 @@
-lockfileVersion: '6.1'
-
-settings:
-  autoInstallPeers: false
-  excludeLinksFromLockfile: false
+lockfileVersion: '6.0'
 
 overrides:
   tsconfig-resolver>type-fest: 3.0.0
@@ -3589,6 +3585,9 @@ importers:
       '@astrojs/underscore-redirects':
         specifier: ^0.1.0
         version: link:../../underscore-redirects
+      '@cloudflare/workers-types':
+        specifier: ^4.20230518.0
+        version: 4.20230518.0
       esbuild:
         specifier: ^0.17.12
         version: 0.17.12
@@ -3619,6 +3618,15 @@ importers:
         version: 2.0.23
 
   packages/integrations/cloudflare/test/fixtures/basics:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/cf:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -7225,6 +7233,10 @@ packages:
     dependencies:
       mime: 3.0.0
     dev: true
+
+  /@cloudflare/workers-types@4.20230518.0:
+    resolution: {integrity: sha512-A0w1V+5SUawGaaPRlhFhSC/SCDT9oQG8TMoWOKFLA4qbqagELqEAFD4KySBIkeVOvCBLT1DZSYBMCxbXddl0kw==}
+    dev: false
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -18393,3 +18405,7 @@ packages:
     dependencies:
       solid-js: 1.7.4
     dev: false
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false

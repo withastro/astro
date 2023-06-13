@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "^0.1.0",
+    "@cloudflare/workers-types": "^4.20230518.0",
     "esbuild": "^0.17.12",
     "tiny-glob": "^0.2.9"
   },
