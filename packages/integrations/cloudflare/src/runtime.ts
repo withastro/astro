@@ -1,8 +1,12 @@
+import type { Cache, CacheStorage, IncomingRequestCfProperties } from '@cloudflare/workers-types';
+
 export type WorkerRuntime<T = unknown> = {
 	name: 'cloudflare';
 	env: T;
 	waitUntil(promise: Promise<any>): void;
 	passThroughOnException(): void;
+	caches?: CacheStorage & { default: Cache };
+	cf?: IncomingRequestCfProperties;
 };
 
 export type PagesRuntime<T = unknown, U = unknown> = {
@@ -13,6 +17,8 @@ export type PagesRuntime<T = unknown, U = unknown> = {
 	data: U;
 	waitUntil(promise: Promise<any>): void;
 	next(request: Request): void;
+	caches?: CacheStorage & { default: Cache };
+	cf?: IncomingRequestCfProperties;
 };
 
 export function getRuntime<T = unknown, U = unknown>(

@@ -1,6 +1,7 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
+import type { Request } from '@cloudflare/workers-types';
 
 if (!isNode) {
 	process.env = getProcessEnvProxy();
@@ -31,7 +32,13 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
-			Reflect.set(request, Symbol.for('runtime'), { env, name: 'cloudflare', ...context });
+			Reflect.set(request, Symbol.for('runtime'), {
+				env,
+				name: 'cloudflare',
+				caches,
+				cf: request.cf,
+				...context,
+			});
 			let response = await app.render(request, routeData);
 
 			if (app.setCookieHeaders) {
