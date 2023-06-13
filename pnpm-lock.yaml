@@ -1,8 +1,4 @@
-lockfileVersion: '6.1'
-
-settings:
-  autoInstallPeers: false
-  excludeLinksFromLockfile: false
+lockfileVersion: '6.0'
 
 overrides:
   tsconfig-resolver>type-fest: 3.0.0
@@ -3622,6 +3618,15 @@ importers:
         version: 2.0.23
 
   packages/integrations/cloudflare/test/fixtures/basics:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/cf:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -18400,3 +18405,7 @@ packages:
     dependencies:
       solid-js: 1.7.4
     dev: false
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
