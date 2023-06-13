@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 2.1.0
+
+### Minor Changes
+
+- [#7373](https://github.com/withastro/astro/pull/7373) [`0986a44dd`](https://github.com/withastro/astro/commit/0986a44ddd2b48edbe318f6fceb7f4ce4670ce05) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade lit dependencies
+
 ## 2.0.2
 
 ### Patch Changes

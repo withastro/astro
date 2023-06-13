@@ -44,7 +44,7 @@
     "vite": "^4.3.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.6.3",
+    "astro": "workspace:^2.6.4",
     "tailwindcss": "^3.0.24"
   },
   "pnpm": {

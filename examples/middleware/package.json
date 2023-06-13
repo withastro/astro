@@ -12,8 +12,8 @@
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^5.1.4",
-    "astro": "^2.5.6",
+    "@astrojs/node": "^5.2.0",
+    "astro": "^2.6.4",
     "html-minifier": "^4.0.0"
   }
 }
