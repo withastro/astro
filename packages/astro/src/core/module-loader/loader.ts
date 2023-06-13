@@ -43,7 +43,7 @@ export interface ModuleNode {
 	url: string;
 	ssrModule: Record<string, any> | null;
 	ssrTransformResult: {
-		deps: string[];
+		deps?: string[];
 	} | null;
 	ssrError: Error | null;
 	importedModules: Set<ModuleNode>;
