@@ -1,7 +1,7 @@
 import type { SSRManifest } from 'astro';
+import type { Request } from '@cloudflare/workers-types';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
-import type { Request } from '@cloudflare/workers-types';
 
 if (!isNode) {
 	process.env = getProcessEnvProxy();
