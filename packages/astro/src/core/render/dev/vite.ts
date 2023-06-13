@@ -41,6 +41,7 @@ export async function* crawlGraph(
 			continue;
 		}
 		if (id === entry.id) {
+			const urlDeps = entry.ssrTransformResult?.deps ?? [];
 			scanned.add(id);
 			const entryIsStyle = isCSSRequest(id);
 
@@ -82,7 +83,7 @@ export async function* crawlGraph(
 						}
 					}
 				}
-				if (isImportedBy(id, importedModule) && !isPropagationStoppingPoint) {
+				if (urlDeps.includes(importedModule.url) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -99,15 +100,4 @@ export async function* crawlGraph(
 		yield importedModule;
 		yield* crawlGraph(loader, importedModule.id, false, scanned);
 	}
-}
-
-// Verify true imports. If the child module has the parent as an importers, it's
-// a real import.
-function isImportedBy(parent: string, entry: ModuleNode) {
-	for(const importer of entry.importers) {
-		if(importer.id === parent) {
-			return true;
-		}
-	}
-	return false;
 }

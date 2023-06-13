@@ -29,24 +29,26 @@ describe('Crawling graph for CSS', () => {
 				id: indexId,
 				importedModules: [{
 					id: aboutId,
-					importers: []
+					url: aboutId,
 				}, {
 					id: indexId + '?astro&style.css',
 					url: indexId + '?astro&style.css',
-					importers: [{ id: indexId }],
 					ssrModule: {}
 				}],
-				importers: []
+				ssrTransformResult: {
+					deps: [indexId + '?astro&style.css']
+				}
 			},
 			{
 				id: aboutId,
 				importedModules: [{
 					id: aboutId + '?astro&style.css',
 					url: aboutId + '?astro&style.css',
-					importers: [{ id: aboutId }],
 					ssrModule: {}
 				}],
-				importers: []
+				ssrTransformResult: {
+					deps: [aboutId + '?astro&style.css']
+				}
 			}
 		]);
 	})
