@@ -98,6 +98,19 @@ app.use(ssrHandler);
 app.listen(8080);
 ```
 
+If you have a `base` specified in your `astro.config.mjs`:
+
+```js
+import express from 'express';
+import { handler as ssrHandler } from './dist/server/entry.mjs';
+
+const app = express();
+app.use('/basepath', express.static('dist/client/'))
+app.use(ssrHandler);
+
+app.listen(8080);
+```
+
 Or, with Fastify (>4):
 
 ```js
