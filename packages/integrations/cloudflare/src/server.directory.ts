@@ -1,5 +1,5 @@
-import type { SSRManifest } from 'astro';
 import type { Request as CFRequest } from '@cloudflare/workers-types';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
 
