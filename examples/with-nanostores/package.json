@@ -13,7 +13,7 @@
   "dependencies": {
     "@astrojs/preact": "^2.2.1",
     "@nanostores/preact": "^0.4.1",
-    "astro": "^2.5.6",
+    "astro": "^2.6.4",
     "nanostores": "^0.8.1",
     "preact": "^10.13.2"
   }
