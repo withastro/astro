@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 6.5.0
+
+### Minor Changes
+
+- [#7386](https://github.com/withastro/astro/pull/7386) [`6d8aa4b61`](https://github.com/withastro/astro/commit/6d8aa4b61f22df2c5052d06dac8e53bbce73f5f5) Thanks [@beynar](https://github.com/beynar)! - Expose cf metadata and Cloudflare Worker Cache API through `caches` in runtime.
+
+### Patch Changes
+
+- Updated dependencies [[`42baf62e7`](https://github.com/withastro/astro/commit/42baf62e7ca0351a2f2c7d06ec58086f90519bb7), [`1c7b63595`](https://github.com/withastro/astro/commit/1c7b6359563f5e83325121efb2e61915d818a35a)]:
+  - astro@2.6.4
+
 ## 6.4.0
 
 ### Minor Changes
