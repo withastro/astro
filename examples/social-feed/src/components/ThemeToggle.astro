@@ -1,0 +1,107 @@
+---
+import Icon from './Icon.astro';
+---
+
+<theme-toggle>
+  <button>
+    <span class="sr-only">Dark theme</span>
+    <span class="icon light"><Icon icon="sun" /></span>
+    <span class="icon dark"><Icon icon="moon-stars" /></span>
+  </button>
+</theme-toggle>
+
+<style>
+  button {
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    border: 0;
+    border-radius: var(--theme-radius-full);
+    padding: 0.1875rem;
+    background-color: var(--theme-accent-light);
+    box-shadow: var(--theme-shadow-lg);
+    cursor: pointer;
+  }
+
+  button::before {
+    position: absolute;
+    inset: -0.125rem;
+    content: '';
+    border-radius: var(--theme-radius-full);
+    background: var(--theme-gradient-main);
+    z-index: -1;
+  }
+
+  .icon {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    padding: 0.3125rem;
+    width: 1.625rem;
+    height: 1.625rem;
+    font-size: 1rem;
+    color: var(--theme-accent-dark);
+  }
+
+  .icon.light::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset: 0;
+    background-color: var(--theme-accent-dark);
+    border-radius: 999rem;
+  }
+
+  :global(.theme-dark) .icon.light::before {
+    transform: translateX(calc(100% + 0.25rem));
+  }
+
+  :global(.theme-dark) .icon.dark,
+  :global(html:not(.theme-dark)) .icon.light,
+  button[aria-pressed='false'] .icon.light {
+    color: var(--theme-text-invert);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .icon,
+    .icon.light::before {
+      transition: transform var(--theme-transition),
+        color var(--theme-transition);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .icon.light::before {
+      background-color: SelectedItem;
+    }
+  }
+</style>
+
+<script>
+  class ThemeToggle extends HTMLElement {
+    constructor() {
+      super();
+
+      const button = this.querySelector('button')!;
+
+      /** Set the theme to dark/light mode. */
+      const setTheme = (dark: boolean) => {
+        document.documentElement.classList[dark ? 'add' : 'remove'](
+          'theme-dark'
+        );
+        button.setAttribute('aria-pressed', String(dark));
+      };
+
+      // Toggle the theme when a user clicks the button.
+      button.addEventListener('click', () => setTheme(!this.isDark()));
+
+      // Initialize button state to reflect current theme.
+      setTheme(this.isDark());
+    }
+
+    isDark() {
+      return document.documentElement.classList.contains('theme-dark');
+    }
+  }
+  customElements.define('theme-toggle', ThemeToggle);
+</script>

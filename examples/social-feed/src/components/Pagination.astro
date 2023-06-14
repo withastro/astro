@@ -1,0 +1,130 @@
+---
+import type { Page as Props } from 'astro';
+import Icon from './Icon.astro';
+
+const { currentPage, lastPage, url } = Astro.props;
+const firstPage = 1;
+
+interface Item {
+  page: number;
+  url: string;
+  current: boolean;
+}
+
+const makeItem = (page: number): Item => ({
+  page,
+  url: page === 1 ? '/' : `/${page}`,
+  current: page === currentPage,
+});
+
+const items: (Item | null)[] = [];
+
+/** The number of pages to show before/after the current page. */
+const beforeAfter = 1;
+// Get range of pages around current page.
+const min = Math.max(
+  Math.min(currentPage - beforeAfter, lastPage - 2 * beforeAfter - 1),
+  firstPage
+);
+const max = Math.min(
+  Math.max(min + 2 * beforeAfter, firstPage + 2 * beforeAfter + 1),
+  lastPage
+);
+// Always include first page.
+if (min > firstPage) items.push(makeItem(firstPage));
+// Show “…” if the range starts at page 4 or higher.
+if (min > firstPage + 2) items.push(null);
+// Show page 2 if the range starts at page 3.
+if (min === firstPage + 2) items.push(makeItem(firstPage + 1));
+// Show an item for pages in range around current page.
+for (let i = min; i <= max; i++) items.push(makeItem(i));
+// Show “…” if the range ends more than 2 pages before the last page.
+if (max < lastPage - 2) items.push(null);
+// Show the penultimate page if the range ends 2 pages before the last page.
+if (max === lastPage - 2) items.push(makeItem(lastPage - 1));
+// Always include last page.
+if (max < lastPage) items.push(makeItem(lastPage));
+---
+
+{
+  lastPage > 1 && (
+    <nav>
+      <ul>
+        <li class="pagination-arrow">
+          {url.prev === undefined ? (
+            <span>
+              <Icon icon="arrow-left" />
+              <span class="sr-only">Previous</span>
+            </span>
+          ) : (
+            <a href={url.prev} rel="prev">
+              <Icon icon="arrow-left" />
+              <span class="sr-only">Previous</span>
+            </a>
+          )}
+        </li>
+        {items.map((item) => (
+          <li class="pagination-item">
+            {item ? (
+              <a href={item.url} aria-current={item.current}>
+                {item.page}
+              </a>
+            ) : (
+              <span>…</span>
+            )}
+          </li>
+        ))}
+        <li class="pagination-arrow">
+          {url.next === undefined ? (
+            <span>
+              <span class="sr-only">Next</span>
+              <Icon icon="arrow-right" />
+            </span>
+          ) : (
+            <a href={url.next} rel="next">
+              <span class="sr-only">Next</span>
+              <Icon icon="arrow-right" />
+            </a>
+          )}
+        </li>
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 0.5rem;
+    padding: 0;
+  }
+  a {
+    text-decoration: none;
+  }
+  .pagination-item > * {
+    border: 1.5px solid var(--theme-accent-dark);
+    border-radius: var(--theme-radius-base);
+    padding: 0.375rem 0.75rem;
+    background-color: var(--theme-bg-accent);
+    font-size: var(--theme-text-sm);
+    font-weight: 700;
+    box-shadow: var(--theme-shadow-sm);
+  }
+  [aria-current='true'] {
+    background-color: var(--theme-accent-dark);
+    color: var(--theme-text-invert);
+  }
+
+  .pagination-arrow > * {
+    color: var(--theme-accent-dark);
+    opacity: 0.35;
+    font-size: 1.75rem;
+    display: flex;
+  }
+
+  .pagination-arrow > a {
+    opacity: 1;
+  }
+</style>

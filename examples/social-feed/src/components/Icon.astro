@@ -1,0 +1,32 @@
+---
+import { iconPaths } from './IconPaths';
+
+export interface Props {
+  icon: keyof typeof iconPaths;
+  color?: string;
+  size?: string;
+}
+
+const { icon, color, size } = Astro.props;
+const iconPath = iconPaths[icon];
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="40"
+  height="40"
+  viewBox="0 0 256 256"
+  aria-hidden="true"
+  stroke="currentcolor"
+  fill="currentcolor"
+  set:html={iconPath}
+/>
+
+<style define:vars={{ color, size }}>
+  svg {
+    color: var(--color, inherit);
+    vertical-align: middle;
+    width: var(--size, 1em);
+    height: var(--size, 1em);
+  }
+</style>

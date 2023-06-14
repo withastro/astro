@@ -1,0 +1,112 @@
+---
+import settings from '../settings';
+import '../style/theme.css';
+import '../style/global.css';
+import '../style/utilities.css';
+import Header from '../components/Header.astro';
+import UserProfile from '../components/UserProfile.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+}
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const { title = settings.name } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- RSS Feed Discovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="RSS"
+      href="/rss.xml"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script is:inline>
+      // This code is inlined in the head to make dark mode instant & blocking.
+      const getThemePreference = () => {
+        if (
+          typeof localStorage !== 'undefined' &&
+          localStorage.getItem('theme')
+        ) {
+          return localStorage.getItem('theme');
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+      };
+      const isDark = getThemePreference() === 'dark';
+      document.documentElement.classList[isDark ? 'add' : 'remove'](
+        'theme-dark'
+      );
+      if (typeof localStorage !== 'undefined') {
+        // Watch the document element and persist user preference when it changes.
+        const observer = new MutationObserver(() => {
+          const isDark =
+            document.documentElement.classList.contains('theme-dark');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class'],
+        });
+      }
+    </script>
+  </head>
+  <body class="flex-col">
+    <div class="flex-col pad">
+      <Header />
+      <div class="flex-col wrapper">
+        <UserProfile />
+        <main>
+          <slot />
+        </main>
+      </div>
+    </div>
+    <Footer />
+  </body>
+
+  <style>
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pad {
+      gap: 2.5rem;
+      padding: 1.875rem 1.25rem;
+    }
+
+    .wrapper {
+      gap: 2.5rem;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 55rem;
+    }
+
+    @media (min-width: 50em) {
+      .wrapper {
+        display: grid;
+        grid-template-columns: 12rem 1fr;
+      }
+    }
+  </style>
+</html>

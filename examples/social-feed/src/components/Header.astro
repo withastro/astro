@@ -1,0 +1,31 @@
+---
+import settings from '../settings';
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<header>
+  <a class="site-name" href="/">{settings.username}</a>
+  <ThemeToggle />
+</header>
+
+<style>
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .site-name {
+    font-size: var(--theme-text-lg);
+    font-weight: 700;
+    font-family: var(--theme-font-brand);
+    text-decoration: none;
+    color: transparent;
+    background: var(--theme-gradient-main);
+    background-clip: text;
+  }
+
+  .site-name:hover {
+    text-decoration: 1px solid underline var(--theme-accent-dark);
+  }
+</style>

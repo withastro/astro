@@ -345,6 +345,15 @@ importers:
         specifier: ^3.1.4
         version: link:../../packages/astro
 
+  examples/social-feed:
+    dependencies:
+      '@astrojs/rss':
+        specifier: ^2.4.3
+        version: link:../../packages/astro-rss
+      astro:
+        specifier: ^2.6.4
+        version: link:../../packages/astro
+
   examples/ssr:
     dependencies:
       '@astrojs/node':

@@ -1,0 +1,53 @@
+---
+import settings from '../settings';
+import Icon from './Icon.astro';
+---
+
+<footer>
+  <div class="row">
+    <p>
+      Copyright © {new Date().getFullYear()}
+      {settings.name}
+    </p>
+    <p>
+      Designed & Developed with<Icon icon="heart" size="1.75em" />
+      <span class="sr-only">love</span>
+    </p>
+    <p><a href="/rss.xml"><Icon icon="rss-alt" size="1.75em" />RSS</a></p>
+  </div>
+  <div class="row">
+    <a href={settings.social.twitter}>Twitter</a>
+    <a href={settings.social.twitch}>Twitch</a>
+    <a href={settings.social.github}>GitHub</a>
+    <a href={settings.social.devto}>DEV</a>
+    <a href={settings.social.codepen}>Codepen</a>
+  </div>
+</footer>
+
+<style>
+  footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: auto;
+    border-top: 3px solid var(--theme-shade-subtle);
+    border-radius: var(--theme-radius-xl);
+    padding: 1.5rem;
+    gap: 1rem;
+    color: var(--theme-gray-200);
+    font-size: var(--theme-text-sm);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    justify-content: center;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+</style>
