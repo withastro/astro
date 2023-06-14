@@ -84,9 +84,9 @@ If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the r
 
 The Astro Tailwind integration handles the communication between Astro and Tailwind and it has its own options. Change these in the `astro.config.mjs` file (_not_ the Tailwind configuration file) which is where your project's integration settings live.
 
-#### config.path
+#### configFile
   
-If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root.
+If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `configFile` option. If `configFile` is relative, it will be resolved relative to the current working directory.
 
 > **Warning**
 > Changing this isn't recommended since it can cause problems with other tools that integrate with Tailwind, like the official Tailwind VSCode extension.
@@ -100,14 +100,14 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   integrations: [tailwind({
     // Example: Provide a custom path to a Tailwind config file
-    config: { path: './custom-config.cjs' },
+    configFile: './custom-config.cjs',
   })],
 });
 ```
 
-#### config.applyBaseStyles
+#### applyBaseStyles
 
-  By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
+By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
 
 ```css
 /* The integration's default injected base.css file */
@@ -116,7 +116,7 @@ export default defineConfig({
 @tailwind utilities;
 ```
 
-To disable this default behavior, set `config.applyBaseStyles` to `false`. This can be useful if you need to define your own `base.css` file (to include a [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer), for example). This can also be useful if you do not want `base.css` to be imported on every page of your project.
+To disable this default behavior, set `applyBaseStyles` to `false`. This can be useful if you need to define your own `base.css` file (to include a [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer), for example). This can also be useful if you do not want `base.css` to be imported on every page of your project.
 
 __`astro.config.mjs`__
 
@@ -127,7 +127,7 @@ export default defineConfig({
   integrations: [tailwind({
     // Example: Disable injecting a basic `base.css` import on every page.
     // Useful if you need to define and/or import your own custom `base.css`.
-    config: { applyBaseStyles: false },
+    applyBaseStyles: false,
   })],
 });
 ```
