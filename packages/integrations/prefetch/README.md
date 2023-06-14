@@ -56,6 +56,8 @@ export default defineConfig({
 
 When you install the integration, the prefetch script is automatically added to every page in the project. Just add `rel="prefetch"` to any `<a />` links on your page and you're ready to go!
 
+In addition, you can add `rel="prefetch-intent"` to any `<a />` links on your page to prefetch them only when they are hovered over, touched, or focused. This is especially useful when you want to be conservative with your users' data usage.
+
 ## Configuration
 
 The Astro Prefetch integration handles which links on the site are prefetched and it has its own options. Change these in the `astro.config.mjs` file which is where your project's integration settings live.
@@ -78,6 +80,30 @@ export default defineConfig({
   })],
 });
 ```
+
+### config.intentSelector
+By default, the prefetch script also searches the page for any links that include a `rel="prefetch-intent"` attribute, ex: `<a rel="prefetch-intent" />`. This behavior can be changed in your astro.config.* file to use a custom query selector when finding prefetch-intent links.
+
+Importantly, the intentSelector accepts both strings and arrays, giving you the option to prefetch multiple selectors on hover if you want.
+
+__`astro.config.mjs`__
+
+```js
+import { defineConfig } from 'astro/config';
+import prefetch from '@astrojs/prefetch';
+
+export default defineConfig({
+  // ...
+  integrations: [prefetch({
+    // Only prefetch links with an href that begins with `/products` or `/coupons`
+    intentSelector: ["a[href^='/products']", "a[href^='/coupons']"]
+
+    // Below is also valid syntax
+    // intentSelector: "a[href^='/products']"
+  })],
+});
+```
+
 ### config.throttle
   
 By default the prefetch script will only prefetch one link at a time. This behavior can be changed in your `astro.config.*` file to increase the limit for concurrent downloads.
