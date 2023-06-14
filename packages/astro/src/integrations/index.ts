@@ -309,16 +309,18 @@ export async function runHookBuildSsr({
 	config,
 	manifest,
 	logging,
+	entryPoints,
 }: {
 	config: AstroConfig;
 	manifest: SerializedSSRManifest;
 	logging: LogOptions;
+	entryPoints: Map<RouteData, URL>;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:ssr']({ manifest }),
+				hookResult: integration.hooks['astro:build:ssr']({ manifest, entryPoints }),
 				logging,
 			});
 		}

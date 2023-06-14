@@ -1,5 +1,5 @@
 import glob from 'fast-glob';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
 import { runHookBuildSsr } from '../../../integrations/index.js';
@@ -14,10 +14,10 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { OutputChunk, StaticBuildOptions } from '../types';
-import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
+import { join } from 'node:path';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -98,6 +98,10 @@ function vitePluginSSRServer(
 				}
 			}
 		},
+		async writeBundle(outputOptions, bundle) {
+			console.log(outputOptions);
+			console.log(bundle);
+		},
 	};
 }
 
@@ -111,7 +115,7 @@ export function pluginSSRServer(
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr && options.settings.config.build.ssrMode === 'server'
+					ssr && !options.settings.config.build.split
 						? vitePluginSSRServer(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -125,7 +129,7 @@ export function pluginSSRServer(
 					return;
 				}
 
-				if (options.settings.config.build.ssrMode === 'serverless') {
+				if (options.settings.config.build.split) {
 					return;
 				}
 
@@ -135,8 +139,15 @@ export function pluginSSRServer(
 				// Mutate the filename
 				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
 
-				const code = await injectManifest(options, internals, internals.ssrEntryChunk);
+				const manifest = await createManifest(options, internals);
+				const code = await injectManifest(manifest, internals.ssrEntryChunk);
 				mutate(internals.ssrEntryChunk, 'server', code);
+				await runHookBuildSsr({
+					config: options.settings.config,
+					manifest,
+					logging: options.logging,
+					entryPoints: internals.entryPoints,
+				});
 			},
 		},
 	};
@@ -154,7 +165,7 @@ function vitePluginSSRServerless(
 		name: '@astrojs/vite-plugin-astro-ssr-serverless',
 		enforce: 'post',
 		options(opts) {
-			if (options.settings.config.build.ssrMode === 'serverless') {
+			if (options.settings.config.build.split) {
 				const inputs: Set<string> = new Set();
 
 				for (const path of Object.keys(options.allPages)) {
@@ -211,14 +222,13 @@ function vitePluginSSRServerless(
 				for (const moduleKey of Object.keys(chunk.modules)) {
 					if (moduleKey.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
 						internals.ssrServerlessEntryChunks.set(moduleKey, chunk);
+						storeEntryPoint(moduleKey, options, internals, chunk.fileName);
 						shouldDeleteBundle = true;
 					}
 				}
 				if (shouldDeleteBundle) {
 					delete bundle[chunkName];
 				}
-				// if (chunk.modules[RESOLVED_SSR_VIRTUAL_MODULE_ID]) {
-				// }
 			}
 		},
 	};
@@ -234,7 +244,7 @@ export function pluginSSRServerless(
 		hooks: {
 			'build:before': () => {
 				let vitePlugin =
-					ssr && options.settings.config.build.ssrMode === 'serverless'
+					ssr && options.settings.config.build.split
 						? vitePluginSSRServerless(internals, options.settings.adapter!, options)
 						: undefined;
 
@@ -247,21 +257,25 @@ export function pluginSSRServerless(
 				if (!ssr) {
 					return;
 				}
-				if (options.settings.config.build.ssrMode === 'server') {
+				if (!options.settings.config.build.split) {
 					return;
 				}
 
 				if (internals.ssrServerlessEntryChunks.size === 0) {
 					throw new Error(`Did not generate an entry chunk for SSR serverless`);
 				}
-				// TODO: check this commented code
-				// Mutate the filename
-				// internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
 
+				const manifest = await createManifest(options, internals);
 				for (const [moduleName, chunk] of internals.ssrServerlessEntryChunks) {
-					const code = await injectManifest(options, internals, chunk);
+					const code = injectManifest(manifest, chunk);
 					mutate(chunk, 'server', code);
 				}
+				await runHookBuildSsr({
+					config: options.settings.config,
+					manifest,
+					logging: options.logging,
+					entryPoints: internals.entryPoints,
+				});
 			},
 		},
 	};
@@ -271,7 +285,7 @@ function generateSSRCode(config: AstroConfig, adapter: AstroAdapter) {
 	const imports: string[] = [];
 	const contents: string[] = [];
 	let pageMap;
-	if (config.build.ssrMode === 'serverless') {
+	if (config.build.split) {
 		pageMap = 'pageModule';
 	} else {
 		pageMap = 'pageMap';
@@ -320,12 +334,19 @@ if(_start in adapter) {
  * @param internals
  * @param chunk
  */
-export async function injectManifest(
+export function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
+	const code = chunk.code;
+
+	return code.replace(replaceExp, () => {
+		return JSON.stringify(manifest);
+	});
+}
+
+export async function createManifest(
 	buildOpts: StaticBuildOptions,
-	internals: BuildInternals,
-	chunk: Readonly<OutputChunk>
-) {
-	if (buildOpts.settings.config.build.ssrMode === 'serverless') {
+	internals: BuildInternals
+): Promise<SerializedSSRManifest> {
+	if (buildOpts.settings.config.build.split) {
 		if (internals.ssrServerlessEntryChunks.size === 0) {
 			throw new Error(`Did not generate an entry chunk for SSR in serverless mode`);
 		}
@@ -346,18 +367,29 @@ export async function injectManifest(
 	}
 
 	const staticFiles = internals.staticFiles;
-	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
-	await runHookBuildSsr({
-		config: buildOpts.settings.config,
-		manifest,
-		logging: buildOpts.logging,
-	});
+	return buildManifest(buildOpts, internals, Array.from(staticFiles));
+}
 
-	const code = chunk.code;
-
-	return code.replace(replaceExp, () => {
-		return JSON.stringify(manifest);
-	});
+/**
+ * Because we delete the bundle from rollup at the end of this function,
+ *  we can't use `writeBundle` hook to get the final file name of the entry point written on disk.
+ *  We use this hook instead.
+ *
+ *  We retrieve the {@link RouteData} that belongs the current moduleKey
+ */
+function storeEntryPoint(
+	moduleKey: string,
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	fileName: string
+) {
+	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SERVERLESS_MODULE_ID, moduleKey);
+	for (const [page, pageData] of Object.entries(options.allPages)) {
+		if (componentPath == page) {
+			const publicPath = fileURLToPath(options.settings.config.outDir);
+			internals.entryPoints.set(pageData.route, pathToFileURL(join(publicPath, fileName)));
+		}
+	}
 }
 
 function buildManifest(

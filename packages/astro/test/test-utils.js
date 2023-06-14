@@ -247,7 +247,7 @@ export async function loadFixture(inlineConfig) {
 			app.manifest = manifest;
 			return app;
 		},
-		loadServerlessEntrypointApp: async (pagePath, streaming) => {
+		loadEntryPoint: async (pagePath, streaming) => {
 			const pathComponents = pagePath.split(path.sep);
 			const lastPathComponent = pathComponents.pop();
 			if (lastPathComponent) {

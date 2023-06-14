@@ -24,7 +24,7 @@ export default defineConfig({
         mode: "standalone"
     }),
     build: {
-        ssrMode: "serverless",
+        split: "serverless",
         serverlessEntryPrefix: "main"
     }
 })

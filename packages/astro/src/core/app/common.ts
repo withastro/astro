@@ -3,7 +3,7 @@ import type {
 	RouteInfo,
 	SerializedSSRManifest,
 	SSRBaseManifest,
-	SSRServerlessManifest,
+	SSRSplitManifest,
 	SSRServerManifest,
 } from './types';
 
@@ -23,7 +23,7 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 	const componentMetadata = new Map(serializedManifest.componentMetadata);
 	const clientDirectives = new Map(serializedManifest.clientDirectives);
 
-	return <SSRServerManifest | SSRServerlessManifest>{
+	return <SSRServerManifest | SSRSplitManifest>{
 		...serializedManifest,
 		assets,
 		componentMetadata,

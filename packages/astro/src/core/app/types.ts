@@ -33,7 +33,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
-export type SSRBaseManifest = SSRServerManifest | SSRServerlessManifest;
+export type SSRBaseManifest = SSRServerManifest | SSRSplitManifest;
 
 export type SSRServerManifest = {
 	adapterName: string;
@@ -54,7 +54,7 @@ export type SSRServerManifest = {
 	pageMap: Map<ComponentPath, ImportComponentInstance>;
 };
 
-export type SSRServerlessManifest = {
+export type SSRSplitManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;

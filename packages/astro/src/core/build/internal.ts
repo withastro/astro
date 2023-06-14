@@ -1,5 +1,5 @@
 import type { Rollup } from 'vite';
-import type { SSRResult } from '../../@types/astro';
+import type { RouteData, SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
@@ -84,6 +84,7 @@ export interface BuildInternals {
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: Rollup.OutputChunk;
+	entryPoints: Map<RouteData, URL>;
 	ssrServerlessEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
 }
@@ -116,6 +117,7 @@ export function createBuildInternals(): BuildInternals {
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
 		ssrServerlessEntryChunks: new Map(),
+		entryPoints: new Map(),
 	};
 }
 

@@ -841,28 +841,9 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name build.serverlessEntryPrefix
-		 * @type {string}
-		 * @default `'entry'`
-		 * @description
-		 * Option used when `build.mode` is set to `"serverless"`. Astro will prepend
-		 * the emitted files using this option.
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     serverlessEntryPrefix: 'main'
-		 *   }
-		 * }
-		 * ```
-		 */
-		serverlessEntryPrefix?: string;
-
-		/**
-		 * @docs
 		 * @name build.ssrMode
-		 * @type {'server' | 'serverless'}
-		 * @default {'server'}
+		 * @type {boolean}
+		 * @default {false}
 		 * @description
 		 * Defines how the SSR code should be bundled. SSR code for "server"
 		 * will be built in one single file.
@@ -871,9 +852,6 @@ export interface AstroUserConfig {
 		 * Each file emitted will render only one page. The pages will be emitted
 		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
 		 * of the `src/pages` directory.
-		 *
-		 * Each emitted file will be prefixed with `entry`. You can use {@link build.serverlessEntryPrefix}
-		 * to change the prefix.
 		 *
 		 * Inside the `dist/` directory, the pages will look like this:
 		 * ```plaintext
@@ -887,12 +865,12 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   build: {
-		 *     mode: 'server'
+		 *     split: true
 		 *   }
 		 * }
 		 * ```
 		 */
-		ssrMode?: 'server' | 'serverless';
+		split?: boolean;
 	};
 
 	/**
@@ -1879,7 +1857,14 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
+		'astro:build:ssr'?: (options: {
+			manifest: SerializedSSRManifest;
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 */
+			entryPoints: Map<RouteData, URL>;
+		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;

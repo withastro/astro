@@ -468,7 +468,7 @@ function makeServerlessEntryPointFileName(facadeModuleId: string, opts: StaticBu
 	if (lastPathComponent) {
 		const extension = extname(lastPathComponent);
 		if (extension.length > 0) {
-			const newFileName = `${opts.settings.config.build.serverlessEntryPrefix}.${lastPathComponent}`;
+			const newFileName = `entry.${lastPathComponent}`;
 			return [...pathComponents, newFileName].join(path.sep);
 		}
 	}
