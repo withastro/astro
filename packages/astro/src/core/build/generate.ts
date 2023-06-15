@@ -600,6 +600,7 @@ async function generatePath(
 							renderContext,
 							env,
 							isCompressHTML: settings.config.compressHTML,
+							cookies: apiContext.cookies,
 						});
 					}
 				);
@@ -609,6 +610,7 @@ async function generatePath(
 					renderContext,
 					env,
 					isCompressHTML: settings.config.compressHTML,
+					cookies: apiContext.cookies,
 				});
 			}
 		} catch (err) {

@@ -1,4 +1,4 @@
-import type { APIContext, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
+import type { AstroCookies, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
 import { render, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -109,9 +109,16 @@ export type RenderPage = {
 	renderContext: RenderContext;
 	env: Environment;
 	isCompressHTML?: boolean;
+	cookies: AstroCookies;
 };
 
-export async function renderPage({ mod, renderContext, env, isCompressHTML = false }: RenderPage) {
+export async function renderPage({
+	mod,
+	renderContext,
+	env,
+	cookies,
+	isCompressHTML = false,
+}: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -146,7 +153,7 @@ export async function renderPage({ mod, renderContext, env, isCompressHTML = fal
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
-		cookies: renderContext.cookies,
+		cookies,
 		locals: renderContext.locals ?? {},
 	});
 
