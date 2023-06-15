@@ -2,7 +2,7 @@
 '@astrojs/tailwind': major
 ---
 
-Let tailwind postcss plugin load its config file itself. This changes the Tailwind config loading behaviour where it is loaded from `process.cwd()` instead of the project `root`.
+Let the `tailwindcss` PostCSS plugin load its config file itself. This changes the Tailwind config loading behaviour where it is loaded from `process.cwd()` instead of the project `root`.
 
 If your Tailwind config file is not located in the current working directory, you will need to configure the integration's `configFile` option to load from a specific path:
 
