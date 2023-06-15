@@ -1,0 +1,15 @@
+---
+// unprefixed node built-in module
+import path from 'path'
+
+// prefixed node built-in module
+import os from 'node:os'
+---
+<body>
+<a href={path.posix.basename('/public/myfile.html')}>Go to my file</a>
+<details>
+    <summary>CPU Architecture</summary>
+    <code>{os.arch()}</code>
+</details>
+<p>Everything went fine.</p>
+</body>

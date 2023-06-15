@@ -21,6 +21,59 @@ const SHIM = `globalThis.process = {
 };`;
 
 const DENO_VERSION = `0.177.0`;
+// REF: https://github.com/denoland/deno/tree/main/ext/node/polyfills
+const COMPATIBLE_NODE_MODULES = [
+	'assert',
+	'assert/strict',
+	'async_hooks',
+	'buffer',
+	'child_process',
+	'cluster',
+	'console',
+	'constants',
+	'crypto',
+	'dgram',
+	'diagnostics_channel',
+	'dns',
+	'events',
+	'fs',
+	'fs/promises',
+	'http',
+	// 'http2',
+	'https',
+	'inspector',
+	'module',
+	'net',
+	'os',
+	'path',
+	'path/posix',
+	'path/win32',
+	'perf_hooks',
+	'process',
+	'punycode',
+	'querystring',
+	'readline',
+	'repl',
+	'stream',
+	'stream/promises',
+	'stream/web',
+	'string_decoder',
+	'sys',
+	'timers',
+	'timers/promises',
+	// 'tls',
+	'trace_events',
+	'tty',
+	'url',
+	'util',
+	'util/types',
+	// 'v8',
+	// 'vm',
+	// 'wasi',
+	// 'webcrypto',
+	'worker_threads',
+	'zlib',
+];
 
 // We shim deno-specific imports so we can run the code in Node
 // to prerender pages. In the final Deno build, this import is
@@ -48,6 +101,14 @@ const denoImportsShimPlugin = {
 				loader: 'js',
 			};
 		});
+	},
+};
+
+const denoRenameNodeModulesPlugin = {
+	name: '@astrojs/esbuild-rename-node-modules',
+	setup(build: esbuild.PluginBuild) {
+		const filter = new RegExp(COMPATIBLE_NODE_MODULES.map((mod) => `(^${mod}$)`).join('|'));
+		build.onResolve({ filter }, (args) => ({ path: 'node:' + args.path, external: true }));
 	},
 };
 
@@ -89,7 +150,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						}
 					}
 					vite.ssr = {
-						noExternal: true,
+						noExternal: COMPATIBLE_NODE_MODULES,
 					};
 
 					if (Array.isArray(vite.build.rollupOptions.external)) {
@@ -114,8 +175,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					external: ['@astrojs/markdown-remark'],
-					plugins: [denoImportsShimPlugin],
+					external: [
+						...COMPATIBLE_NODE_MODULES.map((mod) => `node:${mod}`),
+						'@astrojs/markdown-remark',
+					],
+					plugins: [denoImportsShimPlugin, denoRenameNodeModulesPlugin],
 					banner: {
 						js: SHIM,
 					},
