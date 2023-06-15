@@ -44,7 +44,7 @@ export type {
 	ImageQualityPreset,
 	ImageTransform,
 } from '../assets/types';
-export type { SSRBaseManifest } from '../core/app/types';
+export type { SSRManifest } from '../core/app/types';
 export type { AstroCookies } from '../core/cookies';
 
 export interface AstroBuiltinProps {

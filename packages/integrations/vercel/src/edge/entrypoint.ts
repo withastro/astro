@@ -4,12 +4,12 @@
 import './shim.js';
 
 // Normal Imports
-import type { SSRBaseManifest } from 'astro';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-export function createExports(manifest: SSRBaseManifest) {
+export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
 	const handler = async (request: Request): Promise<Response> => {

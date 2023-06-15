@@ -1,6 +1,6 @@
 import { polyfill } from '@astrojs/webapi';
 import { builder, type Handler } from '@netlify/functions';
-import type { SSRBaseManifest } from 'astro';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 polyfill(globalThis, {
@@ -18,7 +18,7 @@ function parseContentType(header?: string) {
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-export const createExports = (manifest: SSRBaseManifest, args: Args) => {
+export const createExports = (manifest: SSRManifest, args: Args) => {
 	const app = new App(manifest);
 
 	const builders = args.builders ?? false;

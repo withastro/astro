@@ -4,10 +4,9 @@ import type {
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
-	SSRBaseManifest,
+	SSRManifest,
 } from '../../@types/astro';
-import type { RouteInfo, SSRServerManifest } from './types';
-
+import type { RouteInfo } from './types';
 import mime from 'mime';
 import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
@@ -30,6 +29,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -42,7 +42,7 @@ export interface MatchOptions {
 
 export class App {
 	#env: Environment;
-	#manifest: SSRBaseManifest;
+	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#encoder = new TextEncoder();
@@ -54,16 +54,18 @@ export class App {
 	#baseWithoutTrailingSlash: string;
 
 	async #retrievePage(routeData: RouteData) {
-		if (isSsrServerManifest(this.#manifest)) {
+		if (this.#manifest.pageMap) {
 			const pageModule = await this.#manifest.pageMap.get(routeData.component)!();
 			return await pageModule.page();
-		} else {
+		} else if (this.#manifest.pageModule) {
 			const pageModule = await this.#manifest.pageModule;
 			return await pageModule.page();
+		} else {
+			throw new AstroError(AstroErrorData.FailedToFindPageMapSSR);
 		}
 	}
 
-	constructor(manifest: SSRBaseManifest, streaming = true) {
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
@@ -186,7 +188,7 @@ export class App {
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {
-			if (isSsrServerManifest(this.#manifest)) {
+			if (this.#manifest.pageMap) {
 				const importComponentInstance = this.#manifest.pageMap.get(route.component);
 				if (!importComponentInstance) {
 					throw new Error(
@@ -195,9 +197,11 @@ export class App {
 				}
 				const pageModule = await importComponentInstance();
 				return pageModule;
-			} else {
+			} else if (this.#manifest.pageModule) {
 				const importComponentInstance = this.#manifest.pageModule;
 				return importComponentInstance;
+			} else {
+				throw new AstroError(AstroErrorData.FailedToFindPageMapSSR);
 			}
 		}
 	}
@@ -334,8 +338,4 @@ export class App {
 			return response;
 		}
 	}
-}
-
-function isSsrServerManifest(manifest: any): manifest is SSRServerManifest {
-	return typeof manifest.pageMap !== 'undefined';
 }

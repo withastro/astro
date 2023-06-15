@@ -1,5 +1,5 @@
 import { polyfill } from '@astrojs/webapi';
-import type { SSRBaseManifest } from 'astro';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
@@ -9,7 +9,7 @@ polyfill(globalThis, {
 	exclude: 'window document',
 });
 
-export const createExports = (manifest: SSRBaseManifest) => {
+export const createExports = (manifest: SSRManifest) => {
 	const app = new App(manifest);
 
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {

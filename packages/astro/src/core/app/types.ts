@@ -33,9 +33,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
-export type SSRBaseManifest = SSRServerManifest | SSRSplitManifest;
-
-export type SSRServerManifest = {
+export type SSRManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -50,31 +48,12 @@ export type SSRServerManifest = {
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
-	pageModule?: undefined;
-	pageMap: Map<ComponentPath, ImportComponentInstance>;
-};
-
-export type SSRSplitManifest = {
-	adapterName: string;
-	routes: RouteInfo[];
-	site?: string;
-	base?: string;
-	assetsPrefix?: string;
-	markdown: MarkdownRenderingOptions;
-	renderers: SSRLoadedRenderer[];
-	/**
-	 * Map of directive name (e.g. `load`) to the directive script code
-	 */
-	clientDirectives: Map<string, string>;
-	entryModules: Record<string, string>;
-	assets: Set<string>;
-	componentMetadata: SSRResult['componentMetadata'];
-	pageModule: SinglePageBuiltModule;
-	pageMap?: undefined;
+	pageModule?: SinglePageBuiltModule;
+	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 };
 
 export type SerializedSSRManifest = Omit<
-	SSRBaseManifest,
+	SSRManifest,
 	'routes' | 'assets' | 'componentMetadata' | 'clientDirectives'
 > & {
 	routes: SerializedRouteInfo[];
@@ -84,6 +63,6 @@ export type SerializedSSRManifest = Omit<
 };
 
 export type AdapterCreateExports<T = any> = (
-	manifest: SSRBaseManifest,
+	manifest: SSRManifest,
 	args?: T
 ) => Record<string, any>;

@@ -819,6 +819,17 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @description
+	 * Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error.
+	 */
+	FailedToFindPageMapSSR: {
+		title: "Astro couldn't find the correct page to render",
+		code: 4003,
+		message:
+			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+	},
+	/**
+	 * @docs
 	 * @kind heading
 	 * @name CSS Errors
 	 */

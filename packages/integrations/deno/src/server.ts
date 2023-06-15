@@ -1,5 +1,5 @@
 // Normal Imports
-import type { SSRBaseManifest } from 'astro';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 // @ts-expect-error
@@ -25,7 +25,7 @@ async function* getPrerenderedFiles(clientRoot: URL): AsyncGenerator<URL> {
 	}
 }
 
-export function start(manifest: SSRBaseManifest, options: Options) {
+export function start(manifest: SSRManifest, options: Options) {
 	if (options.start === false) {
 		return;
 	}
@@ -97,7 +97,7 @@ export function start(manifest: SSRBaseManifest, options: Options) {
 	console.error(`Server running on port ${port}`);
 }
 
-export function createExports(manifest: SSRBaseManifest, options: Options) {
+export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new App(manifest);
 	return {
 		async stop() {
