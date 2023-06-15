@@ -29,6 +29,7 @@ import {
 	type BuildInternals,
 } from '../../core/build/internal.js';
 import {
+	isRelativePath,
 	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
@@ -252,7 +253,11 @@ async function generatePage(
 	};
 
 	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
-	info(opts.logging, null, `${icon} ${pageData.route.component}`);
+	if (isRelativePath(pageData.route.component)) {
+		info(opts.logging, null, `${icon} ${pageData.route.route}`);
+	} else {
+		info(opts.logging, null, `${icon} ${pageData.route.component}`);
+	}
 
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
