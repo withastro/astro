@@ -1044,7 +1044,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @see
 	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
 	 * @description
-	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 * A content collection schema should not contain the `slug` field. Remove `slug` from your schema in order to use custom slugs in your frontmatter.
 	 */
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
