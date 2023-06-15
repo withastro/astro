@@ -1042,7 +1042,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
-	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
 	 * @description
 	 * A content collection schema should not contain the `slug` field. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
 	 */
