@@ -85,6 +85,8 @@ If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the r
 The Astro Tailwind integration handles the communication between Astro and Tailwind and it has its own options. Change these in the `astro.config.mjs` file (_not_ the Tailwind configuration file) which is where your project's integration settings live.
 
 #### configFile
+
+Previously known as `config.path` in `@astrojs/tailwind` v3. See the [v4 changelog](https://github.com/withastro/astro/blob/main/packages/integrations/tailwind/CHANGELOG.md#400) for updating your config.
   
 If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `configFile` option. If `configFile` is relative, it will be resolved relative to the current working directory.
 
@@ -106,6 +108,8 @@ export default defineConfig({
 ```
 
 #### applyBaseStyles
+
+Previously known as `config.applyBaseStyles` in `@astrojs/tailwind` v3. See the [v4 changelog](https://github.com/withastro/astro/blob/main/packages/integrations/tailwind/CHANGELOG.md#400) for updating your config.
 
 By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
 
