@@ -129,7 +129,7 @@ const app = express();
 app.use(express.static('dist/client/'))
 app.use((req, res, next) => {
   const locals = {
-    foo: 'bar'
+    title: 'New title'
   };
 
   ssrHandler(req, res, next, locals);
