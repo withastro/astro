@@ -98,10 +98,6 @@ function vitePluginSSRServer(
 				}
 			}
 		},
-		async writeBundle(outputOptions, bundle) {
-			console.log(outputOptions);
-			console.log(bundle);
-		},
 	};
 }
 
