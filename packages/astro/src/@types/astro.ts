@@ -841,14 +841,14 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name build.ssrMode
+		 * @name build.split
 		 * @type {boolean}
 		 * @default {false}
+		 * @version 2.7.0
 		 * @description
-		 * Defines how the SSR code should be bundled. SSR code for "server"
-		 * will be built in one single file.
+		 * Defines how the SSR code should be bundled.
 		 *
-		 * When "serverless" is passed, Astro will emit a file for each page.
+		 * When `split` is `true`, Astro will emit a file for each page.
 		 * Each file emitted will render only one page. The pages will be emitted
 		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
 		 * of the `src/pages` directory.

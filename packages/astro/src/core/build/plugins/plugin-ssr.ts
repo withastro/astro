@@ -217,7 +217,7 @@ function vitePluginSSRServerless(
 				let shouldDeleteBundle = false;
 				for (const moduleKey of Object.keys(chunk.modules)) {
 					if (moduleKey.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
-						internals.ssrServerlessEntryChunks.set(moduleKey, chunk);
+						internals.ssrSplitEntryChunks.set(moduleKey, chunk);
 						storeEntryPoint(moduleKey, options, internals, chunk.fileName);
 						shouldDeleteBundle = true;
 					}
@@ -257,12 +257,12 @@ export function pluginSSRServerless(
 					return;
 				}
 
-				if (internals.ssrServerlessEntryChunks.size === 0) {
+				if (internals.ssrSplitEntryChunks.size === 0) {
 					throw new Error(`Did not generate an entry chunk for SSR serverless`);
 				}
 
 				const manifest = await createManifest(options, internals);
-				for (const [moduleName, chunk] of internals.ssrServerlessEntryChunks) {
+				for (const [moduleName, chunk] of internals.ssrSplitEntryChunks) {
 					const code = injectManifest(manifest, chunk);
 					mutate(chunk, 'server', code);
 				}
@@ -343,7 +343,7 @@ export async function createManifest(
 	internals: BuildInternals
 ): Promise<SerializedSSRManifest> {
 	if (buildOpts.settings.config.build.split) {
-		if (internals.ssrServerlessEntryChunks.size === 0) {
+		if (internals.ssrSplitEntryChunks.size === 0) {
 			throw new Error(`Did not generate an entry chunk for SSR in serverless mode`);
 		}
 	} else {

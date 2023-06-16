@@ -12,7 +12,7 @@ describe('astro:ssr-manifest, split', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/ssr-serverless-manifest/',
+			root: './fixtures/ssr-split-manifest/',
 			output: 'server',
 			adapter: testAdapter({
 				setEntries(entries) {

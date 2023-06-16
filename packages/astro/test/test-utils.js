@@ -13,8 +13,7 @@ import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
 import { check } from '../dist/cli/check/index.js';
-import path from 'path';
-import { extname } from 'node:path';
+import path from 'node:path';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {
@@ -251,7 +250,7 @@ export async function loadFixture(inlineConfig) {
 			const pathComponents = pagePath.split(path.sep);
 			const lastPathComponent = pathComponents.pop();
 			if (lastPathComponent) {
-				const extension = extname(lastPathComponent);
+				const extension = path.extname(lastPathComponent);
 				if (extension.length > 0) {
 					const newFileName = `entry.${lastPathComponent}`;
 					pagePath = `${[...pathComponents, newFileName].join(path.sep)}.mjs`;

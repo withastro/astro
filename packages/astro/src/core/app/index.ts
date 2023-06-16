@@ -29,7 +29,6 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -52,18 +51,6 @@ export class App {
 	};
 	#base: string;
 	#baseWithoutTrailingSlash: string;
-
-	async #retrievePage(routeData: RouteData) {
-		if (this.#manifest.pageMap) {
-			const pageModule = await this.#manifest.pageMap.get(routeData.component)!();
-			return await pageModule.page();
-		} else if (this.#manifest.pageModule) {
-			const pageModule = await this.#manifest.pageModule;
-			return await pageModule.page();
-		} else {
-			throw new AstroError(AstroErrorData.FailedToFindPageMapSSR);
-		}
-	}
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
@@ -201,7 +188,9 @@ export class App {
 				const importComponentInstance = this.#manifest.pageModule;
 				return importComponentInstance;
 			} else {
-				throw new AstroError(AstroErrorData.FailedToFindPageMapSSR);
+				throw new Error(
+					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
+				);
 			}
 		}
 	}
