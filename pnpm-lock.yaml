@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: false
@@ -2499,7 +2499,22 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/custom-404-injected-from-dep:
+    dependencies:
+      '@test/custom-404-pkg':
+        specifier: workspace:*
+        version: link:../custom-404-pkg
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/custom-404-md:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/custom-404-pkg:
     dependencies:
       astro:
         specifier: workspace:*
