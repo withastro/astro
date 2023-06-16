@@ -30,7 +30,8 @@ export class AstroComponentInstance {
 		this.factory = factory;
 		this.slotValues = {};
 		for (const name in slots) {
-			this.slotValues[name] = () => slots[name](result);
+			const value = slots[name](result);
+			this.slotValues[name] = () => value;
 		}
 	}
 
