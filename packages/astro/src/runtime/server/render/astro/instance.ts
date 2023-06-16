@@ -30,8 +30,6 @@ export class AstroComponentInstance {
 		this.factory = factory;
 		this.slotValues = {};
 		for (const name in slots) {
-			// collections-renderentry.test.js this units needs to early get the css from the children component and the slot  
-			slots[name](result)
 			this.slotValues[name] = () => slots[name](result);
 		}
 	}
