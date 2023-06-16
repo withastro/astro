@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc in your Astro site",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,14 +19,36 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/markdoc/",
   "exports": {
-    "./prism": "./dist/extensions/prism.js",
-    "./shiki": "./dist/extensions/shiki.js",
+    "./prism": {
+      "types": "./dist/extensions/prism.d.ts",
+      "default": "./dist/extensions/prism.js"
+    },
+    "./shiki": {
+      "types": "./dist/extensions/shiki.d.ts",
+      "default": "./dist/extensions/shiki.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "default": "./dist/config.js"
+    },
     ".": "./dist/index.js",
     "./components": "./components/index.ts",
     "./runtime": "./dist/runtime.js",
-    "./config": "./dist/config.js",
     "./experimental-assets-config": "./dist/experimental-assets-config.js",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "config": [
+        "./dist/config.d.ts"
+      ],
+      "prism": [
+        "./dist/extensions/prism.d.ts"
+      ],
+      "shiki": [
+        "./dist/extensions/shiki.d.ts"
+      ]
+    }
   },
   "files": [
     "components",
@@ -41,17 +63,17 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "shiki": "^0.14.1",
     "@astrojs/prism": "^2.1.2",
     "@markdoc/markdoc": "^0.3.0",
     "esbuild": "^0.17.12",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
+    "shiki": "^0.14.1",
     "zod": "^3.17.3"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.5.7"
+    "astro": "workspace:^2.6.4"
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^2.2.1",
@@ -61,7 +83,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
-    "devalue": "^4.2.0",
+    "devalue": "^4.3.2",
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
     "rollup": "^3.20.1",

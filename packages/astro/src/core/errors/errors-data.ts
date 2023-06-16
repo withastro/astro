@@ -38,11 +38,12 @@ export const AstroErrorData = {
 	 * @docs
 	 * @see
 	 * - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project)
-	 * - [Astro.redirect](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
 	 * @description
 	 * The `Astro.redirect` function is only available when [Server-side rendering](/en/guides/server-side-rendering/) is enabled.
 	 *
 	 * To redirect on a static website, the [meta refresh attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) can be used. Certain hosts also provide config-based redirects (ex: [Netlify redirects](https://docs.netlify.com/routing/redirects/)).
+	 * @deprecated since version 2.6
 	 */
 	StaticRedirectNotAvailable: {
 		title: '`Astro.redirect` is not available in static mode.',
@@ -693,7 +694,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
 	},
-	/**
+	/*
 	 * @docs
 	 * @see
 	 * - [Assets (Experimental)](https://docs.astro.build/en/guides/assets/)
@@ -748,7 +749,30 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (globStr: string) =>
 			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
 	},
-
+	/**
+	 * @docs
+	 * @see
+	 * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#astroredirect)
+	 * @description
+	 * A redirect must be given a location with the `Location` header.
+	 */
+	RedirectWithNoLocation: {
+		title: 'A redirect must be given a location with the `Location` header.',
+		code: 3037,
+	},
+	/**
+	 * @docs
+	 * @see
+	 * - [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes)
+	 * @description
+	 * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/core-concepts/routing/#rest-parameters).
+	 */
+	InvalidDynamicRoute: {
+		title: 'Invalid dynamic route.',
+		code: 3038,
+		message: (route: string, invalidParam: string, received: string) =>
+			`The ${invalidParam} param for route ${route} is invalid. Received **${received}**.`,
+	},
 	// No headings here, that way Vite errors are merged with Astro ones in the docs, which makes more sense to users.
 	// Vite Errors - 4xxx
 	/**
@@ -1018,9 +1042,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
-	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
 	 * @description
-	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
 	 */
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
@@ -1087,6 +1111,34 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			return `**${entryId}** failed to parse: ${errorMessage}`;
 		},
 		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains multiple entries with the same slug: `SLUG`. Slugs must be unique.
+	 * @description
+	 * Content collection entries must have unique slugs. Duplicates are often caused by the `slug` frontmatter property.
+	 */
+	DuplicateContentEntrySlugError: {
+		title: 'Duplicate content entry slug.',
+		code: 9008,
+		message: (collection: string, slug: string) => {
+			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+		},
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [devalue library](https://github.com/rich-harris/devalue)
+	 * @description
+	 * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+	 */
+	UnsupportedConfigTransformError: {
+		title: 'Unsupported transform in content config.',
+		code: 9008,
+		message: (parseError: string) =>
+			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip

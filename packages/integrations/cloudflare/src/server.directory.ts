@@ -1,3 +1,4 @@
+import type { Request as CFRequest } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
@@ -14,7 +15,7 @@ export function createExports(manifest: SSRManifest) {
 		next,
 		...runtimeEnv
 	}: {
-		request: Request;
+		request: Request & CFRequest;
 		next: (request: Request) => void;
 	} & Record<string, unknown>) => {
 		process.env = runtimeEnv.env as any;
@@ -36,6 +37,8 @@ export function createExports(manifest: SSRManifest) {
 				...runtimeEnv,
 				name: 'cloudflare',
 				next,
+				caches,
+				cf: request.cf,
 			});
 			let response = await app.render(request, routeData);
 

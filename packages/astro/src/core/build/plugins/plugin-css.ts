@@ -197,7 +197,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		name: 'astro:rollup-plugin-inline-stylesheets',
 		enforce: 'post',
 		async generateBundle(_outputOptions, bundle) {
-			const inlineConfig = settings.config.experimental.inlineStylesheets;
+			const inlineConfig = settings.config.build.inlineStylesheets;
 			const { assetsInlineLimit = 4096 } = settings.config.vite?.build ?? {};
 
 			Object.entries(bundle).forEach(([id, stylesheet]) => {

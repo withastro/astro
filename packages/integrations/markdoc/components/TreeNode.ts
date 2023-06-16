@@ -1,5 +1,4 @@
 import type { AstroInstance } from 'astro';
-import { Fragment } from 'astro/jsx-runtime';
 import type { RenderableTreeNode } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import {
@@ -106,18 +105,11 @@ export const ComponentNode = createComponent({
 	propagation: 'self',
 });
 
-export async function createTreeNode(node: RenderableTreeNode | RenderableTreeNode[]): TreeNode {
+export async function createTreeNode(node: RenderableTreeNode): Promise<TreeNode> {
 	if (isHTMLString(node)) {
 		return { type: 'text', content: node as HTMLString };
 	} else if (typeof node === 'string' || typeof node === 'number') {
 		return { type: 'text', content: String(node) };
-	} else if (Array.isArray(node)) {
-		return {
-			type: 'component',
-			component: Fragment,
-			props: {},
-			children: await Promise.all(node.map((child) => createTreeNode(child))),
-		};
 	} else if (node === null || typeof node !== 'object' || !Markdoc.Tag.isTag(node)) {
 		return { type: 'text', content: '' };
 	}
@@ -136,7 +128,7 @@ export async function createTreeNode(node: RenderableTreeNode | RenderableTreeNo
 		};
 	} else if (isPropagatedAssetsModule(node.name)) {
 		const { collectedStyles, collectedLinks, collectedScripts } = node.name;
-		const component = (await node.name.getMod())?.default ?? Fragment;
+		const component = (await node.name.getMod()).default;
 		const props = node.attributes;
 
 		return {
@@ -160,7 +152,7 @@ export async function createTreeNode(node: RenderableTreeNode | RenderableTreeNo
 
 type PropagatedAssetsModule = {
 	__astroPropagation: true;
-	getMod: () => Promise<AstroInstance['default']>;
+	getMod: () => Promise<AstroInstance>;
 	collectedStyles: string[];
 	collectedLinks: string[];
 	collectedScripts: string[];

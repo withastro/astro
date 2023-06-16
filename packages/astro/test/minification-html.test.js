@@ -33,7 +33,7 @@ describe('HTML minification', () => {
 		});
 
 		after(async () => {
-			devServer.stop();
+			await devServer.stop();
 		});
 
 		it('should emit compressed HTML in the emitted file', async () => {

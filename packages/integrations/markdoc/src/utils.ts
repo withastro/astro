@@ -1,6 +1,4 @@
 import matter from 'gray-matter';
-import crypto from 'node:crypto';
-import path from 'node:path';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 
 /**
@@ -111,19 +109,4 @@ export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
 export function hasContentFlag(viteId: string, flag: string): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
-}
-
-/**
- * Create build hash for manual Rollup chunks.
- * @see 'packages/astro/src/core/build/plugins/plugin-css.ts'
- */
-export function createNameHash(baseId: string, hashIds: string[]): string {
-	const baseName = baseId ? path.parse(baseId).name : 'index';
-	const hash = crypto.createHash('sha256');
-	for (const id of hashIds) {
-		hash.update(id, 'utf-8');
-	}
-	const h = hash.digest('hex').slice(0, 8);
-	const proposedName = baseName + '.' + h;
-	return proposedName;
 }

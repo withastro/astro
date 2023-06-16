@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.5.7",
+  "version": "2.6.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -113,6 +113,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^1.4.0",
+    "@astrojs/internal-helpers": "^0.1.0",
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",
     "@astrojs/telemetry": "^2.1.1",
@@ -133,7 +134,7 @@
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
     "deepmerge-ts": "^4.2.2",
-    "devalue": "^4.2.0",
+    "devalue": "^4.3.2",
     "diff": "^5.1.0",
     "es-module-lexer": "^1.1.0",
     "esbuild": "^0.17.18",

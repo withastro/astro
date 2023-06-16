@@ -166,6 +166,16 @@ export async function getStringifiedLookupMap({
 						fileUrl: pathToFileURL(filePath),
 						contentEntryType,
 					});
+					if (lookupMap[collection]?.entries?.[slug]) {
+						throw new AstroError({
+							...AstroErrorData.DuplicateContentEntrySlugError,
+							message: AstroErrorData.DuplicateContentEntrySlugError.message(collection, slug),
+							hint:
+								slug !== generatedSlug
+									? `Check the \`slug\` frontmatter property in **${id}**.`
+									: undefined,
+						});
+					}
 					lookupMap[collection] = {
 						type: 'content',
 						entries: {
