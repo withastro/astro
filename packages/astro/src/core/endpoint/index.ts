@@ -78,6 +78,7 @@ export function createAPIContext({
 
 	// We define a custom property, so we can check the value passed to locals
 	Object.defineProperty(context, 'locals', {
+		enumerable: true,
 		get() {
 			return Reflect.get(request, clientLocalsSymbol);
 		},
