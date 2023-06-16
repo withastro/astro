@@ -2,15 +2,6 @@ import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 describe('Custom 404 with injectRoute from dependency', () => {
-	let fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/custom-404-injected-from-dep/',
-			site: 'http://example.com',
-		});
-	});
-
 	describe('build', () => {
 		/** @type {import('./test-utils.js').Fixture} */
 		let fixture;
