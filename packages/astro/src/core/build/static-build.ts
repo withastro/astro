@@ -423,10 +423,10 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
  *
  * Input: `@astro-page:src/pages/index@_@astro`
  * Output: `pages/index.astro.mjs`
- * Input: `@astro-page:../node_modules/my-dep/injected.astro@_@astro`
+ * Input: `@astro-page:../node_modules/my-dep/injected@_@astro`
  * Output: `pages/injected.mjs`
  *
- * 1. We clean the `facadeModuleId` by removing the `@astro-page:` prefix and `@_@astro` suffix
+ * 1. We clean the `facadeModuleId` by removing the `@astro-page:` prefix and `@_@` suffix
  * 2. We find the matching route pattern in the manifest (or fallback to the cleaned module id)
  * 3. We replace square brackets with underscore (`[slug]` => `_slug_`) and `...` with `` (`[...slug]` => `_---slug_`).
  * 4. We append the `.mjs` extension, so the file will always be an ESM module
@@ -435,9 +435,10 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
  * @param pages AllPagesData
  */
 function makeAstroPageEntryPointFileName(facadeModuleId: string, pages: AllPagesData) {
-	const pageModuleId = `${facadeModuleId
+	const pageModuleId = facadeModuleId
 		.replace(ASTRO_PAGE_RESOLVED_MODULE_ID, '')
-		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`;
-	const name = pages[pageModuleId]?.route?.route ?? pageModuleId;
+		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
+	let name = pages[pageModuleId]?.route?.route ?? pageModuleId;
+	if (name.endsWith('/')) name += 'index';
 	return `pages${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
 }
