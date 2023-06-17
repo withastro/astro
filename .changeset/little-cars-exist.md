@@ -2,4 +2,4 @@
 '@astrojs/prefetch': minor
 ---
 
-Adds option to prefetch links only if a user hovers over it
+Adds the option to prefetch a link only when it is hovered or focused.
