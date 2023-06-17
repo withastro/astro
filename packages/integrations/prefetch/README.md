@@ -95,10 +95,10 @@ import prefetch from '@astrojs/prefetch';
 export default defineConfig({
   // ...
   integrations: [prefetch({
-    // Only prefetch links with an href that begins with `/products` or `/coupons`
+     // Only prefetch links with an href that begins with `/products` or `/coupons`
     intentSelector: ["a[href^='/products']", "a[href^='/coupons']"]
-
-    // Below is also valid syntax
+    
+    // Use a string to prefetch a single selector
     // intentSelector: "a[href^='/products']"
   })],
 });
