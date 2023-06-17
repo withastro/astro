@@ -56,7 +56,7 @@ export default defineConfig({
 
 When you install the integration, the prefetch script is automatically added to every page in the project. Just add `rel="prefetch"` to any `<a />` links on your page and you're ready to go!
 
-In addition, you can add `rel="prefetch-intent"` to any `<a />` links on your page to prefetch them only when they are hovered over, touched, or focused. This is especially useful when you want to be conservative with your users' data usage.
+In addition, you can add `rel="prefetch-intent"` to any `<a />` links on your page to prefetch them only when they are hovered over, touched, or focused. This is especially useful to conserve data usage when viewing your site.
 
 ## Configuration
 
