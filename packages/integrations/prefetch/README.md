@@ -84,7 +84,6 @@ export default defineConfig({
 ### config.intentSelector
 By default, the prefetch script also searches the page for any links that include a `rel="prefetch-intent"` attribute, ex: `<a rel="prefetch-intent" />`. This behavior can be changed in your astro.config.* file to use a custom query selector when finding prefetch-intent links.
 
-Importantly, the intentSelector accepts both strings and arrays, giving you the option to prefetch multiple selectors on hover if you want.
 
 __`astro.config.mjs`__
 
