@@ -129,6 +129,11 @@ export default function vercelServerless({
 					version: 3,
 					routes: [
 						...getRedirects(routes, _config),
+						{
+							src: '^/_astro/(.*)$',
+							headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+							continue: true,
+						},
 						{ handle: 'filesystem' },
 						{ src: '/.*', dest: 'render' },
 					],
