@@ -136,14 +136,14 @@ export function pluginSSRServer(
 				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
 
 				const manifest = await createManifest(options, internals);
-				const code = await injectManifest(manifest, internals.ssrEntryChunk);
-				mutate(internals.ssrEntryChunk, 'server', code);
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
 					logging: options.logging,
 					entryPoints: internals.entryPoints,
 				});
+				const code = injectManifest(manifest, internals.ssrEntryChunk);
+				mutate(internals.ssrEntryChunk, 'server', code);
 			},
 		},
 	};
@@ -262,16 +262,16 @@ export function pluginSSRServerless(
 				}
 
 				const manifest = await createManifest(options, internals);
-				for (const [moduleName, chunk] of internals.ssrSplitEntryChunks) {
-					const code = injectManifest(manifest, chunk);
-					mutate(chunk, 'server', code);
-				}
 				await runHookBuildSsr({
 					config: options.settings.config,
 					manifest,
 					logging: options.logging,
 					entryPoints: internals.entryPoints,
 				});
+				for (const [moduleName, chunk] of internals.ssrSplitEntryChunks) {
+					const code = injectManifest(manifest, chunk);
+					mutate(chunk, 'server', code);
+				}
 			},
 		},
 	};
@@ -355,7 +355,7 @@ export async function createManifest(
 	// Add assets from the client build.
 	const clientStatics = new Set(
 		await glob('**/*', {
-			cwd: fileURLToPath(buildOpts.buildConfig.client),
+			cwd: fileURLToPath(buildOpts.settings.config.build.client),
 		})
 	);
 	for (const file of clientStatics) {
