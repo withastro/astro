@@ -102,7 +102,7 @@
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
     "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && tsc && pnpm run postbuild",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" && pnpm run postbuild",
-    "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
+    "dev": "astro-scripts dev --no-clean-dist --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\" && astro-scripts copy \"src/**/*.wasm\"",
     "test:unit": "mocha --exit --timeout 30000 ./test/units/**/*.test.js",
     "test:unit:match": "mocha --exit --timeout 30000 ./test/units/**/*.test.js -g",
