@@ -14,6 +14,8 @@ import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
 import { check } from '../dist/cli/check/index.js';
 import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
+import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
+import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {

@@ -453,7 +453,11 @@ export function makeAstroPageEntryPointFileName(
 		name = route.route;
 	}
 	if (name.endsWith('/')) name += 'index';
-	return `${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
+	const fileName = `${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
+	if (name.startsWith('..')) {
+		return `pages${fileName}`;
+	}
+	return fileName;
 }
 
 /**
