@@ -342,7 +342,7 @@ type ServerConfig = {
 	 * @default `false`
 	 * @version 2.1.8
 	 * @description
-	 * Opens the browser window on startup
+	 * Control whether the dev server should open in your browser window on startup.
 	 */
 	open?: boolean;
 };
