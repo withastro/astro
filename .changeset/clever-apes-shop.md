@@ -2,5 +2,5 @@
 '@astrojs/cloudflare': minor
 ---
 
-Fixed issue with runtime wait until not working as intended.
+Fixed issue with cloudflare runtime `waitUntil` not working as intended.
 
