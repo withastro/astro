@@ -27,11 +27,12 @@ import { registerAllPlugins } from './plugins/index.js';
 import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
-import { RESOLVED_SERVERLESS_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
+import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import type { AllPagesData, PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import { extname } from 'node:path';
+import type { RouteData } from '../../@types/astro';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -146,7 +147,7 @@ async function ssrBuild(
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
-
+	const routes = Object.values(allPages).map((pd) => pd.route);
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
 	const viteBuildConfig: vite.InlineConfig = {
@@ -178,10 +179,10 @@ async function ssrBuild(
 							return makeAstroPageEntryPointFileName(
 								ASTRO_PAGE_RESOLVED_MODULE_ID,
 								chunkInfo.facadeModuleId,
-								allPages
+								routes
 							);
-						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
-							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, opts);
+						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
+							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
 						} else if (chunkInfo.facadeModuleId === MIDDLEWARE_MODULE_ID) {
 							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
@@ -427,46 +428,51 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
  * Input: `@astro-page:../node_modules/my-dep/injected@_@astro`
  * Output: `pages/injected.mjs`
  *
- * 1. We clean the `facadeModuleId` by removing the `@astro-page:` prefix and `@_@` suffix
+ * 1. We clean the `facadeModuleId` by removing the `ASTRO_PAGE_MODULE_ID` prefix and `ASTRO_PAGE_EXTENSION_POST_PATTERN`.
  * 2. We find the matching route pattern in the manifest (or fallback to the cleaned module id)
  * 3. We replace square brackets with underscore (`[slug]` => `_slug_`) and `...` with `` (`[...slug]` => `_---slug_`).
  * 4. We append the `.mjs` extension, so the file will always be an ESM module
  *
+ * @param prefix string
  * @param facadeModuleId string
  * @param pages AllPagesData
  */
-function makeAstroPageEntryPointFileName(
+export function makeAstroPageEntryPointFileName(
 	prefix: string,
 	facadeModuleId: string,
-	pages: AllPagesData
+	routes: RouteData[]
 ) {
 	const pageModuleId = facadeModuleId
 		.replace(prefix, '')
 		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
-	let name = pages[pageModuleId]?.route?.route ?? pageModuleId;
+	let route = routes.find((routeData) => {
+		return routeData.route === pageModuleId;
+	});
+	let name = pageModuleId;
+	if (route) {
+		name = route.route;
+	}
 	if (name.endsWith('/')) name += 'index';
-	return `pages${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
+	return `${name.replaceAll('[', '_').replaceAll(']', '_').replaceAll('...', '---')}.mjs`;
 }
 
 /**
- * This function attempts to prepend the `serverlessEntryPrefix` prefix to each entry point emitted.
- *
  * The `facadeModuleId` has a shape like: \0@astro-serverless-page:src/pages/index@_@astro.
  *
  * 1. We call `makeAstroPageEntryPointFileName` which normalise its name, making it like a file path
  * 2. We split the file path using the file system separator and attempt to retrieve the last entry
  * 3. The last entry should be the file
- * 4. We prepend the file name with `serverlessEntryPrefix`
+ * 4. We prepend the file name with `entry.`
  * 5. We built the file path again, using the new entry built in the previous step
  *
  * @param facadeModuleId
  * @param opts
  */
-function makeSplitEntryPointFileName(facadeModuleId: string, opts: StaticBuildOptions) {
+export function makeSplitEntryPointFileName(facadeModuleId: string, routes: RouteData[]) {
 	const filePath = `${makeAstroPageEntryPointFileName(
-		RESOLVED_SERVERLESS_MODULE_ID,
+		RESOLVED_SPLIT_MODULE_ID,
 		facadeModuleId,
-		opts.allPages
+		routes
 	)}`;
 
 	const pathComponents = filePath.split(path.sep);

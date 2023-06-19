@@ -24,7 +24,7 @@ const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
-function vitePluginSSRServer(
+function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
 	options: StaticBuildOptions
@@ -101,7 +101,7 @@ function vitePluginSSRServer(
 	};
 }
 
-export function pluginSSRServer(
+export function pluginSSR(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
@@ -112,7 +112,7 @@ export function pluginSSRServer(
 			'build:before': () => {
 				let vitePlugin =
 					ssr && !options.settings.config.build.split
-						? vitePluginSSRServer(internals, options.settings.adapter!, options)
+						? vitePluginSSR(internals, options.settings.adapter!, options)
 						: undefined;
 
 				return {
@@ -149,35 +149,35 @@ export function pluginSSRServer(
 	};
 }
 
-export const SERVERLESS_MODULE_ID = '@astro-page-serverless:';
-export const RESOLVED_SERVERLESS_MODULE_ID = '\0@astro-page-serverless:';
+export const SPLIT_MODULE_ID = '@astro-page-split:';
+export const RESOLVED_SPLIT_MODULE_ID = '\0@astro-page-split:';
 
-function vitePluginSSRServerless(
+function vitePluginSSRSplit(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
 	options: StaticBuildOptions
 ): VitePlugin {
 	return {
-		name: '@astrojs/vite-plugin-astro-ssr-serverless',
+		name: '@astrojs/vite-plugin-astro-ssr-split',
 		enforce: 'post',
 		options(opts) {
 			if (options.settings.config.build.split) {
 				const inputs: Set<string> = new Set();
 
 				for (const path of Object.keys(options.allPages)) {
-					inputs.add(getVirtualModulePageNameFromPath(SERVERLESS_MODULE_ID, path));
+					inputs.add(getVirtualModulePageNameFromPath(SPLIT_MODULE_ID, path));
 				}
 
 				return addRollupInput(opts, Array.from(inputs));
 			}
 		},
 		resolveId(id) {
-			if (id.startsWith(SERVERLESS_MODULE_ID)) {
+			if (id.startsWith(SPLIT_MODULE_ID)) {
 				return '\0' + id;
 			}
 		},
 		async load(id) {
-			if (id.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
+			if (id.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 				const {
 					settings: { config },
 					allPages,
@@ -186,7 +186,7 @@ function vitePluginSSRServerless(
 				const contents: string[] = [];
 				const exports: string[] = [];
 
-				const path = getPathFromVirtualModulePageName(RESOLVED_SERVERLESS_MODULE_ID, id);
+				const path = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, id);
 				const virtualModuleName = getVirtualModulePageNameFromPath(ASTRO_PAGE_MODULE_ID, path);
 				let module = await this.resolve(virtualModuleName);
 				if (module) {
@@ -216,7 +216,7 @@ function vitePluginSSRServerless(
 				}
 				let shouldDeleteBundle = false;
 				for (const moduleKey of Object.keys(chunk.modules)) {
-					if (moduleKey.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
+					if (moduleKey.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 						internals.ssrSplitEntryChunks.set(moduleKey, chunk);
 						storeEntryPoint(moduleKey, options, internals, chunk.fileName);
 						shouldDeleteBundle = true;
@@ -230,7 +230,7 @@ function vitePluginSSRServerless(
 	};
 }
 
-export function pluginSSRServerless(
+export function pluginSSRSplit(
 	options: StaticBuildOptions,
 	internals: BuildInternals
 ): AstroBuildPlugin {
@@ -241,7 +241,7 @@ export function pluginSSRServerless(
 			'build:before': () => {
 				let vitePlugin =
 					ssr && options.settings.config.build.split
-						? vitePluginSSRServerless(internals, options.settings.adapter!, options)
+						? vitePluginSSRSplit(internals, options.settings.adapter!, options)
 						: undefined;
 
 				return {
@@ -379,7 +379,7 @@ function storeEntryPoint(
 	internals: BuildInternals,
 	fileName: string
 ) {
-	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SERVERLESS_MODULE_ID, moduleKey);
+	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
 	for (const [page, pageData] of Object.entries(options.allPages)) {
 		if (componentPath == page) {
 			const publicPath = fileURLToPath(options.settings.config.outDir);

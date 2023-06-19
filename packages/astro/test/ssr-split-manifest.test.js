@@ -9,14 +9,18 @@ describe('astro:ssr-manifest, split', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let entryPoints;
+	let currentRoutes;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-split-manifest/',
 			output: 'server',
 			adapter: testAdapter({
-				setEntries(entries) {
+				setEntryPoints(entries) {
 					entryPoints = entries;
+				},
+				setRoutes(routes) {
+					currentRoutes = routes;
 				},
 			}),
 		});
@@ -24,8 +28,8 @@ describe('astro:ssr-manifest, split', () => {
 	});
 
 	it('should be able to render a specific entry point', async () => {
-		const pagePath = 'pages/index.astro';
-		const app = await fixture.loadEntryPoint(pagePath);
+		const pagePath = 'src/pages/index.astro';
+		const app = await fixture.loadEntryPoint(pagePath, currentRoutes);
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		const html = await response.text();
