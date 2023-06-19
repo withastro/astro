@@ -2,8 +2,8 @@
 'astro': minor
 ---
 
-Shipped a new SSR mode, called `split`. 
-When enabled, Astro will emit a file for each page, which will render one single page.
+Shipped a new SSR build configuration mode: `split`. 
+When enabled, Astro will "split" the single `entry.mjs` file and instead emit a separate file to render each individual page during the build process.
 
 These files will be emitted inside `dist/pages`, and they will look like this:
 
@@ -15,9 +15,10 @@ These files will be emitted inside `dist/pages`, and they will look like this:
 │   └── entry.index.astro.mjs
 ```
 
-To enable and customise this mode, new options are now available:
+To enable, set `build.split: true` in your Astro config:
 
 ```js
+// src/astro.config.mjs
 export default defineConfig({
     output: "server",
     adapter: node({

@@ -846,7 +846,7 @@ export interface AstroUserConfig {
 		 * @default {false}
 		 * @version 2.7.0
 		 * @description
-		 * Defines how the SSR code should be bundled.
+		 * Defines how the SSR code should be bundled when built.
 		 *
 		 * When `split` is `true`, Astro will emit a file for each page.
 		 * Each file emitted will render only one page. The pages will be emitted
