@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/deno",
   "description": "Deploy your site to a Deno server",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -36,7 +36,7 @@
     "esbuild": "^0.15.18"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.6.4"
+    "astro": "workspace:^2.6.5"
   },
   "devDependencies": {
     "astro": "workspace:*",
