@@ -177,10 +177,11 @@ async function ssrBuild(
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(
 								ASTRO_PAGE_RESOLVED_MODULE_ID,
-								chunkInfo.facadeModuleId
+								chunkInfo.facadeModuleId,
+								allPages
 							);
 						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SERVERLESS_MODULE_ID)) {
-							return makeServerlessEntryPointFileName(chunkInfo.facadeModuleId, opts);
+							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, opts);
 						} else if (chunkInfo.facadeModuleId === MIDDLEWARE_MODULE_ID) {
 							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
@@ -434,7 +435,11 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
  * @param facadeModuleId string
  * @param pages AllPagesData
  */
-function makeAstroPageEntryPointFileName(prefix: string, facadeModuleId: string, pages: AllPagesData) {
+function makeAstroPageEntryPointFileName(
+	prefix: string,
+	facadeModuleId: string,
+	pages: AllPagesData
+) {
 	const pageModuleId = facadeModuleId
 		.replace(prefix, '')
 		.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.');
@@ -457,10 +462,11 @@ function makeAstroPageEntryPointFileName(prefix: string, facadeModuleId: string,
  * @param facadeModuleId
  * @param opts
  */
-function makeServerlessEntryPointFileName(facadeModuleId: string, opts: StaticBuildOptions) {
+function makeSplitEntryPointFileName(facadeModuleId: string, opts: StaticBuildOptions) {
 	const filePath = `${makeAstroPageEntryPointFileName(
 		RESOLVED_SERVERLESS_MODULE_ID,
-		facadeModuleId
+		facadeModuleId,
+		opts.allPages
 	)}`;
 
 	const pathComponents = filePath.split(path.sep);
