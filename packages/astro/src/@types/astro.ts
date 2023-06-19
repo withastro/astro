@@ -335,6 +335,16 @@ type ServerConfig = {
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 	headers?: OutgoingHttpHeaders;
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Opens the browser window on startup
+	 */
+	open?: boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
