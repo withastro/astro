@@ -39,9 +39,9 @@
   ],
   "engines": {
     "node": ">=16.12.0",
-    "pnpm": ">=8.2.0"
+    "pnpm": ">=8.6.2"
   },
-  "packageManager": "pnpm@8.6.0",
+  "packageManager": "pnpm@8.6.2",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {
