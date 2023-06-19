@@ -17,7 +17,7 @@ export function createExports(manifest: SSRManifest) {
 	}: {
 		request: Request & CFRequest;
 		next: (request: Request) => void;
-		waitUntil: (promise: Promise<any>) => void;
+		waitUntil: EventContext<unknown, any, unknown>['waitUntil'];
 	} & Record<string, unknown>) => {
 		process.env = runtimeEnv.env as any;
 
