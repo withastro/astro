@@ -6,6 +6,7 @@ import type {
 	BuildConfig,
 	ComponentInstance,
 	ManifestData,
+	MiddlewareHandler,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
@@ -51,7 +52,10 @@ type ImportComponentInstance = () => Promise<ComponentInstance>;
 
 export interface SinglePageBuiltModule {
 	page: ImportComponentInstance;
-	middleware: AstroMiddlewareInstance<unknown>;
+	/**
+	 * The `onRequest` hook exported by the middleware
+	 */
+	onRequest?: MiddlewareHandler<unknown>;
 	renderers: SSRLoadedRenderer[];
 }
 
