@@ -24,6 +24,7 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import {
 	ASTRO_PAGE_EXTENSION_POST_PATTERN,
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
@@ -176,12 +177,7 @@ async function ssrBuild(
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(chunkInfo.facadeModuleId, allPages);
-						} else if (
-							// checks if the path of the module we have middleware, e.g. middleware.js / middleware/index.js
-							chunkInfo.moduleIds.find((m) => m.includes('middleware')) !== undefined &&
-							// checks if the file actually export the `onRequest` function
-							chunkInfo.exports.includes('_middleware')
-						) {
+						} else if (chunkInfo.facadeModuleId === MIDDLEWARE_MODULE_ID) {
 							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
