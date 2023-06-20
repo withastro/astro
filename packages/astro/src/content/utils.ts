@@ -24,7 +24,7 @@ import { createImage } from './runtime-assets.js';
 /**
  * Amap from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `src/content/virtual-mod.mjs`
+ * @see `content-module.template.mjs`
  */
 export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
@@ -432,7 +432,6 @@ export type ContentPaths = {
 	cacheDir: URL;
 	typesTemplate: URL;
 	virtualModTemplate: URL;
-	virtualAssetsModTemplate: URL;
 	config: {
 		exists: boolean;
 		url: URL;
@@ -444,14 +443,13 @@ export function getContentPaths(
 	fs: typeof fsMod = fsMod
 ): ContentPaths {
 	const configStats = search(fs, srcDir);
-	const templateDir = new URL('../../src/content/template/', import.meta.url);
+	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		cacheDir: new URL('.astro/', root),
 		contentDir: new URL('./content/', srcDir),
 		assetsDir: new URL('./assets/', srcDir),
-		typesTemplate: new URL('types.d.ts', templateDir),
-		virtualModTemplate: new URL('virtual-mod.mjs', templateDir),
-		virtualAssetsModTemplate: new URL('virtual-mod-assets.mjs', templateDir),
+		typesTemplate: new URL('content-types.template.d.ts', pkgBase),
+		virtualModTemplate: new URL('content-module.template.mjs', pkgBase),
 		config: configStats,
 	};
 }

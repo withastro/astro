@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.6.5",
+  "version": "2.6.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -91,12 +91,13 @@
     "client.d.ts",
     "client-base.d.ts",
     "client-image.d.ts",
+    "content-types.template.d.ts",
+    "content-module.template.mjs",
     "import-meta.d.ts",
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
-    "vendor",
-    "src/content/template"
+    "vendor"
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",

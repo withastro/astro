@@ -1,10 +1,10 @@
 import type {
 	APIContext,
 	AstroConfig,
-	AstroMiddlewareInstance,
 	EndpointHandler,
 	EndpointOutput,
 	MiddlewareEndpointHandler,
+	MiddlewareHandler,
 	Params,
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
@@ -97,7 +97,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	env: Environment,
 	ctx: RenderContext,
 	logging: LogOptions,
-	middleware?: AstroMiddlewareInstance<MiddlewareResult> | undefined
+	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined
 ): Promise<EndpointCallResult> {
 	const context = createAPIContext({
 		request: ctx.request,
@@ -108,11 +108,10 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	});
 
 	let response;
-	if (middleware?.onRequest) {
-		const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
+	if (onRequest) {
 		response = await callMiddleware<Response | EndpointOutput>(
 			env.logging,
-			onRequest,
+			onRequest as MiddlewareEndpointHandler,
 			context,
 			async () => {
 				return await renderEndpoint(mod, context, env.ssr);

@@ -5,13 +5,13 @@ import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
-	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
 	EndpointOutput,
 	GetStaticPathsItem,
 	ImageTransform,
+	MiddlewareHandler,
 	MiddlewareResponseHandler,
 	RouteData,
 	RouteType,
@@ -227,7 +227,7 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 
 	const pageModulePromise = ssrEntry.page;
-	const middleware = ssrEntry.middleware;
+	const onRequest = ssrEntry.onRequest;
 
 	if (!pageModulePromise) {
 		throw new Error(
@@ -262,7 +262,7 @@ async function generatePage(
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions, middleware);
+		await generatePath(path, opts, generationOptions, onRequest);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -446,7 +446,7 @@ async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
 	gopts: GeneratePathOptions,
-	middleware?: AstroMiddlewareInstance<unknown>
+	onRequest?: MiddlewareHandler<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
 	const { mod, internals, scripts: hoistedScripts, styles: _styles, pageData, renderers } = gopts;
@@ -559,7 +559,7 @@ async function generatePath(
 			env,
 			renderContext,
 			logging,
-			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+			onRequest as MiddlewareHandler<Response | EndpointOutput>
 		);
 
 		if (result.type === 'response') {
@@ -583,7 +583,6 @@ async function generatePath(
 				adapterName: env.adapterName,
 			});
 
-			const onRequest = middleware?.onRequest;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
 					env.logging,

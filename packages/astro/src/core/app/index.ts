@@ -236,12 +236,11 @@ export class App {
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
-			const onRequest = page.middleware?.onRequest;
 			let response;
-			if (onRequest) {
+			if (page.onRequest) {
 				response = await callMiddleware<Response>(
 					this.#env.logging,
-					onRequest as MiddlewareResponseHandler,
+					page.onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
 						return renderPage({ mod, renderContext, env: this.#env, apiContext });
@@ -287,7 +286,7 @@ export class App {
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.middleware);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.onRequest);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

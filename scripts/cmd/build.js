@@ -133,5 +133,7 @@ export default async function build(...args) {
 }
 
 async function clean(outdir) {
-	return deleteAsync([`${outdir}/**`, `!${outdir}/**/*.d.ts`]);
+	await deleteAsync([`${outdir}/**`, `!${outdir}/**/*.d.ts`], {
+		onlyFiles: true,
+	});
 }
