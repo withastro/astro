@@ -1,7 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 
