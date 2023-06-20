@@ -20,14 +20,14 @@ export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 	mdast.Root
 >;
 
-export type RemarkPlugins = (RemarkPlugin | string | [RemarkPlugin, any] | [string, any])[];
+export type RemarkPlugins = Array<RemarkPlugin | string | [RemarkPlugin, any] | [string, any]>;
 
 export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	hast.Root
 >;
 
-export type RehypePlugins = (RehypePlugin | string | [RehypePlugin, any] | [string, any])[];
+export type RehypePlugins = Array<RehypePlugin | string | [RehypePlugin, any] | [string, any]>;
 
 export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
 	handlers?: typeof Handlers;
@@ -36,7 +36,6 @@ export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandle
 
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	theme?: IThemeRegistration | Theme;
 	wrap?: boolean | null;
 }

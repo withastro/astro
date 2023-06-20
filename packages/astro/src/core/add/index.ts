@@ -35,7 +35,7 @@ export interface AddOptions {
 export interface IntegrationInfo {
 	id: string;
 	packageName: string;
-	dependencies: [name: string, version: string][];
+	dependencies: Array<[name: string, version: string]>;
 	type: 'integration' | 'adapter';
 }
 const ALIASES = new Map([
@@ -601,7 +601,7 @@ async function getInstallIntegrationsCommand({
 	if (!pm) return null;
 
 	let dependencies = integrations
-		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
+		.map<Array<[string, string | null]>>((i) => [[i.packageName, null], ...i.dependencies])
 		.flat(1)
 		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
 		.map(([name, version]) =>

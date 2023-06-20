@@ -280,8 +280,8 @@ export interface AstroGlobalPartial {
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(
 		globStr: `${any}${MarkdowFileExtension}`
-	): Promise<MarkdownInstance<T>[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
+	): Promise<Array<MarkdownInstance<T>>>;
+	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<Array<MDXInstance<T>>>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
@@ -1087,13 +1087,11 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: (
-		| AstroIntegration
-		| (AstroIntegration | false | undefined | null)[]
+	integrations?: Array<| AstroIntegration
+		| Array<AstroIntegration | false | undefined | null>
 		| false
 		| undefined
-		| null
-	)[];
+		| null>;
 
 	/**
 	 * @docs
@@ -1325,10 +1323,10 @@ export interface AstroSettings {
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
 	renderers: AstroRenderer[];
-	scripts: {
+	scripts: Array<{
 		stage: InjectedScriptStage;
 		content: string;
-	}[];
+	}>;
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
@@ -1458,7 +1456,7 @@ export type GetStaticPaths = (
  * ```
  */
 export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
-	? R extends (infer U)[]
+	? R extends Array<infer U>
 		? U extends { params: infer P }
 			? P
 			: never
@@ -1489,7 +1487,7 @@ export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infe
  * ```
  */
 export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
-	? R extends (infer U)[]
+	? R extends Array<infer U>
 		? U extends { props: infer P }
 			? P
 			: never
@@ -1807,7 +1805,7 @@ export interface AstroIntegration {
 		}) => void | Promise<void>;
 		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
 		'astro:build:done'?: (options: {
-			pages: { pathname: string }[];
+			pages: Array<{ pathname: string }>;
 			dir: URL;
 			routes: RouteData[];
 		}) => void | Promise<void>;

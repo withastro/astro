@@ -12,28 +12,24 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier', 'no-only-tests'],
   rules: {
     // These off/configured-differently-by-default rules fit well for us
+    '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
     '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
     'no-only-tests/no-only-tests': 'error',
     '@typescript-eslint/no-shadow': ['error'],
     'no-console': 'warn',
 
-    /*
-    interface: 404 results in 198 files
-    type: 129 results in 73 files
-    */
-    '@typescript-eslint/consistent-type-definitions': 'off',
-
     // Todo: do we want these?
-    '@typescript-eslint/await-thenable': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/class-literal-property-style': 'off',
     '@typescript-eslint/consistent-indexed-object-style': 'off',
+    '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/dot-notation': 'off',
     '@typescript-eslint/no-base-to-string': 'off',
     '@typescript-eslint/no-confusing-void-expression': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/no-redundant-type-constituents': 'off',
     '@typescript-eslint/no-this-alias': 'off',
     '@typescript-eslint/no-unsafe-argument': 'off',
     '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -49,6 +45,7 @@ module.exports = {
     '@typescript-eslint/unbound-method': 'off',
 
     // These rules enabled by the preset configs don't work well for us
+    '@typescript-eslint/await-thenable': 'off',
     'prefer-const': 'off',
   },
   overrides: [

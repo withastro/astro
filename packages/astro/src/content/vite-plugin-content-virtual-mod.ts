@@ -129,7 +129,7 @@ export async function getStringifiedLookupMap({
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
 	// Each await shouldn't take too long for the work to be noticably slow too.
 	const limit = pLimit(10);
-	const promises: Promise<void>[] = [];
+	const promises: Array<Promise<void>> = [];
 
 	for (const filePath of contentGlob) {
 		promises.push(

@@ -35,7 +35,7 @@ function getUrlExtension(url: string) {
 	return lastDot > lastSlash ? url.slice(lastDot + 1) : '';
 }
 
-const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
+const flattenErrorPath = (errorPath: Array<string | number>) => errorPath.join('.');
 
 export const errorMap: z.ZodErrorMap = (error, ctx) => {
 	if (error.code === 'invalid_type') {

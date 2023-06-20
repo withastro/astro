@@ -17,7 +17,6 @@ import {
 export type TreeNode =
 	| {
 			type: 'text';
-			// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 			content: string | HTMLString;
 	  }
 	| {

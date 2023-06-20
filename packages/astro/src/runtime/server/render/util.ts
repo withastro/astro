@@ -144,7 +144,7 @@ export function renderElement(
  * To avoid useless buffering, it will only start buffering the next tick, so the
  * first sync iterables won't be buffered.
  */
-export function bufferIterators<T>(iterators: AsyncIterable<T>[]): AsyncIterable<T>[] {
+export function bufferIterators<T>(iterators: Array<AsyncIterable<T>>): Array<AsyncIterable<T>> {
 	// all async iterators start running in non-buffered mode to avoid useless caching
 	const eagerIterators = iterators.map((it) => new EagerAsyncIterableIterator(it));
 	// once the execution of the next for loop is suspended due to an async component,

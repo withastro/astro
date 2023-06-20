@@ -56,7 +56,7 @@ function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
 
-export function joinPaths(...paths: (string | undefined)[]) {
+export function joinPaths(...paths: Array<string | undefined>) {
 	return paths
 		.filter(isString)
 		.map((path, i) => {

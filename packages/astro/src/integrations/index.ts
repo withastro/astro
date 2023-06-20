@@ -116,7 +116,7 @@ export async function runHookConfigSetup({
 			// Intended for internal integrations (ex. `@astrojs/mdx`),
 			// though accessible to integration authors if discovered.
 
-			function addPageExtension(...input: (string | string[])[]) {
+			function addPageExtension(...input: Array<string | string[]>) {
 				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
 				updatedSettings.pageExtensions.push(...exts);
 			}

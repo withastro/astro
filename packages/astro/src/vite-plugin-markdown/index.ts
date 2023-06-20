@@ -88,7 +88,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { headings } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content
-				let imagePaths: { raw: string; resolved: string }[] = [];
+				let imagePaths: Array<{ raw: string; resolved: string }> = [];
 				if (settings.config.experimental.assets && renderResult.vfile.data.imagePaths) {
 					for (let imagePath of renderResult.vfile.data.imagePaths.values()) {
 						imagePaths.push({

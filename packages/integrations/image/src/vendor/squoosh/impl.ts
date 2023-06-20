@@ -99,7 +99,7 @@ export async function encodeWebp(
   const m = await e.enc()
   await maybeDelay()
 	const quality = opts.quality || e.defaultEncoderOptions.quality
-  const r = m.encode(image.data, image.width, image.height, {
+  const r = await m.encode(image.data, image.width, image.height, {
     ...e.defaultEncoderOptions,
     quality,
   })
@@ -118,7 +118,7 @@ export async function encodeAvif(
   const val = e.autoOptimize.min
 	// AVIF doesn't use a 0-100 quality, default to 75 and convert to cqLevel below
 	const quality = opts.quality || 75
-  const r = m.encode(image.data, image.width, image.height, {
+  const r = await m.encode(image.data, image.width, image.height, {
     ...e.defaultEncoderOptions,
     // Think of cqLevel as the "amount" of quantization (0 to 62),
     // so a lower value yields higher quality (0 to 100).

@@ -32,7 +32,7 @@ import { joinPaths } from './path.js';
 interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
-	mode: string;
+	mode: 'dev' | 'build' | string;
 	// will be undefined when using `getViteConfig`
 	command?: 'dev' | 'build';
 	fs?: typeof nodeFs;

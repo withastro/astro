@@ -44,7 +44,7 @@ export function eventConfigError({
 	err: ZodError;
 	cmd: string;
 	isFatal: boolean;
-}): { eventName: string; payload: ConfigErrorEventPayload }[] {
+}): Array<{ eventName: string; payload: ConfigErrorEventPayload }> {
 	const payload: ConfigErrorEventPayload = {
 		code: AstroErrorData.UnknownConfigError.code,
 		name: 'ZodError',
@@ -64,7 +64,7 @@ export function eventError({
 	err: ErrorWithMetadata;
 	cmd: string;
 	isFatal: boolean;
-}): { eventName: string; payload: ErrorEventPayload }[] {
+}): Array<{ eventName: string; payload: ErrorEventPayload }> {
 	const errorData =
 		AstroError.is(err) && err.errorCode ? getErrorDataByCode(err.errorCode)?.data : undefined;
 

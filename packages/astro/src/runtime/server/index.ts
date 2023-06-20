@@ -91,7 +91,7 @@ export function spreadAttributes(
 }
 
 // Adds CSS variables to an inline style tag
-export function defineStyleVars(defs: Record<any, any> | Record<any, any>[]) {
+export function defineStyleVars(defs: Record<any, any> | Array<Record<any, any>>) {
 	let output = '';
 	let arr = !Array.isArray(defs) ? [defs] : defs;
 	for (const vars of arr) {

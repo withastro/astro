@@ -19,11 +19,9 @@ export interface RouteInfo {
 	file: string;
 	links: string[];
 	scripts: // Integration injected
-	(
-		| { children: string; stage: string }
+	Array<| { children: string; stage: string }
 		// Hoisted
-		| { type: 'inline' | 'external'; value: string }
-	)[];
+		| { type: 'inline' | 'external'; value: string }>;
 	styles: StylesheetAsset[];
 }
 
@@ -56,8 +54,8 @@ export type SerializedSSRManifest = Omit<
 > & {
 	routes: SerializedRouteInfo[];
 	assets: string[];
-	componentMetadata: [string, SSRComponentMetadata][];
-	clientDirectives: [string, string][];
+	componentMetadata: Array<[string, SSRComponentMetadata]>;
+	clientDirectives: Array<[string, string]>;
 };
 
 export type AdapterCreateExports<T = any> = (

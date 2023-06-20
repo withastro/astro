@@ -53,8 +53,8 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 		// Hooks
 		runBeforeHook(build: 'ssr' | 'client', input: Set<string>) {
 			let plugins = build === 'ssr' ? ssrPlugins : clientPlugins;
-			let vitePlugins: (VitePlugin | VitePlugin[])[] = [];
-			let lastVitePlugins: (VitePlugin | VitePlugin[])[] = [];
+			let vitePlugins: Array<VitePlugin | VitePlugin[]> = [];
+			let lastVitePlugins: Array<VitePlugin | VitePlugin[]> = [];
 			for (const plugin of plugins) {
 				if (plugin.hooks?.['build:before']) {
 					let result = plugin.hooks['build:before']({ build, input });

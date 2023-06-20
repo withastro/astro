@@ -28,7 +28,7 @@ export interface PageBuildData {
 	propagatedStyles: Map<string, Set<StylesheetAsset>>;
 	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
-	styles: { depth: number; order: number; sheet: StylesheetAsset }[];
+	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 

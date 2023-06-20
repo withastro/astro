@@ -165,11 +165,11 @@ export function printHelp({
 	commandName: string;
 	headline?: string;
 	usage?: string;
-	tables?: Record<string, [command: string, help: string][]>;
+	tables?: Record<string, Array<[command: string, help: string]>>;
 	description?: string;
 }) {
 	const linebreak = () => '';
-	const table = (rows: [string, string][], { padding }: { padding: number }) => {
+	const table = (rows: Array<[string, string]>, { padding }: { padding: number }) => {
 		const split = stdout.columns < 60;
 		let raw = '';
 
@@ -199,7 +199,7 @@ export function printHelp({
 	}
 
 	if (tables) {
-		function calculateTablePadding(rows: [string, string][]) {
+		function calculateTablePadding(rows: Array<[string, string]>) {
 			return rows.reduce((val, [first]) => Math.max(val, first.length), 0);
 		}
 		const tableEntries = Object.entries(tables);

@@ -70,7 +70,7 @@ export function eventCliSession(
 	cliCommand: string,
 	userConfig?: AstroUserConfig,
 	flags?: Record<string, any>
-): { eventName: string; payload: EventPayload }[] {
+): Array<{ eventName: string; payload: EventPayload }> {
 	// Filter out falsy integrations
 	const configValues = userConfig
 		? {

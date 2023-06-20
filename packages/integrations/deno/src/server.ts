@@ -11,7 +11,6 @@ interface Options {
 	start?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
 

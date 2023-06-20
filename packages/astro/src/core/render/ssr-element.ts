@@ -86,7 +86,7 @@ export function createModuleScriptElementWithSrcSet(
 }
 
 export function createModuleScriptsSet(
-	scripts: { type: 'inline' | 'external'; value: string }[],
+	scripts: Array<{ type: 'inline' | 'external'; value: string }>,
 	base?: string,
 	assetsPrefix?: string
 ): Set<SSRElement> {
