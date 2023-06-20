@@ -32,7 +32,8 @@
       "outputMode": "new-only"
     },
     "dev": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "test": {
       "env": ["RUNNER_OS", "NODE_VERSION"],
