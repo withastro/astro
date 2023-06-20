@@ -56,8 +56,8 @@ body:
   - type: textarea
     id: bug-expectation
     attributes:
-      label: What's the expected result
-      description: Describe what you expected to happen.
+      label: What's the expected result?
+      description: Describe what you expect to happen.
     validations:
       required: true
   - type: input
