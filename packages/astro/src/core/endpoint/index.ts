@@ -1,7 +1,6 @@
 import type {
 	APIContext,
 	AstroConfig,
-	AstroMiddlewareInstance,
 	EndpointHandler,
 	EndpointOutput,
 	MiddlewareEndpointHandler,

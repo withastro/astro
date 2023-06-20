@@ -24,6 +24,7 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
+import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import {
 	ASTRO_PAGE_EXTENSION_POST_PATTERN,
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
@@ -32,7 +33,6 @@ import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import type { AllPagesData, PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;

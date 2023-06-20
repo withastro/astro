@@ -5,7 +5,6 @@ import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
-	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
