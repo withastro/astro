@@ -343,6 +343,12 @@ type ServerConfig = {
 	 * @version 2.1.8
 	 * @description
 	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
+	 * }
+	 * ```
 	 */
 	open?: boolean;
 };
@@ -884,6 +890,21 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   server: { port: 8080 }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
 	 * }
 	 * ```
 	 */
