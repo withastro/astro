@@ -5,7 +5,7 @@
   "dependencies": {
     "@astrojs/tailwind": "workspace:*",
     "astro": "workspace:*",
-    "tailwindcss": "^3.3.2",
-    "postcss": "^8.4.23"
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2"
   }
 }

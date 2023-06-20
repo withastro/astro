@@ -65,7 +65,7 @@
   "dependencies": {
     "@astrojs/prism": "^2.1.2",
     "@markdoc/markdoc": "^0.3.0",
-    "esbuild": "^0.17.12",
+    "esbuild": "^0.17.19",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
@@ -77,17 +77,17 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^2.2.1",
-    "@types/chai": "^4.3.1",
+    "@types/chai": "^4.3.5",
     "@types/html-escaper": "^3.0.0",
     "@types/mocha": "^9.1.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.6",
+    "chai": "^4.3.7",
     "devalue": "^4.3.2",
-    "linkedom": "^0.14.12",
+    "linkedom": "^0.14.26",
     "mocha": "^9.2.2",
-    "rollup": "^3.20.1",
-    "vite": "^4.3.1"
+    "rollup": "^3.25.1",
+    "vite": "^4.3.9"
   },
   "engines": {
     "node": ">=16.12.0"

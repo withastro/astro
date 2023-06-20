@@ -27,9 +27,9 @@
   "devDependencies": {
     "@types/mocha": "^9.1.1",
     "astro": "workspace:*",
-    "chai": "^4.3.6",
-    "cheerio": "^1.0.0-rc.11",
-    "github-slugger": "^1.4.0",
+    "chai": "^4.3.7",
+    "cheerio": "1.0.0-rc.12",
+    "github-slugger": "^1.5.0",
     "mocha": "^9.2.2",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",

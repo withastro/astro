@@ -5,7 +5,7 @@
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
     "@astrojs/preact": "workspace:*",
-    "preact": "^10.7.3",
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "preact": "^10.15.1"
   }
 }
