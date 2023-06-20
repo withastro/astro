@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { getColor, isWindows, testFactory } from './test-utils.js';
+import { isWindows, testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/css/',

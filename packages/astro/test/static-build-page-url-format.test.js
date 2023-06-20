@@ -1,10 +1,5 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-
-function addLeadingSlash(path) {
-	return path.startsWith('/') ? path : '/' + path;
-}
 
 describe("Static build - format: 'file'", () => {
 	let fixture;

@@ -7,7 +7,7 @@ import { escape } from './utils.js';
 
 const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 	return (tree, file) => {
-		visit(tree, (node: Root | RootContent, index, parent) => {
+		visit(tree, (node: Root | RootContent) => {
 			if (node.type === 'element' && node.tagName === 'slot') {
 				if (typeof node.properties?.['is:inline'] !== 'undefined') return;
 				const name = node.properties?.['name'] ?? 'default';

@@ -4,7 +4,7 @@ import { isESMImportedImage, sharedValidateOptions } from './shared';
 const service: ExternalImageService = {
 	validateOptions: (options, serviceOptions) =>
 		sharedValidateOptions(options, serviceOptions, 'production'),
-	getHTMLAttributes(options, serviceOptions) {
+	getHTMLAttributes(options) {
 		const { inputtedWidth, ...props } = options;
 
 		// If `validateOptions` returned a different width than the one of the image, use it for attributes
@@ -39,7 +39,7 @@ const service: ExternalImageService = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getURL(options, serviceOptions) {
+	getURL(options) {
 		const fileSrc =
 			typeof options.src === 'string' ? options.src : removeLeadingForwardSlash(options.src.src);
 

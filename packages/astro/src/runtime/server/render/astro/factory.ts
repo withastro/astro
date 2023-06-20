@@ -27,7 +27,7 @@ export async function renderToString(
 	props: any,
 	children: any
 ): Promise<string> {
-	const factoryResult = await componentFactory(result, props, children);
+	const factoryResult = componentFactory(result, props, children);
 
 	if (factoryResult instanceof Response) {
 		const response = factoryResult;

@@ -34,7 +34,7 @@ class NodeIncomingMessage extends IncomingMessage {
 	/**
 	 * The read-only body property of the Request interface contains a ReadableStream with the body contents that have been added to the request.
 	 */
-	body?: any | undefined;
+	body?: unknown;
 }
 
 export class NodeApp extends App {

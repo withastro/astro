@@ -36,7 +36,7 @@ const service: LocalImageService = {
 	async transform(inputBuffer, transformOptions) {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
-		let format = transform.format!;
+		let format = transform.format;
 
 		const operations: Operation[] = [];
 

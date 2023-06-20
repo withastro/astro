@@ -119,7 +119,7 @@ describe('core/render', () => {
 				throw new Error('uh oh');
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`<div>${renderComponent(result, 'Component', Component, {})}</div>`;
 			});
 

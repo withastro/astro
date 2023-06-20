@@ -30,7 +30,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
 const ANONYMIZE_MESSAGE_REGEX = /^(\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {
 	const matchedMessage = msg.match(ANONYMIZE_MESSAGE_REGEX);
-	if (!matchedMessage || !matchedMessage[0]) {
+	if (!matchedMessage?.[0]) {
 		return undefined;
 	}
 	return matchedMessage[0].trim().substring(0, 20);
@@ -74,10 +74,9 @@ export function eventError({
 		plugin: err.plugin,
 		cliCommand: cmd,
 		isFatal: isFatal,
-		anonymousMessageHint:
-			errorData && errorData.message
-				? getSafeErrorMessage(errorData.message)
-				: anonymizeErrorMessage(err.message),
+		anonymousMessageHint: errorData?.message
+			? getSafeErrorMessage(errorData.message)
+			: anonymizeErrorMessage(err.message),
 	};
 	return [{ eventName: EVENT_ERROR, payload }];
 }

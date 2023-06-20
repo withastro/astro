@@ -88,7 +88,7 @@ describe('Static build', () => {
 		}
 	});
 
-	function createFindEvidence(expected, prefix) {
+	function createFindEvidence(expected) {
 		return async function findEvidence(pathname) {
 			const html = await fixture.readFile(pathname);
 			const $ = cheerioLoad(html);

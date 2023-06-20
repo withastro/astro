@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal';
 import type { StaticBuildOptions, ViteBuildReturn } from './types';
 
-type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
+type RollupOutputArray = Extract<ViteBuildReturn, any[]>;
 type OutputChunkorAsset = RollupOutputArray[number]['output'][number];
 type OutputChunk = Extract<OutputChunkorAsset, { type: 'chunk' }>;
 
@@ -53,8 +53,8 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 		// Hooks
 		runBeforeHook(build: 'ssr' | 'client', input: Set<string>) {
 			let plugins = build === 'ssr' ? ssrPlugins : clientPlugins;
-			let vitePlugins: Array<VitePlugin | VitePlugin[]> = [];
-			let lastVitePlugins: Array<VitePlugin | VitePlugin[]> = [];
+			let vitePlugins: (VitePlugin | VitePlugin[])[] = [];
+			let lastVitePlugins: (VitePlugin | VitePlugin[])[] = [];
 			for (const plugin of plugins) {
 				if (plugin.hooks?.['build:before']) {
 					let result = plugin.hooks['build:before']({ build, input });

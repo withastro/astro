@@ -162,7 +162,7 @@ export async function handleRoute(
 
 	// attempt to get static paths
 	// if this fails, we have a bad URL match!
-	const paramsAndPropsRes = await getParamsAndProps({
+	await getParamsAndProps({
 		mod,
 		route,
 		routeCache: env.routeCache,

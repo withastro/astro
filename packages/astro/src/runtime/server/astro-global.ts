@@ -4,7 +4,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 
 /** Create the Astro.glob() runtime function. */
 function createAstroGlobFn() {
-	const globHandler = (importMetaGlobResult: Record<string, any>, globValue: () => any) => {
+	const globHandler = (importMetaGlobResult: Record<string, any>) => {
 		if (typeof importMetaGlobResult === 'string') {
 			throw new AstroError({
 				...AstroErrorData.AstroGlobUsedOutside,

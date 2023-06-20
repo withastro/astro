@@ -11,6 +11,7 @@ interface Options {
 	start?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 let _server: Server | undefined = undefined;
 let _startPromise: Promise<void> | undefined = undefined;
 
@@ -93,7 +94,6 @@ export function start(manifest: SSRManifest, options: Options) {
 	});
 
 	_startPromise = Promise.resolve(_server.listenAndServe());
-	// eslint-disable-next-line no-console
 	console.error(`Server running on port ${port}`);
 }
 

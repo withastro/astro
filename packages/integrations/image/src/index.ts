@@ -39,7 +39,7 @@ export interface IntegrationOptions {
 	/**
 	 * Entry point for the @type {HostedImageService} or @type {LocalImageService} to be used.
 	 */
-	serviceEntryPoint?: '@astrojs/image/squoosh' | '@astrojs/image/sharp' | string;
+	serviceEntryPoint?: string;
 	logLevel?: LoggerLevel;
 	cacheDir?: false | string;
 }

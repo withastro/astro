@@ -28,7 +28,7 @@ export interface PageBuildData {
 	propagatedStyles: Map<string, Set<StylesheetAsset>>;
 	propagatedScripts: Map<string, Set<string>>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
-	styles: Array<{ depth: number; order: number; sheet: StylesheetAsset }>;
+	styles: { depth: number; order: number; sheet: StylesheetAsset }[];
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
@@ -57,7 +57,7 @@ export interface SinglePageBuiltModule {
 
 export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;
 export type RollupOutput = Extract<
-	Extract<ViteBuildReturn, Exclude<ViteBuildReturn, Array<any>>>,
+	Extract<ViteBuildReturn, Exclude<ViteBuildReturn, any[]>>,
 	{ output: any }
 >;
 export type OutputChunk = Extract<RollupOutput['output'][number], { type: 'chunk' }>;

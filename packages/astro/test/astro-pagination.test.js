@@ -41,7 +41,7 @@ describe('Pagination', () => {
 			{ color: 'blue', p: '2' },
 		];
 		await Promise.all(
-			params.map(async ({ color, p }, idx) => {
+			params.map(async ({ color, p }) => {
 				const html = await fixture.readFile(`/posts/${color}/${p}/index.html`);
 				const $ = cheerio.load(html);
 				expect($('#page-param').text()).to.equal(p);

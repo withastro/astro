@@ -177,7 +177,7 @@ export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>
 export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(
 	entryTypes: TEntryType[]
 ): Map<string, TEntryType> {
-	const map: Map<string, TEntryType> = new Map();
+	const map = new Map<string, TEntryType>();
 	for (const entryType of entryTypes) {
 		for (const ext of entryType.extensions) {
 			map.set(ext, entryType);
@@ -310,7 +310,7 @@ function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	return numNewlinesBeforeKey;
 }
 
-export function parseFrontmatter(fileContents: string, filePath: string) {
+export function parseFrontmatter(fileContents: string) {
 	try {
 		// `matter` is empty string on cache results
 		// clear cache to prevent this

@@ -18,7 +18,7 @@ export async function loadRenderer(
 }
 
 export function filterFoundRenderers(
-	renderers: Array<SSRLoadedRenderer | undefined>
+	renderers: (SSRLoadedRenderer | undefined)[]
 ): SSRLoadedRenderer[] {
 	return renderers.filter((renderer): renderer is SSRLoadedRenderer => {
 		return !!renderer;

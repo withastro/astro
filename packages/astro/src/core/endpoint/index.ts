@@ -108,7 +108,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	});
 
 	let response;
-	if (middleware && middleware.onRequest) {
+	if (middleware?.onRequest) {
 		const onRequest = middleware.onRequest as MiddlewareEndpointHandler;
 		response = await callMiddleware<Response | EndpointOutput>(
 			env.logging,

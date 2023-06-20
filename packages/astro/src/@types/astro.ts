@@ -1087,9 +1087,13 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: Array<
-		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
-	>;
+	integrations?: (
+		| AstroIntegration
+		| (AstroIntegration | false | undefined | null)[]
+		| false
+		| undefined
+		| null
+	)[];
 
 	/**
 	 * @docs
@@ -1454,7 +1458,7 @@ export type GetStaticPaths = (
  * ```
  */
 export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infer R>
-	? R extends Array<infer U>
+	? R extends (infer U)[]
 		? U extends { params: infer P }
 			? P
 			: never
@@ -1485,7 +1489,7 @@ export type InferGetStaticParamsType<T> = T extends () => infer R | Promise<infe
  * ```
  */
 export type InferGetStaticPropsType<T> = T extends () => infer R | Promise<infer R>
-	? R extends Array<infer U>
+	? R extends (infer U)[]
 		? U extends { props: infer P }
 			? P
 			: never
@@ -1916,7 +1920,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<string>;
+	extraHead: string[];
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

@@ -5,8 +5,6 @@ import { loadFixture } from './test-utils.js';
 describe('Public dev with base', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
 	let $;
 
 	before(async () => {

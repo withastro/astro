@@ -52,7 +52,8 @@ export function getSystemInfo(versions: { viteVersion: string; astroVersion: str
 	}
 
 	const cpus = os.cpus() || [];
-	meta = {
+
+	return {
 		// Version information
 		nodeVersion: process.version.replace(/^v?/, ''),
 		viteVersion: versions.viteVersion,
@@ -72,6 +73,4 @@ export function getSystemInfo(versions: { viteVersion: string; astroVersion: str
 		isCI,
 		ciName,
 	};
-
-	return meta!;
 }

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 'use strict';
 
 // ISOMORPHIC FILE: NO TOP-LEVEL IMPORT/REQUIRE() ALLOWED

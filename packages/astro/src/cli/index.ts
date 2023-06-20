@@ -148,7 +148,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 			telemetry.record(event.eventCliSession(cmd));
 			const packages = flags._.slice(3) as string[];
-			return await add(packages, { cwd: root, flags, logging, telemetry });
+			return await add(packages, { cwd: root, flags, logging });
 		}
 		case 'docs': {
 			telemetry.record(event.eventCliSession(cmd));

@@ -17,10 +17,10 @@ function getCustomElementConstructor(name) {
 
 async function isLitElement(Component) {
 	const Ctr = getCustomElementConstructor(Component);
-	return !!(Ctr && Ctr._$litElement$);
+	return !!Ctr?._$litElement$;
 }
 
-async function check(Component, _props, _children) {
+async function check(Component) {
 	// Lit doesn't support getting a tagName from a Constructor at this time.
 	// So this must be a string at the moment.
 	return !!(await isLitElement(Component));

@@ -107,7 +107,7 @@ const debuggers: Record<string, debugPackage.Debugger['log']> = {};
  * You can enable these logs with the `DEBUG=astro:*` environment variable.
  * More info https://github.com/debug-js/debug#environment-variables
  */
-export function debug(type: string, ...messages: Array<any>) {
+export function debug(type: string, ...messages: unknown[]) {
 	const namespace = `astro:${type}`;
 	debuggers[namespace] = debuggers[namespace] || debugPackage(namespace);
 	return debuggers[namespace](...messages);

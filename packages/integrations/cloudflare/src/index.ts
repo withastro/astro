@@ -146,7 +146,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// cloudflare to handle static files and support _redirects configuration
 				// (without calling the function)
 				if (!routesExists) {
-					const staticPathList: Array<string> = (
+					const staticPathList: string[] = (
 						await glob(`${fileURLToPath(_buildConfig.client)}/**/*`, {
 							cwd: fileURLToPath(_config.outDir),
 							filesOnly: true,

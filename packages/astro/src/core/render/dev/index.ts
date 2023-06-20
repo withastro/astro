@@ -181,7 +181,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		env,
 	});
 	if (options.middleware) {
-		if (options.middleware && options.middleware.onRequest) {
+		if (options.middleware?.onRequest) {
 			const apiContext = createAPIContext({
 				request: options.request,
 				params: renderContext.params,

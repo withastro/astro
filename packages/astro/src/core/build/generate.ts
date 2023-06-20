@@ -120,10 +120,9 @@ export function chunkIsPage(
 	if (output.type !== 'chunk') {
 		return false;
 	}
-	const chunk = output as OutputChunk;
-	if (chunk.facadeModuleId) {
+	if (output.facadeModuleId) {
 		const facadeToEntryId = prependForwardSlash(
-			rootRelativeFacadeId(chunk.facadeModuleId, settings)
+			rootRelativeFacadeId(output.facadeModuleId, settings)
 		);
 		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
 	}
@@ -133,7 +132,6 @@ export function chunkIsPage(
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
-	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 
 	if (ssr && !hasPrerenderedPages(internals)) return;
@@ -279,8 +277,8 @@ async function getPathsForRoute(
 	mod: ComponentInstance,
 	opts: StaticBuildOptions,
 	builtPaths: Set<string>
-): Promise<Array<string>> {
-	let paths: Array<string> = [];
+): Promise<string[]> {
+	let paths: string[] = [];
 	if (pageData.route.pathname) {
 		paths.push(pageData.route.pathname);
 		builtPaths.add(pageData.route.pathname);
@@ -451,15 +449,7 @@ async function generatePath(
 	middleware?: AstroMiddlewareInstance<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const {
-		mod,
-		internals,
-		linkIds,
-		scripts: hoistedScripts,
-		styles: _styles,
-		pageData,
-		renderers,
-	} = gopts;
+	const { mod, internals, scripts: hoistedScripts, styles: _styles, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {

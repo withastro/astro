@@ -48,7 +48,7 @@ describe('dev container', () => {
 					url: '/',
 				});
 				container.handle(req, res);
-				const html = await done;
+				await done;
 				expect(res.statusCode).to.equal(
 					200,
 					"We get a 200 because the error occurs in the template, but we didn't crash!"

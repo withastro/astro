@@ -29,7 +29,7 @@ export async function loadMarkdocConfig(
 	}
 	if (!markdocConfigUrl) return;
 
-	const { code, dependencies } = await bundleConfigFile({
+	const { code } = await bundleConfigFile({
 		markdocConfigUrl,
 		astroConfig,
 	});
