@@ -9,7 +9,7 @@ import {
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
-import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
+import { getVercelOutput, removeDir, writeFile, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 
@@ -109,6 +109,9 @@ export default function vercelServerless({
 				// Remove temporary folder
 				await removeDir(buildTempFolder);
 
+				// Write middleware
+				await writeFile(new URL('./middleware.js', functionFolder), generateMiddlewareCode());
+
 				// Enable ESM
 				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
 				await writeJson(new URL(`./package.json`, functionFolder), {
@@ -145,4 +148,13 @@ function getRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
 	return `nodejs${major}.x`;
+}
+
+function generateMiddlewareCode() {
+	return `
+import {onRequest} from "somethere";
+export default function middleware(request, context) {
+	return onRequest(request)
+}
+`;
 }
