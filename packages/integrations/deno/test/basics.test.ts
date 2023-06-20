@@ -1,3 +1,5 @@
+/* Deno types consider DOM elements nullable */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm.ts';
 import { assert, assertEquals } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 import { runBuildAndStartApp, defaultTestPermissions } from './helpers.ts';
@@ -24,7 +26,7 @@ Deno.test({
 			assert(html);
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const div = doc.querySelector('#react');
+			const div = doc!.querySelector('#react');
 
 			assert(div, 'div exists');
 		});
@@ -37,7 +39,7 @@ Deno.test({
 			assert(html);
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const header = doc.querySelector('#custom-404');
+			const header = doc!.querySelector('#custom-404');
 			assert(header, 'displays custom 404');
 		});
 
@@ -46,10 +48,10 @@ Deno.test({
 			const html = await resp.text();
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const link = doc.querySelector('link');
-			const href = link.getAttribute('href');
+			const link = doc!.querySelector('link');
+			const href = link!.getAttribute('href');
 
-			resp = await fetch(new URL(href, app.url));
+			resp = await fetch(new URL(href!, app.url));
 			assertEquals(resp.status, 200);
 			const ct = resp.headers.get('content-type');
 			assertEquals(ct, 'text/css; charset=UTF-8');
@@ -61,8 +63,8 @@ Deno.test({
 			const html = await resp.text();
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const p = doc.querySelector('p#env-value');
-			assertEquals(p.innerText, varContent);
+			const p = doc!.querySelector('p#env-value');
+			assertEquals(p!.innerText, varContent);
 		});
 
 		await t.step('Works with Markdown', async () => {
@@ -70,8 +72,8 @@ Deno.test({
 			const html = await resp.text();
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const h1 = doc.querySelector('h1');
-			assertEquals(h1.innerText, 'Heading from Markdown');
+			const h1 = doc!.querySelector('h1');
+			assertEquals(h1!.innerText, 'Heading from Markdown');
 		});
 
 		await t.step('Works with MDX', async () => {
@@ -79,8 +81,8 @@ Deno.test({
 			const html = await resp.text();
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const h1 = doc.querySelector('h1');
-			assertEquals(h1.innerText, 'Heading from MDX');
+			const h1 = doc!.querySelector('h1');
+			assertEquals(h1!.innerText, 'Heading from MDX');
 		});
 
 		await t.step('Astro.cookies', async () => {
@@ -100,8 +102,8 @@ Deno.test({
 			assert(html);
 
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const h1 = doc.querySelector('h1');
-			assertEquals(h1.innerText, 'test');
+			const h1 = doc!.querySelector('h1');
+			assertEquals(h1!.innerText, 'test');
 		});
 
 		await t.step('node compatibility', async () => {
