@@ -10,7 +10,7 @@ import { createFs, triggerFSEvent } from '../test-utils.js';
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
 function getTypesDts() {
-	const typesdtsURL = new URL('../../../src/content/template/types.d.ts', import.meta.url);
+	const typesdtsURL = new URL('../../../content-types.template.d.ts', import.meta.url);
 	const relpath = slash(path.relative(fileURLToPath(root), fileURLToPath(typesdtsURL)));
 	return {
 		[relpath]: nodeFS.readFileSync(typesdtsURL, 'utf-8'),
