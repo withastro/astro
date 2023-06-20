@@ -69,24 +69,6 @@ export default function vercelServerless({
 					},
 					vite: {
 						define: viteDefine,
-						plugins: [
-							{
-								name: 'astro:vercel-middleware-plugin',
-								enforce: 'pre',
-								async resolveId(this: rollup.TransformPluginContext, id: string) {
-									if (id === VERCEL_MIDDLEWARE_MODULE_ID) {
-										return RESOLVED_VERCEL_MIDDLEWARE_MODULE_ID;
-									}
-								},
-								async load(this: rollup.TransformPluginContext, id: string) {
-									if (id === RESOLVED_VERCEL_MIDDLEWARE_MODULE_ID) {
-										const middlewareModule = await this.resolve('@astro-middleware');
-										console.log(middlewareModule);
-										return 'console.log()';
-									}
-								},
-							},
-						],
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});
