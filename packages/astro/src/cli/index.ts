@@ -19,6 +19,7 @@ import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { openInBrowser } from './open.js';
+import type { AstroIntegration } from '../@types/astro';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -32,6 +33,7 @@ type CLICommand =
 	| 'reload'
 	| 'sync'
 	| 'check'
+	| 'rage'
 	| 'telemetry';
 
 /** Display --help flag */
@@ -50,6 +52,7 @@ function printAstroHelp() {
 				['preview', 'Preview your build locally.'],
 				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
+				['rage', 'Emit useful information about Astro current setup. Useful for debugging.'],
 			],
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
@@ -71,6 +74,62 @@ async function printVersion() {
 	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
 }
 
+async function printRage({
+	cwd,
+	flags,
+	logging,
+}: {
+	cwd?: string;
+	flags?: Flags;
+	logging: LogOptions;
+}) {
+	const whichPm = await import('which-pm');
+	const packageManager = await whichPm.default(process.cwd());
+	let adapter = 'None';
+	const integrations = [];
+
+	function isIntegration(integration: any): integration is AstroIntegration {
+		if (typeof integration === 'object') {
+			return true;
+		}
+		return false;
+	}
+
+	const MAX_PADDING = 25;
+	function printRow(label: string, value: string) {
+		const padding = MAX_PADDING - label.length;
+		console.log(`${colors.bold(label)}` + ' '.repeat(padding) + `${colors.green(value)}`);
+	}
+
+	try {
+		const { userConfig } = await openConfig({
+			cwd,
+			flags,
+			cmd: 'rage',
+			logging,
+		});
+		if (userConfig.adapter?.name) {
+			adapter = userConfig.adapter.name;
+		}
+		if (userConfig.integrations) {
+			for (const integration of userConfig.integrations) {
+				if (isIntegration(integration)) {
+					integrations.push(integration.name);
+				}
+			}
+		}
+	} catch (_e) {}
+	console.log();
+	printRow('Astro version', `v${ASTRO_VERSION}`);
+	printRow('Package manager', packageManager.name);
+	printRow('Adapter', adapter);
+	let integrationsString = 'None';
+	if (integrations.length === 0) {
+		integrations.join(', ');
+	}
+	printRow('Integrations', integrationsString);
+}
+
 /** Determine which command the user requested */
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
@@ -85,6 +144,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 		'preview',
 		'check',
 		'docs',
+		'rage',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -116,7 +176,11 @@ async function handleConfigError(
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
-
+	// logLevel
+	let logging: LogOptions = {
+		dest: nodeLogDestination,
+		level: 'info',
+	};
 	switch (cmd) {
 		case 'help':
 			printAstroHelp();
@@ -124,13 +188,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'version':
 			await printVersion();
 			return process.exit(0);
+		case 'rage': {
+			await printRage({ cwd: root, flags, logging });
+			return process.exit(0);
+		}
 	}
 
-	// logLevel
-	let logging: LogOptions = {
-		dest: nodeLogDestination,
-		level: 'info',
-	};
 	if (flags.verbose) {
 		logging.level = 'debug';
 		enableVerboseLogging();
