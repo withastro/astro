@@ -53,6 +53,13 @@ body:
       description: A clear and concise description of what the bug is.
     validations:
       required: true
+  - type: textarea
+    id: bug-expectation
+    attributes:
+      label: What's the expected result?
+      description: Describe what you expect to happen.
+    validations:
+      required: true
   - type: input
     id: bug-reproduction
     attributes:
