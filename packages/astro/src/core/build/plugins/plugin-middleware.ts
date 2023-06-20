@@ -41,16 +41,13 @@ export function vitePluginMiddleware(opts: StaticBuildOptions): VitePlugin {
 	};
 }
 
-export function pluginMiddleware(
-	opts: StaticBuildOptions,
-	internals: BuildInternals
-): AstroBuildPlugin {
+export function pluginMiddleware(opts: StaticBuildOptions): AstroBuildPlugin {
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginMiddleware(opts, internals),
+					vitePlugin: vitePluginMiddleware(opts),
 				};
 			},
 		},
