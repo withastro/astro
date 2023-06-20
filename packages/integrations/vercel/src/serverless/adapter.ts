@@ -12,16 +12,8 @@ import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
-// import { MIDDLEWARE_PATH_SEGMENT_NAME } from 'astro/dist/core/constants';
-// import { MIDDLEWARE_MODULE_ID } from 'astro/dist/core/build/plugins/plugin-middleware';
-import * as rollup from 'rollup';
-import { astroEntryPrefix } from 'astro/dist/core/build/plugins/plugin-component-entry';
-import { MIDDLEWARE_MODULE_ID } from 'astro/dist/core/build/plugins/plugin-middleware';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
-
-const VERCEL_MIDDLEWARE_MODULE_ID = '@astro-edge-middleware';
-const RESOLVED_VERCEL_MIDDLEWARE_MODULE_ID = '\0' + VERCEL_MIDDLEWARE_MODULE_ID;
 
 function getAdapter(): AstroAdapter {
 	return {
