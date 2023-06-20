@@ -80,13 +80,17 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
 						exports.push(`export { renderers };`);
 
-						const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
-						if (middlewareModule) {
-							imports.push(`import * as middleware from "${middlewareModule.id}";`);
-							exports.push(`export { middleware };`);
-						}
+						try {
+							const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
+							if (middlewareModule) {
+								imports.push(`import { onRequest } from "${middlewareModule.id}";`);
+								exports.push(`export { onRequest };`);
+							}
 
-						return `${imports.join('\n')}${exports.join('\n')}`;
+							return `${imports.join('\n')}${exports.join('\n')}`;
+						} catch {
+							return null;
+						}
 					}
 				}
 			}

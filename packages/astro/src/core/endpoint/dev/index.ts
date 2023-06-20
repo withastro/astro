@@ -21,5 +21,5 @@ export async function call(options: SSROptions, logging: LogOptions) {
 		mod: endpointHandler as any,
 	});
 
-	return await callEndpoint(endpointHandler, env, ctx, logging, middleware);
+	return await callEndpoint(endpointHandler, env, ctx, logging, middleware?.onRequest);
 }
