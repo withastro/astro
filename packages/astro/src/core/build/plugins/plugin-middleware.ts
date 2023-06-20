@@ -38,7 +38,7 @@ export function vitePluginMiddleware(
 				const importee = id.slice(0, -'?middleware'.length);
 
 				if (importee === EMPTY_MIDDLEWARE) {
-					return 'export const onRequest = (_, n) => n();';
+					return 'export const onRequest = undefined';
 				} else {
 					return `import { onRequest } from "${importee}";
 				export { onRequest }`;
