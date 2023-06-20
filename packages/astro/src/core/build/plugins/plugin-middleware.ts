@@ -21,30 +21,25 @@ export function vitePluginMiddleware(
 		},
 
 		async resolveId(id) {
-			if (id === MIDDLEWARE_MODULE_ID || id.startsWith(EMPTY_MIDDLEWARE)) {
+			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
 					`${opts.settings.config.srcDir.pathname}/${MIDDLEWARE_PATH_SEGMENT_NAME}`
 				);
 				if (middlewareId) {
-					return `${middlewareId.id}?middleware`;
+					return middlewareId.id;
 				} else {
-					return `${EMPTY_MIDDLEWARE}?middleware`;
+					return EMPTY_MIDDLEWARE;
 				}
+			}
+			if (id === EMPTY_MIDDLEWARE) {
+				return EMPTY_MIDDLEWARE;
 			}
 		},
 
 		load(id) {
-			if (id.endsWith('?middleware')) {
-				const importee = id.slice(0, -'?middleware'.length);
-
-				if (importee === EMPTY_MIDDLEWARE) {
-					return 'export const onRequest = undefined';
-				} else {
-					return `import { onRequest } from "${importee}";
-				export { onRequest }`;
-				}
+			if (id === EMPTY_MIDDLEWARE) {
+				return 'export const onRequest = undefined';
 			}
-			return null;
 		},
 	};
 }
