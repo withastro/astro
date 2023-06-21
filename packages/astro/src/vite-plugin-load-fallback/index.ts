@@ -1,6 +1,5 @@
 import nodeFs from 'fs';
 import npath from 'path';
-import slashify from 'slash';
 import type * as vite from 'vite';
 
 type NodeFileSystemModule = typeof nodeFs;
@@ -47,7 +46,7 @@ export default function loadFallbackPlugin({
 			async resolveId(id, parent) {
 				// See if this can be loaded from our fs
 				if (parent) {
-					const candidateId = npath.posix.join(npath.posix.dirname(slashify(parent)), id);
+					const candidateId = npath.posix.join(npath.posix.dirname(parent), id);
 					try {
 						// Check to see if this file exists and is not a directory.
 						const stats = await fs.promises.stat(candidateId);
