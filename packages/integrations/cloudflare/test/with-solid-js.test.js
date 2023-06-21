@@ -19,7 +19,7 @@ describe('With SolidJS', () => {
 		try {
 			await ready;
 
-			let res = await fetch(`http://127.0.0.1:8790/`);
+			let res = await fetch(`http://localhost:8790/`);
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);

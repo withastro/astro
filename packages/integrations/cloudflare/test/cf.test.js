@@ -21,7 +21,7 @@ describe('Cf metadata and caches', () => {
 
 		try {
 			await ready;
-			let res = await fetch(`http://127.0.0.1:8788/`);
+			let res = await fetch(`http://localhost:8788/`);
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);

@@ -19,7 +19,7 @@ describe.skip('Basic app', () => {
 		try {
 			await ready;
 
-			let res = await fetch(`http://127.0.0.1:8789/`);
+			let res = await fetch(`http://localhost:8789/`);
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);
