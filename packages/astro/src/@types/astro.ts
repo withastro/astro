@@ -853,15 +853,6 @@ export interface AstroUserConfig {
 		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
 		 * of the `src/pages` directory.
 		 *
-		 * Inside the `dist/` directory, the pages will look like this:
-		 * ```plaintext
-		 * ├── pages
-		 * │   ├── blog
-		 * │   │   ├── entry._slug_.astro.mjs
-		 * │   │   └── entry.about.astro.mjs
-		 * │   └── entry.index.astro.mjs
-		 * ```
-		 *
 		 * ```js
 		 * {
 		 *   build: {
