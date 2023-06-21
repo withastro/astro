@@ -1,3 +1,4 @@
+import mime from 'mime';
 import type {
 	EndpointHandler,
 	ManifestData,
@@ -6,8 +7,6 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro';
-import type { RouteInfo } from './types';
-import mime from 'mime';
 import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
@@ -29,6 +28,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

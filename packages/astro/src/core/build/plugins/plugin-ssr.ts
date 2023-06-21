@@ -1,4 +1,5 @@
 import glob from 'fast-glob';
+import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter, AstroConfig } from '../../../@types/astro';
@@ -14,10 +15,9 @@ import { getOutFile, getOutFolder } from '../common.js';
 import { cssOrder, mergeInlineCss, type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { OutputChunk, StaticBuildOptions } from '../types';
-import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
-import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
-import { join } from 'node:path';
+import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
+import { getPathFromVirtualModulePageName, getVirtualModulePageNameFromPath } from './util.js';
 
 export const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
 const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;

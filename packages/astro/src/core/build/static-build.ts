@@ -3,9 +3,11 @@ import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
+import { extname } from 'node:path';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
+import type { RouteData } from '../../@types/astro';
 import {
 	createBuildInternals,
 	eachPageData,
@@ -28,11 +30,9 @@ import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
-import type { AllPagesData, PageBuildData, StaticBuildOptions } from './types';
-import { getTimeStat } from './util.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import { extname } from 'node:path';
-import type { RouteData } from '../../@types/astro';
+import type { PageBuildData, StaticBuildOptions } from './types';
+import { getTimeStat } from './util.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;

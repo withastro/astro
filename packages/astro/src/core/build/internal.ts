@@ -4,8 +4,8 @@ import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import { ASTRO_PAGE_MODULE_ID, getVirtualModulePageIdFromPath } from './plugins/plugin-pages.js';
-import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
+import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 export interface BuildInternals {
 	/**
