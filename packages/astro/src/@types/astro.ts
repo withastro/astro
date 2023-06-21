@@ -838,6 +838,30 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name build.split
+		 * @type {boolean}
+		 * @default {false}
+		 * @version 2.7.0
+		 * @description
+		 * Defines how the SSR code should be bundled when built.
+		 *
+		 * When `split` is `true`, Astro will emit a file for each page.
+		 * Each file emitted will render only one page. The pages will be emitted
+		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
+		 * of the `src/pages` directory.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     split: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		split?: boolean;
 	};
 
 	/**
@@ -1824,7 +1848,14 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
+		'astro:build:ssr'?: (options: {
+			manifest: SerializedSSRManifest;
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 */
+			entryPoints: Map<RouteData, URL>;
+		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;

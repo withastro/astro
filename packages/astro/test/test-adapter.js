@@ -4,7 +4,11 @@ import { viteID } from '../dist/core/util.js';
  *
  * @returns {import('../src/@types/astro').AstroIntegration}
  */
-export default function ({ provideAddress = true, extendAdapter } = { provideAddress: true }) {
+export default function (
+	{ provideAddress = true, extendAdapter, setEntryPoints = undefined, setRoutes = undefined } = {
+		provideAddress: true,
+	}
+) {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -69,6 +73,16 @@ export default function ({ provideAddress = true, extendAdapter } = { provideAdd
 					exports: ['manifest', 'createApp'],
 					...extendAdapter,
 				});
+			},
+			'astro:build:ssr': ({ entryPoints }) => {
+				if (setEntryPoints) {
+					setEntryPoints(entryPoints);
+				}
+			},
+			'astro:build:done': ({ routes }) => {
+				if (setRoutes) {
+					setRoutes(routes);
+				}
 			},
 		},
 	};

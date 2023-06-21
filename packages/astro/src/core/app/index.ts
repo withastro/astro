@@ -4,9 +4,9 @@ import type {
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
+	SSRManifest,
 } from '../../@types/astro';
-import type { RouteInfo, SSRManifest as Manifest } from './types';
-
+import type { RouteInfo } from './types';
 import mime from 'mime';
 import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
@@ -41,7 +41,7 @@ export interface MatchOptions {
 
 export class App {
 	#env: Environment;
-	#manifest: Manifest;
+	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#encoder = new TextEncoder();
@@ -52,7 +52,7 @@ export class App {
 	#base: string;
 	#baseWithoutTrailingSlash: string;
 
-	constructor(manifest: Manifest, streaming = true) {
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
@@ -175,14 +175,23 @@ export class App {
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {
-			const importComponentInstance = this.#manifest.pageMap.get(route.component);
-			if (!importComponentInstance) {
+			if (this.#manifest.pageMap) {
+				const importComponentInstance = this.#manifest.pageMap.get(route.component);
+				if (!importComponentInstance) {
+					throw new Error(
+						`Unexpectedly unable to find a component instance for route ${route.route}`
+					);
+				}
+				const pageModule = await importComponentInstance();
+				return pageModule;
+			} else if (this.#manifest.pageModule) {
+				const importComponentInstance = this.#manifest.pageModule;
+				return importComponentInstance;
+			} else {
 				throw new Error(
-					`Unexpectedly unable to find a component instance for route ${route.route}`
+					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
 				);
 			}
-			const built = await importComponentInstance();
-			return built;
 		}
 	}
 

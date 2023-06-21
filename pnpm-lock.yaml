@@ -3339,6 +3339,12 @@ importers:
         specifier: ^10.11.0
         version: 10.13.2
 
+  packages/astro/test/fixtures/ssr-split-manifest:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/static-build:
     dependencies:
       '@astrojs/preact':
@@ -4421,7 +4427,7 @@ importers:
         version: 9.2.2
       vite:
         specifier: ^4.3.1
-        version: 4.3.1(@types/node@18.16.3)(sass@1.52.2)
+        version: 4.3.1(@types/node@14.18.21)
 
   packages/integrations/netlify/test/edge-functions/fixtures/dynimport:
     dependencies:
@@ -4945,7 +4951,7 @@ importers:
         version: 3.0.0(vite@4.3.1)(vue@3.2.47)
       '@vue/babel-plugin-jsx':
         specifier: ^1.1.1
-        version: 1.1.1(@babel/core@7.21.8)
+        version: 1.1.1
       '@vue/compiler-sfc':
         specifier: ^3.2.39
         version: 3.2.39
@@ -9330,6 +9336,23 @@ packages:
 
   /@vue/babel-helper-vue-transform-on@1.0.2:
     resolution: {integrity: sha512-hz4R8tS5jMn8lDq6iD+yWL6XNB699pGIVLk7WSJnn1dbpjaazsjZQkieJoRX6gW5zpYSCFqQ7jUquPNY65tQYA==}
+    dev: false
+
+  /@vue/babel-plugin-jsx@1.1.1:
+    resolution: {integrity: sha512-j2uVfZjnB5+zkcbc/zsOc0fSNGCMMjaEXP52wdwdIfn0qjFfEYpYZBFKFg+HHnQeJCVrjOeO0YxgaL7DMrym9w==}
+    dependencies:
+      '@babel/helper-module-imports': 7.21.4
+      '@babel/plugin-syntax-jsx': 7.21.4(@babel/core@7.18.2)
+      '@babel/template': 7.20.7
+      '@babel/traverse': 7.18.2
+      '@babel/types': 7.21.5
+      '@vue/babel-helper-vue-transform-on': 1.0.2
+      camelcase: 6.3.0
+      html-tags: 3.3.1
+      svg-tags: 1.0.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
     dev: false
 
   /@vue/babel-plugin-jsx@1.1.1(@babel/core@7.21.8):
@@ -17662,6 +17685,39 @@ packages:
       - '@types/babel__core'
       - supports-color
     dev: false
+
+  /vite@4.3.1(@types/node@14.18.21):
+    resolution: {integrity: sha512-EPmfPLAI79Z/RofuMvkIS0Yr091T2ReUoXQqc5ppBX/sjFRhHKiPPF/R46cTdoci/XgeQpB23diiJxq5w30vdg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 14.18.21
+      esbuild: 0.17.18
+      postcss: 8.4.23
+      rollup: 3.21.8
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
 
   /vite@4.3.1(@types/node@18.16.3)(sass@1.52.2):
     resolution: {integrity: sha512-EPmfPLAI79Z/RofuMvkIS0Yr091T2ReUoXQqc5ppBX/sjFRhHKiPPF/R46cTdoci/XgeQpB23diiJxq5w30vdg==}
