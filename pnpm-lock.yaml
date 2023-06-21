@@ -3577,9 +3577,9 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
-      preferred-pm:
-        specifier: ^3.0.3
-        version: 3.0.3
+      which-pm-runs:
+        specifier: ^1.1.0
+        version: 1.1.0
     devDependencies:
       '@types/which-pm-runs':
         specifier: ^1.0.0
@@ -3596,9 +3596,6 @@ importers:
       strip-json-comments:
         specifier: ^5.0.0
         version: 5.0.0
-      which-pm-runs:
-        specifier: ^1.1.0
-        version: 1.1.0
 
   packages/create-astro/test/fixtures/not-empty: {}
 
