@@ -9,14 +9,15 @@ export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (
 		req: IncomingMessage,
 		res: ServerResponse,
-		next?: (err?: unknown) => void
+		next?: (err?: unknown) => void,
+		locals?: object
 	) {
 		try {
 			const route =
 				mode === 'standalone' ? app.match(req, { matchNotFound: true }) : app.match(req);
 			if (route) {
 				try {
-					const response = await app.render(req);
+					const response = await app.render(req, route, locals);
 					await writeWebResponse(app, res, response);
 				} catch (err: unknown) {
 					if (next) {
