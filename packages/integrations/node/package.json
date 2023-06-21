@@ -41,15 +41,15 @@
     "astro": "workspace:^2.6.6"
   },
   "devDependencies": {
-    "@types/node": "^18.7.21",
+    "@types/node": "^18.16.18",
     "@types/send": "^0.17.1",
     "@types/server-destroy": "^1.0.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.6",
-    "cheerio": "^1.0.0-rc.11",
+    "chai": "^4.3.7",
+    "cheerio": "1.0.0-rc.12",
     "mocha": "^9.2.2",
-    "node-mocks-http": "^1.11.0",
-    "undici": "^5.22.0"
+    "node-mocks-http": "^1.12.2",
+    "undici": "^5.22.1"
   }
 }
