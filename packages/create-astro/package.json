@@ -36,15 +36,14 @@
     "execa": "^6.1.0",
     "giget": "1.0.0",
     "mocha": "^9.2.2",
-    "preferred-pm": "^3.0.3"
+    "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
     "@types/which-pm-runs": "^1.0.0",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
     "strip-ansi": "^7.1.0",
-    "strip-json-comments": "^5.0.0",
-    "which-pm-runs": "^1.1.0"
+    "strip-json-comments": "^5.0.0"
   },
   "engines": {
     "node": ">=16.12.0"
