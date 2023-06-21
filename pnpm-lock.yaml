@@ -3339,6 +3339,12 @@ importers:
         specifier: ^10.15.1
         version: 10.15.1
 
+  packages/astro/test/fixtures/ssr-split-manifest:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/static-build:
     dependencies:
       '@astrojs/preact':
