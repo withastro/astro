@@ -17,11 +17,11 @@ describe('Cf metadata and caches', () => {
 	});
 
 	it('Load cf and caches API', async () => {
-		const { ready, stop } = runCLI('./fixtures/cf/', { silent: false, port: 8788 });
+		const { ready, stop } = runCLI('./fixtures/cf/', { silent: true, port: 8788 });
 
 		try {
 			await ready;
-			let res = await fetch(`http://localhost:8788/`);
+			let res = await fetch(`http://127.0.0.1:8788/`);
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);
@@ -29,7 +29,7 @@ describe('Cf metadata and caches', () => {
 			expect($('#cf').text()).to.contain('city');
 			expect($('#hasCache').text()).to.equal('true');
 		} finally {
-			stop();
+			await stop();
 		}
 	});
 });
