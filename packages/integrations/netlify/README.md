@@ -13,7 +13,6 @@ Learn how to deploy your Astro site in our [Netlify deployment guide](https://do
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong>
 
-
 ## Why Astro Netlify
 
 If you're using Astro as a static site builder—its behavior out of the box—you don't need an adapter.
@@ -21,7 +20,6 @@ If you're using Astro as a static site builder—its behavior out of the box—y
 If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
 
 [Netlify](https://www.netlify.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository. This adapter enhances the Astro build process to prepare your project for deployment through Netlify.
-
 
 ## Installation
 
@@ -40,22 +38,22 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Install the Netlify adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
 
-    ```bash
-      npm install @astrojs/netlify
-    ```
+   ```bash
+     npm install @astrojs/netlify
+   ```
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js ins={3, 6-7}
-    // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-    import netlify from '@astrojs/netlify/functions';
+   ```js ins={3, 6-7}
+   // astro.config.mjs
+   import { defineConfig } from 'astro/config';
+   import netlify from '@astrojs/netlify/functions';
 
-    export default defineConfig({
-      output: 'server',
-      adapter: netlify(),
-    });
-    ```
+   export default defineConfig({
+     output: 'server',
+     adapter: netlify(),
+   });
+   ```
 
 ### Edge Functions
 
@@ -76,7 +74,7 @@ export default defineConfig({
 
 ### Static sites
 
-For static sites you usually don't need an adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format. 
+For static sites you usually don't need an adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -86,11 +84,11 @@ export default defineConfig({
   adapter: netlify(),
 
   redirects: {
-    '/blog/old-post': '/blog/new-post'
+    '/blog/old-post': '/blog/new-post',
   },
   experimental: {
-    redirects: true
-  }
+    redirects: true,
+  },
 });
 ```
 
@@ -113,7 +111,6 @@ netlify deploy --build
 
 The [Netlify Blog post on Astro](https://www.netlify.com/blog/how-to-deploy-astro/) and the [Netlify Documentation](https://docs.netlify.com/integrations/frameworks/astro/) provide more information on how to use this integration to deploy to Netlify.
 
-
 ## Configuration
 
 To configure this adapter, pass an object to the `netlify()` function call in `astro.config.mjs` - there's only one possible configuration option:
@@ -130,8 +127,8 @@ import netlify from '@astrojs/netlify/functions';
 export default defineConfig({
   output: 'server',
   adapter: netlify({
-    dist: new URL('./dist/', import.meta.url)
-  })
+    dist: new URL('./dist/', import.meta.url),
+  }),
 });
 ```
 
@@ -154,14 +151,12 @@ import netlify from '@astrojs/netlify/functions';
 export default defineConfig({
   output: 'server',
   adapter: netlify({
-    builders: true
+    builders: true,
   }),
 });
 ```
 
 On-demand Builders are only available with the `@astrojs/netlify/functions` adapter and are not compatible with Edge Functions.
-
-
 
 ### binaryMediaTypes
 
@@ -183,8 +178,8 @@ export function get() {
   return new Response(buffer, {
     status: 200,
     headers: {
-      'content-type': 'image/jpeg'
-    }
+      'content-type': 'image/jpeg',
+    },
   });
 }
 ```
@@ -210,4 +205,3 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-

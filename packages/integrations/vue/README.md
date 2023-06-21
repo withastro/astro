@@ -9,6 +9,7 @@ There are two ways to add integrations to your project. Let's try the most conve
 ### `astro add` command
 
 Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
+
 1. (Optionally) Install all necessary dependencies and peer dependencies
 2. (Also optionally) Update your `astro.config.*` file to apply this integration
 
@@ -41,7 +42,7 @@ npm install vue
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={2} "vue()"
 import { defineConfig } from 'astro/config';
@@ -56,6 +57,7 @@ export default defineConfig({
 ## Getting started
 
 To use your first Vue component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
+
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
 - 🤝 opportunities to mix and nest frameworks together
@@ -77,7 +79,7 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compiler, options can be provided to the integration. See the `@vitejs/plugin-vue` [docs](https://www.npmjs.com/package/@vitejs/plugin-vue) for more details.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -85,15 +87,17 @@ import vue from '@astrojs/vue';
 
 export default defineConfig({
   // ...
-  integrations: [vue({
-    template: {
-      compilerOptions: {
-        // treat any tag that starts with ion- as custom elements
-        isCustomElement: tag => tag.startsWith('ion-')
-      }
-    }
-    // ...
-  })],
+  integrations: [
+    vue({
+      template: {
+        compilerOptions: {
+          // treat any tag that starts with ion- as custom elements
+          isCustomElement: (tag) => tag.startsWith('ion-'),
+        },
+      },
+      // ...
+    }),
+  ],
 });
 ```
 
@@ -103,20 +107,18 @@ You can extend the Vue `app` instance setting the `appEntrypoint` option to a ro
 
 The default export of this file should be a function that accepts a Vue `App` instance prior to rendering, allowing the use of [custom Vue plugins](https://vuejs.org/guide/reusability/plugins.html), `app.use`, and other customizations for advanced use cases.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
 export default defineConfig({
-  integrations: [
-    vue({ appEntrypoint: '/src/pages/_app' })
-  ],
+  integrations: [vue({ appEntrypoint: '/src/pages/_app' })],
 });
 ```
 
-__`src/pages/_app.ts`__
+**`src/pages/_app.ts`**
 
 ```js
 import type { App } from 'vue';
@@ -124,29 +126,27 @@ import i18nPlugin from 'my-vue-i18n-plugin';
 
 export default (app: App) => {
   app.use(i18nPlugin);
-}
+};
 ```
 
 ### jsx
 
 You can use Vue JSX by setting `jsx: true`.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
 export default defineConfig({
-  integrations: [
-    vue({ jsx: true })
-  ],
+  integrations: [vue({ jsx: true })],
 });
 ```
 
 This will enable rendering for both Vue and Vue JSX components. To customize the Vue JSX compiler, pass an options object instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://www.npmjs.com/package/@vitejs/plugin-vue-jsx) for more details.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -157,9 +157,9 @@ export default defineConfig({
     vue({
       jsx: {
         // treat any tag that starts with ion- as custom elements
-        isCustomElement: tag => tag.startsWith('ion-')
-      }
-    })
+        isCustomElement: (tag) => tag.startsWith('ion-'),
+      },
+    }),
   ],
 });
 ```
