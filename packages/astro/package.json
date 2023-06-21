@@ -91,12 +91,13 @@
     "client.d.ts",
     "client-base.d.ts",
     "client-image.d.ts",
+    "content-types.template.d.ts",
+    "content-module.template.mjs",
     "import-meta.d.ts",
     "astro-jsx.d.ts",
     "types.d.ts",
     "README.md",
-    "vendor",
-    "src/content/template"
+    "vendor"
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
