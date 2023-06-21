@@ -1,5 +1,5 @@
 import type { AstroCookies, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
-import { render, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
+import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
