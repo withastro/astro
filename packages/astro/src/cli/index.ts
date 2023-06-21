@@ -86,14 +86,7 @@ async function printInfo({
 	const whichPm = await import('which-pm');
 	const packageManager = await whichPm.default(process.cwd());
 	let adapter = "Couldn't determine.";
-	const integrations = [];
-
-	function isIntegration(integration: any): integration is AstroIntegration {
-		if (typeof integration === 'object') {
-			return true;
-		}
-		return false;
-	}
+	let integrations = [];
 
 	const MAX_PADDING = 25;
 	function printRow(label: string, value: string) {
@@ -112,11 +105,10 @@ async function printInfo({
 			adapter = userConfig.adapter.name;
 		}
 		if (userConfig.integrations) {
-			for (const integration of userConfig.integrations) {
-				if (isIntegration(integration)) {
-					integrations.push(integration.name);
-				}
-			}
+			integrations = (userConfig?.integrations ?? [])
+				.filter(Boolean)
+				.flat()
+				.map((i: any) => i?.name);
 		}
 	} catch (_e) {}
 	console.log();
