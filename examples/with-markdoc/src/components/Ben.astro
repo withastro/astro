@@ -1,0 +1,6 @@
+---
+import { getEntry } from 'astro:content';
+const author = await getEntry('docs', 'ben');
+---
+
+<h2>{author?.data.name}</h2>

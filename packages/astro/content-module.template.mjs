@@ -41,13 +41,17 @@ function createGlobLookup(glob) {
 		const filePath = lookupMap[collection]?.entries[lookupId];
 
 		if (!filePath) return undefined;
-		return glob[collection][filePath];
+		const res = glob[collection][filePath];
+		console.log('res', res);
+		return res;
 	};
 }
 
-const renderEntryGlob = import.meta.glob('@@RENDER_ENTRY_GLOB_PATH@@', {
-	query: { astroRenderContent: true },
-});
+const renderEntryGlob = {
+	'/src/content/docs/intro.mdoc': () => import('/src/content/docs/intro.mdoc'),
+	'/src/content/docs/ben.mdoc': () => import('/src/content/docs/ben.mdoc'),
+};
+console.log('glob', renderEntryGlob);
 const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 	globResult: renderEntryGlob,
 	contentDir,

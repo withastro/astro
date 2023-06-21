@@ -14,6 +14,8 @@ const fileExtensionsToSSR = new Set(['.astro', '.mdoc', ...SUPPORTED_MARKDOWN_FI
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 const ASTRO_PROPAGATED_ASSET_REGEX = /\?astroPropagatedAssets/;
 
+const mwho = new Set<string>();
+
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
 	loader: ModuleLoader,
@@ -70,9 +72,14 @@ export async function* crawlGraph(
 					if (
 						isFileTypeNeedingSSR &&
 						// Should not SSR a module with ?astroPropagatedAssets
-						!isPropagationStoppingPoint
+						!isPropagationStoppingPoint &&
+						!mwho.has(importedModule.id)
 					) {
 						const mod = loader.getModuleById(importedModule.id);
+						if (importedModule.id.includes('.mdoc')) {
+							console.log('mdoc', importedModule.id);
+							mwho.add(importedModule.id);
+						}
 						if (!mod?.ssrModule) {
 							try {
 								await loader.import(importedModule.id);

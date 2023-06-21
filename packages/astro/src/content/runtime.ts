@@ -268,6 +268,7 @@ async function render({
 	if (typeof renderEntryImport !== 'function') throw UnexpectedRenderError;
 
 	const baseMod = await renderEntryImport();
+	console.log('baseMod', baseMod);
 	if (baseMod == null || typeof baseMod !== 'object') throw UnexpectedRenderError;
 	const { default: defaultMod } = baseMod;
 
