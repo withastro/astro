@@ -859,7 +859,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
