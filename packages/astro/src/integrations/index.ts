@@ -286,7 +286,9 @@ export async function runHookBuildSetup({
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
 	logging: LogOptions;
-}) {
+}): Promise<InlineConfig> {
+	let updatedConfig = vite;
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
 			await withTakingALongTimeMsg({
@@ -296,13 +298,15 @@ export async function runHookBuildSetup({
 					pages,
 					target,
 					updateConfig: (newConfig) => {
-						mergeConfig(vite, newConfig);
+						updatedConfig = mergeConfig(updatedConfig, newConfig);
 					},
 				}),
 				logging,
 			});
 		}
 	}
+
+	return updatedConfig;
 }
 
 export async function runHookBuildSsr({

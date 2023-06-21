@@ -201,7 +201,7 @@ async function ssrBuild(
 		base: settings.config.base,
 	};
 
-	await runHookBuildSetup({
+	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
@@ -209,7 +209,7 @@ async function ssrBuild(
 		logging: opts.logging,
 	});
 
-	return await vite.build(viteBuildConfig);
+	return await vite.build(updatedViteBuildConfig);
 }
 
 async function clientBuild(
