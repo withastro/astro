@@ -40,20 +40,20 @@
     "test": "mocha --timeout 20000"
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^4.0.0",
-    "@vitejs/plugin-vue-jsx": "^3.0.0",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitejs/plugin-vue-jsx": "^3.0.1",
     "@vue/babel-plugin-jsx": "^1.1.1",
-    "@vue/compiler-sfc": "^3.2.39"
+    "@vue/compiler-sfc": "^3.3.4"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.3",
+    "@types/chai": "^4.3.5",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.6",
-    "linkedom": "^0.14.17",
+    "chai": "^4.3.7",
+    "linkedom": "^0.14.26",
     "mocha": "^9.2.2",
-    "vite": "^4.3.1",
-    "vue": "^3.2.37"
+    "vite": "^4.3.9",
+    "vue": "^3.3.4"
   },
   "peerDependencies": {
     "astro": "workspace:^2.6.6",

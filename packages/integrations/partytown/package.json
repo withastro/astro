@@ -32,8 +32,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@builder.io/partytown": "^0.7.4",
-    "mrmime": "^1.0.0"
+    "@builder.io/partytown": "^0.7.6",
+    "mrmime": "^1.0.1"
   },
   "devDependencies": {
     "astro": "workspace:*",

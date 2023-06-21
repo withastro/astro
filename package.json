@@ -77,20 +77,20 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.1",
-    "@types/node": "^18.7.21",
-    "@typescript-eslint/eslint-plugin": "^5.58.0",
-    "@typescript-eslint/parser": "^5.58.0",
-    "esbuild": "^0.17.12",
-    "eslint": "^8.38.0",
+    "@types/node": "^18.16.18",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
+    "@typescript-eslint/parser": "^5.60.0",
+    "esbuild": "^0.17.19",
+    "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.8.8",
-    "prettier-plugin-astro": "^0.8.0",
+    "prettier-plugin-astro": "^0.8.1",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.9.3",
+    "turbo": "^1.10.3",
     "typescript": "~5.0.2"
   }
 }

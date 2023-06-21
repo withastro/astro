@@ -6,6 +6,6 @@
     "@astrojs/preact": "workspace:*",
     "@test/react-lib": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.10.1"
+    "preact": "^10.15.1"
   }
 }

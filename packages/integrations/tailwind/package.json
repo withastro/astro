@@ -40,17 +40,10 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "tailwindcss": "^3.3.2",
-    "vite": "^4.3.1"
+    "vite": "^4.3.9"
   },
   "peerDependencies": {
     "astro": "workspace:^2.6.6",
     "tailwindcss": "^3.0.24"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "postcss"
-      ]
-    }
   }
 }

@@ -17,7 +17,7 @@ describe('Cf metadata and caches', () => {
 	});
 
 	it('Load cf and caches API', async () => {
-		const { ready, stop } = runCLI('./fixtures/cf/', { silent: false, port: 8788 });
+		const { ready, stop } = runCLI('./fixtures/cf/', { silent: true, port: 8788 });
 
 		try {
 			await ready;
@@ -29,7 +29,7 @@ describe('Cf metadata and caches', () => {
 			expect($('#cf').text()).to.contain('city');
 			expect($('#hasCache').text()).to.equal('true');
 		} finally {
-			stop();
+			await stop();
 		}
 	});
 });

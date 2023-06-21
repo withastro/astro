@@ -35,13 +35,13 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "babel-preset-solid": "^1.4.2",
+    "babel-preset-solid": "^1.7.4",
     "vitefu": "^0.2.4"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.5.1"
+    "solid-js": "^1.7.6"
   },
   "peerDependencies": {
     "solid-js": "^1.4.3"

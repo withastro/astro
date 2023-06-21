@@ -13,6 +13,6 @@
   "dependencies": {
     "astro": "^2.6.6",
     "vite-plugin-pwa": "0.14.7",
-    "workbox-window": "^6.5.4"
+    "workbox-window": "^6.6.0"
   }
 }

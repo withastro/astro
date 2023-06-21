@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@altano/tiny-async-pool": "^1.0.2",
-    "http-cache-semantics": "^4.1.0",
+    "http-cache-semantics": "^4.1.1",
     "image-size": "^1.0.2",
     "kleur": "^4.1.5",
     "magic-string": "^0.27.0",
@@ -53,13 +53,13 @@
     "@types/mime": "^2.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "chai": "^4.3.6",
-    "cheerio": "^1.0.0-rc.11",
-    "fast-glob": "^3.2.11",
+    "chai": "^4.3.7",
+    "cheerio": "1.0.0-rc.12",
+    "fast-glob": "^3.2.12",
     "mocha": "^9.2.2",
     "rollup-plugin-copy": "^3.4.0",
     "sharp": "^0.32.1",
-    "vite": "^4.3.1"
+    "vite": "^4.3.9"
   },
   "peerDependencies": {
     "astro": "workspace:^2.6.6",
