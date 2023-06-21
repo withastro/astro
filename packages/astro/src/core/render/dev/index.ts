@@ -180,22 +180,31 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		mod,
 		env,
 	});
+	const apiContext = createAPIContext({
+		request: options.request,
+		params: renderContext.params,
+		props: renderContext.props,
+		adapterName: options.env.adapterName,
+	});
 	if (options.middleware) {
 		if (options.middleware && options.middleware.onRequest) {
-			const apiContext = createAPIContext({
-				request: options.request,
-				params: renderContext.params,
-				props: renderContext.props,
-				adapterName: options.env.adapterName,
-			});
-
 			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(env.logging, onRequest, apiContext, () => {
-				return coreRenderPage({ mod, renderContext, env: options.env, apiContext });
+				return coreRenderPage({
+					mod,
+					renderContext,
+					env: options.env,
+					cookies: apiContext.cookies,
+				});
 			});
 
 			return response;
 		}
 	}
-	return await coreRenderPage({ mod, renderContext, env: options.env }); // NOTE: without "await", errors won’t get caught below
+	return await coreRenderPage({
+		mod,
+		renderContext,
+		env: options.env,
+		cookies: apiContext.cookies,
+	}); // NOTE: without "await", errors won’t get caught below
 }

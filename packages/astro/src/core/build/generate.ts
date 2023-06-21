@@ -603,8 +603,8 @@ async function generatePath(
 							mod,
 							renderContext,
 							env,
-							apiContext,
 							isCompressHTML: settings.config.compressHTML,
+							cookies: apiContext.cookies,
 						});
 					}
 				);
@@ -613,8 +613,8 @@ async function generatePath(
 					mod,
 					renderContext,
 					env,
-					apiContext,
 					isCompressHTML: settings.config.compressHTML,
+					cookies: apiContext.cookies,
 				});
 			}
 		} catch (err) {

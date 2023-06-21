@@ -1,5 +1,5 @@
-import type { APIContext, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
-import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
+import type { AstroCookies, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
+import { render, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
@@ -108,15 +108,15 @@ export type RenderPage = {
 	mod: ComponentInstance;
 	renderContext: RenderContext;
 	env: Environment;
-	apiContext?: APIContext;
 	isCompressHTML?: boolean;
+	cookies: AstroCookies;
 };
 
 export async function renderPage({
 	mod,
 	renderContext,
 	env,
-	apiContext,
+	cookies,
 	isCompressHTML = false,
 }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
@@ -132,8 +132,6 @@ export async function renderPage({
 	const Component = mod.default;
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-
-	let locals = apiContext?.locals ?? {};
 
 	const result = createResult({
 		adapterName: env.adapterName,
@@ -155,8 +153,8 @@ export async function renderPage({
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
-		cookies: apiContext?.cookies,
-		locals,
+		cookies,
+		locals: renderContext.locals ?? {},
 	});
 
 	// Support `export const components` for `MDX` pages

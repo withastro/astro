@@ -122,6 +122,25 @@ app.use(ssrHandler);
 app.listen({ port: 8080 });
 ```
 
+Additionally, you can also pass in an object to be accessed with `Astro.locals` or in Astro middleware:
+
+```js
+import express from 'express';
+import { handler as ssrHandler } from './dist/server/entry.mjs';
+
+const app = express();
+app.use(express.static('dist/client/'))
+app.use((req, res, next) => {
+  const locals = {
+    title: 'New title'
+  };
+
+  ssrHandler(req, res, next, locals);
+);
+
+app.listen(8080);
+```
+
 Note that middleware mode does not do file serving. You'll need to configure your HTTP framework to do that for you. By default the client assets are written to `./dist/client/`.
 
 ### Standalone
