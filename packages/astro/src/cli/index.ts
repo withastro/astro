@@ -33,7 +33,7 @@ type CLICommand =
 	| 'reload'
 	| 'sync'
 	| 'check'
-	| 'rage'
+	| 'info'
 	| 'telemetry';
 
 /** Display --help flag */
@@ -52,7 +52,7 @@ function printAstroHelp() {
 				['preview', 'Preview your build locally.'],
 				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
-				['rage', 'Emit useful information about Astro current setup. Useful for debugging.'],
+				['info', 'Emit useful information about Astro current setup. Useful for debugging.'],
 			],
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
@@ -74,7 +74,7 @@ async function printVersion() {
 	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
 }
 
-async function printRage({
+async function printInfo({
 	cwd,
 	flags,
 	logging,
@@ -85,7 +85,7 @@ async function printRage({
 }) {
 	const whichPm = await import('which-pm');
 	const packageManager = await whichPm.default(process.cwd());
-	let adapter = 'None';
+	let adapter = "Couldn't determine.";
 	const integrations = [];
 
 	function isIntegration(integration: any): integration is AstroIntegration {
@@ -105,7 +105,7 @@ async function printRage({
 		const { userConfig } = await openConfig({
 			cwd,
 			flags,
-			cmd: 'rage',
+			cmd: 'info',
 			logging,
 		});
 		if (userConfig.adapter?.name) {
@@ -123,9 +123,9 @@ async function printRage({
 	printRow('Astro version', `v${ASTRO_VERSION}`);
 	printRow('Package manager', packageManager.name);
 	printRow('Adapter', adapter);
-	let integrationsString = 'None';
-	if (integrations.length === 0) {
-		integrations.join(', ');
+	let integrationsString = "None or couldn't determine.";
+	if (integrations.length > 0) {
+		integrationsString = integrations.join(', ');
 	}
 	printRow('Integrations', integrationsString);
 }
@@ -144,7 +144,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 		'preview',
 		'check',
 		'docs',
-		'rage',
+		'info',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -188,8 +188,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'version':
 			await printVersion();
 			return process.exit(0);
-		case 'rage': {
-			await printRage({ cwd: root, flags, logging });
+		case 'info': {
+			await printInfo({ cwd: root, flags, logging });
 			return process.exit(0);
 		}
 	}
