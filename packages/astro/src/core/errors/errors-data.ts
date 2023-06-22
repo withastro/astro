@@ -781,7 +781,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	FailedToFindPageMapSSR: {
 		title: "Astro couldn't find the correct page to render",
-		code: 4003,
 		message:
 			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error. Please file an issue.",
 	},
@@ -1069,7 +1068,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	DuplicateContentEntrySlugError: {
 		title: 'Duplicate content entry slug.',
-		code: 9008,
 		message: (collection: string, slug: string) => {
 			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
 		},
@@ -1084,7 +1082,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnsupportedConfigTransformError: {
 		title: 'Unsupported transform in content config.',
-		code: 9008,
 		message: (parseError: string) =>
 			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
