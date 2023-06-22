@@ -169,6 +169,7 @@ describe('head injection', () => {
 				const html = await text();
 				const $ = cheerio.load(html);
 
+				console.log(html)
 				expect($('link[rel=stylesheet][href="/some/fake/styles.css"]')).to.have.a.lengthOf(1);
 				expect($('#other')).to.have.a.lengthOf(1);
 			}
