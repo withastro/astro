@@ -19,7 +19,6 @@ import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.j
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
-import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -150,15 +149,6 @@ export async function runHookConfigSetup({
 				logging,
 			});
 
-			// Add MDX content entry type to support older `@astrojs/mdx` versions
-			// TODO: remove in next Astro minor release
-			if (
-				integration.name === '@astrojs/mdx' &&
-				!updatedSettings.contentEntryTypes.find((c) => c.extensions.includes('.mdx'))
-			) {
-				addContentEntryType(mdxContentEntryType);
-			}
-
 			// Add custom client directives to settings, waiting for compiled code by esbuild
 			for (const [name, compiled] of addedClientDirectives) {
 				updatedSettings.clientDirectives.set(name, await compiled);
@@ -286,7 +276,9 @@ export async function runHookBuildSetup({
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
 	logging: LogOptions;
-}) {
+}): Promise<InlineConfig> {
+	let updatedConfig = vite;
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
 			await withTakingALongTimeMsg({
@@ -296,13 +288,15 @@ export async function runHookBuildSetup({
 					pages,
 					target,
 					updateConfig: (newConfig) => {
-						mergeConfig(vite, newConfig);
+						updatedConfig = mergeConfig(updatedConfig, newConfig);
 					},
 				}),
 				logging,
 			});
 		}
 	}
+
+	return updatedConfig;
 }
 
 export async function runHookBuildSsr({
