@@ -104,7 +104,7 @@ export async function* crawlGraph(
 
 // Virtual modules URL should start with /@id/ but do not
 function urlId(url: string) {
-	if(url[0] !== '/') {
+	if (url.startsWith('astro:scripts')) {
 		return '/@id/' + url;
 	}
 	return url;

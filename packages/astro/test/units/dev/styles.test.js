@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import {
 	getStylesForURL
 } from '../../../dist/core/render/dev/css.js';
+import { viteID } from '../../../dist/core/util.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -22,8 +23,8 @@ class TestLoader {
 describe('Crawling graph for CSS', () => {
 	let loader;
 	before(() => {
-		const indexId = fileURLToPath(new URL('./src/pages/index.astro', root));
-		const aboutId = fileURLToPath(new URL('./src/pages/about.astro', root));
+		const indexId = viteID(new URL('./src/pages/index.astro', root));
+		const aboutId = viteID(new URL('./src/pages/about.astro', root));
 		loader = new TestLoader([
 			{
 				id: indexId,
