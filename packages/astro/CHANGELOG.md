@@ -1,5 +1,53 @@
 # astro
 
+## 2.7.0
+
+### Minor Changes
+
+- [#7353](https://github.com/withastro/astro/pull/7353) [`76fcdb84d`](https://github.com/withastro/astro/commit/76fcdb84dd828ac373b2dc739e57fadf650820fd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove legacy handling for MDX content collections. Ensure you are using `@astrojs/mdx` v0.18 or above.
+
+- [#7385](https://github.com/withastro/astro/pull/7385) [`8e2923cc6`](https://github.com/withastro/astro/commit/8e2923cc6219eda01ca2c749f5c7fa2fe4319455) Thanks [@ematipico](https://github.com/ematipico)! - `Astro.locals` is now exposed to the adapter API. Node Adapter can now pass in a `locals` object in the SSR handler middleware.
+
+- [#7220](https://github.com/withastro/astro/pull/7220) [`459b5bd05`](https://github.com/withastro/astro/commit/459b5bd05f562238f7250520efe3cf0fa156bb45) Thanks [@ematipico](https://github.com/ematipico)! - Shipped a new SSR build configuration mode: `split`.
+  When enabled, Astro will "split" the single `entry.mjs` file and instead emit a separate file to render each individual page during the build process.
+
+  These files will be emitted inside `dist/pages`, mirroring the directory structure of your page files in `src/pages/`, for example:
+
+  ```
+  ├── pages
+  │   ├── blog
+  │   │   ├── entry._slug_.astro.mjs
+  │   │   └── entry.about.astro.mjs
+  │   └── entry.index.astro.mjs
+  ```
+
+  To enable, set `build.split: true` in your Astro config:
+
+  ```js
+  // src/astro.config.mjs
+  export default defineConfig({
+    output: 'server',
+    adapter: node({
+      mode: 'standalone',
+    }),
+    build: {
+      split: true,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#7438](https://github.com/withastro/astro/pull/7438) [`30bb36371`](https://github.com/withastro/astro/commit/30bb363713e3d2c50d0d4816d970aa93b836a3b0) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro:build:setup` hook `updateConfig` utility, where the configuration wasn't correctly updated when the hook was fired.
+
+- [#7436](https://github.com/withastro/astro/pull/7436) [`3943fa390`](https://github.com/withastro/astro/commit/3943fa390a0bd41317a673d0f841e0461c7499cd) Thanks [@kossidts](https://github.com/kossidts)! - Fix an issue related to the documentation. Destructure the argument of the function to customize the Astro dev server based on the command run.
+
+- [#7424](https://github.com/withastro/astro/pull/7424) [`7877a06d8`](https://github.com/withastro/astro/commit/7877a06d829305eed356fbb8bfd1ef578cd5466e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update internal types for more stable builds for Astro maintainers.
+
+- [#7427](https://github.com/withastro/astro/pull/7427) [`e314a04bf`](https://github.com/withastro/astro/commit/e314a04bfbf0526838b7c9aac452251b27d69719) Thanks [@ematipico](https://github.com/ematipico)! - Correctly emit the middleware code during the build phase. The file emitted is now `dist/middleware.mjs`
+
+- [#7423](https://github.com/withastro/astro/pull/7423) [`33cdc8622`](https://github.com/withastro/astro/commit/33cdc8622a56c8e5465b7a50f627ecc568870c6b) Thanks [@bmenant](https://github.com/bmenant)! - Ensure injected `/_image` endpoint for image optimization is not prerendered on hybrid output.
+
 ## 2.6.6
 
 ### Patch Changes
