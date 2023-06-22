@@ -1,16 +1,14 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'url';
 
-import {
-	getStylesForURL
-} from '../../../dist/core/render/dev/css.js';
+import { getStylesForURL } from '../../../dist/core/render/dev/css.js';
 import { viteID } from '../../../dist/core/util.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
 class TestLoader {
 	constructor(modules) {
-		this.modules = new Map(modules.map(m => [m.id, m]))
+		this.modules = new Map(modules.map((m) => [m.id, m]));
 	}
 	getModuleById(id) {
 		return this.modules.get(id);
@@ -28,36 +26,45 @@ describe('Crawling graph for CSS', () => {
 		loader = new TestLoader([
 			{
 				id: indexId,
-				importedModules: [{
-					id: aboutId,
-					url: aboutId,
-				}, {
-					id: indexId + '?astro&style.css',
-					url: indexId + '?astro&style.css',
-					ssrModule: {}
-				}],
+				importedModules: [
+					{
+						id: aboutId,
+						url: aboutId,
+					},
+					{
+						id: indexId + '?astro&style.css',
+						url: indexId + '?astro&style.css',
+						ssrModule: {},
+					},
+				],
 				ssrTransformResult: {
-					deps: [indexId + '?astro&style.css']
-				}
+					deps: [indexId + '?astro&style.css'],
+				},
 			},
 			{
 				id: aboutId,
-				importedModules: [{
-					id: aboutId + '?astro&style.css',
-					url: aboutId + '?astro&style.css',
-					ssrModule: {}
-				}],
+				importedModules: [
+					{
+						id: aboutId + '?astro&style.css',
+						url: aboutId + '?astro&style.css',
+						ssrModule: {},
+					},
+				],
 				ssrTransformResult: {
-					deps: [aboutId + '?astro&style.css']
-				}
-			}
+					deps: [aboutId + '?astro&style.css'],
+				},
+			},
 		]);
-	})
+	});
 
-	it('importedModules is checked against the child\'s importers', async () => {
+	it("importedModules is checked against the child's importers", async () => {
 		// In dev mode, HMR modules tracked are added to importedModules. We use `importers`
 		// to verify that they are true importers.
-		const res = await getStylesForURL(new URL('./src/pages/index.astro', root), loader, 'development')
+		const res = await getStylesForURL(
+			new URL('./src/pages/index.astro', root),
+			loader,
+			'development'
+		);
 		expect(res.urls.size).to.equal(1);
-	})
-})
+	});
+});

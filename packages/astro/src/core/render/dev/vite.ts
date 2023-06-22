@@ -112,7 +112,7 @@ function urlId(url: string) {
 
 function getDepsFromEntry(entry: ModuleNode) {
 	let deps = entry.ssrTransformResult?.deps ?? [];
-	if(entry.ssrTransformResult?.dynamicDeps) {
+	if (entry.ssrTransformResult?.dynamicDeps) {
 		return deps.concat(entry.ssrTransformResult.dynamicDeps);
 	}
 	return deps;
