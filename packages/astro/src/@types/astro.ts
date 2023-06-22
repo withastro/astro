@@ -1293,6 +1293,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
+	prerender?: boolean;
 }
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
