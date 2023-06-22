@@ -355,7 +355,7 @@ The list of sizes that should be built for responsive images. This is combined w
 
 ```astro
 // Builds three images: 400x400, 800x800, and 1200x1200
-<Picture src={/* ... */} widths={[400, 800, 1200]} aspectRatio="1:1" alt="descriptive text" />
+<Picture src={img} widths={[400, 800, 1200]} aspectRatio="1:1" alt="descriptive text" />
 ```
 
 #### aspectRatio
