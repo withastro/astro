@@ -1118,11 +1118,9 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: Array<| AstroIntegration
-		| Array<AstroIntegration | false | undefined | null>
-		| false
-		| undefined
-		| null>;
+	integrations?: Array<
+		AstroIntegration | Array<AstroIntegration | false | undefined | null> | false | undefined | null
+	>;
 
 	/**
 	 * @docs

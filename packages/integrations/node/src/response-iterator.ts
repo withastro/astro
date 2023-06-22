@@ -115,14 +115,16 @@ function nodeStreamIterator<T>(stream: NodeReadableStream): AsyncIterableIterato
 	let done = false;
 	const data: unknown[] = [];
 
-	const waiting: Array<[
-		(
-			value:
-				| IteratorResult<T, boolean | undefined>
-				| PromiseLike<IteratorResult<T, boolean | undefined>>
-		) => void,
-		(reason?: any) => void
-	]> = [];
+	const waiting: Array<
+		[
+			(
+				value:
+					| IteratorResult<T, boolean | undefined>
+					| PromiseLike<IteratorResult<T, boolean | undefined>>
+			) => void,
+			(reason?: any) => void
+		]
+	> = [];
 
 	function onData(chunk: any) {
 		if (error) return;

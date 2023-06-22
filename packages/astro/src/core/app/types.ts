@@ -19,9 +19,11 @@ export interface RouteInfo {
 	file: string;
 	links: string[];
 	scripts: // Integration injected
-	Array<| { children: string; stage: string }
+	Array<
+		| { children: string; stage: string }
 		// Hoisted
-		| { type: 'inline' | 'external'; value: string }>;
+		| { type: 'inline' | 'external'; value: string }
+	>;
 	styles: StylesheetAsset[];
 }
 
