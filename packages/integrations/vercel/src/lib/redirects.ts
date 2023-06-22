@@ -87,7 +87,7 @@ export function getRedirects(routes: RouteData[], config: AstroConfig): VercelRo
 				headers: { Location: getRedirectLocation(route, config) },
 				status: getRedirectStatus(route),
 			});
-		} else if (route.type === 'page') {
+		} else if (route.type === 'page' && route.route !== '/') {
 			if (config.trailingSlash === 'always') {
 				redirects.push({
 					src: config.base + getMatchPattern(route.segments),
