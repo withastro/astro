@@ -862,6 +862,29 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		split?: boolean;
+
+		/**
+		 * @docs
+		 * @name build.splitMiddleware
+		 * @type {boolean}
+		 * @default {false}
+		 * @version 2.7.0
+		 * @description
+		 * Defines how the SSR code should be bundled when built.
+		 *
+		 * When enabled, the middleware code is **not** going to be imported by the pages.
+		 *
+		 * It's going to be responsibility of the end user to execute import the code and execute it.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     splitMiddleware: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		splitMiddleware?: boolean;
 	};
 
 	/**
