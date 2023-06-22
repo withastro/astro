@@ -4,15 +4,15 @@ import { align, sleep } from '@astrojs/cli-kit/utils';
 import { execa } from 'execa';
 import { exec } from 'node:child_process';
 import { get } from 'node:https';
-import preferredPM from 'preferred-pm';
 import stripAnsi from 'strip-ansi';
+import detectPackageManager from 'which-pm-runs';
 
 // Users might lack access to the global npm registry, this function
 // checks the user's project type and will return the proper npm registry
 //
 // A copy of this function also exists in the astro package
 async function getRegistry(): Promise<string> {
-	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	const packageManager = detectPackageManager()?.name || 'npm';
 	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
 	return stdout || 'https://registry.npmjs.org';
 }
