@@ -547,9 +547,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		title: 'Prerendered dynamic endpoint has path collision.',
 		code: 3026,
 		message: (pathname: string) =>
-			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. ` +
-			`Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, ` +
-			`or add an additional extension to the endpoint's filename.`,
+			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
 		hint: (filename: string) =>
 			`Rename \`${filename}\` to \`${filename.replace(/\.(js|ts)/, (m) => `.json` + m)}\``,
 	},
