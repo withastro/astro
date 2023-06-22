@@ -83,7 +83,7 @@ export async function* crawlGraph(
 						}
 					}
 				}
-				if (urlDeps.includes(importedModule.url) && !isPropagationStoppingPoint) {
+				if (urlDeps.includes(urlId(importedModule.url)) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -100,6 +100,14 @@ export async function* crawlGraph(
 		yield importedModule;
 		yield* crawlGraph(loader, importedModule.id, false, scanned);
 	}
+}
+
+// Virtual modules URL should start with /@id/ but do not
+function urlId(url: string) {
+	if(url[0] !== '/') {
+		return '/@id/' + url;
+	}
+	return url;
 }
 
 function getDepsFromEntry(entry: ModuleNode) {
