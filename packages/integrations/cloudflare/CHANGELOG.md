@@ -1,5 +1,25 @@
 # @astrojs/cloudflare
 
+## 6.5.1
+
+### Patch Changes
+
+- [#7419](https://github.com/withastro/astro/pull/7419) [`94afaa3e5`](https://github.com/withastro/astro/commit/94afaa3e501f77e919c719937eb1dbfe170e3dc9) Thanks [@TorbjornHoltmon](https://github.com/TorbjornHoltmon)! - Fixed issue with cloudflare runtime `waitUntil` not working as intended.
+
+- Updated dependencies [[`2b34fc492`](https://github.com/withastro/astro/commit/2b34fc49282cbf5bf89de46359b51a67a5c4b8bb), [`89a483520`](https://github.com/withastro/astro/commit/89a4835202f05d9571aeb42740dbe907a8afc28b)]:
+  - astro@2.6.6
+
+## 6.5.0
+
+### Minor Changes
+
+- [#7386](https://github.com/withastro/astro/pull/7386) [`6d8aa4b61`](https://github.com/withastro/astro/commit/6d8aa4b61f22df2c5052d06dac8e53bbce73f5f5) Thanks [@beynar](https://github.com/beynar)! - Expose cf metadata and Cloudflare Worker Cache API through `caches` in runtime.
+
+### Patch Changes
+
+- Updated dependencies [[`42baf62e7`](https://github.com/withastro/astro/commit/42baf62e7ca0351a2f2c7d06ec58086f90519bb7), [`1c7b63595`](https://github.com/withastro/astro/commit/1c7b6359563f5e83325121efb2e61915d818a35a)]:
+  - astro@2.6.4
+
 ## 6.4.0
 
 ### Minor Changes

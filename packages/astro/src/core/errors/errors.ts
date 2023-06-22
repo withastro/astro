@@ -1,7 +1,9 @@
-import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
+import type { DiagnosticMessage } from '@astrojs/compiler';
 import type { AstroErrorCodes } from './errors-data.js';
 import { codeFrame } from './printer.js';
 import { getErrorDataByCode } from './utils.js';
+
+type DiagnosticCode = DiagnosticMessage['code'];
 
 interface ErrorProperties {
 	code: AstroErrorCodes | DiagnosticCode;

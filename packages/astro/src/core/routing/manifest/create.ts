@@ -387,7 +387,7 @@ export function createRouteManifest(
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entryPoint }) => {
+		.forEach(({ pattern: name, entryPoint, prerender: prerenderInjected }) => {
 			let resolved: string;
 			try {
 				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
@@ -440,7 +440,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender,
+				prerender: prerenderInjected ?? prerender,
 			});
 		});
 

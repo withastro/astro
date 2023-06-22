@@ -1,8 +1,10 @@
-import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
+import type { DiagnosticMessage } from '@astrojs/compiler';
 import type { YAMLException } from 'js-yaml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../@types/astro.js';
 import { AstroErrorData, type AstroErrorCodes, type ErrorData } from './errors-data.js';
+
+type DiagnosticCode = DiagnosticMessage['code'];
 
 /**
  * Get the line and character based on the offset

@@ -64,6 +64,7 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 				}
 				// For possible subtree root nodes, record them in `elementStack` and
 				// `allPossibleElements` to be used in the "leave" hook below.
+				// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
 				if (node.type === 'element' || node.type === 'mdxJsxFlowElement') {
 					elementStack.push(node);
 					allPossibleElements.add(node);
@@ -72,6 +73,7 @@ export function rehypeOptimizeStatic(options?: OptimizeOptions) {
 			leave(node, _, __, parents) {
 				// Do the reverse of the if condition above, popping the `elementStack`,
 				// and consolidating `allPossibleElements` as a subtree root.
+				// @ts-expect-error MDX types for `.type` is not enhanced because MDX isn't used directly
 				if (node.type === 'element' || node.type === 'mdxJsxFlowElement') {
 					elementStack.pop();
 					// Many possible elements could be part of a subtree, in order to find

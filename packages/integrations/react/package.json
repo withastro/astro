@@ -44,22 +44,22 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/core": ">=7.0.0-0 <8.0.0",
-    "@babel/plugin-transform-react-jsx": "^7.17.12"
+    "@babel/core": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.22.5"
   },
   "devDependencies": {
-    "@types/react": "^17.0.45",
-    "@types/react-dom": "^17.0.17",
+    "@types/react": "^17.0.62",
+    "@types/react-dom": "^17.0.20",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },
   "peerDependencies": {
-    "react": "^17.0.2 || ^18.0.0",
-    "react-dom": "^17.0.2 || ^18.0.0",
     "@types/react": "^17.0.50 || ^18.0.21",
-    "@types/react-dom": "^17.0.17 || ^18.0.6"
+    "@types/react-dom": "^17.0.17 || ^18.0.6",
+    "react": "^17.0.2 || ^18.0.0",
+    "react-dom": "^17.0.2 || ^18.0.0"
   },
   "engines": {
     "node": ">=16.12.0"
