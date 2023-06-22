@@ -3790,6 +3790,9 @@ importers:
       sharp:
         specifier: ^0.32.1
         version: 0.32.1
+      srcset-parse:
+        specifier: ^1.1.0
+        version: 1.1.0
       vite:
         specifier: ^4.3.9
         version: 4.3.9(@types/node@18.16.18)(sass@1.63.4)
