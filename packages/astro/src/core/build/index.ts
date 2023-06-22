@@ -188,10 +188,10 @@ class AstroBuilder {
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
-			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
+			middlewarePath: internals.middlewareEntryPoint,
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

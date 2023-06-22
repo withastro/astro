@@ -11,7 +11,7 @@ const EMPTY_MIDDLEWARE = '\0empty-middleware';
 
 export function vitePluginMiddleware(
 	opts: StaticBuildOptions,
-	_internals: BuildInternals
+	internals: BuildInternals
 ): VitePlugin {
 	return {
 		name: '@astro/plugin-middleware',
@@ -39,6 +39,17 @@ export function vitePluginMiddleware(
 		load(id) {
 			if (id === EMPTY_MIDDLEWARE) {
 				return 'export const onRequest = undefined';
+			}
+		},
+
+		writeBundle(_, bundle) {
+			for (const [chunkName, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'asset') {
+					continue;
+				}
+				if (chunk.fileName === 'middleware.mjs') {
+					internals.middlewareEntryPoint = new URL(chunkName, opts.settings.config.outDir);
+				}
 			}
 		},
 	};
