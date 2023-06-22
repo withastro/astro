@@ -14,18 +14,18 @@ describe('With SolidJS', () => {
 	});
 
 	it('renders the solid component', async () => {
-		const { ready, stop } = runCLI('./fixtures/with-solid-js/', { silent: true });
+		const { ready, stop } = runCLI('./fixtures/with-solid-js/', { silent: true, port: 8790 });
 
 		try {
 			await ready;
 
-			let res = await fetch(`http://localhost:8787/`);
+			let res = await fetch(`http://localhost:8790/`);
 			expect(res.status).to.equal(200);
 			let html = await res.text();
 			let $ = cheerio.load(html);
 			expect($('.solid').text()).to.equal('Solid Content');
 		} finally {
-			stop();
+			await stop();
 		}
 	});
 });

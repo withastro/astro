@@ -776,6 +776,17 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	},
 	/**
 	 * @docs
+	 * @description
+	 * Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error.
+	 */
+	FailedToFindPageMapSSR: {
+		title: "Astro couldn't find the correct page to render",
+		code: 4003,
+		message:
+			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error. Please file an issue.",
+	},
+	/**
+	 * @docs
 	 * @kind heading
 	 * @name CSS Errors
 	 */
@@ -985,9 +996,9 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	/**
 	 * @docs
 	 * @see
-	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/)
+	 * - [The reserved entry `slug` field](https://docs.astro.build/en/guides/content-collections/#defining-custom-slugs)
 	 * @description
-	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove the `slug` field from your schema, or choose a different name.
+	 * A content collection schema should not contain the `slug` field. This is reserved by Astro for generating entry slugs. Remove `slug` from your schema. You can still use custom slugs in your frontmatter.
 	 */
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
@@ -1049,6 +1060,34 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 			return `**${entryId}** failed to parse: ${errorMessage}`;
 		},
 		hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	},
+	/**
+	 * @docs
+	 * @message `COLLECTION_NAME` contains multiple entries with the same slug: `SLUG`. Slugs must be unique.
+	 * @description
+	 * Content collection entries must have unique slugs. Duplicates are often caused by the `slug` frontmatter property.
+	 */
+	DuplicateContentEntrySlugError: {
+		title: 'Duplicate content entry slug.',
+		code: 9008,
+		message: (collection: string, slug: string) => {
+			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
+		},
+	},
+
+	/**
+	 * @docs
+	 * @see
+	 * - [devalue library](https://github.com/rich-harris/devalue)
+	 * @description
+	 * `transform()` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).
+	 */
+	UnsupportedConfigTransformError: {
+		title: 'Unsupported transform in content config.',
+		code: 9008,
+		message: (parseError: string) =>
+			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
+		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
 	},
 
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip

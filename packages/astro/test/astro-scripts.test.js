@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import { tailwind } from './fixtures/astro-scripts/deps.mjs';
 
 describe('Scripts (hoisted and not)', () => {
 	describe('Build', () => {
@@ -141,7 +140,6 @@ describe('Scripts (hoisted and not)', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-scripts/',
 				integrations: [
-					tailwind(),
 					{
 						name: 'test-script-injection-with-injected-route',
 						hooks: {

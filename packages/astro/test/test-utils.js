@@ -13,6 +13,9 @@ import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
 import { check } from '../dist/cli/check/index.js';
+import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
+import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
+import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {
@@ -240,6 +243,15 @@ export async function loadFixture(inlineConfig) {
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
+			const { createApp, manifest, middleware } = await import(url);
+			const app = createApp(streaming);
+			app.manifest = manifest;
+			return app;
+		},
+		loadEntryPoint: async (pagePath, routes, streaming) => {
+			const virtualModule = getVirtualModulePageNameFromPath(RESOLVED_SPLIT_MODULE_ID, pagePath);
+			const filePath = makeSplitEntryPointFileName(virtualModule, routes);
+			const url = new URL(`./server/${filePath}?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest, middleware } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;

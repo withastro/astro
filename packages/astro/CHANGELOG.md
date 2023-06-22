@@ -1,5 +1,37 @@
 # astro
 
+## 2.6.6
+
+### Patch Changes
+
+- [#7418](https://github.com/withastro/astro/pull/7418) [`2b34fc492`](https://github.com/withastro/astro/commit/2b34fc49282cbf5bf89de46359b51a67a5c4b8bb) Thanks [@ematipico](https://github.com/ematipico)! - Correctly type the option `server.open`
+
+- [#7429](https://github.com/withastro/astro/pull/7429) [`89a483520`](https://github.com/withastro/astro/commit/89a4835202f05d9571aeb42740dbe907a8afc28b) Thanks [@delucis](https://github.com/delucis)! - Fix telemetry reporting for integrations that return an array
+
+## 2.6.5
+
+### Patch Changes
+
+- [#7414](https://github.com/withastro/astro/pull/7414) [`bb644834e`](https://github.com/withastro/astro/commit/bb644834ef03bc00048c7381f20a1c01388438e2) Thanks [@bluwy](https://github.com/bluwy)! - Simplify telemetry Vite version detection
+
+- [#7399](https://github.com/withastro/astro/pull/7399) [`d2020c29c`](https://github.com/withastro/astro/commit/d2020c29cf285e699f92143a70ffa30a85122bb4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix edge case where injected routes would cause builds to fail in a PNPM workspace
+
+## 2.6.4
+
+### Patch Changes
+
+- [#7366](https://github.com/withastro/astro/pull/7366) [`42baf62e7`](https://github.com/withastro/astro/commit/42baf62e7ca0351a2f2c7d06ec58086f90519bb7) Thanks [@aappaapp](https://github.com/aappaapp)! - Fixed `RedirectConfig` type definition
+
+- [#7380](https://github.com/withastro/astro/pull/7380) [`1c7b63595`](https://github.com/withastro/astro/commit/1c7b6359563f5e83325121efb2e61915d818a35a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix missing stacktraces for Zod errors
+
+## 2.6.3
+
+### Patch Changes
+
+- [#7341](https://github.com/withastro/astro/pull/7341) [`491c2db42`](https://github.com/withastro/astro/commit/491c2db424434167327e780ad57b8f665498003d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve error message for unsupported Zod transforms from the content config.
+
+- [#7352](https://github.com/withastro/astro/pull/7352) [`0a8d178c9`](https://github.com/withastro/astro/commit/0a8d178c90f033fbba40666c54bcfc58c53ac905) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Raise error when multiple content collection entries have the same slug
+
 ## 2.6.2
 
 ### Patch Changes

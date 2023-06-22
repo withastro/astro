@@ -335,6 +335,22 @@ type ServerConfig = {
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 	headers?: OutgoingHttpHeaders;
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
+	 * }
+	 * ```
+	 */
+	open?: boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -455,7 +471,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name redirects (Experimental)
-	 * @type {RedirectConfig}
+	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
 	 * @version 2.6.0
 	 * @description Specify a mapping of redirects where the key is the route to match
@@ -495,7 +511,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	redirects?: RedirectConfig;
+	redirects?: Record<string, RedirectConfig>;
 
 	/**
 	 * @docs
@@ -822,6 +838,30 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name build.split
+		 * @type {boolean}
+		 * @default {false}
+		 * @version 2.7.0
+		 * @description
+		 * Defines how the SSR code should be bundled when built.
+		 *
+		 * When `split` is `true`, Astro will emit a file for each page.
+		 * Each file emitted will render only one page. The pages will be emitted
+		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
+		 * of the `src/pages` directory.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     split: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		split?: boolean;
 	};
 
 	/**
@@ -843,7 +883,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -874,6 +914,21 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   server: { port: 8080 }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
 	 * }
 	 * ```
 	 */
@@ -1238,6 +1293,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
+	prerender?: boolean;
 }
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
@@ -1793,7 +1849,14 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
+		'astro:build:ssr'?: (options: {
+			manifest: SerializedSSRManifest;
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 */
+			entryPoints: Map<RouteData, URL>;
+		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;

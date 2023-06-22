@@ -1,0 +1,14 @@
+---
+import { getRuntime } from '@astrojs/cloudflare/runtime';
+const runtime = getRuntime(Astro.request);
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<h1>Testing</h1>
+		<div id="cf">{JSON.stringify(runtime.cf)}</div>
+		<div id="hasCache">{!!runtime.caches}</div>
+	</body>
+</html>
