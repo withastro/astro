@@ -47,7 +47,7 @@ describe('Hybrid rendering', () => {
 
 	it('includes prerendered routes in the routes.json config', async () => {
 		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
-			slash(r)
+			r.replace(/\\/g, '/')
 		);
 		const expectedExcludedRoutes = ['/_worker.js', '/index.html', '/'];
 
