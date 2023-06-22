@@ -290,6 +290,18 @@ importers:
         specifier: ^3.59.1
         version: 3.59.1
 
+  examples/framework-svelte-ssi:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: ^3.0.0
+        version: link:../../packages/integrations/svelte
+      astro:
+        specifier: ^2.6.6
+        version: link:../../packages/astro
+      svelte:
+        specifier: ^3.59.1
+        version: 3.59.1
+
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
