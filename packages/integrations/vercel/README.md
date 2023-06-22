@@ -240,7 +240,9 @@ You can use Vercel middleware to intercept a request and redirect before sending
 
 1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
-> **Warning** > **Trying to rewrite?** Currently rewriting a request with middleware only works for static files.
+<!-- prettier-ignore -->
+> **Warning**
+> **Trying to rewrite?** Currently rewriting a request with middleware only works for static files.
 
 ## Troubleshooting
 

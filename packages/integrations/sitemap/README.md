@@ -138,7 +138,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   integrations: [
     sitemap({
-      filter, // ...
+      // configuration options
     }),
   ],
 });
