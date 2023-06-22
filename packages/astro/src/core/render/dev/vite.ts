@@ -41,6 +41,7 @@ export async function* crawlGraph(
 			continue;
 		}
 		if (id === entry.id) {
+			const urlDeps = getDepsFromEntry(entry);
 			scanned.add(id);
 			const entryIsStyle = isCSSRequest(id);
 
@@ -82,7 +83,7 @@ export async function* crawlGraph(
 						}
 					}
 				}
-				if (!isPropagationStoppingPoint) {
+				if (urlDeps.includes(urlId(importedModule.url)) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -99,4 +100,20 @@ export async function* crawlGraph(
 		yield importedModule;
 		yield* crawlGraph(loader, importedModule.id, false, scanned);
 	}
+}
+
+// Virtual modules URL should start with /@id/ but do not
+function urlId(url: string) {
+	if (url.startsWith('astro:scripts')) {
+		return '/@id/' + url;
+	}
+	return url;
+}
+
+function getDepsFromEntry(entry: ModuleNode) {
+	let deps = entry.ssrTransformResult?.deps ?? [];
+	if(entry.ssrTransformResult?.dynamicDeps) {
+		return deps.concat(entry.ssrTransformResult.dynamicDeps);
+	}
+	return deps;
 }
