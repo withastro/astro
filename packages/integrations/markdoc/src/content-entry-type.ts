@@ -110,8 +110,8 @@ markdocConfig.nodes = { ...experimentalAssetsConfig.nodes, ...markdocConfig.node
 					: ''
 			}
 
-${getStringifiedImports(componentConfigByTagMap, 'Tag')}
-${getStringifiedImports(componentConfigByNodeMap, 'Node')}
+${getStringifiedImports(componentConfigByTagMap, 'Tag', astroConfig.root)}
+${getStringifiedImports(componentConfigByNodeMap, 'Node', astroConfig.root)}
 
 const tagComponentMap = ${getStringifiedMap(componentConfigByTagMap, 'Tag')};
 const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
@@ -227,15 +227,18 @@ function shouldOptimizeImage(src: string) {
 
 function getStringifiedImports(
 	componentConfigMap: Record<string, ComponentConfig>,
-	componentNamePrefix: string
+	componentNamePrefix: string,
+	root: URL
 ) {
 	let stringifiedComponentImports = '';
 	for (const [key, config] of Object.entries(componentConfigMap)) {
 		const importName = config.namedExport
 			? `{ ${config.namedExport} as ${componentNamePrefix + key} }`
 			: componentNamePrefix + key;
+		const resolvedPath =
+			config.type === 'local' ? new URL(config.path, root).pathname : config.path;
 
-		stringifiedComponentImports += `import ${importName} from ${JSON.stringify(config.path)};\n`;
+		stringifiedComponentImports += `import ${importName} from ${JSON.stringify(resolvedPath)};\n`;
 	}
 	return stringifiedComponentImports;
 }

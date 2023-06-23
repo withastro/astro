@@ -6,15 +6,16 @@ import type {
 	Schema,
 } from '@markdoc/markdoc';
 import _Markdoc from '@markdoc/markdoc';
-import type { AstroInstance } from 'astro';
 import { heading } from './heading-ids.js';
 import { isRelativePath } from '@astrojs/internal-helpers/path';
+import type { AstroInstance } from 'astro';
 
-export type Render = AstroInstance['default'] | ComponentConfig | string;
+export type Render = ComponentConfig | AstroInstance['default'] | string;
 export type ComponentConfig = {
-	isComponentConfig: true;
+	type: 'package' | 'local';
 	path: string;
 	namedExport?: string;
+	[componentConfigSymbol]: true;
 };
 
 export type AstroMarkdocConfig<C extends Record<string, any> = Record<string, any>> = Omit<
@@ -44,32 +45,25 @@ export function defineMarkdocConfig(config: AstroMarkdocConfig): AstroMarkdocCon
  */
 type StringWithSuggestions<TSuggestions extends string> = TSuggestions | (string & {});
 
-export function isComponentConfig(value: unknown): value is ComponentConfig {
-	return typeof value === 'object' && value !== null && 'isComponentConfig' in value;
-}
-
 export function component(
 	// TODO: generate suggestions
 	pathnameOrPkgName: StringWithSuggestions<'./src/components/Aside.astro'>,
-	// TODO: generate base url
-	baseUrl: string,
 	namedExport?: string
 ): ComponentConfig {
-	if (isNpmPackageName(pathnameOrPkgName)) {
-		return {
-			isComponentConfig: true,
-			path: pathnameOrPkgName,
-			namedExport,
-		};
-	} else {
-		return {
-			isComponentConfig: true,
-			path: new URL(pathnameOrPkgName, baseUrl).pathname,
-			namedExport,
-		};
-	}
+	return {
+		type: isNpmPackageName(pathnameOrPkgName) ? 'package' : 'local',
+		path: pathnameOrPkgName,
+		namedExport,
+		[componentConfigSymbol]: true,
+	};
 }
 
 function isNpmPackageName(pathname: string) {
 	return !isRelativePath(pathname) && !pathname.startsWith('/');
 }
+
+export function isComponentConfig(value: unknown): value is ComponentConfig {
+	return typeof value === 'object' && value !== null && componentConfigSymbol in value;
+}
+
+const componentConfigSymbol = Symbol.for('@astrojs/markdoc/component-config');
