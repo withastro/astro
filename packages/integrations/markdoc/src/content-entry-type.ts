@@ -212,6 +212,12 @@ function shouldOptimizeImage(src: string) {
 	return !isValidUrl(src) && !src.startsWith('/');
 }
 
+/**
+ * Get stringified import statements for configured tags or nodes.
+ * `componentNamePrefix` is appended to the import name for namespacing.
+ *
+ * Example output: `import Tagaside from '/Users/.../src/components/Aside.astro';`
+ */
 function getStringifiedImports(
 	componentConfigMap: Record<string, ComponentConfig>,
 	componentNamePrefix: string,
@@ -230,6 +236,12 @@ function getStringifiedImports(
 	return stringifiedComponentImports;
 }
 
+/**
+ * Get a stringified map from tag / node name to component import name.
+ * This uses the same `componentNamePrefix` used by `getStringifiedImports()`.
+ *
+ * Example output: `{ aside: Tagaside, heading: Tagheading }`
+ */
 function getStringifiedMap(
 	componentConfigMap: Record<string, ComponentConfig>,
 	componentNamePrefix: string
