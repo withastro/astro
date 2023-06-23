@@ -83,7 +83,8 @@ export async function* crawlGraph(
 					}
 				}
 
-				if (urlDeps.includes(urlId(importedModule.url)) && !isPropagationStoppingPoint) {
+				// Make sure the `importedModule` traversed is explicitly imported by the user, and not by HMR
+				if (urlDeps.includes(importedModule.url) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -102,18 +103,10 @@ export async function* crawlGraph(
 	}
 }
 
-// Virtual modules URL should start with /@id/ but do not
-function urlId(url: string) {
-	if (url.startsWith('astro:scripts')) {
-		return '/@id/' + url;
-	}
-	return url;
-}
-
 function getDepsFromEntry(entry: ModuleNode) {
 	let deps = entry.ssrTransformResult?.deps ?? [];
 	if (entry.ssrTransformResult?.dynamicDeps) {
-		return deps.concat(entry.ssrTransformResult.dynamicDeps);
+		deps = deps.concat(entry.ssrTransformResult.dynamicDeps);
 	}
-	return deps;
+	return deps.map((dep) => unwrapId(dep));
 }
