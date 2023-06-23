@@ -9,5 +9,11 @@ export default defineMarkdocConfig({
 				title: { type: String },
 			},
 		},
+		authorName: {
+			render: component('./src/components/AuthorName.astro', import.meta.url),
+			attributes: {
+				slug: { type: String },
+			},
+		},
 	},
 });
