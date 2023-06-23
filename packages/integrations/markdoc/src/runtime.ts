@@ -120,8 +120,10 @@ const headingLevels = [1, 2, 3, 4, 5, 6] as const;
  * Collect headings from Markdoc transform AST
  * for `headings` result on `render()` return value
  */
-export function collectHeadings(children: RenderableTreeNode[]): MarkdownHeading[] {
-	let collectedHeadings: MarkdownHeading[] = [];
+export function collectHeadings(
+	children: RenderableTreeNode[],
+	collectedHeadings: MarkdownHeading[]
+) {
 	for (const node of children) {
 		if (typeof node !== 'object' || !Markdoc.Tag.isTag(node)) continue;
 
@@ -143,9 +145,8 @@ export function collectHeadings(children: RenderableTreeNode[]): MarkdownHeading
 				});
 			}
 		}
-		collectedHeadings.concat(collectHeadings(node.children));
+		collectHeadings(node.children, collectedHeadings);
 	}
-	return collectedHeadings;
 }
 
 export function createGetHeadings(stringifiedAst: string, userConfig: AstroMarkdocConfig) {
@@ -156,7 +157,9 @@ export function createGetHeadings(stringifiedAst: string, userConfig: AstroMarkd
 		const config = setupConfigSync(userConfig);
 		const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 		const content = Markdoc.transform(ast as Node, config as ConfigType);
-		return collectHeadings(Array.isArray(content) ? content : [content]);
+		let collectedHeadings: MarkdownHeading[] = [];
+		collectHeadings(Array.isArray(content) ? content : [content], collectedHeadings);
+		return collectedHeadings;
 	};
 }
 
