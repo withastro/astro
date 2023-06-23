@@ -93,11 +93,14 @@ export function viteID(filePath: URL): string {
 }
 
 export const VALID_ID_PREFIX = `/@id/`;
+export const NULL_BYTE_PLACEHOLDER = `__x00__`;
 
-// Strip valid id prefix. This is prepended to resolved Ids that are
-// not valid browser import specifiers by the importAnalysis plugin.
+// Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
+// as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
 export function unwrapId(id: string): string {
-	return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
+	return id.startsWith(VALID_ID_PREFIX)
+		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
+		: id;
 }
 
 export function resolvePages(config: AstroConfig) {
