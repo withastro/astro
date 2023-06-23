@@ -52,7 +52,7 @@ export function component(
 	// TODO: generate suggestions
 	pathnameOrPkgName: StringWithSuggestions<'./src/components/Aside.astro'>,
 	// TODO: generate base url
-	baseUrl: URL,
+	baseUrl: string,
 	namedExport?: string
 ): ComponentConfig {
 	if (isNpmPackageName(pathnameOrPkgName)) {
