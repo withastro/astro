@@ -93,12 +93,8 @@ export async function getContentEntryType({
 				});
 			}
 
-			const res = `import {
-	createComponent,
-	renderComponent,
-} from 'astro/runtime/server/index.js';
-import { Renderer } from '@astrojs/markdoc/components';
-import { collectHeadings, setupConfigSync, createContentComponent, Markdoc } from '@astrojs/markdoc/runtime';
+			const res = `import { Renderer } from '@astrojs/markdoc/components';
+import { createGetHeadings, createContentComponent } from '@astrojs/markdoc/runtime';
 ${
 	markdocConfigUrl
 		? `import markdocConfig from ${JSON.stringify(markdocConfigUrl.pathname)};`
@@ -119,19 +115,8 @@ const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
 const stringifiedAst = ${JSON.stringify(
 				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast)
 			)};
-export function getHeadings() {
-	${
-		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
-		TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
-		instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
-		''
-	}
-	const config = setupConfigSync();
-	const ast = Markdoc.Ast.fromJSON(stringifiedAst);
-	const content = Markdoc.transform(ast, config);
-	return collectHeadings(Array.isArray(content) ? content : content.children);
-}
 
+export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig);
 export const Content = createContentComponent(
 	Renderer,
 	stringifiedAst,

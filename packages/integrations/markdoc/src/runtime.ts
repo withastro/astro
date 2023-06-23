@@ -5,12 +5,14 @@ import {
 	renderComponent,
 	// @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
 } from 'astro/runtime/server/index.js';
-import Markdoc, { type NodeType, type RenderableTreeNode } from '@markdoc/markdoc';
+import Markdoc, {
+	type ConfigType,
+	type Node,
+	type NodeType,
+	type RenderableTreeNode,
+} from '@markdoc/markdoc';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
-
-/** Used to call `Markdoc.transform()` and `Markdoc.Ast` in runtime modules */
-export { default as Markdoc } from '@markdoc/markdoc';
 
 /**
  * Merge user config with default config and set up context (ex. heading ID slugger)
@@ -144,6 +146,18 @@ export function collectHeadings(children: RenderableTreeNode[]): MarkdownHeading
 		collectedHeadings.concat(collectHeadings(node.children));
 	}
 	return collectedHeadings;
+}
+
+export function createGetHeadings(stringifiedAst: string, userConfig: AstroMarkdocConfig) {
+	return function getHeadings() {
+		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
+			TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
+			instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
+		const config = setupConfigSync(userConfig);
+		const ast = Markdoc.Ast.fromJSON(stringifiedAst);
+		const content = Markdoc.transform(ast as Node, config as ConfigType);
+		return collectHeadings(Array.isArray(content) ? content : [content]);
+	};
 }
 
 export function createContentComponent(
