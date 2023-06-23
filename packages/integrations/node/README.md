@@ -136,7 +136,7 @@ app.use((req, res, next) => {
   };
 
   ssrHandler(req, res, next, locals);
-);
+});
 
 app.listen(8080);
 ```
