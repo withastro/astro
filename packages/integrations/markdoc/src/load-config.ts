@@ -71,6 +71,7 @@ async function bundleConfigFile({
 				name: 'stub-astro-imports',
 				setup(build) {
 					build.onResolve({ filter: /.*\.astro$/ }, () => {
+						// TODO: fix missing hint
 						throw new MarkdocError({
 							message: '`.astro` files are no longer supported in the Markdoc config.',
 							hint: 'Use the `component()` utility to specify a component path instead.',
