@@ -17,7 +17,9 @@ describe('astro:ssr-manifest, split', () => {
 			output: 'server',
 			adapter: testAdapter({
 				setEntryPoints(entries) {
-					entryPoints = entries;
+					if (entries) {
+						entryPoints = entries;
+					}
 				},
 				setRoutes(routes) {
 					currentRoutes = routes;
