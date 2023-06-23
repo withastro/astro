@@ -4904,8 +4904,20 @@ importers:
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+      rollup:
+        specifier: ^3.20.1
+        version: 3.25.1
 
   packages/integrations/vercel/test/fixtures/image:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/middleware:
     dependencies:
       '@astrojs/vercel':
         specifier: workspace:*
