@@ -1,4 +1,3 @@
-// @ts-expect-error
 import type { DiagnosticMessage } from '@astrojs/compiler';
 import type { AstroErrorCodes } from './errors-data.js';
 import { codeFrame } from './printer.js';

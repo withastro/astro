@@ -1,4 +1,3 @@
-// @ts-expect-error
 import type { DiagnosticMessage } from '@astrojs/compiler';
 import type { YAMLException } from 'js-yaml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
