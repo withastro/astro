@@ -189,6 +189,8 @@ class AstroBuilder {
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		let newMiddlewareEntryPoint = undefined;
+		// during the last phase of the build, the emitted code gets copied inside
+		// `dist/server/` folder, so we need to shred the old URL and make a new one again
 		if (internals.middlewareEntryPoint && isServerLikeOutput(this.settings.config)) {
 			const outDir = fileURLToPath(this.settings.config.outDir);
 			const middlewareRelativePath = fileURLToPath(internals.middlewareEntryPoint).slice(
