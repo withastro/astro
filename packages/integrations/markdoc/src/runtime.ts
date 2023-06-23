@@ -1,5 +1,10 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import type { AstroInstance } from 'astro';
+import {
+	createComponent,
+	renderComponent,
+	// @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
+} from 'astro/runtime/server/index.js';
 import Markdoc, { type NodeType, type RenderableTreeNode } from '@markdoc/markdoc';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
@@ -12,9 +17,7 @@ export { default as Markdoc } from '@markdoc/markdoc';
  * Called on each file's individual transform.
  * TODO: virtual module to merge configs per-build instead of per-file?
  */
-export async function setupConfig(
-	userConfig: AstroMarkdocConfig
-): Promise<Omit<AstroMarkdocConfig, 'extends'>> {
+export async function setupConfig(userConfig: AstroMarkdocConfig = {}): Promise<MergedConfig> {
 	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	if (userConfig.extends) {
@@ -31,19 +34,19 @@ export async function setupConfig(
 }
 
 /** Used for synchronous `getHeadings()` function */
-export function setupConfigSync(
-	userConfig: AstroMarkdocConfig
-): Omit<AstroMarkdocConfig, 'extends'> {
+export function setupConfigSync(userConfig: AstroMarkdocConfig = {}): MergedConfig {
 	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	return mergeConfig(defaultConfig, userConfig);
 }
 
+type MergedConfig = Required<Omit<AstroMarkdocConfig, 'extends'>>;
+
 /** Merge function from `@markdoc/markdoc` internals */
 export function mergeConfig(
 	configA: AstroMarkdocConfig,
 	configB: AstroMarkdocConfig
-): AstroMarkdocConfig {
+): MergedConfig {
 	return {
 		...configA,
 		...configB,
@@ -66,6 +69,14 @@ export function mergeConfig(
 		variables: {
 			...configA.variables,
 			...configB.variables,
+		},
+		partials: {
+			...configA.partials,
+			...configB.partials,
+		},
+		validation: {
+			...configA.validation,
+			...configB.validation,
 		},
 	};
 }
@@ -133,4 +144,26 @@ export function collectHeadings(children: RenderableTreeNode[]): MarkdownHeading
 		collectedHeadings.concat(collectHeadings(node.children));
 	}
 	return collectedHeadings;
+}
+
+export function createContentComponent(
+	Renderer: AstroInstance['default'],
+	stringifiedAst: string,
+	userConfig: AstroMarkdocConfig,
+	tagComponentMap: Record<string, AstroInstance['default']>,
+	nodeComponentMap: Record<NodeType, AstroInstance['default']>
+) {
+	return createComponent({
+		async factory(result: any, props: Record<string, any>) {
+			const withVariables = mergeConfig(userConfig, { variables: props });
+			const config = resolveComponentImports(
+				await setupConfig(withVariables),
+				tagComponentMap,
+				nodeComponentMap
+			);
+
+			return renderComponent(result, Renderer.name, Renderer, { stringifiedAst, config }, {});
+		},
+		propagation: 'self',
+	});
 }
