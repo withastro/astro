@@ -46,43 +46,44 @@ export async function* crawlGraph(
 			const entryIsStyle = isCSSRequest(id);
 
 			for (const importedModule of entry.importedModules) {
+				if (!importedModule.id) continue;
+
 				// A propagation stopping point is a module with the ?astroPropagatedAssets flag.
 				// When we encounter one of these modules we don't want to continue traversing.
 				let isPropagationStoppingPoint = false;
+
 				// some dynamically imported modules are *not* server rendered in time
 				// to only SSR modules that we can safely transform, we check against
 				// a list of file extensions based on our built-in vite plugins
-				if (importedModule.id) {
-					// Strip special query params like "?content".
-					// NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
-					// For example, `virtual:image-loader` if you don't have the plugin installed.
-					const importedModulePathname = importedModule.id.replace(STRIP_QUERY_PARAMS_REGEX, '');
-					// If the entry is a style, skip any modules that are not also styles.
-					// Tools like Tailwind might add HMR dependencies as `importedModules`
-					// but we should skip them--they aren't really imported. Without this,
-					// every hoisted script in the project is added to every page!
-					if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
-						continue;
-					}
-					const isFileTypeNeedingSSR = fileExtensionsToSSR.has(
-						npath.extname(importedModulePathname)
-					);
-					isPropagationStoppingPoint = ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id);
-					if (
-						isFileTypeNeedingSSR &&
-						// Should not SSR a module with ?astroPropagatedAssets
-						!isPropagationStoppingPoint
-					) {
-						const mod = loader.getModuleById(importedModule.id);
-						if (!mod?.ssrModule) {
-							try {
-								await loader.import(importedModule.id);
-							} catch {
-								/** Likely an out-of-date module entry! Silently continue. */
-							}
+
+				// Strip special query params like "?content".
+				// NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
+				// For example, `virtual:image-loader` if you don't have the plugin installed.
+				const importedModulePathname = importedModule.id.replace(STRIP_QUERY_PARAMS_REGEX, '');
+				// If the entry is a style, skip any modules that are not also styles.
+				// Tools like Tailwind might add HMR dependencies as `importedModules`
+				// but we should skip them--they aren't really imported. Without this,
+				// every hoisted script in the project is added to every page!
+				if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
+					continue;
+				}
+				const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
+				isPropagationStoppingPoint = ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id);
+				if (
+					isFileTypeNeedingSSR &&
+					// Should not SSR a module with ?astroPropagatedAssets
+					!isPropagationStoppingPoint
+				) {
+					const mod = loader.getModuleById(importedModule.id);
+					if (!mod?.ssrModule) {
+						try {
+							await loader.import(importedModule.id);
+						} catch {
+							/** Likely an out-of-date module entry! Silently continue. */
 						}
 					}
 				}
+
 				if (urlDeps.includes(urlId(importedModule.url)) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
