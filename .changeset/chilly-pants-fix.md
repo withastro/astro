@@ -11,8 +11,8 @@ function integration(): AstroIntegration {
     return {
         name: "fancy-astro-integration",
         hooks: {
-            'astro:build:done': ({ middlewarePath }) => { 
-                if (middlewarePath) {
+            'astro:build:done': ({ middlewareEntryPoint }) => { 
+                if (middlewareEntryPoint) {
                     // do some operations
                 }
             }
@@ -21,4 +21,4 @@ function integration(): AstroIntegration {
 }
 ```
 
-The `middlewarePath` is only defined if the user has created an Astro middleware.
+The `middlewareEntryPoint` is only defined if the user has created an Astro middleware.

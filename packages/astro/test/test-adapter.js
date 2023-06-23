@@ -79,12 +79,12 @@ export default function (
 					setEntryPoints(entryPoints);
 				}
 			},
-			'astro:build:done': ({ routes, middlewarePath }) => {
+			'astro:build:done': ({ routes, middlewareEntryPoint }) => {
 				if (setRoutes) {
 					setRoutes(routes);
 				}
 				if (setEntryPoints) {
-					setEntryPoints(middlewarePath);
+					setEntryPoints(middlewareEntryPoint);
 				}
 			},
 		},

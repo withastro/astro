@@ -188,7 +188,7 @@ class AstroBuilder {
 		});
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
-		let newMiddlewareEntryPoint = undefined;
+		let middlewareEntryPoint = undefined;
 		// during the last phase of the build, the emitted code gets copied inside
 		// `dist/server/` folder, so we need to shred the old URL and make a new one again
 		if (internals.middlewareEntryPoint && isServerLikeOutput(this.settings.config)) {
@@ -196,7 +196,7 @@ class AstroBuilder {
 			const middlewareRelativePath = fileURLToPath(internals.middlewareEntryPoint).slice(
 				fileURLToPath(this.settings.config.outDir).length
 			);
-			newMiddlewareEntryPoint = pathToFileURL(join(outDir, 'server', middlewareRelativePath));
+			middlewareEntryPoint = pathToFileURL(join(outDir, 'server', middlewareRelativePath));
 		}
 
 		// You're done! Time to clean up.
@@ -205,7 +205,7 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
-			middlewarePath: newMiddlewareEntryPoint,
+			middlewareEntryPoint,
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

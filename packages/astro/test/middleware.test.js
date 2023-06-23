@@ -215,7 +215,6 @@ describe('Middleware API in PROD mode, SSR', () => {
 		expect(middlewarePath).to.not.be.undefined;
 		try {
 			const path = fileURLToPath(middlewarePath);
-			console.log(path);
 			expect(existsSync(path)).to.be.true;
 			const content = readFileSync(fileURLToPath(middlewarePath), 'utf-8');
 			expect(content.length).to.be.greaterThan(0);

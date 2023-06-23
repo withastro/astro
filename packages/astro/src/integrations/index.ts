@@ -348,7 +348,7 @@ type RunHookBuildDone = {
 	pages: string[];
 	routes: RouteData[];
 	logging: LogOptions;
-	middlewarePath: URL | undefined;
+	middlewareEntryPoint: URL | undefined;
 };
 
 export async function runHookBuildDone({
@@ -356,7 +356,7 @@ export async function runHookBuildDone({
 	pages,
 	routes,
 	logging,
-	middlewarePath,
+	middlewareEntryPoint,
 }: RunHookBuildDone) {
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
@@ -369,7 +369,7 @@ export async function runHookBuildDone({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
-					middlewarePath,
+					middlewareEntryPoint,
 				}),
 				logging,
 			});
