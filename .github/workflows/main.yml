@@ -18,21 +18,14 @@ jobs:
   congrats:
     name: congratsbot
     if: ${{ github.repository_owner == 'withastro' }}
-    runs-on: ubuntu-latest
-    steps:
-      - id: setup
-        env:
-          MESSAGE: ${{ github.event.commits[0].message }}
-        run: |
-          TRIMMED=$(echo "$MESSAGE" | sed '1!d;q')
-          echo "::set-output name=COMMIT_MSG::${TRIMMED}"
-      - name: Send a Discord notification when a PR is merged
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
-          # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
-        uses: Ilshidur/action-discord@0.3.2
-        with:
-          args: "**Merged!** ${{ github.event.commits[0].author.name }}: [`${{ steps.setup.outputs.COMMIT_MSG }}`](<https://github.com/withastro/astro/commit/${{ github.event.commits[0].id }}>)"
+    uses: withastro/automation/.github/workflows/congratsbot.yml@main
+    with:
+      GITHUB_REPO: ${{ github.repository }}
+      COMMIT_AUTHOR: ${{ github.event.commits[0].author.name }}
+      COMMIT_MESSAGE: ${{ github.event.commits[0].message }}
+      COMMIT_ID: ${{ github.event.commits[0].id }}
+    secrets:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
 
   check_for_update:
     name: Check for Updates

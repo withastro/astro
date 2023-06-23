@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "2.6.6",
+  "version": "2.7.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -158,10 +158,8 @@
     "semver": "^7.5.2",
     "server-destroy": "^1.0.1",
     "shiki": "^0.14.1",
-    "slash": "^4.0.0",
     "string-width": "^5.1.2",
     "strip-ansi": "^7.1.0",
-    "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
     "typescript": "*",
     "unist-util-visit": "^4.1.2",
