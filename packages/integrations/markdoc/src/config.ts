@@ -5,10 +5,11 @@ import type {
 	NodeType,
 	Schema,
 } from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
 import _Markdoc from '@markdoc/markdoc';
 import { heading } from './heading-ids.js';
 import { isRelativePath } from '@astrojs/internal-helpers/path';
-import type { AstroInstance } from 'astro';
+import { componentConfigSymbol } from './utils.js';
 
 export type Render = ComponentConfig | AstroInstance['default'] | string;
 export type ComponentConfig = {
@@ -50,9 +51,3 @@ export function component(pathnameOrPkgName: string, namedExport?: string): Comp
 function isNpmPackageName(pathname: string) {
 	return !isRelativePath(pathname) && !pathname.startsWith('/');
 }
-
-export function isComponentConfig(value: unknown): value is ComponentConfig {
-	return typeof value === 'object' && value !== null && componentConfigSymbol in value;
-}
-
-const componentConfigSymbol = Symbol.for('@astrojs/markdoc/component-config');

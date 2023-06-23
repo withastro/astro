@@ -1,16 +1,18 @@
 /* eslint-disable no-console */
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
+import type { ErrorPayload as ViteErrorPayload } from 'vite';
+import matter from 'gray-matter';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { isValidUrl, MarkdocError, parseFrontmatter, prependForwardSlash } from './utils.js';
+import { isValidUrl, MarkdocError, prependForwardSlash, isComponentConfig } from './utils.js';
+import type { ComponentConfig } from './config.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import path from 'node:path';
 import type * as rollup from 'rollup';
 import { setupConfig } from './runtime.js';
-import { isComponentConfig, type ComponentConfig } from './config.js';
 import type { MarkdocConfigResult } from './load-config.js';
 
 export async function getContentEntryType({
@@ -238,4 +240,27 @@ function getStringifiedMap(
 	}
 	stringifiedComponentMap += '}';
 	return stringifiedComponentMap;
+}
+
+/**
+ * Match YAML exception handling from Astro core errors
+ * @see 'astro/src/core/errors.ts'
+ */
+function parseFrontmatter(fileContents: string, filePath: string) {
+	try {
+		// `matter` is empty string on cache results
+		// clear cache to prevent this
+		(matter as any).clearCache();
+		return matter(fileContents);
+	} catch (e: any) {
+		if (e.name === 'YAMLException') {
+			const err: Error & ViteErrorPayload['err'] = e;
+			err.id = filePath;
+			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
+			err.message = e.reason;
+			throw err;
+		} else {
+			throw e;
+		}
+	}
 }
