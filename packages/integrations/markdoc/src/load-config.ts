@@ -3,6 +3,7 @@ import { build as esbuild } from 'esbuild';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroMarkdocConfig } from './config.js';
+import { MarkdocError } from './utils.js';
 
 export const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.js',
@@ -42,9 +43,8 @@ export async function loadMarkdocConfig(
 }
 
 /**
- * Forked from Vite's `bundleConfigFile` function
- * with added handling for `.astro` imports,
- * and removed unused Deno patches.
+ * Bundle config file to support `.ts` files.
+ * Simplified fork from Vite's `bundleConfigFile` function:
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L961
  */
 async function bundleConfigFile({
@@ -71,11 +71,10 @@ async function bundleConfigFile({
 				name: 'stub-astro-imports',
 				setup(build) {
 					build.onResolve({ filter: /.*\.astro$/ }, () => {
-						return {
-							// Stub with an unused default export
-							path: 'data:text/javascript,export default true',
-							external: true,
-						};
+						throw new MarkdocError({
+							message: '`.astro` files are no longer supported in the Markdoc config.',
+							hint: 'Use the `component()` utility to specify a component path instead.',
+						});
 					});
 				},
 			},

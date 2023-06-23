@@ -37,7 +37,6 @@ export async function getContentEntryType({
 			// Avoids style and script bleed.
 			for (const tag of usedTags) {
 				const render = userMarkdocConfig.tags?.[tag]?.render;
-				console.log({ tag, render });
 				if (isComponentConfig(render)) {
 					componentConfigByTagMap[tag] = render;
 				}
