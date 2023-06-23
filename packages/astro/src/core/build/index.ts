@@ -242,20 +242,20 @@ class AstroBuilder {
 		}
 
 		if (config.build.split === true) {
-			if (config.output === 'server') {
+			if (config.output === 'static') {
 				warn(
 					this.logging,
 					'configuration',
-					'The option `build.split` won\'t take effect, because `output` is not `"server"`.'
+					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
 		}
 		if (config.build.splitMiddleware === true) {
-			if (config.output === 'server') {
+			if (config.output === 'static') {
 				warn(
 					this.logging,
 					'configuration',
-					'The option `build.splitMiddleware` won\'t take effect, because `output` is not `"server"`.'
+					'The option `build.splitMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
 		}
