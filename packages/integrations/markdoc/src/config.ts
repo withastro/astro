@@ -38,18 +38,7 @@ export function defineMarkdocConfig(config: AstroMarkdocConfig): AstroMarkdocCon
 	return config;
 }
 
-/**
- * Allow any string, but offer other suggestions with intellisense (`TSuggestions`).
- * The `& {}` preserves hints when union-ing with `string`
- * @see 'https://twitter.com/anthonysheww/status/1670457592638763008'
- */
-type StringWithSuggestions<TSuggestions extends string> = TSuggestions | (string & {});
-
-export function component(
-	// TODO: generate suggestions
-	pathnameOrPkgName: StringWithSuggestions<'./src/components/Aside.astro'>,
-	namedExport?: string
-): ComponentConfig {
+export function component(pathnameOrPkgName: string, namedExport?: string): ComponentConfig {
 	return {
 		type: isNpmPackageName(pathnameOrPkgName) ? 'package' : 'local',
 		path: pathnameOrPkgName,
