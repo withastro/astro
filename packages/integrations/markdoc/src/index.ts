@@ -4,7 +4,7 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import {
 	hasContentFlag,
 	isValidUrl,
@@ -15,11 +15,16 @@ import {
 } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
-import { bold, red, yellow } from 'kleur/colors';
+import { bold, red } from 'kleur/colors';
+import vitePluginRestart from 'vite-plugin-restart';
 import path from 'node:path';
 import type * as rollup from 'rollup';
 import { normalizePath } from 'vite';
-import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
+import {
+	loadMarkdocConfig,
+	SUPPORTED_MARKDOC_CONFIG_FILES,
+	type MarkdocConfigResult,
+} from './load-config.js';
 import { setupConfig } from './runtime.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -204,15 +209,16 @@ export const Content = createComponent({
 
 				updateConfig({
 					vite: {
-						vite: {
-							ssr: {
-								external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
-							},
+						ssr: {
+							external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
 						},
 						build: {
 							rollupOptions,
 						},
 						plugins: [
+							vitePluginRestart({
+								restart: SUPPORTED_MARKDOC_CONFIG_FILES,
+							}),
 							{
 								name: '@astrojs/markdoc:astro-propagated-assets',
 								enforce: 'pre',
@@ -229,17 +235,6 @@ export const Content = createComponent({
 							},
 						],
 					},
-				});
-			},
-			'astro:server:setup': async ({ server }) => {
-				server.watcher.on('all', (event, entry) => {
-					if (prependForwardSlash(pathToFileURL(entry).pathname) === markdocConfigResultId) {
-						console.log(
-							yellow(
-								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
-							)
-						);
-					}
 				});
 			},
 		},
