@@ -1,11 +1,10 @@
-import { defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
-import Heading from './src/components/Heading.astro';
+import { defineMarkdocConfig, component, nodes } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
 	nodes: {
 		heading: {
 			...nodes.heading,
-			render: Heading,
+			render: component('./src/components/Heading.astro'),
 		}
 	}
 });
