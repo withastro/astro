@@ -48,10 +48,6 @@ export async function* crawlGraph(
 			for (const importedModule of entry.importedModules) {
 				if (!importedModule.id) continue;
 
-				// A propagation stopping point is a module with the ?astroPropagatedAssets flag.
-				// When we encounter one of these modules we don't want to continue traversing.
-				let isPropagationStoppingPoint = false;
-
 				// some dynamically imported modules are *not* server rendered in time
 				// to only SSR modules that we can safely transform, we check against
 				// a list of file extensions based on our built-in vite plugins
@@ -67,8 +63,11 @@ export async function* crawlGraph(
 				if (entryIsStyle && !isCSSRequest(importedModulePathname)) {
 					continue;
 				}
+
 				const isFileTypeNeedingSSR = fileExtensionsToSSR.has(npath.extname(importedModulePathname));
-				isPropagationStoppingPoint = ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id);
+				// A propagation stopping point is a module with the ?astroPropagatedAssets flag.
+				// When we encounter one of these modules we don't want to continue traversing.
+				const isPropagationStoppingPoint = ASTRO_PROPAGATED_ASSET_REGEX.test(importedModule.id);
 				if (
 					isFileTypeNeedingSSR &&
 					// Should not SSR a module with ?astroPropagatedAssets
