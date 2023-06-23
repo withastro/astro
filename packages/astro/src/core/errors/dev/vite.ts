@@ -137,17 +137,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 	const message = renderErrorMarkdown(err.message.trim(), 'html');
 	const hint = err.hint ? renderErrorMarkdown(err.hint.trim(), 'html') : undefined;
 
-	const hasDocs =
-		(err.type &&
-			err.name && [
-				'AstroError',
-				'AggregateError',
-				/* 'CompilerError' ,*/
-				'CSSError',
-				'MarkdownError',
-			]) ||
-		['FailedToLoadModuleSSR', 'InvalidGlob'].includes(err.name);
-
+	const hasDocs = err.name in AstroErrorData;
 	const docslink = hasDocs
 		? `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`
 		: undefined;
