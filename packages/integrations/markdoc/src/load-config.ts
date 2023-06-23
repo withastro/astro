@@ -54,6 +54,8 @@ async function bundleConfigFile({
 	markdocConfigUrl: URL;
 	astroConfig: Pick<AstroConfig, 'root'>;
 }): Promise<{ code: string; dependencies: string[] }> {
+	let markdocError: MarkdocError | undefined;
+
 	const result = await esbuild({
 		absWorkingDir: fileURLToPath(astroConfig.root),
 		entryPoints: [fileURLToPath(markdocConfigUrl)],
@@ -71,16 +73,23 @@ async function bundleConfigFile({
 				name: 'stub-astro-imports',
 				setup(build) {
 					build.onResolve({ filter: /.*\.astro$/ }, () => {
-						// TODO: fix missing hint
-						throw new MarkdocError({
+						// Avoid throwing within esbuild.
+						// This swallows the `hint` and blows up the stacktrace.
+						markdocError = new MarkdocError({
 							message: '`.astro` files are no longer supported in the Markdoc config.',
 							hint: 'Use the `component()` utility to specify a component path instead.',
 						});
+						return {
+							// Stub with an unused default export.
+							path: 'data:text/javascript,export default true',
+							external: true,
+						};
 					});
 				},
 			},
 		],
 	});
+	if (markdocError) throw markdocError;
 	const { text } = result.outputFiles[0];
 	return {
 		code: text,
