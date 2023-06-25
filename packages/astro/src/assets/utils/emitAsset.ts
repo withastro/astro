@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import slash from 'slash';
-import { prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash, slash } from '../../core/path.js';
 import { imageMetadata, type Metadata } from './metadata.js';
 
 export async function emitESMImage(
@@ -46,7 +45,6 @@ export async function emitESMImage(
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {
-	// Uses `slash` package instead of Vite's `normalizePath`
-	// to avoid CJS bundling issues.
+	// Uses `slash` instead of Vite's `normalizePath` to avoid CJS bundling issues.
 	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
 }

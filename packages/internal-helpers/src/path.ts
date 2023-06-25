@@ -84,3 +84,7 @@ export function removeQueryString(path: string) {
 export function isRemotePath(src: string) {
 	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
 }
+
+export function slash(path: string) {
+	return path.replace(/\\/g, '/');
+}
