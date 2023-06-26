@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import glob from 'fast-glob';
 import { pathToFileURL } from 'url';
@@ -40,8 +40,8 @@ export default function vercelServerless({
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
-	let functionFolder: URL;
 	let serverEntry: string;
+	let _entryPoints: Map<RouteData, URL>;
 
 	return {
 		name: PACKAGE_NAME,
@@ -70,7 +70,6 @@ export default function vercelServerless({
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;
-				functionFolder = new URL('./functions/render.func/', config.outDir);
 				serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
@@ -79,6 +78,10 @@ export default function vercelServerless({
 
 	`);
 				}
+			},
+			'astro:build:ssr': async ({ entryPoints }) => {
+				_entryPoints = entryPoints;
+				console.log(entryPoints)
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Merge any includes from `vite.assetsInclude
@@ -98,30 +101,70 @@ export default function vercelServerless({
 					mergeGlobbedIncludes(_config.vite.assetsInclude);
 				}
 
-				// Copy necessary files (e.g. node_modules/)
-				const { handler } = await copyDependenciesToFunction({
-					entry: new URL(serverEntry, buildTempFolder),
-					outDir: functionFolder,
-					includeFiles: inc,
-					excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
-				});
+				if(_entryPoints.size) {
+					for(const [route, entryFile] of _entryPoints) {
+						const entry = new URL(serverEntry, buildTempFolder);
+						console.log("TEMP ENTRY", entry.toString(), entryFile.toString());
+						throw new Error('stop')
+						const functionFolder = new URL('./functions/render.func/', _config.outDir);
 
-				// Remove temporary folder
-				await removeDir(buildTempFolder);
+						// Copy necessary files (e.g. node_modules/)
+						const { handler } = await copyDependenciesToFunction({
+							entry,
+							outDir: functionFolder,
+							includeFiles: inc,
+							excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+						});
 
-				// Enable ESM
-				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-				await writeJson(new URL(`./package.json`, functionFolder), {
-					type: 'module',
-				});
+						console.log("HANDLER", handler)
 
-				// Serverless function config
-				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-					runtime: getRuntime(),
-					handler,
-					launcherType: 'Nodejs',
-				});
+						// Remove temporary folder
+						await removeDir(buildTempFolder);
+
+						// Enable ESM
+						// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+						await writeJson(new URL(`./package.json`, functionFolder), {
+							type: 'module',
+						});
+
+						// Serverless function config
+						// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+						await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+							runtime: getRuntime(),
+							handler,
+							launcherType: 'Nodejs',
+						});
+					}
+				} else {
+					const functionFolder = new URL('./functions/render.func/', _config.outDir);
+
+					// Copy necessary files (e.g. node_modules/)
+					const { handler } = await copyDependenciesToFunction({
+						entry: new URL(serverEntry, buildTempFolder),
+						outDir: functionFolder,
+						includeFiles: inc,
+						excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+					});
+
+					console.log("HANDLER", handler, new URL(serverEntry, buildTempFolder).toString())
+
+					// Remove temporary folder
+					await removeDir(buildTempFolder);
+
+					// Enable ESM
+					// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+					await writeJson(new URL(`./package.json`, functionFolder), {
+						type: 'module',
+					});
+
+					// Serverless function config
+					// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+					await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+						runtime: getRuntime(),
+						handler,
+						launcherType: 'Nodejs',
+					});
+				}
 
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
