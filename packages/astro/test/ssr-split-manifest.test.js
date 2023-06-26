@@ -8,7 +8,8 @@ import { existsSync } from 'node:fs';
 describe('astro:ssr-manifest, split', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	let entryPoints;
+	let ssrBuildEntryPoints;
+	let doneBuildEntryPoints;
 	let currentRoutes;
 
 	before(async () => {
@@ -16,8 +17,13 @@ describe('astro:ssr-manifest, split', () => {
 			root: './fixtures/ssr-split-manifest/',
 			output: 'server',
 			adapter: testAdapter({
-				setEntryPoints(entries) {
-					entryPoints = entries;
+				setEntryPoints(hookName, entries) {
+					if (hookName === 'astro:build:ssr') {
+						ssrBuildEntryPoints = entries;
+					}
+					if (hookName === 'astro:build:done') {
+						doneBuildEntryPoints = entries;
+					}
 				},
 				setRoutes(routes) {
 					currentRoutes = routes;
@@ -38,10 +44,19 @@ describe('astro:ssr-manifest, split', () => {
 		expect($('#assets').text()).to.equal('["/_astro/index.a8a337e4.css"]');
 	});
 
-	it('should give access to entry points that exists on file system', async () => {
+	it('should receive SSR entry points, but should not exist because they are moved', async () => {
 		// number of the pages inside src/
-		expect(entryPoints.size).to.equal(4);
-		for (const fileUrl in entryPoints.values()) {
+		expect(ssrBuildEntryPoints.size).to.equal(4);
+		for (const fileUrl of ssrBuildEntryPoints.values()) {
+			let filePath = fileURLToPath(fileUrl);
+			expect(existsSync(filePath)).to.be.false;
+		}
+	});
+
+	it('should receive done entry points, and they should exist because moved', async () => {
+		// number of the pages inside src/
+		expect(doneBuildEntryPoints.size).to.equal(4);
+		for (const fileUrl of doneBuildEntryPoints.values()) {
 			let filePath = fileURLToPath(fileUrl);
 			expect(existsSync(filePath)).to.be.true;
 		}

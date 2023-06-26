@@ -1,11 +1,19 @@
 import { viteID } from '../dist/core/util.js';
 
 /**
+ * @typedef {(hookName: string, entryPoints: Map<RouteData, URL>) => undefined} SetEntryPoints
+ */
+
+/**
  *
+ * @param provideAddress
+ * @param extendAdapter
+ * @param {SetEntryPoints} setEntryPoints
+ * @param setRoutes
  * @returns {import('../src/@types/astro').AstroIntegration}
  */
 export default function (
-	{ provideAddress = true, extendAdapter, setEntryPoints = undefined, setRoutes = undefined } = {
+	{ provideAddress = true, extendAdapter, setEntryPoints, setRoutes } = {
 		provideAddress: true,
 	}
 ) {
@@ -76,12 +84,15 @@ export default function (
 			},
 			'astro:build:ssr': ({ entryPoints }) => {
 				if (setEntryPoints) {
-					setEntryPoints(entryPoints);
+					setEntryPoints('astro:build:ssr', entryPoints);
 				}
 			},
-			'astro:build:done': ({ routes }) => {
+			'astro:build:done': ({ routes, entryPoints }) => {
 				if (setRoutes) {
 					setRoutes(routes);
+				}
+				if (setEntryPoints) {
+					setEntryPoints('astro:build:done', entryPoints);
 				}
 			},
 		},

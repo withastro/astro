@@ -29,7 +29,7 @@ import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
 export interface BuildOptions {
@@ -197,11 +197,10 @@ class AstroBuilder {
 				const relativeFilePath = fileURLToPath(filePath).slice(
 					fileURLToPath(this.settings.config.outDir).length
 				);
+
 				movedEntryPoints.set(
 					route,
-					pathToFileURL(
-						join(outDir, fileURLToPath(opts.settings.config.build.server), relativeFilePath)
-					)
+					pathToFileURL(join(fileURLToPath(opts.settings.config.build.server), relativeFilePath))
 				);
 			}
 		}
