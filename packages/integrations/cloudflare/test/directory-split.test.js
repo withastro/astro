@@ -12,6 +12,7 @@ describe('ssr split', () => {
 			adapter: cloudflare({ mode: 'directory' }),
 			build: {
 				split: true,
+				excludeMiddleware: true
 			},
 			vite: {
 				build: {

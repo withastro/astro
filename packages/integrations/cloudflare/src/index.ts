@@ -117,7 +117,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (isModeDirectory && _buildConfig.split) {
 					const entryPaths = [..._entryPoints.values()].map((entry) => fileURLToPath(entry));
 					const outputDir = fileURLToPath(new URL('.astro', _buildConfig.server));
-					await esbuild.build({
+
+					// NOTE: AFAIK, esbuild keeps the order of the entryPoints array
+					const { outputFiles } = await esbuild.build({
 						target: 'es2020',
 						platform: 'browser',
 						conditions: ['workerd', 'worker', 'browser'],
@@ -133,24 +135,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
+						write: false,
 					});
 
-					for (const [key, value] of _entryPoints.entries()) {
-						const newFileName = key.component
-							.replace('src/pages/', '')
-							.replace('.astro', '.js');
-						const newFileUrl = new URL(newFileName, functionsUrl);
-						const newFileDir = dirname(fileURLToPath(newFileUrl));
-						const oldFilePath = fileURLToPath(value);
-						const relativeFilePath = relative(fileURLToPath(new URL('src/pages', _buildConfig.server)), oldFilePath).replace(/\.mjs$/, '.js');
-						const newFilePath = join(outputDir, relativeFilePath);
-						const oldFileUrl = pathToFileURL(newFilePath);
+					for (const [index, outputFile] of outputFiles.entries()) {
+						const fileName = [..._entryPoints.entries()][index][0].component.replace('src/pages/', '').replace('.astro', '.js');
+						const fileUrl = new URL(fileName, functionsUrl)
+						const newFileDir = dirname(fileURLToPath(fileUrl));
 						if (!fs.existsSync(newFileDir)) {
 							fs.mkdirSync(newFileDir, { recursive: true });
 						}
-
-						await fs.promises.rename(oldFileUrl, newFileUrl);
+						await fs.promises.writeFile(fileUrl, outputFile.contents);
 					}
+
 				} else {
 					const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
 
