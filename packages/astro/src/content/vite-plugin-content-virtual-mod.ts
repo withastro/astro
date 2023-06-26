@@ -6,6 +6,7 @@ import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { appendForwardSlash } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -21,7 +22,6 @@ import {
 	type ContentLookupMap,
 	type ContentPaths,
 } from './utils.js';
-import { appendForwardSlash } from '../core/path.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -211,5 +211,9 @@ const UnexpectedLookupMapError = new AstroError({
 function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
 	const contentDir = appendForwardSlash(relContentDir);
-	return [`${contentDir}**/*${extGlob}`, `!${contentDir}_*/**${extGlob}`, `!${contentDir}_*${extGlob}`];
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}_*/**${extGlob}`,
+		`!${contentDir}_*${extGlob}`,
+	];
 }
