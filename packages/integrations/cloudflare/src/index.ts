@@ -3,7 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
-import { dirname } from 'path';
+import { dirname, join, relative } from 'path';
 import glob from 'tiny-glob';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -44,7 +44,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _buildConfig: BuildConfig;
 	const isModeDirectory = args?.mode === 'directory';
 	let _entryPoints = new Map<RouteData, URL>();
-	let newEntryDir: string;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -94,14 +93,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = 'webworker';
 				}
 			},
-			// BUG: `entrypoints` currently does not respect SERVER_BUILD_FOLDER, aka `build.server`
 			'astro:build:ssr': ({ manifest, entryPoints }) => {
-				// NOTE: monkey-patch because of entrypoints bug:
-				const pathToReplace = fileURLToPath(new URL(_config.outDir));
-				newEntryDir = fileURLToPath(new URL(_buildConfig.server, _config.outDir));
-
+				// NOTE: monkey-patch because entryPoints URL does not respect `build.server`
 				entryPoints.forEach((value, key) => {
-					_entryPoints.set(key, new URL(value.href.replace(pathToReplace, newEntryDir)));
+					const oldFilePath = fileURLToPath(value);
+					const relativeFilePath = relative(fileURLToPath(_config.outDir), oldFilePath);
+					const newFilePath = join(fileURLToPath(_buildConfig.server), relativeFilePath);
+					const newEntryUrl = pathToFileURL(newFilePath);
+					_entryPoints.set(key, newEntryUrl);
 				});
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
@@ -142,7 +141,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							.replace('.astro', '.js');
 						const newFileUrl = new URL(newFileName, functionsUrl);
 						const newFileDir = dirname(fileURLToPath(newFileUrl));
-						const oldFileUrl = new URL(value.href.replace(`${newEntryDir}src/pages`, outputDir).replace('.mjs', '.js'))
+						const oldFilePath = fileURLToPath(value);
+						const relativeFilePath = relative(fileURLToPath(new URL('src/pages', _buildConfig.server)), oldFilePath).replace(/\.mjs$/, '.js');
+						const newFilePath = join(outputDir, relativeFilePath);
+						const oldFileUrl = pathToFileURL(newFilePath);
 						if (!fs.existsSync(newFileDir)) {
 							fs.mkdirSync(newFileDir, { recursive: true });
 						}
