@@ -8,8 +8,7 @@ This adapter allows Astro to deploy your SSR site to Node targets.
 - <strong>[Usage](#usage)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
-- <strong>[Changelog](#changelog)</strong> 
-
+- <strong>[Changelog](#changelog)</strong>
 
 ## Why @astrojs/node
 
@@ -36,24 +35,24 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Install the Node adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
 
-    ```bash
-      npm install @astrojs/node
-    ```
+   ```bash
+     npm install @astrojs/node
+   ```
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js ins={3, 6-9}
-    // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-    import node from '@astrojs/node';
+   ```js ins={3, 6-9}
+   // astro.config.mjs
+   import { defineConfig } from 'astro/config';
+   import node from '@astrojs/node';
 
-    export default defineConfig({
-      output: 'server',
-      adapter: node({
-        mode: 'standalone'
-      }),
-    });
-    ```
+   export default defineConfig({
+     output: 'server',
+     adapter: node({
+       mode: 'standalone',
+     }),
+   });
+   ```
 
 ## Configuration
 
@@ -64,17 +63,19 @@ If you prefer to install the adapter manually instead, complete the following tw
 Controls whether the adapter builds to `middleware` or `standalone` mode.
 
 - `middleware` mode allows the built output to be used as middleware for another Node.js server, like Express.js or Fastify.
-    ```js
-    import { defineConfig } from 'astro/config';
-    import node from '@astrojs/node';
 
-    export default defineConfig({
-      output: 'server',
-      adapter: node({
-        mode: 'middleware'
-      }),
-    });
-    ```
+  ```js
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+    output: 'server',
+    adapter: node({
+      mode: 'middleware',
+    }),
+  });
+  ```
+
 - `standalone` mode builds to server that automatically starts with the entry module is run. This allows you to more easily deploy your build to a host without any additional code.
 
 ## Usage
@@ -92,10 +93,10 @@ import express from 'express';
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
 const app = express();
-// Change this based on your astro.config.mjs, `base` option. 
+// Change this based on your astro.config.mjs, `base` option.
 // They should match. The default value is "/".
-const base = "/";
-app.use(base, express.static('dist/client/'))
+const base = '/';
+app.use(base, express.static('dist/client/'));
 app.use(ssrHandler);
 
 app.listen(8080);
@@ -153,7 +154,6 @@ node ./dist/server/entry.mjs
 
 For standalone mode the server handles file servering in addition to the page and API routes.
 
-
 #### Custom host and port
 
 You can override the host and port the standalone server runs on by passing them as environment variables at runtime:
@@ -182,16 +182,16 @@ You may see this when running the entry script if it was built with npm or Yarn.
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 
-import node from "@astrojs/node";
+import node from '@astrojs/node';
 
 export default defineConfig({
-  output: "server",
+  output: 'server',
   adapter: node(),
   vite: {
     ssr: {
-      noExternal: ["path-to-regexp"]
-    }
-  }
+      noExternal: ['path-to-regexp'],
+    },
+  },
 });
 ```
 
