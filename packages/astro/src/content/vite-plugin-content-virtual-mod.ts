@@ -21,6 +21,7 @@ import {
 	type ContentLookupMap,
 	type ContentPaths,
 } from './utils.js';
+import { appendForwardSlash } from '../core/path.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -209,5 +210,6 @@ const UnexpectedLookupMapError = new AstroError({
 
 function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
-	return [`${relContentDir}/**/*${extGlob}`, `!**/_*/**${extGlob}`, `!**/_*${extGlob}`];
+	const contentDir = appendForwardSlash(relContentDir);
+	return [`${contentDir}**/*${extGlob}`, `!${contentDir}_*/**${extGlob}`, `!${contentDir}_*${extGlob}`];
 }
