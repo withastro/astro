@@ -10,7 +10,7 @@
 
 Name (key of the object definition):
 
-- As with the error code, this property is a static reference to the error. The shape should be similar to JavaScript's native errors (TypeError, ReferenceError): pascal-cased, no spaces, no special characters etc. (ex: `ClientAddressNotAvailable`)
+- This property is a static reference to the error. The shape should be similar to JavaScript's native errors (TypeError, ReferenceError): pascal-cased, no spaces, no special characters etc. (ex: `ClientAddressNotAvailable`)
 - This is the only part of the error message that should not be written as a full, proper sentence complete with Capitalization and end punctuation.
 
 Title:
@@ -35,24 +35,7 @@ Hint:
 - Describe the _what_, _why_ and _action to take_ from the user's perspective. Assume they don't know Astro internals, and care only about how Astro is _used_. (ex: `You are missing...` vs `Astro/file cannot find...`)
 - Avoid using cutesy language. (ex: Oops!) This tone minimizes the significance of the error, which _is_ important to the developer. The developer may be frustrated and your error message shouldn't be making jokes about their struggles. Only include words and phrases that help the developer **interpret the error** and **fix the problem**.
 
-**Choosing an Error Code**
-
-Choose any available error code in the appropriate range:
-
-- 01xxx and 02xxx are reserved for compiler errors and warnings respectively
-- 03xxx: Astro errors (your error most likely goes here!)
-- 04xxx: Vite errors
-- 05xxx: CSS errors
-- 06xxx: Markdown errors
-- 07xxx: Configuration errors
-- 07xxx-98xxx <- Need to add a category? Add it here!
-- 99xxx: Catch-alls for unknown errors
-
-As long as it is unique, the exact error code used is unimportant. For example, error 5005 and error 5006 don't necessarily have to be related, or follow any logical pattern.
-
-Users are not reading codes sequentially. They're much more likely to directly land on the error or search for a specific code.
-
-If you are unsure about which error code to choose, ask [Erika](https://github.com/Princesseuh)!
+If you are unsure about anything, ask [Erika](https://github.com/Princesseuh)!
 
 ### CLI specifics tips:
 
@@ -61,7 +44,7 @@ If you are unsure about which error code to choose, ask [Erika](https://github.c
 
 ### Shape
 
-- **Error codes and names are permanent**, and should never be changed, nor deleted. Users should always be able to find an error by searching, and this ensures a matching result. When an error is no longer relevant, it should be deprecated, not removed.
+- **Names are permanent**, and should never be changed, nor deleted. Users should always be able to find an error by searching, and this ensures a matching result. When an error is no longer relevant, it should be deprecated, not removed.
 - Contextual information may be used to enhance the message or the hint. However, the code that caused the error or the position of the error should not be included in the message as they will already be shown as part of the error.
 - Do not prefix `title`, `message` and `hint` with descriptive words such as "Error:" or "Hint:" as it may lead to duplicated labels in the UI / CLI.
 - Dynamic error messages must use the following shape:
@@ -78,7 +61,7 @@ Using light logic to add / remove different parts of the message is okay, howeve
 
 ### Documentation support through JSDoc
 
-Using JSDoc comments, [a reference for every error message](https://docs.astro.build/en/reference/error-reference/) is built automatically on our docs. Users can then search for a error code to find more information on how to fix the error they encountered.
+Using JSDoc comments, [a reference for every error message](https://docs.astro.build/en/reference/error-reference/) is built automatically on our docs.
 
 Here's how to create and format the comments:
 

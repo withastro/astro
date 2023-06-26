@@ -29,7 +29,6 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
  * @see 'astro/src/core/errors/errors.ts'
  */
 export class MarkdocError extends Error {
-	public errorCode: number;
 	public loc: ErrorLocation | undefined;
 	public title: string | undefined;
 	public hint: string | undefined;
@@ -40,20 +39,8 @@ export class MarkdocError extends Error {
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const {
-			// Use default code for unknown errors in Astro core
-			// We don't have a best practice for integration error codes yet
-			code = 99999,
-			name,
-			title = 'MarkdocError',
-			message,
-			stack,
-			location,
-			hint,
-			frame,
-		} = props;
+		const { name, title = 'MarkdocError', message, stack, location, hint, frame } = props;
 
-		this.errorCode = code;
 		this.title = title;
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
