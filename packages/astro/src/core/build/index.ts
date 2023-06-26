@@ -250,12 +250,12 @@ class AstroBuilder {
 				);
 			}
 		}
-		if (config.build.splitMiddleware === true) {
+		if (config.build.excludeMiddleware === true) {
 			if (config.output === 'static') {
 				warn(
 					this.logging,
 					'configuration',
-					'The option `build.splitMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
+					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
 				);
 			}
 		}

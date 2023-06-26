@@ -255,7 +255,7 @@ describe('Middleware, split middleware option', () => {
 			root: './fixtures/middleware-dev/',
 			output: 'server',
 			build: {
-				splitMiddleware: true,
+				excludeMiddleware: true,
 			},
 			adapter: testAdapter({}),
 		});

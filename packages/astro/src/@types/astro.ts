@@ -865,7 +865,7 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name build.splitMiddleware
+		 * @name build.excludeMiddleware
 		 * @type {boolean}
 		 * @default {false}
 		 * @version 2.7.0
@@ -879,12 +879,12 @@ export interface AstroUserConfig {
 		 * ```js
 		 * {
 		 *   build: {
-		 *     splitMiddleware: true
+		 *     excludeMiddleware: true
 		 *   }
 		 * }
 		 * ```
 		 */
-		splitMiddleware?: boolean;
+		excludeMiddleware?: boolean;
 	};
 
 	/**

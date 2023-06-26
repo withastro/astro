@@ -74,7 +74,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						exports.push(`export { renderers };`);
 
 						// The middleware should not be imported by the pages
-						if (!opts.settings.config.build.splitMiddleware) {
+						if (!opts.settings.config.build.excludeMiddleware) {
 							const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
 							if (middlewareModule) {
 								imports.push(`import { onRequest } from "${middlewareModule.id}";`);
