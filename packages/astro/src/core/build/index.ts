@@ -8,6 +8,8 @@ import type {
 } from '../../@types/astro';
 
 import fs from 'fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { join } from 'node:path';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
@@ -28,6 +30,7 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
@@ -185,13 +188,24 @@ class AstroBuilder {
 		});
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
+		let middlewareEntryPoint = undefined;
+		// during the last phase of the build, the emitted code gets copied inside
+		// `dist/server/` folder, so we need to shred the old URL and make a new one again
+		if (internals.middlewareEntryPoint && isServerLikeOutput(this.settings.config)) {
+			const outDir = fileURLToPath(this.settings.config.outDir);
+			const middlewareRelativePath = fileURLToPath(internals.middlewareEntryPoint).slice(
+				fileURLToPath(this.settings.config.outDir).length
+			);
+			middlewareEntryPoint = pathToFileURL(join(outDir, 'server', middlewareRelativePath));
+		}
+
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
-			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
+			middlewareEntryPoint,
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

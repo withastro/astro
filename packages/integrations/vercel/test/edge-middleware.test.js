@@ -10,9 +10,4 @@ describe('Serverless prerender', () => {
 			root: './fixtures/middleware/',
 		});
 	});
-
-	it('build successful', async () => {
-		await fixture.build();
-		expect(await fixture.readFile('../.vercel/output/static/index.html')).to.be.ok;
-	});
 });

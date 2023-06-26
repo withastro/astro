@@ -1869,6 +1869,7 @@ export interface AstroIntegration {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
+			middlewareEntryPoint: URL | undefined;
 		}) => void | Promise<void>;
 	};
 }

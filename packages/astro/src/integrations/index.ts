@@ -343,20 +343,22 @@ export async function runHookBuildGenerated({
 	}
 }
 
-export async function runHookBuildDone({
-	config,
-	buildConfig,
-	pages,
-	routes,
-	logging,
-}: {
+type RunHookBuildDone = {
 	config: AstroConfig;
-	buildConfig: BuildConfig;
 	pages: string[];
 	routes: RouteData[];
 	logging: LogOptions;
-}) {
-	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
+	middlewareEntryPoint: URL | undefined;
+};
+
+export async function runHookBuildDone({
+	config,
+	pages,
+	routes,
+	logging,
+	middlewareEntryPoint,
+}: RunHookBuildDone) {
+	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {
@@ -367,6 +369,7 @@ export async function runHookBuildDone({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
+					middlewareEntryPoint,
 				}),
 				logging,
 			});

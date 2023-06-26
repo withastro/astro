@@ -2,6 +2,8 @@ import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
+import { fileURLToPath } from 'node:url';
+import { readFileSync, existsSync } from 'node:fs';
 
 describe('Middleware in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -104,12 +106,19 @@ describe('Middleware in PROD mode, SSG', () => {
 describe('Middleware API in PROD mode, SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	let middlewarePath;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter({}),
+			adapter: testAdapter({
+				setEntryPoints(entryPointsOrMiddleware) {
+					if (entryPointsOrMiddleware instanceof URL) {
+						middlewarePath = entryPointsOrMiddleware;
+					}
+				},
+			}),
 		});
 		await fixture.build();
 	});
@@ -200,6 +209,18 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const response = await app.render(request);
 		const text = await response.text();
 		expect(text.includes('REDACTED')).to.be.true;
+	});
+
+	it('the integration should receive the path to the middleware', async () => {
+		expect(middlewarePath).to.not.be.undefined;
+		try {
+			const path = fileURLToPath(middlewarePath);
+			expect(existsSync(path)).to.be.true;
+			const content = readFileSync(fileURLToPath(middlewarePath), 'utf-8');
+			expect(content.length).to.be.greaterThan(0);
+		} catch (e) {
+			throw e;
+		}
 	});
 });
 
