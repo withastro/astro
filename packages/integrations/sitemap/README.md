@@ -91,7 +91,8 @@ After verifying that the sitemaps are built, you can add them to your site's `<h
 </head>
 ```
 
-```txt ins={4} title="public/robots.txt"
+<!-- prettier-ignore -->
+``` ins={4} title="public/robots.txt"
 User-agent: *
 Allow: /
 
