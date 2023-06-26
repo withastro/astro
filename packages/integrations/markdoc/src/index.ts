@@ -16,7 +16,6 @@ import {
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import { bold, red } from 'kleur/colors';
-import vitePluginRestart from 'vite-plugin-restart';
 import path from 'node:path';
 import type * as rollup from 'rollup';
 import { normalizePath } from 'vite';
@@ -50,15 +49,13 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 	}
 	let markdocConfigResult: MarkdocConfigResult | undefined;
 	let markdocConfigResultId = '';
+	let astroConfig: AstroConfig;
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const {
-					config: astroConfig,
-					updateConfig,
-					addContentEntryType,
-				} = params as SetupHookParams;
+				const { updateConfig, addContentEntryType } = params as SetupHookParams;
+				astroConfig = params.config;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 				if (markdocConfigResult) {
@@ -216,9 +213,6 @@ export const Content = createComponent({
 							rollupOptions,
 						},
 						plugins: [
-							vitePluginRestart({
-								restart: SUPPORTED_MARKDOC_CONFIG_FILES,
-							}),
 							{
 								name: '@astrojs/markdoc:astro-propagated-assets',
 								enforce: 'pre',
@@ -235,6 +229,16 @@ export const Content = createComponent({
 							},
 						],
 					},
+				});
+			},
+			'astro:server:setup': async ({ server }) => {
+				server.watcher.on('all', (event, entry) => {
+					for (const markdocConfigBase of SUPPORTED_MARKDOC_CONFIG_FILES) {
+						const absolutePath = new URL(markdocConfigBase, astroConfig.root);
+						if (entry === fileURLToPath(absolutePath)) {
+							server.restart();
+						}
+					}
 				});
 			},
 		},
