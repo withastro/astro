@@ -88,7 +88,6 @@ function enhanceCSSError(err: any, filename: string) {
 	errorPosition.line += 1;
 
 	return new CSSError({
-		code: AstroErrorData.UnknownCSSError.code,
 		message: err.message,
 		location: {
 			file: filename,

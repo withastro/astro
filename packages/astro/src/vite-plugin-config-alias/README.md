@@ -18,9 +18,9 @@ Consider the following example configuration:
 With this configuration, the following imports would map to the same location.
 
 ```js
-import Test from '../components/Test.astro'
+import Test from '../components/Test.astro';
 
-import Test from 'components/Test.astro'
+import Test from 'components/Test.astro';
 
-import Test from 'components:Test'
+import Test from 'components:Test';
 ```

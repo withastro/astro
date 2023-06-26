@@ -371,7 +371,6 @@ function stringifyEntryData(data: Record<string, any>): string {
 			});
 		} else {
 			throw new AstroError({
-				code: 99999,
 				message: 'Unexpected error processing content collection data.',
 			});
 		}

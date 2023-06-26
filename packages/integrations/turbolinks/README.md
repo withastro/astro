@@ -19,6 +19,7 @@ There are two ways to add integrations to your project. Let's try the most conve
 ### (experimental) `astro add` command
 
 Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
+
 1. (Optionally) Install all necessary dependencies and peer dependencies
 2. (Also optionally) Update your `astro.config.*` file to apply this integration
 
@@ -45,7 +46,7 @@ npm install @astrojs/turbolinks
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';

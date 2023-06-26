@@ -42,7 +42,7 @@ npm install @astrojs/mdx
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={2} "mdx()"
 import { defineConfig } from 'astro/config';
@@ -59,14 +59,16 @@ export default defineConfig({
 [VS Code](https://code.visualstudio.com/) supports Markdown by default. However, for MDX editor support, you may wish to add the following setting in your VSCode config. This ensures authoring MDX files provides a Markdown-like editor experience.
 
 ```json title=".vscode/settings.json"
-"files.associations": {
+{
+  "files.associations": {
     "*.mdx": "markdown"
+  }
 }
 ```
 
 ## Usage
 
-With the Astro MDX integration, you can [add MDX pages to your project](https://docs.astro.build/en/guides/markdown-content/#markdown-and-mdx-pages) by adding `.mdx` files within your `src/pages/` directory. You can also [import `.mdx` files](https://docs.astro.build/en/guides/markdown-content/#importing-markdown) into `.astro` files. 
+With the Astro MDX integration, you can [add MDX pages to your project](https://docs.astro.build/en/guides/markdown-content/#markdown-and-mdx-pages) by adding `.mdx` files within your `src/pages/` directory. You can also [import `.mdx` files](https://docs.astro.build/en/guides/markdown-content/#importing-markdown) into `.astro` files.
 
 Astro's MDX integration adds extra features to standard MDX, including Markdown-style frontmatter. This allows you to use most of Astro's built-in Markdown features like a [special frontmatter `layout` property](https://docs.astro.build/en/guides/markdown-content/#frontmatter-layout) and a [property for marking a page as a draft](https://docs.astro.build/en/guides/markdown-content/#draft-pages).
 
@@ -93,7 +95,7 @@ All [`markdown` configuration options](https://docs.astro.build/en/reference/con
 There is no separate MDX configuration for [including pages marked as draft in the build](https://docs.astro.build/en/reference/configuration-reference/#markdowndrafts). This Markdown setting will be respected by both Markdown and MDX files and cannot be overridden for MDX files specifically.
 :::
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -110,9 +112,9 @@ export default defineConfig({
       rehypePlugins: [rehypeMinifyHtml],
       remarkRehype: { footnoteLabel: 'Footnotes' },
       gfm: false,
-    })
-  ]
-})
+    }),
+  ],
+});
 ```
 
 :::caution
@@ -130,7 +132,7 @@ MDX will extend [your project's existing Markdown configuration](https://docs.as
 
 For example, say you need to disable GitHub-Flavored Markdown and apply a different set of remark plugins for MDX files. You can apply these options like so, with `extendMarkdownConfig` enabled by default:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -151,14 +153,14 @@ export default defineConfig({
       remarkPlugins: [remarkPlugin2],
       // `gfm` overridden to `false`
       gfm: false,
-    })
-  ]
+    }),
+  ],
 });
 ```
 
 You may also need to disable `markdown` config extension in MDX. For this, set `extendMarkdownConfig` to `false`:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -173,8 +175,8 @@ export default defineConfig({
       // Markdown config now ignored
       extendMarkdownConfig: false,
       // No `remarkPlugins` applied
-    })
-  ]
+    }),
+  ],
 });
 ```
 
@@ -192,7 +194,7 @@ This is an optional configuration setting to optimize the MDX output for faster 
 
 This is disabled by default. To enable MDX optimization, add the following to your MDX integration configuration:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -202,8 +204,8 @@ export default defineConfig({
   integrations: [
     mdx({
       optimize: true,
-    })
-  ]
+    }),
+  ],
 });
 ```
 
@@ -213,7 +215,7 @@ export default defineConfig({
 
 An optional property of `optimize` to prevent the MDX optimizer from handling any [custom components passed to imported MDX content via the components prop](https://docs.astro.build/en/guides/markdown-content/#custom-components-with-imported-mdx).
 
-You will need to exclude these components from optimization as the optimizer eagerly converts content into a static string, which will break custom components that needs to be dynamically rendered. 
+You will need to exclude these components from optimization as the optimizer eagerly converts content into a static string, which will break custom components that needs to be dynamically rendered.
 
 For example, the intended MDX output of the following is `<Heading>...</Heading>` in place of every `"<h1>...</h1>"`:
 
@@ -223,12 +225,12 @@ import { Content, components } from '../content.mdx';
 import Heading from '../Heading.astro';
 ---
 
-<Content components={{...components, h1: Heading }} />
+<Content components={{ ...components, h1: Heading }} />
 ```
 
 To configure optimization for this using the `customComponentNames` property, specify an array of HTML element names that should be treated as custom components:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -242,8 +244,8 @@ export default defineConfig({
         // These will be treated as custom components
         customComponentNames: ['h1'],
       },
-    })
-  ]
+    }),
+  ],
 });
 ```
 
@@ -251,7 +253,7 @@ Note that if your MDX file [configures custom components using `export const com
 
 ## Examples
 
-*   The [Astro MDX starter template](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.
+- The [Astro MDX starter template](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.
 
 ## Troubleshooting
 
@@ -268,5 +270,4 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 See [CHANGELOG.md](https://github.com/withastro/astro/tree/main/packages/integrations/mdx/CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components

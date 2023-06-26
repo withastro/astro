@@ -22,21 +22,21 @@ This integration provides `<Image />` and `<Picture>` components as well as a ba
 
 ## Installation
 
-Along with our integration, we recommend installing [sharp](https://sharp.pixelplumbing.com/) when appropriate. 
+Along with our integration, we recommend installing [sharp](https://sharp.pixelplumbing.com/) when appropriate.
 
 The `@astrojs/image` default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses WebAssembly libraries to support most deployment environments, including those that do not support sharp, such as StackBlitz.
 
 For faster builds and more fine-grained control of image transformations, install sharp in addition to `@astrojs/image` if
+
 - You are building a static site with Astro.
 - You are using an SSR deployment host that supports NodeJS using `@astrojs/netlify/functions`, `@astrojs/vercel/serverless` or `@astrojs/node`.
 
-
 Note that `@astrojs/image` is not currently supported on
+
 - Cloudflare SSR
 - `@astrojs/deno`
 - `@astrojs/netlify/edge-functions`
 - `@astrojs/vercel/edge`
-
 
 ### Quick Install
 
@@ -53,15 +53,17 @@ pnpm astro add image
 
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
- ### Manual Install
+### Manual Install
 
 First, install the `@astrojs/image` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
+
 ```sh
 npm install @astrojs/image
 ```
+
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={2} "image()"
 import { defineConfig } from 'astro/config';
@@ -83,7 +85,7 @@ npm install sharp
 
 Then, update the integration in your `astro.config.*` file to use the built-in `sharp` image transformer.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={7}
 import { defineConfig } from 'astro/config';
@@ -91,10 +93,12 @@ import image from '@astrojs/image';
 
 export default defineConfig({
   // ...
-  integrations: [image({
-    serviceEntryPoint: '@astrojs/image/sharp'
-  })],
-})
+  integrations: [
+    image({
+      serviceEntryPoint: '@astrojs/image/sharp',
+    }),
+  ],
+});
 ```
 
 ### Update `env.d.ts`
@@ -143,6 +147,7 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 **Type:** `string` | `ImageMetadata` | `Promise<ImageMetadata>`<br>
 **Required:** `true`
+
 </p>
 
 Source for the original image file.
@@ -150,7 +155,6 @@ Source for the original image file.
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
 For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
-
 
 For images located in your `public/` directory: use the URL path relative to the `public/` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
 
@@ -160,6 +164,7 @@ For images located in your `public/` directory: use the URL path relative to the
 
 **Type:** `string`<br>
 **Required:** `true`
+
 </p>
 
 Defines an alternative text description of the image.
@@ -172,6 +177,7 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 **Type:** `'avif' | 'jpeg' | 'jpg' | 'png' | 'svg' | 'webp'`<br>
 **Default:** `undefined`
+
 </p>
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
@@ -186,6 +192,7 @@ Added in v0.15.0: You can use the `<Image />` component when working with SVG im
 
 **Type:** `number`<br>
 **Default:** `undefined`
+
 </p>
 
 The compression quality used during optimization. The image service will use its own default quality depending on the image format if not provided.
@@ -196,6 +203,7 @@ The compression quality used during optimization. The image service will use its
 
 **Type:** `number`<br>
 **Default:** `undefined`
+
 </p>
 
 The desired width of the output image. Combine with `height` to crop the image to an exact size, or `aspectRatio` to automatically calculate and crop the height.
@@ -210,6 +218,7 @@ For remote images, including images in `public/`, the integration needs to be ab
 
 **Type:** `number`<br>
 **Default:** `undefined`
+
 </p>
 
 The desired height of the output image. Combine with `width` to crop the image to an exact size, or `aspectRatio` to automatically calculate and crop the width.
@@ -224,6 +233,7 @@ For remote images, including images in `public/`, the integration needs to be ab
 
 **Type:** `number` | `string`<br>
 **Default:** `undefined`
+
 </p>
 
 The desired aspect ratio of the output image. Combine with either `width` or `height` to automatically calculate and crop the other dimension.
@@ -240,6 +250,7 @@ For remote images, including images in `public/`, the integration needs to be ab
 
 **Type:** `ColorDefinition`<br>
 **Default:** `undefined`
+
 </p>
 
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
@@ -262,6 +273,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 
 **Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
 **Default:** `'cover'`
+
 </p>
 
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
@@ -274,6 +286,7 @@ How the image should be resized to fit both `height` and `width`.
 
 **Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
 **Default:** `'centre'`
+
 </p>
 
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
@@ -292,6 +305,7 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 **Type:** `string` | `ImageMetadata` | `Promise<ImageMetadata>`<br>
 **Required:** `true`
+
 </p>
 
 Source for the original image file.
@@ -299,7 +313,6 @@ Source for the original image file.
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
 For images located in your project's `src/`: use the file path relative to the `src/` directory. (e.g. `src="../assets/source-pic.png"`)
-
 
 For images located in your `public/` directory: use the URL path relative to the `public/` directory. (e.g. `src="/images/public-image.jpg"`). These work like remote images.
 
@@ -309,6 +322,7 @@ For images located in your `public/` directory: use the URL path relative to the
 
 **Type:** `string`<br>
 **Required:** `true`
+
 </p>
 
 Defines an alternative text description of the image.
@@ -321,6 +335,7 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 **Type:** `string`<br>
 **Required:** `true`
+
 </p>
 
 The HTMLImageElement property `sizes` allows you to specify the layout width of the image for each of a list of media conditions.
@@ -333,13 +348,14 @@ See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/size
 
 **Type:** `number[]`<br>
 **Required:** `true`
+
 </p>
 
 The list of sizes that should be built for responsive images. This is combined with `aspectRatio` to calculate the final dimensions of each built image.
 
 ```astro
 // Builds three images: 400x400, 800x800, and 1200x1200
-<Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" alt="descriptive text" />
+<Picture src={img} widths={[400, 800, 1200]} aspectRatio="1:1" alt="descriptive text" />
 ```
 
 #### aspectRatio
@@ -348,6 +364,7 @@ The list of sizes that should be built for responsive images. This is combined w
 
 **Type:** `number` | `string`<br>
 **Default:** `undefined`
+
 </p>
 
 The desired aspect ratio of the output image. This is combined with `widths` to calculate the final dimensions of each built image.
@@ -364,6 +381,7 @@ For remote images, including images in `public/`, `aspectRatio` is required to e
 
 **Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
 **Default:** `undefined`
+
 </p>
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
@@ -376,6 +394,7 @@ For remote images, including images in `public/`, the original image format is u
 
 **Type:** `ColorDefinition`<br>
 **Default:** `undefined`
+
 </p>
 
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
@@ -396,6 +415,7 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 
 **Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
 **Default:** `'cover'`
+
 </p>
 
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
@@ -410,6 +430,7 @@ How the image should be resized to fit both `height` and `width`.
   'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' |
   'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
 **Default:** `'centre'`
+
 </p>
 
 > This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead. Read more about [how `sharp` resizes images](https://sharp.pixelplumbing.com/api-resize).
@@ -429,14 +450,14 @@ This can be helpful if you need to add preload links to a page's `<head>`.
 import { getImage } from '@astrojs/image';
 
 const { src } = await getImage({
-    src: import('../assets/hero.png'),
-    alt: "My hero image"
-  });
+  src: import('../assets/hero.png'),
+  alt: 'My hero image',
+});
 ---
 
 <html>
   <head>
-    <link rel="preload" as="image" href={src} alt="alt text">
+    <link rel="preload" as="image" href={src} alt="alt text" />
   </head>
 </html>
 ```
@@ -453,22 +474,23 @@ The integration can be configured to run with a different image service, either 
 
 > During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in image service when using `astro dev`.
 
-
- ### config.serviceEntryPoint
+### config.serviceEntryPoint
 
 The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/squoosh`, which resolves to the entry point exported from this integration's `package.json`.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
 export default defineConfig({
-  integrations: [image({
-    // Example: The entrypoint for a third-party image service installed from NPM
-    serviceEntryPoint: 'my-image-service/astro.js'
-  })],
+  integrations: [
+    image({
+      // Example: The entrypoint for a third-party image service installed from NPM
+      serviceEntryPoint: 'my-image-service/astro.js',
+    }),
+  ],
 });
 ```
 
@@ -476,18 +498,20 @@ export default defineConfig({
 
 The `logLevel` controls can be used to control how much detail is logged by the integration during builds. This may be useful to track down a specific image or transformation that is taking a long time to build.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
 export default defineConfig({
-  integrations: [image({
-    // supported levels: 'debug' | 'info' | 'warn' | 'error' | 'silent'
-    // default: 'info'
-    logLevel: 'debug'
-  })],
+  integrations: [
+    image({
+      // supported levels: 'debug' | 'info' | 'warn' | 'error' | 'silent'
+      // default: 'info'
+      logLevel: 'debug',
+    }),
+  ],
 });
 ```
 
@@ -499,17 +523,19 @@ Local images will be cached for 1 year and invalidated when the original image f
 
 By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
 export default defineConfig({
-  integrations: [image({
-    // may be useful if your hosting provider allows caching between CI builds
-    cacheDir: "./.cache/image"
-  })]
+  integrations: [
+    image({
+      // may be useful if your hosting provider allows caching between CI builds
+      cacheDir: './.cache/image',
+    }),
+  ],
 });
 ```
 
@@ -519,7 +545,7 @@ Caching can also be disabled by using `cacheDir: false`.
 
 ### Local images
 
-Image files in your project's `src/` directory can be imported in frontmatter and passed directly to the `<Image />` component as the `src=` attribute value. `alt` is also required. 
+Image files in your project's `src/` directory can be imported in frontmatter and passed directly to the `<Image />` component as the `src=` attribute value. `alt` is also required.
 
 All other properties are optional and will default to the original image file's properties if not provided.
 
@@ -558,8 +584,9 @@ For example, use an image located at `public/social.png` in either static or SSR
 import { Image } from '@astrojs/image/components';
 import socialImage from '/social.png';
 ---
-// In static builds: the image will be built and optimized to `/dist`.
-// In SSR builds: the image will be optimized by the server when requested by a browser.
+
+// In static builds: the image will be built and optimized to `/dist`. // In SSR builds: the image
+will be optimized by the server when requested by a browser.
 <Image src={socialImage} width={1280} aspectRatio="16:9" alt="descriptive text" />
 ```
 
@@ -578,7 +605,7 @@ const imageUrl = 'https://astro.build/assets/press/full-logo-dark.png';
 <Image src={imageUrl} width={750} height={250} format="avif" alt="descriptive text" />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={750} aspectRatio={16/9} format="avif" alt="descriptive text" />
+<Image src={imageUrl} width={750} aspectRatio={16 / 9} format="avif" alt="descriptive text" />
 ```
 
 ### Responsive pictures
@@ -594,20 +621,38 @@ For remote images, an `aspectRatio` is required to ensure the correct `height` c
 import { Picture } from '@astrojs/image/components';
 import hero from '../assets/hero.png';
 
-const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const imageUrl =
+  'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
 ---
 
 // Local image with multiple sizes
-<Picture src={hero} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="descriptive text" />
+<Picture
+  src={hero}
+  widths={[200, 400, 800]}
+  sizes="(max-width: 800px) 100vw, 800px"
+  alt="descriptive text"
+/>
 
 // Remote image (aspect ratio is required)
-<Picture src={imageUrl} widths={[200, 400, 800]} aspectRatio="4:3" sizes="(max-width: 800px) 100vw, 800px" alt="descriptive text" />
+<Picture
+  src={imageUrl}
+  widths={[200, 400, 800]}
+  aspectRatio="4:3"
+  sizes="(max-width: 800px) 100vw, 800px"
+  alt="descriptive text"
+/>
 
 // Inlined imports are supported
-<Picture src={import("../assets/hero.png")} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="descriptive text" />
+<Picture
+  src={import('../assets/hero.png')}
+  widths={[200, 400, 800]}
+  sizes="(max-width: 800px) 100vw, 800px"
+  alt="descriptive text"
+/>
 ```
 
 ## Troubleshooting
+
 - If your installation doesn't seem to be working, try restarting the dev server.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.

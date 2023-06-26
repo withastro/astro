@@ -5,7 +5,6 @@
 import type { ZodError } from 'zod';
 
 export interface ErrorData {
-	code: number;
 	title: string;
 	message?: string | ((...params: any) => string);
 	hint?: string | ((...params: any) => string);
@@ -30,7 +29,6 @@ export const AstroErrorData = {
 	 */
 	UnknownCompilerError: {
 		title: 'Unknown compiler error.',
-		code: 1000,
 		hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues/compiler.',
 	},
 	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
@@ -47,7 +45,6 @@ export const AstroErrorData = {
 	 */
 	StaticRedirectNotAvailable: {
 		title: '`Astro.redirect` is not available in static mode.',
-		code: 3001,
 		message:
 			"Redirects are only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
@@ -62,7 +59,6 @@ export const AstroErrorData = {
 	 */
 	ClientAddressNotAvailable: {
 		title: '`Astro.clientAddress` is not available in current adapter.',
-		code: 3002,
 		message: (adapterName: string) =>
 			`\`Astro.clientAddress\` is not available in the \`${adapterName}\` adapter. File an issue with the adapter to add support.`,
 	},
@@ -78,7 +74,6 @@ export const AstroErrorData = {
 	 */
 	StaticClientAddressNotAvailable: {
 		title: '`Astro.clientAddress` is not available in static mode.',
-		code: 3003,
 		message:
 			"`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for more information on how to enable SSR.',
@@ -92,7 +87,6 @@ export const AstroErrorData = {
 	 */
 	NoMatchingStaticPathFound: {
 		title: 'No static path found for requested path.',
-		code: 3004,
 		message: (pathName: string) =>
 			`A \`getStaticPaths()\` route pattern was matched, but no matching static path was found for requested path \`${pathName}\`.`,
 		hint: (possibleRoutes: string[]) =>
@@ -120,7 +114,6 @@ export const AstroErrorData = {
 	 */
 	OnlyResponseCanBeReturned: {
 		title: 'Invalid type returned by Astro page.',
-		code: 3005,
 		message: (route: string | undefined, returnedValue: string) =>
 			`Route \`${
 				route ? route : ''
@@ -140,7 +133,6 @@ export const AstroErrorData = {
 	 */
 	MissingMediaQueryDirective: {
 		title: 'Missing value for `client:media` directive.',
-		code: 3006,
 		message:
 			'Media query not provided for `client:media` directive. A media query similar to `client:media="(max-width: 600px)"` must be provided',
 	},
@@ -157,7 +149,6 @@ export const AstroErrorData = {
 	 */
 	NoMatchingRenderer: {
 		title: 'No matching renderer found.',
-		code: 3007,
 		message: (
 			componentName: string,
 			componentExtension: string | undefined,
@@ -192,7 +183,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	NoClientEntrypoint: {
 		title: 'No client entrypoint specified in renderer.',
-		code: 3008,
 		message: (componentName: string, clientDirective: string, rendererName: string) =>
 			`\`${componentName}\` component has a \`client:${clientDirective}\` directive, but no client entrypoint was provided by \`${rendererName}\`.`,
 		hint: 'See https://docs.astro.build/en/reference/integrations-reference/#addrenderer-option for more information on how to configure your renderer.',
@@ -211,7 +201,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	NoClientOnlyHint: {
 		title: 'Missing hint on client:only directive.',
-		code: 3009,
 		message: (componentName: string) =>
 			`Unable to render \`${componentName}\`. When using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.`,
 		hint: (probableRenderers: string) =>
@@ -238,7 +227,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	InvalidGetStaticPathParam: {
 		title: 'Invalid value returned by a `getStaticPaths` path.',
-		code: 3010,
 		message: (paramType) =>
 			`Invalid params given to \`getStaticPaths\` path. Expected an \`object\`, got \`${paramType}\``,
 		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
@@ -262,7 +250,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	InvalidGetStaticPathsReturn: {
 		title: 'Invalid value returned by getStaticPaths.',
-		code: 3011,
 		message: (returnType) =>
 			`Invalid type returned by \`getStaticPaths\`. Expected an \`array\`, got \`${returnType}\``,
 		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
@@ -276,7 +263,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	GetStaticPathsRemovedRSSHelper: {
 		title: 'getStaticPaths RSS helper is not available anymore.',
-		code: 3012,
 		message:
 			'The RSS helper has been removed from `getStaticPaths`. Try the new @astrojs/rss package instead.',
 		hint: 'See https://docs.astro.build/en/guides/rss/ for more information.',
@@ -303,7 +289,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	GetStaticPathsExpectedParams: {
 		title: 'Missing params property on `getStaticPaths` route.',
-		code: 3013,
 		message: 'Missing or empty required `params` property on `getStaticPaths` route.',
 		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
 	},
@@ -343,7 +328,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	GetStaticPathsInvalidRouteParam: {
 		title: 'Invalid value for `getStaticPaths` route parameter.',
-		code: 3014,
 		message: (key: string, value: any, valueType: any) =>
 			`Invalid getStaticPaths route parameter for \`${key}\`. Expected undefined, a string or a number, received \`${valueType}\` (\`${value}\`)`,
 		hint: 'See https://docs.astro.build/en/reference/api-reference/#getstaticpaths for more information on getStaticPaths.',
@@ -359,7 +343,6 @@ but ${plural ? 'none were' : 'it was not'} able to server-side render \`${compon
 	 */
 	GetStaticPathsRequired: {
 		title: '`getStaticPaths()` function required for dynamic routes.',
-		code: 3015,
 		message:
 			'`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths` function from your dynamic route.',
 		hint: `See https://docs.astro.build/en/core-concepts/routing/#dynamic-routes for more information on dynamic routes.
@@ -376,7 +359,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ReservedSlotName: {
 		title: 'Invalid slot name.',
-		code: 3016,
 		message: (slotName: string) =>
 			`Unable to create a slot named \`${slotName}\`. \`${slotName}\` is a reserved slot name. Please update the name of this slot.`,
 	},
@@ -390,7 +372,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	NoAdapterInstalled: {
 		title: 'Cannot use Server-side Rendering without an adapter.',
-		code: 3017,
 		message: `Cannot use \`output: 'server'\` or \`output: 'hybrid'\` without an adapter. Please install and configure the appropriate server adapter for your final deployment.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/ for more information.',
 	},
@@ -401,7 +382,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	NoMatchingImport: {
 		title: 'No import found for component.',
-		code: 3018,
 		message: (componentName: string) =>
 			`Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
 		hint: 'Please make sure the component is properly imported.',
@@ -416,7 +396,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidPrerenderExport: {
 		title: 'Invalid prerender export.',
-		code: 3019,
 		message: (prefix: string, suffix: string, isHydridOuput: boolean) => {
 			const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
 			let msg = `A \`prerender\` export has been detected, but its value cannot be statically analyzed.`;
@@ -437,7 +416,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidComponentArgs: {
 		title: 'Invalid component arguments.',
-		code: 3020,
 		message: (name: string) => `Invalid arguments passed to${name ? ` <${name}>` : ''} component.`,
 		hint: 'Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`.',
 	},
@@ -450,7 +428,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	PageNumberParamNotFound: {
 		title: 'Page number param not found.',
-		code: 3021,
 		message: (paramName: string) =>
 			`[paginate()] page number param \`${paramName}\` not found in your filepath.`,
 		hint: 'Rename your file to `[page].astro` or `[...page].astro`.',
@@ -468,7 +445,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ImageMissingAlt: {
 		title: 'Missing alt property.',
-		code: 3022,
 		message: 'The alt property is required.',
 		hint: "The `alt` property is important for the purpose of accessibility, without it users using screen readers or other assistive technologies won't be able to understand what your image is supposed to represent. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-alt for more information.",
 	},
@@ -483,7 +459,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidImageService: {
 		title: 'Error while loading image service.',
-		code: 3023,
 		message:
 			'There was an error loading the configured image service. Please see the stack trace for more information.',
 	},
@@ -501,7 +476,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MissingImageDimension: {
 		title: 'Missing image dimensions',
-		code: 3024,
 		message: (missingDimension: 'width' | 'height' | 'both', imageURL: string) =>
 			`Missing ${
 				missingDimension === 'both'
@@ -526,7 +500,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnsupportedImageFormat: {
 		title: 'Unsupported image format',
-		code: 3025,
 		message: (format: string, imagePath: string, supportedFormats: readonly string[]) =>
 			`Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
 				', '
@@ -545,7 +518,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	PrerenderDynamicEndpointPathCollide: {
 		title: 'Prerendered dynamic endpoint has path collision.',
-		code: 3026,
 		message: (pathname: string) =>
 			`Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
 		hint: (filename: string) =>
@@ -572,7 +544,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ExpectedImage: {
 		title: 'Expected src to be an image.',
-		code: 3027,
 		message: (options: string) =>
 			`Expected \`src\` property to be either an ESM imported image or a string with the path of a remote image. Received \`${options}\`.`,
 		hint: 'This error can often happen because of a wrong path. Make sure the path to your image is correct.',
@@ -595,7 +566,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ExpectedImageOptions: {
 		title: 'Expected image options.',
-		code: 3028,
 		message: (options: string) =>
 			`Expected getImage() parameter to be an object. Received \`${options}\`.`,
 	},
@@ -612,7 +582,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MarkdownImageNotFound: {
 		title: 'Image not found.',
-		code: 3029,
 		message: (imagePath: string, fullImagePath: string | undefined) =>
 			`Could not find requested image \`${imagePath}\`${
 				fullImagePath ? ` at \`${fullImagePath}\`.` : '.'
@@ -626,7 +595,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ResponseSentError: {
 		title: 'Unable to set response.',
-		code: 3030,
 		message: 'The response has already been sent to the browser and cannot be altered.',
 	},
 
@@ -646,7 +614,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MiddlewareNoDataOrNextCalled: {
 		title: "The middleware didn't return a response or call `next`.",
-		code: 3031,
 		message:
 			'The middleware needs to either return a `Response` object or call the `next` function.',
 	},
@@ -666,7 +633,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MiddlewareNotAResponse: {
 		title: 'The middleware returned something that is not a `Response` object.',
-		code: 3032,
 		message: 'Any data returned from middleware must be a valid `Response` object.',
 	},
 
@@ -687,7 +653,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	LocalsNotAnObject: {
 		title: 'Value assigned to `locals` is not accepted.',
-		code: 3033,
 		message:
 			'`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.',
 		hint: 'If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`.',
@@ -714,7 +679,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	LocalImageUsedWrongly: {
 		title: 'ESM imported images must be passed as-is.',
-		code: 3034,
 		message: (imageFilePath: string) =>
 			`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or an URL, it cannot be a filepath. Received \`${imageFilePath}\`.`,
 	},
@@ -728,7 +692,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	AstroGlobUsedOutside: {
 		title: 'Astro.glob() used outside of an Astro file.',
-		code: 3035,
 		message: (globStr: string) =>
 			`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
 		hint: "See Vite's documentation on `import.meta.glob` for more information: https://vitejs.dev/guide/features.html#glob-import",
@@ -743,7 +706,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	AstroGlobNoMatch: {
 		title: 'Astro.glob() did not match any files.',
-		code: 3036,
 		message: (globStr: string) =>
 			`\`Astro.glob(${globStr})\` did not return any matching files. Check the pattern for typos.`,
 	},
@@ -756,7 +718,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	RedirectWithNoLocation: {
 		title: 'A redirect must be given a location with the `Location` header.',
-		code: 3037,
 	},
 	/**
 	 * @docs
@@ -767,7 +728,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidDynamicRoute: {
 		title: 'Invalid dynamic route.',
-		code: 3038,
 		message: (route: string, invalidParam: string, received: string) =>
 			`The ${invalidParam} param for route ${route} is invalid. Received **${received}**.`,
 	},
@@ -784,7 +744,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnknownViteError: {
 		title: 'Unknown Vite Error.',
-		code: 4000,
 	},
 	/**
 	 * @docs
@@ -797,7 +756,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	FailedToLoadModuleSSR: {
 		title: 'Could not import file.',
-		code: 4001,
 		message: (importName: string) => `Could not import \`${importName}\`.`,
 		hint: 'This is often caused by a typo in the import path. Please make sure the file exists.',
 	},
@@ -810,7 +768,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidGlob: {
 		title: 'Invalid glob pattern.',
-		code: 4002,
 		message: (globPattern: string) =>
 			`Invalid glob pattern: \`${globPattern}\`. Glob patterns must start with './', '../' or '/'.`,
 		hint: 'See https://docs.astro.build/en/guides/imports/#glob-patterns for more information on supported glob patterns.',
@@ -822,7 +779,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	FailedToFindPageMapSSR: {
 		title: "Astro couldn't find the correct page to render",
-		code: 4003,
 		message:
 			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error. Please file an issue.",
 	},
@@ -841,7 +797,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnknownCSSError: {
 		title: 'Unknown CSS Error.',
-		code: 5000,
 	},
 	/**
 	 * @docs
@@ -854,7 +809,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	CSSSyntaxError: {
 		title: 'CSS Syntax Error.',
-		code: 5001,
 	},
 	/**
 	 * @docs
@@ -869,7 +823,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnknownMarkdownError: {
 		title: 'Unknown Markdown Error.',
-		code: 6000,
 	},
 	/**
 	 * @docs
@@ -884,7 +837,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MarkdownFrontmatterParseError: {
 		title: 'Failed to parse Markdown frontmatter.',
-		code: 6001,
 	},
 	/**
 	 * @docs
@@ -895,7 +847,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidFrontmatterInjectionError: {
 		title: 'Invalid frontmatter injection.',
-		code: 6003,
 		message:
 			'A remark or rehype plugin attempted to inject invalid frontmatter. Ensure "astro.frontmatter" is set to a valid JSON object that is not `null` or `undefined`.',
 		hint: 'See the frontmatter injection docs https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically for more information.',
@@ -909,7 +860,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MdxIntegrationMissingError: {
 		title: 'MDX integration missing.',
-		code: 6004,
 		message: (file: string) =>
 			`Unable to render ${file}. Ensure that the \`@astrojs/mdx\` integration is installed.`,
 		hint: 'See the MDX integration docs for installation and usage instructions: https://docs.astro.build/en/guides/integrations-guide/mdx/',
@@ -927,7 +877,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnknownConfigError: {
 		title: 'Unknown configuration error.',
-		code: 7000,
 	},
 	/**
 	 * @docs
@@ -938,7 +887,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ConfigNotFound: {
 		title: 'Specified configuration file not found.',
-		code: 7001,
 		message: (configFile: string) =>
 			`Unable to resolve \`--config "${configFile}"\`. Does the file exist?`,
 	},
@@ -951,7 +899,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ConfigLegacyKey: {
 		title: 'Legacy configuration detected.',
-		code: 7002,
 		message: (legacyConfigKey: string) => `Legacy configuration detected: \`${legacyConfigKey}\`.`,
 		hint: 'Please update your configuration to the new format.\nSee https://astro.build/config for more information.',
 	},
@@ -970,7 +917,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnknownCLIError: {
 		title: 'Unknown CLI Error.',
-		code: 8000,
 	},
 	/**
 	 * @docs
@@ -981,7 +927,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	GenerateContentTypesError: {
 		title: 'Failed to generate content types.',
-		code: 8001,
 		message: (errorMessage: string) =>
 			`\`astro sync\` command failed to generate content collection types: ${errorMessage}`,
 		hint: 'Check your `src/content/config.*` file for typos.',
@@ -1002,7 +947,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnknownContentCollectionError: {
 		title: 'Unknown Content Collection Error.',
-		code: 9000,
 	},
 	/**
 	 * @docs
@@ -1019,7 +963,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidContentEntryFrontmatterError: {
 		title: 'Content entry frontmatter does not match schema.',
-		code: 9001,
 		message: (collection: string, entryId: string, error: ZodError) => {
 			return [
 				`**${String(collection)} → ${String(
@@ -1040,7 +983,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	InvalidContentEntrySlugError: {
 		title: 'Invalid content entry slug.',
-		code: 9002,
 		message: (collection: string, entryId: string) => {
 			return `${String(collection)} → ${String(
 				entryId
@@ -1057,7 +999,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ContentSchemaContainsSlugError: {
 		title: 'Content Schema should not contain `slug`.',
-		code: 9003,
 		message: (collectionName: string) =>
 			`A content collection schema should not contain \`slug\` since it is reserved for slug generation. Remove this from your ${collectionName} collection schema.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on the `slug` field.',
@@ -1071,7 +1012,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	CollectionDoesNotExistError: {
 		title: 'Collection does not exist',
-		code: 9004,
 		message: (collectionName: string) =>
 			`The collection **${collectionName}** does not exist. Ensure a collection directory with this name exists.`,
 		hint: 'See https://docs.astro.build/en/guides/content-collections/ for more on creating collections.',
@@ -1086,7 +1026,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	MixedContentDataCollectionError: {
 		title: 'Content and data cannot be in same collection.',
-		code: 9005,
 		message: (collection: string) => {
 			return `**${collection}** contains a mix of content and data entries. All entries must be of the same type.`;
 		},
@@ -1102,7 +1041,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	ContentCollectionTypeMismatchError: {
 		title: 'Collection contains entries of a different type.',
-		code: 9006,
 		message: (collection: string, expectedType: string, actualType: string) => {
 			return `${collection} contains ${expectedType} entries, but is configured as a ${actualType} collection.`;
 		},
@@ -1115,7 +1053,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	DataCollectionEntryParseError: {
 		title: 'Data collection entry failed to parse.',
-		code: 9007,
 		message: (entryId: string, errorMessage: string) => {
 			return `**${entryId}** failed to parse: ${errorMessage}`;
 		},
@@ -1129,7 +1066,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	DuplicateContentEntrySlugError: {
 		title: 'Duplicate content entry slug.',
-		code: 9008,
 		message: (collection: string, slug: string) => {
 			return `**${collection}** contains multiple entries with the same slug: \`${slug}\`. Slugs must be unique.`;
 		},
@@ -1144,7 +1080,6 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 */
 	UnsupportedConfigTransformError: {
 		title: 'Unsupported transform in content config.',
-		code: 9008,
 		message: (parseError: string) =>
 			`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 		hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
@@ -1153,11 +1088,5 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	// Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip
 	UnknownError: {
 		title: 'Unknown Error.',
-		code: 99999,
 	},
 } as const satisfies Record<string, ErrorData>;
-
-type ValueOf<T> = T[keyof T];
-export type AstroErrorCodes = ValueOf<{
-	[T in keyof typeof AstroErrorData]: (typeof AstroErrorData)[T]['code'];
-}>;
