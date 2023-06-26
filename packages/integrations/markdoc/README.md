@@ -42,7 +42,7 @@ npm install @astrojs/markdoc
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={2} "markdoc()"
 import { defineConfig } from 'astro/config';
@@ -54,14 +54,15 @@ export default defineConfig({
 });
 ```
 
-
 ### Editor Integration
 
 [VS Code](https://code.visualstudio.com/) supports Markdown by default. However, for Markdoc editor support, you may wish to add the following setting in your VSCode config. This ensures authoring Markdoc files provides a Markdown-like editor experience.
 
 ```json title=".vscode/settings.json"
-"files.associations": {
+{
+  "files.associations": {
     "*.mdoc": "markdown"
+  }
 }
 ```
 
@@ -113,16 +114,16 @@ export default defineMarkdocConfig({
     aside: {
       render: Aside,
       attributes: {
-      // Markdoc requires type defs for each attribute.
-      // These should mirror the `Props` type of the component
-      // you are rendering. 
-      // See Markdoc's documentation on defining attributes
-      // https://markdoc.dev/docs/attributes#defining-attributes
+        // Markdoc requires type defs for each attribute.
+        // These should mirror the `Props` type of the component
+        // you are rendering.
+        // See Markdoc's documentation on defining attributes
+        // https://markdoc.dev/docs/attributes#defining-attributes
         type: { type: String },
-      }
+      },
     },
   },
-})
+});
 ```
 
 This component can now be used in your Markdoc files with the `{% aside %}` tag. Children will be passed to your component's default slot:
@@ -132,7 +133,7 @@ This component can now be used in your Markdoc files with the `{% aside %}` tag.
 
 {% aside type="tip" %}
 
-Use tags like this fancy "aside" to add some *flair* to your docs.
+Use tags like this fancy "aside" to add some _flair_ to your docs.
 
 {% /aside %}
 ```
@@ -155,7 +156,7 @@ export default defineMarkdocConfig({
       render: Heading,
     },
   },
-})
+});
 ```
 
 All Markdown headings will render the `Heading.astro` component and pass the following `attributes` as component props:
@@ -192,9 +193,9 @@ export default defineMarkdocConfig({
       // Note: Shiki has countless langs built-in, including `.astro`!
       // https://github.com/shikijs/shiki/blob/main/docs/languages.md
       langs: [],
-    })
+    }),
   ],
-})
+});
 ```
 
 #### Prism
@@ -208,7 +209,7 @@ import prism from '@astrojs/markdoc/prism';
 
 export default defineMarkdocConfig({
   extends: [prism()],
-})
+});
 ```
 
 📚 To learn about configuring Prism stylesheets, [see our syntax highlighting guide](https://docs.astro.build/en/guides/markdown-content/#prism-configuration).
@@ -228,7 +229,7 @@ export default defineMarkdocConfig({
       render: null, // default 'article'
     },
   },
-})
+});
 ```
 
 ### Custom Markdoc nodes / elements
@@ -249,7 +250,7 @@ export default defineMarkdocConfig({
       render: Quote,
     },
   },
-})
+});
 ```
 
 📚 [Find all of Markdoc's built-in nodes and node attributes on their documentation.](https://markdoc.dev/docs/nodes#built-in-nodes)
@@ -282,10 +283,10 @@ export default defineMarkdocConfig({
       render: ClientAside,
       attributes: {
         type: { type: String },
-      }
+      },
     },
   },
-})
+});
 ```
 
 ### Markdoc config
@@ -307,12 +308,12 @@ export default defineMarkdocConfig({
           japan: '🇯🇵',
           spain: '🇪🇸',
           france: '🇫🇷',
-        }
-        return countryToEmojiMap[country] ?? '🏳'
+        };
+        return countryToEmojiMap[country] ?? '🏳';
       },
     },
   },
-})
+});
 ```
 
 Now, you can call this function from any Markdoc content entry:
@@ -359,8 +360,8 @@ import { defineMarkdocConfig } from '@astrojs/markdoc/config';
 export default defineMarkdocConfig({
   variables: {
     environment: process.env.IS_PROD ? 'prod' : 'dev',
-  }
-})
+  },
+});
 ```
 
 ### Access frontmatter from your Markdoc content
@@ -382,7 +383,7 @@ This can now be accessed as `$frontmatter` in your Markdoc.
 
 ## Examples
 
-*   The [Astro Markdoc starter template](https://github.com/withastro/astro/tree/latest/examples/with-markdoc) shows how to use Markdoc files in your Astro project.
+- The [Astro Markdoc starter template](https://github.com/withastro/astro/tree/latest/examples/with-markdoc) shows how to use Markdoc files in your Astro project.
 
 ## Troubleshooting
 
@@ -399,13 +400,8 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 See [CHANGELOG.md](https://github.com/withastro/astro/tree/main/packages/integrations/markdoc/CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-
 [astro-components]: https://docs.astro.build/en/core-concepts/astro-components/
-
 [astro-content-collections]: https://docs.astro.build/en/guides/content-collections/
-
 [markdoc-tags]: https://markdoc.dev/docs/tags
-
 [markdoc-nodes]: https://markdoc.dev/docs/nodes
-
 [markdoc-variables]: https://markdoc.dev/docs/variables

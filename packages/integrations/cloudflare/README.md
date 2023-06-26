@@ -32,12 +32,11 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   output: 'server',
-  adapter: cloudflare()
+  adapter: cloudflare(),
 });
 ```
 
 ## Options
-
 
 ### Mode
 
@@ -54,9 +53,8 @@ In directory mode the adapter will compile the client side part of your app the 
 ```ts
 // directory mode
 export default defineConfig({
-  adapter: cloudflare({ mode: "directory" }),
+  adapter: cloudflare({ mode: 'directory' }),
 });
-
 ```
 
 ## Enabling Preview
@@ -74,7 +72,7 @@ It's then possible to update the preview script in your `package.json` to `"prev
 You can access all the Cloudflare bindings and environment variables from Astro components and API routes through the adapter API.
 
 ```js
-import { getRuntime } from "@astrojs/cloudflare/runtime";
+import { getRuntime } from '@astrojs/cloudflare/runtime';
 
 getRuntime(Astro.request);
 ```
@@ -108,7 +106,6 @@ By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists
 
 ## Troubleshooting
 
-
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
@@ -119,14 +116,14 @@ Currently, errors during running your application in Wrangler are not very usefu
 
 ```js
 export default defineConfig({
-	adapter: cloudflare(),
-	output: 'server',
+  adapter: cloudflare(),
+  output: 'server',
 
   vite: {
     build: {
-      minify: false
-    }
-  }
+      minify: false,
+    },
+  },
 });
 ```
 

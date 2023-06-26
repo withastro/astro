@@ -17,20 +17,18 @@ Tailwind lets you use utility classes instead of writing CSS. These utility clas
 
 If you don't like those predefined settings, you can [customize the Tailwind configuration file](https://tailwindcss.com/docs/configuration) to your project's design requirements. For example, if the "large text" in your design is actually `2rem`, you can [change the `lg` fontSize setting](https://tailwindcss.com/docs/font-size#customizing-your-theme) to `2rem`.
 
-Tailwind is also a great choice to add styles to React, Preact, or Solid components, which don't support a `<style>` tag in the component file. 
+Tailwind is also a great choice to add styles to React, Preact, or Solid components, which don't support a `<style>` tag in the component file.
 
 Note: it's generally discouraged to use both Tailwind and another styling method (e.g. Styled Components) in the same file.
 
 ## Installation
 
-
 https://user-images.githubusercontent.com/4033662/197398760-8fd30eff-4d13-449d-a598-00a6a1ac4644.mp4
 
-
 ### Quick Install
-  
+
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
-  
+
 ```sh
 # Using NPM
 npx astro add tailwind
@@ -39,18 +37,20 @@ yarn astro add tailwind
 # Using PNPM
 pnpm astro add tailwind
 ```
-  
+
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
-  
+
 First, install the `@astrojs/tailwind` and `tailwindcss` packages using your package manager. If you're using npm or aren't sure, run this in the terminal:
+
 ```sh
 npm install @astrojs/tailwind tailwindcss
 ```
+
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={2} "tailwind()"
 import { defineConfig } from 'astro/config';
@@ -61,8 +61,6 @@ export default defineConfig({
   integrations: [tailwind()],
 });
 ```
-  
-
 
 ## Usage
 
@@ -87,23 +85,25 @@ The Astro Tailwind integration handles the communication between Astro and Tailw
 #### configFile
 
 Previously known as `config.path` in `@astrojs/tailwind` v3. See the [v4 changelog](https://github.com/withastro/astro/blob/main/packages/integrations/tailwind/CHANGELOG.md#400) for updating your config.
-  
+
 If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `configFile` option. If `configFile` is relative, it will be resolved relative to the current working directory.
 
 > **Warning**
 > Changing this isn't recommended since it can cause problems with other tools that integrate with Tailwind, like the official Tailwind VSCode extension.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  integrations: [tailwind({
-    // Example: Provide a custom path to a Tailwind config file
-    configFile: './custom-config.cjs',
-  })],
+  integrations: [
+    tailwind({
+      // Example: Provide a custom path to a Tailwind config file
+      configFile: './custom-config.cjs',
+    }),
+  ],
 });
 ```
 
@@ -122,17 +122,19 @@ By default, the integration imports a basic `base.css` file on every page of you
 
 To disable this default behavior, set `applyBaseStyles` to `false`. This can be useful if you need to define your own `base.css` file (to include a [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer), for example). This can also be useful if you do not want `base.css` to be imported on every page of your project.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  integrations: [tailwind({
-    // Example: Disable injecting a basic `base.css` import on every page.
-    // Useful if you need to define and/or import your own custom `base.css`.
-    applyBaseStyles: false,
-  })],
+  integrations: [
+    tailwind({
+      // Example: Disable injecting a basic `base.css` import on every page.
+      // Useful if you need to define and/or import your own custom `base.css`.
+      applyBaseStyles: false,
+    }),
+  ],
 });
 ```
 
@@ -157,7 +159,6 @@ error   The `text-special` class does not exist. If `text-special` is a custom c
 
 [Instead of using `@layer` directives in a global stylesheet](https://tailwindcss.com/docs/functions-and-directives#using-apply-with-per-component-css), define your custom styles by adding a plugin to your Tailwind config to fix it:
 
-
 ```js
 // tailwind.config.cjs
 module.exports = {
@@ -167,12 +168,12 @@ module.exports = {
       addComponents({
         '.btn': {
           padding: theme('spacing.4'),
-          margin: 'auto'
-        }
-      })
-    }
-  ]
-}
+          margin: 'auto',
+        },
+      });
+    },
+  ],
+};
 ```
 
 ### Class-based modifiers do not work with `@apply` directives
