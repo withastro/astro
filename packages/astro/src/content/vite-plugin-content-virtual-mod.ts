@@ -210,6 +210,6 @@ const UnexpectedLookupMapError = new AstroError({
 
 function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
-	const contentDir = appendForwardSlash(relContentDir.trim());
+	const contentDir = appendForwardSlash(relContentDir);
 	return [`${contentDir}**/*${extGlob}`, `!${contentDir}_*/**${extGlob}`, `!${contentDir}_*${extGlob}`];
 }
