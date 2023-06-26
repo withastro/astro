@@ -39,6 +39,13 @@ export function vitePluginMiddleware(
 		load(id) {
 			if (id === EMPTY_MIDDLEWARE) {
 				return 'export const onRequest = undefined';
+			} else if (id === MIDDLEWARE_MODULE_ID) {
+				this.emitFile({
+					type: 'chunk',
+					preserveSignature: 'strict',
+					fileName: 'middleware.mjs',
+					id,
+				});
 			}
 		},
 

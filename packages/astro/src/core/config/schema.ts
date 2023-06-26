@@ -25,6 +25,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		redirects: true,
 		inlineStylesheets: 'never',
 		split: false,
+		excludeMiddlwar: false,
 	},
 	compressHTML: false,
 	server: {
@@ -123,6 +124,10 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 
 			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
+			excludeMiddleware: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 		})
 		.optional()
 		.default({}),
@@ -284,6 +289,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 
 				split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
+				excludeMiddleware: z
+					.boolean()
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
 			})
 			.optional()
 			.default({}),

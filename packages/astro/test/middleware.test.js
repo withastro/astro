@@ -245,3 +245,29 @@ describe('Middleware with tailwind', () => {
 		expect(bundledCSS.includes('--tw-content')).to.be.true;
 	});
 });
+
+describe('Middleware, split middleware option', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-dev/',
+			output: 'server',
+			build: {
+				excludeMiddleware: true,
+			},
+			adapter: testAdapter({}),
+		});
+		await fixture.build();
+	});
+
+	it('should not render locals data because the page does not export it', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		expect($('p').html()).to.not.equal('bar');
+	});
+});
