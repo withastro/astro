@@ -28,6 +28,9 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { isServerLikeOutput } from '../../prerender/utils.js';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { join } from 'node:path';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;
@@ -185,6 +188,24 @@ class AstroBuilder {
 		});
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
+		const movedEntryPoints = new Map();
+		// during the last phase of the build, the emitted code gets copied inside
+		// `config.build.server` folder, so we need to shred the old URL and make a new one again
+		if (isServerLikeOutput(this.settings.config)) {
+			for (const [route, filePath] of internals.entryPoints) {
+				const outDir = fileURLToPath(this.settings.config.outDir);
+				const relativeFilePath = fileURLToPath(filePath).slice(
+					fileURLToPath(this.settings.config.outDir).length
+				);
+				movedEntryPoints.set(
+					route,
+					pathToFileURL(
+						join(outDir, fileURLToPath(opts.settings.config.build.server), relativeFilePath)
+					)
+				);
+			}
+		}
+
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
@@ -192,6 +213,7 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
+			entryPoints: movedEntryPoints,
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

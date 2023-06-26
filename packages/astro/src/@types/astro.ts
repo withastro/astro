@@ -1854,6 +1854,8 @@ export interface AstroIntegration {
 			/**
 			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
 			 * the physical file you should import.
+			 *
+			 * These files point to URLs **before** they are moved in the `build.server` folder.
 			 */
 			entryPoints: Map<RouteData, URL>;
 		}) => void | Promise<void>;
@@ -1869,6 +1871,13 @@ export interface AstroIntegration {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 *
+			 * These files point to URLs **after** they are moved in the `build.server` folder.
+			 */
+			entryPoints: Map<RouteData, URL>;
 		}) => void | Promise<void>;
 	};
 }

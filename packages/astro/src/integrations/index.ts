@@ -343,19 +343,22 @@ export async function runHookBuildGenerated({
 	}
 }
 
+type RunHookBuildDone = {
+	config: AstroConfig;
+	buildConfig: BuildConfig;
+	pages: string[];
+	routes: RouteData[];
+	logging: LogOptions;
+	entryPoints: Map<RouteData, URL>;
+};
 export async function runHookBuildDone({
 	config,
 	buildConfig,
 	pages,
 	routes,
 	logging,
-}: {
-	config: AstroConfig;
-	buildConfig: BuildConfig;
-	pages: string[];
-	routes: RouteData[];
-	logging: LogOptions;
-}) {
+	entryPoints,
+}: RunHookBuildDone) {
 	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
@@ -367,6 +370,7 @@ export async function runHookBuildDone({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
+					entryPoints,
 				}),
 				logging,
 			});
