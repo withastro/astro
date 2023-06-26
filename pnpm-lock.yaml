@@ -3989,9 +3989,6 @@ importers:
       shiki:
         specifier: ^0.14.1
         version: 0.14.1
-      vite-plugin-restart:
-        specifier: ^0.3.1
-        version: 0.3.1(vite@4.3.9)
       zod:
         specifier: ^3.17.3
         version: 3.20.6
@@ -17286,18 +17283,6 @@ packages:
     transitivePeerDependencies:
       - '@types/babel__core'
       - supports-color
-    dev: false
-
-  /vite-plugin-restart@0.3.1(vite@4.3.9):
-    resolution: {integrity: sha512-LVe74MLUwaOzXVUgRGiphYbAYNgdGF6mP5vxj5BKcKkdmzvuuw79qcNgn9kHKKaIlCCjmOUiY3qlJ8jBSBUCoA==}
-    peerDependencies:
-      vite: ^2.9.0 || ^3.0.0 || ^4.0.0
-    peerDependenciesMeta:
-      vite:
-        optional: true
-    dependencies:
-      micromatch: 4.0.5
-      vite: 4.3.9(@types/node@18.16.18)(sass@1.63.4)
     dev: false
 
   /vite@4.3.9(@types/node@14.18.51):

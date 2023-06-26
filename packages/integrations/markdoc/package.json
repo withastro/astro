@@ -70,7 +70,6 @@
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
     "shiki": "^0.14.1",
-    "vite-plugin-restart": "^0.3.1",
     "zod": "^3.17.3"
   },
   "peerDependencies": {
