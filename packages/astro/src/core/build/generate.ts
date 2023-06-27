@@ -133,8 +133,9 @@ export function chunkIsPage(
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
-	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+	const outFolder = ssr
+		? opts.settings.config.build.server
+		: getOutDirWithinCwd(opts.settings.config.outDir);
 
 	if (ssr && !hasPrerenderedPages(internals)) return;
 
@@ -180,7 +181,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
-		buildConfig: opts.buildConfig,
 		logging: opts.logging,
 	});
 

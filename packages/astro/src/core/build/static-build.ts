@@ -3,7 +3,7 @@ import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import { extname } from 'node:path';
+import { extname, join } from 'node:path';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
@@ -146,7 +146,7 @@ async function ssrBuild(
 ) {
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = isServerLikeOutput(settings.config);
-	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
+	const out = ssr ? settings.config.build.server : getOutDirWithinCwd(settings.config.outDir);
 	const routes = Object.values(allPages).map((pd) => pd.route);
 	const { lastVitePlugins, vitePlugins } = container.runBeforeHook('ssr', input);
 
@@ -227,7 +227,7 @@ async function clientBuild(
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(settings.config);
-	const out = ssr ? opts.buildConfig.client : getOutDirWithinCwd(settings.config.outDir);
+	const out = ssr ? settings.config.build.client : getOutDirWithinCwd(settings.config.outDir);
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
@@ -289,12 +289,12 @@ async function runPostBuildHooks(
 ) {
 	const mutations = await container.runPostHook(ssrReturn, clientReturn);
 	const config = container.options.settings.config;
-	const buildConfig = container.options.settings.config.build;
+	const build = container.options.settings.config.build;
 	for (const [fileName, mutation] of mutations) {
 		const root = isServerLikeOutput(config)
 			? mutation.build === 'server'
-				? buildConfig.server
-				: buildConfig.client
+				? build.server
+				: build.client
 			: config.outDir;
 		const fileURL = new URL(fileName, root);
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
@@ -313,7 +313,9 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 			allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier));
 	}
 	const ssr = isServerLikeOutput(opts.settings.config);
-	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+	const out = ssr
+		? opts.settings.config.build.server
+		: getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
 		cwd: fileURLToPath(out),
@@ -394,8 +396,10 @@ async function copyFiles(fromFolder: URL, toFolder: URL, includeDotfiles = false
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
 	const serverRoot =
-		opts.settings.config.output === 'static' ? opts.buildConfig.client : opts.buildConfig.server;
-	const clientRoot = opts.buildConfig.client;
+		opts.settings.config.output === 'static'
+			? opts.settings.config.build.client
+			: opts.settings.config.build.server;
+	const clientRoot = opts.settings.config.build.client;
 	const assets = opts.settings.config.build.assets;
 	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
 	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
