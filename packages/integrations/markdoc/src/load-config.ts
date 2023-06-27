@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroMarkdocConfig } from './config.js';
 
-const SUPPORTED_MARKDOC_CONFIG_FILES = [
+export const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.js',
 	'markdoc.config.mjs',
 	'markdoc.config.mts',
