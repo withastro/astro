@@ -33,5 +33,7 @@ describe('ssr split', () => {
 		expect(await fixture.pathExists('../functions/blog/cool.js')).to.be.true;
 		expect(await fixture.pathExists('../functions/blog/[post].js')).to.be.true;
 		expect(await fixture.pathExists('../functions/[person]/[car].js')).to.be.true;
+		expect(await fixture.pathExists('../functions/files/[[path]].js')).to.be.true;
+		expect(await fixture.pathExists('../functions/[language]/files/[[path]].js')).to.be.true;
 	});
 });
