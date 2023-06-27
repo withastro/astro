@@ -1,16 +1,12 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import type { AstroInstance } from 'astro';
-import {
-	createComponent,
-	renderComponent,
-	// @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
-} from 'astro/runtime/server/index.js';
 import Markdoc, {
 	type ConfigType,
 	type Node,
 	type NodeType,
 	type RenderableTreeNode,
 } from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
+import { createComponent, renderComponent } from 'astro/runtime/server/index.js';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 

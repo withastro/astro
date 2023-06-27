@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
-import type { AstroIntegration, ContentEntryType, HookParameters, AstroConfig } from 'astro';
-import { fileURLToPath } from 'node:url';
+import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { bold, red } from 'kleur/colors';
+import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
+import { getContentEntryType } from './content-entry-type.js';
 import {
 	loadMarkdocConfig,
-	type MarkdocConfigResult,
 	SUPPORTED_MARKDOC_CONFIG_FILES,
+	type MarkdocConfigResult,
 } from './load-config.js';
-import { getContentEntryType } from './content-entry-type.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	// `contentEntryType` is not a public API

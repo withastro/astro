@@ -1,19 +1,19 @@
 /* eslint-disable no-console */
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
-import type { ErrorPayload as ViteErrorPayload } from 'vite';
-import matter from 'gray-matter';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
+import matter from 'gray-matter';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { isValidUrl, MarkdocError, prependForwardSlash, isComponentConfig } from './utils.js';
+import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
+import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
 import path from 'node:path';
 import type * as rollup from 'rollup';
-import { setupConfig } from './runtime.js';
 import type { MarkdocConfigResult } from './load-config.js';
+import { setupConfig } from './runtime.js';
 
 export async function getContentEntryType({
 	markdocConfigResult,

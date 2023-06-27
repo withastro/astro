@@ -1,3 +1,4 @@
+import { isRelativePath } from '@astrojs/internal-helpers/path';
 import type {
 	Config,
 	ConfigType as MarkdocConfig,
@@ -5,10 +6,9 @@ import type {
 	NodeType,
 	Schema,
 } from '@markdoc/markdoc';
-import type { AstroInstance } from 'astro';
 import _Markdoc from '@markdoc/markdoc';
+import type { AstroInstance } from 'astro';
 import { heading } from './heading-ids.js';
-import { isRelativePath } from '@astrojs/internal-helpers/path';
 import { componentConfigSymbol } from './utils.js';
 
 export type Render = ComponentConfig | AstroInstance['default'] | string;
