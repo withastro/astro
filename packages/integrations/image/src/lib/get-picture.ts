@@ -86,7 +86,6 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 				}
 
 				return `${img.src?.replaceAll(' ', encodeURI)} ${width}w`;
-				// return `${encodeURI(img.src ?? '')} ${width}w`;
 			})
 		);
 
