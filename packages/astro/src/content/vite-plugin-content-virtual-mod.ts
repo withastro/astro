@@ -6,6 +6,7 @@ import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { appendForwardSlash } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -94,7 +95,7 @@ export function astroContentVirtualModPlugin({
 /**
  * Generate a map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `src/content/virtual-mod.mjs`
+ * @see `content-module.template.mjs`
  */
 export async function getStringifiedLookupMap({
 	contentPaths,
@@ -209,5 +210,10 @@ const UnexpectedLookupMapError = new AstroError({
 
 function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
-	return [`${relContentDir}/**/*${extGlob}`, `!**/_*/**${extGlob}`, `!**/_*${extGlob}`];
+	const contentDir = appendForwardSlash(relContentDir);
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}_*/**${extGlob}`,
+		`!${contentDir}_*${extGlob}`,
+	];
 }

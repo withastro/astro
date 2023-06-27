@@ -5,15 +5,15 @@
   "dependencies": {
     "@astrojs/preact": "workspace:*",
     "@astrojs/react": "workspace:*",
-    "@astrojs/vue": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
     "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
+    "preact": "^10.15.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "solid-js": "^1.7.4",
-    "svelte": "^3.58.0",
-    "vue": "^3.2.47",
-    "preact": "^10.13.2"
+    "solid-js": "^1.7.6",
+    "svelte": "^3.59.1",
+    "vue": "^3.3.4"
   }
 }

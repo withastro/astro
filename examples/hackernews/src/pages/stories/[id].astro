@@ -25,7 +25,7 @@ const story = (await fetchAPI(`item/${id}`)) as IStory;
 				<a href={`/users/${story.user}`}>
 					{story.user}
 				</a>
-				{story.time_ago} ago
+				&nbsp;{story.time_ago}
 			</p>
 		</header>
 		<main>

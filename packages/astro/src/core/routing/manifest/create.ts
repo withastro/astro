@@ -11,12 +11,11 @@ import type { LogOptions } from '../../logger/core';
 import nodeFs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
-import { removeLeadingForwardSlash } from '../../path.js';
+import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
 const require = createRequire(import.meta.url);
@@ -387,7 +386,7 @@ export function createRouteManifest(
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entryPoint }) => {
+		.forEach(({ pattern: name, entryPoint, prerender: prerenderInjected }) => {
 			let resolved: string;
 			try {
 				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
@@ -440,7 +439,7 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender,
+				prerender: prerenderInjected ?? prerender,
 			});
 		});
 

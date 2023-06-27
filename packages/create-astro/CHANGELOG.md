@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.8
+
+### Patch Changes
+
+- [#7435](https://github.com/withastro/astro/pull/7435) [`3f9f5c117`](https://github.com/withastro/astro/commit/3f9f5c117e4e9e4a0c0a648cb6db9a3073cd5727) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix registry failures using unexpected package managers when running create-astro
+
 ## 3.1.7
 
 ### Patch Changes

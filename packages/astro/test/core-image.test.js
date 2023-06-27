@@ -4,8 +4,8 @@ import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { removeDir } from '../dist/core/fs/index.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
 import { testImageService } from './test-image-service.js';
+import { loadFixture } from './test-utils.js';
 
 describe('astro:image', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -118,7 +118,7 @@ describe('astro:image', () => {
 				expect(logs[0].message).to.contain('Received unsupported format');
 			});
 
-			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import ssss", async () => {
+			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/error-image-src-passed');
 				await res.text();

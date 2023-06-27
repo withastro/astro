@@ -11,7 +11,7 @@
     "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "build:examples": "turbo run build --filter=\"@example/*\"",
-    "dev": "turbo run dev --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
     "format:code": "prettier -w . --cache --plugin-search-dir=.",
@@ -29,7 +29,7 @@
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "astro-benchmark",
     "lint": "eslint --cache .",
-    "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
+    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
     "preinstall": "npx only-allow pnpm"
   },
   "workspaces": [
@@ -39,9 +39,9 @@
   ],
   "engines": {
     "node": ">=16.12.0",
-    "pnpm": ">=8.2.0"
+    "pnpm": ">=8.6.2"
   },
-  "packageManager": "pnpm@8.6.0",
+  "packageManager": "pnpm@8.6.2",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {
@@ -68,9 +68,6 @@
       "allowAny": [
         "astro"
       ]
-    },
-    "patchedDependencies": {
-      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch"
     }
   },
   "dependencies": {
@@ -78,22 +75,22 @@
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "0.4.4",
-    "@changesets/cli": "2.23.0",
-    "@types/node": "^18.7.21",
-    "@typescript-eslint/eslint-plugin": "^5.58.0",
-    "@typescript-eslint/parser": "^5.58.0",
-    "esbuild": "^0.17.12",
-    "eslint": "^8.38.0",
+    "@changesets/changelog-github": "^0.4.8",
+    "@changesets/cli": "^2.26.1",
+    "@types/node": "^18.16.18",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
+    "@typescript-eslint/parser": "^5.60.0",
+    "esbuild": "^0.17.19",
+    "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.8.8",
-    "prettier-plugin-astro": "^0.8.0",
+    "prettier-plugin-astro": "^0.10.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.9.3",
+    "turbo": "^1.10.3",
     "typescript": "~5.0.2"
   }
 }
