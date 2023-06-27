@@ -36,7 +36,7 @@ export function createStylePreprocessor({
 			return { code: result.code, map };
 		} catch (err: any) {
 			try {
-				err = enhanceCSSError(err, filename);
+				err = enhanceCSSError(err, filename, content);
 			} catch {}
 			cssTransformErrors.push(err);
 			return { error: err + '' };
@@ -44,9 +44,9 @@ export function createStylePreprocessor({
 	};
 }
 
-function enhanceCSSError(err: any, filename: string) {
+function enhanceCSSError(err: any, filename: string, cssContent: string) {
 	const fileContent = fs.readFileSync(filename).toString();
-	const styleTagBeginning = fileContent.indexOf(err.input?.source ?? err.code);
+	const styleTagBeginning = fileContent.indexOf(cssContent);
 
 	// PostCSS Syntax Error
 	if (err.name === 'CssSyntaxError') {
