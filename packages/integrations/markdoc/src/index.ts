@@ -4,7 +4,7 @@ import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import {
 	hasContentFlag,
 	isValidUrl,
@@ -15,11 +15,15 @@ import {
 } from './utils.js';
 // @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
 import { emitESMImage } from 'astro/assets';
-import { bold, red, yellow } from 'kleur/colors';
+import { bold, red } from 'kleur/colors';
 import path from 'node:path';
 import type * as rollup from 'rollup';
 import { normalizePath } from 'vite';
-import { loadMarkdocConfig, type MarkdocConfigResult } from './load-config.js';
+import {
+	loadMarkdocConfig,
+	SUPPORTED_MARKDOC_CONFIG_FILES,
+	type MarkdocConfigResult,
+} from './load-config.js';
 import { setupConfig } from './runtime.js';
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -45,15 +49,13 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 	}
 	let markdocConfigResult: MarkdocConfigResult | undefined;
 	let markdocConfigResultId = '';
+	let astroConfig: AstroConfig;
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
-				const {
-					config: astroConfig,
-					updateConfig,
-					addContentEntryType,
-				} = params as SetupHookParams;
+				const { updateConfig, addContentEntryType } = params as SetupHookParams;
+				astroConfig = params.config;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 				if (markdocConfigResult) {
@@ -204,10 +206,8 @@ export const Content = createComponent({
 
 				updateConfig({
 					vite: {
-						vite: {
-							ssr: {
-								external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
-							},
+						ssr: {
+							external: ['@astrojs/markdoc/prism', '@astrojs/markdoc/shiki'],
 						},
 						build: {
 							rollupOptions,
@@ -233,12 +233,8 @@ export const Content = createComponent({
 			},
 			'astro:server:setup': async ({ server }) => {
 				server.watcher.on('all', (event, entry) => {
-					if (prependForwardSlash(pathToFileURL(entry).pathname) === markdocConfigResultId) {
-						console.log(
-							yellow(
-								`${bold('[Markdoc]')} Restart the dev server for config changes to take effect.`
-							)
-						);
+					if (SUPPORTED_MARKDOC_CONFIG_FILES.some((f) => entry.endsWith(f))) {
+						server.restart();
 					}
 				});
 			},
