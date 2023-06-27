@@ -12,7 +12,6 @@ export const defaultTestPermissions: Deno.PermissionOptions = {
 	env: true,
 };
 
-export declare type StartServerCallback = (url: URL) => Promise<void>;
 declare type ExitCallback = () => void;
 
 export async function runBuild(fixturePath: string) {
@@ -59,31 +58,20 @@ export async function startModFromSubprocess(baseUrl: URL): Promise<ExitCallback
 	return () => proc.close();
 }
 
-export async function runBuildAndStartApp(fixturePath: string, cb: StartServerCallback) {
+export async function runBuildAndStartApp(fixturePath: string) {
 	const url = new URL(fixturePath, dir);
 
 	await runBuild(fixturePath);
 	const stop = await startModFromImport(url);
 
-	try {
-		await cb(defaultURL);
-	} finally {
-		stop();
-	}
+	return { url: defaultURL, stop };
 }
 
-export async function runBuildAndStartAppFromSubprocess(
-	fixturePath: string,
-	cb: StartServerCallback
-) {
+export async function runBuildAndStartAppFromSubprocess(fixturePath: string) {
 	const url = new URL(fixturePath, dir);
 
 	await runBuild(fixturePath);
 	const stop = await startModFromSubprocess(url);
 
-	try {
-		await cb(defaultURL);
-	} finally {
-		stop();
-	}
+	return { url: defaultURL, stop };
 }

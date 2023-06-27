@@ -18,8 +18,7 @@ import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
 import { info, type LogOptions } from '../core/logger/core.js';
-import { isHybridOutput } from '../prerender/utils.js';
-import { mdxContentEntryType } from '../vite-plugin-markdown/content-entry-type.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -102,11 +101,6 @@ export async function runHookConfigSetup({
 					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 				addClientDirective: ({ name, entrypoint }) => {
-					if (!settings.config.experimental.customClientDirectives) {
-						throw new Error(
-							`The "${integration.name}" integration is trying to add the "${name}" client directive, but the \`experimental.customClientDirectives\` config is not enabled.`
-						);
-					}
 					if (updatedSettings.clientDirectives.has(name) || addedClientDirectives.has(name)) {
 						throw new Error(
 							`The "${integration.name}" integration is trying to add the "${name}" client directive, but it already exists.`
@@ -154,15 +148,6 @@ export async function runHookConfigSetup({
 				hookResult: integration.hooks['astro:config:setup'](hooks),
 				logging,
 			});
-
-			// Add MDX content entry type to support older `@astrojs/mdx` versions
-			// TODO: remove in next Astro minor release
-			if (
-				integration.name === '@astrojs/mdx' &&
-				!updatedSettings.contentEntryTypes.find((c) => c.extensions.includes('.mdx'))
-			) {
-				addContentEntryType(mdxContentEntryType);
-			}
 
 			// Add custom client directives to settings, waiting for compiled code by esbuild
 			for (const [name, compiled] of addedClientDirectives) {
@@ -291,7 +276,9 @@ export async function runHookBuildSetup({
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
 	logging: LogOptions;
-}) {
+}): Promise<InlineConfig> {
+	let updatedConfig = vite;
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
 			await withTakingALongTimeMsg({
@@ -301,29 +288,33 @@ export async function runHookBuildSetup({
 					pages,
 					target,
 					updateConfig: (newConfig) => {
-						mergeConfig(vite, newConfig);
+						updatedConfig = mergeConfig(updatedConfig, newConfig);
 					},
 				}),
 				logging,
 			});
 		}
 	}
+
+	return updatedConfig;
 }
 
 export async function runHookBuildSsr({
 	config,
 	manifest,
 	logging,
+	entryPoints,
 }: {
 	config: AstroConfig;
 	manifest: SerializedSSRManifest;
 	logging: LogOptions;
+	entryPoints: Map<RouteData, URL>;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:ssr']({ manifest }),
+				hookResult: integration.hooks['astro:build:ssr']({ manifest, entryPoints }),
 				logging,
 			});
 		}
@@ -339,8 +330,7 @@ export async function runHookBuildGenerated({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	const dir =
-		config.output === 'server' || isHybridOutput(config) ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
@@ -366,8 +356,7 @@ export async function runHookBuildDone({
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
-	const dir =
-		config.output === 'server' || isHybridOutput(config) ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {

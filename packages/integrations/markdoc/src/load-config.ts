@@ -1,8 +1,8 @@
-import type { Config as MarkdocConfig } from '@markdoc/markdoc';
 import type { AstroConfig } from 'astro';
 import { build as esbuild } from 'esbuild';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { AstroMarkdocConfig } from './config.js';
 
 const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.js',
@@ -12,7 +12,7 @@ const SUPPORTED_MARKDOC_CONFIG_FILES = [
 ];
 
 export type MarkdocConfigResult = {
-	config: MarkdocConfig;
+	config: AstroMarkdocConfig;
 	fileUrl: URL;
 };
 
@@ -33,7 +33,7 @@ export async function loadMarkdocConfig(
 		markdocConfigUrl,
 		astroConfig,
 	});
-	const config: MarkdocConfig = await loadConfigFromBundledFile(astroConfig.root, code);
+	const config: AstroMarkdocConfig = await loadConfigFromBundledFile(astroConfig.root, code);
 
 	return {
 		config,
@@ -93,7 +93,7 @@ async function bundleConfigFile({
  * with ESM only
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L1074
  */
-async function loadConfigFromBundledFile(root: URL, code: string): Promise<MarkdocConfig> {
+async function loadConfigFromBundledFile(root: URL, code: string): Promise<AstroMarkdocConfig> {
 	// Write it to disk, load it with native Node ESM, then delete the file.
 	const tmpFileUrl = new URL(`markdoc.config.timestamp-${Date.now()}.mjs`, root);
 	fs.writeFileSync(tmpFileUrl, code);

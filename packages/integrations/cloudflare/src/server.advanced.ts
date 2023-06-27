@@ -1,3 +1,4 @@
+import type { ExecutionContext, Request as CFRequest } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
@@ -14,7 +15,7 @@ type Env = {
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
-	const fetch = async (request: Request, env: Env, context: any) => {
+	const fetch = async (request: Request & CFRequest, env: Env, context: ExecutionContext) => {
 		process.env = env as any;
 
 		const { pathname } = new URL(request.url);
@@ -31,7 +32,16 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
-			Reflect.set(request, Symbol.for('runtime'), { env, name: 'cloudflare', ...context });
+			Reflect.set(request, Symbol.for('runtime'), {
+				env,
+				name: 'cloudflare',
+				caches,
+				cf: request.cf,
+				...context,
+				waitUntil: (promise: Promise<any>) => {
+					context.waitUntil(promise);
+				},
+			});
 			let response = await app.render(request, routeData);
 
 			if (app.setCookieHeaders) {

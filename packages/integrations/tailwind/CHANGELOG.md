@@ -1,5 +1,68 @@
 # @astrojs/tailwind
 
+## 4.0.0
+
+### Major Changes
+
+- [#7391](https://github.com/withastro/astro/pull/7391) [`556fd694a`](https://github.com/withastro/astro/commit/556fd694a6672572caffce964b852d212d013ac8) Thanks [@bluwy](https://github.com/bluwy)! - Rename options `config.path` to `configFile`, and `config.applyBaseStyles` to `applyBaseStyles`. If you are using these options, you need to migrate to the new names.
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import tailwind from '@astrojs/tailwind';
+
+  export default defineConfig({
+    integrations: [
+      tailwind({
+  -      config: {
+  -        path: '...',
+  -        applyBaseStyles: true,
+  -      },
+  +      configFile: '...',
+  +      applyBaseStyles: true,
+      }),
+    ],
+  });
+  ```
+
+- [#6724](https://github.com/withastro/astro/pull/6724) [`3f1cb6b1a`](https://github.com/withastro/astro/commit/3f1cb6b1a001fb03419a313f72c9f4846b890fe0) Thanks [@TomPichaud](https://github.com/TomPichaud)! - Let the `tailwindcss` PostCSS plugin load its config file itself. This changes the Tailwind config loading behaviour where it is loaded from `process.cwd()` instead of the project `root`.
+
+  If your Tailwind config file is not located in the current working directory, you will need to configure the integration's `configFile` option to load from a specific path:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import tailwind from '@astrojs/tailwind';
+  import { fileURLToPath } from 'url';
+
+  export default defineConfig({
+    integrations: [
+      tailwind({
+        configFile: fileURLToPath(new URL('./tailwind.config.cjs', import.meta.url)),
+      }),
+    ],
+  });
+  ```
+
+  This change also requires a Tailwind config file to exist in your project as a fallback config is no longer provided. It is set up automatically during `astro add tailwind`, but if it does not exist, you can manually create a `tailwind.config.cjs` file in your project root:
+
+  ```js
+  // tailwind.config.cjs
+  /** @type {import('tailwindcss').Config} */
+  module.exports = {
+    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    theme: {
+      extend: {},
+    },
+    plugins: [],
+  };
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`bb644834e`](https://github.com/withastro/astro/commit/bb644834ef03bc00048c7381f20a1c01388438e2), [`d2020c29c`](https://github.com/withastro/astro/commit/d2020c29cf285e699f92143a70ffa30a85122bb4)]:
+  - astro@2.6.5
+
 ## 3.1.3
 
 ### Patch Changes

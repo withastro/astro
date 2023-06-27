@@ -1,17 +1,16 @@
 import { extname } from 'node:path';
 import type { Plugin as VitePlugin } from 'vite';
+import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { type BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { MIDDLEWARE_MODULE_ID } from './plugin-middleware.js';
 import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
+import { ASTRO_PAGE_EXTENSION_POST_PATTERN, getPathFromVirtualModulePageName } from './util.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
-export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0@astro-page:';
-
-// This is an arbitrary string that we are going to replace the dot of the extension
-export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
+export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
 
 /**
  * 1. We add a fixed prefix, which is used as virtual module naming convention;
@@ -29,6 +28,11 @@ export function getVirtualModulePageNameFromPath(path: string) {
 	)}`;
 }
 
+export function getVirtualModulePageIdFromPath(path: string) {
+	const name = getVirtualModulePageNameFromPath(path);
+	return '\x00' + name;
+}
+
 function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-pages',
@@ -37,7 +41,10 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (opts.settings.config.output === 'static') {
 				const inputs: Set<string> = new Set();
 
-				for (const path of Object.keys(opts.allPages)) {
+				for (const [path, pageData] of Object.entries(opts.allPages)) {
+					if (routeIsRedirect(pageData.route)) {
+						continue;
+					}
 					inputs.add(getVirtualModulePageNameFromPath(path));
 				}
 
@@ -55,12 +62,8 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 			if (id.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
 				const imports: string[] = [];
 				const exports: string[] = [];
-				// we remove the module name prefix from id, this will result into a string that will start with "src/..."
-				const pageName = id.slice(ASTRO_PAGE_RESOLVED_MODULE_ID.length);
-				// We replaced the `.` of the extension with ASTRO_PAGE_EXTENSION_POST_PATTERN, let's replace it back
-				const pageData = internals.pagesByComponent.get(
-					`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`
-				);
+				const pageName = getPathFromVirtualModulePageName(ASTRO_PAGE_RESOLVED_MODULE_ID, id);
+				const pageData = internals.pagesByComponent.get(pageName);
 				if (pageData) {
 					const resolvedPage = await this.resolve(pageData.moduleSpecifier);
 					if (resolvedPage) {
@@ -70,9 +73,10 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
 						exports.push(`export { renderers };`);
 
-						if (opts.settings.config.experimental.middleware) {
-							imports.push(`import * as _middleware from "${MIDDLEWARE_MODULE_ID}";`);
-							exports.push(`export const middleware = _middleware;`);
+						const middlewareModule = await this.resolve(MIDDLEWARE_MODULE_ID);
+						if (middlewareModule) {
+							imports.push(`import { onRequest } from "${middlewareModule.id}";`);
+							exports.push(`export { onRequest };`);
 						}
 
 						return `${imports.join('\n')}${exports.join('\n')}`;

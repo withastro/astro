@@ -6,6 +6,7 @@ import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { appendForwardSlash } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -44,14 +45,21 @@ export function astroContentVirtualModPlugin({
 		)
 		.replace('@@CONTENT_DIR@@', relContentDir)
 		.replace(
-			'@@CONTENT_ENTRY_GLOB_PATH@@',
-			// [!_] = ignore files starting with "_"
-			`${relContentDir}**/[!_]*${getExtGlob(contentEntryExts)}`
+			"'@@CONTENT_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, contentEntryExts))
 		)
-		.replace('@@DATA_ENTRY_GLOB_PATH@@', `${relContentDir}**/[!_]*${getExtGlob(dataEntryExts)}`)
 		.replace(
-			'@@RENDER_ENTRY_GLOB_PATH@@',
-			`${relContentDir}**/*${getExtGlob(/** Note: data collections excluded */ contentEntryExts)}`
+			"'@@DATA_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(globWithUnderscoresIgnored(relContentDir, dataEntryExts))
+		)
+		.replace(
+			"'@@RENDER_ENTRY_GLOB_PATH@@'",
+			JSON.stringify(
+				globWithUnderscoresIgnored(
+					relContentDir,
+					/** Note: data collections excluded */ contentEntryExts
+				)
+			)
 		);
 
 	const astroContentVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
@@ -87,7 +95,7 @@ export function astroContentVirtualModPlugin({
 /**
  * Generate a map from a collection + slug to the local file path.
  * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `src/content/virtual-mod.mjs`
+ * @see `content-module.template.mjs`
  */
 export async function getStringifiedLookupMap({
 	contentPaths,
@@ -159,6 +167,16 @@ export async function getStringifiedLookupMap({
 						fileUrl: pathToFileURL(filePath),
 						contentEntryType,
 					});
+					if (lookupMap[collection]?.entries?.[slug]) {
+						throw new AstroError({
+							...AstroErrorData.DuplicateContentEntrySlugError,
+							message: AstroErrorData.DuplicateContentEntrySlugError.message(collection, slug),
+							hint:
+								slug !== generatedSlug
+									? `Check the \`slug\` frontmatter property in **${id}**.`
+									: undefined,
+						});
+					}
 					lookupMap[collection] = {
 						type: 'content',
 						entries: {
@@ -189,3 +207,13 @@ const UnexpectedLookupMapError = new AstroError({
 	...AstroErrorData.UnknownContentCollectionError,
 	message: `Unexpected error while parsing content entry IDs and slugs.`,
 });
+
+function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	const contentDir = appendForwardSlash(relContentDir);
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}_*/**${extGlob}`,
+		`!${contentDir}_*${extGlob}`,
+	];
+}

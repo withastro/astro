@@ -1,4 +1,5 @@
 import type {
+	AstroCookies,
 	ComponentInstance,
 	Params,
 	Props,
@@ -6,8 +7,11 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../@types/astro';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getParamsAndPropsOrThrow } from './core.js';
 import type { Environment } from './environment';
+
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 /**
  * The RenderContext represents the parts of rendering that are specific to one request.
@@ -23,8 +27,10 @@ export interface RenderContext {
 	componentMetadata?: SSRResult['componentMetadata'];
 	route?: RouteData;
 	status?: number;
+	cookies?: AstroCookies;
 	params: Params;
 	props: Props;
+	locals?: object;
 }
 
 export type CreateRenderContextArgs = Partial<RenderContext> & {
@@ -49,7 +55,8 @@ export async function createRenderContext(
 		logging: options.env.logging,
 		ssr: options.env.ssr,
 	});
-	return {
+
+	let context = {
 		...options,
 		origin,
 		pathname,
@@ -57,4 +64,21 @@ export async function createRenderContext(
 		params,
 		props,
 	};
+
+	// We define a custom property, so we can check the value passed to locals
+	Object.defineProperty(context, 'locals', {
+		enumerable: true,
+		get() {
+			return Reflect.get(request, clientLocalsSymbol);
+		},
+		set(val) {
+			if (typeof val !== 'object') {
+				throw new AstroError(AstroErrorData.LocalsNotAnObject);
+			} else {
+				Reflect.set(request, clientLocalsSymbol, val);
+			}
+		},
+	});
+
+	return context;
 }

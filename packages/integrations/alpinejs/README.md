@@ -43,7 +43,7 @@ npm install alpinejs @types/alpinejs
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js ins={2} "alpine()"
 import { defineConfig } from 'astro/config';

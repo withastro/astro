@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import type { Node } from '@markdoc/markdoc';
+import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-	createNameHash,
 	hasContentFlag,
 	isValidUrl,
 	MarkdocError,
@@ -85,7 +85,11 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 
 						const filePath = fileURLToPath(fileUrl);
 
-						const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
+						const validationErrors = Markdoc.validate(
+							ast,
+							/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
+							markdocConfig as MarkdocConfig
+						).filter((e) => {
 							return (
 								// Ignore `variable-undefined` errors.
 								// Variables can be configured at runtime,
@@ -287,4 +291,19 @@ async function emitOptimizedImages(
 function shouldOptimizeImage(src: string) {
 	// Optimize anything that is NOT external or an absolute path to `public/`
 	return !isValidUrl(src) && !src.startsWith('/');
+}
+
+/**
+ * Create build hash for manual Rollup chunks.
+ * @see 'packages/astro/src/core/build/plugins/plugin-css.ts'
+ */
+function createNameHash(baseId: string, hashIds: string[]): string {
+	const baseName = baseId ? path.parse(baseId).name : 'index';
+	const hash = crypto.createHash('sha256');
+	for (const id of hashIds) {
+		hash.update(id, 'utf-8');
+	}
+	const h = hash.digest('hex').slice(0, 8);
+	const proposedName = baseName + '.' + h;
+	return proposedName;
 }

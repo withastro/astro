@@ -27,7 +27,6 @@ function safeMatter(source: string, id: string) {
 		return matter(source);
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
-			code: AstroErrorData.UnknownMarkdownError.code,
 			message: err.message,
 			stack: err.stack,
 			location: {
@@ -36,7 +35,6 @@ function safeMatter(source: string, id: string) {
 		});
 
 		if (err.name === 'YAMLException') {
-			markdownError.setErrorCode(AstroErrorData.MarkdownFrontmatterParseError.code);
 			markdownError.setLocation({
 				file: id,
 				line: err.mark.line,

@@ -1,20 +1,20 @@
+import mime from 'mime';
 import type {
-	ComponentInstance,
 	EndpointHandler,
 	ManifestData,
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
+	SSRManifest,
 } from '../../@types/astro';
-import type { RouteInfo, SSRManifest as Manifest } from './types';
-
-import mime from 'mime';
+import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -28,6 +28,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -40,7 +41,7 @@ export interface MatchOptions {
 
 export class App {
 	#env: Environment;
-	#manifest: Manifest;
+	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#encoder = new TextEncoder();
@@ -51,7 +52,7 @@ export class App {
 	#base: string;
 	#baseWithoutTrailingSlash: string;
 
-	constructor(manifest: Manifest, streaming = true) {
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
@@ -114,7 +115,7 @@ export class App {
 			return undefined;
 		}
 	}
-	async render(request: Request, routeData?: RouteData): Promise<Response> {
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
 		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
@@ -130,29 +131,27 @@ export class App {
 			}
 		}
 
-		Reflect.set(request, clientLocalsSymbol, {});
+		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 		// Use the 404 status code for 404.astro components
 		if (routeData.route === '/404') {
 			defaultStatus = 404;
 		}
 
-		let page = await this.#manifest.pageMap.get(routeData.component)!();
-		let mod = await page.page();
+		let mod = await this.#getModuleForRoute(routeData);
 
-		if (routeData.type === 'page') {
+		if (routeData.type === 'page' || routeData.type === 'redirect') {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
 			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 			if (response.status === 500 || response.status === 404) {
-				const errorPageData = matchRoute('/' + response.status, this.#manifestData);
-				if (errorPageData && errorPageData.route !== routeData.route) {
-					page = await this.#manifest.pageMap.get(errorPageData.component)!();
-					mod = await page.page();
+				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
+				if (errorRouteData && errorRouteData.route !== routeData.route) {
+					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
 						let errorResponse = await this.#renderPage(
 							request,
-							errorPageData,
+							errorRouteData,
 							mod,
 							response.status
 						);
@@ -172,10 +171,34 @@ export class App {
 		return getSetCookiesFromResponse(response);
 	}
 
+	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		if (route.type === 'redirect') {
+			return RedirectSinglePageBuiltModule;
+		} else {
+			if (this.#manifest.pageMap) {
+				const importComponentInstance = this.#manifest.pageMap.get(route.component);
+				if (!importComponentInstance) {
+					throw new Error(
+						`Unexpectedly unable to find a component instance for route ${route.route}`
+					);
+				}
+				const pageModule = await importComponentInstance();
+				return pageModule;
+			} else if (this.#manifest.pageModule) {
+				const importComponentInstance = this.#manifest.pageModule;
+				return importComponentInstance;
+			} else {
+				throw new Error(
+					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
+				);
+			}
+		}
+	}
+
 	async #renderPage(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance,
+		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
@@ -200,6 +223,7 @@ export class App {
 		}
 
 		try {
+			const mod = (await page.page()) as any;
 			const renderContext = await createRenderContext({
 				request,
 				origin: url.origin,
@@ -210,7 +234,7 @@ export class App {
 				links,
 				route: routeData,
 				status,
-				mod: mod as any,
+				mod,
 				env: this.#env,
 			});
 
@@ -221,15 +245,14 @@ export class App {
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
-			const onRequest = this.#manifest.middleware?.onRequest;
 			let response;
-			if (onRequest) {
+			if (page.onRequest) {
 				response = await callMiddleware<Response>(
 					this.#env.logging,
-					onRequest as MiddlewareResponseHandler,
+					page.onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, apiContext });
+						return renderPage({ mod, renderContext, env: this.#env, cookies: apiContext.cookies });
 					}
 				);
 			} else {
@@ -237,7 +260,7 @@ export class App {
 					mod,
 					renderContext,
 					env: this.#env,
-					apiContext,
+					cookies: apiContext.cookies,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
@@ -254,11 +277,12 @@ export class App {
 	async #callEndpoint(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance,
+		page: SinglePageBuiltModule,
 		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = '/' + this.removeBase(url.pathname);
+		const mod = await page.page();
 		const handler = mod as unknown as EndpointHandler;
 
 		const ctx = await createRenderContext({
@@ -271,13 +295,7 @@ export class App {
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(
-			handler,
-			this.#env,
-			ctx,
-			this.#logging,
-			this.#manifest.middleware
-		);
+		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.onRequest);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

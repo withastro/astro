@@ -1,8 +1,9 @@
-import type { APIContext, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
+import type { AstroCookies, ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
+import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import { getParams } from '../routing/params.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
@@ -107,16 +108,30 @@ export type RenderPage = {
 	mod: ComponentInstance;
 	renderContext: RenderContext;
 	env: Environment;
-	apiContext?: APIContext;
+	isCompressHTML?: boolean;
+	cookies: AstroCookies;
 };
 
-export async function renderPage({ mod, renderContext, env, apiContext }: RenderPage) {
+export async function renderPage({
+	mod,
+	renderContext,
+	env,
+	cookies,
+	isCompressHTML = false,
+}: RenderPage) {
+	if (routeIsRedirect(renderContext.route)) {
+		return new Response(null, {
+			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
+			headers: {
+				location: redirectRouteGenerate(renderContext.route, renderContext.params),
+			},
+		});
+	}
+
 	// Validate the page component before rendering the page
 	const Component = mod.default;
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-
-	let locals = apiContext?.locals ?? {};
 
 	const result = createResult({
 		adapterName: env.adapterName,
@@ -138,7 +153,8 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		scripts: renderContext.scripts,
 		ssr: env.ssr,
 		status: renderContext.status ?? 200,
-		locals,
+		cookies,
+		locals: renderContext.locals ?? {},
 	});
 
 	// Support `export const components` for `MDX` pages
@@ -152,6 +168,7 @@ export async function renderPage({ mod, renderContext, env, apiContext }: Render
 		renderContext.props,
 		null,
 		env.streaming,
+		isCompressHTML,
 		renderContext.route
 	);
 

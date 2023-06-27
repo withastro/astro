@@ -9,7 +9,7 @@ import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { removeTrailingForwardSlash } from '../core/path.js';
 import { eventError, telemetry } from '../events/index.js';
-import { isHybridOutput } from '../prerender/utils.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 import { runWithErrorHandling } from './controller.js';
 import { handle500Response } from './response.js';
 import { handleRoute, matchRoute } from './route.js';
@@ -25,7 +25,7 @@ export async function handleRequest(
 	const { settings, loader: moduleLoader } = env;
 	const { config } = settings;
 	const origin = `${moduleLoader.isHttps() ? 'https' : 'http'}://${req.headers.host}`;
-	const buildingToSSR = config.output === 'server' || isHybridOutput(config);
+	const buildingToSSR = isServerLikeOutput(config);
 
 	const url = new URL(origin + req.url);
 	let pathname: string;

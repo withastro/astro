@@ -1,6 +1,5 @@
 import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
-import slash from 'slash';
 
 describe('Prerendering', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -21,7 +20,7 @@ describe('Prerendering', () => {
 
 	it('includes prerendered routes in the routes.json config', async () => {
 		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
-			slash(r)
+			r.replace(/\\/g, '/')
 		);
 		const expectedExcludedRoutes = ['/_worker.js', '/one/index.html', '/one/'];
 
@@ -38,9 +37,6 @@ describe('Hybrid rendering', () => {
 		fixture = await loadFixture({
 			root: './fixtures/prerender/',
 			output: 'hybrid',
-			experimental: {
-				hybridOutput: true,
-			},
 		});
 		await fixture.build();
 	});
@@ -51,7 +47,7 @@ describe('Hybrid rendering', () => {
 
 	it('includes prerendered routes in the routes.json config', async () => {
 		const foundRoutes = JSON.parse(await fixture.readFile('/_routes.json')).exclude.map((r) =>
-			slash(r)
+			r.replace(/\\/g, '/')
 		);
 		const expectedExcludedRoutes = ['/_worker.js', '/index.html', '/'];
 

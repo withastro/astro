@@ -165,6 +165,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 										export default Content;`;
 									}
 
+									// mark the component as an MDX component
+									code += `\nContent[Symbol.for('mdx-component')] = true`;
+
 									// Ensures styles and scripts are injected into a `<head>`
 									// When a layout is not applied
 									code += `\nContent[Symbol.for('astro.needsHeadRendering')] = !Boolean(frontmatter.layout);`;

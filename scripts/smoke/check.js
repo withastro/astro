@@ -3,6 +3,7 @@
 import { spawn } from 'child_process';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
+import pLimit from 'p-limit';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 
 function checkExamples() {
@@ -11,9 +12,13 @@ function checkExamples() {
 
 	console.log(`Running astro check on ${examples.length} examples...`);
 
-	Promise.all(
-		examples.map(
-			(example) =>
+	// Run astro check in parallel with 5 at most
+	const checkPromises = [];
+	const limit = pLimit(5);
+
+	for (const example of examples) {
+		checkPromises.push(
+			limit(() =>
 				new Promise((resolve) => {
 					const originalConfig = prepareExample(example.name);
 					let data = '';
@@ -36,8 +41,11 @@ function checkExamples() {
 						resolve(code);
 					});
 				})
+			)
 		)
-	).then((codes) => {
+	}
+
+	Promise.all(checkPromises).then((codes) => {
 		if (codes.some((code) => code !== 0)) {
 			process.exit(1);
 		}

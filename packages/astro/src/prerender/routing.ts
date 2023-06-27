@@ -1,5 +1,10 @@
 import type { AstroSettings, RouteData } from '../@types/astro';
-import { preload, type DevelopmentEnvironment } from '../core/render/dev/index.js';
+import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
+import {
+	preload,
+	type ComponentPreload,
+	type DevelopmentEnvironment,
+} from '../core/render/dev/index.js';
 import { getPrerenderStatus } from './metadata.js';
 
 type GetSortedPreloadedMatchesParams = {
@@ -26,14 +31,31 @@ type PreloadAndSetPrerenderStatusParams = {
 	matches: RouteData[];
 	settings: AstroSettings;
 };
+
+type PreloadAndSetPrerenderStatusResult = {
+	filePath: URL;
+	route: RouteData;
+	preloadedComponent: ComponentPreload;
+};
+
 async function preloadAndSetPrerenderStatus({
 	env,
 	matches,
 	settings,
-}: PreloadAndSetPrerenderStatusParams) {
+}: PreloadAndSetPrerenderStatusParams): Promise<PreloadAndSetPrerenderStatusResult[]> {
 	const preloaded = await Promise.all(
 		matches.map(async (route) => {
 			const filePath = new URL(`./${route.component}`, settings.config.root);
+
+			if (routeIsRedirect(route)) {
+				const preloadedComponent: ComponentPreload = [[], RedirectComponentInstance];
+				return {
+					preloadedComponent,
+					route,
+					filePath,
+				};
+			}
+
 			const preloadedComponent = await preload({ env, filePath });
 
 			// gets the prerender metadata set by the `astro:scanner` vite plugin
@@ -46,7 +68,7 @@ async function preloadAndSetPrerenderStatus({
 				route.prerender = prerenderStatus;
 			}
 
-			return { preloadedComponent, route, filePath } as const;
+			return { preloadedComponent, route, filePath };
 		})
 	);
 	return preloaded;

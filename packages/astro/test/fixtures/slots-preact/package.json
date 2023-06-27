@@ -6,6 +6,6 @@
     "@astrojs/mdx": "workspace:*",
     "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.11.0"
+    "preact": "^10.15.1"
   }
 }
