@@ -3,7 +3,7 @@ import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import { extname, join } from 'node:path';
+import { extname } from 'node:path';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';

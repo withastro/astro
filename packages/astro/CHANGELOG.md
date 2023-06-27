@@ -42,15 +42,15 @@
 
   ```ts
   export function integration(): AstroIntegration {
-      return {
-          name: "my-integration",
-          hooks: { 
-              "astro:build:ssr": ({ entryPoints }) => {
-                  // do something with `entryPoints`
-              }
-          }
-      }
-  } 
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:build:ssr': ({ entryPoints }) => {
+          // do something with `entryPoints`
+        },
+      },
+    };
+  }
   ```
 
 ### Patch Changes
