@@ -22,7 +22,6 @@
     "test:unit:match": "cd packages/astro && pnpm run test:unit:match",
     "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
     "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
-    "test:smoke:docgen": "turbo run docgen docgen:errors docgen:integrations --filter=docs",
     "test:smoke:docs": "turbo run build --filter=docs",
     "test:check-examples": "node ./scripts/smoke/check.js",
     "test:vite-ci": "turbo run test --filter=astro",
