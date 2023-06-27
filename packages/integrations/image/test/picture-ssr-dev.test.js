@@ -12,7 +12,6 @@ const toAstroImage = (relpath) =>
 describe('SSR pictures - dev', function () {
 	let fixture;
 	let devServer;
-	/** @type {import('cheerio').CheerioAPI} */
 	let $;
 
 	before(async () => {
