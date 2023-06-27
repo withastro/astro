@@ -8,6 +8,9 @@ describe('Serverless prerender', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware/',
+			build: {
+				excludeMiddleware: true,
+			},
 		});
 	});
 

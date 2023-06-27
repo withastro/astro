@@ -64,7 +64,6 @@ export default function vercelServerless({
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: serverBuildDir,
-						excludeMiddleware: true,
 					},
 					vite: {
 						define: viteDefine,
