@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Astro exposes the middleware file path to the integrations in the hook `astro:build:done`
+Astro exposes the middleware file path to the integrations in the hook `astro:build:ssr`
 
 ```ts
 // myIntegration.js
@@ -11,7 +11,7 @@ function integration(): AstroIntegration {
     return {
         name: "fancy-astro-integration",
         hooks: {
-            'astro:build:done': ({ middlewareEntryPoint }) => { 
+            'astro:build:ssr': ({ middlewareEntryPoint }) => { 
                 if (middlewareEntryPoint) {
                     // do some operations
                 }

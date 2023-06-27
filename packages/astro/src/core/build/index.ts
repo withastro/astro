@@ -194,7 +194,6 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
-			middlewareEntryPoint: internals.middlewareEntryPoint,
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

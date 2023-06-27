@@ -46,6 +46,8 @@ export default function vercelServerless({
 	let serverEntry: string;
 	let serverBuildDir: URL;
 
+	const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
+
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
@@ -85,14 +87,23 @@ export default function vercelServerless({
 	`);
 				}
 			},
-			'astro:build:done': async ({ routes, middlewareEntryPoint }) => {
+
+			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				if (middlewareEntryPoint) {
+					const outPath = fileURLToPath(buildTempFolder);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
+					// let's tell the adapter that we need to save this file
+					filesToInclude.push(bundledMiddlewarePath);
+				}
+			},
+
+			'astro:build:done': async ({ routes }) => {
 				// Merge any includes from `vite.assetsInclude
-				const inc = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 				if (_config.vite.assetsInclude) {
 					const mergeGlobbedIncludes = (globPattern: unknown) => {
 						if (typeof globPattern === 'string') {
 							const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
-							inc.push(...entries);
+							filesToInclude.push(...entries);
 						} else if (Array.isArray(globPattern)) {
 							for (const pattern of globPattern) {
 								mergeGlobbedIncludes(pattern);
@@ -102,18 +113,12 @@ export default function vercelServerless({
 
 					mergeGlobbedIncludes(_config.vite.assetsInclude);
 				}
-				if (middlewareEntryPoint) {
-					const outPath = fileURLToPath(buildTempFolder);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
-					// let's tell that we need to save this file
-					inc.push(bundledMiddlewarePath);
-				}
 
 				// Copy necessary files (e.g. node_modules/)
 				const { handler } = await copyDependenciesToFunction({
 					entry: new URL(serverEntry, buildTempFolder),
 					outDir: functionFolder,
-					includeFiles: inc,
+					includeFiles: filesToInclude,
 					excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
 				});
 

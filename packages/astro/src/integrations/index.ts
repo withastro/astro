@@ -299,22 +299,30 @@ export async function runHookBuildSetup({
 	return updatedConfig;
 }
 
+type RunHookBuildSsr = {
+	config: AstroConfig;
+	manifest: SerializedSSRManifest;
+	logging: LogOptions;
+	entryPoints: Map<RouteData, URL>;
+	middlewareEntryPoint: URL | undefined;
+};
+
 export async function runHookBuildSsr({
 	config,
 	manifest,
 	logging,
 	entryPoints,
-}: {
-	config: AstroConfig;
-	manifest: SerializedSSRManifest;
-	logging: LogOptions;
-	entryPoints: Map<RouteData, URL>;
-}) {
+	middlewareEntryPoint,
+}: RunHookBuildSsr) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
-				hookResult: integration.hooks['astro:build:ssr']({ manifest, entryPoints }),
+				hookResult: integration.hooks['astro:build:ssr']({
+					manifest,
+					entryPoints,
+					middlewareEntryPoint,
+				}),
 				logging,
 			});
 		}
@@ -348,16 +356,9 @@ type RunHookBuildDone = {
 	pages: string[];
 	routes: RouteData[];
 	logging: LogOptions;
-	middlewareEntryPoint: URL | undefined;
 };
 
-export async function runHookBuildDone({
-	config,
-	pages,
-	routes,
-	logging,
-	middlewareEntryPoint,
-}: RunHookBuildDone) {
+export async function runHookBuildDone({ config, pages, routes, logging }: RunHookBuildDone) {
 	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
@@ -369,7 +370,6 @@ export async function runHookBuildDone({
 					pages: pages.map((p) => ({ pathname: p })),
 					dir,
 					routes,
-					middlewareEntryPoint,
 				}),
 				logging,
 			});
