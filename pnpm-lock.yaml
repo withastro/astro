@@ -3971,6 +3971,9 @@ importers:
 
   packages/integrations/markdoc:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: ^0.1.0
+        version: link:../../internal-helpers
       '@astrojs/prism':
         specifier: ^2.1.2
         version: link:../../astro-prism
