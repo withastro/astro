@@ -1,7 +1,5 @@
 # @astrojs/mdx 📝
 
-<!-- TEST CHANGE TO TRIGGER DOCS REBUILD -->
-
 This **[Astro integration][astro-integration]** enables the usage of [MDX](https://mdxjs.com/) components and allows you to create pages as `.mdx` files.
 
 - <strong>[Why MDX?](#why-mdx)</strong>
