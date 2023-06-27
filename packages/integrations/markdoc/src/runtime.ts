@@ -6,6 +6,7 @@ import Markdoc, {
 	type RenderableTreeNode,
 } from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
+// @ts-expect-error Cannot find module 'astro/runtime/server/index.js' or its corresponding type declarations.
 import { createComponent, renderComponent } from 'astro/runtime/server/index.js';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
