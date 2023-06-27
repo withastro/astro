@@ -111,21 +111,6 @@ export interface CLIFlags {
 	experimentalRedirects?: boolean;
 }
 
-export interface BuildConfig {
-	/**
-	 * @deprecated Use config.build.client instead.
-	 */
-	client: URL;
-	/**
-	 * @deprecated Use config.build.server instead.
-	 */
-	server: URL;
-	/**
-	 * @deprecated Use config.build.serverEntry instead.
-	 */
-	serverEntry: string;
-}
-
 /**
  * Astro global available in all contexts in .astro files
  *

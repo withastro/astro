@@ -7,7 +7,6 @@ import type {
 	AstroConfig,
 	AstroRenderer,
 	AstroSettings,
-	BuildConfig,
 	ContentEntryType,
 	DataEntryType,
 	HookParameters,
@@ -323,14 +322,12 @@ export async function runHookBuildSsr({
 
 export async function runHookBuildGenerated({
 	config,
-	buildConfig,
 	logging,
 }: {
 	config: AstroConfig;
-	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:generated']) {
@@ -345,18 +342,16 @@ export async function runHookBuildGenerated({
 
 export async function runHookBuildDone({
 	config,
-	buildConfig,
 	pages,
 	routes,
 	logging,
 }: {
 	config: AstroConfig;
-	buildConfig: BuildConfig;
 	pages: string[];
 	routes: RouteData[];
 	logging: LogOptions;
 }) {
-	const dir = isServerLikeOutput(config) ? buildConfig.client : config.outDir;
+	const dir = isServerLikeOutput(config) ? config.build.client : config.outDir;
 	await fs.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of config.integrations) {
