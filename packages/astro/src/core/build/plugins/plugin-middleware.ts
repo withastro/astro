@@ -4,6 +4,7 @@ import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
+import { viteID } from '../../util.js';
 
 export const MIDDLEWARE_MODULE_ID = '@astro-middleware';
 
@@ -57,7 +58,10 @@ export function vitePluginMiddleware(
 					continue;
 				}
 				if (chunk.fileName === 'middleware.mjs') {
-					internals.middlewareEntryPoint = new URL(chunkName, opts.settings.config.build.server);
+					internals.middlewareEntryPoint = {
+						filePath: new URL(chunkName, opts.settings.config.build.server),
+						path: viteID(new URL(chunkName, opts.settings.config.build.server)),
+					};
 				}
 			}
 		},

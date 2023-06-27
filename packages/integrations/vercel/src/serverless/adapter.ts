@@ -90,7 +90,10 @@ export default function vercelServerless({
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				if (middlewareEntryPoint) {
 					const outPath = fileURLToPath(buildTempFolder);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(
+						middlewareEntryPoint.path,
+						outPath
+					);
 					// let's tell the adapter that we need to save this file
 					filesToInclude.push(bundledMiddlewarePath);
 				}

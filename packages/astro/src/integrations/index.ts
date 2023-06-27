@@ -304,7 +304,7 @@ type RunHookBuildSsr = {
 	manifest: SerializedSSRManifest;
 	logging: LogOptions;
 	entryPoints: Map<RouteData, URL>;
-	middlewareEntryPoint: URL | undefined;
+	middlewareEntryPoint: { filePath: URL; path: string } | undefined;
 };
 
 export async function runHookBuildSsr({
