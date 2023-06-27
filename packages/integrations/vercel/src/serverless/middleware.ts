@@ -20,10 +20,15 @@ export async function generateEdgeMiddleware(
 ): Promise<URL> {
 	const filePath = fileURLToPath(astroMiddlewareEntryPoint);
 	const code = edgeMiddlewareTemplate(filePath);
-	const middlewareEdgePath = join(outPath, 'middleware-edge.mjs');
+	console.log(code);
+	// Temporary file, so `esbuild` can resolve it without too much trouble.
+	// Using `stdin` option is not very optimal
+	const middlewareEdgePath = join(outPath, 'middleware-temp.mjs');
 	await writeFile(middlewareEdgePath, code);
+	console.log(middlewareEdgePath);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
-	const bundledFilePath = join(outPath, 'middleware.js');
+	const bundledFilePath = join(outPath, 'middleware.mjs');
+	console.log(bundledFilePath);
 	await esbuild.build({
 		target: 'es2020',
 		platform: 'browser',
