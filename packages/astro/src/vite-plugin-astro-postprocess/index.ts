@@ -61,7 +61,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 			if (s) {
 				return {
 					code: s.toString(),
-					map: s.generateMap(),
+					map: s.generateMap({ hires: true }),
 				};
 			}
 		},

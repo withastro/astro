@@ -1,5 +1,16 @@
 # @astrojs/svelte
 
+## 3.1.0
+
+### Minor Changes
+
+- [#7454](https://github.com/withastro/astro/pull/7454) [`6e7f38dd7`](https://github.com/withastro/astro/commit/6e7f38dd794354fbb582ec0c47e36df750f2bafc) Thanks [@ghostdevv](https://github.com/ghostdevv)! - feat: support svelte 4
+
+### Patch Changes
+
+- Updated dependencies [[`601403744`](https://github.com/withastro/astro/commit/60140374418ff0ee80899615be8e718ae57f791a), [`869197aaf`](https://github.com/withastro/astro/commit/869197aafd9802d059dd8db1ef23794fdd938a91), [`2b7539952`](https://github.com/withastro/astro/commit/2b75399520bebfc537cca8204e483f0df3373904), [`478cd9d8f`](https://github.com/withastro/astro/commit/478cd9d8fa9452466a73e0981863ef6e82f87238), [`57e603038`](https://github.com/withastro/astro/commit/57e603038fa51f5cf023c086705e2ced67434b38), [`f359d77b1`](https://github.com/withastro/astro/commit/f359d77b1844335ceeb103b9d3753eb2f440ed5f)]:
+  - astro@2.7.1
+
 ## 3.0.0
 
 ### Major Changes

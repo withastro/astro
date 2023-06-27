@@ -38,22 +38,22 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Install the Deno adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
 
-    ```bash
-      npm install @astrojs/deno
-    ```
+   ```bash
+     npm install @astrojs/deno
+   ```
 
 1. Update your `astro.config.mjs` project configuration file with the changes below.
 
-    ```js ins={3,6-7}
-    // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-    import deno from '@astrojs/deno';
+   ```js ins={3,6-7}
+   // astro.config.mjs
+   import { defineConfig } from 'astro/config';
+   import deno from '@astrojs/deno';
 
-    export default defineConfig({
-      output: 'server',
-      adapter: deno(),
-    });
-    ```
+   export default defineConfig({
+     output: 'server',
+     adapter: deno(),
+   });
+   ```
 
 Next, update your `preview` script in `package.json` to run `deno`:
 
@@ -75,7 +75,7 @@ You can now use this command to preview your production Astro site locally with 
 ```bash
 npm run preview
 ```
-  
+
 ## Usage
 
 After [performing a build](https://docs.astro.build/en/guides/deploy/#building-your-site-locally) there will be a `dist/server/entry.mjs` module. You can start a server by importing this module in your Deno app:
@@ -92,12 +92,11 @@ You can also run the script directly using deno:
 deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 ```
 
-
 ## Configuration
 
 To configure this adapter, pass an object to the `deno()` function call in `astro.config.mjs`.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -107,7 +106,7 @@ export default defineConfig({
   output: 'server',
   adapter: deno({
     //options go here
-  })
+  }),
 });
 ```
 
@@ -122,15 +121,15 @@ import deno from '@astrojs/deno';
 export default defineConfig({
   output: 'server',
   adapter: deno({
-    start: false
-  })
+    start: false,
+  }),
 });
 ```
 
 If you disable this, you need to write your own Deno web server. Import and call `handle` from the generated entry script to render requests:
 
 ```ts
-import { serve } from "https://deno.land/std@0.167.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.167.0/http/server.ts';
 import { handle } from './dist/entry.mjs';
 
 serve((req: Request) => {
@@ -152,8 +151,8 @@ export default defineConfig({
   output: 'server',
   adapter: deno({
     port: 8081,
-    hostname: 'myhost'
-  })
+    hostname: 'myhost',
+  }),
 });
 ```
 

@@ -5,13 +5,13 @@ import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
-	AstroMiddlewareInstance,
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
 	EndpointOutput,
 	GetStaticPathsItem,
 	ImageTransform,
+	MiddlewareHandler,
 	MiddlewareResponseHandler,
 	RouteData,
 	RouteType,
@@ -29,6 +29,7 @@ import {
 	type BuildInternals,
 } from '../../core/build/internal.js';
 import {
+	isRelativePath,
 	prependForwardSlash,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
@@ -132,8 +133,9 @@ export function chunkIsPage(
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
-	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+	const outFolder = ssr
+		? opts.settings.config.build.server
+		: getOutDirWithinCwd(opts.settings.config.outDir);
 
 	if (ssr && !hasPrerenderedPages(internals)) return;
 
@@ -179,7 +181,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
-		buildConfig: opts.buildConfig,
 		logging: opts.logging,
 	});
 
@@ -228,7 +229,7 @@ async function generatePage(
 		.reduce(mergeInlineCss, []);
 
 	const pageModulePromise = ssrEntry.page;
-	const middleware = ssrEntry.middleware;
+	const onRequest = ssrEntry.onRequest;
 
 	if (!pageModulePromise) {
 		throw new Error(
@@ -252,14 +253,18 @@ async function generatePage(
 	};
 
 	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
-	info(opts.logging, null, `${icon} ${pageData.route.component}`);
+	if (isRelativePath(pageData.route.component)) {
+		info(opts.logging, null, `${icon} ${pageData.route.route}`);
+	} else {
+		info(opts.logging, null, `${icon} ${pageData.route.component}`);
+	}
 
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions, middleware);
+		await generatePath(path, opts, generationOptions, onRequest);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -443,7 +448,7 @@ async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
 	gopts: GeneratePathOptions,
-	middleware?: AstroMiddlewareInstance<unknown>
+	onRequest?: MiddlewareHandler<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
 	const {
@@ -564,7 +569,7 @@ async function generatePath(
 			env,
 			renderContext,
 			logging,
-			middleware as AstroMiddlewareInstance<Response | EndpointOutput>
+			onRequest as MiddlewareHandler<Response | EndpointOutput>
 		);
 
 		if (result.type === 'response') {
@@ -588,7 +593,6 @@ async function generatePath(
 				adapterName: env.adapterName,
 			});
 
-			const onRequest = middleware?.onRequest;
 			if (onRequest) {
 				response = await callMiddleware<Response>(
 					env.logging,
@@ -599,8 +603,8 @@ async function generatePath(
 							mod,
 							renderContext,
 							env,
-							apiContext,
 							isCompressHTML: settings.config.compressHTML,
+							cookies: apiContext.cookies,
 						});
 					}
 				);
@@ -609,8 +613,8 @@ async function generatePath(
 					mod,
 					renderContext,
 					env,
-					apiContext,
 					isCompressHTML: settings.config.compressHTML,
+					cookies: apiContext.cookies,
 				});
 			}
 		} catch (err) {

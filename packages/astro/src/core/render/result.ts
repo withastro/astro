@@ -23,15 +23,6 @@ import { warn, type LogOptions } from '../logger/core.js';
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
-function onlyAvailableInSSR(name: 'Astro.redirect') {
-	return function _onlyAvailableInSSR() {
-		switch (name) {
-			case 'Astro.redirect':
-				throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
-		}
-	};
-}
-
 export interface CreateResultArgs {
 	adapterName: string | undefined;
 	ssr: boolean;

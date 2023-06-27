@@ -104,6 +104,12 @@ Deno.test({
 			assertEquals(h1!.innerText, 'test');
 		});
 
+		await t.step('node compatibility', async () => {
+			const resp = await fetch(new URL('/nodecompat', app.url));
+			assertEquals(resp.status, 200);
+			await resp.text();
+		});
+
 		app.stop();
 	},
 });

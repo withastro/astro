@@ -60,7 +60,11 @@ export function runCLI(basePath, { silent, port = 8787 }) {
 	return {
 		ready,
 		stop() {
-			p.kill();
+			return new Promise((resolve, reject) => {
+				p.on('close', () => resolve());
+				p.on('error', (err) => reject(err));
+				p.kill();
+			});
 		},
 	};
 }

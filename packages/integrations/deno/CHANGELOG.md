@@ -1,5 +1,16 @@
 # @astrojs/deno
 
+## 4.2.0
+
+### Minor Changes
+
+- [#7288](https://github.com/withastro/astro/pull/7288) [`d67ae8461`](https://github.com/withastro/astro/commit/d67ae846103c42ff0464c578813749940326e8ba) Thanks [@lilnasy](https://github.com/lilnasy)! - The deno adapter now supports npm package that require built-in node modules.
+
+### Patch Changes
+
+- Updated dependencies [[`bb644834e`](https://github.com/withastro/astro/commit/bb644834ef03bc00048c7381f20a1c01388438e2), [`d2020c29c`](https://github.com/withastro/astro/commit/d2020c29cf285e699f92143a70ffa30a85122bb4)]:
+  - astro@2.6.5
+
 ## 4.1.1
 
 ### Patch Changes

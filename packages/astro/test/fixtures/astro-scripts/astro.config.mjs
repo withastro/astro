@@ -5,9 +5,7 @@ import { fileURLToPath } from 'url';
 export default defineConfig({
 	integrations: [
 		tailwind({
-			config: {
-				path: fileURLToPath(new URL('./tailwind.config.cjs', import.meta.url)),
-			},
+			configFile: fileURLToPath(new URL('./tailwind.config.cjs', import.meta.url)),
 		}),
 	],
 });

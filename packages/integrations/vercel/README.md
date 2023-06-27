@@ -18,7 +18,7 @@ If you're using Astro as a static site builder — its behavior out of the box �
 
 If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
 
-[Vercel](https://www.vercel.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository.  This adapter enhances the Astro build process to prepare your project for deployment through Vercel.
+[Vercel](https://www.vercel.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository. This adapter enhances the Astro build process to prepare your project for deployment through Vercel.
 
 ## Installation
 
@@ -37,22 +37,22 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Install the Vercel adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
 
-    ```bash
-      npm install @astrojs/vercel
-    ```
+   ```bash
+     npm install @astrojs/vercel
+   ```
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js ins={3, 6-7}
-    // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-    import vercel from '@astrojs/vercel/serverless';
+   ```js ins={3, 6-7}
+   // astro.config.mjs
+   import { defineConfig } from 'astro/config';
+   import vercel from '@astrojs/vercel/serverless';
 
-    export default defineConfig({
-      output: 'server',
-      adapter: vercel(),
-    });
-    ```
+   export default defineConfig({
+     output: 'server',
+     adapter: vercel(),
+   });
+   ```
 
 ### Targets
 
@@ -103,8 +103,8 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    analytics: true
-  })
+    analytics: true,
+  }),
 });
 ```
 
@@ -125,9 +125,9 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     imagesConfig: {
-      sizes: [320, 640, 1280]
-    }
-  })
+      sizes: [320, 640, 1280],
+    },
+  }),
 });
 ```
 
@@ -147,22 +147,29 @@ import vercel from '@astrojs/vercel/static';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    imageService: true
-  })
+    imageService: true,
+  }),
 });
 ```
 
 ```astro
 ---
-import { Image } from "astro:assets";
-import astroLogo from "../assets/logo.png";
+import { Image } from 'astro:assets';
+import astroLogo from '../assets/logo.png';
 ---
 
 <!-- This component -->
 <Image src={astroLogo} alt="My super logo!" />
 
 <!-- will become the following HTML -->
-<img src="/_vercel/image?url=_astro/logo.hash.png&w=...&q=..." alt="My super logo!" loading="lazy" decoding="async" width="..." height="..." />
+<img
+  src="/_vercel/image?url=_astro/logo.hash.png&w=...&q=..."
+  alt="My super logo!"
+  loading="lazy"
+  decoding="async"
+  width="..."
+  height="..."
+/>
 ```
 
 ### includeFiles
@@ -180,8 +187,8 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    includeFiles: ['./my-data.json']
-  })
+    includeFiles: ['./my-data.json'],
+  }),
 });
 ```
 
@@ -203,8 +210,8 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    excludeFiles: ['./src/some_big_file.jpg']
-  })
+    excludeFiles: ['./src/some_big_file.jpg'],
+  }),
 });
 ```
 
@@ -214,24 +221,26 @@ You can use Vercel middleware to intercept a request and redirect before sending
 
 1. Add a `middleware.js` file to the root of your project:
 
-    ```js
-    // middleware.js
-    export const config = {
-      // Only run the middleware on the admin route
-      matcher: '/admin',
-    };
+   ```js
+   // middleware.js
+   export const config = {
+     // Only run the middleware on the admin route
+     matcher: '/admin',
+   };
 
-    export default function middleware(request) {
-      const url = new URL(request.url);
-      // You can retrieve IP location or cookies here.
-      if (url.pathname === "/admin") {
-        url.pathname = "/"
-      }
-      return Response.redirect(url);
-    }
-    ```
+   export default function middleware(request) {
+     const url = new URL(request.url);
+     // You can retrieve IP location or cookies here.
+     if (url.pathname === '/admin') {
+       url.pathname = '/';
+     }
+     return Response.redirect(url);
+   }
+   ```
+
 1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
+<!-- prettier-ignore -->
 > **Warning**
 > **Trying to rewrite?** Currently rewriting a request with middleware only works for static files.
 

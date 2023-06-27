@@ -36,14 +36,14 @@ export async function get(context) {
     // Pull in your project "site" from the endpoint context
     // https://docs.astro.build/en/reference/api-reference/#contextsite
     site: context.site,
-    items: posts.map(post => ({
+    items: posts.map((post) => ({
       // Assumes all RSS feed item properties are in post frontmatter
       ...post.data,
       // Generate a `url` from each post `slug`
       // This assumes all blog posts are rendered as `/blog/[slug]` routes
       // https://docs.astro.build/en/guides/content-collections/#generating-pages-from-content-collections
       link: `/blog/${post.slug}/`,
-    }))
+    })),
   });
 }
 ```
@@ -180,9 +180,10 @@ By default, the library will add trailing slashes to the emitted URLs. To preven
 ```js
 import rss from '@astrojs/rss';
 
-export const get = () => rss({
-  trailingSlash: false
-});
+export const get = () =>
+  rss({
+    trailingSlash: false,
+  });
 ```
 
 ## `RSSFeedItem`
@@ -193,12 +194,13 @@ An example feed item might look like:
 
 ```js
 const item = {
-  title: "Alpha Centauri: so close you can touch it",
-  link: "/blog/alpha-centuari",
-  pubDate: new Date("2023-06-04"),
-  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
-  categories: ["stars", "space"]
-}
+  title: 'Alpha Centauri: so close you can touch it',
+  link: '/blog/alpha-centuari',
+  pubDate: new Date('2023-06-04'),
+  description:
+    'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
+  categories: ['stars', 'space'],
+};
 ```
 
 ### `title`
@@ -259,15 +261,16 @@ An object that defines the `title` and `url` of the original feed for items that
 
 ```js
 const item = {
-	title: "Alpha Centauri: so close you can touch it",
-  link: "/blog/alpha-centuari",
-  pubDate: new Date("2023-06-04"),
-  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
-	source: {
-    title: "The Galactic Times",
-    url: "https://galactictimes.space/feed.xml"
-  }
-}
+  title: 'Alpha Centauri: so close you can touch it',
+  link: '/blog/alpha-centuari',
+  pubDate: new Date('2023-06-04'),
+  description:
+    'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
+  source: {
+    title: 'The Galactic Times',
+    url: 'https://galactictimes.space/feed.xml',
+  },
+};
 ```
 
 #### `source.title`
@@ -290,16 +293,17 @@ An object to specify properties for an included media source (e.g. a podcast) wi
 
 ```js
 const item = {
-	title: "Alpha Centauri: so close you can touch it",
-  link: "/blog/alpha-centuari",
-  pubDate: new Date("2023-06-04"),
-  description: "Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.",
-	enclosure: {
-    url: "/media/alpha-centauri.aac",
+  title: 'Alpha Centauri: so close you can touch it',
+  link: '/blog/alpha-centuari',
+  pubDate: new Date('2023-06-04'),
+  description:
+    'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
+  enclosure: {
+    url: '/media/alpha-centauri.aac',
     length: 124568,
-    type: "audio/aac"
-  }
-}
+    type: 'audio/aac',
+  },
+};
 ```
 
 #### `enclosure.url`
@@ -361,9 +365,7 @@ export async function get(context) {
     title: 'Buzz’s Blog',
     description: 'A humble Astronaut’s guide to the stars',
     site: context.site,
-    items: await pagesGlobToRssItems(
-      import.meta.glob('./blog/*.{md,mdx}'),
-    ),
+    items: await pagesGlobToRssItems(import.meta.glob('./blog/*.{md,mdx}')),
   });
 }
 ```
