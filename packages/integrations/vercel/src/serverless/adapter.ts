@@ -12,7 +12,7 @@ import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
-import { generateEdgeMiddleware } from './middleware';
+import { generateEdgeMiddleware } from './middleware.js';
 import { fileURLToPath } from 'node:url';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';

@@ -1,7 +1,7 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
 import { join } from 'node:path';
-import { writeFile } from '../lib/fs';
+import { writeFile } from '../lib/fs.js';
 
 /**
  * It generates the Vercel Edge Middleware file.
