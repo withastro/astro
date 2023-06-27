@@ -5,11 +5,19 @@ import type {
 	NodeType,
 	Schema,
 } from '@markdoc/markdoc';
-import _Markdoc from '@markdoc/markdoc';
 import type { AstroInstance } from 'astro';
+import _Markdoc from '@markdoc/markdoc';
 import { heading } from './heading-ids.js';
+import { isRelativePath } from '@astrojs/internal-helpers/path';
+import { componentConfigSymbol } from './utils.js';
 
-type Render = AstroInstance['default'] | string;
+export type Render = ComponentConfig | AstroInstance['default'] | string;
+export type ComponentConfig = {
+	type: 'package' | 'local';
+	path: string;
+	namedExport?: string;
+	[componentConfigSymbol]: true;
+};
 
 export type AstroMarkdocConfig<C extends Record<string, any> = Record<string, any>> = Omit<
 	MarkdocConfig,
@@ -29,4 +37,17 @@ export const nodes = { ...Markdoc.nodes, heading };
 
 export function defineMarkdocConfig(config: AstroMarkdocConfig): AstroMarkdocConfig {
 	return config;
+}
+
+export function component(pathnameOrPkgName: string, namedExport?: string): ComponentConfig {
+	return {
+		type: isNpmPackageName(pathnameOrPkgName) ? 'package' : 'local',
+		path: pathnameOrPkgName,
+		namedExport,
+		[componentConfigSymbol]: true,
+	};
+}
+
+function isNpmPackageName(pathname: string) {
+	return !isRelativePath(pathname) && !pathname.startsWith('/');
 }

@@ -63,6 +63,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "^0.1.0",
     "@astrojs/prism": "^2.1.2",
     "@markdoc/markdoc": "^0.3.0",
     "esbuild": "^0.17.19",
