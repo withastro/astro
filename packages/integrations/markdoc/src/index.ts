@@ -233,11 +233,8 @@ export const Content = createComponent({
 			},
 			'astro:server:setup': async ({ server }) => {
 				server.watcher.on('all', (event, entry) => {
-					for (const markdocConfigBase of SUPPORTED_MARKDOC_CONFIG_FILES) {
-						const absolutePath = new URL(markdocConfigBase, astroConfig.root);
-						if (entry === fileURLToPath(absolutePath)) {
-							server.restart();
-						}
+					if (SUPPORTED_MARKDOC_CONFIG_FILES.some((f) => entry.endsWith(f))) {
+						server.restart();
 					}
 				});
 			},
