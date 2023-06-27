@@ -1,0 +1,36 @@
+---
+const files = [
+  {
+    slug: undefined,
+    title: 'Root level',
+  },
+  {
+    slug: 'test.png',
+    title: "One level"
+  },
+  {
+    slug: 'assets/test.png',
+    title: "Two levels"
+  },
+  {
+    slug: 'assets/images/test.png',
+    title: 'Three levels',
+  }
+];
+
+const { slug } = Astro.params;
+const page = files.find((page) => page.slug === slug);
+const { title } = page;
+
+---
+<html>
+	<body>
+		<h1>Files / Rest Parameters / {title}</h1>
+		<p><a href="/">index</a></p>
+	</body>
+	<style>
+		h1 {
+			background-color: yellow;
+		}
+	</style>
+</html>

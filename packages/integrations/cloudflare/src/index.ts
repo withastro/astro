@@ -139,7 +139,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					});
 
 					for (const [index, outputFile] of outputFiles.entries()) {
-						const fileName = [..._entryPoints.entries()][index][0].component.replace('src/pages/', '').replace('.astro', '.js');
+						const fileName = [..._entryPoints.entries()][index][0].component.replace('src/pages/', '').replace('.astro', '.js').replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
+							return `[[${p2}]]`;
+						});
 						const fileUrl = new URL(fileName, functionsUrl)
 						const newFileDir = dirname(fileURLToPath(fileUrl));
 						if (!fs.existsSync(newFileDir)) {
