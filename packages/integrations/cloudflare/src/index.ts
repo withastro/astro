@@ -94,14 +94,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:ssr': ({ manifest, entryPoints }) => {
-				// NOTE: monkey-patch because entryPoints URL does not respect `build.server`
-				entryPoints.forEach((value, key) => {
-					const oldFilePath = fileURLToPath(value);
-					const relativeFilePath = relative(fileURLToPath(_config.outDir), oldFilePath);
-					const newFilePath = join(fileURLToPath(_buildConfig.server), relativeFilePath);
-					const newEntryUrl = pathToFileURL(newFilePath);
-					_entryPoints.set(key, newEntryUrl);
-				});
+				_entryPoints = entryPoints;
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
 				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);

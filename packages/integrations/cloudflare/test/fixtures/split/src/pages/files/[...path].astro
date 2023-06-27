@@ -18,14 +18,15 @@ const files = [
   }
 ];
 
-const { slug } = Astro.params;
-const page = files.find((page) => page.slug === slug);
+const { path } = Astro.params;
+const page = files.find((page) => page.slug === path);
 const { title } = page;
 
 ---
 <html>
 	<body>
 		<h1>Files / Rest Parameters / {title}</h1>
+    <p>DEBUG: {path} </p>
 		<p><a href="/">index</a></p>
 	</body>
 	<style>
