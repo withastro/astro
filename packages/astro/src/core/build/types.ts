@@ -2,7 +2,6 @@ import type { default as vite, InlineConfig } from 'vite';
 import type {
 	AstroConfig,
 	AstroSettings,
-	BuildConfig,
 	ComponentInstance,
 	ManifestData,
 	MiddlewareHandler,
@@ -36,7 +35,6 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	settings: AstroSettings;
-	buildConfig: BuildConfig;
 	logging: LogOptions;
 	manifest: ManifestData;
 	mode: RuntimeMode;

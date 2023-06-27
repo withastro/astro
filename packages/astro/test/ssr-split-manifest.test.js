@@ -41,7 +41,7 @@ describe('astro:ssr-manifest, split', () => {
 	it('should give access to entry points that exists on file system', async () => {
 		// number of the pages inside src/
 		expect(entryPoints.size).to.equal(4);
-		for (const fileUrl in entryPoints.values()) {
+		for (const fileUrl of entryPoints.values()) {
 			let filePath = fileURLToPath(fileUrl);
 			expect(existsSync(filePath)).to.be.true;
 		}

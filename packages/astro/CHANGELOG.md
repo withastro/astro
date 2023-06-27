@@ -36,6 +36,23 @@
   });
   ```
 
+- [#7220](https://github.com/withastro/astro/pull/7220) [`459b5bd05`](https://github.com/withastro/astro/commit/459b5bd05f562238f7250520efe3cf0fa156bb45) Thanks [@ematipico](https://github.com/ematipico)! - The Astro hook `astro:build:ssr` now receives a new option in their payload, called `entryPoints`.
+
+  `entryPoints` is defined as a `Map<RouteData, URL>`, where `RouteData` represents the information of a Astro route and `URL` is the path to the physical file emitted at the end of the build.
+
+  ```ts
+  export function integration(): AstroIntegration {
+      return {
+          name: "my-integration",
+          hooks: { 
+              "astro:build:ssr": ({ entryPoints }) => {
+                  // do something with `entryPoints`
+              }
+          }
+      }
+  } 
+  ```
+
 ### Patch Changes
 
 - [#7438](https://github.com/withastro/astro/pull/7438) [`30bb36371`](https://github.com/withastro/astro/commit/30bb363713e3d2c50d0d4816d970aa93b836a3b0) Thanks [@bluwy](https://github.com/bluwy)! - Fix `astro:build:setup` hook `updateConfig` utility, where the configuration wasn't correctly updated when the hook was fired.
