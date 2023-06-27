@@ -9,9 +9,11 @@ import {
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
-import { getVercelOutput, removeDir, writeFile, writeJson } from '../lib/fs.js';
+import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
+import { generateEdgeMiddleware } from './middleware';
+import { fileURLToPath } from 'node:url';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 
@@ -42,6 +44,7 @@ export default function vercelServerless({
 	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
+	let serverBuildDir: URL;
 
 	return {
 		name: PACKAGE_NAME,
@@ -52,12 +55,14 @@ export default function vercelServerless({
 				}
 				const outDir = getVercelOutput(config.root);
 				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
+				serverBuildDir = new URL('./dist/', config.root);
 				updateConfig({
 					outDir,
 					build: {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
-						server: new URL('./dist/', config.root),
+						server: serverBuildDir,
+						excludeMiddleware: true,
 					},
 					vite: {
 						define: viteDefine,
@@ -80,7 +85,7 @@ export default function vercelServerless({
 	`);
 				}
 			},
-			'astro:build:done': async ({ routes }) => {
+			'astro:build:done': async ({ routes, middlewareEntryPoint }) => {
 				// Merge any includes from `vite.assetsInclude
 				const inc = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 				if (_config.vite.assetsInclude) {
@@ -96,6 +101,12 @@ export default function vercelServerless({
 					};
 
 					mergeGlobbedIncludes(_config.vite.assetsInclude);
+				}
+				if (middlewareEntryPoint) {
+					const outPath = fileURLToPath(buildTempFolder);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
+					// let's tell that we need to save this file
+					inc.push(bundledMiddlewarePath);
 				}
 
 				// Copy necessary files (e.g. node_modules/)
