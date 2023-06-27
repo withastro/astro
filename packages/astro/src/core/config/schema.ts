@@ -25,7 +25,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		redirects: true,
 		inlineStylesheets: 'never',
 		split: false,
-		excludeMiddlwar: false,
+		excludeMiddleware: false,
 	},
 	compressHTML: false,
 	server: {
