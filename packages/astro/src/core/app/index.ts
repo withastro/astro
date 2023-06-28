@@ -253,7 +253,13 @@ export class App {
 					page.onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, cookies: apiContext.cookies, isCompressHTML });
+						return renderPage({
+							mod,
+							renderContext,
+							env: this.#env,
+							cookies: apiContext.cookies,
+							isCompressHTML,
+						});
 					}
 				);
 			} else {
@@ -262,7 +268,7 @@ export class App {
 					renderContext,
 					env: this.#env,
 					cookies: apiContext.cookies,
-					isCompressHTML
+					isCompressHTML,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
