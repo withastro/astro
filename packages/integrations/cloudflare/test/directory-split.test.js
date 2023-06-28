@@ -13,7 +13,7 @@ describe('Cloudflare SSR split', () => {
 			output: "server",
 			build: {
 				split: true,
-				excludeMiddleware: true
+				excludeMiddleware: false
 			},
 			vite: {
 				build: {

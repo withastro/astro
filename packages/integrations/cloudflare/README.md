@@ -50,7 +50,9 @@ For most projects the adapter default of `advanced` will be sufficient; the `dis
 
 In directory mode, the adapter will compile the client side part of your app the same way by default, but moves the worker script into a `functions` folder in the project root. In this case, the adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control.
 
-With the build configuration `split: true`, the adapter instead compiles a seperate bundle for each page which is used by cloudflare routing. Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
+With the build configuration `split: true`, the adapter instead compiles a seperate bundle for each page which is used by cloudflare routing. Be aware that this will overwrite any files in the `functions` folder with the same name emitted by Astro. It is recommended to name your custom files, e.g. Pages Plugins & Middleware, distinctly to avoid accidental overwrite. Additionally the adapter will not empty the `functions` folder, so you might need to clean-up the folder if you remove pages. This is a difference to the `dist` folder which is always cleaned up between builds, which is necessery to not remove custom files in the `functions` folder. For now the adapter will bundle the middleware into the each page, and will not make use of [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). We are working to improve the adapter, so you can set `build.excludeMiddleware: true`, to get proper supported output.
+
+Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
 
 ```ts
 // directory mode
