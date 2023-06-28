@@ -29,6 +29,10 @@ function createTransitionName(result: SSRResult) {
 }
 
 export function renderTransition(result: SSRResult, hash: string, animationName: string | undefined, transitionName: string) {
+	if(!animationName) {
+		// TODO error?
+		return '';
+	}
 	const animation = animations[animationName as keyof typeof animations];
 	if(!transitionName) {
 		transitionName = createTransitionName(result);
@@ -37,7 +41,7 @@ export function renderTransition(result: SSRResult, hash: string, animationName:
 	return unescapeHTML(`<style>[data-astro-transition-scope="${hash}"] {
 	view-transition-name: ${transitionName};
 }
-${!animationName ? '' : `
+${animationName === 'morph' ? '' : `
 ::view-transition-old(${transitionName}) {
 	animation: var(${animation.old});
 }
