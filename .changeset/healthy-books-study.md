@@ -1,5 +1,5 @@
 ---
-'@astrojs/cloudflare': patch
+'@astrojs/cloudflare': minor
 ---
 
 Split Support in Cloudflare
