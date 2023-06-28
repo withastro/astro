@@ -9,9 +9,11 @@ import {
 	type VercelImageConfig,
 } from '../image/shared.js';
 import { exposeEnv } from '../lib/env.js';
-import { getVercelOutput, removeDir, writeFile, writeJson } from '../lib/fs.js';
+import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
+import { generateEdgeMiddleware } from './middleware.js';
+import { fileURLToPath } from 'node:url';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 
@@ -42,6 +44,8 @@ export default function vercelServerless({
 	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
+
+	const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 
 	return {
 		name: PACKAGE_NAME,
@@ -80,14 +84,23 @@ export default function vercelServerless({
 	`);
 				}
 			},
+
+			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				if (middlewareEntryPoint) {
+					const outPath = fileURLToPath(buildTempFolder);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
+					// let's tell the adapter that we need to save this file
+					filesToInclude.push(bundledMiddlewarePath);
+				}
+			},
+
 			'astro:build:done': async ({ routes }) => {
 				// Merge any includes from `vite.assetsInclude
-				const inc = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 				if (_config.vite.assetsInclude) {
 					const mergeGlobbedIncludes = (globPattern: unknown) => {
 						if (typeof globPattern === 'string') {
 							const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
-							inc.push(...entries);
+							filesToInclude.push(...entries);
 						} else if (Array.isArray(globPattern)) {
 							for (const pattern of globPattern) {
 								mergeGlobbedIncludes(pattern);
@@ -102,7 +115,7 @@ export default function vercelServerless({
 				const { handler } = await copyDependenciesToFunction({
 					entry: new URL(serverEntry, buildTempFolder),
 					outDir: functionFolder,
-					includeFiles: inc,
+					includeFiles: filesToInclude,
 					excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
 				});
 

@@ -1879,6 +1879,10 @@ export interface AstroIntegration {
 			 * the physical file you should import.
 			 */
 			entryPoints: Map<RouteData, URL>;
+			/**
+			 * File path of the emitted middleware
+			 */
+			middlewareEntryPoint: URL | undefined;
 		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
@@ -1892,7 +1896,6 @@ export interface AstroIntegration {
 			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
-			middlewareEntryPoint: URL | undefined;
 		}) => void | Promise<void>;
 	};
 }
