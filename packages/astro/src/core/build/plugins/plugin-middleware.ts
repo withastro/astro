@@ -58,10 +58,7 @@ export function vitePluginMiddleware(
 					continue;
 				}
 				if (chunk.fileName === 'middleware.mjs') {
-					internals.middlewareEntryPoint = {
-						filePath: new URL(chunkName, opts.settings.config.build.server),
-						path: viteID(new URL(chunkName, opts.settings.config.build.server)),
-					};
+					internals.middlewareEntryPoint = new URL(chunkName, opts.settings.config.build.server);
 				}
 			}
 		},

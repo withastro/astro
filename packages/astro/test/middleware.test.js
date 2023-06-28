@@ -114,7 +114,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			output: 'server',
 			adapter: testAdapter({
 				setEntryPoints(entryPointsOrMiddleware) {
-					if (entryPointsOrMiddleware?.filePath instanceof URL) {
+					if (entryPointsOrMiddleware instanceof URL) {
 						middlewarePath = entryPointsOrMiddleware;
 					}
 				},
@@ -214,9 +214,9 @@ describe('Middleware API in PROD mode, SSR', () => {
 	it('the integration should receive the path to the middleware', async () => {
 		expect(middlewarePath).to.not.be.undefined;
 		try {
-			const path = fileURLToPath(middlewarePath.filePath);
+			const path = fileURLToPath(middlewarePath);
 			expect(existsSync(path)).to.be.true;
-			const content = readFileSync(fileURLToPath(middlewarePath.filePath), 'utf-8');
+			const content = readFileSync(fileURLToPath(middlewarePath), 'utf-8');
 			expect(content.length).to.be.greaterThan(0);
 		} catch (e) {
 			throw e;

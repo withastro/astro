@@ -1882,18 +1882,7 @@ export interface AstroIntegration {
 			/**
 			 * File path of the emitted middleware
 			 */
-			middlewareEntryPoint:
-				| {
-						/**
-						 * The path to file system. It changes based on the OP
-						 */
-						filePath: URL;
-						/**
-						 * Unix file path
-						 */
-						path: string;
-				  }
-				| undefined;
+			middlewareEntryPoint: URL | undefined;
 		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {

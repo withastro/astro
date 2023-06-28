@@ -44,7 +44,6 @@ export default function vercelServerless({
 	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
-	let serverBuildDir: URL;
 
 	const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 
@@ -57,13 +56,12 @@ export default function vercelServerless({
 				}
 				const outDir = getVercelOutput(config.root);
 				const viteDefine = exposeEnv(['VERCEL_ANALYTICS_ID']);
-				serverBuildDir = new URL('./dist/', config.root);
 				updateConfig({
 					outDir,
 					build: {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
-						server: serverBuildDir,
+						server: new URL('./dist/', config.root),
 					},
 					vite: {
 						define: viteDefine,
@@ -90,10 +88,7 @@ export default function vercelServerless({
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				if (middlewareEntryPoint) {
 					const outPath = fileURLToPath(buildTempFolder);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(
-						middlewareEntryPoint.path,
-						outPath
-					);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
 					// let's tell the adapter that we need to save this file
 					filesToInclude.push(bundledMiddlewarePath);
 				}
