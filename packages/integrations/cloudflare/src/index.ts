@@ -133,10 +133,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						write: false,
 					});
 
+					// loop through all bundled files and write them to the functions folder
 					for (const [index, outputFile] of outputFiles.entries()) {
-						const fileName = entryPointsRouteData[index].component.replace('src/pages/', '').replace('.astro', '.js').replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
-							return `[[${p2}]]`;
-						});
+						// we need to make sure the filename in the functions folder
+						// matches to cloudflares routing capabilities (see their docs)
+						// IN: src/pages/[language]/files/[...path].astro
+						// OUT: [language]/files/[[path]].js
+						const fileName = entryPointsRouteData[index].component
+							.replace('src/pages/', '')
+							.replace('.astro', '.js')
+							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
+								return `[[${p2}]]`;
+							});
+
 						const fileUrl = new URL(fileName, functionsUrl)
 						const newFileDir = dirname(fileURLToPath(fileUrl));
 						if (!fs.existsSync(newFileDir)) {
