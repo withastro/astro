@@ -31,19 +31,26 @@ type EndpointCallResult =
 			response: Response;
 	  };
 
+type CreateAPIContext = {
+	request: Request;
+	params: Params;
+	site?: string;
+	props: Record<string, any>;
+	adapterName?: string;
+};
+
+/**
+ * Creates a context that holds all the information needed to handle an Astro endpoint.
+ *
+ * @param {CreateAPIContext} payload
+ */
 export function createAPIContext({
 	request,
 	params,
 	site,
 	props,
 	adapterName,
-}: {
-	request: Request;
-	params: Params;
-	site?: string;
-	props: Record<string, any>;
-	adapterName?: string;
-}): APIContext {
+}: CreateAPIContext): APIContext {
 	const context = {
 		cookies: new AstroCookies(request),
 		request,
