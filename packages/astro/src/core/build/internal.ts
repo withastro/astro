@@ -7,9 +7,9 @@ import {
 	ASTRO_PAGE_RESOLVED_MODULE_ID,
 	getVirtualModulePageIdFromPath,
 } from './plugins/plugin-pages.js';
+import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types';
-import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
 
 export interface BuildInternals {
 	/**
