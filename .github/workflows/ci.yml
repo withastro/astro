@@ -258,7 +258,7 @@ jobs:
         run: cd smoke/docs && pnpm docgen && pnpm docgen:errors && pnpm docgen:integrations
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SOURCE_REPO: ${{ github.event.repository.full_name }}
+          SOURCE_REPO: ${{ github.event.pull_request.head.repo.full_name || github.event.repository.full_name }}
           SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
 
       - name: Test
