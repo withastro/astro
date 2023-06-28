@@ -1,0 +1,5 @@
+---
+'astro': minor
+---
+
+View Transitions
