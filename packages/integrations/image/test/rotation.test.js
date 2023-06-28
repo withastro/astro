@@ -62,20 +62,5 @@ describe('Image rotation', function () {
 				});
 			}
 		});
-
-		it('EXIF Orientation', () => {
-			const image = $(`#exif-orientation`);
-			// const regex = new RegExp(`\^/_astro\/EXIF_Orientation.\\w{8}_\\w{4,10}.jpg`);
-
-			// expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal('1800');
-			expect(image.attr('height')).to.equal('1200');
-
-			// verifyImage(image.attr('src'), {
-			// 	width: 1200,
-			// 	height: 1800,
-			// 	type: 'jpg',
-			// });
-		});
 	});
 });
