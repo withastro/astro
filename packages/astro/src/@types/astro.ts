@@ -69,7 +69,8 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
-	'animate:transition'?: 'slide' | 'fade' | undefined;
+	'animate:transition'?: 'slide' | 'fade' | true;
+	'transition:name'?: string;
 }
 
 export interface AstroDefineVarsAttribute {

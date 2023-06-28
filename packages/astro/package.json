@@ -113,7 +113,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "1.6.0-pre.4",
+    "@astrojs/compiler": "1.6.0-pre.5",
     "@astrojs/internal-helpers": "^0.1.1",
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",

@@ -31,7 +31,6 @@ function createTransitionName(result: SSRResult) {
 export function renderTransition(result: SSRResult, hash: string, animationName: string | undefined, transitionName: string) {
 	const animation = animations[animationName as keyof typeof animations];
 	if(!transitionName) {
-		// TODO auto-assign
 		transitionName = createTransitionName(result);
 	}
 
