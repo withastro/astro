@@ -77,13 +77,27 @@
 </script>
 <style>
 	:root {
+		/* Slide */
 		--astro-animate-old-slideout: 90ms cubic-bezier(0.4, 0, 1, 1) both astroFadeOut,
 			300ms cubic-bezier(0.4, 0, 0.2, 1) both astroSlideToLeft;
 		--astro-animate-new-slidein: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both astroFadeIn,
     300ms cubic-bezier(0.4, 0, 0.2, 1) both astroSlideFromRight;
 		--astro-animate-back-old-slideout-names: astroFadeOut, astroSlideToRight;
 		--astro-animate-back-new-slideout-names: astroFadeIn, astroSlideFromLeft;
+
+		/* Fade */
+		--astro-animate-old-fade: astroFadeInOut 0.2s linear forwards;
+		--astro-animate-new-fade: astroFadeInOut 0.3s linear reverse;
 	}
+
+	@keyframes astroFadeInOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 
 	@keyframes astroFadeIn {
 		from { opacity: 0; }

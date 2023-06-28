@@ -7,6 +7,10 @@ const animations = {
 		new: '--astro-animate-new-slidein',
 		backOld: '--astro-animate-back-old-slideout-names',
 		backNew: '--astro-animate-back-new-slideout-names',
+	},
+	'fade': {
+		old: '--astro-animate-old-fade',
+		new: '--astro-animate-new-fade',
 	}
 };
 
@@ -41,12 +45,16 @@ ${!animationName ? '' : `
 ::view-transition-new(${transitionName}) {
 	animation: var(${animation.new});
 }
+
+${('backOld' in animation) && ('backNew' in animation) ? `
 .astro-back-transition::view-transition-old(${transitionName}) {
   animation-name: var(${animation.backOld});
 }
 .astro-back-transition::view-transition-new(${transitionName}) {
   animation-name: var(${animation.backNew});
 }
+`.trim() : ''}
+
 `.trim()}
 </style>`);
 }
