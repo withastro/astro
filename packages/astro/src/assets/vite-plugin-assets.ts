@@ -21,6 +21,7 @@ import { emitESMImage } from './utils/emitAsset.js';
 import { imageMetadata } from './utils/metadata.js';
 import { getOrigQueryParams } from './utils/queryParams.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -88,11 +89,14 @@ export default function assets({
 				if (id === resolvedVirtualModuleId) {
 					return `
 					export { getConfiguredImageService, isLocalService } from "astro/assets";
-					import { getImage as getImageInternal } from "astro/assets";
+					import { getImage as getImageInternal, readImageFile as readImageFileInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 
 					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
 					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
+
+					const serverRootURL = ${JSON.stringify(isServerLikeOutput(settings.config) ? settings.config.build.server : settings.config.outDir)};
+					export const readImageFile = async(src) => await readImageFileInternal(src, serverRootURL);
 				`;
 				}
 			},

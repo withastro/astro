@@ -32,6 +32,11 @@ export async function emitESMImage(
 		});
 
 		meta.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
+
+		// Store magic string in map for later use
+		if (!globalThis.astroAsset) globalThis.astroAsset = {};
+		if (!globalThis.astroAsset.emittedAssets) globalThis.astroAsset.emittedAssets = new Map<string, URL>();
+		globalThis.astroAsset.emittedAssets.set(meta.src, url);
 	} else {
 		// Pass the original file information through query params so we don't have to load the file twice
 		url.searchParams.append('origWidth', meta.width.toString());
@@ -42,6 +47,14 @@ export async function emitESMImage(
 	}
 
 	return meta;
+}
+
+export function assetMagicStringToFileURL(magicString: string): URL | undefined {
+	if(!globalThis.astroAsset?.emittedAssets) {
+		return undefined;
+	}
+
+	return globalThis.astroAsset.emittedAssets.get(magicString);
 }
 
 function fileURLToNormalizedPath(filePath: URL): string {

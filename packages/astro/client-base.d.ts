@@ -52,6 +52,9 @@ declare module 'astro:assets' {
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		Image: typeof import('./components/Image.astro').default;
+		readImageFile: (
+			src: import('./dist/assets/types.js').ImageMetadata
+		) => Promise<Buffer>;
 	};
 
 	type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
@@ -67,7 +70,7 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const { getImage, getConfiguredImageService, Image }: AstroAssets;
+	export const { getImage, getConfiguredImageService, Image, readImageFile }: AstroAssets;
 }
 
 type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;

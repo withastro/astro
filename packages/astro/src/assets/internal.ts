@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { assetMagicStringToFileURL } from './utils/emitAsset.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isLocalService, type ImageService } from './services/service.js';
 import type { GetImageResult, ImageMetadata, ImageTransform } from './types.js';
@@ -57,4 +60,41 @@ export async function getImage(
 				? service.getHTMLAttributes(validatedOptions, serviceConfig)
 				: {},
 	};
+}
+
+
+export async function readImageFile(src: ImageMetadata, serverRootURL: URL): Promise<Buffer> {
+	const assetUrlRE = /^__ASTRO_ASSET_IMAGE__([a-z\d]{8})__$/;
+
+	let fileURL: URL | undefined;
+
+	if (src.src.match(assetUrlRE)) {
+		// If it is a MagicString not yet replaced by Vite, fetch the original URL from memory.
+		fileURL = assetMagicStringToFileURL(src.src)
+	} else if (src.src.startsWith('/@fs')) {
+		// If it is a transformed URL from the dev server, fetch the path from the URL
+		fileURL = new URL('.' + src.src.slice('/@fs'.length), 'file:');
+	} else if (src.src.startsWith('/')) {
+		// If it is a URL starting at the serverRootURL
+		fileURL = new URL(`./${src.src}`, serverRootURL);
+	} else {
+		// Resolve full url in all other cases
+		fileURL = new URL(`./${src.src}`, serverRootURL);
+	}
+
+	if (fileURL === undefined) {
+		throw new Error(`Unable to read image file "${src.src}".`);
+	}
+
+	if (fileURL.protocol === 'file:') {
+		return fs.readFile(fileURLToPath(fileURL));
+	}
+
+	const res = await fetch(fileURL);
+
+	if (!res.ok) {
+		throw new Error(`Received code ${res.status} when fetching remote image.`)
+	}
+
+	return Buffer.from(await res.arrayBuffer());
 }
