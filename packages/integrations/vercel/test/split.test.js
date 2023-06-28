@@ -16,7 +16,8 @@ describe('build: split', () => {
 		await fixture.build();
 	});
 
-	it('works', async () => {
-		console.log('hi')
+	it('creates separate functions for each page', async () => {
+		const files = await fixture.readdir('../.vercel/output/functions/')
+		expect(files.length).to.equal(2);
 	});
 });
