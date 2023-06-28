@@ -77,7 +77,13 @@ class SquooshService extends BaseSSRService {
 				case 8:
 					return { type: 'rotate', numRotations: 3 };
 			}
-		} catch {}
+		} catch {
+			error({
+				level: 'info',
+				prefix: false,
+				message: red(`Cannot read metadata for ${transform.src}`),
+			});
+		}
 	}
 
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
