@@ -485,8 +485,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.5.3
-        version: 1.5.3
+        specifier: 1.6.0-pre.4
+        version: 1.6.0-pre.4
       '@astrojs/internal-helpers':
         specifier: ^0.1.1
         version: link:../internal-helpers
@@ -5513,6 +5513,10 @@ packages:
 
   /@astrojs/compiler@1.5.3:
     resolution: {integrity: sha512-/HSFkJ+Yv+WUWSq0QVsIlhBKam5VUpGV+s8MvPguC/krHmw4Ww9TIgmfJSvV8/BN0sHJB7pCgf7yInae1zb+TQ==}
+
+  /@astrojs/compiler@1.6.0-pre.4:
+    resolution: {integrity: sha512-SvkOnyah0AeJ0dly0Wc//Pzv8L9gy4kcqoxg3EDy0xwatSAw9VAHYzW3oPqMB+APReL5k9Vj0u26LlqCu0VfXA==}
+    dev: false
 
   /@astrojs/language-server@1.0.0:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}

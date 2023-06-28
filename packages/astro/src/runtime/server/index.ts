@@ -33,6 +33,7 @@ export {
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
+export { renderTransition } from './transition.js';
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
