@@ -127,18 +127,22 @@ export default function vercelServerless({
 					mergeGlobbedIncludes(_config.vite.assetsInclude);
 				}
 
+				const routeDefinitions: { src: string; dest: string }[] = [];
+
 				// Multiple entrypoint support
 				if(_entryPoints.size) {
-					for(const [, entryFile] of _entryPoints) {
+					for(const [route, entryFile] of _entryPoints) {
 						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
 						await createFunctionFolder(func, entryFile, inc);
+						routeDefinitions.push({
+							src: route.pattern.source,
+							dest: func
+						});
 					}
 				} else {
 					await createFunctionFolder('render', new URL(serverEntry, buildTempFolder), inc);
+					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
-
-				// Remove temporary folder
-				await removeDir(buildTempFolder);
 
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
@@ -147,12 +151,15 @@ export default function vercelServerless({
 					routes: [
 						...getRedirects(routes, _config),
 						{ handle: 'filesystem' },
-						{ src: '/.*', dest: 'render' },
+						...routeDefinitions
 					],
 					...(imageService || imagesConfig
 						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
 						: {}),
 				});
+
+				// Remove temporary folder
+				await removeDir(buildTempFolder);
 			},
 		},
 	};
