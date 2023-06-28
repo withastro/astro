@@ -1,5 +1,7 @@
 # @astrojs/alpinejs
 
+<!-- TODO: Remove this comment (which will break MDX anyway -->
+
 This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinejs.dev/) to your project so that you can use Alpine.js anywhere on your page.
 
 - <strong>[Installation](#installation)</strong>
