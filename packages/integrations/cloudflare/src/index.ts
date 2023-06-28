@@ -3,7 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
-import { dirname, join, relative } from 'path';
+import { dirname } from 'path';
 import glob from 'tiny-glob';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -23,7 +23,7 @@ export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 		? {
 			name: '@astrojs/cloudflare',
 			serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-			exports: ['onRequest'],
+			exports: ['onRequest', 'manifest'],
 		}
 		: {
 			name: '@astrojs/cloudflare',
@@ -108,7 +108,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory && _buildConfig.split) {
-					const entryPaths = [..._entryPoints.values()].map((entry) => fileURLToPath(entry));
+					const entryPointsRouteData = [..._entryPoints.keys()]
+					const entryPointsURL = [..._entryPoints.values()]
+					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputDir = fileURLToPath(new URL('.astro', _buildConfig.server));
 
 					// NOTE: AFAIK, esbuild keeps the order of the entryPoints array
@@ -132,7 +134,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					});
 
 					for (const [index, outputFile] of outputFiles.entries()) {
-						const fileName = [..._entryPoints.entries()][index][0].component.replace('src/pages/', '').replace('.astro', '.js').replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
+						const fileName = entryPointsRouteData[index].component.replace('src/pages/', '').replace('.astro', '.js').replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
 							return `[[${p2}]]`;
 						});
 						const fileUrl = new URL(fileName, functionsUrl)
@@ -174,7 +176,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				}
 
-				// throw the server folder in the bin
+				// // // throw the server folder in the bin
 				const serverUrl = new URL(_buildConfig.server);
 				await fs.promises.rm(serverUrl, { recursive: true, force: true });
 
