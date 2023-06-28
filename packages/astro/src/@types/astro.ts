@@ -546,7 +546,7 @@ export interface AstroUserConfig {
 	 * ```
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
-	 * 
+	 *
 	 * By default, the value of `import.meta.env.BASE_URL` includes a trailing slash. If you have the [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option set to `'never'`, you will need to add it manually in your static asset imports and URLs.
 	 *
 	 * ```astro

@@ -1,28 +1,4 @@
-import matter from 'gray-matter';
-import type { ErrorPayload as ViteErrorPayload } from 'vite';
-
-/**
- * Match YAML exception handling from Astro core errors
- * @see 'astro/src/core/errors.ts'
- */
-export function parseFrontmatter(fileContents: string, filePath: string) {
-	try {
-		// `matter` is empty string on cache results
-		// clear cache to prevent this
-		(matter as any).clearCache();
-		return matter(fileContents);
-	} catch (e: any) {
-		if (e.name === 'YAMLException') {
-			const err: Error & ViteErrorPayload['err'] = e;
-			err.id = filePath;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
-			throw err;
-		} else {
-			throw e;
-		}
-	}
-}
+import type { ComponentConfig } from './config.js';
 
 /**
  * Matches AstroError object with types like error codes stubbed out
@@ -96,4 +72,11 @@ export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
 export function hasContentFlag(viteId: string, flag: string): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(flag);
+}
+
+/** Identifier for components imports passed as `tags` or `nodes` configuration. */
+export const componentConfigSymbol = Symbol.for('@astrojs/markdoc/component-config');
+
+export function isComponentConfig(value: unknown): value is ComponentConfig {
+	return typeof value === 'object' && value !== null && componentConfigSymbol in value;
 }
