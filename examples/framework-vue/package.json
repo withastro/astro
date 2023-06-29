@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/vue": "^2.2.1",
-    "astro": "^2.7.1",
+    "astro": "^2.7.2",
     "vue": "^3.3.4"
   }
 }

@@ -204,6 +204,7 @@ export class App {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
+		const isCompressHTML = this.#manifest.compressHTML ?? false;
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const styles = createStylesheetElementSet(info.styles);
@@ -252,7 +253,13 @@ export class App {
 					page.onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, cookies: apiContext.cookies });
+						return renderPage({
+							mod,
+							renderContext,
+							env: this.#env,
+							cookies: apiContext.cookies,
+							isCompressHTML,
+						});
 					}
 				);
 			} else {
@@ -261,6 +268,7 @@ export class App {
 					renderContext,
 					env: this.#env,
 					cookies: apiContext.cookies,
+					isCompressHTML,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);

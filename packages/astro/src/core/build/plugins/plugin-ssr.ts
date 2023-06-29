@@ -482,6 +482,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		markdown: settings.config.markdown,
 		componentMetadata: Array.from(internals.componentMetadata),

@@ -11,6 +11,7 @@ describe('astro:ssr-manifest', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-manifest/',
 			output: 'server',
+			compressHTML: true,
 			adapter: testAdapter(),
 		});
 		await fixture.build();
@@ -24,5 +25,11 @@ describe('astro:ssr-manifest', () => {
 
 		const $ = cheerio.load(html);
 		expect($('#assets').text()).to.equal('["/_astro/index.a8a337e4.css"]');
+	});
+
+	it('includes compressHTML', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		expect(app.manifest).to.haveOwnProperty('compressHTML');
+		expect(app.manifest.compressHTML).to.be.true;
 	});
 });

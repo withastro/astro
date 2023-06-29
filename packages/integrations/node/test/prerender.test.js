@@ -29,7 +29,7 @@ describe('Prerendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await await load();
+			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
 		});
