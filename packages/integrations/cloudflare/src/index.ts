@@ -97,10 +97,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				_entryPoints = entryPoints;
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
-				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
-				const buildPath = fileURLToPath(entryUrl);
-				// A URL for the final build path after renaming
-				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 				const functionsUrl = new URL('functions/', _config.root);
 
 				if (isModeDirectory) {
@@ -156,6 +152,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				} else {
 					const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
+					const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
+					const buildPath = fileURLToPath(entryUrl);
+					// A URL for the final build path after renaming
+					const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
 
 					await esbuild.build({
 						target: 'es2020',
