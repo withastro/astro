@@ -4,6 +4,7 @@ import { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import { getRequest, setResponse } from './request-transform';
+import { ASTRO_LOCALS_HEADER } from './adapter';
 
 polyfill(globalThis, {
 	exclude: 'window document',
@@ -28,7 +29,14 @@ export const createExports = (manifest: SSRManifest) => {
 			return res.end('Not found');
 		}
 
-		await setResponse(app, res, await app.render(request, routeData));
+		let locals = {};
+		if (request.headers.has(ASTRO_LOCALS_HEADER)) {
+			let localsAsString = request.headers.get(ASTRO_LOCALS_HEADER);
+			if (localsAsString) {
+				locals = JSON.parse(localsAsString);
+			}
+		}
+		await setResponse(app, res, await app.render(request, routeData, locals));
 	};
 
 	return { default: handler };

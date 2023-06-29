@@ -14,8 +14,12 @@ import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 import { generateEdgeMiddleware } from './middleware.js';
 import { fileURLToPath } from 'node:url';
+// import type { VercelRequest } from '@vercel/node';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
+export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
+
+export type CreateLocals = ({ request }: { request: Request }) => object;
 
 function getAdapter(): AstroAdapter {
 	return {
@@ -31,6 +35,7 @@ export interface VercelServerlessConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
+	createLocals?: CreateLocals;
 }
 
 export default function vercelServerless({
@@ -39,6 +44,7 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
+	createLocals,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -88,7 +94,11 @@ export default function vercelServerless({
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				if (middlewareEntryPoint) {
 					const outPath = fileURLToPath(buildTempFolder);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(middlewareEntryPoint, outPath);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(
+						middlewareEntryPoint,
+						outPath,
+						createLocals
+					);
 					// let's tell the adapter that we need to save this file
 					filesToInclude.push(bundledMiddlewarePath);
 				}
