@@ -1772,8 +1772,8 @@ export interface EndpointOutput {
 	encoding?: BufferEncoding;
 }
 
-export type APIRoute = (
-	context: APIContext
+export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
+	context: APIContext<Props>
 ) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
