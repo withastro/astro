@@ -11,13 +11,13 @@ describe('build: split', () => {
 			output: 'server',
 			build: {
 				split: true,
-			}
+			},
 		});
 		await fixture.build();
 	});
 
 	it('creates separate functions for each page', async () => {
-		const files = await fixture.readdir('../.vercel/output/functions/')
+		const files = await fixture.readdir('../.vercel/output/functions/');
 		expect(files.length).to.equal(2);
 	});
 
@@ -25,5 +25,5 @@ describe('build: split', () => {
 		const json = await fixture.readFile('../.vercel/output/config.json');
 		const config = JSON.parse(json);
 		expect(config.routes).to.have.a.lengthOf(3);
-	})
+	});
 });

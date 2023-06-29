@@ -228,8 +228,8 @@ export default defineConfig({
   output: 'server',
   adapter: vercel(),
   build: {
-    split: true
-  }
+    split: true,
+  },
 });
 ```
 
