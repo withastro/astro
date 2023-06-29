@@ -13,8 +13,12 @@ import detectPackageManager from 'which-pm-runs';
 // A copy of this function also exists in the astro package
 async function getRegistry(): Promise<string> {
 	const packageManager = detectPackageManager()?.name || 'npm';
-	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-	return stdout || 'https://registry.npmjs.org';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		return stdout || 'https://registry.npmjs.org';
+	} catch (e) {
+		return 'https://registry.npmjs.org';
+	}
 }
 
 let stdout = process.stdout;
