@@ -1,10 +1,6 @@
-import type { AstroSettings, RouteData } from '../@types/astro';
+import type { AstroSettings, ComponentInstance, RouteData } from '../@types/astro';
 import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
-import {
-	preload,
-	type ComponentPreload,
-	type DevelopmentEnvironment,
-} from '../core/render/dev/index.js';
+import { preload, type DevelopmentEnvironment } from '../core/render/dev/index.js';
 import { getPrerenderStatus } from './metadata.js';
 
 type GetSortedPreloadedMatchesParams = {
@@ -35,7 +31,7 @@ type PreloadAndSetPrerenderStatusParams = {
 type PreloadAndSetPrerenderStatusResult = {
 	filePath: URL;
 	route: RouteData;
-	preloadedComponent: ComponentPreload;
+	preloadedComponent: ComponentInstance;
 };
 
 async function preloadAndSetPrerenderStatus({
@@ -48,9 +44,8 @@ async function preloadAndSetPrerenderStatus({
 			const filePath = new URL(`./${route.component}`, settings.config.root);
 
 			if (routeIsRedirect(route)) {
-				const preloadedComponent: ComponentPreload = [[], RedirectComponentInstance];
 				return {
-					preloadedComponent,
+					preloadedComponent: RedirectComponentInstance,
 					route,
 					filePath,
 				};
