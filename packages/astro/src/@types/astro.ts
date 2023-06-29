@@ -69,7 +69,7 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
-	'animate:transition'?: 'morph' | 'slide' | 'fade';
+	'transition:animate'?: 'morph' | 'slide' | 'fade';
 	'transition:name'?: string;
 }
 
