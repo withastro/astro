@@ -1,6 +1,5 @@
 import type {
 	AstroMiddlewareInstance,
-	AstroSettings,
 	ComponentInstance,
 	MiddlewareResponseHandler,
 	RouteData,
@@ -12,7 +11,7 @@ import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
 import { callMiddleware } from '../../middleware/callMiddleware.js';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
-import { createRenderContext, renderPage as coreRenderPage, loadRenderers } from '../index.js';
+import { createRenderContext, loadRenderers, renderPage as coreRenderPage } from '../index.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
