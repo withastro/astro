@@ -29,5 +29,5 @@ describe('Serverless prerender', () => {
 			'../.vercel/output/functions/render.func/packages/integrations/vercel/test/fixtures/middleware/dist/middleware.mjs'
 		);
 		expect(contents).to.matchSnapshot();
-	}).timeout(5000);
+	});
 });

@@ -1,5 +1,4 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import esbuild from 'esbuild';
 import { join } from 'node:path';
 import { ASTRO_LOCALS_HEADER, type CreateLocals } from './adapter.js';
 
@@ -25,6 +24,7 @@ export async function generateEdgeMiddleware(
 	const code = edgeMiddlewareTemplate(entryPointPathURLAsString, saveLocals);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = join(outPath, 'middleware.mjs');
+	const esbuild = await import('esbuild');
 	await esbuild.build({
 		stdin: {
 			contents: code,
