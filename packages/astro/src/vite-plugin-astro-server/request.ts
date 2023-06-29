@@ -91,7 +91,7 @@ export async function handleRequest(
 			// Our error should already be complete, but let's try to add a bit more through some guesswork
 			const errorWithMetadata = collectErrorMetadata(err, config.root);
 
-			if (env.telemetry !== false) {
+			if (!settings.forceDisableTelemetry) {
 				telemetry.record(eventError({ cmd: 'dev', err: errorWithMetadata, isFatal: false }));
 			}
 
