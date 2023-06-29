@@ -1,10 +1,9 @@
-import { defineMarkdocConfig } from '@astrojs/markdoc/config';
-import Aside from './src/components/Aside.astro';
+import { defineMarkdocConfig, component } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
 	tags: {
 		aside: {
-			render: Aside,
+			render: component('./src/components/Aside.astro'),
 			attributes: {
 				type: { type: String },
 				title: { type: String },

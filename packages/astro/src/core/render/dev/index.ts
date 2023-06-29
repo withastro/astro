@@ -1,21 +1,17 @@
 import type {
 	AstroMiddlewareInstance,
-	AstroSettings,
 	ComponentInstance,
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
-	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { createAPIContext } from '../../endpoint/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
 import { callMiddleware } from '../../middleware/callMiddleware.js';
-import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
-import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
-import { filterFoundRenderers, loadRenderer } from '../renderer.js';
+import { createRenderContext, loadRenderers, renderPage as coreRenderPage } from '../index.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
@@ -32,8 +28,8 @@ export interface SSROptions {
 	origin: string;
 	/** the web request (needed for dynamic routes) */
 	pathname: string;
-	/** The renderers and instance */
-	preload: ComponentPreload;
+	/** The runtime component instance */
+	preload: ComponentInstance;
 	/** Request */
 	request: Request;
 	/** optional, in case we need to render something outside of a dev server */
@@ -44,36 +40,31 @@ export interface SSROptions {
 	middleware?: AstroMiddlewareInstance<unknown>;
 }
 
-export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
-
-export async function loadRenderers(
-	moduleLoader: ModuleLoader,
-	settings: AstroSettings
-): Promise<SSRLoadedRenderer[]> {
-	const loader = (entry: string) => moduleLoader.import(entry);
-	const renderers = await Promise.all(settings.renderers.map((r) => loadRenderer(r, loader)));
-	return filterFoundRenderers(renderers);
-}
-
 export async function preload({
 	env,
 	filePath,
-}: Pick<SSROptions, 'env' | 'filePath'>): Promise<ComponentPreload> {
+}: {
+	env: DevelopmentEnvironment;
+	filePath: URL;
+}): Promise<ComponentInstance> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
-	const renderers = await loadRenderers(env.loader, env.settings);
+	const renderers = await loadRenderers(env.settings, env.loader);
+	// Override the environment's renderers. This ensures that if renderers change (HMR)
+	// The new instances are passed through.
+	env.renderers = renderers;
 
 	try {
 		// Load the module from the Vite SSR Runtime.
 		const mod = (await env.loader.import(viteID(filePath))) as ComponentInstance;
 
-		return [renderers, mod];
+		return mod;
 	} catch (error) {
 		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
 		if (MarkdownError.is(error) || CSSError.is(error) || AggregateError.is(error)) {
 			throw error;
 		}
 
-		throw enhanceViteSSRError({ error, filePath, loader: env.loader, renderers });
+		throw enhanceViteSSRError({ error, filePath, loader: env.loader });
 	}
 }
 
@@ -156,11 +147,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 }
 
 export async function renderPage(options: SSROptions): Promise<Response> {
-	const [renderers, mod] = options.preload;
-
-	// Override the environment's renderers. This ensures that if renderers change (HMR)
-	// The new instances are passed through.
-	options.env.renderers = renderers;
+	const mod = options.preload;
 
 	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
 		env: options.env,

@@ -252,7 +252,7 @@ export async function loadFixture(inlineConfig) {
 			const virtualModule = getVirtualModulePageNameFromPath(RESOLVED_SPLIT_MODULE_ID, pagePath);
 			const filePath = makeSplitEntryPointFileName(virtualModule, routes);
 			const url = new URL(`./server/${filePath}?id=${fixtureId}`, config.outDir);
-			const { createApp, manifest, middleware } = await import(url);
+			const { createApp, manifest } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
