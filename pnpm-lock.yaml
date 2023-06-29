@@ -4889,6 +4889,9 @@ importers:
       '@types/set-cookie-parser':
         specifier: ^2.4.2
         version: 2.4.2
+      '@vercel/edge':
+        specifier: ^0.3.4
+        version: 0.3.4
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -9013,6 +9016,10 @@ packages:
       react:
         optional: true
     dev: false
+
+  /@vercel/edge@0.3.4:
+    resolution: {integrity: sha512-dFU+yAUDQRwpuRGxRDlEO1LMq0y1LGsBgkyryQWe4w15/Fy2/lCnpvdIoAhHl3QvIGAxCLHzwRHsqfLRdpxgJQ==}
+    dev: true
 
   /@vercel/nft@0.22.6:
     resolution: {integrity: sha512-gTsFnnT4mGxodr4AUlW3/urY+8JKKB452LwF3m477RFUJTAaDmcz2JqFuInzvdybYIeyIv1sSONEJxsxnbQ5JQ==}

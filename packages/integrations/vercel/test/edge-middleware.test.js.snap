@@ -9,7 +9,7 @@ var onRequest = async (context, next) => {
 
 // <stdin>
 import { createContext, trySerializeLocals } from \\"astro/middleware\\";
-async function middleware(request) {
+async function middleware(request, context) {
   const url = new URL(request.url);
   const ctx = createContext({
     request,
@@ -21,7 +21,7 @@ async function middleware(request) {
       return {
         \\"foo\\": \\"bar\\"
       };
-    })({ request });
+    })({ request, context });
     const response = await fetch(url, {
       headers: {
         \\"x-astro-locals\\": trySerializeLocals(ctx.locals)

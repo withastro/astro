@@ -45,11 +45,13 @@ export async function generateEdgeMiddleware(
 }
 
 function edgeMiddlewareTemplate(middlewarePath: string, createLocals?: CreateLocals) {
-	const localsFn = createLocals ? `(${createLocals})({request})` : '(() => {})({request})';
+	const localsFn = createLocals
+		? `(${createLocals})({ request, context })`
+		: '(() => undefined)({ request, context })';
 	return `
 import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
-export default async function middleware(request) {
+export default async function middleware(request, context) {
 	const url = new URL(request.url);
 	const ctx = createContext({ 
 		request,
