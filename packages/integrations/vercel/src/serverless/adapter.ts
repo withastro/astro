@@ -1,6 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import glob from 'fast-glob';
+import { basename } from 'node:path';
 import { pathToFileURL } from 'url';
 import {
 	defaultImageConfig,
@@ -12,7 +13,6 @@ import { exposeEnv } from '../lib/env.js';
 import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
-import { basename } from 'node:path';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 
@@ -130,13 +130,13 @@ export default function vercelServerless({
 				const routeDefinitions: { src: string; dest: string }[] = [];
 
 				// Multiple entrypoint support
-				if(_entryPoints.size) {
-					for(const [route, entryFile] of _entryPoints) {
+				if (_entryPoints.size) {
+					for (const [route, entryFile] of _entryPoints) {
 						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
 						await createFunctionFolder(func, entryFile, inc);
 						routeDefinitions.push({
 							src: route.pattern.source,
-							dest: func
+							dest: func,
 						});
 					}
 				} else {
@@ -148,11 +148,7 @@ export default function vercelServerless({
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
-					routes: [
-						...getRedirects(routes, _config),
-						{ handle: 'filesystem' },
-						...routeDefinitions
-					],
+					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }, ...routeDefinitions],
 					...(imageService || imagesConfig
 						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
 						: {}),
