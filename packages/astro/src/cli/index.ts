@@ -148,7 +148,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 			telemetry.record(event.eventCliSession(cmd));
 			const packages = flags._.slice(3) as string[];
-			return await add(packages, { cwd: root, flags, logging, telemetry });
+			return await add(packages, { cwd: root, flags, logging });
 		}
 		case 'docs': {
 			telemetry.record(event.eventCliSession(cmd));
@@ -170,7 +170,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			// Do not track session start, since the user may be trying to enable,
 			// disable, or modify telemetry settings.
 			const subcommand = flags._[3]?.toString();
-			return await telemetryHandler.update(subcommand, { flags, telemetry });
+			return await telemetryHandler.update(subcommand, { flags });
 		}
 	}
 
@@ -209,7 +209,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				configFlagPath,
 				flags,
 				logging,
-				telemetry,
 				handleConfigError(e) {
 					handleConfigError(e, { cmd, cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');
@@ -224,7 +223,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return await build(settings, {
 				flags,
 				logging,
-				telemetry,
 				teardownCompiler: true,
 				mode: flags.mode,
 			});
@@ -256,7 +254,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'preview': {
 			const { default: preview } = await import('../core/preview/index.js');
 
-			const server = await preview(settings, { logging, telemetry, flags });
+			const server = await preview(settings, { logging, flags });
 			if (server) {
 				return await server.closed(); // keep alive until the server is closed
 			}

@@ -1,4 +1,3 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
 import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
 
 import fs from 'fs';
@@ -26,7 +25,6 @@ import { getTimeStat } from './util.js';
 export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
-	telemetry: AstroTelemetry;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
