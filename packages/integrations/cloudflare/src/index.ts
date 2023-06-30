@@ -21,15 +21,15 @@ interface BuildConfig {
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 	return isModeDirectory
 		? {
-			name: '@astrojs/cloudflare',
-			serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-			exports: ['onRequest', 'manifest'],
-		}
+				name: '@astrojs/cloudflare',
+				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
+				exports: ['onRequest', 'manifest'],
+		  }
 		: {
-			name: '@astrojs/cloudflare',
-			serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
-			exports: ['default'],
-		};
+				name: '@astrojs/cloudflare',
+				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
+				exports: ['default'],
+		  };
 }
 
 const SHIM = `globalThis.process = {
@@ -104,8 +104,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory && _buildConfig.split) {
-					const entryPointsRouteData = [..._entryPoints.keys()]
-					const entryPointsURL = [..._entryPoints.values()]
+					const entryPointsRouteData = [..._entryPoints.keys()];
+					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputDir = fileURLToPath(new URL('.astro', _buildConfig.server));
 
@@ -142,14 +142,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								return `[[${p2}]]`;
 							});
 
-						const fileUrl = new URL(fileName, functionsUrl)
+						const fileUrl = new URL(fileName, functionsUrl);
 						const newFileDir = dirname(fileURLToPath(fileUrl));
 						if (!fs.existsSync(newFileDir)) {
 							fs.mkdirSync(newFileDir, { recursive: true });
 						}
 						await fs.promises.writeFile(fileUrl, outputFile.contents);
 					}
-
 				} else {
 					const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
 					const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
@@ -182,7 +181,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						const directoryUrl = new URL('[[path]].js', functionsUrl);
 						await fs.promises.rename(finalBuildUrl, directoryUrl);
 					}
-
 				}
 
 				// // // throw the server folder in the bin

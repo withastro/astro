@@ -10,10 +10,10 @@ describe('Cloudflare SSR split', () => {
 		fixture = await loadFixture({
 			root: './fixtures/split/',
 			adapter: cloudflare({ mode: 'directory' }),
-			output: "server",
+			output: 'server',
 			build: {
 				split: true,
-				excludeMiddleware: false
+				excludeMiddleware: false,
 			},
 			vite: {
 				build: {
