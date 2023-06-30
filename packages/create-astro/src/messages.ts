@@ -3,7 +3,7 @@ import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit'
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { execa } from 'execa';
 import { exec } from 'node:child_process';
-import { get } from 'node:https';
+import fetch from 'node-fetch-native';
 import stripAnsi from 'strip-ansi';
 import detectPackageManager from 'which-pm-runs';
 
@@ -82,15 +82,9 @@ export const getVersion = () =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
 		let registry = await getRegistry();
-		get(`${registry}/astro/latest`, (res) => {
-			let body = '';
-			res.on('data', (chunk) => (body += chunk));
-			res.on('end', () => {
-				const { version } = JSON.parse(body);
-				v = version;
-				resolve(version);
-			});
-		});
+		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(res => res.json());
+		v = version;
+		resolve(version);
 	});
 
 export const log = (message: string) => stdout.write(message + '\n');
