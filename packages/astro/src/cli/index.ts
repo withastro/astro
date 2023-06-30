@@ -19,7 +19,7 @@ import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { openInBrowser } from './open.js';
-import type { AstroIntegration } from '../@types/astro';
+import { arch, platform } from 'node:os';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -114,6 +114,8 @@ async function printInfo({
 	console.log();
 	printRow('Astro version', `v${ASTRO_VERSION}`);
 	printRow('Package manager', packageManager.name);
+	printRow('Platform', platform());
+	printRow('Architecture', arch());
 	printRow('Adapter', adapter);
 	let integrationsString = "None or couldn't determine.";
 	if (integrations.length > 0) {
