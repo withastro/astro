@@ -3,7 +3,7 @@ import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit'
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { execa } from 'execa';
 import { exec } from 'node:child_process';
-import { get } from 'node:https';
+import fetch from 'node-fetch-native';
 import stripAnsi from 'strip-ansi';
 import detectPackageManager from 'which-pm-runs';
 
@@ -15,7 +15,7 @@ async function getRegistry(): Promise<string> {
 	const packageManager = detectPackageManager()?.name || 'npm';
 	try {
 		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-		return stdout || 'https://registry.npmjs.org';
+		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
 	} catch (e) {
 		return 'https://registry.npmjs.org';
 	}
@@ -81,16 +81,10 @@ let v: string;
 export const getVersion = () =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
-		const registry = await getRegistry();
-		get(`${registry}/astro/latest`, (res) => {
-			let body = '';
-			res.on('data', (chunk) => (body += chunk));
-			res.on('end', () => {
-				const { version } = JSON.parse(body);
-				v = version;
-				resolve(version);
-			});
-		});
+		let registry = await getRegistry();
+		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(res => res.json());
+		v = version;
+		resolve(version);
 	});
 
 export const log = (message: string) => stdout.write(message + '\n');
