@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-New command `astro rage`, useful to share debugging information about your current environment
+Adds a new command `astro info`, useful for sharing debugging information about your current environment when you need help!
 
 ```shell
 astro rage
