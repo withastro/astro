@@ -24,10 +24,19 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
 export interface CreateResultArgs {
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
 	adapterName: string | undefined;
+	/**
+	 * Value of Astro config's `output` option, true if "server" or "hybrid"
+	 */
 	ssr: boolean;
 	logging: LogOptions;
 	origin: string;
+	/**
+	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
+	 */
 	markdown: MarkdownRenderingOptions;
 	mode: RuntimeMode;
 	params: Params;
@@ -36,6 +45,9 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
+	/**
+	 * Used for `Astro.site`
+	 */
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
