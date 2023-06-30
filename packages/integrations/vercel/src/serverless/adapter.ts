@@ -18,6 +18,7 @@ import type { RequestContext } from '@vercel/edge';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
+export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
 export type CreateLocals = ({
 	request,
@@ -100,10 +101,14 @@ export default function vercelServerless({
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				if (middlewareEntryPoint) {
 					const outPath = fileURLToPath(buildTempFolder);
+					const vercelEdgeMiddlewareHandlerPath = new URL(
+						VERCEL_EDGE_MIDDLEWARE_FILE,
+						_config.srcDir
+					);
 					const bundledMiddlewarePath = await generateEdgeMiddleware(
 						middlewareEntryPoint,
 						outPath,
-						createLocals
+						vercelEdgeMiddlewareHandlerPath
 					);
 					// let's tell the adapter that we need to save this file
 					filesToInclude.push(bundledMiddlewarePath);

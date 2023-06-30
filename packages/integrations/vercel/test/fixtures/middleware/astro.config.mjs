@@ -9,5 +9,8 @@ export default defineConfig({
                 "foo": "bar"
             }
         }}),
+    build: {
+        excludeMiddleware: true
+    },
     output: 'server'
 });

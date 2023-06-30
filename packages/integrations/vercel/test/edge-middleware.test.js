@@ -16,9 +16,6 @@ describe('Serverless prerender', () => {
 		chaiJestSnapshot.resetSnapshotRegistry();
 		fixture = await loadFixture({
 			root: './fixtures/middleware/',
-			build: {
-				excludeMiddleware: true,
-			},
 		});
 	});
 
