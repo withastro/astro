@@ -1765,8 +1765,6 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export type Props = Record<string, unknown>;
-
 export interface EndpointOutput {
 	body: Body;
 	encoding?: BufferEncoding;
@@ -1779,6 +1777,8 @@ export type APIRoute<Props extends Record<string, any> = Record<string, any>> = 
 export interface EndpointHandler {
 	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
+
+export type Props = Record<string, unknown>;
 
 export interface AstroRenderer {
 	/** Name of the renderer. */
