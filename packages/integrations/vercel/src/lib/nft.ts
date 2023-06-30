@@ -1,4 +1,3 @@
-import { nodeFileTrace } from '@vercel/nft';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { copyFilesToFunction } from './fs.js';
