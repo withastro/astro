@@ -41,41 +41,49 @@ export async function getParamsAndProps(
 	opts: GetParamsAndPropsOptions
 ): Promise<[Params, Props] | GetParamsAndPropsError> {
 	const { logging, mod, route, routeCache, pathname, ssr } = opts;
-	// Handle dynamic routes
-	let params: Params = {};
-	let pageProps: Props;
-	if (route && !route.pathname) {
-		if (route.params.length) {
-			// The RegExp pattern expects a decoded string, but the pathname is encoded
-			// when the URL contains non-English characters.
-			const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
-			if (paramsMatch) {
-				params = getParams(route.params)(paramsMatch);
-			}
-		}
-		validatePrerenderEndpointCollision(route, mod, params);
-		let routeCacheEntry = routeCache.get(route);
-		// During build, the route cache should already be populated.
-		// During development, the route cache is filled on-demand and may be empty.
-		// TODO(fks): Can we refactor getParamsAndProps() to receive routeCacheEntry
-		// as a prop, and not do a live lookup/populate inside this lower function call.
-		if (!routeCacheEntry) {
-			routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
-			routeCache.set(route, routeCacheEntry);
-		}
-		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
-		if (!matchedStaticPath && (ssr ? route.prerender : true)) {
-			return GetParamsAndPropsError.NoMatchingStaticPath;
-		}
-		// Note: considered using Object.create(...) for performance
-		// Since this doesn't inherit an object's properties, this caused some odd user-facing behavior.
-		// Ex. console.log(Astro.props) -> {}, but console.log(Astro.props.property) -> 'expected value'
-		// Replaced with a simple spread as a compromise
-		pageProps = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
-	} else {
-		pageProps = {};
+
+	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
+	// then we know for sure they don't have params and props, return a fallback value.
+	if (!route || route.pathname) {
+		return [{}, {}];
 	}
-	return [params, pageProps];
+
+	// This is a dynamic route, start getting the params
+	const params = getRouteParams(route, pathname) ?? {};
+
+	validatePrerenderEndpointCollision(route, mod, params);
+
+	let routeCacheEntry = routeCache.get(route);
+	// During build, the route cache should already be populated.
+	// During development, the route cache is filled on-demand and may be empty.
+	// TODO(fks): Can we refactor getParamsAndProps() to receive routeCacheEntry
+	// as a prop, and not do a live lookup/populate inside this lower function call.
+	if (!routeCacheEntry) {
+		routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
+		routeCache.set(route, routeCacheEntry);
+	}
+	const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
+	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
+		return GetParamsAndPropsError.NoMatchingStaticPath;
+	}
+	// Note: considered using Object.create(...) for performance
+	// Since this doesn't inherit an object's properties, this caused some odd user-facing behavior.
+	// Ex. console.log(Astro.props) -> {}, but console.log(Astro.props.property) -> 'expected value'
+	// Replaced with a simple spread as a compromise
+	const props: Props = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
+
+	return [params, props];
+}
+
+function getRouteParams(route: RouteData, pathname: string): Params | undefined {
+	if (route.params.length) {
+		// The RegExp pattern expects a decoded string, but the pathname is encoded
+		// when the URL contains non-English characters.
+		const paramsMatch = route.pattern.exec(decodeURIComponent(pathname));
+		if (paramsMatch) {
+			return getParams(route.params)(paramsMatch);
+		}
+	}
 }
 
 /**
