@@ -77,8 +77,12 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 // A copy of this function also exists in the create-astro package
 async function getRegistry(): Promise<string> {
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
-	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-	return stdout || 'https://registry.npmjs.org';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		return stdout || 'https://registry.npmjs.org';
+	} catch (e) {
+		return 'https://registry.npmjs.org';
+	}
 }
 
 export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
