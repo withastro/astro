@@ -42,9 +42,8 @@ npm install lit @webcomponents/template-shadowroot
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "lit()"
+```js ins={3} "lit()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import lit from '@astrojs/lit';
 
@@ -66,9 +65,8 @@ However, there's a key difference with Lit _custom elements_ over conventional _
 
 Astro needs to know which tag is associated with which component script. We expose this through exporting a `tagName` variable from the component script. It looks like this:
 
-**`src/components/my-element.js`**
-
 ```js
+// src/components/my-element.js
 import { LitElement, html } from 'lit';
 
 const tagName = 'my-element';
@@ -86,10 +84,9 @@ customElements.define(tagName, MyElement);
 
 In your Astro template import this component as a side-effect and use the element.
 
-**`src/pages/index.astro`**
-
 ```astro
 ---
+// src/pages/index.astro
 import { MyElement } from '../components/my-element.js';
 ---
 
