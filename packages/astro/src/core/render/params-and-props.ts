@@ -13,33 +13,7 @@ interface GetParamsAndPropsOptions {
 	ssr: boolean;
 }
 
-export const enum GetParamsAndPropsError {
-	NoMatchingStaticPath,
-}
-
-/**
- * It retrieves `Params` and `Props`, or throws an error
- * if they are not correctly retrieved.
- */
-export async function getParamsAndPropsOrThrow(
-	options: GetParamsAndPropsOptions
-): Promise<[Params, Props]> {
-	let paramsAndPropsResp = await getParamsAndProps(options);
-	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
-		throw new AstroError({
-			...AstroErrorData.NoMatchingStaticPathFound,
-			message: AstroErrorData.NoMatchingStaticPathFound.message(options.pathname),
-			hint: options.route?.component
-				? AstroErrorData.NoMatchingStaticPathFound.hint([options.route?.component])
-				: '',
-		});
-	}
-	return paramsAndPropsResp;
-}
-
-export async function getParamsAndProps(
-	opts: GetParamsAndPropsOptions
-): Promise<[Params, Props] | GetParamsAndPropsError> {
+export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
 	const { logging, mod, route, routeCache, pathname, ssr } = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
@@ -64,7 +38,11 @@ export async function getParamsAndProps(
 	}
 	const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
 	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
-		return GetParamsAndPropsError.NoMatchingStaticPath;
+		throw new AstroError({
+			...AstroErrorData.NoMatchingStaticPathFound,
+			message: AstroErrorData.NoMatchingStaticPathFound.message(pathname),
+			hint: AstroErrorData.NoMatchingStaticPathFound.hint([route.component]),
+		});
 	}
 	// Note: considered using Object.create(...) for performance
 	// Since this doesn't inherit an object's properties, this caused some odd user-facing behavior.
