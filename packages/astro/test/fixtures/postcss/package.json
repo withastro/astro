@@ -9,7 +9,7 @@
     "astro": "workspace:*",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
-    "solid-js": "^1.7.6",
+    "solid-js": "^1.7.7",
     "svelte": "^3.59.1",
     "vue": "^3.3.4"
   },

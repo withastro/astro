@@ -221,8 +221,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -275,8 +275,8 @@ importers:
         specifier: ^2.7.4
         version: link:../../packages/astro
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   examples/framework-svelte:
     dependencies:
@@ -866,8 +866,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -975,8 +975,8 @@ importers:
         specifier: ^1.63.4
         version: 1.63.4
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1035,8 +1035,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1094,8 +1094,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1134,8 +1134,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1174,8 +1174,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1214,8 +1214,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1254,8 +1254,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1294,8 +1294,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -1399,8 +1399,8 @@ importers:
         version: link:../../..
     devDependencies:
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/e2e/fixtures/solid-component:
     dependencies:
@@ -1414,8 +1414,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/e2e/fixtures/solid-recurse:
     dependencies:
@@ -1427,8 +1427,8 @@ importers:
         version: link:../../..
     devDependencies:
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/e2e/fixtures/svelte-component:
     dependencies:
@@ -2187,8 +2187,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -2741,8 +2741,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -2778,8 +2778,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/test/fixtures/lazy-layout:
     dependencies:
@@ -2905,8 +2905,8 @@ importers:
         specifier: ^8.4.24
         version: 8.4.24
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
         specifier: ^3.59.1
         version: 3.59.1
@@ -2978,8 +2978,8 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/test/fixtures/react-component:
     dependencies:
@@ -3111,8 +3111,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/test/fixtures/slots-svelte:
     dependencies:
@@ -3151,7 +3151,7 @@ importers:
         version: link:../../../../integrations/solid
       '@solidjs/router':
         specifier: ^0.5.1
-        version: 0.5.1(solid-js@1.7.6)
+        version: 0.5.1(solid-js@1.7.7)
       '@test/solid-jsx-component':
         specifier: file:./deps/solid-jsx-component
         version: file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component
@@ -3159,14 +3159,14 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     dependencies:
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/astro/test/fixtures/sourcemap:
     dependencies:
@@ -3702,8 +3702,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/integrations/deno:
     dependencies:
@@ -4808,8 +4808,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
 
   packages/integrations/svelte:
     dependencies:
@@ -8399,12 +8399,12 @@ packages:
       rollup: 3.20.1
     dev: false
 
-  /@solidjs/router@0.5.1(solid-js@1.7.6):
+  /@solidjs/router@0.5.1(solid-js@1.7.7):
     resolution: {integrity: sha512-igyrwUqm/9T26Lb6l7oXwpc4lLUVqbhbN92wOL3NgLoLVmkQlUNTZciuAe+Su8XeJXlrWjl6oxDJDLt+6pws/g==}
     peerDependencies:
       solid-js: ^1.5.3
     dependencies:
-      solid-js: 1.7.6
+      solid-js: 1.7.7
     dev: false
 
   /@surma/rollup-plugin-off-main-thread@2.2.3:
@@ -16282,8 +16282,8 @@ packages:
       smart-buffer: 4.2.0
     dev: true
 
-  /solid-js@1.7.6:
-    resolution: {integrity: sha512-DXVOTjUh/bIAhE0fIqu3ezGLyQaez7v8EOw3uPLIi87DmLjg+hsuCAgKyNIZ+o4jUetOk3ZORccvJmE1yZUk8g==}
+  /solid-js@1.7.7:
+    resolution: {integrity: sha512-SPdYVke/Z6Za24PBTbULyQYPrhGO1ZbPany76atO2zF2dmYn2pCotbsw1JtlgWnr9dK2JbwPGnA3ODTGPLhZNw==}
     dependencies:
       csstype: 3.1.2
       seroval: 0.5.1
@@ -18226,25 +18226,21 @@ packages:
   file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
     resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
     name: '@test/astro-font-awesome-package'
-    version: 0.0.1
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/one:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/one, type: directory}
     name: '@test/astro-renderer-one'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/two:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
     name: '@test/astro-renderer-two'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     resolution: {directory: packages/astro/test/fixtures/solid-component/deps/solid-jsx-component, type: directory}
     name: '@test/solid-jsx-component'
-    version: 0.0.0
     dependencies:
-      solid-js: 1.7.6
+      solid-js: 1.7.7
     dev: false
