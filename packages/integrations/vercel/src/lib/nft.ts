@@ -1,7 +1,5 @@
-import { nodeFileTrace } from '@vercel/nft';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { copyFilesToFunction } from './fs.js';
 
 export async function copyDependenciesToFunction({
@@ -23,6 +21,7 @@ export async function copyDependenciesToFunction({
 		base = new URL('../', base);
 	}
 
+	const { nodeFileTrace } = await import('@vercel/nft');
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
 	});

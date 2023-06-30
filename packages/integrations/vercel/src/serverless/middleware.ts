@@ -1,7 +1,7 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import esbuild from 'esbuild';
 import { join } from 'node:path';
-import { writeFile } from '../lib/fs.js';
+import { ASTRO_LOCALS_HEADER, type CreateLocals } from './adapter.js';
+import { existsSync } from 'fs';
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -16,14 +16,17 @@ import { writeFile } from '../lib/fs.js';
  */
 export async function generateEdgeMiddleware(
 	astroMiddlewareEntryPointPath: URL,
-	outPath: string
+	outPath: string,
+	vercelEdgeMiddlewareHandlerPath: URL
 ): Promise<URL> {
 	const entryPointPathURLAsString = JSON.stringify(
 		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/')
 	);
-	const code = edgeMiddlewareTemplate(entryPointPathURLAsString);
+
+	const code = edgeMiddlewareTemplate(entryPointPathURLAsString, vercelEdgeMiddlewareHandlerPath);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = join(outPath, 'middleware.mjs');
+	const esbuild = await import('esbuild');
 	await esbuild.build({
 		stdin: {
 			contents: code,
@@ -34,7 +37,6 @@ export async function generateEdgeMiddleware(
 		// https://runtime-keys.proposal.wintercg.org/#edge-light
 		conditions: ['edge-light', 'worker', 'browser'],
 		external: ['astro/middleware'],
-		// entryPoints: [middlewareEdgePath],
 		outfile: bundledFilePath,
 		allowOverwrite: true,
 		format: 'esm',
@@ -44,18 +46,35 @@ export async function generateEdgeMiddleware(
 	return pathToFileURL(bundledFilePath);
 }
 
-function edgeMiddlewareTemplate(middlewarePath: string) {
+function edgeMiddlewareTemplate(middlewarePath: string, vercelEdgeMiddlewareHandlerPath: URL) {
+	const filePathEdgeMiddleware = fileURLToPath(vercelEdgeMiddlewareHandlerPath);
+	let handlerTemplateImport = '';
+	let handlerTemplateCall = '{}';
+	if (existsSync(filePathEdgeMiddleware) + '.js' || existsSync(filePathEdgeMiddleware) + '.ts') {
+		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
+		handlerTemplateImport = `import handler from ${stringified}`;
+		handlerTemplateCall = `handler({ request, context })`;
+	} else {
+	}
 	return `
+	${handlerTemplateImport}
 import { onRequest } from ${middlewarePath};
-import { createAPIContext } from 'astro/middleware';
-export default function middleware(request) {
+import { createContext, trySerializeLocals } from 'astro/middleware';
+export default async function middleware(request, context) {
 	const url = new URL(request.url);
-	const next = async () => {
-		const response = await fetch(url);
+	const ctx = createContext({ 
+		request,
+		params: {}
+	});
+	ctx.locals = ${handlerTemplateCall};
+	const next = async () => {	
+		const response = await fetch(url, {
+			headers: {
+				${JSON.stringify(ASTRO_LOCALS_HEADER)}: trySerializeLocals(ctx.locals)
+			}
+		});
 		return response;
 	};
-
-	const ctx = createAPIContext(request);
 
 	return onRequest(ctx, next);
 }`;
