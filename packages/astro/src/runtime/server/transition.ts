@@ -1,5 +1,5 @@
 import type { SSRResult } from '../../@types/astro';
-import { unescapeHTML } from './escape.js';
+import { markHTMLString } from './escape.js';
 
 const animations = {
 	'slide': {
@@ -38,26 +38,30 @@ export function renderTransition(result: SSRResult, hash: string, animationName:
 		transitionName = createTransitionName(result);
 	}
 
-	return unescapeHTML(`<style>[data-astro-transition-scope="${hash}"] {
-	view-transition-name: ${transitionName};
-}
-${animationName === 'morph' ? '' : `
-::view-transition-old(${transitionName}) {
-	animation: var(${animation.old});
-}
-::view-transition-new(${transitionName}) {
-	animation: var(${animation.new});
-}
+	const styles = markHTMLString(`<style>[data-astro-transition-scope="${hash}"] {
+		view-transition-name: ${transitionName};
+	}
+	${animationName === 'morph' ? '' : `
+	::view-transition-old(${transitionName}) {
+		animation: var(${animation.old});
+	}
+	::view-transition-new(${transitionName}) {
+		animation: var(${animation.new});
+	}
+	
+	${('backOld' in animation) && ('backNew' in animation) ? `
+	.astro-back-transition::view-transition-old(${transitionName}) {
+		animation-name: var(${animation.backOld});
+	}
+	.astro-back-transition::view-transition-new(${transitionName}) {
+		animation-name: var(${animation.backNew});
+	}
+	`.trim() : ''}
+	
+	`.trim()}
+	</style>`)
 
-${('backOld' in animation) && ('backNew' in animation) ? `
-.astro-back-transition::view-transition-old(${transitionName}) {
-  animation-name: var(${animation.backOld});
-}
-.astro-back-transition::view-transition-new(${transitionName}) {
-  animation-name: var(${animation.backNew});
-}
-`.trim() : ''}
+	result.extraHead.push(styles);
 
-`.trim()}
-</style>`);
+	return '';
 }

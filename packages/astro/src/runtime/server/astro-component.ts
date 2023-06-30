@@ -7,7 +7,7 @@ function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory
 	if (!args[0] || typeof args[0] !== 'object') return false;
 	return true;
 }
-function baseCreateComponent(cb: AstroComponentFactory, moduleId?: string): AstroComponentFactory {
+function baseCreateComponent(cb: AstroComponentFactory, moduleId?: string, propagation?: PropagationHint): AstroComponentFactory {
 	const name = moduleId?.split('/').pop()?.replace('.astro', '') ?? '';
 	const fn = (...args: Parameters<AstroComponentFactory>) => {
 		if (!validateArgs(args)) {
@@ -22,6 +22,7 @@ function baseCreateComponent(cb: AstroComponentFactory, moduleId?: string): Astr
 	// Add a flag to this callback to mark it as an Astro component
 	fn.isAstroComponentFactory = true;
 	fn.moduleId = moduleId;
+	fn.propagation = propagation;
 	return fn;
 }
 
@@ -32,17 +33,17 @@ interface CreateComponentOptions {
 }
 
 function createComponentWithOptions(opts: CreateComponentOptions) {
-	const cb = baseCreateComponent(opts.factory, opts.moduleId);
-	cb.propagation = opts.propagation;
+	const cb = baseCreateComponent(opts.factory, opts.moduleId, opts.propagation);
 	return cb;
 }
 // Used in creating the component. aka the main export.
 export function createComponent(
 	arg1: AstroComponentFactory | CreateComponentOptions,
-	moduleId?: string
+	moduleId?: string,
+	propagation?: PropagationHint,
 ) {
 	if (typeof arg1 === 'function') {
-		return baseCreateComponent(arg1, moduleId);
+		return baseCreateComponent(arg1, moduleId, propagation);
 	} else {
 		return createComponentWithOptions(arg1);
 	}
