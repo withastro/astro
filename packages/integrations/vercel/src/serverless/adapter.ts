@@ -1,6 +1,7 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 
 import glob from 'fast-glob';
+import { basename } from 'node:path';
 import { pathToFileURL } from 'url';
 import {
 	defaultImageConfig,
@@ -40,8 +41,34 @@ export default function vercelServerless({
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
-	let functionFolder: URL;
 	let serverEntry: string;
+	let _entryPoints: Map<RouteData, URL>;
+
+	async function createFunctionFolder(funcName: string, entry: URL, inc: URL[]) {
+		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
+
+		// Copy necessary files (e.g. node_modules/)
+		const { handler } = await copyDependenciesToFunction({
+			entry,
+			outDir: functionFolder,
+			includeFiles: inc,
+			excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+		});
+
+		// Enable ESM
+		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+		await writeJson(new URL(`./package.json`, functionFolder), {
+			type: 'module',
+		});
+
+		// Serverless function config
+		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
+			runtime: getRuntime(),
+			handler,
+			launcherType: 'Nodejs',
+		});
+	}
 
 	return {
 		name: PACKAGE_NAME,
@@ -70,7 +97,6 @@ export default function vercelServerless({
 				setAdapter(getAdapter());
 				_config = config;
 				buildTempFolder = config.build.server;
-				functionFolder = new URL('./functions/render.func/', config.outDir);
 				serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
@@ -79,6 +105,9 @@ export default function vercelServerless({
 
 	`);
 				}
+			},
+			'astro:build:ssr': async ({ entryPoints }) => {
+				_entryPoints = entryPoints;
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Merge any includes from `vite.assetsInclude
@@ -98,44 +127,35 @@ export default function vercelServerless({
 					mergeGlobbedIncludes(_config.vite.assetsInclude);
 				}
 
-				// Copy necessary files (e.g. node_modules/)
-				const { handler } = await copyDependenciesToFunction({
-					entry: new URL(serverEntry, buildTempFolder),
-					outDir: functionFolder,
-					includeFiles: inc,
-					excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
-				});
+				const routeDefinitions: { src: string; dest: string }[] = [];
 
-				// Remove temporary folder
-				await removeDir(buildTempFolder);
-
-				// Enable ESM
-				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-				await writeJson(new URL(`./package.json`, functionFolder), {
-					type: 'module',
-				});
-
-				// Serverless function config
-				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
-				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-					runtime: getRuntime(),
-					handler,
-					launcherType: 'Nodejs',
-				});
+				// Multiple entrypoint support
+				if (_entryPoints.size) {
+					for (const [route, entryFile] of _entryPoints) {
+						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
+						await createFunctionFolder(func, entryFile, inc);
+						routeDefinitions.push({
+							src: route.pattern.source,
+							dest: func,
+						});
+					}
+				} else {
+					await createFunctionFolder('render', new URL(serverEntry, buildTempFolder), inc);
+					routeDefinitions.push({ src: '/.*', dest: 'render' });
+				}
 
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
-					routes: [
-						...getRedirects(routes, _config),
-						{ handle: 'filesystem' },
-						{ src: '/.*', dest: 'render' },
-					],
+					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }, ...routeDefinitions],
 					...(imageService || imagesConfig
 						? { images: imagesConfig ? imagesConfig : defaultImageConfig }
 						: {}),
 				});
+
+				// Remove temporary folder
+				await removeDir(buildTempFolder);
 			},
 		},
 	};
