@@ -3,4 +3,4 @@
 'create-astro': patch
 ---
 
-Update registry logic to handle registry URLs ending with '/'
+Update registry logic, improving edge cases (redirects, UTF-8 sequences, registries ending with '/')
