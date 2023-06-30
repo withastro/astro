@@ -10,8 +10,7 @@ export interface Metadata extends ImageMetadata {
 
 export async function metadata(src: URL | string, data?: Buffer): Promise<Metadata | undefined> {
 	const file = data || (await fs.readFile(src));
-
-	const { width, height, type, orientation } = await sizeOf(file);
+	const { width, height, type, orientation } = sizeOf(file);
 	const isPortrait = (orientation || 0) >= 5;
 
 	if (!width || !height || !type) {
@@ -19,7 +18,8 @@ export async function metadata(src: URL | string, data?: Buffer): Promise<Metada
 	}
 
 	return {
-		src: fileURLToPath(src),
+		// We shouldn't call fileURLToPath function if it starts with /@astroimage/ because it will throw Invalid URL error
+		src: typeof src === 'string' && /^[\/\\]?@astroimage/.test(src) ? src : fileURLToPath(src),
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
 		format: type as InputFormat,
