@@ -3,4 +3,4 @@
 'create-astro': patch
 ---
 
-Update registry logic, improving edge cases (redirects, UTF-8 sequences, registries ending with '/')
+Update registry logic, improving edge cases (http support, redirects, registries ending with '/')
