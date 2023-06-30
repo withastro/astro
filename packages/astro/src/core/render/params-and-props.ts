@@ -36,6 +36,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
 		routeCache.set(route, routeCacheEntry);
 	}
+
 	const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
 	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
 		throw new AstroError({
@@ -44,10 +45,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 			hint: AstroErrorData.NoMatchingStaticPathFound.hint([route.component]),
 		});
 	}
-	// Note: considered using Object.create(...) for performance
-	// Since this doesn't inherit an object's properties, this caused some odd user-facing behavior.
-	// Ex. console.log(Astro.props) -> {}, but console.log(Astro.props.property) -> 'expected value'
-	// Replaced with a simple spread as a compromise
+
 	const props: Props = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
 
 	return [params, props];
