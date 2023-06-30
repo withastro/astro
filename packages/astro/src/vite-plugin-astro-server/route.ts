@@ -157,17 +157,6 @@ export async function handleRoute(
 		if (value) res.setHeader(name, value);
 	}
 
-	// attempt to get static paths
-	// if this fails, we have a bad URL match!
-	const paramsAndPropsRes = await getParamsAndProps({
-		mod,
-		route,
-		routeCache: env.routeCache,
-		pathname: pathname,
-		logging,
-		ssr: isServerLikeOutput(config),
-	});
-
 	const options: SSROptions = {
 		env,
 		filePath,
