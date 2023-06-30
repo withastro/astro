@@ -2,8 +2,8 @@
 import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { execa } from 'execa';
-import { exec } from 'node:child_process';
 import fetch from 'node-fetch-native';
+import { exec } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import detectPackageManager from 'which-pm-runs';
 
@@ -82,7 +82,9 @@ export const getVersion = () =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
 		let registry = await getRegistry();
-		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(res => res.json());
+		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(
+			(res) => res.json()
+		);
 		v = version;
 		resolve(version);
 	});
