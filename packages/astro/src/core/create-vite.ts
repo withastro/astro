@@ -27,6 +27,7 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
+import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import { joinPaths } from './path.js';
 
 interface CreateViteOptions {
@@ -132,6 +133,7 @@ export async function createVite(
 			astroContentAssetPropagationPlugin({ mode, settings }),
 			vitePluginSSRManifest(),
 			settings.config.experimental.assets ? [astroAssetsPlugin({ settings, logging, mode })] : [],
+			astroTransitions(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

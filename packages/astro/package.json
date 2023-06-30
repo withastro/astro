@@ -70,7 +70,8 @@
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
-    }
+    },
+    "./transitions": "./dist/transitions/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"

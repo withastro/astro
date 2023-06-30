@@ -6,6 +6,7 @@
     "declarationDir": "./dist",
     "module": "ES2022",
     "outDir": "./dist",
-    "target": "ES2021"
+    "target": "ES2021",
+    "jsx": "preserve"
   }
 }

@@ -55,6 +55,25 @@ export interface AstroBuiltinProps {
 	'client:only'?: boolean | string;
 }
 
+export interface TransitionAnimation {
+  name: string; // The name of the keyframe
+  delay?: number | string;
+  duration?: number | string;
+  easing?: string;
+	fillMode?: string;
+	direction?: string;
+}
+
+export interface TransitionAnimationPair {
+	old: TransitionAnimation | TransitionAnimation[];
+	new: TransitionAnimation | TransitionAnimation[];
+}
+
+export interface TransitionDirectionalAnimations {
+	forwards: TransitionAnimationPair;
+	backwards: TransitionAnimationPair;
+}
+
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AstroClientDirectives {}
@@ -69,7 +88,7 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
-	'transition:animate'?: 'morph' | 'slide' | 'fade';
+	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
 	'transition:name'?: string;
 }
 
