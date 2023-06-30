@@ -8,7 +8,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getParamsAndPropsOrThrow } from './core.js';
+import { getParamsAndPropsOrThrow } from './params-and-props.js';
 import type { Environment } from './environment';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
