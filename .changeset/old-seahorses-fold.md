@@ -2,4 +2,4 @@
 'create-astro': patch
 ---
 
-fix: getVersion Error when registry ends with '/'
+Update registry logic to handle registry URLs ending with '/'
