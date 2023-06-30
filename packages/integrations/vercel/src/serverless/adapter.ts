@@ -43,7 +43,6 @@ export interface VercelServerlessConfig {
 	analytics?: boolean;
 	imageService?: boolean;
 	imagesConfig?: VercelImageConfig;
-	createLocals?: CreateLocals;
 }
 
 export default function vercelServerless({
@@ -52,7 +51,6 @@ export default function vercelServerless({
 	analytics,
 	imageService,
 	imagesConfig,
-	createLocals,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
@@ -165,14 +163,18 @@ export default function vercelServerless({
 				if (_entryPoints.size) {
 					for (const [route, entryFile] of _entryPoints) {
 						const func = basename(entryFile.toString()).replace(/\.mjs$/, '');
-						await createFunctionFolder(func, entryFile, inc);
+						await createFunctionFolder(func, entryFile, filesToInclude);
 						routeDefinitions.push({
 							src: route.pattern.source,
 							dest: func,
 						});
 					}
 				} else {
-					await createFunctionFolder('render', new URL(serverEntry, buildTempFolder), inc);
+					await createFunctionFolder(
+						'render',
+						new URL(serverEntry, buildTempFolder),
+						filesToInclude
+					);
 					routeDefinitions.push({ src: '/.*', dest: 'render' });
 				}
 
