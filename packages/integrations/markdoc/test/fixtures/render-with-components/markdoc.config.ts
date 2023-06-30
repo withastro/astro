@@ -1,11 +1,9 @@
-import Code from './src/components/Code.astro';
-import CustomMarquee from './src/components/CustomMarquee.astro';
-import { defineMarkdocConfig } from '@astrojs/markdoc/config';
+import { defineMarkdocConfig, component } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
 	nodes: {
 		fence: {
-			render: Code,
+			render: component('./src/components/Code.astro'),
 			attributes: {
 				language: { type: String },
 				content: { type: String },
@@ -14,7 +12,7 @@ export default defineMarkdocConfig({
 	},
 	tags: {
 		mq: {
-			render: CustomMarquee,
+			render: component('./src/components/CustomMarquee.astro'),
 			attributes: {
 				direction: {
 					type: String,

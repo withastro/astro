@@ -5,12 +5,8 @@ import { createRenderContext } from '../../render/index.js';
 import { callEndpoint } from '../index.js';
 
 export async function call(options: SSROptions, logging: LogOptions) {
-	const {
-		env,
-		preload: [, mod],
-		middleware,
-	} = options;
-	const endpointHandler = mod as unknown as EndpointHandler;
+	const { env, preload, middleware } = options;
+	const endpointHandler = preload as unknown as EndpointHandler;
 
 	const ctx = await createRenderContext({
 		request: options.request,
@@ -18,7 +14,7 @@ export async function call(options: SSROptions, logging: LogOptions) {
 		pathname: options.pathname,
 		route: options.route,
 		env,
-		mod: endpointHandler as any,
+		mod: preload,
 	});
 
 	return await callEndpoint(endpointHandler, env, ctx, logging, middleware?.onRequest);

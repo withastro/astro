@@ -18,7 +18,7 @@ describe('Dynamic endpoint collision', () => {
 		});
 
 		it('throw error when dynamic endpoint has path collision', async () => {
-			expect(errorMsg.errorCode).to.eq(3026);
+			expect(errorMsg.name).to.eq('PrerenderDynamicEndpointPathCollide');
 		});
 	});
 

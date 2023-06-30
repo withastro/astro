@@ -1,11 +1,4 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
-import type {
-	AstroConfig,
-	AstroSettings,
-	BuildConfig,
-	ManifestData,
-	RuntimeMode,
-} from '../../@types/astro';
+import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
 
 import fs from 'fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -35,7 +28,6 @@ import { isServerLikeOutput } from '../../prerender/utils.js';
 export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
-	telemetry: AstroTelemetry;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
@@ -126,11 +118,6 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		const buildConfig: BuildConfig = {
-			client: this.settings.config.build.client,
-			server: this.settings.config.build.server,
-			serverEntry: this.settings.config.build.serverEntry,
-		};
 		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
 		this.validateConfig();
 
@@ -171,7 +158,6 @@ class AstroBuilder {
 			routeCache: this.routeCache,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
-			buildConfig,
 		};
 
 		const { internals } = await viteBuild(opts);

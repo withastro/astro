@@ -384,7 +384,7 @@ function storeEntryPoint(
 	const componentPath = getPathFromVirtualModulePageName(RESOLVED_SPLIT_MODULE_ID, moduleKey);
 	for (const [page, pageData] of Object.entries(options.allPages)) {
 		if (componentPath == page) {
-			const publicPath = fileURLToPath(options.settings.config.outDir);
+			const publicPath = fileURLToPath(options.settings.config.build.server);
 			internals.entryPoints.set(pageData.route, pathToFileURL(join(publicPath, fileName)));
 		}
 	}
@@ -484,6 +484,7 @@ function buildManifest(
 		routes,
 		site: settings.config.site,
 		base: settings.config.base,
+		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		markdown: settings.config.markdown,
 		componentMetadata: Array.from(internals.componentMetadata),

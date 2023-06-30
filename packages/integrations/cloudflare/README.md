@@ -32,12 +32,11 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   output: 'server',
-  adapter: cloudflare()
+  adapter: cloudflare(),
 });
 ```
 
 ## Options
-
 
 ### Mode
 
@@ -49,14 +48,17 @@ Cloudflare Pages has 2 different modes for deploying functions, `advanced` mode 
 
 For most projects the adapter default of `advanced` will be sufficient; the `dist` folder will contain your compiled project. Switching to directory mode allows you to use [pages plugins](https://developers.cloudflare.com/pages/platform/functions/plugins/) such as [Sentry](https://developers.cloudflare.com/pages/platform/functions/plugins/sentry/) or write custom code to enable logging.
 
-In directory mode the adapter will compile the client side part of your app the same way, but moves the worker script into a `functions` folder in the project root. The adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control. Cloudflare documentation contains more information about [writing custom functions](https://developers.cloudflare.com/pages/platform/functions/).
+In directory mode, the adapter will compile the client side part of your app the same way by default, but moves the worker script into a `functions` folder in the project root. In this case, the adapter will only ever place a `[[path]].js` in that folder, allowing you to add additional plugins and pages middleware which can be checked into version control.
+
+With the build configuration `split: true`, the adapter instead compiles a separate bundle for each page. This option requires some manual maintenance of the `functions` folder. Files emitted by Astro will overwrite existing `functions` files with identical names, so you must choose unique file names for each file you manually add. Additionally, the adapter will never empty the `functions` folder of outdated files, so you must clean up the folder manually when you remove pages.
+
+Note that this adapter does not support using [Cloudflare Pages Middleware](https://developers.cloudflare.com/pages/platform/functions/middleware/). Astro will bundle the [Astro middleware](https://docs.astro.build/en/guides/middleware/) into each page.
 
 ```ts
 // directory mode
 export default defineConfig({
-  adapter: cloudflare({ mode: "directory" }),
+  adapter: cloudflare({ mode: 'directory' }),
 });
-
 ```
 
 ## Enabling Preview
@@ -74,7 +76,7 @@ It's then possible to update the preview script in your `package.json` to `"prev
 You can access all the Cloudflare bindings and environment variables from Astro components and API routes through the adapter API.
 
 ```js
-import { getRuntime } from "@astrojs/cloudflare/runtime";
+import { getRuntime } from '@astrojs/cloudflare/runtime';
 
 getRuntime(Astro.request);
 ```
@@ -108,7 +110,6 @@ By default, `@astrojs/cloudflare` will generate a `_routes.json` file that lists
 
 ## Troubleshooting
 
-
 For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
@@ -119,14 +120,14 @@ Currently, errors during running your application in Wrangler are not very usefu
 
 ```js
 export default defineConfig({
-	adapter: cloudflare(),
-	output: 'server',
+  adapter: cloudflare(),
+  output: 'server',
 
   vite: {
     build: {
-      minify: false
-    }
-  }
+      minify: false,
+    },
+  },
 });
 ```
 

@@ -7,11 +7,7 @@ import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import type {
-	ComponentPreload,
-	DevelopmentEnvironment,
-	SSROptions,
-} from '../core/render/dev/index';
+import type { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
@@ -33,7 +29,7 @@ interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
-	preloadedComponent: ComponentPreload;
+	preloadedComponent: ComponentInstance;
 	mod: ComponentInstance;
 }
 
@@ -54,9 +50,8 @@ export async function matchRoute(
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
-		const [, mod] = preloadedComponent;
 		const paramsAndPropsRes = await getParamsAndProps({
-			mod,
+			mod: preloadedComponent,
 			route: maybeRoute,
 			routeCache,
 			pathname: pathname,
@@ -70,7 +65,7 @@ export async function matchRoute(
 				filePath,
 				resolvedPathname: pathname,
 				preloadedComponent,
-				mod,
+				mod: preloadedComponent,
 			};
 		}
 	}
@@ -101,14 +96,13 @@ export async function matchRoute(
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, settings.config.root);
 		const preloadedComponent = await preload({ env, filePath });
-		const [, mod] = preloadedComponent;
 
 		return {
 			route: custom404,
 			filePath,
 			resolvedPathname: pathname,
 			preloadedComponent,
-			mod,
+			mod: preloadedComponent,
 		};
 	}
 

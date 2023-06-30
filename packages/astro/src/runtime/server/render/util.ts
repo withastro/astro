@@ -149,10 +149,10 @@ export function bufferIterators<T>(iterators: AsyncIterable<T>[]): AsyncIterable
 	const eagerIterators = iterators.map((it) => new EagerAsyncIterableIterator(it));
 	// once the execution of the next for loop is suspended due to an async component,
 	// this timeout triggers and we start buffering the other iterators
-	setTimeout(() => {
+	queueMicrotask(() => {
 		// buffer all iterators that haven't started yet
 		eagerIterators.forEach((it) => !it.isStarted() && it.buffer());
-	}, 0);
+	});
 	return eagerIterators;
 }
 

@@ -104,7 +104,6 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		scripts: [],
 		clientDirectives: getDefaultClientDirectives(),
 		watchFiles: [],
-		forceDisableTelemetry: false,
 		timer: new AstroTimer(),
 	};
 }
