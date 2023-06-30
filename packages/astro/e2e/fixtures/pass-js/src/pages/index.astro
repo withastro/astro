@@ -1,8 +1,8 @@
 ---
+import type { BigNestedObject } from '../types';
 import Component from '../components/React';
-import { BigNestedObject } from '../types';
 
-const obj: BigNestedObject = {
+const object: BigNestedObject = {
 	nested: {
 		date: new Date('Thu, 09 Jun 2022 14:18:27 GMT')
 	},
@@ -30,7 +30,19 @@ set.add('test2');
 	</head>
 	<body>
 		<main>
-			<Component client:load obj={obj} num={11n} arr={[0, "foo"]} map={map} set={set} />
+			<Component
+				client:load
+				undefined={undefined}
+				null={null}
+				boolean={true}
+				number={16}
+				string={"abc"}
+				bigint={11n}
+				object={object}
+				array={[0, "foo"]}
+				map={map}
+				set={set}
+			/>
 		</main>
 	</body>
 </html>
