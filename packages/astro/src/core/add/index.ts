@@ -79,7 +79,7 @@ async function getRegistry(): Promise<string> {
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
 	try {
 		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-		return stdout || 'https://registry.npmjs.org';
+		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
 	} catch (e) {
 		return 'https://registry.npmjs.org';
 	}
