@@ -1,5 +1,5 @@
 ---
-'create-astro': major
+'create-astro': patch
 ---
 
 fix: getVersion Error when registry ends with '/'
