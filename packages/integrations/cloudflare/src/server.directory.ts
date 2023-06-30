@@ -10,16 +10,11 @@ if (!isNode) {
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
-	const onRequest = async ({
-		request,
-		next,
-		...runtimeEnv
-	}: {
-		request: Request & CFRequest;
-		next: (request: Request) => void;
-		waitUntil: EventContext<unknown, any, unknown>['waitUntil'];
-	} & Record<string, unknown>) => {
-		process.env = runtimeEnv.env as any;
+	const onRequest = async (context: EventContext<unknown, any, unknown>) => {
+		const request = context.request as Request & CFRequest
+		const { next, env } = context
+
+		process.env = env as any;
 
 		const { pathname } = new URL(request.url);
 		// static assets fallback, in case default _routes.json is not used
@@ -38,17 +33,19 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
+			// @deprecated: getRuntime() can be removed, Astro.locals.env is the new place
 			Reflect.set(request, Symbol.for('runtime'), {
-				...runtimeEnv,
+				...context,
 				waitUntil: (promise: Promise<any>) => {
-					runtimeEnv.waitUntil(promise);
+					context.waitUntil(promise);
 				},
 				name: 'cloudflare',
 				next,
 				caches,
 				cf: request.cf,
 			});
-			let response = await app.render(request, routeData);
+
+			let response = await app.render(request, routeData, { env });
 
 			if (app.setCookieHeaders) {
 				for (const setCookieHeader of app.setCookieHeaders(response)) {
