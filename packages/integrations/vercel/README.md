@@ -262,6 +262,61 @@ You can use Vercel edge middleware to intercept a request and redirect before se
 > **Warning**
 > **Trying to rewrite?** Currently rewriting a request with middleware only works for static files.
 
+### Vercel Edge Middleware with Astro middleware
+
+The `@astrojs/vercel/serverless` adapter can automatically create the vercel edge middleware when you have an Astro middleware in you code base.
+
+This is an opt-in feature, and the `build.excludeMiddleware` option needs to be set to `true`:
+
+```js
+// astro.config.mjs
+import {defineConfig} from "astro/config";
+import vercel from "@astrojs/vercel";
+export default definConfig({
+   output: "server",
+   adapter: vercel(),
+   build: {
+       excludeMiddleware: true
+   }
+})
+```
+
+Optionally, you can create a known file called `vercel-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
+
+```js
+// src/vercel-edge-middleware.js
+
+export default function({ request, context }) {
+    // do something with request and context
+    return {
+        title: "Spider-man's blog"
+    }
+}
+```
+
+The data returned by this function will be passed to Astro middleware.
+
+The function:
+- must export a **default** function;
+- must **return** an `object`;
+- accepts an object with a `request` and `context` as properties;
+- `request` is typed as [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request);
+- `context` is typed as [`RequestContext`](https://vercel.com/docs/concepts/functions/edge-functions/vercel-edge-package#requestcontext);
+
+#### Limitations and constraints 
+
+When you opt in this feature, there are few constraints to take into consideration:
+- the Vercel Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`.
+
+  This an architectural constraint that follows the [boundaries set by Vercel](https://vercel.com/docs/concepts/functions/edge-middleware).
+- you're allowed to use `request` and `context` only to produce an `Astro.locals` object. 
+
+  Operations like redirects, etc. should be delegated to Astro middleware
+- `Astro.locals` **must be serializable**, failing to do so will result in a **runtime error**. 
+ 
+  This means that you **can't** store complex types like `Map`, `function`, `Set`, etc.
+
+
 ## Troubleshooting
 
 **A few known complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.** By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`.
