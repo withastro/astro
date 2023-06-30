@@ -81,7 +81,11 @@ let v: string;
 export const getVersion = () =>
 	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
-		const registry = await getRegistry();
+		let registry = await getRegistry();
+		// if the registry ends with '/', trim it.
+		if (registry.lastIndexOf('/') === registry.length - 1) {
+			registry = registry.substring(0, registry.length - 1);
+		}
 		get(`${registry}/astro/latest`, (res) => {
 			let body = '';
 			res.on('data', (chunk) => (body += chunk));
