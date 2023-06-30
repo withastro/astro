@@ -22,6 +22,9 @@ polyfill(globalThis, {
 	exclude: 'window document',
 });
 
+// Disable telemetry when running tests
+process.env.ASTRO_TELEMETRY_DISABLED = true;
+
 /**
  * @typedef {import('undici').Response} Response
  * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
@@ -146,13 +149,6 @@ export async function loadFixture(inlineConfig) {
 		return settings;
 	};
 
-	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
-	const telemetry = {
-		record() {
-			return Promise.resolve();
-		},
-	};
-
 	const resolveUrl = (url) =>
 		`http://${config.server.host || 'localhost'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
@@ -184,7 +180,7 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(await getSettings(), { logging, telemetry, ...opts });
+			return build(await getSettings(), { logging, ...opts });
 		},
 		sync: async (opts) => sync(await getSettings(), { logging, fs, ...opts }),
 		check: async (opts) => {
@@ -192,7 +188,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev(await getSettings(), { logging, telemetry, ...opts });
+			devServer = await dev(await getSettings(), { logging, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
@@ -214,11 +210,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(await getSettings(), {
-				logging,
-				telemetry,
-				...opts,
-			});
+			const previewServer = await preview(await getSettings(), { logging, ...opts });
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;

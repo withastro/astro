@@ -61,5 +61,5 @@ export function createExports(manifest: SSRManifest) {
 		});
 	};
 
-	return { onRequest };
+	return { onRequest, manifest };
 }
