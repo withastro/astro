@@ -4,7 +4,7 @@ import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export async function writeJson<T>(path: PathLike, data: T) {
-	await fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
+	await fs.writeFile(path, JSON.stringify(data, null, '\t'), { encoding: 'utf-8' });
 }
 
 export async function removeDir(dir: PathLike) {

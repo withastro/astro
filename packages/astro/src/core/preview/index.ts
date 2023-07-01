@@ -1,4 +1,3 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
 import { cyan } from 'kleur/colors';
 import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
@@ -12,7 +11,6 @@ import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
 	logging: LogOptions;
-	telemetry: AstroTelemetry;
 	flags?: Arguments;
 }
 

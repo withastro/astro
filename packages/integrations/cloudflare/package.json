@@ -35,7 +35,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 30000 test/"
+    "test": "mocha --exit --timeout 30000 test/",
+    "test:match": "mocha --exit --timeout 30000 -g"
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "^0.1.0",
