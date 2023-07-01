@@ -1,10 +1,14 @@
 import type { BigNestedObject } from '../types';
-import { useState } from 'react';
 
 interface Props {
-	obj: BigNestedObject;
-	num: bigint;
-	arr: any[];
+	undefined: undefined;
+	null: null;
+	boolean: boolean;
+	number: number;
+	string: string;
+	bigint: bigint;
+	object: BigNestedObject;
+	array: any[];
 	map: Map<string, string>;
 	set: Set<string>;
 }
@@ -12,7 +16,7 @@ interface Props {
 const isNode = typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
 
 /** a counter written in React */
-export default function Component({ obj, num, arr, map, set }: Props) {
+export default function Component({ undefined: undefinedProp, null: nullProp, boolean, number, string, bigint, object, array, map, set }: Props) {
 	// We are testing hydration, so don't return anything in the server.
 	if(isNode) {
 		return <div></div>
@@ -20,13 +24,22 @@ export default function Component({ obj, num, arr, map, set }: Props) {
 
 	return (
 		<div>
-			<span id="nested-date">{obj.nested.date.toUTCString()}</span>
-			<span id="regexp-type">{Object.prototype.toString.call(obj.more.another.exp)}</span>
-			<span id="regexp-value">{obj.more.another.exp.source}</span>
-			<span id="bigint-type">{Object.prototype.toString.call(num)}</span>
-			<span id="bigint-value">{num.toString()}</span>
-			<span id="arr-type">{Object.prototype.toString.call(arr)}</span>
-			<span id="arr-value">{arr.join(',')}</span>
+			<span id="undefined-type">{Object.prototype.toString.call(undefinedProp)}</span>
+			<span id="null-type">{Object.prototype.toString.call(nullProp)}</span>
+			<span id="boolean-type">{Object.prototype.toString.call(boolean)}</span>
+			<span id="boolean-value">{boolean.toString()}</span>
+			<span id="number-type">{Object.prototype.toString.call(number)}</span>
+			<span id="number-value">{number.toString()}</span>
+			<span id="string-type">{Object.prototype.toString.call(string)}</span>
+			<span id="string-value">{string}</span>
+			<span id="bigint-type">{Object.prototype.toString.call(bigint)}</span>
+			<span id="bigint-value">{bigint.toString()}</span>
+			<span id="date-type">{Object.prototype.toString.call(object.nested.date)}</span>
+			<span id="date-value">{object.nested.date.toUTCString()}</span>
+			<span id="regexp-type">{Object.prototype.toString.call(object.more.another.exp)}</span>
+			<span id="regexp-value">{object.more.another.exp.source}</span>
+			<span id="array-type">{Object.prototype.toString.call(array)}</span>
+			<span id="array-value">{array.join(',')}</span>
 			<span id="map-type">{Object.prototype.toString.call(map)}</span>
 			<ul id="map-items">{Array.from(map).map(([key, value]) => (
 				<li>{key}: {value}</li>
