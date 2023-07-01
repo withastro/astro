@@ -135,7 +135,6 @@ describe('Route matching', () => {
 				output: 'hybrid',
 				adapter: testAdapter(),
 			},
-			disableTelemetry: true,
 		});
 		settings = container.settings;
 

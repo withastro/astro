@@ -32,7 +32,6 @@ export function createDevelopmentEnvironment(
 		site: settings.config.site,
 		ssr: isServerLikeOutput(settings.config),
 		streaming: true,
-		telemetry: Boolean(settings.forceDisableTelemetry),
 	});
 
 	return {

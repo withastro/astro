@@ -17,6 +17,7 @@ import type {
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
+	SSRManifest,
 } from '../../@types/astro';
 import {
 	generateImage as generateImageInternal,
@@ -148,9 +149,27 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-				const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
-
-				await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+				const ssrEntryPage = await import(ssrEntryURLPage.toString());
+				if (opts.settings.config.build.split) {
+					// forcing to use undefined, so we fail in an expected way if the module is not even there.
+					const manifest: SSRManifest | undefined = ssrEntryPage.manifest;
+					const ssrEntry = manifest?.pageModule;
+					if (ssrEntry) {
+						await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+					} else {
+						throw new Error(
+							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
+						);
+					}
+				} else {
+					await generatePage(
+						opts,
+						internals,
+						pageData,
+						ssrEntryPage as SinglePageBuiltModule,
+						builtPaths
+					);
+				}
 			}
 		}
 		for (const pageData of eachRedirectPageData(internals)) {

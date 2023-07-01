@@ -46,7 +46,6 @@ export interface CreateContainerParams {
 	// The string passed to --config and the resolved path
 	configFlag?: string;
 	configFlagPath?: string;
-	disableTelemetry?: boolean;
 }
 
 export async function createContainer(params: CreateContainerParams = {}): Promise<Container> {
@@ -55,12 +54,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		logging = defaultLogging,
 		settings = await createDefaultDevSettings(params.userConfig, params.root),
 		fs = nodeFs,
-		disableTelemetry,
 	} = params;
-
-	if (disableTelemetry) {
-		settings.forceDisableTelemetry = true;
-	}
 
 	// Initialize
 	applyPolyfill();
@@ -149,7 +143,7 @@ export async function runInContainer(
 	params: CreateContainerParams,
 	callback: (container: Container) => Promise<void> | void
 ) {
-	const container = await createContainer({ ...params, disableTelemetry: true });
+	const container = await createContainer(params);
 	try {
 		await callback(container);
 	} finally {
