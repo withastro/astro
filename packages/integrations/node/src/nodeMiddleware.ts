@@ -45,7 +45,7 @@ async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: 
 	const { status, headers } = webResponse;
 
 	if (app.setCookieHeaders) {
-		const setCookieHeaders = Array.from(app.setCookieHeaders(webResponse));
+		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
 
 		if (setCookieHeaders.length) {
 			for (const setCookieHeader of setCookieHeaders) {
