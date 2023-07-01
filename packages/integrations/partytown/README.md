@@ -46,9 +46,8 @@ npm install @astrojs/partytown
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import partytown from '@astrojs/partytown';
 
@@ -73,9 +72,8 @@ If you open the "Network" tab from [your browser's dev tools](https://developer.
 
 To configure this integration, pass a 'config' object to the `partytown()` function call in `astro.config.mjs`.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 // ...
 export default defineConfig({
   integrations: [
@@ -96,9 +94,8 @@ Partytown ships with a `debug` mode; enable or disable it by passing `true` or `
 
 If this option isn't set, `debug` mode will be on by default in [dev](https://docs.astro.build/en/reference/cli-reference/#astro-dev) or [preview](https://docs.astro.build/en/reference/cli-reference/#astro-preview) mode.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 export default defineConfig({
   integrations: [
     partytown({
@@ -117,9 +114,8 @@ To solve this, Partytown can "patch" variables to the global window object and f
 
 You can specify which variables to forward with the `config.forward` option. [Read more in Partytown's documentation.](https://partytown.builder.io/forwarding-events)
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 export default defineConfig({
   integrations: [
     partytown({
