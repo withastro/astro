@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { fileURLToPath } from 'url';
 
 import { getStylesForURL } from '../../../dist/core/render/dev/css.js';
 import { viteID } from '../../../dist/core/util.js';

@@ -3,7 +3,7 @@ import { parseFrontmatter } from '../content/utils.js';
 
 export const markdownContentEntryType: ContentEntryType = {
 	extensions: ['.md'],
-	async getEntryInfo({ fileUrl, contents }: { fileUrl: URL; contents: string }) {
+	async getEntryInfo({ contents }: { contents: string }) {
 		const parsed = parseFrontmatter(contents);
 		return {
 			data: parsed.data,

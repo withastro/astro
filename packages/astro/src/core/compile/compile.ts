@@ -98,7 +98,6 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 		case 0:
 			break;
 		case 1: {
-			const error = cssTransformErrors[0];
 			throw cssTransformErrors[0];
 		}
 		default: {

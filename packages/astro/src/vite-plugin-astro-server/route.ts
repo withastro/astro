@@ -137,7 +137,7 @@ export async function handleRoute(
 
 	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
-	const { route, preloadedComponent, mod } = matchedRoute;
+	const { route, preloadedComponent } = matchedRoute;
 	const buildingToSSR = isServerLikeOutput(config);
 
 	// Headers are only available when using SSR.
