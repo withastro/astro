@@ -19,6 +19,7 @@ module.exports = {
     'no-console': 'warn',
 
     // Todo: do we want these?
+    '@typescript-eslint/array-type': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/class-literal-property-style': 'off',
     '@typescript-eslint/consistent-indexed-object-style': 'off',

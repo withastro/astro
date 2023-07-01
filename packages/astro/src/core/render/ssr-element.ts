@@ -1,13 +1,12 @@
-import slashify from 'slash';
 import type { SSRElement } from '../../@types/astro';
-import { joinPaths, prependForwardSlash } from '../../core/path.js';
+import { joinPaths, prependForwardSlash, slash } from '../../core/path.js';
 import type { StylesheetAsset } from '../app/types';
 
 export function createAssetLink(href: string, base?: string, assetsPrefix?: string): string {
 	if (assetsPrefix) {
-		return joinPaths(assetsPrefix, slashify(href));
+		return joinPaths(assetsPrefix, slash(href));
 	} else if (base) {
-		return prependForwardSlash(joinPaths(base, slashify(href)));
+		return prependForwardSlash(joinPaths(base, slash(href)));
 	} else {
 		return href;
 	}
@@ -86,7 +85,7 @@ export function createModuleScriptElementWithSrcSet(
 }
 
 export function createModuleScriptsSet(
-	scripts: Array<{ type: 'inline' | 'external'; value: string }>,
+	scripts: { type: 'inline' | 'external'; value: string }[],
 	base?: string,
 	assetsPrefix?: string
 ): Set<SSRElement> {

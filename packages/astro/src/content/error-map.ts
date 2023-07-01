@@ -96,4 +96,4 @@ const unionExpectedVals = (expectedVals: Set<unknown>) =>
 		})
 		.join('');
 
-const flattenErrorPath = (errorPath: Array<string | number>) => errorPath.join('.');
+const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');

@@ -58,18 +58,18 @@ Flow:
 
 1. Walk the `hast` tree.
 2. For each `node` we enter, if the `node` is static (`type` is `element` or `mdxJsxFlowElement`), record in `allPossibleElements` and push to `elementStack`.
-    - Q: Why do we record `mdxJsxFlowElement`, it's MDX? <br>
-      A: Because we're looking for nodes whose children are static. The node itself doesn't need to be static.
-    - Q: Are we sure this is the subtree root node in `allPossibleElements`? <br>
-      A: No, but we'll clear that up later in step 3.
+   - Q: Why do we record `mdxJsxFlowElement`, it's MDX? <br>
+     A: Because we're looking for nodes whose children are static. The node itself doesn't need to be static.
+   - Q: Are we sure this is the subtree root node in `allPossibleElements`? <br>
+     A: No, but we'll clear that up later in step 3.
 3. For each `node` we leave, pop from `elementStack`. If the `node`'s parent is in `allPossibleElements`, we also remove the `node` from `allPossibleElements`.
-    - Q: Why do we check for the node's parent? <br>
-      A: Checking for the node's parent allows us to identify a subtree root. When we enter a subtree like `C -> D -> E`, we leave in reverse: `E -> D -> C`. When we leave `E`, we see that it's parent `D` exists, so we remove `E`. When we leave `D`, we see `C` exists, so we remove `D`. When we leave `C`, we see that its parent doesn't exist, so we keep `C`, a subtree root.
+   - Q: Why do we check for the node's parent? <br>
+     A: Checking for the node's parent allows us to identify a subtree root. When we enter a subtree like `C -> D -> E`, we leave in reverse: `E -> D -> C`. When we leave `E`, we see that it's parent `D` exists, so we remove `E`. When we leave `D`, we see `C` exists, so we remove `D`. When we leave `C`, we see that its parent doesn't exist, so we keep `C`, a subtree root.
 4. _(Returning to the code written for step 2's `node` enter handling)_ We also need to handle the case where we find non-static elements. If found, we remove all the elements in `elementStack` from `allPossibleElements`. This happens before the code in step 2.
-    - Q: Why? <br>
-      A: Because if the `node` isn't static, that means all its ancestors (`elementStack`) have non-static children. So, the ancestors couldn't be a subtree root to be optimized anymore.
-    - Q: Why before step 2's `node` enter handling? <br>
-      A: If we find a non-static `node`, the `node` should still be considered in `allPossibleElements` as its children could be static.
+   - Q: Why? <br>
+     A: Because if the `node` isn't static, that means all its ancestors (`elementStack`) have non-static children. So, the ancestors couldn't be a subtree root to be optimized anymore.
+   - Q: Why before step 2's `node` enter handling? <br>
+     A: If we find a non-static `node`, the `node` should still be considered in `allPossibleElements` as its children could be static.
 5. Walk done. This leaves us with `allPossibleElements` containing only subtree roots that can be optimized.
 6. Add the `set:html` property to the `hast` node, and remove its children.
 7. 🎉 The rest of the MDX pipeline will do its thing and generate the desired JSX like above.

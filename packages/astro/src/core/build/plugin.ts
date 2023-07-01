@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal';
 import type { StaticBuildOptions, ViteBuildReturn } from './types';
 
-type RollupOutputArray = Extract<ViteBuildReturn, any[]>;
+type RollupOutputArray = Extract<ViteBuildReturn, Array<any>>;
 type OutputChunkorAsset = RollupOutputArray[number]['output'][number];
 type OutputChunk = Extract<OutputChunkorAsset, { type: 'chunk' }>;
 

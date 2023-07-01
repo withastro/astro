@@ -16,7 +16,7 @@ import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/
 import { defaultLogging as logging } from '../../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
-const loadJSXRenderer = () => loadRenderer(jsxRenderer, (s) => import(s));
+const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });
 
 describe('core/render', () => {
 	describe('Astro JSX components', () => {

@@ -27,7 +27,6 @@ function safeMatter(source: string, id: string) {
 		return matter(source);
 	} catch (err: any) {
 		const markdownError = new MarkdownError({
-			code: AstroErrorData.UnknownMarkdownError.code,
 			message: err.message,
 			stack: err.stack,
 			location: {
@@ -36,7 +35,6 @@ function safeMatter(source: string, id: string) {
 		});
 
 		if (err.name === 'YAMLException') {
-			markdownError.setErrorCode(AstroErrorData.MarkdownFrontmatterParseError.code);
 			markdownError.setLocation({
 				file: id,
 				line: err.mark.line,
@@ -88,7 +86,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				const { headings } = renderResult.metadata;
 
 				// Resolve all the extracted images from the content
-				let imagePaths: Array<{ raw: string; resolved: string }> = [];
+				let imagePaths: { raw: string; resolved: string }[] = [];
 				if (settings.config.experimental.assets && renderResult.vfile.data.imagePaths) {
 					for (let imagePath of renderResult.vfile.data.imagePaths.values()) {
 						imagePaths.push({

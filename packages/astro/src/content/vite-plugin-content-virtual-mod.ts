@@ -6,6 +6,7 @@ import pLimit from 'p-limit';
 import type { Plugin } from 'vite';
 import type { AstroSettings, ContentEntryType } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { appendForwardSlash } from '../core/path.js';
 import { rootRelativePath } from '../core/util.js';
 import { VIRTUAL_MODULE_ID } from './consts.js';
 import {
@@ -129,7 +130,7 @@ export async function getStringifiedLookupMap({
 	// Run 10 at a time to prevent `await getEntrySlug` from accessing the filesystem all at once.
 	// Each await shouldn't take too long for the work to be noticably slow too.
 	const limit = pLimit(10);
-	const promises: Array<Promise<void>> = [];
+	const promises: Promise<void>[] = [];
 
 	for (const filePath of contentGlob) {
 		promises.push(
@@ -209,5 +210,10 @@ const UnexpectedLookupMapError = new AstroError({
 
 function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
-	return [`${relContentDir}/**/*${extGlob}`, `!**/_*/**${extGlob}`, `!**/_*${extGlob}`];
+	const contentDir = appendForwardSlash(relContentDir);
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}_*/**${extGlob}`,
+		`!${contentDir}_*${extGlob}`,
+	];
 }

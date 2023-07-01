@@ -7,11 +7,7 @@ import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import type {
-	ComponentPreload,
-	DevelopmentEnvironment,
-	SSROptions,
-} from '../core/render/dev/index';
+import type { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 import { preload, renderPage } from '../core/render/dev/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
@@ -20,6 +16,8 @@ import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+
+const clientLocalsSymbol = Symbol.for('astro.locals');
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -31,7 +29,7 @@ interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
-	preloadedComponent: ComponentPreload;
+	preloadedComponent: ComponentInstance;
 	mod: ComponentInstance;
 }
 
@@ -52,9 +50,8 @@ export async function matchRoute(
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
-		const [, mod] = preloadedComponent;
 		const paramsAndPropsRes = await getParamsAndProps({
-			mod,
+			mod: preloadedComponent,
 			route: maybeRoute,
 			routeCache,
 			pathname: pathname,
@@ -68,7 +65,7 @@ export async function matchRoute(
 				filePath,
 				resolvedPathname: pathname,
 				preloadedComponent,
-				mod,
+				mod: preloadedComponent,
 			};
 		}
 	}
@@ -99,14 +96,13 @@ export async function matchRoute(
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, settings.config.root);
 		const preloadedComponent = await preload({ env, filePath });
-		const [, mod] = preloadedComponent;
 
 		return {
 			route: custom404,
 			filePath,
 			resolvedPathname: pathname,
 			preloadedComponent,
-			mod,
+			mod: preloadedComponent,
 		};
 	}
 
@@ -153,23 +149,13 @@ export async function handleRoute(
 		logging,
 		ssr: buildingToSSR,
 		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
+		locals: Reflect.get(req, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
 	});
 
 	// Set user specified headers to response object.
 	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
 		if (value) res.setHeader(name, value);
 	}
-
-	// attempt to get static paths
-	// if this fails, we have a bad URL match!
-	await getParamsAndProps({
-		mod,
-		route,
-		routeCache: env.routeCache,
-		pathname: pathname,
-		logging,
-		ssr: isServerLikeOutput(config),
-	});
 
 	const options: SSROptions = {
 		env,

@@ -20,14 +20,14 @@ export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 	mdast.Root
 >;
 
-export type RemarkPlugins = Array<RemarkPlugin | string | [RemarkPlugin, any] | [string, any]>;
+export type RemarkPlugins = (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
 
 export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	hast.Root
 >;
 
-export type RehypePlugins = Array<RehypePlugin | string | [RehypePlugin, any] | [string, any]>;
+export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandler'> & {
 	handlers?: typeof Handlers;
@@ -36,13 +36,13 @@ export type RemarkRehype = Omit<RemarkRehypeOptions, 'handlers' | 'unknownHandle
 
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
-	theme?: IThemeRegistration | Theme;
+	theme?: Theme | IThemeRegistration;
 	wrap?: boolean | null;
 }
 
 export interface AstroMarkdownOptions {
 	drafts?: boolean;
-	syntaxHighlight?: 'prism' | 'shiki' | false;
+	syntaxHighlight?: 'shiki' | 'prism' | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;

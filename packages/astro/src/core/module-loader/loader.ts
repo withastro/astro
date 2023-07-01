@@ -42,6 +42,10 @@ export interface ModuleNode {
 	id: string | null;
 	url: string;
 	ssrModule: Record<string, any> | null;
+	ssrTransformResult: {
+		deps?: string[];
+		dynamicDeps?: string[];
+	} | null;
 	ssrError: Error | null;
 	importedModules: Set<ModuleNode>;
 }

@@ -405,7 +405,7 @@ async function writeContentFiles({
 	contentPaths: ContentPaths;
 	collectionEntryMap: CollectionEntryMap;
 	typeTemplateContent: string;
-	contentEntryTypes: Array<Pick<ContentEntryType, 'contentModuleTypes'>>;
+	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: Pick<ViteDevServer, 'ws'>;
 }) {

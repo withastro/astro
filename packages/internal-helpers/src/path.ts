@@ -56,7 +56,7 @@ function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
 
-export function joinPaths(...paths: Array<string | undefined>) {
+export function joinPaths(...paths: (string | undefined)[]) {
 	return paths
 		.filter(isString)
 		.map((path, i) => {
@@ -83,4 +83,8 @@ export function removeQueryString(path: string) {
 
 export function isRemotePath(src: string) {
 	return /^(http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
+}
+
+export function slash(path: string) {
+	return path.replace(/\\/g, '/');
 }

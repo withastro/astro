@@ -35,7 +35,7 @@ export interface AddOptions {
 export interface IntegrationInfo {
 	id: string;
 	packageName: string;
-	dependencies: Array<[name: string, version: string]>;
+	dependencies: [name: string, version: string][];
 	type: 'integration' | 'adapter';
 }
 const ALIASES = new Map([
@@ -77,8 +77,12 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 // A copy of this function also exists in the create-astro package
 async function getRegistry(): Promise<string> {
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
-	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-	return stdout || 'https://registry.npmjs.org';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+	} catch (e) {
+		return 'https://registry.npmjs.org';
+	}
 }
 
 export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
@@ -601,7 +605,7 @@ async function getInstallIntegrationsCommand({
 	if (!pm) return null;
 
 	let dependencies = integrations
-		.map<Array<[string, string | null]>>((i) => [[i.packageName, null], ...i.dependencies])
+		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
 		.flat(1)
 		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
 		.map(([name, version]) =>

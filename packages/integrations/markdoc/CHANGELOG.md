@@ -1,5 +1,40 @@
 # @astrojs/markdoc
 
+## 0.4.0
+
+### Minor Changes
+
+- [#7468](https://github.com/withastro/astro/pull/7468) [`fb7af5511`](https://github.com/withastro/astro/commit/fb7af551148f5ca6c4f98a4e556c8948c5690919) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Updates the Markdoc config object for rendering Astro components as tags or nodes. Rather than importing components directly, Astro includes a new `component()` function to specify your component path. This unlocks using Astro components from npm packages and `.ts` files.
+
+  ### Migration
+
+  Update all component imports to instead import the new `component()` function and use it to render your Astro components:
+
+  ```diff
+  // markdoc.config.mjs
+  import {
+    defineMarkdocConfig,
+  + component,
+  } from '@astrojs/markdoc/config';
+  - import Aside from './src/components/Aside.astro';
+
+  export default defineMarkdocConfig({
+    tags: {
+      aside: {
+        render: Aside,
+  +     render: component('./src/components/Aside.astro'),
+      }
+    }
+  });
+  ```
+
+### Patch Changes
+
+- [#7467](https://github.com/withastro/astro/pull/7467) [`f6feff7a2`](https://github.com/withastro/astro/commit/f6feff7a2991fb94e11ee1b70ac606e4c053062b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Restart the dev server whenever your markdoc config changes.
+
+- Updated dependencies [[`6dfd7081b`](https://github.com/withastro/astro/commit/6dfd7081b7a1532ab0fe3af8bcf079b10a5640a9), [`83016795e`](https://github.com/withastro/astro/commit/83016795e9e149bc64e2441d477cf8c65ef5a117), [`d3247851f`](https://github.com/withastro/astro/commit/d3247851f04e911c134cfedc22db17b7d61c53d9), [`a3928016c`](https://github.com/withastro/astro/commit/a3928016cc375842cf47e7a227835cd17e48a409), [`2726098bc`](https://github.com/withastro/astro/commit/2726098bc82f910edda4198b9fb94f2bfd048976), [`f4fea3b02`](https://github.com/withastro/astro/commit/f4fea3b02b0737053c7c7521a7d4dd235648918a)]:
+  - astro@2.7.2
+
 ## 0.3.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 import type { Rollup } from 'vite';
 
-function fromEntries<V>(entries: Array<[string, V]>) {
+function fromEntries<V>(entries: [string, V][]) {
 	const obj: Record<string, V> = {};
 	for (const [k, v] of entries) {
 		obj[k] = v;

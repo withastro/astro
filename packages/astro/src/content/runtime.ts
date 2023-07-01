@@ -239,7 +239,7 @@ export function createGetEntry({
 
 export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 	return async function getEntries(
-		entries: Array<{ collection: string; id: string }> | Array<{ collection: string; slug: string }>
+		entries: { collection: string; id: string }[] | { collection: string; slug: string }[]
 	) {
 		return Promise.all(entries.map((e) => getEntry(e)));
 	};

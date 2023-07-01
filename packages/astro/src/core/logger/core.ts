@@ -78,7 +78,7 @@ export function error(opts: LogOptions, type: string | null, message: string) {
 type LogFn = typeof info | typeof warn | typeof error;
 
 export function table(opts: LogOptions, columns: number[]) {
-	return function logTable(logFn: LogFn, ...input: any[]) {
+	return function logTable(logFn: LogFn, ...input: Array<any>) {
 		const message = columns.map((len, i) => padStr(input[i].toString(), len)).join(' ');
 		logFn(opts, null, message);
 	};

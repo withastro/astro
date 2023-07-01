@@ -3,8 +3,9 @@ import { build as esbuild } from 'esbuild';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroMarkdocConfig } from './config.js';
+import { MarkdocError } from './utils.js';
 
-const SUPPORTED_MARKDOC_CONFIG_FILES = [
+export const SUPPORTED_MARKDOC_CONFIG_FILES = [
 	'markdoc.config.js',
 	'markdoc.config.mjs',
 	'markdoc.config.mts',
@@ -42,9 +43,8 @@ export async function loadMarkdocConfig(
 }
 
 /**
- * Forked from Vite's `bundleConfigFile` function
- * with added handling for `.astro` imports,
- * and removed unused Deno patches.
+ * Bundle config file to support `.ts` files.
+ * Simplified fork from Vite's `bundleConfigFile` function:
  * @see https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L961
  */
 async function bundleConfigFile({
@@ -54,6 +54,8 @@ async function bundleConfigFile({
 	markdocConfigUrl: URL;
 	astroConfig: Pick<AstroConfig, 'root'>;
 }): Promise<{ code: string; dependencies: string[] }> {
+	let markdocError: MarkdocError | undefined;
+
 	const result = await esbuild({
 		absWorkingDir: fileURLToPath(astroConfig.root),
 		entryPoints: [fileURLToPath(markdocConfigUrl)],
@@ -71,8 +73,14 @@ async function bundleConfigFile({
 				name: 'stub-astro-imports',
 				setup(build) {
 					build.onResolve({ filter: /.*\.astro$/ }, () => {
+						// Avoid throwing within esbuild.
+						// This swallows the `hint` and blows up the stacktrace.
+						markdocError = new MarkdocError({
+							message: '`.astro` files are no longer supported in the Markdoc config.',
+							hint: 'Use the `component()` utility to specify a component path instead.',
+						});
 						return {
-							// Stub with an unused default export
+							// Stub with an unused default export.
 							path: 'data:text/javascript,export default true',
 							external: true,
 						};
@@ -81,6 +89,7 @@ async function bundleConfigFile({
 			},
 		],
 	});
+	if (markdocError) throw markdocError;
 	const { text } = result.outputFiles[0];
 	return {
 		code: text,

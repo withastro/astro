@@ -111,21 +111,6 @@ export interface CLIFlags {
 	experimentalRedirects?: boolean;
 }
 
-export interface BuildConfig {
-	/**
-	 * @deprecated Use config.build.client instead.
-	 */
-	client: URL;
-	/**
-	 * @deprecated Use config.build.server instead.
-	 */
-	server: URL;
-	/**
-	 * @deprecated Use config.build.serverEntry instead.
-	 */
-	serverEntry: string;
-}
-
 /**
  * Astro global available in all contexts in .astro files
  *
@@ -280,8 +265,8 @@ export interface AstroGlobalPartial {
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(
 		globStr: `${any}${MarkdowFileExtension}`
-	): Promise<Array<MarkdownInstance<T>>>;
-	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<Array<MDXInstance<T>>>;
+	): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
@@ -562,9 +547,11 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
+	 * By default, the value of `import.meta.env.BASE_URL` includes a trailing slash. If you have the [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option set to `'never'`, you will need to add it manually in your static asset imports and URLs.
+	 *
 	 * ```astro
 	 * <a href="/docs/about/">About</a>
-	 * <img src=`${import.meta.env.BASE_URL}/image.png`>
+	 * <img src=`${import.meta.env.BASE_URL}image.png`>
 	 * ```
 	 */
 	base?: string;
@@ -838,6 +825,30 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name build.split
+		 * @type {boolean}
+		 * @default {false}
+		 * @version 2.7.0
+		 * @description
+		 * Defines how the SSR code should be bundled when built.
+		 *
+		 * When `split` is `true`, Astro will emit a file for each page.
+		 * Each file emitted will render only one page. The pages will be emitted
+		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
+		 * of the `src/pages` directory.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     split: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		split?: boolean;
 	};
 
 	/**
@@ -859,7 +870,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -1119,7 +1130,7 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	integrations?: Array<
-		AstroIntegration | Array<AstroIntegration | false | undefined | null> | false | undefined | null
+		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
 	>;
 
 	/**
@@ -1269,6 +1280,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
+	prerender?: boolean;
 }
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
@@ -1352,10 +1364,10 @@ export interface AstroSettings {
 	contentEntryTypes: ContentEntryType[];
 	dataEntryTypes: DataEntryType[];
 	renderers: AstroRenderer[];
-	scripts: Array<{
+	scripts: {
 		stage: InjectedScriptStage;
 		content: string;
-	}>;
+	}[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
@@ -1363,7 +1375,6 @@ export interface AstroSettings {
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
-	forceDisableTelemetry: boolean;
 	timer: AstroTimer;
 }
 
@@ -1824,7 +1835,14 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
+		'astro:build:ssr'?: (options: {
+			manifest: SerializedSSRManifest;
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 */
+			entryPoints: Map<RouteData, URL>;
+		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
@@ -1834,7 +1852,7 @@ export interface AstroIntegration {
 		}) => void | Promise<void>;
 		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
 		'astro:build:done'?: (options: {
-			pages: Array<{ pathname: string }>;
+			pages: { pathname: string }[];
 			dir: URL;
 			routes: RouteData[];
 		}) => void | Promise<void>;
@@ -1947,7 +1965,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
 	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: string[];
+	extraHead: Array<string>;
 	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,

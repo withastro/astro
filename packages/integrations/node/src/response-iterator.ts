@@ -29,7 +29,8 @@ const canUseAsyncIteratorSymbol = canUseSymbol && Symbol.asyncIterator;
 
 function isBuffer(value: any): value is Buffer {
 	return (
-		value?.constructor != null &&
+		value != null &&
+		value.constructor != null &&
 		typeof value.constructor.isBuffer === 'function' &&
 		value.constructor.isBuffer(value)
 	);
@@ -115,16 +116,14 @@ function nodeStreamIterator<T>(stream: NodeReadableStream): AsyncIterableIterato
 	let done = false;
 	const data: unknown[] = [];
 
-	const waiting: Array<
-		[
-			(
-				value:
-					| IteratorResult<T, boolean | undefined>
-					| PromiseLike<IteratorResult<T, boolean | undefined>>
-			) => void,
-			(reason?: any) => void
-		]
-	> = [];
+	const waiting: [
+		(
+			value:
+				| IteratorResult<T, boolean | undefined>
+				| PromiseLike<IteratorResult<T, boolean | undefined>>
+		) => void,
+		(reason?: any) => void
+	][] = [];
 
 	function onData(chunk: any) {
 		if (error) return;

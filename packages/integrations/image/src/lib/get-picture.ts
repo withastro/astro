@@ -18,7 +18,7 @@ export interface GetPictureParams {
 
 export interface GetPictureResult {
 	image: astroHTML.JSX.ImgHTMLAttributes;
-	sources: Array<{ type: string; srcset: string }>;
+	sources: { type: string; srcset: string }[];
 }
 
 async function resolveAspectRatio({ src, aspectRatio }: GetPictureParams) {
@@ -85,7 +85,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					image = img;
 				}
 
-				return `${img.src} ${width}w`;
+				return `${encodeURI(img.src ?? '')} ${width}w`;
 			})
 		);
 

@@ -37,9 +37,9 @@ export interface TypedEventEmitter<Events extends EventMap> {
 
 	emit<E extends keyof Events>(event: E, ...args: Parameters<Events[E]>): boolean;
 	// The sloppy `eventNames()` return type is to mitigate type incompatibilities - see #5
-	eventNames(): Array<keyof Events | string | symbol>;
-	rawListeners<E extends keyof Events>(event: E): Array<Events[E]>;
-	listeners<E extends keyof Events>(event: E): Array<Events[E]>;
+	eventNames(): (keyof Events | string | symbol)[];
+	rawListeners<E extends keyof Events>(event: E): Events[E][];
+	listeners<E extends keyof Events>(event: E): Events[E][];
 	listenerCount<E extends keyof Events>(event: E): number;
 
 	getMaxListeners(): number;

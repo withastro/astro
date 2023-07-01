@@ -17,6 +17,7 @@ import type {
 	RouteType,
 	SSRError,
 	SSRLoadedRenderer,
+	SSRManifest,
 } from '../../@types/astro';
 import {
 	generateImage as generateImageInternal,
@@ -120,9 +121,10 @@ export function chunkIsPage(
 	if (output.type !== 'chunk') {
 		return false;
 	}
-	if (output.facadeModuleId) {
+	const chunk = output as OutputChunk;
+	if (chunk.facadeModuleId) {
 		const facadeToEntryId = prependForwardSlash(
-			rootRelativeFacadeId(output.facadeModuleId, settings)
+			rootRelativeFacadeId(chunk.facadeModuleId, settings)
 		);
 		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
 	}
@@ -132,7 +134,9 @@ export function chunkIsPage(
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
 	const ssr = isServerLikeOutput(opts.settings.config);
-	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+	const outFolder = ssr
+		? opts.settings.config.build.server
+		: getOutDirWithinCwd(opts.settings.config.outDir);
 
 	if (ssr && !hasPrerenderedPages(internals)) return;
 
@@ -145,9 +149,27 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			if (pageData.route.prerender) {
 				const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-				const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
-
-				await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+				const ssrEntryPage = await import(ssrEntryURLPage.toString());
+				if (opts.settings.config.build.split) {
+					// forcing to use undefined, so we fail in an expected way if the module is not even there.
+					const manifest: SSRManifest | undefined = ssrEntryPage.manifest;
+					const ssrEntry = manifest?.pageModule;
+					if (ssrEntry) {
+						await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+					} else {
+						throw new Error(
+							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
+						);
+					}
+				} else {
+					await generatePage(
+						opts,
+						internals,
+						pageData,
+						ssrEntryPage as SinglePageBuiltModule,
+						builtPaths
+					);
+				}
 			}
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
@@ -178,7 +200,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	await runHookBuildGenerated({
 		config: opts.settings.config,
-		buildConfig: opts.buildConfig,
 		logging: opts.logging,
 	});
 
@@ -277,8 +298,8 @@ async function getPathsForRoute(
 	mod: ComponentInstance,
 	opts: StaticBuildOptions,
 	builtPaths: Set<string>
-): Promise<string[]> {
-	let paths: string[] = [];
+): Promise<Array<string>> {
+	let paths: Array<string> = [];
 	if (pageData.route.pathname) {
 		paths.push(pageData.route.pathname);
 		builtPaths.add(pageData.route.pathname);
@@ -449,7 +470,15 @@ async function generatePath(
 	onRequest?: MiddlewareHandler<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const { mod, internals, scripts: hoistedScripts, styles: _styles, pageData, renderers } = gopts;
+	const {
+		mod,
+		internals,
+		linkIds,
+		scripts: hoistedScripts,
+		styles: _styles,
+		pageData,
+		renderers,
+	} = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -593,8 +622,8 @@ async function generatePath(
 							mod,
 							renderContext,
 							env,
-							apiContext,
 							isCompressHTML: settings.config.compressHTML,
+							cookies: apiContext.cookies,
 						});
 					}
 				);
@@ -603,8 +632,8 @@ async function generatePath(
 					mod,
 					renderContext,
 					env,
-					apiContext,
 					isCompressHTML: settings.config.compressHTML,
+					cookies: apiContext.cookies,
 				});
 			}
 		} catch (err) {

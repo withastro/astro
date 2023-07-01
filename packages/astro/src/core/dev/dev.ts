@@ -1,4 +1,3 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
 import type http from 'http';
 import { cyan } from 'kleur/colors';
 import type { AddressInfo } from 'net';
@@ -7,6 +6,7 @@ import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import { attachContentServerListeners } from '../../content/index.js';
+import { telemetry } from '../../events/index.js';
 import { info, warn, type LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
@@ -18,7 +18,6 @@ export interface DevOptions {
 	configFlagPath: string | undefined;
 	flags?: yargs.Arguments;
 	logging: LogOptions;
-	telemetry: AstroTelemetry;
 	handleConfigError: (error: Error) => void;
 	isRestart?: boolean;
 }
@@ -56,7 +55,7 @@ export default async function dev(
 	}
 
 	const devStart = performance.now();
-	await options.telemetry.record([]);
+	await telemetry.record([]);
 
 	// Create a container which sets up the Vite server.
 	const restart = await createContainerWithAutomaticRestart({
