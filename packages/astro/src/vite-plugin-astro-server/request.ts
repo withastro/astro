@@ -84,7 +84,7 @@ export async function handleRequest(
 
 			// This could be a runtime error from Vite's SSR module, so try to fix it here
 			try {
-				env.loader.fixStacktrace(err as Error);
+				env.loader.fixStacktrace(err);
 			} catch {}
 
 			// This is our last line of defense regarding errors where we still might have some information about the request

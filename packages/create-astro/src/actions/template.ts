@@ -1,4 +1,3 @@
-/* eslint no-console: 'off' */
 import type { Context } from './context';
 
 import { color } from '@astrojs/cli-kit';
@@ -34,7 +33,6 @@ export async function template(ctx: Pick<Context, 'template' | 'prompt' | 'dryRu
 			end: 'Template copied',
 			while: () =>
 				copyTemplate(ctx.template!, ctx as Context).catch((e) => {
-					// eslint-disable-next-line no-console
 					if (e instanceof Error) {
 						error('error', e.message);
 						process.exit(1);

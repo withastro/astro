@@ -42,9 +42,8 @@ npm install vue
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "vue()"
+```js ins={3} "vue()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
@@ -79,9 +78,8 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compiler, options can be provided to the integration. See the `@vitejs/plugin-vue` [docs](https://www.npmjs.com/package/@vitejs/plugin-vue) for more details.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
@@ -107,9 +105,8 @@ You can extend the Vue `app` instance setting the `appEntrypoint` option to a ro
 
 The default export of this file should be a function that accepts a Vue `App` instance prior to rendering, allowing the use of [custom Vue plugins](https://vuejs.org/guide/reusability/plugins.html), `app.use`, and other customizations for advanced use cases.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
@@ -118,9 +115,8 @@ export default defineConfig({
 });
 ```
 
-**`src/pages/_app.ts`**
-
 ```js
+// src/pages/_app.ts
 import type { App } from 'vue';
 import i18nPlugin from 'my-vue-i18n-plugin';
 
@@ -133,9 +129,8 @@ export default (app: App) => {
 
 You can use Vue JSX by setting `jsx: true`.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
@@ -146,9 +141,8 @@ export default defineConfig({
 
 This will enable rendering for both Vue and Vue JSX components. To customize the Vue JSX compiler, pass an options object instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://www.npmjs.com/package/@vitejs/plugin-vue-jsx) for more details.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 

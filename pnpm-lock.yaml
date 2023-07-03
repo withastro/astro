@@ -30,11 +30,11 @@ importers:
         specifier: ^18.16.18
         version: 18.16.18
       '@typescript-eslint/eslint-plugin':
-        specifier: ^5.60.0
-        version: 5.60.0(@typescript-eslint/parser@5.60.0)(eslint@8.43.0)(typescript@5.0.2)
+        specifier: 6.0.0-alpha.158
+        version: 6.0.0-alpha.158(@typescript-eslint/parser@6.0.0-alpha.158)(eslint@8.43.0)(typescript@5.0.2)
       '@typescript-eslint/parser':
-        specifier: ^5.60.0
-        version: 5.60.0(eslint@8.43.0)(typescript@5.0.2)
+        specifier: 6.0.0-alpha.158
+        version: 6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2)
       esbuild:
         specifier: ^0.17.19
         version: 0.17.19
@@ -127,7 +127,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/blog:
@@ -142,19 +142,19 @@ importers:
         specifier: ^1.3.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/deno:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
     devDependencies:
       '@astrojs/deno':
@@ -173,7 +173,7 @@ importers:
         specifier: ^3.12.2
         version: 3.12.2
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -185,7 +185,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       lit:
         specifier: ^2.7.5
@@ -209,7 +209,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -239,7 +239,7 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(preact@10.15.1)
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -257,7 +257,7 @@ importers:
         specifier: ^18.2.6
         version: 18.2.6
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -272,7 +272,7 @@ importers:
         specifier: ^2.2.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.6
@@ -284,7 +284,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -296,7 +296,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -308,13 +308,13 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/middleware:
@@ -323,7 +323,7 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -332,19 +332,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/ssr:
@@ -356,7 +356,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -368,7 +368,7 @@ importers:
         specifier: ^0.4.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -377,7 +377,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -398,7 +398,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -410,7 +410,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -425,7 +425,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1(nanostores@0.8.1)(preact@10.15.1)
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.8.1
@@ -446,7 +446,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.14
@@ -464,7 +464,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.14.7
@@ -476,7 +476,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^2.7.2
+        specifier: ^2.7.3
         version: link:../../packages/astro
       vitest:
         specifier: ^0.31.4
@@ -485,8 +485,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^1.5.0
-        version: 1.5.0
+        specifier: ^1.5.3
+        version: 1.5.3
       '@astrojs/internal-helpers':
         specifier: ^0.1.1
         version: link:../internal-helpers
@@ -5490,14 +5490,14 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler@1.5.0:
-    resolution: {integrity: sha512-k04X/7nlMklU0HQUScxbCTf5n8/Vr+0U0bawb9QWulWxd6qJf3FmBrNATgTYiltjB4pc5HBqmmttAfFi7m4lLg==}
+  /@astrojs/compiler@1.5.3:
+    resolution: {integrity: sha512-/HSFkJ+Yv+WUWSq0QVsIlhBKam5VUpGV+s8MvPguC/krHmw4Ww9TIgmfJSvV8/BN0sHJB7pCgf7yInae1zb+TQ==}
 
   /@astrojs/language-server@1.0.0:
     resolution: {integrity: sha512-oEw7AwJmzjgy6HC9f5IdrphZ1GVgfV/+7xQuyf52cpTiRWd/tJISK3MsKP0cDkVlfodmNABNFnAaAWuLZEiiiA==}
     hasBin: true
     dependencies:
-      '@astrojs/compiler': 1.5.0
+      '@astrojs/compiler': 1.5.3
       '@jridgewell/trace-mapping': 0.3.18
       '@vscode/emmet-helper': 2.8.8
       events: 3.3.0
@@ -8842,47 +8842,48 @@ packages:
   /@types/yargs-parser@21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
 
-  /@typescript-eslint/eslint-plugin@5.60.0(@typescript-eslint/parser@5.60.0)(eslint@8.43.0)(typescript@5.0.2):
-    resolution: {integrity: sha512-78B+anHLF1TI8Jn/cD0Q00TBYdMgjdOn980JfAVa9yw5sop8nyTfVOQAv6LWywkOGLclDBtv5z3oxN4w7jxyNg==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/eslint-plugin@6.0.0-alpha.158(@typescript-eslint/parser@6.0.0-alpha.158)(eslint@8.43.0)(typescript@5.0.2):
+    resolution: {integrity: sha512-fzcdANIIKtQxen+IdXue1u4EHY8h84M8L+eSSYgQQUxJy7tTN4EfBK4jlAAVxGCE+TkmTzBMe52hMAV0PwNLiQ==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      '@typescript-eslint/parser': ^5.0.0
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      '@typescript-eslint/parser': ^6.0.0 || ^6.0.0-alpha
+      eslint: ^7.0.0 || ^8.0.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
       '@eslint-community/regexpp': 4.5.1
-      '@typescript-eslint/parser': 5.60.0(eslint@8.43.0)(typescript@5.0.2)
-      '@typescript-eslint/scope-manager': 5.60.0
-      '@typescript-eslint/type-utils': 5.60.0(eslint@8.43.0)(typescript@5.0.2)
-      '@typescript-eslint/utils': 5.60.0(eslint@8.43.0)(typescript@5.0.2)
+      '@typescript-eslint/parser': 6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2)
+      '@typescript-eslint/scope-manager': 6.0.0-alpha.158
+      '@typescript-eslint/type-utils': 6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2)
+      '@typescript-eslint/utils': 6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2)
       debug: 4.3.4
       eslint: 8.43.0
       grapheme-splitter: 1.0.4
       ignore: 5.2.4
-      natural-compare-lite: 1.4.0
+      natural-compare: 1.4.0
       semver: 7.5.3
-      tsutils: 3.21.0(typescript@5.0.2)
+      ts-api-utils: 1.0.1(typescript@5.0.2)
       typescript: 5.0.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser@5.60.0(eslint@8.43.0)(typescript@5.0.2):
-    resolution: {integrity: sha512-jBONcBsDJ9UoTWrARkRRCgDz6wUggmH5RpQVlt7BimSwaTkTjwypGzKORXbR4/2Hqjk9hgwlon2rVQAjWNpkyQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/parser@6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2):
+    resolution: {integrity: sha512-LJ7qo0yfk4bxYw2A2OCwUeiGumsU4YCebu29dIxC2lK/aT398KazALqMzPC4z6544OS6zYVM2WI9uyCZ8wgj+Q==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      eslint: ^7.0.0 || ^8.0.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/scope-manager': 5.60.0
-      '@typescript-eslint/types': 5.60.0
-      '@typescript-eslint/typescript-estree': 5.60.0(typescript@5.0.2)
+      '@typescript-eslint/scope-manager': 6.0.0-alpha.158
+      '@typescript-eslint/types': 6.0.0-alpha.158
+      '@typescript-eslint/typescript-estree': 6.0.0-alpha.158(typescript@5.0.2)
+      '@typescript-eslint/visitor-keys': 6.0.0-alpha.158
       debug: 4.3.4
       eslint: 8.43.0
       typescript: 5.0.2
@@ -8890,72 +8891,72 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/scope-manager@5.60.0:
-    resolution: {integrity: sha512-hakuzcxPwXi2ihf9WQu1BbRj1e/Pd8ZZwVTG9kfbxAMZstKz8/9OoexIwnmLzShtsdap5U/CoQGRCWlSuPbYxQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/scope-manager@6.0.0-alpha.158:
+    resolution: {integrity: sha512-59HcplMM9ZcdtfVe6pgFzereN49OKeVc/FZsymAaxe9QqGXby665pr2/IHcmFh3cnpgNdRQu+DaD5N538AprjA==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     dependencies:
-      '@typescript-eslint/types': 5.60.0
-      '@typescript-eslint/visitor-keys': 5.60.0
+      '@typescript-eslint/types': 6.0.0-alpha.158
+      '@typescript-eslint/visitor-keys': 6.0.0-alpha.158
     dev: true
 
-  /@typescript-eslint/type-utils@5.60.0(eslint@8.43.0)(typescript@5.0.2):
-    resolution: {integrity: sha512-X7NsRQddORMYRFH7FWo6sA9Y/zbJ8s1x1RIAtnlj6YprbToTiQnM6vxcMu7iYhdunmoC0rUWlca13D5DVHkK2g==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/type-utils@6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2):
+    resolution: {integrity: sha512-fjUFPY92+0RzyRKs185Rpoaw4z4vt5qoxd6kHLLHjqKxO7xNsOF4nPPjRXlKfbVAUHecPqbFBRmElWCuaEjMdg==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      eslint: '*'
+      eslint: ^7.0.0 || ^8.0.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/typescript-estree': 5.60.0(typescript@5.0.2)
-      '@typescript-eslint/utils': 5.60.0(eslint@8.43.0)(typescript@5.0.2)
+      '@typescript-eslint/typescript-estree': 6.0.0-alpha.158(typescript@5.0.2)
+      '@typescript-eslint/utils': 6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2)
       debug: 4.3.4
       eslint: 8.43.0
-      tsutils: 3.21.0(typescript@5.0.2)
+      ts-api-utils: 1.0.1(typescript@5.0.2)
       typescript: 5.0.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/types@5.60.0:
-    resolution: {integrity: sha512-ascOuoCpNZBccFVNJRSC6rPq4EmJ2NkuoKnd6LDNyAQmdDnziAtxbCGWCbefG1CNzmDvd05zO36AmB7H8RzKPA==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/types@6.0.0-alpha.158:
+    resolution: {integrity: sha512-xfJnAaGKN1b/cz37T4FtQfCBKwA7fn1qxa/5UZmKT1FwI/J+lybk+dHdhU2KvNGJ/53/vGf0OObUzejf7oByLg==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     dev: true
 
-  /@typescript-eslint/typescript-estree@5.60.0(typescript@5.0.2):
-    resolution: {integrity: sha512-R43thAuwarC99SnvrBmh26tc7F6sPa2B3evkXp/8q954kYL6Ro56AwASYWtEEi+4j09GbiNAHqYwNNZuNlARGQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/typescript-estree@6.0.0-alpha.158(typescript@5.0.2):
+    resolution: {integrity: sha512-1hskAlZ2pliy1DQ1VM3Tu+JUQMtaWaLmMGOOmmI9H7yfudsopV7AOCk+NO1FWIATWIeUvPI33T09WKRdZGO4yg==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
-      '@typescript-eslint/types': 5.60.0
-      '@typescript-eslint/visitor-keys': 5.60.0
+      '@typescript-eslint/types': 6.0.0-alpha.158
+      '@typescript-eslint/visitor-keys': 6.0.0-alpha.158
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.5.3
-      tsutils: 3.21.0(typescript@5.0.2)
+      ts-api-utils: 1.0.1(typescript@5.0.2)
       typescript: 5.0.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@typescript-eslint/utils@5.60.0(eslint@8.43.0)(typescript@5.0.2):
-    resolution: {integrity: sha512-ba51uMqDtfLQ5+xHtwlO84vkdjrqNzOnqrnwbMHMRY8Tqeme8C2Q8Fc7LajfGR+e3/4LoYiWXUM6BpIIbHJ4hQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/utils@6.0.0-alpha.158(eslint@8.43.0)(typescript@5.0.2):
+    resolution: {integrity: sha512-HDpGNQnbE09Kun4+IjnaWoARmhAdSbR6MTeaA0K12vzCg9M3rL2z72jzP0z4n7bGRJsNAoH+0SKSgcJ9NL8Bhw==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      eslint: ^7.0.0 || ^8.0.0
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.43.0)
       '@types/json-schema': 7.0.11
       '@types/semver': 7.5.0
-      '@typescript-eslint/scope-manager': 5.60.0
-      '@typescript-eslint/types': 5.60.0
-      '@typescript-eslint/typescript-estree': 5.60.0(typescript@5.0.2)
+      '@typescript-eslint/scope-manager': 6.0.0-alpha.158
+      '@typescript-eslint/types': 6.0.0-alpha.158
+      '@typescript-eslint/typescript-estree': 6.0.0-alpha.158(typescript@5.0.2)
       eslint: 8.43.0
       eslint-scope: 5.1.1
       semver: 7.5.3
@@ -8964,11 +8965,11 @@ packages:
       - typescript
     dev: true
 
-  /@typescript-eslint/visitor-keys@5.60.0:
-    resolution: {integrity: sha512-wm9Uz71SbCyhUKgcaPRauBdTegUyY/ZWl8gLwD/i/ybJqscrrdVSFImpvUz16BLPChIeKBK5Fa9s6KDQjsjyWw==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  /@typescript-eslint/visitor-keys@6.0.0-alpha.158:
+    resolution: {integrity: sha512-/1xiY3B2Du3a8YaKpF3MtNZRlzDRChJAb8kbt4mQ6h3XGLd8ZGRN8l971nbX632p78kETaJ+JgCGtrgJpQZO+g==}
+    engines: {node: ^16.0.0 || >=18.0.0}
     dependencies:
-      '@typescript-eslint/types': 5.60.0
+      '@typescript-eslint/types': 6.0.0-alpha.158
       eslint-visitor-keys: 3.4.1
     dev: true
 
@@ -14110,10 +14111,6 @@ packages:
   /napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
 
-  /natural-compare-lite@1.4.0:
-    resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
-    dev: true
-
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
@@ -15194,7 +15191,7 @@ packages:
     resolution: {integrity: sha512-dPzop0gKZyVGpTDQmfy+e7FKXC9JT3mlpfYA2diOVz+Ui+QR1U4G/s+OesKl2Hib2JJOtAYJs/l+ovgT0ljlFA==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.5.0
+      '@astrojs/compiler': 1.5.3
       prettier: 2.8.8
       sass-formatter: 0.7.6
     dev: true
@@ -15203,7 +15200,7 @@ packages:
     resolution: {integrity: sha512-lJ/mG/Lz/ccSwNtwqpFS126mtMVzFVyYv0ddTF9wqwrEG4seECjKDAyw/oGv915rAcJi8jr89990nqfpmG+qdg==}
     engines: {node: ^14.15.0 || >=16.0.0, pnpm: '>=7.14.0'}
     dependencies:
-      '@astrojs/compiler': 1.5.0
+      '@astrojs/compiler': 1.5.3
       prettier: 2.8.8
       sass-formatter: 0.7.6
       synckit: 0.8.5
@@ -16779,6 +16776,15 @@ packages:
   /trough@2.1.0:
     resolution: {integrity: sha512-AqTiAOLcj85xS7vQ8QkAV41hPDIJ71XJB4RCUrzo/1GM2CQwhkJGaf9Hgr7BOugMRpgGUrqRg/DrBDl4H40+8g==}
 
+  /ts-api-utils@1.0.1(typescript@5.0.2):
+    resolution: {integrity: sha512-lC/RGlPmwdrIBFTX59wwNzqh7aR2otPNPR/5brHZm/XKFYKsfqxihXUe9pU3JI+3vGkl+vyCoNNnPhJn3aLK1A==}
+    engines: {node: '>=16.13.0'}
+    peerDependencies:
+      typescript: '>=4.2.0'
+    dependencies:
+      typescript: 5.0.2
+    dev: true
+
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
@@ -16808,26 +16814,12 @@ packages:
       strip-json-comments: 2.0.1
     dev: true
 
-  /tslib@1.14.1:
-    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
-    dev: true
-
   /tslib@2.1.0:
     resolution: {integrity: sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==}
     dev: true
 
   /tslib@2.5.3:
     resolution: {integrity: sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==}
-
-  /tsutils@3.21.0(typescript@5.0.2):
-    resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
-    engines: {node: '>= 6'}
-    peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
-    dependencies:
-      tslib: 1.14.1
-      typescript: 5.0.2
-    dev: true
 
   /tty-table@4.2.1:
     resolution: {integrity: sha512-xz0uKo+KakCQ+Dxj1D/tKn2FSyreSYWzdkL/BYhgN6oMW808g8QRMuh1atAV9fjTPbWBjfbkKQpI/5rEcnAc7g==}
@@ -18139,25 +18131,21 @@ packages:
   file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
     resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
     name: '@test/astro-font-awesome-package'
-    version: 0.0.1
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/one:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/one, type: directory}
     name: '@test/astro-renderer-one'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/multiple-renderers/renderers/two:
     resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
     name: '@test/astro-renderer-two'
-    version: 1.0.0
     dev: false
 
   file:packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     resolution: {directory: packages/astro/test/fixtures/solid-component/deps/solid-jsx-component, type: directory}
     name: '@test/solid-jsx-component'
-    version: 0.0.0
     dependencies:
       solid-js: 1.7.6
     dev: false

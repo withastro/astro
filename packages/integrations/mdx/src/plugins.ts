@@ -33,7 +33,7 @@ export function recmaInjectImportMetaEnvPlugin({
 		estreeVisit(tree, (node) => {
 			if (node.type === 'MemberExpression') {
 				// attempt to get "import.meta.env" variable name
-				const envVarName = getImportMetaEnvVariableName(node as MemberExpression);
+				const envVarName = getImportMetaEnvVariableName(node);
 				if (typeof envVarName === 'string') {
 					// clear object keys to replace with envVarLiteral
 					for (const key in node) {

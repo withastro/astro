@@ -63,9 +63,8 @@ npm install @astrojs/image
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "image()"
+```js ins={3} "image()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
@@ -85,9 +84,8 @@ npm install sharp
 
 Then, update the integration in your `astro.config.*` file to use the built-in `sharp` image transformer.
 
-**`astro.config.mjs`**
-
-```js ins={7}
+```js ins={8}
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
@@ -478,9 +476,8 @@ The integration can be configured to run with a different image service, either 
 
 The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/squoosh`, which resolves to the entry point exported from this integration's `package.json`.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
@@ -498,9 +495,8 @@ export default defineConfig({
 
 The `logLevel` controls can be used to control how much detail is logged by the integration during builds. This may be useful to track down a specific image or transformation that is taking a long time to build.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 
@@ -523,9 +519,8 @@ Local images will be cached for 1 year and invalidated when the original image f
 
 By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import image from '@astrojs/image';
 

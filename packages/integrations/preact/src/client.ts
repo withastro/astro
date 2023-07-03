@@ -2,7 +2,7 @@ import { h, render, type JSX } from 'preact';
 import StaticHtml from './static-html.js';
 import type { SignalLike } from './types';
 
-const sharedSignalMap: Map<string, SignalLike> = new Map();
+const sharedSignalMap = new Map<string, SignalLike>();
 
 export default (element: HTMLElement) =>
 	async (
@@ -17,7 +17,7 @@ export default (element: HTMLElement) =>
 		let signalsRaw = element.dataset.preactSignals;
 		if (signalsRaw) {
 			const { signal } = await import('@preact/signals');
-			let signals: Record<string, string> = JSON.parse(element.dataset.preactSignals as string);
+			let signals: Record<string, string> = JSON.parse(element.dataset.preactSignals!);
 			for (const [propName, signalId] of Object.entries(signals)) {
 				if (!sharedSignalMap.has(signalId)) {
 					const signalValue = signal(props[propName]);

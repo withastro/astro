@@ -50,9 +50,8 @@ npm install @astrojs/tailwind tailwindcss
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "tailwind()"
+```js ins={3} "tailwind()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
@@ -91,9 +90,8 @@ If you want to use a different Tailwind configuration file instead of the defaul
 > **Warning**
 > Changing this isn't recommended since it can cause problems with other tools that integrate with Tailwind, like the official Tailwind VSCode extension.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
@@ -122,9 +120,8 @@ By default, the integration imports a basic `base.css` file on every page of you
 
 To disable this default behavior, set `applyBaseStyles` to `false`. This can be useful if you need to define your own `base.css` file (to include a [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer), for example). This can also be useful if you do not want `base.css` to be imported on every page of your project.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({

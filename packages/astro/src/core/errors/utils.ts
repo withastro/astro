@@ -89,7 +89,7 @@ export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
 
 /** Coalesce any throw variable to an Error instance. */
 export function createSafeError(err: any): Error {
-	if (err instanceof Error || (err && err.name && err.message)) {
+	if (err instanceof Error || (err?.name && err.message)) {
 		return err;
 	} else {
 		const error = new Error(JSON.stringify(err));

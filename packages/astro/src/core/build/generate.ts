@@ -121,7 +121,7 @@ export function chunkIsPage(
 	if (output.type !== 'chunk') {
 		return false;
 	}
-	const chunk = output as OutputChunk;
+	const chunk = output;
 	if (chunk.facadeModuleId) {
 		const facadeToEntryId = prependForwardSlash(
 			rootRelativeFacadeId(chunk.facadeModuleId, settings)
@@ -470,15 +470,7 @@ async function generatePath(
 	onRequest?: MiddlewareHandler<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const {
-		mod,
-		internals,
-		linkIds,
-		scripts: hoistedScripts,
-		styles: _styles,
-		pageData,
-		renderers,
-	} = gopts;
+	const { mod, internals, scripts: hoistedScripts, styles: _styles, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {

@@ -31,7 +31,6 @@ export async function git(ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 
 			end: 'Git initialized',
 			while: () =>
 				init({ cwd: ctx.cwd }).catch((e) => {
-					// eslint-disable-next-line no-console
 					error('error', e);
 					process.exit(1);
 				}),

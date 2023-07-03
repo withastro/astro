@@ -29,14 +29,14 @@ export async function processBuffer(
 
 	switch (encoding) {
 		case 'avif':
-			return await impl.encodeAvif(imageData, { quality }) as Uint8Array;
+			return await impl.encodeAvif(imageData, { quality });
 		case 'jpeg':
 		case 'jpg':
-			return await impl.encodeJpeg(imageData, { quality }) as Uint8Array;
+			return await impl.encodeJpeg(imageData, { quality });
 		case 'png':
-			return await impl.encodePng(imageData) as Uint8Array;
+			return await impl.encodePng(imageData);
 		case 'webp':
-			return await impl.encodeWebp(imageData, { quality }) as Uint8Array;
+			return await impl.encodeWebp(imageData, { quality });
 		default:
 			throw Error(`Unsupported encoding format`)
 	}

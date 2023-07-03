@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'url';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
 import { openConfig, createSettings } from '../../../dist/core/config/index.js';

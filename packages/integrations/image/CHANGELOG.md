@@ -1,5 +1,16 @@
 # @astrojs/image
 
+## 0.17.2
+
+### Patch Changes
+
+- [#7500](https://github.com/withastro/astro/pull/7500) [`e644b3465`](https://github.com/withastro/astro/commit/e644b34659836b463abb8c6a0acc867621c2d3cc) Thanks [@wooseopkim](https://github.com/wooseopkim)! - fix: make `Picture` generate valid dev URLs
+
+- [#7510](https://github.com/withastro/astro/pull/7510) [`4256409a9`](https://github.com/withastro/astro/commit/4256409a9414358e4d0adf90599dd5921ed0b450) Thanks [@Mrowa96](https://github.com/Mrowa96)! - Fix problem where image metadata generation throwed error when provided url started with /@astroimage
+
+- Updated dependencies [[`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb), [`cdc28326c`](https://github.com/withastro/astro/commit/cdc28326cf21f305924363e9c8c02ce54b6ff895), [`19c2d43ea`](https://github.com/withastro/astro/commit/19c2d43ea41efdd8741007de0774e7e394f174b0), [`2172dd4f0`](https://github.com/withastro/astro/commit/2172dd4f0dd8f87d1adbc5ae90f44724e66eb964), [`1170877b5`](https://github.com/withastro/astro/commit/1170877b51aaa13203e8c488dcf4e39d1b5553ee)]:
+  - astro@2.7.3
+
 ## 0.17.1
 
 ### Patch Changes

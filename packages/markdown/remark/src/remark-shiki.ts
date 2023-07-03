@@ -80,7 +80,7 @@ const remarkShiki = async (
 				lang = 'plaintext';
 			}
 
-			let html = highlighter!.codeToHtml(node.value, { lang });
+			let html = highlighter.codeToHtml(node.value, { lang });
 
 			// Q: Couldn't these regexes match on a user's inputted code blocks?
 			// A: Nope! All rendered HTML is properly escaped.

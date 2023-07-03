@@ -49,7 +49,7 @@ describe('astro scan', () => {
 
 	it('throws on let boolean literal', async () => {
 		try {
-			const result = await scan(`export let prerender = true;`, '/src/components/index.astro');
+			await scan(`export let prerender = true;`, '/src/components/index.astro');
 			expect(false).to.be.true;
 		} catch (e) {
 			expect(e.message).to.contain(
@@ -60,7 +60,7 @@ describe('astro scan', () => {
 
 	it('throws on var boolean literal', async () => {
 		try {
-			const result = await scan(`export var prerender = true;`, '/src/components/index.astro');
+			await scan(`export var prerender = true;`, '/src/components/index.astro');
 			expect(false).to.be.true;
 		} catch (e) {
 			expect(e.message).to.contain(
@@ -71,7 +71,7 @@ describe('astro scan', () => {
 
 	it('throws on unknown values I', async () => {
 		try {
-			const result = await scan(`export const prerender = !!value;`, '/src/components/index.astro');
+			await scan(`export const prerender = !!value;`, '/src/components/index.astro');
 			expect(false).to.be.true;
 		} catch (e) {
 			expect(e.message).to.contain(
@@ -82,7 +82,7 @@ describe('astro scan', () => {
 
 	it('throws on unknown values II', async () => {
 		try {
-			const result = await scan(`export const prerender = value;`, '/src/components/index.astro');
+			await scan(`export const prerender = value;`, '/src/components/index.astro');
 			expect(false).to.be.true;
 		} catch (e) {
 			expect(e.message).to.contain(
@@ -93,7 +93,7 @@ describe('astro scan', () => {
 
 	it('throws on unknown values III', async () => {
 		try {
-			const result = await scan(
+			await scan(
 				`export let prerender = undefined; prerender = true;`,
 				'/src/components/index.astro'
 			);
@@ -107,10 +107,7 @@ describe('astro scan', () => {
 
 	it('throws on unknown values IV', async () => {
 		try {
-			const result = await scan(
-				`let prerender = true; export { prerender }`,
-				'/src/components/index.astro'
-			);
+			await scan(`let prerender = true; export { prerender }`, '/src/components/index.astro');
 			expect(false).to.be.true;
 		} catch (e) {
 			expect(e.message).to.contain(

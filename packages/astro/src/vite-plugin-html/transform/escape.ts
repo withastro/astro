@@ -6,8 +6,8 @@ import { visit } from 'unist-util-visit';
 import { escape, needsEscape, replaceAttribute } from './utils.js';
 
 const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
-	return (tree, file) => {
-		visit(tree, (node: Root | RootContent, index, parent) => {
+	return (tree) => {
+		visit(tree, (node: Root | RootContent) => {
 			if (node.type === 'text' || node.type === 'comment') {
 				if (needsEscape(node.value)) {
 					s.overwrite(node.position!.start.offset!, node.position!.end.offset!, escape(node.value));

@@ -195,6 +195,18 @@ describe('SSG pictures with subpath - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
+			for (const srcset of picture
+				.children('source')
+				.map((_, source) => source.attribs['srcset'])) {
+				for (const pictureSrc of srcset.split(',')) {
+					const pictureParams = pictureSrc.split('?')[1];
+
+					const expected = new URLSearchParams(params).get('href');
+					const actual = new URLSearchParams(pictureParams).get('href').replace(/\s+\d+w$/, '');
+					expect(expected).to.equal(actual);
+				}
+			}
+
 			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);

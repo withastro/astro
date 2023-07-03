@@ -1,7 +1,7 @@
 import type { PartytownConfig } from '@builder.io/partytown/integration';
 import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import * as fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
@@ -18,7 +18,6 @@ function appendForwardSlash(str: string) {
 }
 
 export default function createPlugin(options?: PartytownOptions): AstroIntegration {
-	let config: AstroConfig;
 	let partytownSnippetHtml: string;
 	const partytownEntrypoint = resolve('@builder.io/partytown/package.json');
 	const partytownLibDirectory = path.resolve(partytownEntrypoint, '../lib');
@@ -34,9 +33,6 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 				};
 				partytownSnippetHtml = partytownSnippet(partytownConfig);
 				injectScript('head-inline', partytownSnippetHtml);
-			},
-			'astro:config:done': ({ config: _config }) => {
-				config = _config;
 			},
 			'astro:server:setup': ({ server }) => {
 				const lib = `/~partytown/`;

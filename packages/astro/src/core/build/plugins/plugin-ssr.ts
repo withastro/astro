@@ -42,10 +42,7 @@ function vitePluginSSR(
 		},
 		async load(id) {
 			if (id === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
-				const {
-					settings: { config },
-					allPages,
-				} = options;
+				const { allPages } = options;
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
@@ -82,7 +79,7 @@ function vitePluginSSR(
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
-			for (const [_chunkName, chunk] of Object.entries(bundle)) {
+			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					internals.staticFiles.add(chunk.fileName);
 				}
@@ -162,7 +159,7 @@ function vitePluginSSRSplit(
 		enforce: 'post',
 		options(opts) {
 			if (options.settings.config.build.split) {
-				const inputs: Set<string> = new Set();
+				const inputs = new Set<string>();
 
 				for (const path of Object.keys(options.allPages)) {
 					inputs.add(getVirtualModulePageNameFromPath(SPLIT_MODULE_ID, path));
@@ -178,10 +175,6 @@ function vitePluginSSRSplit(
 		},
 		async load(id) {
 			if (id.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
-				const {
-					settings: { config },
-					allPages,
-				} = options;
 				const imports: string[] = [];
 				const contents: string[] = [];
 				const exports: string[] = [];
@@ -204,7 +197,7 @@ function vitePluginSSRSplit(
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
-			for (const [_chunkName, chunk] of Object.entries(bundle)) {
+			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					internals.staticFiles.add(chunk.fileName);
 				}
@@ -268,7 +261,7 @@ export function pluginSSRSplit(
 					logging: options.logging,
 					entryPoints: internals.entryPoints,
 				});
-				for (const [moduleName, chunk] of internals.ssrSplitEntryChunks) {
+				for (const [, chunk] of internals.ssrSplitEntryChunks) {
 					const code = injectManifest(manifest, chunk);
 					mutate(chunk, 'server', code);
 				}
@@ -413,8 +406,8 @@ function buildManifest(
 		if (!route.prerender) continue;
 		if (!route.pathname) continue;
 
-		const outFolder = getOutFolder(opts.settings.config, route.pathname!, route.type);
-		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname!, route.type);
+		const outFolder = getOutFolder(opts.settings.config, route.pathname, route.type);
+		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route.type);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
 			file,
