@@ -104,7 +104,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory && _buildConfig.split) {
-					const entryPointsRouteData = [..._entryPoints.keys()];
 					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
 					const outputUrl = new URL('$astro', _buildConfig.server)
@@ -134,8 +133,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							filesOnly: true,
 						})
 					)
-
-					console.log(outputFiles)
 
 					// loop through all new bundled files and write them to the functions folder
 					for (const outputFile of outputFiles) {
