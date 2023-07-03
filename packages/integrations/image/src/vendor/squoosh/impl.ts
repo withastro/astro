@@ -65,7 +65,7 @@ export async function resize({ image, width, height }: ResizeOpts) {
   const p = preprocessors['resize']
   const m = await p.instantiate()
   await maybeDelay()
-  return m(image.data, image.width, image.height, {
+  return await m(image.data, image.width, image.height, {
     ...p.defaultOptions,
     width,
     height,
@@ -82,7 +82,7 @@ export async function encodeJpeg(
   const m = await e.enc()
   await maybeDelay()
 	const quality = opts.quality || e.defaultEncoderOptions.quality
-  const r = m.encode(image.data, image.width, image.height, {
+  const r = await m.encode(image.data, image.width, image.height, {
     ...e.defaultEncoderOptions,
     quality,
   })
