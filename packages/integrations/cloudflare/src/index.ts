@@ -133,12 +133,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						})
 					)
 
+					console.log(outputFiles)
+
 					// loop through all new bundled files and write them to the functions folder
 					for (const outputFile of outputFiles) {
 
 						// split the path into an array
 						const path = outputFile.split('/');
-
+						console.log(path)
 						// replace dynamic path with [path]
 						const pathWithDynamics = path.map((segment) => segment.replace(/(\_)(\w+)(\_)/g, (_, __, prop) => {
 							return `[${prop}]`;
@@ -166,7 +168,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 						const oldFileUrl = new URL(`$astro/${outputFile}`, outputUrl);
 						const newFileUrl = new URL(finalPath, functionsUrl);
-
+						console.log(oldFileUrl, newFileUrl)
 						await fs.promises.rename(oldFileUrl, newFileUrl);
 					}
 				} else {
