@@ -127,7 +127,9 @@ describe('SSR pictures - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			for (const srcset of picture.children('source').map((_, source) => source.attribs['srcset'])) {
+			for (const srcset of picture
+				.children('source')
+				.map((_, source) => source.attribs['srcset'])) {
 				for (const pictureSrc of srcset.split(',')) {
 					const pictureParams = pictureSrc.split('?')[1];
 
