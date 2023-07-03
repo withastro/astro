@@ -3,7 +3,6 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
-import { dirname } from 'path';
 import glob from 'tiny-glob';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -141,12 +140,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						const path = outputFile.split('/');
 
 						// replace dynamic path with [path]
-						const pathWithDynamics = path.map((segment) => segment.replace(/(\_)(\w+)(\_)/g, (_, __, prop, ___) => {
+						const pathWithDynamics = path.map((segment) => segment.replace(/(\_)(\w+)(\_)/g, (_, __, prop) => {
 							return `[${prop}]`;
 						}));
 
 						// replace nested dynamic path with [[path]]
-						const pathWithNestedDynamics = pathWithDynamics.map((segment) => segment.replace(/(\_\-\-\-)(\w+)(\_)/g, (_, __, prop, ___) => {
+						const pathWithNestedDynamics = pathWithDynamics.map((segment) => segment.replace(/(\_\-\-\-)(\w+)(\_)/g, (_, __, prop) => {
 							return `[[${prop}]]`;
 						}))
 
