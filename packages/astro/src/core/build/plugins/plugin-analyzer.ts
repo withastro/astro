@@ -126,7 +126,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 			for (const id of ids) {
 				const info = this.getModuleInfo(id);
-				if (!info || !info.meta?.astro) continue;
+				if (!info?.meta?.astro) continue;
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 

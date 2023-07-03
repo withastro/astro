@@ -32,7 +32,7 @@ env:
 jobs:
   lint:
     name: Lint
-    timeout-minutes: 3
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -49,6 +49,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build (ignoring failures)
+        run: pnpm run build || true
 
       # Lint autofix cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
       - name: Lint (External)

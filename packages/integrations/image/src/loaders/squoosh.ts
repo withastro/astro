@@ -35,7 +35,7 @@ class SquooshService extends BaseSSRService {
 		};
 	}
 
-	async processPng(image: any, transform: TransformOptions) {
+	async processPng(image: any) {
 		await image.encode({ oxipng: {} });
 		const data = await image.encodedWith.oxipng;
 

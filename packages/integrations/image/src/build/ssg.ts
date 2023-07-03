@@ -162,7 +162,6 @@ export async function ssgBuild({
 		}
 
 		if (!inputBuffer) {
-			// eslint-disable-next-line no-console
 			warn({ level: logLevel, message: `"${src}" image could not be fetched` });
 			return;
 		}

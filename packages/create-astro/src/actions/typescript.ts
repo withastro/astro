@@ -63,7 +63,6 @@ export async function typescript(
 			end: 'TypeScript customized',
 			while: () =>
 				setupTypeScript(ts!, { cwd: ctx.cwd }).catch((e) => {
-					// eslint-disable-next-line no-console
 					error('error', e);
 					process.exit(1);
 				}),

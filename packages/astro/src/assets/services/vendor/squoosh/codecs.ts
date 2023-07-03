@@ -291,7 +291,6 @@ export const codecs = {
   avif: {
     name: 'AVIF',
     extension: 'avif',
-    // eslint-disable-next-line no-control-regex
     detectors: [/^\x00\x00\x00 ftypavif\x00\x00\x00\x00/],
     dec: () =>
       instantiateEmscriptenWasm(avifDec as DecodeModuleFactory, avifDecWasm),
@@ -322,7 +321,6 @@ export const codecs = {
   oxipng: {
     name: 'OxiPNG',
     extension: 'png',
-    // eslint-disable-next-line no-control-regex
     detectors: [/^\x89PNG\x0D\x0A\x1A\x0A/],
     dec: async () => {
       await pngEncDecInit()

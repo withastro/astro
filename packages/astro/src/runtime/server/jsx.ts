@@ -85,10 +85,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 				let props: Record<string, any> = {};
 				let slots: Record<string, any> = {};
 				for (const [key, value] of Object.entries(vnode.props ?? {})) {
-					if (
-						key === 'children' ||
-						(value && typeof value === 'object' && (value as any)['$$slot'])
-					) {
+					if (key === 'children' || (value && typeof value === 'object' && value['$$slot'])) {
 						slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);
 					} else {
 						props[key] = value;
@@ -117,7 +114,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					try {
 						const output = await vnode.type(vnode.props ?? {});
 						let renderResult: any;
-						if (output && output[AstroJSX]) {
+						if (output?.[AstroJSX]) {
 							renderResult = await renderJSXVNode(result, output, skip);
 							return renderResult;
 						} else if (!output) {
@@ -251,11 +248,9 @@ function useConsoleFilter() {
 	consoleFilterRefs++;
 
 	if (!originalConsoleError) {
-		// eslint-disable-next-line no-console
 		originalConsoleError = console.error;
 
 		try {
-			// eslint-disable-next-line no-console
 			console.error = filteredConsoleError;
 		} catch (error) {
 			// If we're unable to hook `console.error`, just accept it

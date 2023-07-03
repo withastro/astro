@@ -25,7 +25,7 @@ export function renderAllHeadContent(result: SSRResult) {
 	result.styles.clear();
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
-		.map((script, i) => {
+		.map((script) => {
 			return renderElement('script', script, false);
 		});
 	const links = Array.from(result.links)

@@ -99,7 +99,7 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	get(key: string): AstroCookie {
 		// Check for outgoing Set-Cookie values first
-		if (this.#outgoing !== null && this.#outgoing.has(key)) {
+		if (this.#outgoing?.has(key)) {
 			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
 			if (isSetValue) {
 				return new AstroCookie(serializedValue);
@@ -120,7 +120,7 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @returns
 	 */
 	has(key: string): boolean {
-		if (this.#outgoing !== null && this.#outgoing.has(key)) {
+		if (this.#outgoing?.has(key)) {
 			let [, , isSetValue] = this.#outgoing.get(key)!;
 			return isSetValue;
 		}

@@ -18,8 +18,7 @@ async function check(Component, props, children) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
-		const $$typeof = Component['$$typeof'];
-		return $$typeof && $$typeof.toString().slice('Symbol('.length).startsWith('react');
+		return Component['$$typeof'].toString().slice('Symbol('.length).startsWith('react');
 	}
 	if (typeof Component !== 'function') return false;
 
@@ -97,7 +96,7 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		identifierPrefix: prefix,
 	};
 	let html;
-	if (metadata && metadata.hydrate) {
+	if (metadata?.hydrate) {
 		if ('renderToReadableStream' in ReactDOM) {
 			html = await renderToReadableStreamAsync(vnode, renderOptions);
 		} else {

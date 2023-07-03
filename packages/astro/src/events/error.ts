@@ -29,7 +29,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
 const ANONYMIZE_MESSAGE_REGEX = /^(\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {
 	const matchedMessage = msg.match(ANONYMIZE_MESSAGE_REGEX);
-	if (!matchedMessage || !matchedMessage[0]) {
+	if (!matchedMessage?.[0]) {
 		return undefined;
 	}
 	return matchedMessage[0].trim().substring(0, 20);
@@ -72,6 +72,8 @@ export function eventError({
 		cliCommand: cmd,
 		isFatal: isFatal,
 		anonymousMessageHint:
+			// https://github.com/typescript-eslint/typescript-eslint/issues/4820
+			// eslint-disable-next-line @typescript-eslint/prefer-optional-chain -- errorData may be false
 			errorData && errorData.message
 				? getSafeErrorMessage(errorData.message)
 				: anonymizeErrorMessage(err.message),

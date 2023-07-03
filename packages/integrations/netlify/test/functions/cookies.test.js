@@ -1,8 +1,6 @@
 import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
 import { loadFixture, testIntegration } from './test-utils.js';
 import netlifyAdapter from '../../dist/index.js';
-import { fileURLToPath } from 'url';
 
 describe('Cookies', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */

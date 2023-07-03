@@ -107,7 +107,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
-			for (const [_, chunk] of Object.entries(bundle)) {
+			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
 				const meta = chunk.viteMetadata as ViteMetadata;

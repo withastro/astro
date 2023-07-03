@@ -21,7 +21,7 @@ describe('Component Libraries', () => {
 			await fixture.build();
 		});
 
-		function createFindEvidence(expected, prefix) {
+		function createFindEvidence(expected) {
 			return async function findEvidence(pathname) {
 				const html = await fixture.readFile(pathname);
 				const $ = cheerioLoad(html);
@@ -102,7 +102,7 @@ describe('Component Libraries', () => {
 			await devServer.stop();
 		});
 
-		function createFindEvidence(expected, prefix) {
+		function createFindEvidence(expected) {
 			return async function findEvidence(pathname) {
 				const html = await fixture.fetch(pathname).then((res) => res.text());
 				const $ = cheerioLoad(html);

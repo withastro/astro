@@ -81,7 +81,7 @@ export class AstroError extends Error {
 		this.frame = codeFrame(source, location);
 	}
 
-	static is(err: Error | unknown): err is AstroError {
+	static is(err: unknown): err is AstroError {
 		return (err as AstroError).type === 'AstroError';
 	}
 }
@@ -95,7 +95,7 @@ export class CompilerError extends AstroError {
 		this.name = 'CompilerError';
 	}
 
-	static is(err: Error | unknown): err is CompilerError {
+	static is(err: unknown): err is CompilerError {
 		return (err as CompilerError).type === 'CompilerError';
 	}
 }
@@ -103,7 +103,7 @@ export class CompilerError extends AstroError {
 export class CSSError extends AstroError {
 	type: ErrorTypes = 'CSSError';
 
-	static is(err: Error | unknown): err is CSSError {
+	static is(err: unknown): err is CSSError {
 		return (err as CSSError).type === 'CSSError';
 	}
 }
@@ -111,7 +111,7 @@ export class CSSError extends AstroError {
 export class MarkdownError extends AstroError {
 	type: ErrorTypes = 'MarkdownError';
 
-	static is(err: Error | unknown): err is MarkdownError {
+	static is(err: unknown): err is MarkdownError {
 		return (err as MarkdownError).type === 'MarkdownError';
 	}
 }
@@ -119,7 +119,7 @@ export class MarkdownError extends AstroError {
 export class InternalError extends AstroError {
 	type: ErrorTypes = 'InternalError';
 
-	static is(err: Error | unknown): err is InternalError {
+	static is(err: unknown): err is InternalError {
 		return (err as InternalError).type === 'InternalError';
 	}
 }
@@ -136,7 +136,7 @@ export class AggregateError extends AstroError {
 		this.errors = props.errors;
 	}
 
-	static is(err: Error | unknown): err is AggregateError {
+	static is(err: unknown): err is AggregateError {
 		return (err as AggregateError).type === 'AggregateError';
 	}
 }

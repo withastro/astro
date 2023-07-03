@@ -15,7 +15,7 @@ export class MarkdocError extends Error {
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const { name, title = 'MarkdocError', message, stack, location, hint, frame } = props;
+		const { title = 'MarkdocError', message, stack, location, hint, frame } = props;
 
 		this.title = title;
 		if (message) this.message = message;

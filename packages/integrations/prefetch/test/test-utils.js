@@ -2,8 +2,7 @@ import { test as testBase } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 export function loadFixture(inlineConfig) {
-	if (!inlineConfig || !inlineConfig.root)
-		throw new Error("Must provide { root: './fixtures/...' }");
+	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`

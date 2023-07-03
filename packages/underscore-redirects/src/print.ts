@@ -18,11 +18,11 @@ export function print(
 
 	// Loop over the definitions
 	for (let i = 0; i < definitions.length; i++) {
-		let definition = definitions[i];
+		const definition = definitions[i];
 		// Figure out the number of spaces to add. We want at least 4 spaces
 		// after the input. This ensure that all targets line up together.
-		let inputSpaces = minInputLength - definition.input.length + 4;
-		let targetSpaces = minTargetLength - definition.target.length + 4;
+		const inputSpaces = minInputLength - definition.input.length + 4;
+		const targetSpaces = minTargetLength - definition.target.length + 4;
 		_redirects +=
 			(i === 0 ? '' : '\n') +
 			definition.input +

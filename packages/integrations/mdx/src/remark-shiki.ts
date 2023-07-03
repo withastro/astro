@@ -69,7 +69,6 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 				if (langExists) {
 					lang = node.lang;
 				} else {
-					// eslint-disable-next-line no-console
 					console.warn(`The language "${node.lang}" doesn't exist, falling back to plaintext.`);
 					lang = 'plaintext';
 				}
@@ -77,7 +76,7 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 				lang = 'plaintext';
 			}
 
-			let html = highlighter!.codeToHtml(node.value, { lang });
+			let html = highlighter.codeToHtml(node.value, { lang });
 
 			// Q: Couldn't these regexes match on a user's inputted code blocks?
 			// A: Nope! All rendered HTML is properly escaped.

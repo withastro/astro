@@ -50,7 +50,7 @@ describe('SSG image with background - dev', function () {
 		it(title, async () => {
 			const image = $(id);
 			const src = image.attr('src');
-			const [_, params] = src.split('?');
+			const [, params] = src.split('?');
 			const searchParams = new URLSearchParams(params);
 			expect(searchParams.get('bg')).to.equal(bg);
 		});
