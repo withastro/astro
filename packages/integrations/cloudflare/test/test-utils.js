@@ -37,7 +37,6 @@ export function runCLI(basePath, { silent, port = 8787 }) {
 		(async function () {
 			for (const msg of p.stderr) {
 				if (!silent) {
-					// eslint-disable-next-line
 					console.error(msg);
 				}
 			}
@@ -45,7 +44,6 @@ export function runCLI(basePath, { silent, port = 8787 }) {
 
 		for await (const msg of p.stdout) {
 			if (!silent) {
-				// eslint-disable-next-line
 				console.log(msg);
 			}
 			if (msg.includes(`Listening on`)) {
