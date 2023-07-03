@@ -205,8 +205,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				// // // throw the server folder in the bin
-				// const serverUrl = new URL(_buildConfig.server);
-				// await fs.promises.rm(serverUrl, { recursive: true, force: true });
+				const serverUrl = new URL(_buildConfig.server);
+				await fs.promises.rm(serverUrl, { recursive: true, force: true });
 
 				// move cloudflare specific files to the root
 				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
