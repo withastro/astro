@@ -10,9 +10,15 @@ import { RouteCache } from './route-cache.js';
  * Thus they can be created once and passed through to renderPage on each request.
  */
 export interface Environment {
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
 	adapterName?: string;
 	/** logging options */
 	logging: LogOptions;
+	/**
+	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
+	 */
 	markdown: MarkdownRenderingOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
@@ -20,7 +26,13 @@ export interface Environment {
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
 	routeCache: RouteCache;
+	/**
+	 * Used for `Astro.site`
+	 */
 	site?: string;
+	/**
+	 * Value of Astro config's `output` option, true if "server" or "hybrid"
+	 */
 	ssr: boolean;
 	streaming: boolean;
 }

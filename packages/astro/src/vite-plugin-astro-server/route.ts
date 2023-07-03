@@ -4,12 +4,12 @@ import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
-import { AstroErrorData } from '../core/errors/index.js';
+import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import type { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 import { preload, renderPage } from '../core/render/dev/index.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
+import { getParamsAndProps } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
@@ -50,16 +50,15 @@ export async function matchRoute(
 	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
-		const paramsAndPropsRes = await getParamsAndProps({
-			mod: preloadedComponent,
-			route: maybeRoute,
-			routeCache,
-			pathname: pathname,
-			logging,
-			ssr: isServerLikeOutput(settings.config),
-		});
-
-		if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
+		try {
+			await getParamsAndProps({
+				mod: preloadedComponent,
+				route: maybeRoute,
+				routeCache,
+				pathname: pathname,
+				logging,
+				ssr: isServerLikeOutput(settings.config),
+			});
 			return {
 				route: maybeRoute,
 				filePath,
@@ -67,6 +66,12 @@ export async function matchRoute(
 				preloadedComponent,
 				mod: preloadedComponent,
 			};
+		} catch (e) {
+			// Ignore error for no matching static paths
+			if (isAstroError(e) && e.title === AstroErrorData.NoMatchingStaticPathFound.title) {
+				continue;
+			}
+			throw e;
 		}
 	}
 
