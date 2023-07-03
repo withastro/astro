@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Add `Prop` generic for `APIRoute` type
+Add `Props` generic for `APIRoute` type
