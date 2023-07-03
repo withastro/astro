@@ -19,11 +19,7 @@ export function createExports(manifest: SSRManifest) {
 		const { pathname } = new URL(request.url);
 		// static assets fallback, in case default _routes.json is not used
 		if (manifest.assets.has(pathname)) {
-			// we need this so the page does not error
-			// https://developers.cloudflare.com/pages/platform/functions/advanced-mode/#set-up-a-function
-			return (runtimeEnv.env as EventContext<unknown, string, unknown>['env']).ASSETS.fetch(
-				request
-			);
+			return env.ASSETS.fetch(request)
 		}
 
 		let routeData = app.match(request, { matchNotFound: true });
