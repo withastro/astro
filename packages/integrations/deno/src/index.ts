@@ -95,7 +95,7 @@ export function getAdapter(args?: Options): AstroAdapter {
 const denoImportsShimPlugin = {
 	name: '@astrojs/deno:shim',
 	setup(build: esbuild.PluginBuild) {
-		build.onLoad({ filter: /__deno_imports\.js$/ }, async (args) => {
+		build.onLoad({ filter: /__deno_imports\.js$/ }, async () => {
 			return {
 				contents: DENO_IMPORTS,
 				loader: 'js',

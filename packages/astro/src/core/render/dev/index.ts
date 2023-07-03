@@ -174,7 +174,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		adapterName: options.env.adapterName,
 	});
 	if (options.middleware) {
-		if (options.middleware && options.middleware.onRequest) {
+		if (options.middleware?.onRequest) {
 			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
 			const response = await callMiddleware<Response>(env.logging, onRequest, apiContext, () => {
 				return coreRenderPage({

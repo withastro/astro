@@ -93,8 +93,6 @@ async function enhanceCompileError({
 	err,
 	id,
 	source,
-	config,
-	logging,
 }: EnhanceCompilerErrorOptions): Promise<void> {
 	const lineText = (err as any).loc?.lineText;
 	// Verify frontmatter: a common reason that this plugin fails is that
@@ -122,7 +120,7 @@ async function enhanceCompileError({
 		} catch (frontmatterErr: any) {
 			// Improve the error by replacing the phrase "unexpected end of file"
 			// with "unexpected end of frontmatter" in the esbuild error message.
-			if (frontmatterErr && frontmatterErr.message) {
+			if (frontmatterErr?.message) {
 				frontmatterErr.message = frontmatterErr.message.replace(
 					'end of file',
 					'end of frontmatter'

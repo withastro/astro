@@ -42,9 +42,8 @@ npm install react react-dom
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "react()"
+```js ins={3} "react()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 

@@ -3,7 +3,7 @@ import { Volume } from 'memfs';
 import httpMocks from 'node-mocks-http';
 import realFS from 'node:fs';
 import npath from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { unixify } from './correct-path.js';
 
 class VirtualVolume extends Volume {

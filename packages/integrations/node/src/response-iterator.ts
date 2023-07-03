@@ -29,8 +29,7 @@ const canUseAsyncIteratorSymbol = canUseSymbol && Symbol.asyncIterator;
 
 function isBuffer(value: any): value is Buffer {
 	return (
-		value != null &&
-		value.constructor != null &&
+		value?.constructor != null &&
 		typeof value.constructor.isBuffer === 'function' &&
 		value.constructor.isBuffer(value)
 	);

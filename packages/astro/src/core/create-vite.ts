@@ -121,10 +121,10 @@ export async function createVite(
 			markdownVitePlugin({ settings, logging }),
 			htmlVitePlugin(),
 			jsxVitePlugin({ settings, logging }),
-			astroPostprocessVitePlugin({ settings }),
+			astroPostprocessVitePlugin(),
 			mode === 'dev' && astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
-			astroHeadPlugin({ settings }),
+			astroHeadPlugin(),
 			astroScannerPlugin({ settings }),
 			astroInjectEnvTsPlugin({ settings, logging, fs }),
 			astroContentVirtualModPlugin({ settings }),
@@ -314,13 +314,4 @@ function isCommonNotAstro(dep: string): boolean {
 					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
 		)
 	);
-}
-
-interface PkgJSON {
-	name: string;
-	dependencies?: Record<string, string>;
-	devDependencies?: Record<string, string>;
-	peerDependencies?: Record<string, string>;
-	keywords?: string[];
-	[key: string]: any;
 }

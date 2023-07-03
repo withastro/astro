@@ -93,7 +93,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = 'webworker';
 				}
 			},
-			'astro:build:ssr': ({ manifest, entryPoints }) => {
+			'astro:build:ssr': ({ entryPoints }) => {
 				_entryPoints = entryPoints;
 			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
@@ -138,7 +138,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						const fileName = entryPointsRouteData[index].component
 							.replace('src/pages/', '')
 							.replace('.astro', '.js')
-							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
+							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2) => {
 								return `[[${p2}]]`;
 							});
 

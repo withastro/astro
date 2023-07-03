@@ -118,13 +118,13 @@ declare const Astro: {
 					const templates = this.querySelectorAll('template[data-astro-template]');
 					for (const template of templates) {
 						const closest = template.closest(this.tagName);
-						if (!closest || !closest.isSameNode(this)) continue;
+						if (!closest?.isSameNode(this)) continue;
 						slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
 						template.remove();
 					}
 					for (const slot of slotted) {
 						const closest = slot.closest(this.tagName);
-						if (!closest || !closest.isSameNode(this)) continue;
+						if (!closest?.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
 					const props = this.hasAttribute('props')

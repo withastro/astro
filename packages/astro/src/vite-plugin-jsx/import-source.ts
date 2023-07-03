@@ -51,7 +51,7 @@ function detectImportSourceFromComments(code: string): string | undefined {
 	// if no imports were found, look for @jsxImportSource comment
 	const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];
 	for (const comment of multiline) {
-		const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
+		const [, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
 		if (lib) {
 			return lib.trim();
 		}

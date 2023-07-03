@@ -104,7 +104,7 @@ describe('SSR image with background', function () {
 
 			const image = $(id);
 			const src = image.attr('src');
-			const [_, params] = src.split('?');
+			const [, params] = src.split('?');
 
 			const searchParams = new URLSearchParams(params);
 

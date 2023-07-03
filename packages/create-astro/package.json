@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "3.1.8",
+  "version": "3.1.9",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -36,6 +36,7 @@
     "execa": "^6.1.0",
     "giget": "1.0.0",
     "mocha": "^9.2.2",
+    "node-fetch-native": "^1.2.0",
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {

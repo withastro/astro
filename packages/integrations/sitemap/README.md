@@ -46,9 +46,8 @@ npm install @astrojs/sitemap
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "sitemap()"
+```js ins={3} "sitemap()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -62,9 +61,8 @@ export default defineConfig({
 
 `@astrojs/sitemap` requires a deployment / site URL for generation. Add your site's URL under your `astro.config.*` using the `site` property. This must begin with `http:` or `https:`.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -85,14 +83,14 @@ Now, [build your site for production](https://docs.astro.build/en/reference/cli-
 After verifying that the sitemaps are built, you can add them to your site's `<head>` and the `robots.txt` file for crawlers to pick up.
 
 ```html ins={3}
-// src/layouts/Layout.astro
+<!-- src/layouts/Layout.astro -->
 <head>
   <link rel="sitemap" href="/sitemap-index.xml" />
 </head>
 ```
 
 <!-- prettier-ignore -->
-``` ins={4} title="public/robots.txt"
+```diff ins={4} title="public/robots.txt"
 User-agent: *
 Allow: /
 
@@ -101,9 +99,7 @@ Sitemap: https://<YOUR SITE>/sitemap-index.xml
 
 ### Example of generated files for a two-page website
 
-**`sitemap-index.xml`**
-
-```xml
+```xml title="sitemap-index.xml"
 <?xml version="1.0" encoding="UTF-8"?>
   <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
@@ -112,9 +108,7 @@ Sitemap: https://<YOUR SITE>/sitemap-index.xml
 </sitemapindex>
 ```
 
-**`sitemap-0.xml`**
-
-```xml
+```xml title="sitemap-0.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
@@ -130,9 +124,8 @@ Sitemap: https://<YOUR SITE>/sitemap-index.xml
 
 To configure this integration, pass an object to the `sitemap()` function call in `astro.config.mjs`.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -149,9 +142,8 @@ export default defineConfig({
 
 All pages are included in your sitemap by default. By adding a custom `filter` function, you can filter included pages by URL.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 // ...
 sitemap({
   filter: (page) => page !== 'https://stargazers.club/secret-vip-lounge',
@@ -162,9 +154,8 @@ The function will be called for every page on your site. The `page` function par
 
 To filter multiple pages, add arguments with target URLs.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 // ...
 sitemap({
   filter: (page) =>
@@ -179,9 +170,8 @@ sitemap({
 
 In some cases, a page might be part of your deployed site but not part of your Astro project. If you'd like to include a page in your sitemap that _isn't_ created by Astro, you can use this option.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 // ...
 sitemap({
   customPages: ['https://stargazers.club/external-page', 'https://stargazers.club/external-page2'],
@@ -192,9 +182,8 @@ sitemap({
 
 The maximum number entries per sitemap file. The default value is 45000. A sitemap index and multiple sitemaps are created if you have more entries. See this [explanation of splitting up a large sitemap](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps).
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -217,9 +206,8 @@ Note that `changefreq` and `priority` are ignored by Google.
 > **Note**
 > Due to limitations of Astro's [Integration API](https://docs.astro.build/en/reference/integrations-reference/), this integration can't analyze a given page's source code. This configuration option can set `changefreq`, `lastmod` and `priority` on a _site-wide_ basis; see the next option **serialize** for how you can set these values on a per-page basis.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -255,9 +243,8 @@ The `serialize` function should return `SitemapItem`, touched or not.
 
 The example below shows the ability to add sitemap specific properties individually.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
@@ -294,9 +281,8 @@ This object has two required properties:
 
 [Read more about localization](https://developers.google.com/search/docs/advanced/crawling/localized-versions#all-method-guidelines).
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 

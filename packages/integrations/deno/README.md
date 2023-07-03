@@ -96,9 +96,8 @@ deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 
 To configure this adapter, pass an object to the `deno()` function call in `astro.config.mjs`.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import deno from '@astrojs/deno';
 

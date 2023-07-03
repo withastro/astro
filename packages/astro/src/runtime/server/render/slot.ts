@@ -51,7 +51,7 @@ export async function renderSlotToString(
 	let instructions: null | RenderInstruction[] = null;
 	let iterator = renderSlot(result, slotted, fallback);
 	for await (const chunk of iterator) {
-		if (typeof (chunk as any).type === 'string') {
+		if (typeof chunk.type === 'string') {
 			if (instructions === null) {
 				instructions = [];
 			}

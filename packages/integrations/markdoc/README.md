@@ -42,9 +42,8 @@ npm install @astrojs/markdoc
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "markdoc()"
+```js ins={3} "markdoc()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import markdoc from '@astrojs/markdoc';
 

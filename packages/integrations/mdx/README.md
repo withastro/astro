@@ -42,9 +42,8 @@ npm install @astrojs/mdx
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "mdx()"
+```js ins={3} "mdx()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
@@ -95,9 +94,8 @@ All [`markdown` configuration options](https://docs.astro.build/en/reference/con
 There is no separate MDX configuration for [including pages marked as draft in the build](https://docs.astro.build/en/reference/configuration-reference/#markdowndrafts). This Markdown setting will be respected by both Markdown and MDX files and cannot be overridden for MDX files specifically.
 :::
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import remarkToc from 'remark-toc';
@@ -132,9 +130,8 @@ MDX will extend [your project's existing Markdown configuration](https://docs.as
 
 For example, say you need to disable GitHub-Flavored Markdown and apply a different set of remark plugins for MDX files. You can apply these options like so, with `extendMarkdownConfig` enabled by default:
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
@@ -160,9 +157,8 @@ export default defineConfig({
 
 You may also need to disable `markdown` config extension in MDX. For this, set `extendMarkdownConfig` to `false`:
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
@@ -194,9 +190,8 @@ This is an optional configuration setting to optimize the MDX output for faster 
 
 This is disabled by default. To enable MDX optimization, add the following to your MDX integration configuration:
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
@@ -230,9 +225,8 @@ import Heading from '../Heading.astro';
 
 To configure optimization for this using the `customComponentNames` property, specify an array of HTML element names that should be treated as custom components:
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
