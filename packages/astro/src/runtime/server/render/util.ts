@@ -90,8 +90,13 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// support object styles for better JSX compat
-	if (key === 'style' && !(value instanceof HTMLString) && typeof value === 'object') {
-		return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
+	if (key === 'style' && !(value instanceof HTMLString)) {
+		if (Array.isArray(value) && value.length === 2) {
+			return markHTMLString(` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`);
+		}
+		if (typeof value === 'object') {
+			return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
+		}
 	}
 
 	// support `className` for better JSX compat
