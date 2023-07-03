@@ -36,6 +36,7 @@ describe('Cloudflare SSR split', () => {
 		expect(await fixture.pathExists('../functions/[person]/[car].js')).to.be.true;
 		expect(await fixture.pathExists('../functions/files/[[path]].js')).to.be.true;
 		expect(await fixture.pathExists('../functions/[language]/files/[[path]].js')).to.be.true;
+		expect(await fixture.pathExists('../functions/trpc/[trpc].js')).to.be.true;
 	});
 
 	it('generates pre-rendered files', async () => {

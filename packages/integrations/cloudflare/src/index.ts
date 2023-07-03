@@ -21,15 +21,15 @@ interface BuildConfig {
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 	return isModeDirectory
 		? {
-				name: '@astrojs/cloudflare',
-				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-				exports: ['onRequest', 'manifest'],
-		  }
+			name: '@astrojs/cloudflare',
+			serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
+			exports: ['onRequest', 'manifest'],
+		}
 		: {
-				name: '@astrojs/cloudflare',
-				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
-				exports: ['default'],
-		  };
+			name: '@astrojs/cloudflare',
+			serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
+			exports: ['default'],
+		};
 }
 
 const SHIM = `globalThis.process = {
@@ -138,7 +138,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						const fileName = entryPointsRouteData[index].component
 							.replace('src/pages/', '')
 							.replace('.astro', '.js')
-							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2) => {
+							.replace('.ts', '.js')
+							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2, _p3) => {
 								return `[[${p2}]]`;
 							});
 
@@ -184,8 +185,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				// // // throw the server folder in the bin
-				const serverUrl = new URL(_buildConfig.server);
-				await fs.promises.rm(serverUrl, { recursive: true, force: true });
+				// const serverUrl = new URL(_buildConfig.server);
+				// await fs.promises.rm(serverUrl, { recursive: true, force: true });
 
 				// move cloudflare specific files to the root
 				const cloudflareSpecialFiles = ['_headers', '_redirects', '_routes.json'];
