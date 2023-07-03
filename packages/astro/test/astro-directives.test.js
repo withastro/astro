@@ -61,7 +61,9 @@ describe('Directives', async () => {
 		expect($('style')).to.have.lengthOf(0);
 
 		// Inject style attribute on top-level element in page
-		expect($('#compound-style').attr('style').toString()).to.include('color:var(--fg);--fg: black;--bg: white;');
+		expect($('#compound-style').attr('style').toString()).to.include(
+			'color:var(--fg);--fg: black;--bg: white;'
+		);
 	});
 
 	it('set:html', async () => {
