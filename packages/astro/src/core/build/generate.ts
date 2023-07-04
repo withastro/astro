@@ -305,32 +305,27 @@ async function getPathsForRoute(
 		builtPaths.add(pageData.route.pathname);
 	} else {
 		const route = pageData.route;
-		const result = await callGetStaticPaths({
+		const staticPaths = await callGetStaticPaths({
 			mod,
-			route: pageData.route,
+			route,
+			routeCache: opts.routeCache,
 			isValidate: false,
 			logging: opts.logging,
 			ssr: isServerLikeOutput(opts.settings.config),
-		})
-			.then((_result) => {
-				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
-				debug(
-					'build',
-					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-						`[${_result.staticPaths.length} ${label}]`
-					)}`
-				);
-				return _result;
-			})
-			.catch((err) => {
-				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-				throw err;
-			});
+		}).catch((err) => {
+			debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+			throw err;
+		});
 
-		// Save the route cache so it doesn't get called again
-		opts.routeCache.set(route, result);
+		const label = staticPaths.length === 1 ? 'page' : 'pages';
+		debug(
+			'build',
+			`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
+				`[${staticPaths.length} ${label}]`
+			)}`
+		);
 
-		paths = result.staticPaths
+		paths = staticPaths
 			.map((staticPath) => {
 				try {
 					return route.generate(staticPath.params);
