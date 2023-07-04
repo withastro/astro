@@ -2,18 +2,19 @@ import { expect } from 'chai';
 
 import { createDefaultDevSettings } from '../../../dist/core/config/index.js';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
-import { createBasicEnvironment } from '../../../dist/core/render/index.js';
 import { createRouteManifest } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, handleRequest } from '../../../dist/vite-plugin-astro-server/index.js';
-import { defaultLogging as logging } from '../../test-utils.js';
-import { createAstroModule, createFs, createRequestAndResponse } from '../test-utils.js';
+import {
+	createAstroModule,
+	createBasicEnvironment,
+	createFs,
+	createRequestAndResponse,
+	defaultLogging,
+} from '../test-utils.js';
 
 async function createDevEnvironment(overrides = {}) {
-	const env = createBasicEnvironment({
-		logging,
-		renderers: [],
-	});
+	const env = createBasicEnvironment();
 	env.settings = await createDefaultDevSettings({}, '/');
 	env.settings.renderers = [];
 	env.loader = createLoader();
@@ -48,7 +49,7 @@ describe('vite-plugin-astro-server', () => {
 					fsMod: fs,
 					settings: env.settings,
 				},
-				logging
+				defaultLogging
 			);
 
 			try {

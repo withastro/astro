@@ -1,8 +1,7 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
-import { getDefaultClientDirectives } from '../client-directive/default.js';
 import type { LogOptions } from '../logger/core.js';
-import { RouteCache } from './route-cache.js';
+import type { RouteCache } from './route-cache.js';
 
 /**
  * An environment represents the static parts of rendering that do not change
@@ -41,28 +40,4 @@ export type CreateEnvironmentArgs = Environment;
 
 export function createEnvironment(options: CreateEnvironmentArgs): Environment {
 	return options;
-}
-
-export type CreateBasicEnvironmentArgs = Partial<Environment> & {
-	logging: CreateEnvironmentArgs['logging'];
-};
-
-/**
- * Only used in tests
- */
-export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Environment {
-	const mode = options.mode ?? 'development';
-	return createEnvironment({
-		...options,
-		markdown: {
-			...(options.markdown ?? {}),
-		},
-		mode,
-		renderers: options.renderers ?? [],
-		clientDirectives: getDefaultClientDirectives(),
-		resolve: options.resolve ?? ((s: string) => Promise.resolve(s)),
-		routeCache: new RouteCache(options.logging, mode),
-		ssr: options.ssr ?? true,
-		streaming: options.streaming ?? true,
-	});
 }
