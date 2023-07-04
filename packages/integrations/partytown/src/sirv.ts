@@ -40,8 +40,8 @@ import { URL } from 'url';
 const noop = () => {};
 
 function isMatch(uri, arr) {
-	for (let i = 0; i < arr.length; i++) {
-		if (arr[i].test(uri)) return true;
+	for (const candidate of arr) {
+		if (candidate.test(uri)) return true;
 	}
 }
 

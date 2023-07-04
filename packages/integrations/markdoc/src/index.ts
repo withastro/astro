@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { bold, red } from 'kleur/colors';
-import { fileURLToPath } from 'node:url';
-import { normalizePath } from 'vite';
 import { getContentEntryType } from './content-entry-type.js';
 import {
 	loadMarkdocConfig,
@@ -26,7 +24,6 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 		process.exit(0);
 	}
 	let markdocConfigResult: MarkdocConfigResult | undefined;
-	let markdocConfigResultId = '';
 	let astroConfig: AstroConfig;
 	return {
 		name: '@astrojs/markdoc',
@@ -36,9 +33,6 @@ export default function markdocIntegration(legacyConfig?: any): AstroIntegration
 				astroConfig = params.config;
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
-				if (markdocConfigResult) {
-					markdocConfigResultId = normalizePath(fileURLToPath(markdocConfigResult.fileUrl));
-				}
 
 				addContentEntryType(await getContentEntryType({ markdocConfigResult, astroConfig }));
 

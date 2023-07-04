@@ -5,8 +5,6 @@ import { loadFixture } from './test-utils.js';
 describe('Public dev with base', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
 	let $;
 
 	before(async () => {
@@ -15,7 +13,7 @@ describe('Public dev with base', () => {
 			site: 'http://example.com/',
 			base: '/blog',
 		});
-		devServer = await fixture.startDevServer();
+		await fixture.startDevServer();
 	});
 
 	it('200 when loading /@vite/client', async () => {

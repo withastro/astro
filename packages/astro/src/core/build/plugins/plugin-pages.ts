@@ -39,7 +39,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 
 		options(options) {
 			if (opts.settings.config.output === 'static') {
-				const inputs: Set<string> = new Set();
+				const inputs = new Set<string>();
 
 				for (const [path, pageData] of Object.entries(opts.allPages)) {
 					if (routeIsRedirect(pageData.route)) {

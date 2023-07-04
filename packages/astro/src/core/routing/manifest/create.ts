@@ -33,8 +33,8 @@ interface Item {
 
 function countOccurrences(needle: string, haystack: string) {
 	let count = 0;
-	for (let i = 0; i < haystack.length; i += 1) {
-		if (haystack[i] === needle) count += 1;
+	for (const hay of haystack) {
+		if (hay === needle) count += 1;
 	}
 	return count;
 }
@@ -59,10 +59,6 @@ function getParts(part: string, file: string) {
 	});
 
 	return result;
-}
-
-function areSamePart(a: RoutePart, b: RoutePart) {
-	return a.content === b.content && a.dynamic === b.dynamic && a.spread === b.spread;
 }
 
 function getPattern(
@@ -208,25 +204,6 @@ function injectedRouteToItem(
 	};
 }
 
-// Seeings if the two routes are siblings of each other, with `b` being the route
-// in focus. If it is in the same parent folder as `a`, they are siblings.
-function areSiblings(a: RouteData, b: RouteData) {
-	if (a.segments.length < b.segments.length) return false;
-	for (let i = 0; i < b.segments.length - 1; i++) {
-		let segment = b.segments[i];
-		if (segment.length === a.segments[i].length) {
-			for (let j = 0; j < segment.length; j++) {
-				if (!areSamePart(segment[j], a.segments[i][j])) {
-					return false;
-				}
-			}
-		} else {
-			return false;
-		}
-	}
-	return true;
-}
-
 export interface CreateRouteManifestParams {
 	/** Astro Settings object */
 	settings: AstroSettings;
@@ -243,16 +220,16 @@ export function createRouteManifest(
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validPageExtensions: Set<string> = new Set([
+	const validPageExtensions = new Set<string>([
 		'.astro',
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 		...settings.pageExtensions,
 	]);
-	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
+	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
 
-	const foundInvalidFileExtensions: Set<string> = new Set();
+	const foundInvalidFileExtensions = new Set<string>();
 
 	function walk(
 		fs: typeof nodeFs,

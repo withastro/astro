@@ -1,4 +1,3 @@
-import type { AstroConfig } from '../../@types/astro';
 import type { AstroErrorPayload } from './dev/vite';
 
 const style = /* css */ `
@@ -665,7 +664,7 @@ class ErrorOverlay extends HTMLElement {
 					const errorLine = this.root.querySelector<HTMLSpanElement>('.error-line');
 
 					if (errorLine) {
-						if (errorLine.parentElement && errorLine.parentElement.parentElement) {
+						if (errorLine.parentElement?.parentElement) {
 							errorLine.parentElement.parentElement.scrollTop =
 								errorLine.offsetTop - errorLine.parentElement.parentElement.offsetTop - 8;
 						}
@@ -745,6 +744,6 @@ function getOverlayCode() {
 	`;
 }
 
-export function patchOverlay(code: string, config: AstroConfig) {
+export function patchOverlay(code: string) {
 	return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
 }

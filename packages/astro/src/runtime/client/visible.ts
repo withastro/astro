@@ -21,8 +21,7 @@ const visibleDirective: ClientDirective = (load, _options, el) => {
 		}
 	});
 
-	for (let i = 0; i < el.children.length; i++) {
-		const child = el.children[i];
+	for (const child of el.children) {
 		io.observe(child);
 	}
 };

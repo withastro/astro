@@ -1,7 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../constants.js';
 import { addRollupInput } from '../add-rollup-input.js';
-import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 import { viteID } from '../../util.js';
@@ -65,16 +64,13 @@ export function vitePluginMiddleware(
 	};
 }
 
-export function pluginMiddleware(
-	opts: StaticBuildOptions,
-	internals: BuildInternals
-): AstroBuildPlugin {
+export function pluginMiddleware(opts: StaticBuildOptions): AstroBuildPlugin {
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginMiddleware(opts, internals),
+					vitePlugin: vitePluginMiddleware(opts),
 				};
 			},
 		},

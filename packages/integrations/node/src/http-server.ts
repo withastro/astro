@@ -46,7 +46,6 @@ export function createServer(
 
 			stream.on('error', (err) => {
 				if (forwardError) {
-					// eslint-disable-next-line no-console
 					console.error(err.toString());
 					res.writeHead(500);
 					res.end('Internal server error');

@@ -203,7 +203,7 @@ export class App {
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		const info = this.#routeDataToRouteInfo.get(routeData!)!;
+		const info = this.#routeDataToRouteInfo.get(routeData)!;
 		const isCompressHTML = this.#manifest.compressHTML ?? false;
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();

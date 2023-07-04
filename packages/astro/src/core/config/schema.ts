@@ -8,7 +8,7 @@ import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
 
-const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
+const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -31,7 +31,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	server: {
 		host: false,
 		port: 3000,
-		streaming: true,
 		open: false,
 	},
 	integrations: [],
@@ -46,7 +45,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		assets: false,
 		redirects: false,
 	},
-};
+} satisfies AstroUserConfig & { server: { open: boolean } };
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -177,8 +176,8 @@ export const AstroConfigSchema = z.object({
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
 						.or(z.custom<IThemeRegistration>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme),
-					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),
 			remarkPlugins: z

@@ -125,7 +125,7 @@ interface Restart {
 
 export async function createContainerWithAutomaticRestart({
 	flags,
-	handleConfigError = (_e: Error) => {},
+	handleConfigError = () => {},
 	beforeRestart,
 	params,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
@@ -143,7 +143,6 @@ export async function createContainerWithAutomaticRestart({
 	};
 
 	async function handleServerRestart(logMsg: string) {
-		// eslint-disable-next-line @typescript-eslint/no-shadow
 		const container = restart.container;
 		const { container: newContainer, error } = await restartContainer({
 			beforeRestart,

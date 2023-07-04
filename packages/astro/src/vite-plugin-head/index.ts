@@ -1,8 +1,7 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
-import type { AstroSettings, SSRComponentMetadata, SSRResult } from '../@types/astro';
+import type { SSRComponentMetadata, SSRResult } from '../@types/astro';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
-import type { StaticBuildOptions } from '../core/build/types';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
@@ -12,11 +11,7 @@ import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(^\/\/|\/\/!)\s*astro-head-inject/;
 
-export default function configHeadVitePlugin({
-	settings,
-}: {
-	settings: AstroSettings;
-}): vite.Plugin {
+export default function configHeadVitePlugin(): vite.Plugin {
 	let server: vite.ViteDevServer;
 
 	function propagateMetadata<
@@ -70,10 +65,7 @@ export default function configHeadVitePlugin({
 	};
 }
 
-export function astroHeadBuildPlugin(
-	options: StaticBuildOptions,
-	internals: BuildInternals
-): AstroBuildPlugin {
+export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugin {
 	return {
 		build: 'ssr',
 		hooks: {

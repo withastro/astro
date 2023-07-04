@@ -9,7 +9,7 @@ describe('astro/src/core/compile', () => {
 		it('throws an aggregate error with the errors', async () => {
 			let error;
 			try {
-				let r = await cachedCompilation({
+				await cachedCompilation({
 					astroConfig: {
 						root: pathToFileURL('/'),
 					},

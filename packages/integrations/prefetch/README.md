@@ -41,9 +41,8 @@ npm install @astrojs/prefetch
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-**`astro.config.mjs`**
-
-```js ins={2} "prefetch()"
+```js ins={3} "prefetch()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import prefetch from '@astrojs/prefetch';
 
@@ -65,9 +64,8 @@ The Astro Prefetch integration handles which links on the site are prefetched an
 
 By default the prefetch script searches the page for any links that include a `rel="prefetch"` attribute, ex: `<a rel="prefetch" />` or `<a rel="nofollow prefetch" />`. This behavior can be changed in your `astro.config.*` file to use a custom query selector when finding prefetch links.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import prefetch from '@astrojs/prefetch';
 
@@ -86,9 +84,8 @@ export default defineConfig({
 
 By default the prefetch script will only prefetch one link at a time. This behavior can be changed in your `astro.config.*` file to increase the limit for concurrent downloads.
 
-**`astro.config.mjs`**
-
 ```js
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import prefetch from '@astrojs/prefetch';
 

@@ -72,7 +72,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -158,7 +158,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -221,7 +221,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',

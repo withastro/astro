@@ -88,7 +88,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 					}
 
 					if (hoistedScript.type === 'external') {
-						const src = hoistedScript.src!;
+						const src = hoistedScript.src;
 						if (src.startsWith('/') && !isBrowserPath(src)) {
 							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 							throw new Error(

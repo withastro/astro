@@ -8,8 +8,8 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getParamsAndPropsOrThrow } from './core.js';
 import type { Environment } from './environment';
+import { getParamsAndProps } from './params-and-props.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -47,7 +47,7 @@ export async function createRenderContext(
 	const url = new URL(request.url);
 	const origin = options.origin ?? url.origin;
 	const pathname = options.pathname ?? url.pathname;
-	const [params, props] = await getParamsAndPropsOrThrow({
+	const [params, props] = await getParamsAndProps({
 		mod: options.mod as any,
 		route: options.route,
 		routeCache: options.env.routeCache,

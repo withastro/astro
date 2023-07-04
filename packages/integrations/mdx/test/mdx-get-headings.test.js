@@ -72,7 +72,7 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 				rehypePlugins: [
 					() => (tree) => {
 						let count = 0;
-						visit(tree, 'element', (node, index, parent) => {
+						visit(tree, 'element', (node) => {
 							if (!/^h\d$/.test(node.tagName)) return;
 							if (!node.properties?.id) {
 								node.properties = { ...node.properties, id: String(count++) };
@@ -125,7 +125,7 @@ describe('MDX heading IDs can be injected before user plugins', () => {
 					rehypePlugins: [
 						rehypeHeadingIds,
 						() => (tree) => {
-							visit(tree, 'element', (node, index, parent) => {
+							visit(tree, 'element', (node) => {
 								if (!/^h\d$/.test(node.tagName)) return;
 								if (node.properties?.id) {
 									node.children.push({ type: 'text', value: ' ' + node.properties.id });

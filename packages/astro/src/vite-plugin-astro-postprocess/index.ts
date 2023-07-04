@@ -2,17 +2,12 @@ import { parse } from 'acorn';
 import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
-import type { AstroSettings } from '../@types/astro';
 import { isMarkdownFile } from '../core/util.js';
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
 
-interface AstroPluginOptions {
-	settings: AstroSettings;
-}
-
-export default function astro(_opts: AstroPluginOptions): Plugin {
+export default function astro(): Plugin {
 	return {
 		name: 'astro:postprocess',
 		async transform(code, id) {

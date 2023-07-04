@@ -20,11 +20,9 @@ type EsbuildMessage = ESBuildTransformResult['warnings'][number];
  */
 export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
 	const err =
-		AggregateError.is(e) || Array.isArray((e as any).errors)
-			? (e.errors as SSRError[])
-			: [e as SSRError];
+		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
-	err.forEach((error, idx) => {
+	err.forEach((error) => {
 		if (e.stack) {
 			const stackInfo = collectInfoFromStacktrace(e);
 			error.stack = stackInfo.stack;
@@ -73,7 +71,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
 	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
-	if (!AggregateError.is(e) && Array.isArray((e as any).errors)) {
+	if (!AggregateError.is(e) && Array.isArray(e.errors)) {
 		(e.errors as EsbuildMessage[]).forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
@@ -226,7 +224,7 @@ export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 	} else {
 		return markdown
 			.replace(linkRegex, (fullMatch, m1, m2) => `${bold(m1)} ${underline(m2)}`)
-			.replace(urlRegex, (fullMatch, m1) => ` ${underline(fullMatch.trim())} `)
+			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())} `)
 			.replace(boldRegex, (fullMatch, m1) => `${bold(m1)}`);
 	}
 }
