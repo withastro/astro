@@ -27,17 +27,18 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 
 	validatePrerenderEndpointCollision(route, mod, params);
 
-	let routeCacheEntry = routeCache.get(route);
 	// During build, the route cache should already be populated.
 	// During development, the route cache is filled on-demand and may be empty.
-	// TODO(fks): Can we refactor getParamsAndProps() to receive routeCacheEntry
-	// as a prop, and not do a live lookup/populate inside this lower function call.
-	if (!routeCacheEntry) {
-		routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
-		routeCache.set(route, routeCacheEntry);
-	}
+	const staticPaths = await callGetStaticPaths({
+		mod,
+		route,
+		routeCache,
+		isValidate: true,
+		logging,
+		ssr,
+	});
 
-	const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
+	const matchedStaticPath = findPathItemByKey(staticPaths, params, route);
 	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,

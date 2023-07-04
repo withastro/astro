@@ -3,8 +3,7 @@ import { fileURLToPath } from 'url';
 import { validateConfig } from '../../../dist/core/config/config.js';
 import { createSettings } from '../../../dist/core/config/index.js';
 import { sync as _sync } from '../../../dist/core/sync/index.js';
-import { defaultLogging } from '../../test-utils.js';
-import { createFsWithFallback } from '../test-utils.js';
+import { createFsWithFallback, defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content-mixed-errors/', import.meta.url);
 const logging = defaultLogging;

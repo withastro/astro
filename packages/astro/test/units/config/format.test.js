@@ -2,8 +2,7 @@ import { expect } from 'chai';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
 import { openConfig, createSettings } from '../../../dist/core/config/index.js';
-import { createFs } from '../test-utils.js';
-import { defaultLogging } from '../../test-utils.js';
+import { createFs, defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
 
