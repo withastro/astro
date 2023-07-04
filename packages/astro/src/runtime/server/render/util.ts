@@ -146,6 +146,26 @@ export function renderElement(
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
 
+const iteratorQueue: EagerAsyncIterableIterator[][] = [];
+
+/**
+ * Takes an array of iterators and adds them to a list of iterators to start buffering
+ * as soon as the execution flow is suspended for the first time. We expect a lot
+ * of calls to this function before the first suspension, so to reduce the number
+ * of calls to setTimeout we batch the buffering calls.
+ * @param iterators
+ */
+function queueIteratorBuffers(iterators: EagerAsyncIterableIterator[]) {
+	if (iteratorQueue.length === 0) {
+		setTimeout(() => {
+			// buffer all iterators that haven't started yet
+			iteratorQueue.forEach((its) => its.forEach((it) => !it.isStarted() && it.buffer()));
+			iteratorQueue.length = 0; // fastest way to empty an array
+		});
+	}
+	iteratorQueue.push(iterators);
+}
+
 /**
  * This will take an array of async iterables and start buffering them eagerly.
  * To avoid useless buffering, it will only start buffering the next tick, so the
@@ -156,10 +176,7 @@ export function bufferIterators<T>(iterators: AsyncIterable<T>[]): AsyncIterable
 	const eagerIterators = iterators.map((it) => new EagerAsyncIterableIterator(it));
 	// once the execution of the next for loop is suspended due to an async component,
 	// this timeout triggers and we start buffering the other iterators
-	queueMicrotask(() => {
-		// buffer all iterators that haven't started yet
-		eagerIterators.forEach((it) => !it.isStarted() && it.buffer());
-	});
+	queueIteratorBuffers(eagerIterators);
 	return eagerIterators;
 }
 
