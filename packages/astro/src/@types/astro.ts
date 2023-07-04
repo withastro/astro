@@ -830,7 +830,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.split
 		 * @type {boolean}
-		 * @default {false}
+		 * @default `false`
 		 * @version 2.7.0
 		 * @description
 		 * Defines how the SSR code should be bundled when built.
