@@ -1,8 +1,5 @@
 import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
-
 import fs from 'fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { join } from 'node:path';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
@@ -23,7 +20,6 @@ import { collectPagesData } from './page-data.js';
 import { staticBuild, viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { isServerLikeOutput } from '../../prerender/utils.js';
 
 export interface BuildOptions {
 	mode?: RuntimeMode;

@@ -80,7 +80,7 @@ export default function (
 					setEntryPoints(middlewareEntryPoint);
 				}
 			},
-			'astro:build:done': ({ routes, middlewareEntryPoint }) => {
+			'astro:build:done': ({ routes }) => {
 				if (setRoutes) {
 					setRoutes(routes);
 				}

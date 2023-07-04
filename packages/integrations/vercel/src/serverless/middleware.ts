@@ -1,6 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
-import { ASTRO_LOCALS_HEADER, type CreateLocals } from './adapter.js';
+import { ASTRO_LOCALS_HEADER } from './adapter.js';
 import { existsSync } from 'fs';
 
 /**
