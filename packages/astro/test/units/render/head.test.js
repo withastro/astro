@@ -10,7 +10,6 @@ import {
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
 import { createRenderContext, renderPage } from '../../../dist/core/render/index.js';
-import { defaultLogging as logging } from '../../test-utils.js';
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
@@ -20,10 +19,7 @@ describe('core/render', () => {
 	describe('Injected head contents', () => {
 		let env;
 		before(async () => {
-			env = createBasicEnvironment({
-				logging,
-				renderers: [],
-			});
+			env = createBasicEnvironment();
 		});
 
 		it('Multi-level layouts and head injection, with explicit head', async () => {

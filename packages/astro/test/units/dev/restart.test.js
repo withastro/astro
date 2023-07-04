@@ -7,9 +7,13 @@ import {
 	isStarted,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
+import {
+	createFs,
+	createRequestAndResponse,
+	defaultLogging,
+	triggerFSEvent,
+} from '../test-utils.js';
 import { createSettings, openConfig } from '../../../dist/core/config/index.js';
-import { defaultLogging } from '../../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 

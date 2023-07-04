@@ -8,6 +8,19 @@ import { unixify } from './correct-path.js';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { createEnvironment } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
+import { nodeLogDestination } from '../../dist/core/logger/node.js';
+
+/** @type {import('../../src/core/logger/core').LogOptions} */
+export const defaultLogging = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
+
+/** @type {import('../../src/core/logger/core').LogOptions} */
+export const silentLogging = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
 
 class VirtualVolume extends Volume {
 	#root = '';
@@ -159,7 +172,7 @@ export const createAstroModule = (AstroComponent) => ({ default: AstroComponent 
  * @param {Partial<import('../../src/core/render/environment.js').CreateEnvironmentArgs>} options
  * @returns {import('../../src/core/render/environment.js').Environment}
  */
-export function createBasicEnvironment(options) {
+export function createBasicEnvironment(options = {}) {
 	const mode = options.mode ?? 'development';
 	return createEnvironment({
 		...options,
@@ -171,6 +184,7 @@ export function createBasicEnvironment(options) {
 		clientDirectives: getDefaultClientDirectives(),
 		resolve: options.resolve ?? ((s) => Promise.resolve(s)),
 		routeCache: new RouteCache(options.logging, mode),
+		logging: options.logging ?? defaultLogging,
 		ssr: options.ssr ?? true,
 		streaming: options.streaming ?? true,
 	});

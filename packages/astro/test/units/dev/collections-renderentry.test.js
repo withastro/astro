@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import os from 'os';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
 import { createFsWithFallback, createRequestAndResponse } from '../test-utils.js';
-import { isWindows } from '../../test-utils.js';
 import mdx from '../../../../integrations/mdx/dist/index.js';
 import { attachContentServerListeners } from '../../../dist/content/server-listeners.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 
-const describe = isWindows ? global.describe.skip : global.describe;
+const describe = os.platform() === 'win32' ? global.describe.skip : global.describe;
 
 async function runInContainerWithContentListeners(params, callback) {
 	return await runInContainer(params, async (container) => {
