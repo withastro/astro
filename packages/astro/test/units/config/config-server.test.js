@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'url';
-import { defaultLogging as logging } from '../../test-utils.js';
+import { defaultLogging } from '../test-utils.js';
 import { openConfig } from '../../../dist/core/config/index.js';
 
 const cwd = fileURLToPath(new URL('../../fixtures/config-host/', import.meta.url));
@@ -11,7 +11,7 @@ describe('config.server', () => {
 			cwd: flags.root || cwd,
 			flags,
 			cmd: 'dev',
-			logging,
+			logging: defaultLogging,
 		});
 	}
 
