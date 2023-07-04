@@ -307,7 +307,8 @@ async function getPathsForRoute(
 		const route = pageData.route;
 		const result = await callGetStaticPaths({
 			mod,
-			route: pageData.route,
+			route,
+			routeCache: opts.routeCache,
 			isValidate: false,
 			logging: opts.logging,
 			ssr: isServerLikeOutput(opts.settings.config),
@@ -326,9 +327,6 @@ async function getPathsForRoute(
 				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 				throw err;
 			});
-
-		// Save the route cache so it doesn't get called again
-		opts.routeCache.set(route, result);
 
 		paths = result.staticPaths
 			.map((staticPath) => {

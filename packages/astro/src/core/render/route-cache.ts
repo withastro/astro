@@ -17,18 +17,23 @@ import { generatePaginateFunction } from './paginate.js';
 interface CallGetStaticPathsOptions {
 	mod: ComponentInstance;
 	route: RouteData;
+	routeCache: RouteCache;
 	isValidate: boolean;
 	logging: LogOptions;
 	ssr: boolean;
 }
 
 export async function callGetStaticPaths({
-	isValidate,
-	logging,
 	mod,
 	route,
+	routeCache,
+	isValidate,
+	logging,
 	ssr,
 }: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
+	const cached = routeCache.get(route);
+	if (cached) return cached;
+
 	validateDynamicRouteModule(mod, { ssr, logging, route });
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
 	if (ssr && !route.prerender) {
@@ -66,9 +71,9 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	return {
-		staticPaths: keyedStaticPaths,
-	};
+	const entry: RouteCacheEntry = { staticPaths: keyedStaticPaths };
+	routeCache.set(route, entry);
+	return entry;
 }
 
 export interface RouteCacheEntry {
