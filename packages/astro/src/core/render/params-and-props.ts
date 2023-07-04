@@ -29,7 +29,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 
 	// During build, the route cache should already be populated.
 	// During development, the route cache is filled on-demand and may be empty.
-	const routeCacheEntry = await callGetStaticPaths({
+	const staticPaths = await callGetStaticPaths({
 		mod,
 		route,
 		routeCache,
@@ -38,7 +38,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		ssr,
 	});
 
-	const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params, route);
+	const matchedStaticPath = findPathItemByKey(staticPaths, params, route);
 	if (!matchedStaticPath && (ssr ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,

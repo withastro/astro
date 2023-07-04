@@ -30,15 +30,19 @@ export async function callGetStaticPaths({
 	isValidate,
 	logging,
 	ssr,
-}: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
+}: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
-	if (cached) return cached;
+	if (cached?.staticPaths) return cached.staticPaths;
 
 	validateDynamicRouteModule(mod, { ssr, logging, route });
+
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
 	if (ssr && !route.prerender) {
-		return { staticPaths: Object.assign([], { keyed: new Map() }) };
+		const entry: GetStaticPathsResultKeyed = Object.assign([], { keyed: new Map() });
+		routeCache.set(route, { ...cached, staticPaths: entry });
+		return entry;
 	}
+
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
 	if (!mod.getStaticPaths) {
@@ -71,12 +75,11 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	const entry: RouteCacheEntry = { staticPaths: keyedStaticPaths };
-	routeCache.set(route, entry);
-	return entry;
+	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
+	return keyedStaticPaths;
 }
 
-export interface RouteCacheEntry {
+interface RouteCacheEntry {
 	staticPaths: GetStaticPathsResultKeyed;
 }
 
@@ -104,7 +107,7 @@ export class RouteCache {
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.mode === 'production' && this.cache[route.component]) {
+		if (this.mode === 'production' && this.cache[route.component]?.staticPaths) {
 			warn(
 				this.logging,
 				'routeCache',
