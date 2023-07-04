@@ -9,12 +9,9 @@ import {
 	renderHead,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import {
-	createBasicEnvironment,
-	createRenderContext,
-	renderPage,
-} from '../../../dist/core/render/index.js';
+import { createRenderContext, renderPage } from '../../../dist/core/render/index.js';
 import { defaultLogging as logging } from '../../test-utils.js';
+import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });

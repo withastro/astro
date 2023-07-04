@@ -14,6 +14,7 @@ import {
 } from '../../../dist/core/render/index.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { defaultLogging as logging } from '../../test-utils.js';
+import { createBasicEnvironment } from '../test-utils.js';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 const loadJSXRenderer = () => loadRenderer(jsxRenderer, { import: (s) => import(s) });
