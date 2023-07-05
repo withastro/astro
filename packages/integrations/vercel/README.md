@@ -272,7 +272,7 @@ This is an opt-in feature, and the `build.excludeMiddleware` option needs to be 
 // astro.config.mjs
 import {defineConfig} from "astro/config";
 import vercel from "@astrojs/vercel";
-export default definConfig({
+export default defineConfig({
    output: "server",
    adapter: vercel(),
    build: {
