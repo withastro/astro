@@ -18,7 +18,6 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
  */
 export interface RenderContext {
 	request: Request;
-	origin: string;
 	pathname: string;
 	url: URL;
 	scripts?: Set<SSRElement>;
@@ -34,7 +33,6 @@ export interface RenderContext {
 }
 
 export type CreateRenderContextArgs = Partial<RenderContext> & {
-	origin?: string;
 	request: RenderContext['request'];
 	mod: ComponentInstance;
 	env: Environment;
@@ -45,7 +43,6 @@ export async function createRenderContext(
 ): Promise<RenderContext> {
 	const request = options.request;
 	const url = new URL(request.url);
-	const origin = options.origin ?? url.origin;
 	const pathname = options.pathname ?? url.pathname;
 	const [params, props] = await getParamsAndProps({
 		mod: options.mod as any,
@@ -56,9 +53,8 @@ export async function createRenderContext(
 		ssr: options.env.ssr,
 	});
 
-	let context = {
+	let context: RenderContext = {
 		...options,
-		origin,
 		pathname,
 		url,
 		params,

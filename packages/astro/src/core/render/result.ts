@@ -33,7 +33,6 @@ export interface CreateResultArgs {
 	 */
 	ssr: boolean;
 	logging: LogOptions;
-	origin: string;
 	/**
 	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
 	 */
