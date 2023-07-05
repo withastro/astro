@@ -42,7 +42,6 @@ export async function renderPage({
 		logging: env.logging,
 		markdown: env.markdown,
 		params: renderContext.params,
-		props: renderContext.props,
 		pathname: renderContext.pathname,
 		componentMetadata: renderContext.componentMetadata,
 		resolve: env.resolve,

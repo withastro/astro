@@ -3,7 +3,6 @@ import type {
 	AstroGlobal,
 	AstroGlobalPartial,
 	Params,
-	Props,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -38,7 +37,6 @@ export interface CreateResultArgs {
 	markdown: MarkdownRenderingOptions;
 	params: Params;
 	pathname: string;
-	props: Props;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
