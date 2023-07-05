@@ -71,7 +71,7 @@
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
     "shiki": "^0.14.3",
-    "zod": "^3.21.4"
+    "zod": "^3.17.3"
   },
   "peerDependencies": {
     "astro": "workspace:^2.7.4"
@@ -80,13 +80,13 @@
     "@astrojs/markdown-remark": "^2.2.1",
     "@types/chai": "^4.3.5",
     "@types/html-escaper": "^3.0.0",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "devalue": "^4.3.2",
     "linkedom": "^0.14.26",
-    "mocha": "^9.2.2",
+    "mocha": "^10.2.0",
     "rollup": "^3.26.0",
     "vite": "^4.3.9"
   },

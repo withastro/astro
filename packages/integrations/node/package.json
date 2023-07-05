@@ -48,7 +48,7 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "cheerio": "1.0.0-rc.12",
-    "mocha": "^9.2.2",
+    "mocha": "^10.2.0",
     "node-mocks-http": "^1.12.2",
     "undici": "^5.22.1"
   }

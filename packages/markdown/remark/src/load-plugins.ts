@@ -14,7 +14,7 @@ async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin>
 		} catch {}
 
 		// Try import from user project
-		const resolved = await importMetaResolve(p, cwdUrlStr);
+		const resolved = importMetaResolve(p, cwdUrlStr);
 		const importResult = await import(resolved);
 		return importResult.default;
 	}

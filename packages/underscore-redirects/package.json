@@ -29,11 +29,11 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
-    "mocha": "^9.2.2"
+    "mocha": "^10.2.0"
   },
   "keywords": [
     "astro",

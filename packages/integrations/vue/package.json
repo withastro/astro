@@ -51,7 +51,7 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
     "linkedom": "^0.14.26",
-    "mocha": "^9.2.2",
+    "mocha": "^10.2.0",
     "vite": "^4.3.9",
     "vue": "^3.3.4"
   },

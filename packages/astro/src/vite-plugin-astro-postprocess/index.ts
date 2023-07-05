@@ -1,5 +1,5 @@
 import { parse } from 'acorn';
-import { walk } from 'estree-walker';
+import { walk, type Node } from 'estree-walker';
 import MagicString from 'magic-string';
 import type { Plugin } from 'vite';
 import { isMarkdownFile } from '../core/util.js';
@@ -28,7 +28,7 @@ export default function astro(): Plugin {
 				sourceType: 'module',
 			});
 
-			walk(ast, {
+			walk(ast as Node, {
 				enter(node: any) {
 					// Transform `Astro.glob("./pages/*.astro")` to `Astro.glob(import.meta.glob("./pages/*.astro"), () => "./pages/*.astro")`
 					// Also handle for `Astro2.glob()`

@@ -83,7 +83,7 @@
     "esbuild": "^0.17.19",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-no-only-tests": "^2.6.0",
+    "eslint-plugin-no-only-tests": "^3.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",

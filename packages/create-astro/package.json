@@ -33,9 +33,9 @@
   "dependencies": {
     "@astrojs/cli-kit": "^0.2.3",
     "chai": "^4.3.7",
-    "execa": "^6.1.0",
-    "giget": "1.0.0",
-    "mocha": "^9.2.2",
+    "execa": "^7.1.1",
+    "giget": "^1.1.2",
+    "mocha": "^10.2.0",
     "node-fetch-native": "^1.2.0",
     "which-pm-runs": "^1.1.0"
   },
