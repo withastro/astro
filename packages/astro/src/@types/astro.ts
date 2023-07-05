@@ -1932,16 +1932,6 @@ export interface SSRElement {
 	children: string;
 }
 
-export interface SSRMetadata {
-	renderers: SSRLoadedRenderer[];
-	pathname: string;
-	hasHydrationScript: boolean;
-	hasDirectives: Set<string>;
-	hasRenderedHead: boolean;
-	headInTree: boolean;
-	clientDirectives: Map<string, string>;
-}
-
 /**
  * A hint on whether the Astro runtime needs to wait on a component to render head
  * content. The meanings:
@@ -1975,6 +1965,16 @@ export interface SSRResult {
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
 	_metadata: SSRMetadata;
+}
+
+export interface SSRMetadata {
+	renderers: SSRLoadedRenderer[];
+	pathname: string;
+	hasHydrationScript: boolean;
+	hasDirectives: Set<string>;
+	hasRenderedHead: boolean;
+	headInTree: boolean;
+	clientDirectives: Map<string, string>;
 }
 
 /* Preview server stuff */
