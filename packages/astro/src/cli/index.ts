@@ -49,7 +49,7 @@ function printAstroHelp() {
 				['check', 'Check your project for errors.'],
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
-				['info', 'Emit useful information about Astro current setup. Useful for debugging.'],
+				['info', 'List info about your current Astro setup.'],
 				['preview', 'Preview your build locally.'],
 				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
