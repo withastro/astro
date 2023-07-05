@@ -41,7 +41,6 @@ export async function renderPage({
 		styles: renderContext.styles,
 		logging: env.logging,
 		markdown: env.markdown,
-		mode: env.mode,
 		params: renderContext.params,
 		props: renderContext.props,
 		pathname: renderContext.pathname,

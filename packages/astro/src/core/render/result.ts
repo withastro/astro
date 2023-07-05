@@ -4,7 +4,6 @@ import type {
 	AstroGlobalPartial,
 	Params,
 	Props,
-	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -37,7 +36,6 @@ export interface CreateResultArgs {
 	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
 	 */
 	markdown: MarkdownRenderingOptions;
-	mode: RuntimeMode;
 	params: Params;
 	pathname: string;
 	props: Props;
