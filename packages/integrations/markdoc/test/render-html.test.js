@@ -15,10 +15,22 @@ describe('Markdoc - render html', () => {
 			const fixture = await getFixture('render-html');
 			const server = await fixture.startDevServer();
 
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/simple');
 			const html = await res.text();
 
 			renderSimpleChecks(html);
+
+			await server.stop();
+		});
+    
+		it('renders content - nested-html', async () => {
+			const fixture = await getFixture('render-html');
+			const server = await fixture.startDevServer();
+
+			const res = await fixture.fetch('/nested-html');
+			const html = await res.text();
+
+			renderNestedHTMLChecks(html);
 
 			await server.stop();
 		});
@@ -30,55 +42,22 @@ describe('Markdoc - render html', () => {
 			const fixture = await getFixture('render-html');
 			await fixture.build();
 
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/simple/index.html');
 
 			renderSimpleChecks(html);
 		});
 
+		it('renders content - nested-html', async () => {
+			const fixture = await getFixture('render-html');
+			await fixture.build();
+
+			const html = await fixture.readFile('/nested-html/index.html');
+
+			renderNestedHTMLChecks(html);
+		});
+
 	});
 });
-
-/**
- * @param {string} html
- */
-function renderNullChecks(html) {
-	const { document } = parseHTML(html);
-	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with render null');
-	expect(h2.parentElement?.tagName).to.equal('BODY');
-}
-
-/** @param {string} html */
-function renderComponentsChecks(html) {
-	const { document } = parseHTML(html);
-	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with components');
-
-	// Renders custom shortcode component
-	const marquee = document.querySelector('marquee');
-	expect(marquee).to.not.be.null;
-	expect(marquee.hasAttribute('data-custom-marquee')).to.equal(true);
-
-	// Renders Astro Code component
-	const pre = document.querySelector('pre');
-	expect(pre).to.not.be.null;
-	expect(pre.className).to.equal('astro-code github-dark');
-}
-
-/** @param {string} html */
-function renderConfigChecks(html) {
-	const { document } = parseHTML(html);
-	const h2 = document.querySelector('h2');
-	expect(h2.textContent).to.equal('Post with config');
-	const textContent = html;
-
-	expect(textContent).to.not.include('Hello');
-	expect(textContent).to.include('Hola');
-	expect(textContent).to.include(`Konnichiwa`);
-
-	const runtimeVariable = document.querySelector('#runtime-variable');
-	expect(runtimeVariable?.textContent?.trim()).to.equal('working!');
-}
 
 /** @param {string} html */
 function renderSimpleChecks(html) {
@@ -103,5 +82,21 @@ function renderSimpleChecks(html) {
   const p3 = document.querySelector('article > p:nth-of-type(3)');
   expect(p3.children.length).to.equal(1);
   expect(p3.textContent).to.equal('This is a span inside a paragraph!');
+
+}
+
+/** @param {string} html */
+function renderNestedHTMLChecks(html) {
+	const { document } = parseHTML(html);
+
+  const p = document.querySelector('p');
+  expect(p.textContent).to.equal('before inner after');
+  expect(p.children.length).to.equal(1);
+
+  const pSpan1 = p.querySelector('span');
+  expect(pSpan1.textContent).to.equal('inner');
+  expect(pSpan1.id).to.equal('inner1');
+  expect(pSpan1.className).to.equal('inner-class');
+  expect(pSpan1.style.color).to.equal('hotpink');
 
 }
