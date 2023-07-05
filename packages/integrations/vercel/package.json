@@ -64,10 +64,13 @@
   },
   "devDependencies": {
     "@types/set-cookie-parser": "^2.4.2",
+    "@vercel/edge": "^0.3.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",
+    "chai-jest-snapshot": "^2.0.0",
     "cheerio": "1.0.0-rc.12",
-    "mocha": "^9.2.2"
+    "mocha": "^9.2.2",
+    "rollup": "^3.20.1"
   }
 }
