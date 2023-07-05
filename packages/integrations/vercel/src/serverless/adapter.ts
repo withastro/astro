@@ -2,6 +2,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 
 import glob from 'fast-glob';
 import { basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pathToFileURL } from 'url';
 import {
 	defaultImageConfig,
@@ -14,7 +15,6 @@ import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 import { generateEdgeMiddleware } from './middleware.js';
-import { fileURLToPath } from 'node:url';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';

@@ -1,9 +1,9 @@
-import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
+import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -11,7 +11,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { debug, info, warn, levels, timerMessage, type LogOptions } from '../logger/core.js';
+import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
