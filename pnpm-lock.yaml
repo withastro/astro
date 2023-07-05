@@ -643,6 +643,9 @@ importers:
       vitefu:
         specifier: ^0.2.4
         version: 0.2.4(vite@4.3.9)
+      which-pm:
+        specifier: ^2.0.0
+        version: 2.0.0
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
