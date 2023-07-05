@@ -49,10 +49,10 @@ function printAstroHelp() {
 				['check', 'Check your project for errors.'],
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
+				['info', 'Emit useful information about Astro current setup. Useful for debugging.'],
 				['preview', 'Preview your build locally.'],
 				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
-				['info', 'Emit useful information about Astro current setup. Useful for debugging.'],
 			],
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
