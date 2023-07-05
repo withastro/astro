@@ -317,6 +317,21 @@ importers:
         specifier: ^2.7.3
         version: link:../../packages/astro
 
+  examples/lazy-preact:
+    dependencies:
+      '@astrojs/preact':
+        specifier: ^2.2.1
+        version: link:../../packages/integrations/preact
+      '@preact/signals':
+        specifier: ^1.1.3
+        version: 1.1.3(preact@10.15.1)
+      astro:
+        specifier: ^2.7.3
+        version: link:../../packages/astro
+      preact:
+        specifier: ^10.15.1
+        version: 10.15.1
+
   examples/middleware:
     dependencies:
       '@astrojs/node':
@@ -1354,6 +1369,21 @@ importers:
         version: 10.15.1
 
   packages/astro/e2e/fixtures/preact-component:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.15.1
+        version: 10.15.1
+
+  packages/astro/e2e/fixtures/preact-lazy-component:
     dependencies:
       '@astrojs/mdx':
         specifier: workspace:*
