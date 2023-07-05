@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Serverless prerender build successfully the middleware edge file 1`] = `
+"// test/fixtures/middleware/src/vercel-edge-middleware.js
+function vercel_edge_middleware_default({ request, context }) {
+  return {
+    title: \\"Hello world\\"
+  };
+}
+
+// test/fixtures/middleware/dist/middleware2.mjs
+var onRequest = async (context, next) => {
+  const response = await next();
+  return response;
+};
+
+// <stdin>
+import { createContext, trySerializeLocals } from \\"astro/middleware\\";
+async function middleware(request, context) {
+  const url = new URL(request.url);
+  const ctx = createContext({
+    request,
+    params: {}
+  });
+  ctx.locals = vercel_edge_middleware_default({ request, context });
+  const next = async () => {
+    const response = await fetch(url, {
+      headers: {
+        \\"x-astro-locals\\": trySerializeLocals(ctx.locals)
+      }
+    });
+    return response;
+  };
+  return onRequest(ctx, next);
+}
+export {
+  middleware as default
+};
+"
+`;

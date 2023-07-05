@@ -19,7 +19,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginAnalyzer(internals));
 	register(pluginInternals(internals));
 	register(pluginRenderers(options));
-	register(pluginMiddleware(options));
+	register(pluginMiddleware(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
 	register(astroHeadBuildPlugin(internals));

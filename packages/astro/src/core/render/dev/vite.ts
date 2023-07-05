@@ -41,7 +41,6 @@ export async function* crawlGraph(
 			continue;
 		}
 		if (id === entry.id) {
-			const urlDeps = getDepsFromEntry(entry);
 			scanned.add(id);
 			const entryIsStyle = isCSSRequest(id);
 
@@ -84,7 +83,9 @@ export async function* crawlGraph(
 				}
 
 				// Make sure the `importedModule` traversed is explicitly imported by the user, and not by HMR
-				if (urlDeps.includes(importedModule.url) && !isPropagationStoppingPoint) {
+				// TODO: This isn't very performant. Maybe look into using `ssrTransformResult` but make sure it
+				// doesn't regress UnoCSS. https://github.com/withastro/astro/issues/7529
+				if (isImportedBy(id, importedModule) && !isPropagationStoppingPoint) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -103,10 +104,13 @@ export async function* crawlGraph(
 	}
 }
 
-function getDepsFromEntry(entry: ModuleNode) {
-	let deps = entry.ssrTransformResult?.deps ?? [];
-	if (entry.ssrTransformResult?.dynamicDeps) {
-		deps = deps.concat(entry.ssrTransformResult.dynamicDeps);
+// Verify true imports. If the child module has the parent as an importers, it's
+// a real import.
+function isImportedBy(parent: string, entry: ModuleNode) {
+	for (const importer of entry.importers) {
+		if (importer.id === parent) {
+			return true;
+		}
 	}
-	return deps.map((dep) => unwrapId(dep));
+	return false;
 }

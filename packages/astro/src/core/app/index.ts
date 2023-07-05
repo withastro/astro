@@ -227,7 +227,6 @@ export class App {
 			const mod = (await page.page()) as any;
 			const renderContext = await createRenderContext({
 				request,
-				origin: url.origin,
 				pathname,
 				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
@@ -295,7 +294,6 @@ export class App {
 
 		const ctx = await createRenderContext({
 			request,
-			origin: url.origin,
 			pathname,
 			route: routeData,
 			status,

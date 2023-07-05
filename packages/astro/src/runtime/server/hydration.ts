@@ -26,7 +26,7 @@ interface ExtractedProps {
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(
 	inputProps: Record<string | number | symbol, any>,
-	clientDirectives: SSRResult['_metadata']['clientDirectives']
+	clientDirectives: SSRResult['clientDirectives']
 ): ExtractedProps {
 	let extracted: ExtractedProps = {
 		isPage: false,

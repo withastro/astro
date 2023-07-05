@@ -3,8 +3,6 @@ import type {
 	AstroGlobal,
 	AstroGlobalPartial,
 	Params,
-	Props,
-	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -33,15 +31,12 @@ export interface CreateResultArgs {
 	 */
 	ssr: boolean;
 	logging: LogOptions;
-	origin: string;
 	/**
 	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
 	 */
 	markdown: MarkdownRenderingOptions;
-	mode: RuntimeMode;
 	params: Params;
 	pathname: string;
-	props: Props;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
@@ -170,9 +165,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
 		componentMetadata,
-		propagators: new Map(),
-		extraHead: [],
-		scope: 0,
+		renderers,
+		clientDirectives,
+		pathname,
 		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(
@@ -259,16 +254,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			return Astro;
 		},
 		resolve,
+		response,
 		_metadata: {
-			renderers,
-			pathname,
 			hasHydrationScript: false,
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
-			clientDirectives,
+			extraHead: [],
+			propagators: new Map(),
 		},
-		response,
 	};
 
 	return result;
