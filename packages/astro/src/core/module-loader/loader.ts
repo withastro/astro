@@ -48,7 +48,7 @@ export interface ModuleNode {
 	} | null;
 	ssrError: Error | null;
 	importedModules: Set<ModuleNode>;
-	importers: Set<ModuleNode>
+	importers: Set<ModuleNode>;
 }
 
 export interface ModuleInfo {
