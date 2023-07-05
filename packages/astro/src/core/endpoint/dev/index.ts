@@ -10,7 +10,6 @@ export async function call(options: SSROptions, logging: LogOptions) {
 
 	const ctx = await createRenderContext({
 		request: options.request,
-		origin: options.origin,
 		pathname: options.pathname,
 		route: options.route,
 		env,

@@ -1957,16 +1957,6 @@ export interface SSRElement {
 	children: string;
 }
 
-export interface SSRMetadata {
-	renderers: SSRLoadedRenderer[];
-	pathname: string;
-	hasHydrationScript: boolean;
-	hasDirectives: Set<string>;
-	hasRenderedHead: boolean;
-	headInTree: boolean;
-	clientDirectives: Map<string, string>;
-}
-
 /**
  * A hint on whether the Astro runtime needs to wait on a component to render head
  * content. The meanings:
@@ -1989,9 +1979,6 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<string>;
-	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
@@ -1999,11 +1986,30 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
-	// Bits 1 = astro, 2 = jsx, 4 = slot
-	// As rendering occurs these bits are manipulated to determine where content
-	// is within a slot. This is used for head injection.
-	scope: number;
+	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
+	/**
+	 * Only used for logging
+	 */
+	pathname: string;
+	cookies: AstroCookies | undefined;
 	_metadata: SSRMetadata;
+}
+
+/**
+ * Ephemeral and mutable state during rendering that doesn't rely
+ * on external configuration
+ */
+export interface SSRMetadata {
+	hasHydrationScript: boolean;
+	hasDirectives: Set<string>;
+	hasRenderedHead: boolean;
+	headInTree: boolean;
+	extraHead: string[];
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 }
 
 /* Preview server stuff */

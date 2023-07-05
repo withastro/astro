@@ -539,7 +539,6 @@ async function generatePath(
 	});
 
 	const renderContext = await createRenderContext({
-		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		componentMetadata: manifest.componentMetadata,

@@ -24,8 +24,6 @@ export interface SSROptions {
 	env: DevelopmentEnvironment;
 	/** location of file on disk */
 	filePath: URL;
-	/** production website */
-	origin: string;
 	/** the web request (needed for dynamic routes) */
 	pathname: string;
 	/** The runtime component instance */
@@ -157,7 +155,6 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 
 	const renderContext = await createRenderContext({
 		request: options.request,
-		origin: options.origin,
 		pathname: options.pathname,
 		scripts,
 		links,
