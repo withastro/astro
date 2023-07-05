@@ -165,7 +165,6 @@ export async function handleRoute(
 	const options: SSROptions = {
 		env,
 		filePath,
-		origin,
 		preload: preloadedComponent,
 		pathname,
 		request,
