@@ -46,17 +46,15 @@ export function createExports(manifest: SSRManifest) {
 			});
 
 			let response = await app.render(request, routeData, {
-				env: env,
-				cf: request.cf,
 				runtime: {
-					...context,
-					waitUntil: (promise: Promise<any>) => {
-						context.waitUntil(promise);
-					},
+					// request: Request; // we don't need this because of Astro.request, even if they are not the same
+					// functionPath: string; // we don't need this
+					waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
+					// passThroughOnException: () => void; // we don't need this
+					// next: (input?: Request | string, init?: RequestInit) => Promise<Response>; // we don't need this
 					env: env,
-					name: 'cloudlare',
-					caches: caches,
 					cf: request.cf,
+					caches: caches, // Cloudflare Workers runtime exposes a single global cache object
 				}
 			});
 
