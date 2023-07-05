@@ -1,5 +1,4 @@
 import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
-
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
@@ -12,7 +11,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { debug, info, levels, timerMessage, type LogOptions } from '../logger/core.js';
+import { debug, info, warn, levels, timerMessage, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -210,6 +209,25 @@ class AstroBuilder {
 			throw new Error(
 				`the outDir cannot be the root folder. Please build to a folder such as dist.`
 			);
+		}
+
+		if (config.build.split === true) {
+			if (config.output === 'static') {
+				warn(
+					this.logging,
+					'configuration',
+					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
+				);
+			}
+		}
+		if (config.build.excludeMiddleware === true) {
+			if (config.output === 'static') {
+				warn(
+					this.logging,
+					'configuration',
+					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
+				);
+			}
 		}
 	}
 

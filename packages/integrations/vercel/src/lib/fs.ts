@@ -86,3 +86,7 @@ export async function copyFilesToFunction(
 
 	return commonAncestor;
 }
+
+export async function writeFile(path: PathLike, content: string) {
+	await fs.writeFile(path, content, { encoding: 'utf-8' });
+}

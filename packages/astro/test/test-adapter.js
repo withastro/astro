@@ -74,9 +74,10 @@ export default function (
 					...extendAdapter,
 				});
 			},
-			'astro:build:ssr': ({ entryPoints }) => {
+			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint }) => {
 				if (setEntryPoints) {
 					setEntryPoints(entryPoints);
+					setEntryPoints(middlewareEntryPoint);
 				}
 			},
 			'astro:build:done': ({ routes }) => {
