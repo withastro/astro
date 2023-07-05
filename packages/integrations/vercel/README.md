@@ -281,7 +281,7 @@ export default defineConfig({
 })
 ```
 
-Optionally, you can create a known file called `vercel-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
+Optionally, you can create a file recognized by the adapter named `vercel-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
 
 Typings requires the [`@vercel/edge`](https://www.npmjs.com/package/@vercel/edge) package.
 
@@ -326,16 +326,10 @@ The function:
 
 #### Limitations and constraints 
 
-When you opt in this feature, there are few constraints to take into consideration:
-- the Vercel Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`.
-
-  This an architectural constraint that follows the [boundaries set by Vercel](https://vercel.com/docs/concepts/functions/edge-middleware).
-- you're allowed to use `request` and `context` only to produce an `Astro.locals` object. 
-
-  Operations like redirects, etc. should be delegated to Astro middleware
-- `Astro.locals` **must be serializable**, failing to do so will result in a **runtime error**. 
- 
-  This means that you **can't** store complex types like `Map`, `function`, `Set`, etc.
+When you opt in to this feature, there are few constraints to note:
+- The Vercel Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This an architectural constraint that follows the [boundaries set by Vercel](https://vercel.com/docs/concepts/functions/edge-middleware).
+- Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
+- `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
 
 
 ## Troubleshooting
