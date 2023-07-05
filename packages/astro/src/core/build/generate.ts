@@ -155,37 +155,36 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					const manifest: SSRManifest | undefined = ssrEntryPage.manifest;
 					const ssrEntry = manifest?.pageModule;
 					if (ssrEntry) {
-						await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+						await generatePage(opts, internals, pageData, ssrEntry, builtPaths, manifest);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
 						);
 					}
 				} else {
-					await generatePage(
-						opts,
-						internals,
-						pageData,
-						ssrEntryPage as SinglePageBuiltModule,
-						builtPaths
-					);
+					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
+					const manifest = generateRuntimeManifest(opts.settings, internals, ssrEntry.renderers);
+					await generatePage(opts, internals, pageData, ssrEntry, builtPaths, manifest);
 				}
 			}
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			await generatePage(opts, internals, pageData, entry, builtPaths);
+			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 	} else {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			const ssrEntryURLPage = createEntryURL(filePath, outFolder);
-			const ssrEntryPage: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
+			const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
+			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
 
-			await generatePage(opts, internals, pageData, ssrEntryPage, builtPaths);
+			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			await generatePage(opts, internals, pageData, entry, builtPaths);
+			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 	}
 
@@ -228,14 +227,14 @@ async function generatePage(
 	internals: BuildInternals,
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
-	builtPaths: Set<string>
+	builtPaths: Set<string>,
+	manifest: SSRManifest
 ) {
 	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
 		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
 	}
 
 	let timeStart = performance.now();
-	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 
@@ -268,7 +267,6 @@ async function generatePage(
 		scripts,
 		styles,
 		mod: pageModule,
-		renderers,
 	};
 
 	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
@@ -283,7 +281,7 @@ async function generatePage(
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
-		await generatePath(path, opts, generationOptions, onRequest);
+		await generatePath(path, opts, generationOptions, manifest, onRequest);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
@@ -403,7 +401,6 @@ interface GeneratePathOptions {
 	scripts: { type: 'inline' | 'external'; value: string } | null;
 	styles: StylesheetAsset[];
 	mod: ComponentInstance;
-	renderers: SSRLoadedRenderer[];
 }
 
 function shouldAppendForwardSlash(
@@ -467,10 +464,11 @@ async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
 	gopts: GeneratePathOptions,
+	manifest: SSRManifest,
 	onRequest?: MiddlewareHandler<unknown>
 ) {
 	const { settings, logging, origin, routeCache } = opts;
-	const { mod, internals, scripts: hoistedScripts, styles: _styles, pageData, renderers } = gopts;
+	const { mod, internals, scripts: hoistedScripts, styles: _styles, pageData } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -483,25 +481,17 @@ async function generatePath(
 	const links = new Set<never>();
 	const scripts = createModuleScriptsSet(
 		hoistedScripts ? [hoistedScripts] : [],
-		settings.config.base,
-		settings.config.build.assetsPrefix
+		manifest.base,
+		manifest.assetsPrefix
 	);
-	const styles = createStylesheetElementSet(
-		_styles,
-		settings.config.base,
-		settings.config.build.assetsPrefix
-	);
+	const styles = createStylesheetElementSet(_styles, manifest.base, manifest.assetsPrefix);
 
 	if (settings.scripts.some((script) => script.stage === 'page')) {
 		const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
 		if (typeof hashedFilePath !== 'string') {
 			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
 		}
-		const src = createAssetLink(
-			hashedFilePath,
-			settings.config.base,
-			settings.config.build.assetsPrefix
-		);
+		const src = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
 		scripts.add({
 			props: { type: 'module', src },
 			children: '',
@@ -526,13 +516,14 @@ async function generatePath(
 		opts.settings.config.build.format,
 		pageData.route.type
 	);
+
 	const env = createEnvironment({
-		adapterName: undefined,
+		adapterName: manifest.adapterName,
 		logging,
-		markdown: settings.config.markdown,
+		markdown: manifest.markdown,
 		mode: opts.mode,
-		renderers,
-		clientDirectives: settings.clientDirectives,
+		renderers: manifest.renderers,
+		clientDirectives: manifest.clientDirectives,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {
@@ -543,16 +534,10 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			return createAssetLink(
-				hashedFilePath,
-				settings.config.base,
-				settings.config.build.assetsPrefix
-			);
+			return createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
 		},
 		routeCache,
-		site: settings.config.site
-			? new URL(settings.config.base, settings.config.site).toString()
-			: settings.config.site,
+		site: manifest.site,
 		ssr,
 		streaming: true,
 	});
@@ -561,7 +546,7 @@ async function generatePath(
 		origin,
 		pathname,
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
-		componentMetadata: internals.componentMetadata,
+		componentMetadata: manifest.componentMetadata,
 		scripts,
 		styles,
 		links,
@@ -660,4 +645,33 @@ async function generatePath(
 	pageData.route.distURL = outFile;
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body, encoding ?? 'utf-8');
+}
+
+/**
+ * It creates a `SSRManifest` from the `AstroSettings`.
+ *
+ * Renderers needs to be pulled out from the page module emitted during the build.
+ * @param settings
+ * @param renderers
+ */
+export function generateRuntimeManifest(
+	settings: AstroSettings,
+	internals: BuildInternals,
+	renderers: SSRLoadedRenderer[]
+): SSRManifest {
+	return {
+		assets: new Set(),
+		entryModules: {},
+		routes: [],
+		adapterName: '',
+		markdown: settings.config.markdown,
+		clientDirectives: settings.clientDirectives,
+		renderers,
+		base: settings.config.base,
+		assetsPrefix: settings.config.build.assetsPrefix,
+		site: settings.config.site
+			? new URL(settings.config.base, settings.config.site).toString()
+			: settings.config.site,
+		componentMetadata: internals.componentMetadata,
+	};
 }
