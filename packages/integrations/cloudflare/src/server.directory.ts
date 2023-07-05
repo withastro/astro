@@ -29,6 +29,7 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
+
 			// @deprecated: getRuntime() can be removed, Astro.locals.env is the new place
 			Reflect.set(request, Symbol.for('runtime'), {
 				...context,
@@ -41,7 +42,20 @@ export function createExports(manifest: SSRManifest) {
 				cf: request.cf,
 			});
 
-			let response = await app.render(request, routeData, { env });
+			let response = await app.render(request, routeData, {
+				env: env,
+				cf: request.cf,
+				runtime: {
+					...context,
+					waitUntil: (promise: Promise<any>) => {
+						context.waitUntil(promise);
+					},
+					name: 'cloudflare',
+					next,
+					caches,
+					cf: request.cf,
+				}
+			});
 
 			if (app.setCookieHeaders) {
 				for (const setCookieHeader of app.setCookieHeaders(response)) {
