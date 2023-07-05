@@ -3,8 +3,24 @@ import { Volume } from 'memfs';
 import httpMocks from 'node-mocks-http';
 import realFS from 'node:fs';
 import npath from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { unixify } from './correct-path.js';
+import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
+import { createEnvironment } from '../../dist/core/render/index.js';
+import { RouteCache } from '../../dist/core/render/route-cache.js';
+import { nodeLogDestination } from '../../dist/core/logger/node.js';
+
+/** @type {import('../../src/core/logger/core').LogOptions} */
+export const defaultLogging = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
+
+/** @type {import('../../src/core/logger/core').LogOptions} */
+export const silentLogging = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
 
 class VirtualVolume extends Volume {
 	#root = '';
@@ -151,3 +167,25 @@ export function buffersToString(buffers) {
 
 // A convenience method for creating an astro module from a component
 export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
+
+/**
+ * @param {Partial<import('../../src/core/render/environment.js').CreateEnvironmentArgs>} options
+ * @returns {import('../../src/core/render/environment.js').Environment}
+ */
+export function createBasicEnvironment(options = {}) {
+	const mode = options.mode ?? 'development';
+	return createEnvironment({
+		...options,
+		markdown: {
+			...(options.markdown ?? {}),
+		},
+		mode,
+		renderers: options.renderers ?? [],
+		clientDirectives: getDefaultClientDirectives(),
+		resolve: options.resolve ?? ((s) => Promise.resolve(s)),
+		routeCache: new RouteCache(options.logging, mode),
+		logging: options.logging ?? defaultLogging,
+		ssr: options.ssr ?? true,
+		streaming: options.streaming ?? true,
+	});
+}

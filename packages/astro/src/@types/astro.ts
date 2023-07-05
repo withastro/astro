@@ -108,22 +108,7 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
-	experimentalMiddleware?: boolean;
-}
-
-export interface BuildConfig {
-	/**
-	 * @deprecated Use config.build.client instead.
-	 */
-	client: URL;
-	/**
-	 * @deprecated Use config.build.server instead.
-	 */
-	server: URL;
-	/**
-	 * @deprecated Use config.build.serverEntry instead.
-	 */
-	serverEntry: string;
+	experimentalRedirects?: boolean;
 }
 
 /**
@@ -335,6 +320,22 @@ type ServerConfig = {
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 	headers?: OutgoingHttpHeaders;
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
+	 * }
+	 * ```
+	 */
+	open?: boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -454,6 +455,51 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name redirects (Experimental)
+	 * @type {Record<string, RedirectConfig>}
+	 * @default `{}`
+	 * @version 2.6.0
+	 * @description Specify a mapping of redirects where the key is the route to match
+	 * and the value is the path to redirect to.
+	 *
+	 * You can redirect both static and dynamic routes, but only to the same kind of route.
+	 * For example you cannot have a `'/article': '/blog/[...slug]'` redirect.
+	 *
+	 *
+	 * ```js
+	 * {
+	 *   redirects: {
+	 *     '/old': '/new',
+	 *     '/blog/[...slug]': '/articles/[...slug]',
+	 *   }
+	 * }
+	 * ```
+	 *
+	 *
+	 * For statically-generated sites with no adapter installed, this will produce a client redirect using a [`<meta http-equiv="refresh">` tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#http-equiv) and does not support status codes.
+	 *
+	 * When using SSR or with a static adapter in `output: static`
+	 * mode, status codes are supported.
+	 * Astro will serve redirected GET requests with a status of `301`
+	 * and use a status of `308` for any other request method.
+	 *
+	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
+	 *
+	 * ```js
+	 * {
+	 *   redirects: {
+	 *     '/other': {
+	 *       status: 302,
+	 *       destination: '/place',
+	 *     },
+	 *   }
+	 * }
+	 * ```
+	 */
+	redirects?: Record<string, RedirectConfig>;
+
+	/**
+	 * @docs
 	 * @name site
 	 * @type {string}
 	 * @description
@@ -501,9 +547,11 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
+	 * By default, the value of `import.meta.env.BASE_URL` includes a trailing slash. If you have the [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option set to `'never'`, you will need to add it manually in your static asset imports and URLs.
+	 *
 	 * ```astro
 	 * <a href="/docs/about/">About</a>
-	 * <img src=`${import.meta.env.BASE_URL}/image.png`>
+	 * <img src=`${import.meta.env.BASE_URL}image.png`>
 	 * ```
 	 */
 	base?: string;
@@ -733,6 +781,74 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		serverEntry?: string;
+		/**
+		 * @docs
+		 * @name build.redirects
+		 * @type {boolean}
+		 * @default `true`
+		 * @version 2.6.0
+		 * @description
+		 * Specifies whether redirects will be output to HTML during the build.
+		 * This option only applies to `output: 'static'` mode; in SSR redirects
+		 * are treated the same as all responses.
+		 *
+		 * This option is mostly meant to be used by adapters that have special
+		 * configuration files for redirects and do not need/want HTML based redirects.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     redirects: false
+		 *   }
+		 * }
+		 * ```
+		 */
+		redirects?: boolean;
+		/**
+		 * @docs
+		 * @name build.inlineStylesheets
+		 * @type {('always' | 'auto' | 'never')}
+		 * @default `never`
+		 * @version 2.6.0
+		 * @description
+		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
+		 *  - `'always'` - all styles are inlined into `<style>` tags
+		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
+		 *  - `'never'` - all styles are sent in external stylesheets
+		 *
+		 * ```js
+		 * {
+		 * 	build: {
+		 *		inlineStylesheets: `auto`,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name build.split
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.7.0
+		 * @description
+		 * Defines how the SSR code should be bundled when built.
+		 *
+		 * When `split` is `true`, Astro will emit a file for each page.
+		 * Each file emitted will render only one page. The pages will be emitted
+		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
+		 * of the `src/pages` directory.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     split: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		split?: boolean;
 	};
 
 	/**
@@ -754,7 +870,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -785,6 +901,21 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   server: { port: 8080 }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
 	 * }
 	 * ```
 	 */
@@ -1079,106 +1210,24 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name experimental.inlineStylesheets
-		 * @type {('always' | 'auto' | 'never')}
-		 * @default `never`
-		 * @version 2.4.0
-		 * @description
-		 * Control whether styles are sent to the browser in a separate css file or inlined into `<style>` tags. Choose from the following options:
-		 *  - `'always'` - all styles are inlined into `<style>` tags
-		 *  - `'auto'` - only stylesheets smaller than `ViteConfig.build.assetsInlineLimit` (default: 4kb) are inlined. Otherwise, styles are sent in external stylesheets.
-		 *  - `'never'` - all styles are sent in external stylesheets
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		inlineStylesheets: `auto`,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		inlineStylesheets?: 'always' | 'auto' | 'never';
-
-		/**
-		 * @docs
-		 * @name experimental.customClientDirectives
+		 * @name experimental.redirects
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 2.5.0
+		 * @version 2.6.0
 		 * @description
-		 * Allow integrations to use the [experimental `addClientDirective` API](/en/reference/integrations-reference/#addclientdirective-option) in the `astro:config:setup` hook
-		 * to add custom client directives in Astro files.
-		 *
-		 * To enable this feature, set `experimental.customClientDirectives` to `true` in your Astro config:
+		 * Enable experimental support for redirect configuration. With this enabled
+		 * you can set redirects via the top-level `redirects` property. To enable
+		 * this feature, set `experimental.redirects` to `true`.
 		 *
 		 * ```js
 		 * {
 		 * 	experimental: {
-		 *		customClientDirectives: true,
+		 *		redirects: true,
 		 * 	},
 		 * }
 		 * ```
 		 */
-		customClientDirectives?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.middleware
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.4.0
-		 * @description
-		 * Enable experimental support for Astro middleware.
-		 *
-		 * To enable this feature, set `experimental.middleware` to `true` in your Astro config:
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		middleware: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		middleware?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.hybridOutput
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.5.0
-		 * @description
-		 * Enable experimental support for hybrid SSR with pre-rendering enabled by default.
-		 *
-		 * To enable this feature, first set `experimental.hybridOutput` to `true` in your Astro config, and set `output` to `hybrid`.
-		 *
-		 * ```js
-		 * {
-		 *  output: 'hybrid',
-		 * 	experimental: {
-		 *		hybridOutput: true,
-		 * 	},
-		 * }
-		 * ```
-		 * Then add `export const prerender =  false` to any page or endpoint you want to opt-out of pre-rendering.
-		 * ```astro
-		 * ---
-		 * // pages/contact.astro
-		 * export const prerender = false
-		 *
-		 * if (Astro.request.method === 'POST') {
-		 *  // handle form submission
-		 * }
-		 * ---
-		 * <form method="POST">
-		 * 	<input type="text" name="name" />
-		 * 	<input type="email" name="email" />
-		 * 	<button type="submit">Submit</button>
-		 * </form>
-		 * ```
-		 */
-		hybridOutput?: boolean;
+		redirects?: boolean;
 	};
 
 	// Legacy options to be removed
@@ -1231,6 +1280,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
+	prerender?: boolean;
 }
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
@@ -1325,7 +1375,6 @@ export interface AstroSettings {
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
-	forceDisableTelemetry: boolean;
 	timer: AstroTimer;
 }
 
@@ -1578,6 +1627,8 @@ export interface AstroAdapter {
 
 type Body = string;
 
+export type ValidRedirectStatus = 300 | 301 | 302 | 303 | 304 | 307 | 308;
+
 // Shared types between `Astro` global and API context object
 interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
 	/**
@@ -1607,7 +1658,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Redirect to another page (**SSR Only**).
 	 */
-	redirect(path: string, status?: 301 | 302 | 303 | 307 | 308): Response;
+	redirect(path: string, status?: ValidRedirectStatus): Response;
 
 	/**
 	 * Object accessed via Astro middleware
@@ -1713,20 +1764,20 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export type Props = Record<string, unknown>;
-
 export interface EndpointOutput {
 	body: Body;
 	encoding?: BufferEncoding;
 }
 
-export type APIRoute = (
-	context: APIContext
+export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
+	context: APIContext<Props>
 ) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
+
+export type Props = Record<string, unknown>;
 
 export interface AstroRenderer {
 	/** Name of the renderer. */
@@ -1784,7 +1835,14 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
+		'astro:build:ssr'?: (options: {
+			manifest: SerializedSSRManifest;
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 */
+			entryPoints: Map<RouteData, URL>;
+		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
@@ -1805,7 +1863,7 @@ export type MiddlewareNext<R> = () => Promise<R>;
 export type MiddlewareHandler<R> = (
 	context: APIContext,
 	next: MiddlewareNext<R>
-) => Promise<R> | Promise<void> | void;
+) => Promise<R> | R | Promise<void> | void;
 
 export type MiddlewareResponseHandler = MiddlewareHandler<Response>;
 export type MiddlewareEndpointHandler = MiddlewareHandler<Response | EndpointOutput>;
@@ -1822,13 +1880,20 @@ export interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-export type RouteType = 'page' | 'endpoint';
+export type RouteType = 'page' | 'endpoint' | 'redirect';
 
 export interface RoutePart {
 	content: string;
 	dynamic: boolean;
 	spread: boolean;
 }
+
+type RedirectConfig =
+	| string
+	| {
+			status: ValidRedirectStatus;
+			destination: string;
+	  };
 
 export interface RouteData {
 	route: string;
@@ -1842,7 +1907,13 @@ export interface RouteData {
 	segments: RoutePart[][];
 	type: RouteType;
 	prerender: boolean;
+	redirect?: RedirectConfig;
+	redirectRoute?: RouteData;
 }
+
+export type RedirectRouteData = RouteData & {
+	redirect: string;
+};
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;

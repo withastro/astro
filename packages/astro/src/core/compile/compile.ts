@@ -78,11 +78,12 @@ export async function compile({
 }
 
 function handleCompileResultErrors(result: TransformResult, cssTransformErrors: AstroError[]) {
+	// TODO: Export the DiagnosticSeverity enum from @astrojs/compiler?
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
 	const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
 
 	if (compilerError) {
 		throw new CompilerError({
-			code: compilerError.code,
 			message: compilerError.text,
 			location: {
 				line: compilerError.location.line,
@@ -97,16 +98,11 @@ function handleCompileResultErrors(result: TransformResult, cssTransformErrors: 
 		case 0:
 			break;
 		case 1: {
-			const error = cssTransformErrors[0];
-			if (!error.errorCode) {
-				error.errorCode = AstroErrorData.UnknownCSSError.code;
-			}
 			throw cssTransformErrors[0];
 		}
 		default: {
 			throw new AggregateError({
 				...cssTransformErrors[0],
-				code: cssTransformErrors[0].errorCode,
 				errors: cssTransformErrors,
 			});
 		}

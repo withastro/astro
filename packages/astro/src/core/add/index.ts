@@ -1,4 +1,3 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
@@ -30,7 +29,6 @@ import { wrapDefaultExport } from './wrapper.js';
 export interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
-	telemetry: AstroTelemetry;
 	cwd?: string;
 }
 
@@ -73,7 +71,21 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	deno: '@astrojs/deno',
 };
 
-export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
+// Users might lack access to the global npm registry, this function
+// checks the user's project type and will return the proper npm registry
+//
+// A copy of this function also exists in the create-astro package
+async function getRegistry(): Promise<string> {
+	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+	} catch (e) {
+		return 'https://registry.npmjs.org';
+	}
+}
+
+export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
@@ -673,7 +685,8 @@ async function fetchPackageJson(
 	tag: string
 ): Promise<object | Error> {
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
-	const res = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`);
+	const registry = await getRegistry();
+	const res = await fetch(`${registry}/${packageName}/${tag}`);
 	if (res.status === 404) {
 		return new Error();
 	} else {

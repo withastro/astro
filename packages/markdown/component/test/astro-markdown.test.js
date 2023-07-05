@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture, fixLineEndings } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro Markdown', () => {
 	let fixture;

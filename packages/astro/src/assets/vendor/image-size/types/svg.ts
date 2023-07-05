@@ -41,8 +41,8 @@ function parseLength(len: string) {
 function parseViewbox(viewbox: string): IAttributes {
   const bounds = viewbox.split(' ')
   return {
-    height: parseLength(bounds[3]) as number,
-    width: parseLength(bounds[2]) as number
+    height: parseLength(bounds[3])!,
+    width: parseLength(bounds[2])!
   }
 }
 
@@ -51,21 +51,21 @@ function parseAttributes(root: string): IAttributes {
   const height = root.match(extractorRegExps.height)
   const viewbox = root.match(extractorRegExps.viewbox)
   return {
-    height: height && parseLength(height[2]) as number,
-    viewbox: viewbox && parseViewbox(viewbox[2]) as IAttributes,
-    width: width && parseLength(width[2]) as number,
+    height: height && parseLength(height[2])!,
+    viewbox: viewbox && parseViewbox(viewbox[2])!,
+    width: width && parseLength(width[2])!,
   }
 }
 
 function calculateByDimensions(attrs: IAttributes): ISize {
   return {
-    height: attrs.height as number,
-    width: attrs.width as number,
+    height: attrs.height!,
+    width: attrs.width!,
   }
 }
 
 function calculateByViewbox(attrs: IAttributes, viewbox: IAttributes): ISize {
-  const ratio = (viewbox.width as number) / (viewbox.height as number)
+  const ratio = (viewbox.width!) / (viewbox.height!)
   if (attrs.width) {
     return {
       height: Math.floor(attrs.width / ratio),
@@ -79,8 +79,8 @@ function calculateByViewbox(attrs: IAttributes, viewbox: IAttributes): ISize {
     }
   }
   return {
-    height: viewbox.height as number,
-    width: viewbox.width as number,
+    height: viewbox.height!,
+    width: viewbox.width!,
   }
 }
 

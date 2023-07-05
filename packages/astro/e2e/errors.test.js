@@ -81,6 +81,23 @@ test.describe('Error display', () => {
 		expect(fileLocation).toMatch(/^components\/PreactRuntimeError.jsx/);
 	});
 
+	test('shows correct line when a style preprocess has an error', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/astro-sass-error'), { waitUntil: 'networkidle' });
+
+		const { fileLocation, absoluteFileLocation } = await getErrorOverlayContent(page);
+		const absoluteFileUrl = 'file://' + absoluteFileLocation.replace(/:\d+:\d+$/, '');
+
+		const fileExists = astro.pathExists(absoluteFileUrl);
+		expect(fileExists).toBeTruthy();
+
+		const fileContent = await astro.readFile(absoluteFileUrl);
+		const lineNumber = absoluteFileLocation.match(/:(\d+):\d+$/)[1];
+		const highlightedLine = fileContent.split('\n')[lineNumber - 1];
+		expect(highlightedLine).toContain(`@use '../styles/inexistent' as *;`);
+
+		expect(fileLocation).toMatch(/^pages\/astro-sass-error.astro/);
+	});
+
 	test('framework errors recover when fixed', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/svelte-syntax-error'), { waitUntil: 'networkidle' });
 

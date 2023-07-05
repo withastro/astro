@@ -101,11 +101,9 @@ function useConsoleFilter() {
 	consoleFilterRefs++;
 
 	if (!originalConsoleError) {
-		// eslint-disable-next-line no-console
 		originalConsoleError = console.error;
 
 		try {
-			// eslint-disable-next-line no-console
 			console.error = filteredConsoleError;
 		} catch (error) {
 			// If we're unable to hook `console.error`, just accept it

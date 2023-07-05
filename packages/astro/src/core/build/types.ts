@@ -1,11 +1,10 @@
 import type { default as vite, InlineConfig } from 'vite';
 import type {
 	AstroConfig,
-	AstroMiddlewareInstance,
 	AstroSettings,
-	BuildConfig,
 	ComponentInstance,
 	ManifestData,
+	MiddlewareHandler,
 	RouteData,
 	RuntimeMode,
 	SSRLoadedRenderer,
@@ -36,7 +35,6 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	settings: AstroSettings;
-	buildConfig: BuildConfig;
 	logging: LogOptions;
 	manifest: ManifestData;
 	mode: RuntimeMode;
@@ -51,7 +49,10 @@ type ImportComponentInstance = () => Promise<ComponentInstance>;
 
 export interface SinglePageBuiltModule {
 	page: ImportComponentInstance;
-	middleware: AstroMiddlewareInstance<unknown>;
+	/**
+	 * The `onRequest` hook exported by the middleware
+	 */
+	onRequest?: MiddlewareHandler<unknown>;
 	renderers: SSRLoadedRenderer[];
 }
 

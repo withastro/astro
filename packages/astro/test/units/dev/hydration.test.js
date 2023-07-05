@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import { createFs, createRequestAndResponse, silentLogging } from '../test-utils.js';
 import svelte from '../../../../integrations/svelte/dist/index.js';
-import { defaultLogging } from '../../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -33,11 +32,7 @@ describe('dev container', () => {
 			{
 				fs,
 				root,
-				logging: {
-					...defaultLogging,
-					// Error is expected in this test
-					level: 'silent',
-				},
+				logging: silentLogging,
 				userConfig: {
 					integrations: [svelte()],
 				},
@@ -48,7 +43,7 @@ describe('dev container', () => {
 					url: '/',
 				});
 				container.handle(req, res);
-				const html = await done;
+				await done;
 				expect(res.statusCode).to.equal(
 					200,
 					"We get a 200 because the error occurs in the template, but we didn't crash!"

@@ -20,7 +20,6 @@ describe('Dynamic components', () => {
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
-		const root = new URL('http://example.com/media/index.html');
 		const html = await fixture.readFile('/media/index.html');
 		const $ = cheerio.load(html);
 

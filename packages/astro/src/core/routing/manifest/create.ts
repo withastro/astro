@@ -11,12 +11,11 @@ import type { LogOptions } from '../../logger/core';
 import nodeFs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { isHybridOutput } from '../../../prerender/utils.js';
+import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
-import { removeLeadingForwardSlash } from '../../path.js';
+import { removeLeadingForwardSlash, slash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
 const require = createRequire(import.meta.url);
@@ -34,8 +33,8 @@ interface Item {
 
 function countOccurrences(needle: string, haystack: string) {
 	let count = 0;
-	for (let i = 0; i < haystack.length; i += 1) {
-		if (haystack[i] === needle) count += 1;
+	for (const hay of haystack) {
+		if (hay === needle) count += 1;
 	}
 	return count;
 }
@@ -221,16 +220,16 @@ export function createRouteManifest(
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validPageExtensions: Set<string> = new Set([
+	const validPageExtensions = new Set<string>([
 		'.astro',
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 		...settings.pageExtensions,
 	]);
-	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
+	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
-	const isPrerenderDefault = isHybridOutput(settings.config);
+	const prerender = getPrerenderDefault(settings.config);
 
-	const foundInvalidFileExtensions: Set<string> = new Set();
+	const foundInvalidFileExtensions = new Set<string>();
 
 	function walk(
 		fs: typeof nodeFs,
@@ -341,7 +340,7 @@ export function createRouteManifest(
 					component,
 					generate,
 					pathname: pathname || undefined,
-					prerender: isPrerenderDefault,
+					prerender,
 				});
 			}
 		});
@@ -364,7 +363,7 @@ export function createRouteManifest(
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
-		.forEach(({ pattern: name, entryPoint }) => {
+		.forEach(({ pattern: name, entryPoint, prerender: prerenderInjected }) => {
 			let resolved: string;
 			try {
 				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
@@ -417,9 +416,51 @@ export function createRouteManifest(
 				component,
 				generate,
 				pathname: pathname || void 0,
-				prerender: isPrerenderDefault,
+				prerender: prerenderInjected ?? prerender,
 			});
 		});
+
+	Object.entries(settings.config.redirects).forEach(([from, to]) => {
+		const trailingSlash = config.trailingSlash;
+
+		const segments = removeLeadingForwardSlash(from)
+			.split(path.posix.sep)
+			.filter(Boolean)
+			.map((s: string) => {
+				validateSegment(s);
+				return getParts(s, from);
+			});
+
+		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+			? `/${segments.map((segment) => segment[0].content).join('/')}`
+			: null;
+		const params = segments
+			.flat()
+			.filter((p) => p.dynamic)
+			.map((p) => p.content);
+		const route = `/${segments
+			.map(([{ dynamic, content }]) => (dynamic ? `[${content}]` : content))
+			.join('/')}`.toLowerCase();
+
+		const routeData: RouteData = {
+			type: 'redirect',
+			route,
+			pattern,
+			segments,
+			params,
+			component: from,
+			generate,
+			pathname: pathname || void 0,
+			prerender: false,
+			redirect: to,
+			redirectRoute: routes.find((r) => r.route === to),
+		};
+
+		// Push so that redirects are selected last.
+		routes.push(routeData);
+	});
 
 	return {
 		routes,

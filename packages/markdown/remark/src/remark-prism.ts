@@ -1,6 +1,5 @@
 import { runHighlighterWithAstro } from '@astrojs/prism/dist/highlighter';
 import { visit } from 'unist-util-visit';
-const noVisit = new Set(['root', 'html', 'text']);
 
 type MaybeString = string | null | undefined;
 

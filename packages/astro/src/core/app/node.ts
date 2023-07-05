@@ -34,18 +34,19 @@ class NodeIncomingMessage extends IncomingMessage {
 	/**
 	 * The read-only body property of the Request interface contains a ReadableStream with the body contents that have been added to the request.
 	 */
-	body?: any | undefined;
+	body?: unknown;
 }
 
 export class NodeApp extends App {
 	match(req: NodeIncomingMessage | Request, opts: MatchOptions = {}) {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req), opts);
 	}
-	render(req: NodeIncomingMessage | Request, routeData?: RouteData) {
+	render(req: NodeIncomingMessage | Request, routeData?: RouteData, locals?: object) {
 		if (typeof req.body === 'string' && req.body.length > 0) {
 			return super.render(
 				req instanceof Request ? req : createRequestFromNodeRequest(req, Buffer.from(req.body)),
-				routeData
+				routeData,
+				locals
 			);
 		}
 
@@ -54,7 +55,8 @@ export class NodeApp extends App {
 				req instanceof Request
 					? req
 					: createRequestFromNodeRequest(req, Buffer.from(JSON.stringify(req.body))),
-				routeData
+				routeData,
+				locals
 			);
 		}
 
@@ -75,13 +77,15 @@ export class NodeApp extends App {
 			return reqBodyComplete.then(() => {
 				return super.render(
 					req instanceof Request ? req : createRequestFromNodeRequest(req, body),
-					routeData
+					routeData,
+					locals
 				);
 			});
 		}
 		return super.render(
 			req instanceof Request ? req : createRequestFromNodeRequest(req),
-			routeData
+			routeData,
+			locals
 		);
 	}
 }

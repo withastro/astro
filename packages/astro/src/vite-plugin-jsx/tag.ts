@@ -11,7 +11,6 @@ import * as t from '@babel/types';
  */
 export default async function tagExportsWithRenderer({
 	rendererName,
-	root,
 }: {
 	rendererName: string;
 	root: URL;

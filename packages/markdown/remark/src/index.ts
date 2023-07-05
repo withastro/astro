@@ -147,7 +147,7 @@ export async function renderMarkdown(
 
 function prefixError(err: any, prefix: string) {
 	// If the error is an object with a `message` property, attempt to prefix the message
-	if (err && err.message) {
+	if (err?.message) {
 		try {
 			err.message = `${prefix}:\n${err.message}`;
 			return err;
@@ -160,9 +160,8 @@ function prefixError(err: any, prefix: string) {
 	const wrappedError = new Error(`${prefix}${err ? `: ${err}` : ''}`);
 	try {
 		wrappedError.stack = err.stack;
-		// @ts-expect-error
 		wrappedError.cause = err;
-	} catch (error) {
+	} catch {
 		// It's ok if we could not set the stack or cause - the message is the most important part
 	}
 

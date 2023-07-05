@@ -14,7 +14,7 @@ describe('astro/src/core/cookies', () => {
 				cookies.set('foo', 'bar');
 				expect(false).to.equal(true);
 			} catch (err) {
-				expect(err.errorCode).to.equal(3030);
+				expect(err.name).to.equal('ResponseSentError');
 			}
 		});
 	});

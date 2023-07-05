@@ -20,13 +20,15 @@ type EsbuildMessage = ESBuildTransformResult['warnings'][number];
  */
 export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): ErrorWithMetadata {
 	const err =
-		AggregateError.is(e) || Array.isArray((e as any).errors)
-			? (e.errors as SSRError[])
-			: [e as SSRError];
+		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
 	err.forEach((error) => {
-		if (error.stack) {
-			error = collectInfoFromStacktrace(e);
+		if (e.stack) {
+			const stackInfo = collectInfoFromStacktrace(e);
+			error.stack = stackInfo.stack;
+			error.loc = stackInfo.loc;
+			error.plugin = stackInfo.plugin;
+			error.pluginCode = stackInfo.pluginCode;
 		}
 
 		// Make sure the file location is absolute, otherwise:
@@ -69,7 +71,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL | undefined): Erro
 
 	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
 	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
-	if (!AggregateError.is(e) && Array.isArray((e as any).errors)) {
+	if (!AggregateError.is(e) && Array.isArray(e.errors)) {
 		(e.errors as EsbuildMessage[]).forEach((buildError, i) => {
 			const { location, pluginName, text } = buildError;
 
@@ -141,15 +143,22 @@ See https://docs.astro.build/en/guides/troubleshooting/#document-or-window-is-no
 	return err.hint;
 }
 
-function collectInfoFromStacktrace(error: SSRError): SSRError {
-	if (!error.stack) return error;
+type StackInfo = Pick<SSRError, 'stack' | 'loc' | 'plugin' | 'pluginCode'>;
+
+function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackInfo {
+	let stackInfo: StackInfo = {
+		stack: error.stack,
+		plugin: error.plugin,
+		pluginCode: error.pluginCode,
+		loc: error.loc,
+	};
 
 	// normalize error stack line-endings to \n
-	error.stack = normalizeLF(error.stack);
+	stackInfo.stack = normalizeLF(error.stack);
 	const stackText = stripAnsi(error.stack);
 
 	// Try to find possible location from stack if we don't have one
-	if (!error.loc || (!error.loc.column && !error.loc.line)) {
+	if (!stackInfo.loc || (!stackInfo.loc.column && !stackInfo.loc.line)) {
 		const possibleFilePath =
 			error.loc?.file ||
 			error.pluginCode ||
@@ -168,7 +177,7 @@ function collectInfoFromStacktrace(error: SSRError): SSRError {
 				file = fileURLToPath(file);
 			} catch {}
 
-			error.loc = {
+			stackInfo.loc = {
 				file,
 				line: Number.parseInt(line),
 				column: Number.parseInt(column),
@@ -177,17 +186,17 @@ function collectInfoFromStacktrace(error: SSRError): SSRError {
 	}
 
 	// Derive plugin from stack (if possible)
-	if (!error.plugin) {
-		error.plugin =
+	if (!stackInfo.plugin) {
+		stackInfo.plugin =
 			/withastro\/astro\/packages\/integrations\/([\w-]+)/gim.exec(stackText)?.at(1) ||
 			/(@astrojs\/[\w-]+)\/(server|client|index)/gim.exec(stackText)?.at(1) ||
 			undefined;
 	}
 
 	// Normalize stack (remove `/@fs/` urls, etc)
-	error.stack = cleanErrorStack(error.stack);
+	stackInfo.stack = cleanErrorStack(error.stack);
 
-	return error;
+	return stackInfo;
 }
 
 function cleanErrorStack(stack: string) {
@@ -215,7 +224,7 @@ export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 	} else {
 		return markdown
 			.replace(linkRegex, (fullMatch, m1, m2) => `${bold(m1)} ${underline(m2)}`)
-			.replace(urlRegex, (fullMatch, m1) => ` ${underline(fullMatch.trim())} `)
+			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())} `)
 			.replace(boldRegex, (fullMatch, m1) => `${bold(m1)}`);
 	}
 }

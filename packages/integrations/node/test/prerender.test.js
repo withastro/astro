@@ -29,7 +29,7 @@ describe('Prerendering', () => {
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
-			const { startServer } = await await load();
+			const { startServer } = await load();
 			let res = startServer();
 			server = res.server;
 		});
@@ -51,6 +51,15 @@ describe('Prerendering', () => {
 
 		it('Can render prerendered route', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two?foo=bar`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
@@ -116,6 +125,15 @@ describe('Prerendering', () => {
 			expect($('h1').text()).to.equal('Two');
 		});
 
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('Two');
+		});
+
 		it('Can render prerendered route with query params', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/two/?foo=bar`);
 			const html = await res.text();
@@ -140,9 +158,6 @@ describe('Hybrid rendering', () => {
 				base: '/some-base',
 				root: './fixtures/prerender/',
 				output: 'hybrid',
-				experimental: {
-					hybridOutput: true,
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -167,6 +182,15 @@ describe('Hybrid rendering', () => {
 
 		it('Can render prerendered route', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
@@ -199,9 +223,6 @@ describe('Hybrid rendering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'hybrid',
-				experimental: {
-					hybridOutput: true,
-				},
 				adapter: nodejs({ mode: 'standalone' }),
 			});
 			await fixture.build();
@@ -227,6 +248,15 @@ describe('Hybrid rendering', () => {
 
 		it('Can render prerendered route', async () => {
 			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			expect(res.status).to.equal(200);
+			expect($('h1').text()).to.equal('One');
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one?foo=bar`);
 			const html = await res.text();
 			const $ = cheerio.load(html);
 

@@ -19,9 +19,9 @@ const wranglerPath = fileURLToPath(
 	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)
 );
 
-export function runCLI(basePath, { silent }) {
+export function runCLI(basePath, { silent, port = 8787 }) {
 	const script = fileURLToPath(new URL(`${basePath}/dist/_worker.js`, import.meta.url));
-	const p = spawn('node', [wranglerPath, 'dev', '-l', script]);
+	const p = spawn('node', [wranglerPath, 'dev', '-l', script, '--port', port]);
 
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
@@ -37,7 +37,6 @@ export function runCLI(basePath, { silent }) {
 		(async function () {
 			for (const msg of p.stderr) {
 				if (!silent) {
-					// eslint-disable-next-line
 					console.error(msg);
 				}
 			}
@@ -45,7 +44,6 @@ export function runCLI(basePath, { silent }) {
 
 		for await (const msg of p.stdout) {
 			if (!silent) {
-				// eslint-disable-next-line
 				console.log(msg);
 			}
 			if (msg.includes(`Listening on`)) {
@@ -60,7 +58,11 @@ export function runCLI(basePath, { silent }) {
 	return {
 		ready,
 		stop() {
-			p.kill();
+			return new Promise((resolve, reject) => {
+				p.on('close', () => resolve());
+				p.on('error', (err) => reject(err));
+				p.kill();
+			});
 		},
 	};
 }

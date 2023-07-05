@@ -32,11 +32,11 @@
     "astro-component"
   ],
   "dependencies": {
-    "prismjs": "^1.28.0"
+    "prismjs": "^1.29.0"
   },
   "devDependencies": {
-    "astro-scripts": "workspace:*",
-    "@types/prismjs": "1.26.0"
+    "@types/prismjs": "1.26.0",
+    "astro-scripts": "workspace:*"
   },
   "engines": {
     "node": ">=16.12.0"

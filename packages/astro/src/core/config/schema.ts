@@ -8,7 +8,7 @@ import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
 
-const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
+const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -22,12 +22,14 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		server: './dist/server/',
 		assets: '_astro',
 		serverEntry: 'entry.mjs',
+		redirects: true,
+		inlineStylesheets: 'never',
+		split: false,
 	},
 	compressHTML: false,
 	server: {
 		host: false,
 		port: 3000,
-		streaming: true,
 		open: false,
 	},
 	integrations: [],
@@ -37,14 +39,12 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {},
+	redirects: {},
 	experimental: {
 		assets: false,
-		hybridOutput: false,
-		customClientDirectives: false,
-		inlineStylesheets: 'never',
-		middleware: false,
+		redirects: false,
 	},
-};
+} satisfies AstroUserConfig & { server: { open: boolean } };
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -115,6 +115,13 @@ export const AstroConfigSchema = z.object({
 			assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 			assetsPrefix: z.string().optional(),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
+			inlineStylesheets: z
+				.enum(['always', 'auto', 'never'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+
+			split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
 		})
 		.optional()
 		.default({}),
@@ -137,6 +144,7 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
+	redirects: z.record(z.string(), z.string()).default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
 			service: z.object({
@@ -163,8 +171,8 @@ export const AstroConfigSchema = z.object({
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
 						.or(z.custom<IThemeRegistration>())
-						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme),
-					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
+					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap!),
 				})
 				.default({}),
 			remarkPlugins: z
@@ -199,16 +207,7 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
-			customClientDirectives: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.customClientDirecives),
-			inlineStylesheets: z
-				.enum(['always', 'auto', 'never'])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.inlineStylesheets),
-			middleware: z.oboolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.middleware),
-			hybridOutput: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.hybridOutput),
+			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirects),
 		})
 		.passthrough()
 		.refine(
@@ -277,6 +276,13 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				assetsPrefix: z.string().optional(),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
+				inlineStylesheets: z
+					.enum(['always', 'auto', 'never'])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
+
+				split: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.split),
 			})
 			.optional()
 			.default({}),

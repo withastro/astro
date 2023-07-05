@@ -1,5 +1,6 @@
 ---
 import Redirect from '../components/redirect.astro';
+const staticMode = import.meta.env.STATIC_MODE;
 ---
 <html>
 	<head>
@@ -7,6 +8,8 @@ import Redirect from '../components/redirect.astro';
 	</head>
 	<body>
 		<h1>Testing</h1>
-		<Redirect />
+		{ !staticMode ? (
+			<Redirect />
+		) : <div></div>}
 	</body>
 </html>

@@ -1,11 +1,4 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
-import type {
-	AstroConfig,
-	AstroSettings,
-	BuildConfig,
-	ManifestData,
-	RuntimeMode,
-} from '../../@types/astro';
+import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -32,7 +25,6 @@ import { getTimeStat } from './util.js';
 export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
-	telemetry: AstroTelemetry;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
@@ -123,11 +115,6 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		const buildConfig: BuildConfig = {
-			client: this.settings.config.build.client,
-			server: this.settings.config.build.server,
-			serverEntry: this.settings.config.build.serverEntry,
-		};
 		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
 		this.validateConfig();
 
@@ -168,7 +155,6 @@ class AstroBuilder {
 			routeCache: this.routeCache,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
-			buildConfig,
 		};
 
 		const { internals } = await viteBuild(opts);
@@ -188,7 +174,6 @@ class AstroBuilder {
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
-			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,

@@ -6,6 +6,9 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { loadFixture } from './test-utils.js';
+import srcsetParse from 'srcset-parse';
+
+const matchSrcset = srcsetParse.default;
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const toAstroImage = (relpath) =>
@@ -95,6 +98,11 @@ describe('SSG pictures - dev', function () {
 
 			const sources = picture.children('source');
 			expect(sources.length).to.equal(3);
+
+			sources.each((_, el) => {
+				const srcset = $(el).attr('srcset');
+				expect(matchSrcset(srcset).length).to.equal(2);
+			});
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -186,6 +194,18 @@ describe('SSG pictures with subpath - dev', function () {
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
+
+			for (const srcset of picture
+				.children('source')
+				.map((_, source) => source.attribs['srcset'])) {
+				for (const pictureSrc of srcset.split(',')) {
+					const pictureParams = pictureSrc.split('?')[1];
+
+					const expected = new URLSearchParams(params).get('href');
+					const actual = new URLSearchParams(pictureParams).get('href').replace(/\s+\d+w$/, '');
+					expect(expected).to.equal(actual);
+				}
+			}
 
 			expect(route).to.equal(url);
 
@@ -293,6 +313,8 @@ describe('SSG pictures - build', function () {
 				const source = $(el);
 				const srcset = source.attr('srcset');
 
+				expect(matchSrcset(srcset).length).to.equal(2);
+
 				for (const src of srcset.split(',')) {
 					const segments = src.split(' ');
 
@@ -399,6 +421,8 @@ describe('SSG pictures with subpath - build', function () {
 			sources.each((_, el) => {
 				const source = $(el);
 				const srcset = source.attr('srcset');
+
+				expect(matchSrcset(srcset).length).to.equal(2);
 
 				for (const src of srcset.split(',')) {
 					const [pathname, width] = src.split(' ');

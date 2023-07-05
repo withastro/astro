@@ -52,7 +52,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 
 	const pkgManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
-	let cwd = flags['_'][0] as string;
+	let cwd = flags['_'][0];
 	let {
 		'--help': help = false,
 		'--template': template,

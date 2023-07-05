@@ -23,20 +23,20 @@ import { warn, type LogOptions } from '../logger/core.js';
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
-function onlyAvailableInSSR(name: 'Astro.redirect') {
-	return function _onlyAvailableInSSR() {
-		switch (name) {
-			case 'Astro.redirect':
-				throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
-		}
-	};
-}
-
 export interface CreateResultArgs {
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
 	adapterName: string | undefined;
+	/**
+	 * Value of Astro config's `output` option, true if "server" or "hybrid"
+	 */
 	ssr: boolean;
 	logging: LogOptions;
 	origin: string;
+	/**
+	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
+	 */
 	markdown: MarkdownRenderingOptions;
 	mode: RuntimeMode;
 	params: Params;
@@ -45,6 +45,9 @@ export interface CreateResultArgs {
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
+	/**
+	 * Used for `Astro.site`
+	 */
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
@@ -53,6 +56,7 @@ export interface CreateResultArgs {
 	request: Request;
 	status: number;
 	locals: App.Locals;
+	cookies?: AstroCookies;
 }
 
 function getFunctionExpression(slot: any) {
@@ -155,7 +159,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	});
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
-	let cookies: AstroCookies | undefined = undefined;
+	let cookies: AstroCookies | undefined = args.cookies;
 	let componentMetadata = args.componentMetadata ?? new Map();
 
 	// Create the result object that will be passed into the render function.
@@ -208,23 +212,21 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				locals,
 				request,
 				url,
-				redirect: args.ssr
-					? (path, status) => {
-							// If the response is already sent, error as we cannot proceed with the redirect.
-							if ((request as any)[responseSentSymbol]) {
-								throw new AstroError({
-									...AstroErrorData.ResponseSentError,
-								});
-							}
+				redirect(path, status) {
+					// If the response is already sent, error as we cannot proceed with the redirect.
+					if ((request as any)[responseSentSymbol]) {
+						throw new AstroError({
+							...AstroErrorData.ResponseSentError,
+						});
+					}
 
-							return new Response(null, {
-								status: status || 302,
-								headers: {
-									Location: path,
-								},
-							});
-					  }
-					: onlyAvailableInSSR('Astro.redirect'),
+					return new Response(null, {
+						status: status || 302,
+						headers: {
+							Location: path,
+						},
+					});
+				},
 				response: response as AstroGlobal['response'],
 				slots: astroSlots as unknown as AstroGlobal['slots'],
 			};
