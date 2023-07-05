@@ -4649,6 +4649,9 @@ importers:
       preact-render-to-string:
         specifier: ^5.2.6
         version: 5.2.6(preact@10.15.1)
+      preact-ssr-prepass:
+        specifier: ^1.2.0
+        version: 1.2.0(preact@10.15.1)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -15138,6 +15141,14 @@ packages:
     dependencies:
       preact: 10.15.1
       pretty-format: 3.8.0
+    dev: false
+
+  /preact-ssr-prepass@1.2.0(preact@10.15.1):
+    resolution: {integrity: sha512-UKz6FB2+KepjHQ6aGqiTUMZfGgdoTunxtByczdUNho9UvSRTJw31Np9J+wUSAlJ1kALJGX1BpcBLvO3iohQUSA==}
+    peerDependencies:
+      preact: '>=10 || ^10.0.0-beta.0 || ^10.0.0-alpha.0'
+    dependencies:
+      preact: 10.15.1
     dev: false
 
   /preact@10.15.1:
