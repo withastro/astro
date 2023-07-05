@@ -1,5 +1,4 @@
 import type {
-	AstroCookies,
 	ComponentInstance,
 	Params,
 	Props,
@@ -25,13 +24,14 @@ export interface RenderContext {
 	componentMetadata?: SSRResult['componentMetadata'];
 	route?: RouteData;
 	status?: number;
-	cookies?: AstroCookies;
 	params: Params;
 	props: Props;
 	locals?: object;
 }
 
-export type CreateRenderContextArgs = Partial<RenderContext> & {
+export type CreateRenderContextArgs = Partial<
+	Omit<RenderContext, 'params' | 'props' | 'locals'>
+> & {
 	request: RenderContext['request'];
 	mod: ComponentInstance;
 	env: Environment;
