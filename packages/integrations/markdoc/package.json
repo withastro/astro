@@ -69,6 +69,7 @@
     "esbuild": "^0.17.19",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
+    "htmlparser2": "^9.0.0",
     "kleur": "^4.1.5",
     "shiki": "^0.14.1",
     "zod": "^3.17.3"
@@ -80,6 +81,7 @@
     "@astrojs/markdown-remark": "^2.2.1",
     "@types/chai": "^4.3.5",
     "@types/html-escaper": "^3.0.0",
+    "@types/markdown-it": "^12.2.3",
     "@types/mocha": "^9.1.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
