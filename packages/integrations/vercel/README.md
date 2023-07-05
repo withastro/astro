@@ -283,10 +283,31 @@ export default defineConfig({
 
 Optionally, you can create a known file called `vercel-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
 
+Typings requires the [`@vercel/edge`](https://www.npmjs.com/package/@vercel/edge) package.
+
 ```js
 // src/vercel-edge-middleware.js
-
+/**
+ * 
+ * @param options.request {Request}
+ * @param options.context {import("@vercel/edge").RequestContext}
+ * @returns {object}
+ */
 export default function({ request, context }) {
+    // do something with request and context
+    return {
+        title: "Spider-man's blog"
+    }
+}
+```
+
+If you use TypeScript, you can type the function as follows:
+
+```ts
+// src/vercel-edge-middleware.ts
+import type {RequestContext} from "@vercel/edge";
+
+export default function ({request, context}: { request: Request, context: RequestContext }) {
     // do something with request and context
     return {
         title: "Spider-man's blog"
