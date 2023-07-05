@@ -857,11 +857,9 @@ export interface AstroUserConfig {
 		 * @default {false}
 		 * @version 2.8.0
 		 * @description
-		 * Defines how the SSR code should be bundled when built.
+		 * Defines whether or not any SSR middleware code will be bundled when built.
 		 *
-		 * When enabled, the middleware code is **not** going to be imported by the pages.
-		 *
-		 * It's going to be responsibility of the end user to execute import the code and execute it.
+		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
 		 *
 		 * ```js
 		 * {
