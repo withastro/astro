@@ -849,6 +849,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		split?: boolean;
+
+		/**
+		 * @docs
+		 * @name build.excludeMiddleware
+		 * @type {boolean}
+		 * @default {false}
+		 * @version 2.8.0
+		 * @description
+		 * Defines whether or not any SSR middleware code will be bundled when built.
+		 *
+		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     excludeMiddleware: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		excludeMiddleware?: boolean;
 	};
 
 	/**
@@ -1842,6 +1863,10 @@ export interface AstroIntegration {
 			 * the physical file you should import.
 			 */
 			entryPoints: Map<RouteData, URL>;
+			/**
+			 * File path of the emitted middleware
+			 */
+			middlewareEntryPoint: URL | undefined;
 		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {

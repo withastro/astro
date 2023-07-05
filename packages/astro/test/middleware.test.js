@@ -2,6 +2,8 @@ import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
+import { fileURLToPath } from 'node:url';
+import { readFileSync, existsSync } from 'node:fs';
 
 describe('Middleware in DEV mode', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -104,12 +106,19 @@ describe('Middleware in PROD mode, SSG', () => {
 describe('Middleware API in PROD mode, SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	let middlewarePath;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-dev/',
 			output: 'server',
-			adapter: testAdapter({}),
+			adapter: testAdapter({
+				setEntryPoints(entryPointsOrMiddleware) {
+					if (entryPointsOrMiddleware instanceof URL) {
+						middlewarePath = entryPointsOrMiddleware;
+					}
+				},
+			}),
 		});
 		await fixture.build();
 	});
@@ -201,6 +210,18 @@ describe('Middleware API in PROD mode, SSR', () => {
 		const text = await response.text();
 		expect(text.includes('REDACTED')).to.be.true;
 	});
+
+	it('the integration should receive the path to the middleware', async () => {
+		expect(middlewarePath).to.not.be.undefined;
+		try {
+			const path = fileURLToPath(middlewarePath);
+			expect(existsSync(path)).to.be.true;
+			const content = readFileSync(fileURLToPath(middlewarePath), 'utf-8');
+			expect(content.length).to.be.greaterThan(0);
+		} catch (e) {
+			throw e;
+		}
+	});
 });
 
 describe('Middleware with tailwind', () => {
@@ -222,5 +243,31 @@ describe('Middleware with tailwind', () => {
 			.replace(/\s/g, '')
 			.replace('/n', '');
 		expect(bundledCSS.includes('--tw-content')).to.be.true;
+	});
+});
+
+describe('Middleware, split middleware option', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-dev/',
+			output: 'server',
+			build: {
+				excludeMiddleware: true,
+			},
+			adapter: testAdapter({}),
+		});
+		await fixture.build();
+	});
+
+	it('should not render locals data because the page does not export it', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		expect($('p').html()).to.not.equal('bar');
 	});
 });

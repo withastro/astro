@@ -26,7 +26,6 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { createPluginContainer, type AstroBuildPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
-import { MIDDLEWARE_MODULE_ID } from './plugins/plugin-middleware.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_RENDERERS_MODULE_ID } from './plugins/plugin-renderers.js';
 import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
@@ -183,8 +182,6 @@ async function ssrBuild(
 							);
 						} else if (chunkInfo.facadeModuleId?.startsWith(RESOLVED_SPLIT_MODULE_ID)) {
 							return makeSplitEntryPointFileName(chunkInfo.facadeModuleId, routes);
-						} else if (chunkInfo.facadeModuleId === MIDDLEWARE_MODULE_ID) {
-							return 'middleware.mjs';
 						} else if (chunkInfo.facadeModuleId === SSR_VIRTUAL_MODULE_ID) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_RENDERERS_MODULE_ID) {

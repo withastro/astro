@@ -4898,6 +4898,9 @@ importers:
       '@types/set-cookie-parser':
         specifier: ^2.4.2
         version: 2.4.2
+      '@vercel/edge':
+        specifier: ^0.3.4
+        version: 0.3.4
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -4907,12 +4910,18 @@ importers:
       chai:
         specifier: ^4.3.7
         version: 4.3.7
+      chai-jest-snapshot:
+        specifier: ^2.0.0
+        version: 2.0.0(chai@4.3.7)
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
       mocha:
         specifier: ^9.2.2
         version: 9.2.2
+      rollup:
+        specifier: ^3.20.1
+        version: 3.25.1
 
   packages/integrations/vercel/test/fixtures/basic:
     dependencies:
@@ -4924,6 +4933,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/vercel/test/fixtures/image:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/vercel/test/fixtures/middleware:
     dependencies:
       '@astrojs/vercel':
         specifier: workspace:*
@@ -9015,6 +9033,10 @@ packages:
         optional: true
     dev: false
 
+  /@vercel/edge@0.3.4:
+    resolution: {integrity: sha512-dFU+yAUDQRwpuRGxRDlEO1LMq0y1LGsBgkyryQWe4w15/Fy2/lCnpvdIoAhHl3QvIGAxCLHzwRHsqfLRdpxgJQ==}
+    dev: true
+
   /@vercel/nft@0.22.6:
     resolution: {integrity: sha512-gTsFnnT4mGxodr4AUlW3/urY+8JKKB452LwF3m477RFUJTAaDmcz2JqFuInzvdybYIeyIv1sSONEJxsxnbQ5JQ==}
     engines: {node: '>=14'}
@@ -9354,6 +9376,11 @@ packages:
     dependencies:
       type-fest: 1.4.0
     dev: false
+
+  /ansi-regex@3.0.1:
+    resolution: {integrity: sha512-+O9Jct8wf++lXxxFc4hc8LsjaSq0HFzzL7cVsw8pRDIPdjKD2mT4ytDZlLuSBZ4cLKZFXIrMGO7DbQCtMJJMKw==}
+    engines: {node: '>=4'}
+    dev: true
 
   /ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -9883,6 +9910,16 @@ packages:
     dependencies:
       chai: 4.3.7
       check-error: 1.0.2
+    dev: true
+
+  /chai-jest-snapshot@2.0.0(chai@4.3.7):
+    resolution: {integrity: sha512-u8jZZjw/0G1t5A8wDfH6K7DAVfMg3g0dsw9wKQURNUyrZX96VojHNrFMmLirq1m0kOvC5icgL/Qh/fu1MZyvUw==}
+    peerDependencies:
+      chai: '>=1.9.0'
+    dependencies:
+      chai: 4.3.7
+      jest-snapshot: 21.2.1
+      lodash.values: 4.3.0
     dev: true
 
   /chai-xml@0.4.1(chai@4.3.7):
@@ -10593,6 +10630,11 @@ packages:
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
+
+  /diff@3.5.0:
+    resolution: {integrity: sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==}
+    engines: {node: '>=0.3.1'}
+    dev: true
 
   /diff@5.0.0:
     resolution: {integrity: sha512-/VTCrvm5Z0JGty/BWHljh+BAiw3IK+2j87NGMu8Nwc/f48WoDAC395uomO9ZD117ZOBaHmkX1oyLvkVM/aIT3w==}
@@ -12837,6 +12879,38 @@ packages:
       minimatch: 3.1.2
     dev: false
 
+  /jest-diff@21.2.1:
+    resolution: {integrity: sha512-E5fu6r7PvvPr5qAWE1RaUwIh/k6Zx/3OOkZ4rk5dBJkEWRrUuSgbMt2EO8IUTPTd6DOqU3LW6uTIwX5FRvXoFA==}
+    dependencies:
+      chalk: 2.4.2
+      diff: 3.5.0
+      jest-get-type: 21.2.0
+      pretty-format: 21.2.1
+    dev: true
+
+  /jest-get-type@21.2.0:
+    resolution: {integrity: sha512-y2fFw3C+D0yjNSDp7ab1kcd6NUYfy3waPTlD8yWkAtiocJdBRQqNoRqVfMNxgj+IjT0V5cBIHJO0z9vuSSZ43Q==}
+    dev: true
+
+  /jest-matcher-utils@21.2.1:
+    resolution: {integrity: sha512-kn56My+sekD43dwQPrXBl9Zn9tAqwoy25xxe7/iY4u+mG8P3ALj5IK7MLHZ4Mi3xW7uWVCjGY8cm4PqgbsqMCg==}
+    dependencies:
+      chalk: 2.4.2
+      jest-get-type: 21.2.0
+      pretty-format: 21.2.1
+    dev: true
+
+  /jest-snapshot@21.2.1:
+    resolution: {integrity: sha512-bpaeBnDpdqaRTzN8tWg0DqOTo2DvD3StOemxn67CUd1p1Po+BUpvePAp44jdJ7Pxcjfg+42o4NHw1SxdCA2rvg==}
+    dependencies:
+      chalk: 2.4.2
+      jest-diff: 21.2.1
+      jest-matcher-utils: 21.2.1
+      mkdirp: 0.5.6
+      natural-compare: 1.4.0
+      pretty-format: 21.2.1
+    dev: true
+
   /jest-worker@26.6.2:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
@@ -13132,6 +13206,10 @@ packages:
 
   /lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
+    dev: true
+
+  /lodash.values@4.3.0:
+    resolution: {integrity: sha512-r0RwvdCv8id9TUblb/O7rYPwVy6lerCbcawrfdo9iC/1t1wsNMJknO79WNBgwkH0hIeJ08jmvvESbFpNb4jH0Q==}
     dev: true
 
   /lodash@4.17.21:
@@ -14017,6 +14095,13 @@ packages:
 
   /mkdirp-classic@0.5.3:
     resolution: {integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==}
+
+  /mkdirp@0.5.6:
+    resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
+    hasBin: true
+    dependencies:
+      minimist: 1.2.8
+    dev: true
 
   /mkdirp@1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
@@ -15220,6 +15305,13 @@ packages:
     resolution: {integrity: sha512-Rk753HI8f4uivXi4ZCIYdhmG1V+WKzvRMg/X+M42a6t7D07RcmopXJMDNk6N++7Bl75URRGsb40ruvg7Hcp2wQ==}
     engines: {node: ^14.13.1 || >=16.0.0}
     dev: false
+
+  /pretty-format@21.2.1:
+    resolution: {integrity: sha512-ZdWPGYAnYfcVP8yKA3zFjCn8s4/17TeYH28MXuC8vTp0o21eXjbFGcOAXZEaDaOFJjc3h2qa7HQNHNshhvoh2A==}
+    dependencies:
+      ansi-regex: 3.0.1
+      ansi-styles: 3.2.1
+    dev: true
 
   /pretty-format@27.5.1:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
