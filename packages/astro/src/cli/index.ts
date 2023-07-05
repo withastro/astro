@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import * as colors from 'kleur/colors';
+import { arch, platform } from 'node:os';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { ZodError } from 'zod';
@@ -19,7 +20,6 @@ import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { openInBrowser } from './open.js';
-import { arch, platform } from 'node:os';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
