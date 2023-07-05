@@ -21,7 +21,7 @@ export function determinesIfNeedsDirectiveScript(result: SSRResult, directive: s
 export type PrescriptType = null | 'both' | 'directive';
 
 function getDirectiveScriptText(result: SSRResult, directive: string): string {
-	const clientDirectives = result._metadata.clientDirectives;
+	const clientDirectives = result.clientDirectives;
 	const clientDirective = clientDirectives.get(directive);
 	if (!clientDirective) {
 		throw new Error(`Unknown directive: ${directive}`);

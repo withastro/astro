@@ -1954,9 +1954,6 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<string>;
-	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
@@ -1964,17 +1961,30 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
+	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
+	/**
+	 * Only used for logging
+	 */
+	pathname: string;
+	cookies: AstroCookies | undefined;
 	_metadata: SSRMetadata;
 }
 
+/**
+ * Ephemeral and mutable state during rendering that doesn't rely
+ * on external configuration
+ */
 export interface SSRMetadata {
-	renderers: SSRLoadedRenderer[];
-	pathname: string;
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	headInTree: boolean;
-	clientDirectives: Map<string, string>;
+	extraHead: string[];
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 }
 
 /* Preview server stuff */

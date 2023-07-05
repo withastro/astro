@@ -35,8 +35,8 @@ export function renderAllHeadContent(result: SSRResult) {
 
 	let content = links.join('\n') + styles.join('\n') + scripts.join('\n');
 
-	if (result.extraHead.length > 0) {
-		for (const part of result.extraHead) {
+	if (result._metadata.extraHead.length > 0) {
+		for (const part of result._metadata.extraHead) {
 			content += part;
 		}
 	}
