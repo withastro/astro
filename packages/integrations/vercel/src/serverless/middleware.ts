@@ -1,7 +1,7 @@
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { join } from 'node:path';
-import { ASTRO_LOCALS_HEADER } from './adapter.js';
 import { existsSync } from 'fs';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ASTRO_LOCALS_HEADER } from './adapter.js';
 
 /**
  * It generates the Vercel Edge Middleware file.

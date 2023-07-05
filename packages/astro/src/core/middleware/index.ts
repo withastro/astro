@@ -1,6 +1,6 @@
 import type { MiddlewareResponseHandler, Params } from '../../@types/astro';
-import { sequence } from './sequence.js';
 import { createAPIContext } from '../endpoint/index.js';
+import { sequence } from './sequence.js';
 
 function defineMiddleware(fn: MiddlewareResponseHandler) {
 	return fn;
