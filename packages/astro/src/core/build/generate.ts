@@ -525,10 +525,8 @@ async function generatePath(
 		renderers: manifest.renderers,
 		clientDirectives: manifest.clientDirectives,
 		async resolve(specifier: string) {
-			if (!(specifier in manifest.entryModules)) {
-				throw new Error(`Unable to resolve [${specifier}]`);
-			}
-			const hashedFilePath = manifest.entryModules[specifier];
+			// NOTE: next PR, borrow logic from build manifest maybe?
+			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {
 				// If no "astro:scripts/before-hydration.js" script exists in the build,
 				// then we can assume that no before-hydration scripts are needed.
@@ -664,6 +662,7 @@ export function generateRuntimeManifest(
 ): SSRManifest {
 	return {
 		assets: new Set(),
+		entryModules: {},
 		routes: [],
 		adapterName: '',
 		markdown: settings.config.markdown,
@@ -675,6 +674,5 @@ export function generateRuntimeManifest(
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		componentMetadata: internals.componentMetadata,
-		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 	};
 }
