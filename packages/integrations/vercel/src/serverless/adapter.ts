@@ -15,19 +15,10 @@ import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 import { generateEdgeMiddleware } from './middleware.js';
 import { fileURLToPath } from 'node:url';
-import type { RequestContext } from '@vercel/edge';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
-
-export type CreateLocals = ({
-	request,
-	context,
-}: {
-	request: Request;
-	context: RequestContext;
-}) => object;
 
 function getAdapter(): AstroAdapter {
 	return {
