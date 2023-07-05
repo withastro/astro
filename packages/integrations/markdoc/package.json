@@ -63,15 +63,15 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/internal-helpers": "^0.1.0",
+    "@astrojs/internal-helpers": "^0.1.1",
     "@astrojs/prism": "^2.1.2",
     "@markdoc/markdoc": "^0.3.0",
     "esbuild": "^0.17.19",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.5",
-    "shiki": "^0.14.1",
-    "zod": "^3.17.3"
+    "shiki": "^0.14.3",
+    "zod": "^3.21.4"
   },
   "peerDependencies": {
     "astro": "workspace:^2.7.4"
@@ -87,7 +87,7 @@
     "devalue": "^4.3.2",
     "linkedom": "^0.14.26",
     "mocha": "^9.2.2",
-    "rollup": "^3.25.1",
+    "rollup": "^3.26.0",
     "vite": "^4.3.9"
   },
   "engines": {

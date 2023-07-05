@@ -5,10 +5,10 @@
   "dependencies": {
     "@astrojs/react": "workspace:*",
     "@astrojs/svelte": "workspace:*",
-    "@test/astro-client-only-pkg": "file:./pkg",
+    "@test/astro-client-only-pkg": "file:pkg",
     "astro": "workspace:*",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "svelte": "^3.59.1"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "svelte": "^3.59.2"
   }
 }

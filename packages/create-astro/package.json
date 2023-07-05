@@ -44,7 +44,7 @@
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*",
     "strip-ansi": "^7.1.0",
-    "strip-json-comments": "^5.0.0"
+    "strip-json-comments": "^5.0.1"
   },
   "engines": {
     "node": ">=16.12.0"

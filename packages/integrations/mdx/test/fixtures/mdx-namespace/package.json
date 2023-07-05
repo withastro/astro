@@ -6,6 +6,6 @@
     "@astrojs/react": "workspace:*",
     "astro": "workspace:*",
     "react": "^18.2.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.2.0"
   }
 }

@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.8",
     "@types/dlv": "^1.1.2",
-    "@types/node": "^18.16.18",
+    "@types/node": "^18.16.19",
     "@types/which-pm-runs": "^1.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.7",

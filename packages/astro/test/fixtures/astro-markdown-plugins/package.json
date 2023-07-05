@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "hast-util-select": "^5.0.2",
-    "rehype-slug": "^5.0.1"
+    "hast-util-select": "^5.0.5",
+    "rehype-slug": "^5.1.0"
   }
 }

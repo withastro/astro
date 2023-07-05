@@ -55,7 +55,7 @@
     "@vercel/analytics": "^0.1.11",
     "@vercel/nft": "^0.22.6",
     "esbuild": "^0.17.19",
-    "fast-glob": "^3.2.12",
+    "fast-glob": "^3.3.0",
     "set-cookie-parser": "^2.6.0",
     "web-vitals": "^3.3.2"
   },
