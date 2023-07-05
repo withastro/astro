@@ -89,14 +89,47 @@ function renderSimpleChecks(html) {
 function renderNestedHTMLChecks(html) {
 	const { document } = parseHTML(html);
 
-  const p = document.querySelector('p');
-  expect(p.textContent).to.equal('before inner after');
-  expect(p.children.length).to.equal(1);
+  const p1 = document.querySelector('p:nth-of-type(1)');
+  expect(p1.id).to.equal('p1');
+  expect(p1.textContent).to.equal('before inner after');
+  expect(p1.children.length).to.equal(1);
 
-  const pSpan1 = p.querySelector('span');
-  expect(pSpan1.textContent).to.equal('inner');
-  expect(pSpan1.id).to.equal('inner1');
-  expect(pSpan1.className).to.equal('inner-class');
-  expect(pSpan1.style.color).to.equal('hotpink');
+  const p1Span1 = p1.querySelector('span');
+  expect(p1Span1.textContent).to.equal('inner');
+  expect(p1Span1.id).to.equal('inner1');
+  expect(p1Span1.className).to.equal('inner-class');
+  expect(p1Span1.style.color).to.equal('hotpink');
+
+  const p2 = document.querySelector('p:nth-of-type(2)');
+  expect(p2.id).to.equal('p2');
+  expect(p2.textContent).to.equal('\n  before\n  inner\n  after\n');
+  expect(p2.children.length).to.equal(1);
+
+  const divL1 = document.querySelector('div:nth-of-type(1)');
+  expect(divL1.id).to.equal('div-l1');
+  expect(divL1.children.length).to.equal(2);
+
+  const divL2_1 = divL1.querySelector('div:nth-of-type(1)');
+  expect(divL2_1.id).to.equal('div-l2-1');
+  expect(divL2_1.children.length).to.equal(1);
+
+  const p3 = divL2_1.querySelector('p:nth-of-type(1)');
+  expect(p3.id).to.equal('p3');
+  expect(p3.textContent).to.equal('before inner after');
+  expect(p3.children.length).to.equal(1);
+
+  const divL2_2 = divL1.querySelector('div:nth-of-type(2)');
+  expect(divL2_2.id).to.equal('div-l2-2');
+  expect(divL2_2.children.length).to.equal(2);
+
+  const p4 = divL2_2.querySelector('p:nth-of-type(1)');
+  expect(p4.id).to.equal('p4');
+  expect(p4.textContent).to.equal('before inner after');
+  expect(p4.children.length).to.equal(1);
+
+  const p5 = divL2_2.querySelector('p:nth-of-type(2)');
+  expect(p5.id).to.equal('p5');
+  expect(p5.textContent).to.equal('before inner after');
+  expect(p5.children.length).to.equal(1);
 
 }
