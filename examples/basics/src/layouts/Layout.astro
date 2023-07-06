@@ -1,4 +1,6 @@
 ---
+import { ViewTransitions } from 'astro:transitions';
+ 
 export interface Props {
 	title: string;
 }
@@ -15,8 +17,9 @@ const { title } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<ViewTransitions />
 	</head>
-	<body transition:animate="slide">
+	<body transition:animate="fade">
 		<slot />
 	</body>
 </html>

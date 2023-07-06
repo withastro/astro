@@ -1,4 +1,5 @@
 ---
+import { ViewTransitions } from 'astro:transitions';
 import Nav from '../components/Nav.astro';
 ---
 
@@ -10,8 +11,9 @@ import Nav from '../components/Nav.astro';
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro - Hacker News</title>
 		<meta name="description" content="Hacker News Clone built with Astro" />
+		<ViewTransitions />
 	</head>
-	<body>
+	<body transition:animate="fade">
 		<Nav />
 		<slot />
 		<style is:global>
