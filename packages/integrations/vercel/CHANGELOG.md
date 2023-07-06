@@ -1,5 +1,22 @@
 # @astrojs/vercel
 
+## 3.7.0
+
+### Minor Changes
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - Support for Vercel Edge Middleware via Astro middleware.
+
+  When a project uses the new option Astro `build.excludeMiddleware`, the
+  `@astrojs/vercel/serverless` adapter will automatically create a Vercel Edge Middleware
+  that will automatically communicate with the Astro Middleware.
+
+  Check the [documentation](https://github.com/withastro/astro/blob/main/packages/integrations/vercel/README.md##vercel-edge-middleware-with-astro-middleware) for more details.
+
+### Patch Changes
+
+- Updated dependencies [[`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`6e9c29579`](https://github.com/withastro/astro/commit/6e9c295799cb6524841adbcbec21ff628d8d19c8), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b)]:
+  - astro@2.8.0
+
 ## 3.6.0
 
 ### Minor Changes
