@@ -9,7 +9,7 @@ describe('<Code />', () => {
 		let container;
 		let mod;
 		before(async () => {
-			container = await createContainer({ root, disableTelemetry: true });
+			container = await createContainer({ root });
 			const loader = createViteLoader(container.viteServer);
 			mod = await loader.import('astro/components/Shiki.js');
 		});

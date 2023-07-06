@@ -58,7 +58,7 @@ function convertToSerializedForm(
 	value: any,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
 	parents = new WeakSet<any>()
-): [ValueOf<typeof PROP_TYPE>, any] {
+): [ValueOf<typeof PROP_TYPE>, any] | [ValueOf<typeof PROP_TYPE>] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {
 		case '[object Date]': {
@@ -100,6 +100,8 @@ function convertToSerializedForm(
 		default: {
 			if (value !== null && typeof value === 'object') {
 				return [PROP_TYPE.Value, serializeObject(value, metadata, parents)];
+			} else if (value === undefined) {
+				return [PROP_TYPE.Value];
 			} else {
 				return [PROP_TYPE.Value, value];
 			}

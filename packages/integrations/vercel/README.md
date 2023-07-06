@@ -18,7 +18,7 @@ If you're using Astro as a static site builder — its behavior out of the box �
 
 If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
 
-[Vercel](https://www.vercel.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository.  This adapter enhances the Astro build process to prepare your project for deployment through Vercel.
+[Vercel](https://www.vercel.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository. This adapter enhances the Astro build process to prepare your project for deployment through Vercel.
 
 ## Installation
 
@@ -37,22 +37,22 @@ If you prefer to install the adapter manually instead, complete the following tw
 
 1. Install the Vercel adapter to your project’s dependencies using your preferred package manager. If you’re using npm or aren’t sure, run this in the terminal:
 
-    ```bash
-      npm install @astrojs/vercel
-    ```
+   ```bash
+     npm install @astrojs/vercel
+   ```
 
 1. Add two new lines to your `astro.config.mjs` project configuration file.
 
-    ```js ins={3, 6-7}
-    // astro.config.mjs
-    import { defineConfig } from 'astro/config';
-    import vercel from '@astrojs/vercel/serverless';
+   ```js ins={3, 6-7}
+   // astro.config.mjs
+   import { defineConfig } from 'astro/config';
+   import vercel from '@astrojs/vercel/serverless';
 
-    export default defineConfig({
-      output: 'server',
-      adapter: vercel(),
-    });
-    ```
+   export default defineConfig({
+     output: 'server',
+     adapter: vercel(),
+   });
+   ```
 
 ### Targets
 
@@ -103,8 +103,8 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    analytics: true
-  })
+    analytics: true,
+  }),
 });
 ```
 
@@ -125,9 +125,9 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     imagesConfig: {
-      sizes: [320, 640, 1280]
-    }
-  })
+      sizes: [320, 640, 1280],
+    },
+  }),
 });
 ```
 
@@ -147,22 +147,29 @@ import vercel from '@astrojs/vercel/static';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    imageService: true
-  })
+    imageService: true,
+  }),
 });
 ```
 
 ```astro
 ---
-import { Image } from "astro:assets";
-import astroLogo from "../assets/logo.png";
+import { Image } from 'astro:assets';
+import astroLogo from '../assets/logo.png';
 ---
 
 <!-- This component -->
 <Image src={astroLogo} alt="My super logo!" />
 
 <!-- will become the following HTML -->
-<img src="/_vercel/image?url=_astro/logo.hash.png&w=...&q=..." alt="My super logo!" loading="lazy" decoding="async" width="..." height="..." />
+<img
+  src="/_vercel/image?url=_astro/logo.hash.png&w=...&q=..."
+  alt="My super logo!"
+  loading="lazy"
+  decoding="async"
+  width="..."
+  height="..."
+/>
 ```
 
 ### includeFiles
@@ -180,8 +187,8 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    includeFiles: ['./my-data.json']
-  })
+    includeFiles: ['./my-data.json'],
+  }),
 });
 ```
 
@@ -203,37 +210,128 @@ import vercel from '@astrojs/vercel/serverless';
 export default defineConfig({
   output: 'server',
   adapter: vercel({
-    excludeFiles: ['./src/some_big_file.jpg']
-  })
+    excludeFiles: ['./src/some_big_file.jpg'],
+  }),
 });
 ```
 
-### Vercel Middleware
+### Per-page functions
 
-You can use Vercel middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You don't need to install `@vercel/edge` to write middleware, but you do need to install it to use features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
+The Vercel adapter builds to a single function by default. Astro 2.7 added support for splitting your build into separate entry points per page. If you use this configuration the Vercel adapter will generate a separate function for each page. This can help reduce the size of each function so they are only bundling code used on that page.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel(),
+  build: {
+    split: true,
+  },
+});
+```
+
+### Vercel Edge Middleware
+
+You can use Vercel Edge middleware to intercept a request and redirect before sending a response. Vercel middleware can run for Edge, SSR, and Static deployments. You may not need to install this package for your middleware. `@vercel/edge` is only required to use some middleware features such as geolocation. For more information see [Vercel’s middleware documentation](https://vercel.com/docs/concepts/functions/edge-middleware).
 
 1. Add a `middleware.js` file to the root of your project:
 
-    ```js
-    // middleware.js
-    export const config = {
-      // Only run the middleware on the admin route
-      matcher: '/admin',
-    };
+   ```js
+   // middleware.js
+   export const config = {
+     // Only run the middleware on the admin route
+     matcher: '/admin',
+   };
 
-    export default function middleware(request) {
-      const url = new URL(request.url);
-      // You can retrieve IP location or cookies here.
-      if (url.pathname === "/admin") {
-        url.pathname = "/"
-      }
-      return Response.redirect(url);
-    }
-    ```
+   export default function middleware(request) {
+     const url = new URL(request.url);
+     // You can retrieve IP location or cookies here.
+     if (url.pathname === '/admin') {
+       url.pathname = '/';
+     }
+     return Response.redirect(url);
+   }
+   ```
+
 1. While developing locally, you can run `vercel dev` to run middleware. In production, Vercel will handle this for you.
 
+<!-- prettier-ignore -->
 > **Warning**
 > **Trying to rewrite?** Currently rewriting a request with middleware only works for static files.
+
+### Vercel Edge Middleware with Astro middleware
+
+The `@astrojs/vercel/serverless` adapter can automatically create the Vercel Edge middleware from an Astro middleware in your code base.
+
+This is an opt-in feature, and the `build.excludeMiddleware` option needs to be set to `true`:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
+export default defineConfig({
+  output: 'server',
+  adapter: vercel(),
+  build: {
+    excludeMiddleware: true,
+  },
+});
+```
+
+Optionally, you can create a file recognized by the adapter named `vercel-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
+
+Typings requires the [`@vercel/edge`](https://www.npmjs.com/package/@vercel/edge) package.
+
+```js
+// src/vercel-edge-middleware.js
+/**
+ *
+ * @param options.request {Request}
+ * @param options.context {import("@vercel/edge").RequestContext}
+ * @returns {object}
+ */
+export default function ({ request, context }) {
+  // do something with request and context
+  return {
+    title: "Spider-man's blog",
+  };
+}
+```
+
+If you use TypeScript, you can type the function as follows:
+
+```ts
+// src/vercel-edge-middleware.ts
+import type { RequestContext } from '@vercel/edge';
+
+export default function ({ request, context }: { request: Request; context: RequestContext }) {
+  // do something with request and context
+  return {
+    title: "Spider-man's blog",
+  };
+}
+```
+
+The data returned by this function will be passed to Astro middleware.
+
+The function:
+
+- must export a **default** function;
+- must **return** an `object`;
+- accepts an object with a `request` and `context` as properties;
+- `request` is typed as [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request);
+- `context` is typed as [`RequestContext`](https://vercel.com/docs/concepts/functions/edge-functions/vercel-edge-package#requestcontext);
+
+#### Limitations and constraints
+
+When you opt in to this feature, there are few constraints to note:
+
+- The Vercel Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This an architectural constraint that follows the [boundaries set by Vercel](https://vercel.com/docs/concepts/functions/edge-middleware).
+- Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
+- `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
 
 ## Troubleshooting
 

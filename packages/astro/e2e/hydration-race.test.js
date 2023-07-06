@@ -19,8 +19,6 @@ test.describe('Hydration race', () => {
 	test('Islands inside of slots hydrate', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/slot'));
 
-		const html = await page.content();
-
 		const one = page.locator('#one');
 		await expect(one, 'updated text').toHaveText('Hello One in the client');
 

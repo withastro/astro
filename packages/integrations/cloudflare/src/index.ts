@@ -1,8 +1,9 @@
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
-import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
+import { dirname } from 'path';
 import glob from 'tiny-glob';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -14,6 +15,7 @@ interface BuildConfig {
 	server: URL;
 	client: URL;
 	serverEntry: string;
+	split?: boolean;
 }
 
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
@@ -21,7 +23,7 @@ export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 		? {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-				exports: ['onRequest'],
+				exports: ['onRequest', 'manifest'],
 		  }
 		: {
 				name: '@astrojs/cloudflare',
@@ -41,6 +43,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
 	const isModeDirectory = args?.mode === 'directory';
+	let _entryPoints = new Map<RouteData, URL>();
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -90,35 +93,97 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.ssr.target = 'webworker';
 				}
 			},
+			'astro:build:ssr': ({ entryPoints }) => {
+				_entryPoints = entryPoints;
+			},
 			'astro:build:done': async ({ pages, routes, dir }) => {
-				const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
-				const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
-				const buildPath = fileURLToPath(entryUrl);
-				// A URL for the final build path after renaming
-				const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
+				const functionsUrl = new URL('functions/', _config.root);
 
-				await esbuild.build({
-					target: 'es2020',
-					platform: 'browser',
-					conditions: ['workerd', 'worker', 'browser'],
-					entryPoints: [entryPath],
-					outfile: buildPath,
-					allowOverwrite: true,
-					format: 'esm',
-					bundle: true,
-					minify: _config.vite?.build?.minify !== false,
-					banner: {
-						js: SHIM,
-					},
-					logOverride: {
-						'ignored-bare-import': 'silent',
-					},
-				});
+				if (isModeDirectory) {
+					await fs.promises.mkdir(functionsUrl, { recursive: true });
+				}
 
-				// Rename to worker.js
-				await fs.promises.rename(buildPath, finalBuildUrl);
+				if (isModeDirectory && _buildConfig.split) {
+					const entryPointsRouteData = [..._entryPoints.keys()];
+					const entryPointsURL = [..._entryPoints.values()];
+					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
+					const outputDir = fileURLToPath(new URL('.astro', _buildConfig.server));
 
-				// throw the server folder in the bin
+					// NOTE: AFAIK, esbuild keeps the order of the entryPoints array
+					const { outputFiles } = await esbuild.build({
+						target: 'es2020',
+						platform: 'browser',
+						conditions: ['workerd', 'worker', 'browser'],
+						entryPoints: entryPaths,
+						outdir: outputDir,
+						allowOverwrite: true,
+						format: 'esm',
+						bundle: true,
+						minify: _config.vite?.build?.minify !== false,
+						banner: {
+							js: SHIM,
+						},
+						logOverride: {
+							'ignored-bare-import': 'silent',
+						},
+						write: false,
+					});
+
+					// loop through all bundled files and write them to the functions folder
+					for (const [index, outputFile] of outputFiles.entries()) {
+						// we need to make sure the filename in the functions folder
+						// matches to cloudflares routing capabilities (see their docs)
+						// IN: src/pages/[language]/files/[...path].astro
+						// OUT: [language]/files/[[path]].js
+						const fileName = entryPointsRouteData[index].component
+							.replace('src/pages/', '')
+							.replace('.astro', '.js')
+							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2) => {
+								return `[[${p2}]]`;
+							});
+
+						const fileUrl = new URL(fileName, functionsUrl);
+						const newFileDir = dirname(fileURLToPath(fileUrl));
+						if (!fs.existsSync(newFileDir)) {
+							fs.mkdirSync(newFileDir, { recursive: true });
+						}
+						await fs.promises.writeFile(fileUrl, outputFile.contents);
+					}
+				} else {
+					const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
+					const entryUrl = new URL(_buildConfig.serverEntry, _config.outDir);
+					const buildPath = fileURLToPath(entryUrl);
+					// A URL for the final build path after renaming
+					const finalBuildUrl = pathToFileURL(buildPath.replace(/\.mjs$/, '.js'));
+
+					await esbuild.build({
+						target: 'es2020',
+						platform: 'browser',
+						conditions: ['workerd', 'worker', 'browser'],
+						entryPoints: [entryPath],
+						outfile: buildPath,
+						allowOverwrite: true,
+						format: 'esm',
+						bundle: true,
+						minify: _config.vite?.build?.minify !== false,
+						banner: {
+							js: SHIM,
+						},
+						logOverride: {
+							'ignored-bare-import': 'silent',
+						},
+					});
+
+					// Rename to worker.js
+					await fs.promises.rename(buildPath, finalBuildUrl);
+
+					if (isModeDirectory) {
+						const directoryUrl = new URL('[[path]].js', functionsUrl);
+						await fs.promises.rename(finalBuildUrl, directoryUrl);
+					}
+				}
+
+				// // // throw the server folder in the bin
 				const serverUrl = new URL(_buildConfig.server);
 				await fs.promises.rm(serverUrl, { recursive: true, force: true });
 
@@ -224,14 +289,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							2
 						)
 					);
-				}
-
-				if (isModeDirectory) {
-					const functionsUrl = new URL('functions/', _config.root);
-					await fs.promises.mkdir(functionsUrl, { recursive: true });
-
-					const directoryUrl = new URL('[[path]].js', functionsUrl);
-					await fs.promises.rename(finalBuildUrl, directoryUrl);
 				}
 			},
 		},

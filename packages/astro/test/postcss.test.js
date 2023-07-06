@@ -4,8 +4,6 @@ import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
 describe('PostCSS', function () {
-	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none`;
-
 	let fixture;
 	let bundledCSS;
 	before(async () => {

@@ -1,5 +1,25 @@
 # @astrojs/image
 
+## 0.17.2
+
+### Patch Changes
+
+- [#7500](https://github.com/withastro/astro/pull/7500) [`e644b3465`](https://github.com/withastro/astro/commit/e644b34659836b463abb8c6a0acc867621c2d3cc) Thanks [@wooseopkim](https://github.com/wooseopkim)! - fix: make `Picture` generate valid dev URLs
+
+- [#7510](https://github.com/withastro/astro/pull/7510) [`4256409a9`](https://github.com/withastro/astro/commit/4256409a9414358e4d0adf90599dd5921ed0b450) Thanks [@Mrowa96](https://github.com/Mrowa96)! - Fix problem where image metadata generation throwed error when provided url started with /@astroimage
+
+- Updated dependencies [[`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb), [`cdc28326c`](https://github.com/withastro/astro/commit/cdc28326cf21f305924363e9c8c02ce54b6ff895), [`19c2d43ea`](https://github.com/withastro/astro/commit/19c2d43ea41efdd8741007de0774e7e394f174b0), [`2172dd4f0`](https://github.com/withastro/astro/commit/2172dd4f0dd8f87d1adbc5ae90f44724e66eb964), [`1170877b5`](https://github.com/withastro/astro/commit/1170877b51aaa13203e8c488dcf4e39d1b5553ee)]:
+  - astro@2.7.3
+
+## 0.17.1
+
+### Patch Changes
+
+- [#7340](https://github.com/withastro/astro/pull/7340) [`9739adc91`](https://github.com/withastro/astro/commit/9739adc91f967a59f50dd8c2862e7e4b2bcf74b4) Thanks [@wooseopkim](https://github.com/wooseopkim)! - Fix problem where filenames with spaces produce invalid srcset attributes
+
+- Updated dependencies [[`30bb36371`](https://github.com/withastro/astro/commit/30bb363713e3d2c50d0d4816d970aa93b836a3b0), [`3943fa390`](https://github.com/withastro/astro/commit/3943fa390a0bd41317a673d0f841e0461c7499cd), [`7877a06d8`](https://github.com/withastro/astro/commit/7877a06d829305eed356fbb8bfd1ef578cd5466e), [`e314a04bf`](https://github.com/withastro/astro/commit/e314a04bfbf0526838b7c9aac452251b27d69719), [`33cdc8622`](https://github.com/withastro/astro/commit/33cdc8622a56c8e5465b7a50f627ecc568870c6b), [`76fcdb84d`](https://github.com/withastro/astro/commit/76fcdb84dd828ac373b2dc739e57fadf650820fd), [`8e2923cc6`](https://github.com/withastro/astro/commit/8e2923cc6219eda01ca2c749f5c7fa2fe4319455), [`459b5bd05`](https://github.com/withastro/astro/commit/459b5bd05f562238f7250520efe3cf0fa156bb45)]:
+  - astro@2.7.0
+
 ## 0.17.0
 
 ### Minor Changes

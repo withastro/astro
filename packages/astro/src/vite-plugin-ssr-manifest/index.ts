@@ -7,7 +7,7 @@ export function vitePluginSSRManifest(): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-manifest',
 		enforce: 'post',
-		resolveId(id, parent) {
+		resolveId(id) {
 			if (id === manifestVirtualModuleId) {
 				return resolvedManifestVirtualModuleId;
 			}

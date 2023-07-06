@@ -1,5 +1,38 @@
 # @astrojs/cloudflare
 
+## 6.6.0
+
+### Minor Changes
+
+- [#7464](https://github.com/withastro/astro/pull/7464) [`1a59185dd`](https://github.com/withastro/astro/commit/1a59185ddd393bf8894ec0c981b26d6fecdb3c67) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Split Support in Cloudflare
+
+  Adds support for configuring `build.split` when using the Cloudflare adapter
+
+### Patch Changes
+
+- Updated dependencies [[`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb), [`cdc28326c`](https://github.com/withastro/astro/commit/cdc28326cf21f305924363e9c8c02ce54b6ff895), [`19c2d43ea`](https://github.com/withastro/astro/commit/19c2d43ea41efdd8741007de0774e7e394f174b0), [`2172dd4f0`](https://github.com/withastro/astro/commit/2172dd4f0dd8f87d1adbc5ae90f44724e66eb964), [`1170877b5`](https://github.com/withastro/astro/commit/1170877b51aaa13203e8c488dcf4e39d1b5553ee)]:
+  - astro@2.7.3
+
+## 6.5.1
+
+### Patch Changes
+
+- [#7419](https://github.com/withastro/astro/pull/7419) [`94afaa3e5`](https://github.com/withastro/astro/commit/94afaa3e501f77e919c719937eb1dbfe170e3dc9) Thanks [@TorbjornHoltmon](https://github.com/TorbjornHoltmon)! - Fixed issue with cloudflare runtime `waitUntil` not working as intended.
+
+- Updated dependencies [[`2b34fc492`](https://github.com/withastro/astro/commit/2b34fc49282cbf5bf89de46359b51a67a5c4b8bb), [`89a483520`](https://github.com/withastro/astro/commit/89a4835202f05d9571aeb42740dbe907a8afc28b)]:
+  - astro@2.6.6
+
+## 6.5.0
+
+### Minor Changes
+
+- [#7386](https://github.com/withastro/astro/pull/7386) [`6d8aa4b61`](https://github.com/withastro/astro/commit/6d8aa4b61f22df2c5052d06dac8e53bbce73f5f5) Thanks [@beynar](https://github.com/beynar)! - Expose cf metadata and Cloudflare Worker Cache API through `caches` in runtime.
+
+### Patch Changes
+
+- Updated dependencies [[`42baf62e7`](https://github.com/withastro/astro/commit/42baf62e7ca0351a2f2c7d06ec58086f90519bb7), [`1c7b63595`](https://github.com/withastro/astro/commit/1c7b6359563f5e83325121efb2e61915d818a35a)]:
+  - astro@2.6.4
+
 ## 6.4.0
 
 ### Minor Changes

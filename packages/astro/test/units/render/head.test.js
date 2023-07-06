@@ -9,12 +9,8 @@ import {
 	renderHead,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import {
-	createBasicEnvironment,
-	createRenderContext,
-	renderPage,
-} from '../../../dist/core/render/index.js';
-import { defaultLogging as logging } from '../../test-utils.js';
+import { createRenderContext, renderPage } from '../../../dist/core/render/index.js';
+import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
@@ -23,10 +19,7 @@ describe('core/render', () => {
 	describe('Injected head contents', () => {
 		let env;
 		before(async () => {
-			env = createBasicEnvironment({
-				logging,
-				renderers: [],
-			});
+			env = createBasicEnvironment();
 		});
 
 		it('Multi-level layouts and head injection, with explicit head', async () => {
@@ -72,7 +65,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -158,7 +151,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -221,7 +214,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result, _props) => {
+			const Page = createComponent((result) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',

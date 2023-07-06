@@ -1,10 +1,5 @@
 /// <reference types="astro/astro-jsx" />
-import type {
-	ColorDefinition,
-	ImageService,
-	OutputFormat,
-	TransformOptions,
-} from '../loaders/index.js';
+import type { ImageService, OutputFormat, TransformOptions } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { ImageMetadata } from '../vite-plugin-astro-image.js';
@@ -91,7 +86,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 		height,
 		aspectRatio,
 		format: format as OutputFormat,
-		background: background as ColorDefinition | undefined,
+		background,
 	};
 }
 

@@ -27,12 +27,12 @@ export function createDevelopmentEnvironment(
 		// This will be overridden in the dev server
 		renderers: [],
 		clientDirectives: settings.clientDirectives,
+		compressHTML: settings.config.compressHTML,
 		resolve: createResolve(loader, settings.config.root),
 		routeCache: new RouteCache(logging, mode),
 		site: settings.config.site,
 		ssr: isServerLikeOutput(settings.config),
 		streaming: true,
-		telemetry: Boolean(settings.forceDisableTelemetry),
 	});
 
 	return {

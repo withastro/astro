@@ -1,9 +1,25 @@
 /* eslint no-console: 'off' */
 import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
+import { execa } from 'execa';
+import fetch from 'node-fetch-native';
 import { exec } from 'node:child_process';
-import { get } from 'node:https';
 import stripAnsi from 'strip-ansi';
+import detectPackageManager from 'which-pm-runs';
+
+// Users might lack access to the global npm registry, this function
+// checks the user's project type and will return the proper npm registry
+//
+// A copy of this function also exists in the astro package
+async function getRegistry(): Promise<string> {
+	const packageManager = detectPackageManager()?.name || 'npm';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+	} catch (e) {
+		return 'https://registry.npmjs.org';
+	}
+}
 
 let stdout = process.stdout;
 /** @internal Used to mock `process.stdout.write` for testing purposes */
@@ -48,11 +64,11 @@ export const welcome = [
 
 export const getName = () =>
 	new Promise<string>((resolve) => {
-		exec('git config user.name', { encoding: 'utf-8' }, (_1, gitName, _2) => {
+		exec('git config user.name', { encoding: 'utf-8' }, (_1, gitName) => {
 			if (gitName.trim()) {
 				return resolve(gitName.split(' ')[0].trim());
 			}
-			exec('whoami', { encoding: 'utf-8' }, (_3, whoami, _4) => {
+			exec('whoami', { encoding: 'utf-8' }, (_3, whoami) => {
 				if (whoami.trim()) {
 					return resolve(whoami.split(' ')[0].trim());
 				}
@@ -63,17 +79,14 @@ export const getName = () =>
 
 let v: string;
 export const getVersion = () =>
-	new Promise<string>((resolve) => {
+	new Promise<string>(async (resolve) => {
 		if (v) return resolve(v);
-		get('https://registry.npmjs.org/astro/latest', (res) => {
-			let body = '';
-			res.on('data', (chunk) => (body += chunk));
-			res.on('end', () => {
-				const { version } = JSON.parse(body);
-				v = version;
-				resolve(version);
-			});
-		});
+		let registry = await getRegistry();
+		const { version } = await fetch(`${registry}/astro/latest`, { redirect: 'follow' }).then(
+			(res) => res.json()
+		);
+		v = version;
+		resolve(version);
 	});
 
 export const log = (message: string) => stdout.write(message + '\n');

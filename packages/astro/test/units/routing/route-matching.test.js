@@ -1,8 +1,7 @@
 // @ts-check
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import { createFs, createRequestAndResponse, defaultLogging } from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'url';
-import { defaultLogging } from '../../test-utils.js';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
 import { createDevelopmentEnvironment } from '../../../dist/core/render/dev/environment.js';
 import { expect } from 'chai';
@@ -135,7 +134,6 @@ describe('Route matching', () => {
 				output: 'hybrid',
 				adapter: testAdapter(),
 			},
-			disableTelemetry: true,
 		});
 		settings = container.settings;
 

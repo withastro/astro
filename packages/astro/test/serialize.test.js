@@ -2,9 +2,34 @@ import { expect } from 'chai';
 import { serializeProps } from '../dist/runtime/server/serialize.js';
 
 describe('serialize', () => {
-	it('serializes a plain value', () => {
+	it('serializes undefined', () => {
+		const input = { a: undefined };
+		const output = `{"a":[0]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('serializes null', () => {
+		const input = { a: null };
+		const output = `{"a":[0,null]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('serializes a boolean', () => {
+		const input = { a: false };
+		const output = `{"a":[0,false]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('serializes a number', () => {
 		const input = { a: 1 };
 		const output = `{"a":[0,1]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('serializes a string', () => {
+		const input = { a: 'b' };
+		const output = `{"a":[0,"b"]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('serializes an object', () => {
+		const input = { a: { b: 'c' } };
+		const output = `{"a":[0,{"b":[0,"c"]}]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes an array', () => {

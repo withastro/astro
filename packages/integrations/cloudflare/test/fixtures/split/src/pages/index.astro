@@ -1,0 +1,22 @@
+---
+const data = Astro.locals;
+---
+<html>
+	<body>
+		<h1>Index</h1>
+		<p>Middleware ({data.title})</p>
+		<p><a href="/prerender/">prerender</a></p>
+		<p><a href="/blog/cool/">sub-route</a></p>
+		<p><a href="/blog/dynamic-post/">dynamic route in static sub-route</a></p>
+		<p><a href="/mustermann/bmw/">dynamic route in dynamic sub-route</a></p>
+		<p><a href="/files/">rest parameters root level</a></p>
+		<p><a href="/files/test.png/">rest parameters one level</a></p>
+		<p><a href="/files/assets/test.png/">rest parameters two level</a></p>
+		<p><a href="/files/assets/images/test.png/">rest parameters three level</a></p>
+	</body>
+	<style>
+		h1 {
+			background-color: red;
+		}
+	</style>
+</html>

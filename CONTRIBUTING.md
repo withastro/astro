@@ -11,7 +11,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=16.12.0"
-pnpm: "^8.2.0"
+pnpm: "^8.6.2"
 # otherwise, your build will fail
 ```
 

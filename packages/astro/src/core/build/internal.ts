@@ -1,13 +1,14 @@
 import type { Rollup } from 'vite';
-import type { SSRResult } from '../../@types/astro';
+import type { RouteData, SSRResult } from '../../@types/astro';
 import type { PageOptions } from '../../vite-plugin-astro/types';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import {
-	ASTRO_PAGE_EXTENSION_POST_PATTERN,
-	ASTRO_PAGE_MODULE_ID,
+	ASTRO_PAGE_RESOLVED_MODULE_ID,
 	getVirtualModulePageIdFromPath,
 } from './plugins/plugin-pages.js';
+import { RESOLVED_SPLIT_MODULE_ID } from './plugins/plugin-ssr.js';
+import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types';
 
 export interface BuildInternals {
@@ -84,7 +85,10 @@ export interface BuildInternals {
 	staticFiles: Set<string>;
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: Rollup.OutputChunk;
+	entryPoints: Map<RouteData, URL>;
+	ssrSplitEntryChunks: Map<string, Rollup.OutputChunk>;
 	componentMetadata: SSRResult['componentMetadata'];
+	middlewareEntryPoint?: URL;
 }
 
 /**
@@ -114,6 +118,8 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
+		ssrSplitEntryChunks: new Map(),
+		entryPoints: new Map(),
 	};
 }
 
@@ -233,7 +239,13 @@ export function* eachPageDataFromEntryPoint(
 	internals: BuildInternals
 ): Generator<[PageBuildData, string]> {
 	for (const [entryPoint, filePath] of internals.entrySpecifierToBundleMap) {
-		if (entryPoint.includes(ASTRO_PAGE_MODULE_ID)) {
+		// virtual pages can be emitted with different prefixes:
+		// - the classic way are pages emitted with prefix ASTRO_PAGE_RESOLVED_MODULE_ID -> plugin-pages
+		// - pages emitted using `build.split`, in this case pages are emitted with prefix RESOLVED_SPLIT_MODULE_ID
+		if (
+			entryPoint.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
+			entryPoint.includes(RESOLVED_SPLIT_MODULE_ID)
+		) {
 			const [, pageName] = entryPoint.split(':');
 			const pageData = internals.pagesByComponent.get(
 				`${pageName.replace(ASTRO_PAGE_EXTENSION_POST_PATTERN, '.')}`

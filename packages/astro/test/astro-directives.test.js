@@ -53,6 +53,19 @@ describe('Directives', async () => {
 		expect($('h1').attr('style').toString()).to.include('--textColor: red;');
 	});
 
+	it('Properly handles define:vars on style elements with style object', async () => {
+		const html = await fixture.readFile('/define-vars/index.html');
+		const $ = cheerio.load(html);
+
+		// All styles should be bundled
+		expect($('style')).to.have.lengthOf(0);
+
+		// Inject style attribute on top-level element in page
+		expect($('#compound-style').attr('style').toString()).to.include(
+			'color:var(--fg);--fg: black;--bg: white;'
+		);
+	});
+
 	it('set:html', async () => {
 		const html = await fixture.readFile('/set-html/index.html');
 		const $ = cheerio.load(html);

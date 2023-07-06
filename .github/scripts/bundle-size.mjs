@@ -23,7 +23,9 @@ export default async function checkBundleSize({ github, context }) {
 		...context.repo,
 		pull_number: PR_NUM,
 	});
-	const clientRuntimeFiles = files.filter(({ filename }) => filename.startsWith(CLIENT_RUNTIME_PATH));
+	const clientRuntimeFiles = files.filter((file) => {
+		return file.filename.startsWith(CLIENT_RUNTIME_PATH) && file.status !== 'removed'
+	});
 	if (clientRuntimeFiles.length === 0) return;
 	
 	const table = [

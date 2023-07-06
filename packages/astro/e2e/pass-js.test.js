@@ -16,49 +16,97 @@ test.afterAll(async () => {
 });
 
 test.describe('Passing JS into client components', () => {
-	test('Complex nested objects', async ({ astro, page }) => {
+	test('Primitive values', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const nestedDate = await page.locator('#nested-date');
-		await expect(nestedDate, 'component is visible').toBeVisible();
-		await expect(nestedDate).toHaveText('Thu, 09 Jun 2022 14:18:27 GMT');
+		// undefined
+		const undefinedType = page.locator('#undefined-type');
+		await expect(undefinedType, 'is visible').toBeVisible();
+		await expect(undefinedType).toHaveText('[object Undefined]');
 
-		const regeExpType = await page.locator('#regexp-type');
-		await expect(regeExpType, 'is visible').toBeVisible();
-		await expect(regeExpType).toHaveText('[object RegExp]');
+		// null
+		const nullType = page.locator('#null-type');
+		await expect(nullType, 'is visible').toBeVisible();
+		await expect(nullType).toHaveText('[object Null]');
 
-		const regExpValue = await page.locator('#regexp-value');
-		await expect(regExpValue, 'is visible').toBeVisible();
-		await expect(regExpValue).toHaveText('ok');
+		// boolean
+		const booleanType = page.locator('#boolean-type');
+		await expect(booleanType, 'is visible').toBeVisible();
+		await expect(booleanType).toHaveText('[object Boolean]');
+
+		const booleanValue = page.locator('#boolean-value');
+		await expect(booleanValue, 'is visible').toBeVisible();
+		await expect(booleanValue).toHaveText('true');
+
+		// number
+		const numberType = page.locator('#number-type');
+		await expect(numberType, 'is visible').toBeVisible();
+		await expect(numberType).toHaveText('[object Number]');
+
+		const numberValue = page.locator('#number-value');
+		await expect(numberValue, 'is visible').toBeVisible();
+		await expect(numberValue).toHaveText('16');
+
+		// string
+		const stringType = page.locator('#string-type');
+		await expect(stringType, 'is visible').toBeVisible();
+		await expect(stringType).toHaveText('[object String]');
+
+		const stringValue = page.locator('#string-value');
+		await expect(stringValue, 'is visible').toBeVisible();
+		await expect(stringValue).toHaveText('abc');
 	});
 
 	test('BigInts', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const bigIntType = await page.locator('#bigint-type');
+		const bigIntType = page.locator('#bigint-type');
 		await expect(bigIntType, 'is visible').toBeVisible();
 		await expect(bigIntType).toHaveText('[object BigInt]');
 
-		const bigIntValue = await page.locator('#bigint-value');
+		const bigIntValue = page.locator('#bigint-value');
 		await expect(bigIntValue, 'is visible').toBeVisible();
 		await expect(bigIntValue).toHaveText('11');
+	});
+
+	test('Complex nested objects', async ({ astro, page }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		// Date
+		const dateType = page.locator('#date-type');
+		await expect(dateType, 'is visible').toBeVisible();
+		await expect(dateType).toHaveText('[object Date]');
+
+		const dateValue = page.locator('#date-value');
+		await expect(dateValue, 'is visible').toBeVisible();
+		await expect(dateValue).toHaveText('Thu, 09 Jun 2022 14:18:27 GMT');
+
+		// RegExp
+		const regExpType = page.locator('#regexp-type');
+		await expect(regExpType, 'is visible').toBeVisible();
+		await expect(regExpType).toHaveText('[object RegExp]');
+
+		const regExpValue = page.locator('#regexp-value');
+		await expect(regExpValue, 'is visible').toBeVisible();
+		await expect(regExpValue).toHaveText('ok');
 	});
 
 	test('Arrays that look like the serialization format', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const arrType = await page.locator('#arr-type');
-		await expect(arrType, 'is visible').toBeVisible();
-		await expect(arrType).toHaveText('[object Array]');
+		const arrayType = page.locator('#array-type');
+		await expect(arrayType, 'is visible').toBeVisible();
+		await expect(arrayType).toHaveText('[object Array]');
 
-		const arrValue = await page.locator('#arr-value');
-		await expect(arrValue, 'is visible').toBeVisible();
-		await expect(arrValue).toHaveText('0,foo');
+		const arrayValue = page.locator('#array-value');
+		await expect(arrayValue, 'is visible').toBeVisible();
+		await expect(arrayValue).toHaveText('0,foo');
 	});
 
 	test('Maps and Sets', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
+		// Map
 		const mapType = page.locator('#map-type');
 		await expect(mapType, 'is visible').toBeVisible();
 		await expect(mapType).toHaveText('[object Map]');
@@ -69,10 +117,13 @@ test.describe('Passing JS into client components', () => {
 		const texts = await mapValues.allTextContents();
 		expect(texts).toEqual(['test1: test2', 'test3: test4']);
 
+		// Set
 		const setType = page.locator('#set-type');
 		await expect(setType, 'is visible').toBeVisible();
+		await expect(setType).toHaveText('[object Set]');
 
 		const setValue = page.locator('#set-value');
+		await expect(setValue, 'is visible').toBeVisible();
 		await expect(setValue).toHaveText('test1,test2');
 	});
 });

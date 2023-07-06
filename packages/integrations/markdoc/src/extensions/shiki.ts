@@ -87,7 +87,6 @@ export default async function shiki({
 						if (langExists) {
 							lang = attributes.language;
 						} else {
-							// eslint-disable-next-line no-console
 							console.warn(
 								`[Shiki highlighter] The language "${attributes.language}" doesn't exist, falling back to plaintext.`
 							);

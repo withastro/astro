@@ -1,13 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import type { ModuleLoader } from './module-loader';
-import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
+import { prependForwardSlash, removeTrailingForwardSlash, slash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
@@ -90,15 +89,18 @@ export function parseNpmName(
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
  */
 export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
+	return slash(fileURLToPath(filePath) + filePath.search);
 }
 
 export const VALID_ID_PREFIX = `/@id/`;
+export const NULL_BYTE_PLACEHOLDER = `__x00__`;
 
-// Strip valid id prefix. This is prepended to resolved Ids that are
-// not valid browser import specifiers by the importAnalysis plugin.
+// Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
+// as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
 export function unwrapId(id: string): string {
-	return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
+	return id.startsWith(VALID_ID_PREFIX)
+		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
+		: id;
 }
 
 export function resolvePages(config: AstroConfig) {

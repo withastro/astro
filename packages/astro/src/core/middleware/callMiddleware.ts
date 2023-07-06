@@ -49,11 +49,6 @@ export async function callMiddleware<R>(
 	apiContext: APIContext,
 	responseFunction: () => Promise<R>
 ): Promise<Response | R> {
-	let resolveResolve: any;
-	new Promise((resolve) => {
-		resolveResolve = resolve;
-	});
-
 	let nextCalled = false;
 	let responseFunctionPromise: Promise<R> | undefined = undefined;
 	const next: MiddlewareNext<R> = async () => {

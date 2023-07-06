@@ -31,7 +31,7 @@ export default function createVitePluginAstroServer({
 			const serverController = createController({ loader });
 
 			/** rebuild the route cache + manifest, as needed. */
-			function rebuildManifest(needsManifestRebuild: boolean, _file: string) {
+			function rebuildManifest(needsManifestRebuild: boolean) {
 				env.routeCache.clearAll();
 				if (needsManifestRebuild) {
 					manifest = createRouteManifest({ settings }, logging);
@@ -66,7 +66,7 @@ export default function createVitePluginAstroServer({
 			if (!id.includes('vite/dist/client/client.mjs')) return;
 
 			// Replace the Vite overlay with ours
-			return patchOverlay(code, settings.config);
+			return patchOverlay(code);
 		},
 	};
 }

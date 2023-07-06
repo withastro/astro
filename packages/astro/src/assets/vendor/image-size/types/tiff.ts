@@ -44,7 +44,7 @@ function extractTags(buffer: Buffer, isBigEndian: boolean) {
   const tags: {[key: number]: number} = {}
 
   let temp: Buffer | undefined = buffer
-  while (temp && temp.length) {
+  while (temp?.length) {
     const code = readUInt(temp, 16, 0, isBigEndian)
     const type = readUInt(temp, 16, 2, isBigEndian)
     const length = readUInt(temp, 32, 4, isBigEndian)

@@ -53,9 +53,8 @@ npm install preact
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
-
-```js ins={2} "preact()"
+```js ins={3} "preact()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 
@@ -68,6 +67,7 @@ export default defineConfig({
 ## Usage
 
 To use your first Preact component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
+
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
 - 🤝 opportunities to mix and nest frameworks together
@@ -86,16 +86,13 @@ You can enable `preact/compat`, Preact’s compatibility layer for rendering Rea
 
 To do so, pass an object to the Preact integration and set `compat: true`.
 
-__`astro.config.mjs`__
-
 ```js "compat: true"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 
 export default defineConfig({
-  integrations: [
-    preact({ compat: true })
-  ],
+  integrations: [preact({ compat: true })],
 });
 ```
 
@@ -103,7 +100,7 @@ With the `compat` option enabled, the Preact integration will render React compo
 
 When importing React component libraries, in order to swap out the `react` and `react-dom` dependencies as `preact/compat`, you can use [`overrides`](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides) to do so.
 
-```js
+```json
 // package.json
 {
   "overrides": {
@@ -117,7 +114,6 @@ Check out the [`pnpm` overrides](https://pnpm.io/package_json#pnpmoverrides) and
 
 > **Note**
 > Currently, the `compat` option only works for React libraries that export code as ESM. If an error happens during build-time, try adding the library to `vite.ssr.noExternal: ['the-react-library']` in your `astro.config.mjs` file.
-
 
 ## Examples
 

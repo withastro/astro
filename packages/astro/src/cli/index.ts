@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import * as colors from 'kleur/colors';
+import { arch, platform } from 'node:os';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { ZodError } from 'zod';
@@ -32,6 +33,7 @@ type CLICommand =
 	| 'reload'
 	| 'sync'
 	| 'check'
+	| 'info'
 	| 'telemetry';
 
 /** Display --help flag */
@@ -47,6 +49,7 @@ function printAstroHelp() {
 				['check', 'Check your project for errors.'],
 				['dev', 'Start the development server.'],
 				['docs', 'Open documentation in your web browser.'],
+				['info', 'List info about your current Astro setup.'],
 				['preview', 'Preview your build locally.'],
 				['sync', 'Generate content collection types.'],
 				['telemetry', 'Configure telemetry settings.'],
@@ -71,6 +74,56 @@ async function printVersion() {
 	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
 }
 
+async function printInfo({
+	cwd,
+	flags,
+	logging,
+}: {
+	cwd?: string;
+	flags?: Flags;
+	logging: LogOptions;
+}) {
+	const whichPm = await import('which-pm');
+	const packageManager = await whichPm.default(process.cwd());
+	let adapter = "Couldn't determine.";
+	let integrations = [];
+
+	const MAX_PADDING = 25;
+	function printRow(label: string, value: string) {
+		const padding = MAX_PADDING - label.length;
+		console.log(`${colors.bold(label)}` + ' '.repeat(padding) + `${colors.green(value)}`);
+	}
+
+	try {
+		const { userConfig } = await openConfig({
+			cwd,
+			flags,
+			cmd: 'info',
+			logging,
+		});
+		if (userConfig.adapter?.name) {
+			adapter = userConfig.adapter.name;
+		}
+		if (userConfig.integrations) {
+			integrations = (userConfig?.integrations ?? [])
+				.filter(Boolean)
+				.flat()
+				.map((i: any) => i?.name);
+		}
+	} catch (_e) {}
+	console.log();
+	printRow('Astro version', `v${ASTRO_VERSION}`);
+	printRow('Package manager', packageManager.name);
+	printRow('Platform', platform());
+	printRow('Architecture', arch());
+	printRow('Adapter', adapter);
+	let integrationsString = "None or couldn't determine.";
+	if (integrations.length > 0) {
+		integrationsString = integrations.join(', ');
+	}
+	printRow('Integrations', integrationsString);
+}
+
 /** Determine which command the user requested */
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
@@ -85,6 +138,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 		'preview',
 		'check',
 		'docs',
+		'info',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -116,7 +170,11 @@ async function handleConfigError(
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
-
+	// logLevel
+	let logging: LogOptions = {
+		dest: nodeLogDestination,
+		level: 'info',
+	};
 	switch (cmd) {
 		case 'help':
 			printAstroHelp();
@@ -124,13 +182,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'version':
 			await printVersion();
 			return process.exit(0);
+		case 'info': {
+			await printInfo({ cwd: root, flags, logging });
+			return process.exit(0);
+		}
 	}
 
-	// logLevel
-	let logging: LogOptions = {
-		dest: nodeLogDestination,
-		level: 'info',
-	};
 	if (flags.verbose) {
 		logging.level = 'debug';
 		enableVerboseLogging();
@@ -148,7 +205,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 			telemetry.record(event.eventCliSession(cmd));
 			const packages = flags._.slice(3) as string[];
-			return await add(packages, { cwd: root, flags, logging, telemetry });
+			return await add(packages, { cwd: root, flags, logging });
 		}
 		case 'docs': {
 			telemetry.record(event.eventCliSession(cmd));
@@ -170,7 +227,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			// Do not track session start, since the user may be trying to enable,
 			// disable, or modify telemetry settings.
 			const subcommand = flags._[3]?.toString();
-			return await telemetryHandler.update(subcommand, { flags, telemetry });
+			return await telemetryHandler.update(subcommand, { flags });
 		}
 	}
 
@@ -209,7 +266,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				configFlagPath,
 				flags,
 				logging,
-				telemetry,
 				handleConfigError(e) {
 					handleConfigError(e, { cmd, cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');
@@ -224,7 +280,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return await build(settings, {
 				flags,
 				logging,
-				telemetry,
 				teardownCompiler: true,
 				mode: flags.mode,
 			});
@@ -256,7 +311,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'preview': {
 			const { default: preview } = await import('../core/preview/index.js');
 
-			const server = await preview(settings, { logging, telemetry, flags });
+			const server = await preview(settings, { logging, flags });
 			if (server) {
 				return await server.closed(); // keep alive until the server is closed
 			}

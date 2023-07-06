@@ -1,10 +1,7 @@
-import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
-import type { AstroErrorCodes } from './errors-data.js';
 import { codeFrame } from './printer.js';
-import { getErrorDataByCode } from './utils.js';
+import { getErrorDataByTitle } from './utils.js';
 
 interface ErrorProperties {
-	code: AstroErrorCodes | DiagnosticCode;
 	title?: string;
 	name?: string;
 	message?: string;
@@ -33,10 +30,6 @@ export function isAstroError(e: unknown): e is AstroError {
 }
 
 export class AstroError extends Error {
-	// NOTE: If this property is named `code`, Rollup will use it to fill the `pluginCode` property downstream
-	// This cause issues since we expect `pluginCode` to be a string containing code
-	// @see https://github.com/rollup/rollup/blob/9a741639f69f204ded8ea404675f725b8d56adca/src/utils/error.ts#L725
-	public errorCode: AstroErrorCodes | DiagnosticCode;
 	public loc: ErrorLocation | undefined;
 	public title: string | undefined;
 	public hint: string | undefined;
@@ -47,26 +40,25 @@ export class AstroError extends Error {
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const { code, name, title, message, stack, location, hint, frame } = props;
+		const { name, title, message, stack, location, hint, frame } = props;
+		this.title = title;
 
-		this.errorCode = code;
 		if (name && name !== 'Error') {
 			this.name = name;
-		} else {
-			// If we don't have a name, let's generate one from the code
-			this.name = getErrorDataByCode(this.errorCode)?.name ?? 'UnknownError';
+		} else if (this.title) {
+			const errorData = getErrorDataByTitle(this.title)?.name;
+
+			if (errorData) {
+				this.name = errorData;
+			}
 		}
-		this.title = title;
+
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
 		this.stack = stack ? stack : this.stack;
 		this.loc = location;
 		this.hint = hint;
 		this.frame = frame;
-	}
-
-	public setErrorCode(errorCode: AstroErrorCodes) {
-		this.errorCode = errorCode;
 	}
 
 	public setLocation(location: ErrorLocation): void {
@@ -89,7 +81,7 @@ export class AstroError extends Error {
 		this.frame = codeFrame(source, location);
 	}
 
-	static is(err: Error | unknown): err is AstroError {
+	static is(err: unknown): err is AstroError {
 		return (err as AstroError).type === 'AstroError';
 	}
 }
@@ -97,13 +89,13 @@ export class AstroError extends Error {
 export class CompilerError extends AstroError {
 	type: ErrorTypes = 'CompilerError';
 
-	constructor(props: Omit<ErrorProperties, 'code'> & { code: DiagnosticCode }, ...params: any) {
+	constructor(props: ErrorProperties, ...params: any) {
 		super(props, ...params);
 
 		this.name = 'CompilerError';
 	}
 
-	static is(err: Error | unknown): err is CompilerError {
+	static is(err: unknown): err is CompilerError {
 		return (err as CompilerError).type === 'CompilerError';
 	}
 }
@@ -111,7 +103,7 @@ export class CompilerError extends AstroError {
 export class CSSError extends AstroError {
 	type: ErrorTypes = 'CSSError';
 
-	static is(err: Error | unknown): err is CSSError {
+	static is(err: unknown): err is CSSError {
 		return (err as CSSError).type === 'CSSError';
 	}
 }
@@ -119,7 +111,7 @@ export class CSSError extends AstroError {
 export class MarkdownError extends AstroError {
 	type: ErrorTypes = 'MarkdownError';
 
-	static is(err: Error | unknown): err is MarkdownError {
+	static is(err: unknown): err is MarkdownError {
 		return (err as MarkdownError).type === 'MarkdownError';
 	}
 }
@@ -127,7 +119,7 @@ export class MarkdownError extends AstroError {
 export class InternalError extends AstroError {
 	type: ErrorTypes = 'InternalError';
 
-	static is(err: Error | unknown): err is InternalError {
+	static is(err: unknown): err is InternalError {
 		return (err as InternalError).type === 'InternalError';
 	}
 }
@@ -144,7 +136,7 @@ export class AggregateError extends AstroError {
 		this.errors = props.errors;
 	}
 
-	static is(err: Error | unknown): err is AggregateError {
+	static is(err: unknown): err is AggregateError {
 		return (err as AggregateError).type === 'AggregateError';
 	}
 }
@@ -160,7 +152,6 @@ export interface ErrorWithMetadata {
 	type?: ErrorTypes;
 	message: string;
 	stack: string;
-	errorCode?: number;
 	hint?: string;
 	id?: string;
 	frame?: string;

@@ -103,7 +103,7 @@ export async function getRequest(
 ): Promise<Request> {
 	let headers = req.headers as Record<string, string>;
 	let request = new Request(base + req.url, {
-		// @ts-expect-error
+		// @ts-expect-error -- duplex does exist in Vercel requests
 		duplex: 'half',
 		method: req.method,
 		headers,

@@ -80,7 +80,7 @@ function getProjectIdFromGit(): string | null {
 	}
 }
 
-function getProjectId(isCI: boolean): Pick<ProjectInfo, 'isGit' | 'anonymousProjectId'> {
+function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | 'isGit'> {
 	const projectIdFromGit = getProjectIdFromGit();
 	if (projectIdFromGit) {
 		return {
