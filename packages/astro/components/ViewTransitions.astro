@@ -76,4 +76,28 @@ import './viewtransitions.css';
 		navigate(direction === 'back', location.href);
 		currentIndex = index;
 	});
+
+	// Prefetching
+	function maybePrefetch(pathname: string) {
+		if(document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
+		if(navigator.connection){
+			let conn = navigator.connection;
+			if(conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
+		}
+		let link = document.createElement('link');
+		link.setAttribute('rel', 'prefetch');
+		link.setAttribute('href', pathname);
+		document.head.append(link);
+	}
+
+	['mouseenter', 'touchstart', 'focus'].forEach(evName => {
+		document.addEventListener(evName, ev => {
+			if(ev.target instanceof HTMLAnchorElement) {
+				let el = ev.target;
+				if(el.origin === location.origin && el.pathname !== location.pathname) {
+					maybePrefetch(el.pathname);
+				}
+			}
+		}, { passive: true, capture: true });
+	});
 </script>
