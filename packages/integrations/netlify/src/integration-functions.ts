@@ -14,6 +14,14 @@ export function getAdapter(args: Args = {}): AstroAdapter {
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
 		args,
+		supportedFeatures: {
+			functionPerPage: 'Experimental',
+			edgeMiddleware: 'Experimental',
+			hybridOutput: 'Stable',
+			staticOutput: 'Stable',
+			serverOutput: 'Stable',
+			assets: 'Unsupported',
+		},
 	};
 }
 

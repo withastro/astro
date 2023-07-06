@@ -89,6 +89,14 @@ export function getAdapter(args?: Options): AstroAdapter {
 		serverEntrypoint: '@astrojs/deno/server.js',
 		args: args ?? {},
 		exports: ['stop', 'handle', 'start', 'running'],
+		supportedFeatures: {
+			functionPerPage: 'Unsupported',
+			edgeMiddleware: 'Unsupported',
+			hybridOutput: 'Stable',
+			staticOutput: 'Stable',
+			serverOutput: 'Stable',
+			assets: 'Unsupported',
+		},
 	};
 }
 

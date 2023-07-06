@@ -27,6 +27,14 @@ function getAdapter(): AstroAdapter {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		supportedFeatures: {
+			functionPerPage: 'Unsupported',
+			edgeMiddleware: 'Unsupported',
+			hybridOutput: 'Stable',
+			staticOutput: 'Stable',
+			serverOutput: 'Stable',
+			assets: 'Unsupported',
+		},
 	};
 }
 

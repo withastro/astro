@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {
+	AstroAdapterFeatureMap,
 	AstroConfig,
 	AstroRenderer,
 	AstroSettings,
@@ -11,13 +12,20 @@ import type {
 	DataEntryType,
 	HookParameters,
 	RouteData,
+	SupportsKind,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/index.js';
-import { info, type LogOptions } from '../core/logger/core.js';
+import { error, info, type LogOptions, warn } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+
+const STABLE = 'Stable';
+const DEPRECATED = 'Deprecated';
+const UNSUPPORTED = 'Unsupported';
+const EXPERIMENTAL = 'Experimental';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -178,6 +186,33 @@ export async function runHookConfigDone({
 								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
 							);
 						}
+						if (!adapter.supportedFeatures) {
+							// NOTE: throw an error in Astro 4.0
+							warn(
+								logging,
+								'astro',
+								`The adapter ${adapter.name} doesn't provide a feature map. From Astro 3.0, an adapter 
+		can provide a feature map. Not providing a feature map will cause an error in Astro 4.0.`
+							);
+						} else {
+							const validationResult = validateSupportedFeatures(
+								adapter.name,
+								adapter.supportedFeatures,
+								settings.config,
+								logging
+							);
+							for (const [featureName, valid] of Object.entries(validationResult)) {
+								if (!valid) {
+									throw new AstroError({
+										...AstroErrorData.FeatureNotSupportedByAdapter,
+										message: AstroErrorData.FeatureNotSupportedByAdapter.message(
+											adapter.name,
+											featureName
+										),
+									});
+								}
+							}
+						}
 						settings.adapter = adapter;
 					},
 				}),
@@ -185,6 +220,167 @@ export async function runHookConfigDone({
 			});
 		}
 	}
+	// Astro doesn't set a default on purpose when loading the configuration file.
+	// Not setting a default allows to check if the adapter doesn't support the feature in case the user overrides
+	// Astro's defaults.
+	//
+	// At the end of the validation, we push the correct defaults.
+	if (typeof settings.config.image === 'undefined') {
+		settings.config.image = {
+			service: {
+				entrypoint: 'astro/assets/services/squoosh',
+				config: {},
+			},
+		};
+	}
+}
+
+// NOTE: remove for Astro 4.0
+const ALL_UNSUPPORTED: Required<AstroAdapterFeatureMap> = {
+	serverOutput: UNSUPPORTED,
+	staticOutput: UNSUPPORTED,
+	edgeMiddleware: UNSUPPORTED,
+	hybridOutput: UNSUPPORTED,
+	functionPerPage: UNSUPPORTED,
+	assets: { supportKind: UNSUPPORTED },
+};
+
+type ValidationResult = {
+	[Property in keyof AstroAdapterFeatureMap]: boolean;
+};
+
+/**
+ * Checks whether an adapter supports certain features that are enabled via Astro configuration.
+ *
+ * If a configuration is enabled and "unlocks" a feature, but the adapter doesn't support, the function
+ * will throw a runtime error.
+ *
+ */
+export function validateSupportedFeatures(
+	adapterName: string,
+	featureMap: AstroAdapterFeatureMap = ALL_UNSUPPORTED,
+	config: AstroConfig,
+	logging: LogOptions
+): ValidationResult {
+	const {
+		functionPerPage = UNSUPPORTED,
+		edgeMiddleware = UNSUPPORTED,
+		assets,
+		serverOutput = UNSUPPORTED,
+		staticOutput = UNSUPPORTED,
+		hybridOutput = UNSUPPORTED,
+	} = featureMap;
+	const validationResult: ValidationResult = {};
+	validationResult.functionPerPage = validateSupportKind(
+		functionPerPage,
+		adapterName,
+		logging,
+		'functionPerPage',
+		() => config?.build?.split === true && config?.output === 'server'
+	);
+
+	validationResult.edgeMiddleware = validateSupportKind(
+		edgeMiddleware,
+		adapterName,
+		logging,
+		'edgeMiddleware',
+		() => config?.build?.excludeMiddleware === true
+	);
+	validationResult.staticOutput = validateSupportKind(
+		staticOutput,
+		adapterName,
+		logging,
+		'staticOutput',
+		() => config?.output === 'static'
+	);
+
+	validationResult.hybridOutput = validateSupportKind(
+		hybridOutput,
+		adapterName,
+		logging,
+		'hybridOutput',
+		() => config?.output === 'hybrid'
+	);
+
+	validationResult.serverOutput = validateSupportKind(
+		serverOutput,
+		adapterName,
+		logging,
+		'serverOutput',
+		() => config?.output === 'server'
+	);
+	validationResult.assets = validateAssetsFeature(assets, adapterName, config, logging);
+
+	return validationResult;
+}
+
+function validateSupportKind(
+	supportKind: SupportsKind,
+	adapterName: string,
+	logging: LogOptions,
+	featureName: string,
+	hasCorrectConfig: () => boolean
+): boolean {
+	if (supportKind === STABLE) {
+		return true;
+	} else if (supportKind === DEPRECATED) {
+		featureIsDeprecated(adapterName, logging);
+	} else if (supportKind === EXPERIMENTAL) {
+		featureIsExperimental(adapterName, logging);
+	}
+
+	if (hasCorrectConfig() && supportKind === UNSUPPORTED) {
+		featureIsUnsupported(adapterName, logging, featureName);
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function featureIsUnsupported(adapterName: string, logging: LogOptions, featureName: string) {
+	error(
+		logging,
+		`adapter/${adapterName}`,
+		`The feature ${featureName} is not supported by the adapter ${adapterName}.`
+	);
+}
+
+function featureIsExperimental(adapterName: string, logging: LogOptions) {
+	warn(
+		logging,
+		`adapter/${adapterName}`,
+		'The feature is experimental and subject to issues or changes.'
+	);
+}
+
+function featureIsDeprecated(adapterName: string, logging: LogOptions) {
+	warn(
+		logging,
+		`adapter/${adapterName}`,
+		'The feature is deprecated and will be moved in the next release.'
+	);
+}
+
+const NODE_BASED_SERVICES = ['astro/assets/services/sharp', 'astro/assets/services/squoosh'];
+function validateAssetsFeature(
+	assets: { supportKind?: SupportsKind; isNodeCompatible?: boolean } = {},
+	adapterName: string,
+	config: AstroConfig,
+	logging: LogOptions
+): boolean {
+	const { supportKind = UNSUPPORTED, isNodeCompatible = false } = assets;
+	if (NODE_BASED_SERVICES.includes(config?.image?.service?.entrypoint) && !isNodeCompatible) {
+		error(
+			logging,
+			'assets',
+			`The currently selected adapter \`${adapterName}\` does not run on Node, however the currently used image service depends on Node built-ins. ${bold(
+				'Your project will NOT be able to build.'
+			)}`
+		);
+		return false;
+	}
+
+	return validateSupportKind(supportKind, adapterName, logging, 'assets', () => true);
 }
 
 export async function runHookServerSetup({

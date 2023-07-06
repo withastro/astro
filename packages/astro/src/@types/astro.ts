@@ -1660,12 +1660,55 @@ export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStati
 
 export type Params = Record<string, string | undefined>;
 
+export type SupportsKind = 'Unsupported' | 'Stable' | 'Experimental' | 'Deprecated';
+
+export type AstroAdapterFeatureMap = {
+	/**
+	 * The adapter is able serve static pages
+	 */
+	staticOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve pages that are static or rendered via server
+	 */
+	hybridOutput?: SupportsKind;
+	/**
+	 * The adapter is able to serve SSR pages
+	 */
+	serverOutput?: SupportsKind;
+	/**
+	 * Support for emitting a SSR file per page
+	 */
+	functionPerPage?: SupportsKind;
+	/**
+	 * Support when `build.ecludeMiddleware` is enabled.
+	 */
+	edgeMiddleware?: SupportsKind;
+	/**
+	 * The adapter can emit static assets
+	 */
+	assets?: {
+		supportKind?: SupportsKind;
+		/**
+		 * Whether if this adapter deploys files in an enviroment that is Node.js compatible.
+		 *
+		 * The default services used by Astro needs Node.js.
+		 */
+		isNodeCompatible?: boolean;
+	};
+};
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
 	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
+	/**
+	 * List of features supported by an adapter.
+	 *
+	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
+	 */
+	supportedFeatures?: AstroAdapterFeatureMap;
 }
 
 type Body = string;

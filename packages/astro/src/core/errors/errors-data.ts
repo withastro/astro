@@ -1073,6 +1073,19 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 
 	/**
 	 * @docs
+	 * @message Feature not supported by the adapter.
+	 * @description
+	 * The adapter doesn't support certain feature enabled via configuration.
+	 */
+	FeatureNotSupportedByAdapter: {
+		title: 'Feature not supported by the adapter.',
+		message: (adapterName: string, featureName: string) => {
+			return `The adapter ${adapterName} doesn't support the feature ${featureName}. Please turn it off.`;
+		},
+	},
+
+	/**
+	 * @docs
 	 * @see
 	 * - [devalue library](https://github.com/rich-harris/devalue)
 	 * @description
