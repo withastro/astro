@@ -155,7 +155,10 @@ function renderNestedHTMLChecks(html) {
 
 }
 
-/** @param {string} html */
+/** 
+ * Asserts that the rendered HTML tags with interleaved Markdoc tags (both block and inline) rendered in the expected nested graph of elemements
+ * 
+ * @param {string} html */
 function renderComponentsHTMLChecks(html) {
   const { document } = parseHTML(html);
 
