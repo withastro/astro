@@ -21,6 +21,7 @@ export interface Environment {
 	markdown: MarkdownRenderingOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
+	compressHTML: boolean;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
 	resolve: (s: string) => Promise<string>;
