@@ -519,6 +519,7 @@ async function generatePath(
 		mode: opts.mode,
 		renderers: manifest.renderers,
 		clientDirectives: manifest.clientDirectives,
+		compressHTML: manifest.compressHTML,
 		async resolve(specifier: string) {
 			// NOTE: next PR, borrow logic from build manifest maybe?
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
@@ -593,7 +594,6 @@ async function generatePath(
 							mod,
 							renderContext,
 							env,
-							isCompressHTML: settings.config.compressHTML,
 							cookies: apiContext.cookies,
 						});
 					}
@@ -603,7 +603,6 @@ async function generatePath(
 					mod,
 					renderContext,
 					env,
-					isCompressHTML: settings.config.compressHTML,
 					cookies: apiContext.cookies,
 				});
 			}
@@ -660,6 +659,7 @@ export function generateRuntimeManifest(
 		adapterName: '',
 		markdown: settings.config.markdown,
 		clientDirectives: settings.clientDirectives,
+		compressHTML: settings.config.compressHTML,
 		renderers,
 		base: settings.config.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
