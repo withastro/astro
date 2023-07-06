@@ -1638,12 +1638,31 @@ export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStati
 
 export type Params = Record<string, string | undefined>;
 
+export type SupportsKind = 'Unsupported' | 'Stable' | 'Experimental' | 'Deprecated';
+
+export type AstroAdapterSupportsFeatures = {
+	/**
+	 * Support when `build.split` is enabled.
+	 */
+	buildSplit?: SupportsKind;
+	/**
+	 * Support when `build.ecludeMiddleware` is enabled.
+	 */
+	edgeMiddleware?: SupportsKind;
+};
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
 	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
+	/**
+	 * List of features supported by an adapter.
+	 *
+	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
+	 */
+	supportsFeatures?: AstroAdapterSupportsFeatures;
 }
 
 type Body = string;

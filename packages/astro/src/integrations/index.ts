@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {
+	AstroAdapter,
 	AstroConfig,
 	AstroRenderer,
 	AstroSettings,
@@ -11,13 +12,15 @@ import type {
 	DataEntryType,
 	HookParameters,
 	RouteData,
+	SupportsKind,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/config.js';
-import { info, type LogOptions } from '../core/logger/core.js';
+import { error, info, type LogOptions, warn } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -178,6 +181,7 @@ export async function runHookConfigDone({
 								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
 							);
 						}
+						validateSupportedFeatures(adapter, settings.config, logging);
 						settings.adapter = adapter;
 					},
 				}),
@@ -185,6 +189,101 @@ export async function runHookConfigDone({
 			});
 		}
 	}
+}
+
+/**
+ * Checks whether an adapter supports certain features that are enabled via Astro configuration.
+ *
+ * If a configuration is enabled and "unlocks" a feature, but the adapter doesn't support, the function
+ * will throw a runtime error.
+ *
+ */
+function validateSupportedFeatures(
+	adapter: AstroAdapter,
+	config: AstroConfig,
+	logging: LogOptions
+) {
+	let supportsFeatures = adapter.supportsFeatures ?? {
+		buildSplit: 'Unsupported',
+		edgeMiddleware: 'Unsupported',
+	};
+	const { buildSplit, edgeMiddleware } = supportsFeatures;
+	if (buildSplit) {
+		validateSupportKind(
+			buildSplit,
+			adapter.name,
+			logging,
+			'build.split',
+			() => config.build.split === true
+		);
+	}
+
+	if (edgeMiddleware) {
+		validateSupportKind(
+			edgeMiddleware,
+			adapter.name,
+			logging,
+			'build.excludeMiddleware',
+			() => config.build.excludeMiddleware === true
+		);
+	}
+}
+
+const STABLE = 'Stable';
+const DEPRECATED = 'Deprecated';
+const UNSUPPORTED = 'Unsupported';
+const EXPERIMENTAL = 'Experimental';
+
+function validateSupportKind(
+	supportKind: SupportsKind,
+	adapterName: string,
+	logging: LogOptions,
+	featureName: string,
+	validation: () => boolean
+) {
+	switch (supportKind) {
+		case DEPRECATED: {
+			featureIsDeprecated(adapterName, logging);
+		}
+		case UNSUPPORTED: {
+			if (validation()) {
+				featureIsUnsupported(adapterName, logging, featureName);
+			}
+		}
+		case EXPERIMENTAL: {
+			featureIsExperimental(adapterName, logging);
+		}
+		case STABLE: {
+		}
+	}
+}
+
+function featureIsUnsupported(adapterName: string, logging: LogOptions, featureName: string) {
+	error(
+		logging,
+		`adapter/${adapterName}`,
+		`The feature ${featureName} is not supported by ${adapterName}.`
+	);
+	throw new AstroError({
+		...AstroErrorData.FeatureNotSupportedByAdapter,
+		message: AstroErrorData.FeatureNotSupportedByAdapter.message(adapterName, featureName),
+	});
+}
+
+function featureIsExperimental(adapterName: string, logging: LogOptions) {
+	warn(
+		logging,
+		`adapter/${adapterName}`,
+		'The feature is experimental and subject to issues or changes.'
+	);
+}
+
+function featureIsDeprecated(adapterName: string, logging: LogOptions) {
+	warn(
+		logging,
+		`adapter/${adapterName}`,
+		'The feature is deprecated and will be moved in the next release.'
+	);
 }
 
 export async function runHookServerSetup({

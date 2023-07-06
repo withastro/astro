@@ -24,11 +24,17 @@ export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
 				exports: ['onRequest', 'manifest'],
+				supportsFeatures: {
+					buildSplit: 'Experimental',
+				},
 		  }
 		: {
 				name: '@astrojs/cloudflare',
 				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
 				exports: ['default'],
+				supportsFeatures: {
+					buildSplit: 'Experimental',
+				},
 		  };
 }
 

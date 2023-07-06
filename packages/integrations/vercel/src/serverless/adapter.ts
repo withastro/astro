@@ -25,6 +25,10 @@ function getAdapter(): AstroAdapter {
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
+		supportsFeatures: {
+			buildSplit: 'Experimental',
+			edgeMiddleware: 'Experimental',
+		},
 	};
 }
 
