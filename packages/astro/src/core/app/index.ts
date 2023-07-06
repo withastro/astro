@@ -61,26 +61,41 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
-		this.env = createEnvironment({
-			adapterName: manifest.adapterName,
+		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
+		this.env = this.#createEnvironment(streaming);
+	}
+
+	set setManifest(newManifest: SSRManifest) {
+		this.#manifest = newManifest;
+	}
+
+	/**
+	 * Creates an environment by reading the stored manifest
+	 *
+	 * @param streaming
+	 * @private
+	 */
+	#createEnvironment(streaming = false) {
+		return createEnvironment({
+			adapterName: this.#manifest.adapterName,
 			logging: this.logging,
-			markdown: manifest.markdown,
+			markdown: this.#manifest.markdown,
 			mode: 'production',
-			compressHTML: manifest.compressHTML,
-			renderers: manifest.renderers,
-			clientDirectives: manifest.clientDirectives,
-			async resolve(specifier: string) {
-				if (!(specifier in manifest.entryModules)) {
+			compressHTML: this.#manifest.compressHTML,
+			renderers: this.#manifest.renderers,
+			clientDirectives: this.#manifest.clientDirectives,
+			resolve: async (specifier: string) => {
+				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
-				const bundlePath = manifest.entryModules[specifier];
+				const bundlePath = this.#manifest.entryModules[specifier];
 				switch (true) {
 					case bundlePath.startsWith('data:'):
 					case bundlePath.length === 0: {
 						return bundlePath;
 					}
 					default: {
-						return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
+						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
 					}
 				}
 			},
@@ -89,8 +104,10 @@ export class App {
 			ssr: true,
 			streaming,
 		});
+	}
 
-		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
+	set setManifestData(newManifestData: ManifestData) {
+		this.manifestData = newManifestData;
 	}
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
