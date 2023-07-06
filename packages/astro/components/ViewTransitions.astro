@@ -2,6 +2,8 @@
 import './viewtransitions.css';
 ---
 <script>
+	type Direction = 'forward' | 'back';
+
 	let currentIndex = history.state?.index || 0;
 	if(!history.state) {
 		history.replaceState({index: currentIndex}, document.title);
@@ -15,34 +17,26 @@ import './viewtransitions.css';
 
 	const parser = new DOMParser();
 
-  async function updateDOM(isBackNav: boolean, htmlPromise: Promise<string>) {
+  async function updateDOM(dir: Direction, htmlPromise: Promise<string>) {
     const html = await htmlPromise;
     const doc = parser.parseFromString(html, 'text/html');
-		if(isBackNav) {
-			doc.documentElement.dataset.astroBackTransition = '';
-		}
+		doc.documentElement.dataset.astroTransition = dir;
     document.documentElement.replaceWith(doc.documentElement);
   }
 
-	async function navigate(isBackNav: boolean, href: string) {
+	async function navigate(dir: Direction, href: string) {
 		let htmlPromise = getHTML(href);
 		let finished: Promise<void>;
-		// TODO do we want this feature?
-		document.documentElement.dataset.astroTransition = '';
-		if(isBackNav) {
-			document.documentElement.dataset.astroBackTransition = '';
-		}
+		document.documentElement.dataset.astroTransition = dir;
 		if(document.startViewTransition) {
-			finished = document.startViewTransition(() => updateDOM(isBackNav, htmlPromise)).finished;
+			finished = document.startViewTransition(() => updateDOM(dir, htmlPromise)).finished;
 		} else {
-			finished = updateDOM(isBackNav, htmlPromise);
+			finished = updateDOM(dir, htmlPromise);
 		}
 		try {
 			await finished;
 		} finally {
-			if(isBackNav) {
-				document.documentElement.classList.remove('astro-back-transition');
-			}
+			document.documentElement.removeAttribute('data-astro-transition');
 		}
 	}
 
@@ -60,15 +54,15 @@ import './viewtransitions.css';
 			!ev.defaultPrevented
 			) {
 			ev.preventDefault();
-    	navigate(false, link.href);
+    	navigate('forward', link.href);
 			history.pushState({index: currentIndex + 1}, '', link.href);
 			currentIndex++;
 		}
   });
 	window.addEventListener('popstate', ev => {
 		const index = history.state?.index ?? (currentIndex + 1);
-		const direction = index > currentIndex ? 'forward' : 'back';
-		navigate(direction === 'back', location.href);
+		const direction: Direction = index > currentIndex ? 'forward' : 'back';
+		navigate(direction, location.href);
 		currentIndex = index;
 	});
 

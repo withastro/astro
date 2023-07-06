@@ -36,10 +36,10 @@ export function renderTransition(result: SSRResult, hash: string, animationName:
 	${stringifyAnimation(animations.forwards.new)}
 }
 
-[data-astro-back-transition]::view-transition-old(${transitionName}) {
+[data-astro-transition=back]::view-transition-old(${transitionName}) {
 	${stringifyAnimation(animations.backwards.old)}
 }
-[data-astro-back-transition]::view-transition-new(${transitionName}) {
+[data-astro-transition=back]::view-transition-new(${transitionName}) {
 	${stringifyAnimation(animations.backwards.new)}
 }
 	`.trim()}
