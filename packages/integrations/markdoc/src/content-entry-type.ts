@@ -15,7 +15,7 @@ import type { MarkdocConfigResult } from './load-config.js';
 import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
 import type { MarkdocIntegrationOptions } from './options.js';
-import { htmlTokenTransform } from './html/transform/htmlTokenTransform.js';
+import { htmlTokenTransform } from './extensions/html/transform/html-token-transform.js';
 
 export async function getContentEntryType({
 	markdocConfigResult,

@@ -7,7 +7,7 @@ import { parseInlineCSSToReactLikeObject } from "../css/parse-inline-css-to-reac
 import { mutateRawHtmlAttributesToReactifiedVariants } from "../htmlattributes/mutate-raw-html-attributes-to-react-compatible-variants.js";
 
 // a Markdoc tag that will render a given HTML element and its attributes, as produced by the htmlTokenTransform function
-export const html: Schema<Config, never> = {
+export const htmlTag: Schema<Config, never> = {
 
   attributes: {
     name: { type: String, required: true },
