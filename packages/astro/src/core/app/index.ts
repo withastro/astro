@@ -301,7 +301,7 @@ export class App {
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.onRequest);
+		const result = await callEndpoint(handler, this.#env, ctx, page.onRequest);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
