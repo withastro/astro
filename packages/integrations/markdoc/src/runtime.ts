@@ -11,7 +11,7 @@ import { createComponent, renderComponent } from 'astro/runtime/server/index.js'
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
 import type { MarkdocIntegrationOptions } from './options.js';
-import { html } from './html/tagdefs/html.tag.js';
+import { htmlTag } from './extensions/html/tagdefs/html.tag.js';
 
 /**
  * Merge user config with default config and set up context (ex. heading ID slugger)
@@ -200,6 +200,6 @@ export function createContentComponent(
 // statically define a partial MarkdocConfig which registers the required "html-tag" Markdoc tag when the "enableHTML" feature is enabled
 const HTML_CONFIG: AstroMarkdocConfig = {
   tags: {
-    "html-tag": html,
+    "html-tag": htmlTag,
   },
 };
