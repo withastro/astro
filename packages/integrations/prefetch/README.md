@@ -82,7 +82,7 @@ export default defineConfig({
 ```
 
 ### config.intentSelector
-By default, the prefetch script also searches the page for any links that include a `rel="prefetch-intent"` attribute, ex: `<a rel="prefetch-intent" />`. This behavior can be changed in your astro.config.* file to use a custom query selector when finding prefetch-intent links.
+By default, the prefetch script also searches the page for any links that include a `rel="prefetch-intent"` attribute, ex: `<a rel="prefetch-intent" />`. This behavior can be changed in your `astro.config.*` file to use a custom query selector when finding prefetch-intent links.
 
 
 __`astro.config.mjs`__
