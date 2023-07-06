@@ -1,7 +1,5 @@
 import type http from 'http';
-import mime from 'mime';
 import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro';
-import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
@@ -176,43 +174,23 @@ export async function handleRoute(
 	}
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
-		const result = await callEndpoint(options);
-		if (result.type === 'response') {
-			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-				const fourOhFourRoute = await matchRoute('/404', env, manifest);
-				return handleRoute(
-					fourOhFourRoute,
-					new URL('/404', url),
-					'/404',
-					body,
-					origin,
-					env,
-					manifest,
-					req,
-					res
-				);
-			}
-			throwIfRedirectNotAllowed(result.response, config);
-			await writeWebResponse(res, result.response);
-		} else {
-			let contentType = 'text/plain';
-			// Dynamic routes don't include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
-			const filepath =
-				route.pathname ||
-				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
-			const computedMimeType = mime.getType(filepath);
-			if (computedMimeType) {
-				contentType = computedMimeType;
-			}
-			const response = new Response(Buffer.from(result.body, result.encoding), {
-				status: 200,
-				headers: {
-					'Content-Type': `${contentType};charset=utf-8`,
-				},
-			});
-			attachToResponse(response, result.cookies);
-			await writeWebResponse(res, response);
+		const response = await callEndpoint(options);
+		if (response.headers.get('X-Astro-Response') === 'Not-Found') {
+			const fourOhFourRoute = await matchRoute('/404', env, manifest);
+			return handleRoute(
+				fourOhFourRoute,
+				new URL('/404', url),
+				'/404',
+				body,
+				origin,
+				env,
+				manifest,
+				req,
+				res
+			);
 		}
+		throwIfRedirectNotAllowed(response, config);
+		await writeWebResponse(res, response);
 	} else {
 		const result = await renderPage(options);
 		throwIfRedirectNotAllowed(result, config);

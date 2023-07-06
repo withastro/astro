@@ -1,4 +1,3 @@
-import mime from 'mime';
 import type {
 	EndpointHandler,
 	ManifestData,
@@ -8,7 +7,7 @@ import type {
 	SSRManifest,
 } from '../../@types/astro';
 import type { SinglePageBuiltModule } from '../build/types';
-import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
+import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
@@ -44,7 +43,6 @@ export class App {
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#encoder = new TextEncoder();
 	#logging: LogOptions = {
 		dest: consoleLogDestination,
 		level: 'info',
@@ -299,36 +297,16 @@ export class App {
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, page.onRequest);
+		const response = await callEndpoint(handler, this.#env, ctx, page.onRequest);
 
-		if (result.type === 'response') {
-			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-				const fourOhFourRequest = new Request(new URL('/404', request.url));
-				const fourOhFourRouteData = this.match(fourOhFourRequest);
-				if (fourOhFourRouteData) {
-					return this.render(fourOhFourRequest, fourOhFourRouteData);
-				}
+		if (response.headers.get('X-Astro-Response') === 'Not-Found') {
+			const fourOhFourRequest = new Request(new URL('/404', request.url));
+			const fourOhFourRouteData = this.match(fourOhFourRequest);
+			if (fourOhFourRouteData) {
+				return this.render(fourOhFourRequest, fourOhFourRouteData);
 			}
-			return result.response;
-		} else {
-			const body = result.body;
-			const headers = new Headers();
-			const mimeType = mime.getType(url.pathname);
-			if (mimeType) {
-				headers.set('Content-Type', `${mimeType};charset=utf-8`);
-			} else {
-				headers.set('Content-Type', 'text/plain;charset=utf-8');
-			}
-			const bytes = this.#encoder.encode(body);
-			headers.set('Content-Length', bytes.byteLength.toString());
-
-			const response = new Response(bytes, {
-				status: 200,
-				headers,
-			});
-
-			attachToResponse(response, result.cookies);
-			return response;
 		}
+
+		return response;
 	}
 }

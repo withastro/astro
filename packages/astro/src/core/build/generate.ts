@@ -8,7 +8,6 @@ import type {
 	AstroSettings,
 	ComponentInstance,
 	EndpointHandler,
-	EndpointOutput,
 	GetStaticPathsItem,
 	ImageTransform,
 	MiddlewareHandler,
@@ -556,18 +555,13 @@ async function generatePath(
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
 
-		const result = await callEndpoint(
-			endpointHandler,
-			env,
-			renderContext,
-			onRequest as MiddlewareHandler<Response | EndpointOutput>
-		);
+		const result = await callEndpoint(endpointHandler, env, renderContext, onRequest, true);
 
-		if (result.type === 'response') {
-			throwIfRedirectNotAllowed(result.response, opts.settings.config);
+		if (result instanceof Response) {
+			throwIfRedirectNotAllowed(result, opts.settings.config);
 			// If there's no body, do nothing
-			if (!result.response.body) return;
-			const ab = await result.response.arrayBuffer();
+			if (!result.body) return;
+			const ab = await result.arrayBuffer();
 			body = new Uint8Array(ab);
 		} else {
 			body = result.body;
