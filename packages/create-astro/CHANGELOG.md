@@ -1,5 +1,11 @@
 # create-astro
 
+## 3.1.10
+
+### Patch Changes
+
+- [#7580](https://github.com/withastro/astro/pull/7580) [`2ca5bdde2`](https://github.com/withastro/astro/commit/2ca5bdde2b1acc2be1586a99686a9a48cdef65dc) Thanks [@sankethchebbi](https://github.com/sankethchebbi)! - Update dependency installation grammar
+
 ## 3.1.9
 
 ### Patch Changes

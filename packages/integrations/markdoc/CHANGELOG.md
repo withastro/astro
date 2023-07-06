@@ -1,5 +1,14 @@
 # @astrojs/markdoc
 
+## 0.4.1
+
+### Patch Changes
+
+- [#7575](https://github.com/withastro/astro/pull/7575) [`30d04db98`](https://github.com/withastro/astro/commit/30d04db98107b40669e964c3ec4ac77dc2d65645) Thanks [@bluwy](https://github.com/bluwy)! - Handle internal access change
+
+- Updated dependencies [[`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`6e9c29579`](https://github.com/withastro/astro/commit/6e9c295799cb6524841adbcbec21ff628d8d19c8), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b)]:
+  - astro@2.8.0
+
 ## 0.4.0
 
 ### Minor Changes

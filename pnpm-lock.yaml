@@ -127,7 +127,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/blog:
@@ -142,19 +142,19 @@ importers:
         specifier: ^1.3.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/component:
     devDependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/deno:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
     devDependencies:
       '@astrojs/deno':
@@ -173,7 +173,7 @@ importers:
         specifier: ^3.12.2
         version: 3.12.2
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/framework-lit:
@@ -185,7 +185,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       lit:
         specifier: ^2.7.5
@@ -209,7 +209,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -239,7 +239,7 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(preact@10.15.1)
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -257,7 +257,7 @@ importers:
         specifier: ^18.2.6
         version: 18.2.6
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       react:
         specifier: ^18.2.0
@@ -272,7 +272,7 @@ importers:
         specifier: ^2.2.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.7.6
@@ -284,7 +284,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -296,7 +296,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.3.4
@@ -308,13 +308,13 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/middleware:
@@ -323,7 +323,7 @@ importers:
         specifier: ^5.3.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       html-minifier:
         specifier: ^4.0.0
@@ -332,19 +332,19 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/non-html-pages:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/ssr:
@@ -356,7 +356,7 @@ importers:
         specifier: ^3.1.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       svelte:
         specifier: ^3.59.1
@@ -365,10 +365,10 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^0.4.0
+        specifier: ^0.4.1
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/with-markdown-plugins:
@@ -377,7 +377,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/markdown/remark
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       hast-util-select:
         specifier: ^5.0.5
@@ -398,7 +398,7 @@ importers:
   examples/with-markdown-shiki:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -410,7 +410,7 @@ importers:
         specifier: ^2.2.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.15.1
@@ -425,7 +425,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1(nanostores@0.8.1)(preact@10.15.1)
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.8.1
@@ -446,7 +446,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       autoprefixer:
         specifier: ^10.4.14
@@ -464,7 +464,7 @@ importers:
   examples/with-vite-plugin-pwa:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       vite-plugin-pwa:
         specifier: 0.14.7
@@ -476,7 +476,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^2.7.4
+        specifier: ^2.8.0
         version: link:../../packages/astro
       vitest:
         specifier: ^0.31.4
