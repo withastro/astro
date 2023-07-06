@@ -2,13 +2,6 @@
 import './viewtransitions.css';
 ---
 <script>
-  declare global {
-    interface Window { MyNamespace: any; }
-    interface Document {
-      startViewTransition?: (cb: () => Promise<void>) => { finished: Promise<void>; };
-    }
-  }
-
 	let currentIndex = history.state?.index || 0;
 	if(!history.state) {
 		history.replaceState({index: currentIndex}, document.title);
@@ -52,7 +45,7 @@ import './viewtransitions.css';
 	}
 
   document.addEventListener('click', (ev) => {
-		let link = ev.target as HTMLAnchorElement;
+		let link = ev.target;
 		if (link instanceof HTMLAnchorElement &&
 			link.href &&
 			(!link.target || link.target === '_self') &&

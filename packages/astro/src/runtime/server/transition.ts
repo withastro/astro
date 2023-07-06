@@ -25,8 +25,42 @@ export function renderTransition(result: SSRResult, hash: string, animationName:
 		transitionName = createTransitionName(result);
 	}
 
-	const styles = markHTMLString(`<style>[data-astro-transition-scope="${hash}"] {
-		view-transition-name: ${transitionName};
+	const styles = markHTMLString(`<style>[data-astro-transition-scope="${scope}"] {
+	view-transition-name: ${transitionName};
+}
+	${!animations ? '' : `
+::view-transition-old(${transitionName}) {
+	${stringifyAnimation(animations.forwards.old)}
+}
+::view-transition-new(${transitionName}) {
+	${stringifyAnimation(animations.forwards.new)}
+}
+
+.astro-back-transition::view-transition-old(${transitionName}) {
+	${stringifyAnimation(animations.backwards.old)}
+}
+.astro-back-transition::view-transition-new(${transitionName}) {
+	${stringifyAnimation(animations.backwards.new)}
+}
+	`.trim()}
+	</style>`)
+
+	result._metadata.extraHead.push(styles);
+
+	return scope;
+}
+
+type AnimationBuilder = {
+	toString(): string;
+	[key: string]: string[] | ((k: string) => string);	
+}
+
+function addAnimationProperty(builder: AnimationBuilder, prop: string, value: string | number) {
+	let arr = builder[prop];
+	if(Array.isArray(arr)) {
+		arr.push(value.toString());
+	} else {
+		builder[prop] = [value.toString()];
 	}
 	${animationName === 'morph' ? '' : `
 	::view-transition-old(${transitionName}) {

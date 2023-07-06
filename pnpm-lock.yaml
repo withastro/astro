@@ -523,6 +523,9 @@ importers:
       '@types/babel__core':
         specifier: ^7.20.1
         version: 7.20.1
+      '@types/dom-view-transitions':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@types/yargs-parser':
         specifier: ^21.0.0
         version: 21.0.0
@@ -592,6 +595,9 @@ importers:
       mime:
         specifier: ^3.0.0
         version: 3.0.0
+      network-information-types:
+        specifier: ^0.1.1
+        version: 0.1.1(typescript@5.0.2)
       ora:
         specifier: ^6.3.1
         version: 6.3.1
@@ -8572,6 +8578,10 @@ packages:
     resolution: {integrity: sha512-OyiZ3jEKu7RtGO1yp9oOdK0cTwZ/10oE9PDJ6fyN3r9T5wkyOcvr6awdugjYdqF6KVO5eUvt7jx7rk2Eylufow==}
     dev: true
 
+  /@types/dom-view-transitions@1.0.1:
+    resolution: {integrity: sha512-A9S1ijj/4MX06I1W/6on8lhaYyq1Ir7gaOvfllW1o4RzVWW88HAeqX0pUx9VgOLnNpdiGeUW2CTkg18p5LWIrA==}
+    dev: false
+
   /@types/estree-jsx@1.0.0:
     resolution: {integrity: sha512-3qvGd0z8F2ENTGr/GG1yViqfiKmRfrXVx5sJyHGFu3z7m5g5utCQtGp/g29JnjflhtQJBv1WDQukHiT58xPcYQ==}
     dependencies:
@@ -14216,6 +14226,14 @@ packages:
     resolution: {integrity: sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==}
     engines: {node: '>= 0.4.0'}
     dev: true
+
+  /network-information-types@0.1.1(typescript@5.0.2):
+    resolution: {integrity: sha512-mLXNafJYOkiJB6IlF727YWssTRpXitR+tKSLyA5VAdBi3SOvLf5gtizHgxf241YHPWocnAO/fAhVrB/68tPHDw==}
+    peerDependencies:
+      typescript: '>= 3.0.0'
+    dependencies:
+      typescript: 5.0.2
+    dev: false
 
   /nice-try@1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
