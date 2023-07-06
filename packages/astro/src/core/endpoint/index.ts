@@ -14,7 +14,7 @@ import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { warn, type LogOptions } from '../logger/core.js';
+import { warn } from '../logger/core.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -104,7 +104,6 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	mod: EndpointHandler,
 	env: Environment,
 	ctx: RenderContext,
-	logging: LogOptions,
 	onRequest?: MiddlewareHandler<MiddlewareResult> | undefined
 ): Promise<EndpointCallResult> {
 	const context = createAPIContext({
@@ -140,7 +139,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 	if (env.ssr && !ctx.route?.prerender) {
 		if (response.hasOwnProperty('headers')) {
 			warn(
-				logging,
+				env.logging,
 				'ssr',
 				'Setting headers is not supported when returning an object. Please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);
@@ -148,7 +147,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 
 		if (response.encoding) {
 			warn(
-				logging,
+				env.logging,
 				'ssr',
 				'`encoding` is ignored in SSR. To return a charset other than UTF-8, please return an instance of Response. See https://docs.astro.build/en/core-concepts/endpoints/#server-endpoints-api-routes for more information.'
 			);

@@ -1,10 +1,9 @@
 import type { EndpointHandler } from '../../../@types/astro';
-import type { LogOptions } from '../../logger/core';
 import type { SSROptions } from '../../render/dev';
 import { createRenderContext } from '../../render/index.js';
 import { callEndpoint } from '../index.js';
 
-export async function call(options: SSROptions, logging: LogOptions) {
+export async function call(options: SSROptions) {
 	const { env, preload, middleware } = options;
 	const endpointHandler = preload as unknown as EndpointHandler;
 
@@ -16,5 +15,5 @@ export async function call(options: SSROptions, logging: LogOptions) {
 		mod: preload,
 	});
 
-	return await callEndpoint(endpointHandler, env, ctx, logging, middleware?.onRequest);
+	return await callEndpoint(endpointHandler, env, ctx, middleware?.onRequest);
 }
