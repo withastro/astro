@@ -559,7 +559,6 @@ async function generatePath(
 			endpointHandler,
 			env,
 			renderContext,
-			logging,
 			onRequest as MiddlewareHandler<Response | EndpointOutput>
 		);
 
