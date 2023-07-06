@@ -26,6 +26,12 @@ export default function assets({
 	logging,
 	mode,
 }: AstroPluginOptions & { mode: string }): vite.Plugin[] {
+	const imageService = settings.config.image;
+	if (typeof imageService === 'undefined') {
+		throw new Error(
+			"Astro hasn't set a default service for `astro:assets`. This is an internal error and you should report it."
+		);
+	}
 	let resolvedConfig: vite.ResolvedConfig;
 
 	globalThis.astroAsset = {};
@@ -40,7 +46,7 @@ export default function assets({
 	const adapterName = settings.config.adapter?.name;
 	if (
 		['astro/assets/services/sharp', 'astro/assets/services/squoosh'].includes(
-			settings.config.image.service.entrypoint
+			imageService.service.entrypoint
 		) &&
 		adapterName &&
 		UNSUPPORTED_ADAPTERS.has(adapterName)
@@ -72,7 +78,7 @@ export default function assets({
 			},
 			async resolveId(id) {
 				if (id === VIRTUAL_SERVICE_ID) {
-					return await this.resolve(settings.config.image.service.entrypoint);
+					return await this.resolve(imageService.service.entrypoint);
 				}
 				if (id === VIRTUAL_MODULE_ID) {
 					return resolvedVirtualModuleId;
@@ -85,7 +91,7 @@ export default function assets({
 					import { getImage as getImageInternal } from "astro/assets";
 					export { default as Image } from "astro/components/Image.astro";
 
-					export const imageServiceConfig = ${JSON.stringify(settings.config.image.service.config)};
+					export const imageServiceConfig = ${JSON.stringify(imageService.service.config)};
 					export const getImage = async (options) => await getImageInternal(options, imageServiceConfig);
 				`;
 				}
@@ -103,7 +109,7 @@ export default function assets({
 						>();
 					}
 
-					const hash = hashTransform(options, settings.config.image.service.entrypoint);
+					const hash = hashTransform(options, imageService.service.entrypoint);
 
 					let filePath: string;
 					if (globalThis.astroAsset.staticImages.has(hash)) {
