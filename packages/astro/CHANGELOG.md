@@ -1,5 +1,80 @@
 # astro
 
+## 2.8.0
+
+### Minor Changes
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - The `astro/middleware` module exports a new utility called `trySerializeLocals`.
+
+  This utility can be used by adapters to validate their `locals` before sending it
+  to the Astro middleware.
+
+  This function will throw a runtime error if the value passed is not serializable, so
+  consumers will need to handle that error.
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - Astro exposes the middleware file path to the integrations in the hook `astro:build:ssr`
+
+  ```ts
+  // myIntegration.js
+  import type { AstroIntegration } from 'astro';
+  function integration(): AstroIntegration {
+    return {
+      name: 'fancy-astro-integration',
+      hooks: {
+        'astro:build:ssr': ({ middlewareEntryPoint }) => {
+          if (middlewareEntryPoint) {
+            // do some operations
+          }
+        },
+      },
+    };
+  }
+  ```
+
+  The `middlewareEntryPoint` is only defined if the user has created an Astro middleware.
+
+- [#7432](https://github.com/withastro/astro/pull/7432) [`6e9c29579`](https://github.com/withastro/astro/commit/6e9c295799cb6524841adbcbec21ff628d8d19c8) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new command `astro info`, useful for sharing debugging information about your current environment when you need help!
+
+  ```shell
+  astro info
+  ```
+
+  Output
+
+  ```
+  Astro version            v2.6.6
+  Package manager          pnpm
+  Platform                 darwin
+  Architecture             arm64
+  Adapter                  @astrojs/vercel/serverless
+  Integrations             None
+  ```
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - The `astro/middleware` module exports a new API called `createContext`.
+
+  This a low-level API that adapters can use to create a context that can be consumed by middleware functions.
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - Introduced a new build option for SSR, called `build.excludeMiddleware`.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    build: {
+      excludeMiddleware: true,
+    },
+  });
+  ```
+
+  When enabled, the code that belongs to be middleware **won't** be imported
+  by the final pages/entry points. The user is responsible for importing it and
+  calling it manually.
+
+### Patch Changes
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - Correctly track the middleware during the SSR build.
+
 ## 2.7.4
 
 ### Patch Changes
