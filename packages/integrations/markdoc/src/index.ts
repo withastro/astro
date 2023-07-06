@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
 import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
-import { bold, red } from 'kleur/colors';
 import { getContentEntryType } from './content-entry-type.js';
 import {
 	loadMarkdocConfig,
