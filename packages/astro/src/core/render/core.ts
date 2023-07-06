@@ -10,17 +10,10 @@ export type RenderPage = {
 	mod: ComponentInstance;
 	renderContext: RenderContext;
 	env: Environment;
-	isCompressHTML?: boolean;
 	cookies: AstroCookies;
 };
 
-export async function renderPage({
-	mod,
-	renderContext,
-	env,
-	cookies,
-	isCompressHTML = false,
-}: RenderPage) {
+export async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -47,6 +40,7 @@ export async function renderPage({
 		resolve: env.resolve,
 		renderers: env.renderers,
 		clientDirectives: env.clientDirectives,
+		compressHTML: env.compressHTML,
 		request: renderContext.request,
 		site: env.site,
 		scripts: renderContext.scripts,
@@ -67,7 +61,6 @@ export async function renderPage({
 		renderContext.props,
 		null,
 		env.streaming,
-		isCompressHTML,
 		renderContext.route
 	);
 
