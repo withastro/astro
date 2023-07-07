@@ -1,4 +1,3 @@
-// third party
 import type { Config, Schema } from "@markdoc/markdoc";
 import Markdoc from "@markdoc/markdoc";
 
