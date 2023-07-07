@@ -11,6 +11,8 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
   // hold a lazy buffer of text and process it only when necessary
   let textBuffer = '';
 
+  let inCDATA = false;
+
   const appendText = (text: string) => {
     textBuffer += text;
   };
@@ -63,6 +65,14 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
   // create an incremental HTML parser that tracks HTML tag open, close and text content
   const parser = new Parser({
 
+    oncdatastart() {
+      inCDATA = true;
+    },
+
+    oncdataend() {
+      inCDATA = false;
+    },
+
     // when an HTML tag opens...
     onopentag(name, attrs) {
 
@@ -85,6 +95,13 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
     },
 
     ontext(content: string | null | undefined) {
+
+      if (inCDATA) {
+        // ignore entirely while inside CDATA
+        return;
+      }
+
+      // only accumulate text into the buffer if we're not under an ignored HTML element
       if (typeof content === 'string') {
         appendText(content);
       }
@@ -113,6 +130,7 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
   }, {
     decodeEntities: false,
     recognizeCDATA: true,
+    recognizeSelfClosing: true,
   });
 
   // for every detected token...
