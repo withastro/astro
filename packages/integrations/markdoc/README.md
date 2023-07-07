@@ -140,7 +140,7 @@ Use tags like this fancy "aside" to add some _flair_ to your docs.
 
 You may need to use Astro components from TypeScript or JavaScript files with named imports. This is common when using npm packages and design systems.
 
-You can pass the import name as the second argument to the `component()` function like so:
+You can pass the import name as the second argument to the `component()` function:
 
 ```js
 // markdoc.config.mjs
