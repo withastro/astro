@@ -9,6 +9,7 @@ import { createContainer } from '../../../dist/core/dev/container.js';
 import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
+import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 const fileSystem = {
@@ -120,7 +121,7 @@ const fileSystem = {
 
 describe('Route matching', () => {
 	let env;
-	let manifest;
+	let manifestData;
 	let container;
 	let settings;
 
@@ -138,8 +139,9 @@ describe('Route matching', () => {
 		settings = container.settings;
 
 		const loader = createViteLoader(container.viteServer);
-		env = createDevelopmentEnvironment(container.settings, defaultLogging, loader);
-		manifest = createRouteManifest(
+		const manifest = createDevelopmentManifest(container.settings);
+		env = createDevelopmentEnvironment(manifest, container.settings, defaultLogging, loader);
+		manifestData = createRouteManifest(
 			{
 				cwd: fileURLToPath(root),
 				settings,
@@ -155,7 +157,7 @@ describe('Route matching', () => {
 
 	describe('Matched routes', () => {
 		it('should be sorted correctly', async () => {
-			const matches = matchAllRoutes('/try-matching-a-route', manifest);
+			const matches = matchAllRoutes('/try-matching-a-route', manifestData);
 			const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 
@@ -169,7 +171,7 @@ describe('Route matching', () => {
 			]);
 		});
 		it('nested should be sorted correctly', async () => {
-			const matches = matchAllRoutes('/nested/try-matching-a-route', manifest);
+			const matches = matchAllRoutes('/nested/try-matching-a-route', manifestData);
 			const preloadedMatches = await getSortedPreloadedMatches({ env, matches, settings });
 			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
 

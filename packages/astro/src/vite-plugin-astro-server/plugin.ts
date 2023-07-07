@@ -26,7 +26,7 @@ export default function createVitePluginAstroServer({
 		name: 'astro:server',
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			const manifest = generateDevelopmentManifest(settings);
+			const manifest = createDevelopmentManifest(settings);
 			const env = createDevelopmentEnvironment(manifest, settings, logging, loader);
 			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logging);
 			const controller = createController({ loader });
@@ -86,7 +86,7 @@ export default function createVitePluginAstroServer({
  * @param settings
  * @param renderers
  */
-export function generateDevelopmentManifest(settings: AstroSettings): SSRManifest {
+export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
 	return {
 		compressHTML: settings.config.compressHTML,
 		assets: new Set(),
