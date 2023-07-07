@@ -144,7 +144,7 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 
 	// If return simple endpoint object, convert to response
 	if (!(response instanceof Response)) {
-		// In SSR, we convert to a full response with the correct headers to be sent out
+		// Validate properties not available in SSR
 		if (env.ssr && !ctx.route?.prerender) {
 			if (response.hasOwnProperty('headers')) {
 				warn(
@@ -172,22 +172,39 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 			};
 		}
 
+		let body: BodyInit;
 		const headers = new Headers();
 
-		const pathname = new URL(ctx.request.url).pathname;
+		const pathname = ctx.route
+			? // Try the static route `pathname`
+			  ctx.route.pathname ??
+			  // Dynamic routes don't include `pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
+			  ctx.route.segments.map((s) => s.map((p) => p.content).join('')).join('/')
+			: // Fallback to pathname of the request
+			  ctx.pathname;
 		const mimeType = mime.getType(pathname) || 'text/plain';
 		headers.set('Content-Type', `${mimeType};charset=utf-8`);
 
-		const bytes = encoder.encode(response.body);
-		headers.set('Content-Length', bytes.byteLength.toString());
+		if (typeof Buffer !== 'undefined' && Buffer.from) {
+			body = Buffer.from(response.body, response.encoding);
+		} else if (
+			response.encoding == null ||
+			response.encoding === 'utf8' ||
+			response.encoding === 'utf-8'
+		) {
+			body = encoder.encode(response.body);
+			headers.set('Content-Length', body.byteLength.toString());
+		} else {
+			body = response.body;
+		}
 
-		response = new Response(bytes, {
+		response = new Response(body, {
 			status: 200,
 			headers,
 		});
-
-		attachToResponse(response, context.cookies);
 	}
+
+	attachToResponse(response, context.cookies);
 
 	return response;
 }
