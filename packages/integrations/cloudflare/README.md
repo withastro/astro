@@ -66,7 +66,7 @@ export default defineConfig({
 In order for preview to work you must install `wrangler`
 
 ```sh
-$ pnpm install wrangler --save-dev
+pnpm install wrangler --save-dev
 ```
 
 It's then possible to update the preview script in your `package.json` to `"preview": "wrangler pages dev ./dist"`. This will allow you to run your entire application locally with [Wrangler](https://github.com/cloudflare/wrangler2), which supports secrets, environment variables, KV namespaces, Durable Objects and [all other supported Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/#adding-bindings).
