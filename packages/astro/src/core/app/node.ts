@@ -80,11 +80,11 @@ function makeRequestBody(req: NodeIncomingMessage): BodyProps {
 		}
 	}
 
+	// Return default body.
 	return asyncIterableToBodyProps(req);
 }
 
 function asyncIterableToBodyProps(iterable: AsyncIterable<any>): BodyProps {
-	// Return default body.
 	return {
 		// Node uses undici for the Request implementation. Undici accepts
 		// a non-standard async iterables for the body.
