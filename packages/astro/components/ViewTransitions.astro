@@ -17,8 +17,7 @@ import './viewtransitions.css';
 
 	const parser = new DOMParser();
 
-  async function updateDOM(dir: Direction, htmlPromise: Promise<string>) {
-    const html = await htmlPromise;
+  async function updateDOM(dir: Direction, html: string) {
     const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
     document.documentElement.replaceWith(doc.documentElement);
@@ -28,10 +27,11 @@ import './viewtransitions.css';
 		let htmlPromise = getHTML(href);
 		let finished: Promise<void>;
 		document.documentElement.dataset.astroTransition = dir;
+		const html = await htmlPromise;
 		if(document.startViewTransition) {
-			finished = document.startViewTransition(() => updateDOM(dir, htmlPromise)).finished;
+			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
 		} else {
-			finished = updateDOM(dir, htmlPromise);
+			finished = updateDOM(dir, html);
 		}
 		try {
 			await finished;
