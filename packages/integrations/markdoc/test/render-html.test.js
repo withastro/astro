@@ -9,69 +9,68 @@ async function getFixture(name) {
 }
 
 describe('Markdoc - render html', () => {
+
+  let fixture;
+
+  before(async () => {
+    fixture = await getFixture('render-html');
+  });
+
   describe('dev', () => {
 
-    it('renders content - simple', async () => {
-      const fixture = await getFixture('render-html');
-      const server = await fixture.startDevServer();
+    let devServer;
 
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+    it('renders content - simple', async () => {
       const res = await fixture.fetch('/simple');
       const html = await res.text();
 
       renderSimpleChecks(html);
-
-      await server.stop();
     });
 
     it('renders content - nested-html', async () => {
-      const fixture = await getFixture('render-html');
-      const server = await fixture.startDevServer();
-
       const res = await fixture.fetch('/nested-html');
       const html = await res.text();
 
       renderNestedHTMLChecks(html);
-
-      await server.stop();
     });
 
     it('renders content - components interleaved with html', async () => {
-      const fixture = await getFixture('render-html');
-      const server = await fixture.startDevServer();
-
       const res = await fixture.fetch('/components');
       const html = await res.text();
 
       renderComponentsHTMLChecks(html);
-
-      await server.stop();
     });
 
   });
 
   describe('build', () => {
-    it('renders content - simple', async () => {
-      const fixture = await getFixture('render-html');
-      await fixture.build();
 
+		before(async () => {
+			await fixture.build();
+		});
+
+
+    it('renders content - simple', async () => {
       const html = await fixture.readFile('/simple/index.html');
 
       renderSimpleChecks(html);
     });
 
     it('renders content - nested-html', async () => {
-      const fixture = await getFixture('render-html');
-      await fixture.build();
-
       const html = await fixture.readFile('/nested-html/index.html');
 
       renderNestedHTMLChecks(html);
     });
 
     it('renders content - components interleaved with html', async () => {
-      const fixture = await getFixture('render-html');
-      await fixture.build();
-
       const html = await fixture.readFile('/components/index.html');
 
       renderComponentsHTMLChecks(html);
