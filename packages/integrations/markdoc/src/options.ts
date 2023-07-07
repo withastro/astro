@@ -1,3 +1,3 @@
 export interface MarkdocIntegrationOptions {
-  enableHTML?: boolean;
+  allowHTML?: boolean;
 }

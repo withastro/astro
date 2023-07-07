@@ -36,7 +36,7 @@ export async function getContentEntryType({
       const tokenizer = getMarkdocTokenizer(options);
 			let tokens = tokenizer.tokenize(entry.body);
 
-      if (options?.enableHTML) {
+      if (options?.allowHTML) {
         tokens = htmlTokenTransform(tokenizer, tokens);
       }
 

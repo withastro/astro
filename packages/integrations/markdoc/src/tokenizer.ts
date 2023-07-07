@@ -16,7 +16,7 @@ export function getMarkdocTokenizer(options: MarkdocIntegrationOptions | undefin
       allowComments: true,
     }
 
-    if (options?.enableHTML) {
+    if (options?.allowHTML) {
       // we want to allow indentation for Markdoc tags that are interleaved inside HTML block elements
       tokenizerOptions.allowIndentation = true;
       // enable HTML token detection in markdown-it
