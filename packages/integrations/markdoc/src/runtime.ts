@@ -33,7 +33,7 @@ export async function setupConfig(userConfig: AstroMarkdocConfig = {}, options: 
 
 	let merged = mergeConfig(defaultConfig, userConfig);
 
-  if (options?.enableHTML) {
+  if (options?.allowHTML) {
     merged = mergeConfig(merged, HTML_CONFIG);
   }
 
@@ -46,7 +46,7 @@ export function setupConfigSync(userConfig: AstroMarkdocConfig = {}, options: Ma
 
 	let merged = mergeConfig(defaultConfig, userConfig);
 
-  if (options?.enableHTML) {
+  if (options?.allowHTML) {
     merged = mergeConfig(merged, HTML_CONFIG);
   }
 
@@ -197,7 +197,7 @@ export function createContentComponent(
 	});
 }
 
-// statically define a partial MarkdocConfig which registers the required "html-tag" Markdoc tag when the "enableHTML" feature is enabled
+// statically define a partial MarkdocConfig which registers the required "html-tag" Markdoc tag when the "allowHTML" feature is enabled
 const HTML_CONFIG: AstroMarkdocConfig = {
   tags: {
     "html-tag": htmlTag,
