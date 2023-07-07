@@ -1,4 +1,3 @@
-// third party
 import type * as Token from 'markdown-it/lib/token';
 import { Parser } from 'htmlparser2';
 import { Tokenizer } from '@markdoc/markdoc';

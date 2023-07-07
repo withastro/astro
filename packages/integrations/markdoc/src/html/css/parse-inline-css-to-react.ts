@@ -1,5 +1,5 @@
 
-import { styleToObject } from "./3rd-party/style-to-object.js";
+import { styleToObject } from "./style-to-object.js";
 
 export function parseInlineCSSToReactLikeObject(css: string | undefined | null): React.CSSProperties | undefined {
   if (typeof css === "string") {
