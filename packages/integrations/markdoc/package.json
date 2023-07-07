@@ -27,10 +27,6 @@
       "types": "./dist/extensions/shiki.d.ts",
       "default": "./dist/extensions/shiki.js"
     },
-    "./html": {
-      "types": "./dist/extensions/html/index.d.ts",
-      "default": "./dist/extensions/html/js"
-    },
     "./config": {
       "types": "./dist/config.d.ts",
       "default": "./dist/config.js"
