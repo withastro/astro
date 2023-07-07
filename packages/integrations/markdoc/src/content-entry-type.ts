@@ -225,14 +225,19 @@ function getStringifiedImports(
 	let stringifiedComponentImports = '';
 	for (const [key, config] of Object.entries(componentConfigMap)) {
 		const importName = config.namedExport
-			? `{ ${config.namedExport} as ${componentNamePrefix + key} }`
-			: componentNamePrefix + key;
+			? `{ ${config.namedExport} as ${componentNamePrefix + toImportName(key)} }`
+			: componentNamePrefix + toImportName(key);
 		const resolvedPath =
 			config.type === 'local' ? new URL(config.path, root).pathname : config.path;
 
 		stringifiedComponentImports += `import ${importName} from ${JSON.stringify(resolvedPath)};\n`;
 	}
 	return stringifiedComponentImports;
+}
+
+function toImportName(unsafeName: string) {
+	// TODO: more checks that name is a safe JS variable name
+	return unsafeName.replace('-', '_');
 }
 
 /**
@@ -247,7 +252,9 @@ function getStringifiedMap(
 ) {
 	let stringifiedComponentMap = '{';
 	for (const key in componentConfigMap) {
-		stringifiedComponentMap += `${key}: ${componentNamePrefix + key},\n`;
+		stringifiedComponentMap += `${JSON.stringify(key)}: ${
+			componentNamePrefix + toImportName(key)
+		},\n`;
 	}
 	stringifiedComponentMap += '}';
 	return stringifiedComponentMap;
