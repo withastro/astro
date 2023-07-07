@@ -192,7 +192,7 @@ export default function astroJSX(): PluginObj {
 				) {
 					return;
 				}
-				const parent = path.findParent((n) => t.isJSXElement(n))!;
+				const parent = path.findParent((n) => t.isJSXElement(n.node))!;
 				const parentNode = parent.node as t.JSXElement;
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
@@ -249,9 +249,9 @@ export default function astroJSX(): PluginObj {
 				}
 			},
 			JSXIdentifier(path, state) {
-				const isAttr = path.findParent((n) => t.isJSXAttribute(n));
+				const isAttr = path.findParent((n) => t.isJSXAttribute(n.node));
 				if (isAttr) return;
-				const parent = path.findParent((n) => t.isJSXElement(n))!;
+				const parent = path.findParent((n) => t.isJSXElement(n.node))!;
 				const parentNode = parent.node as t.JSXElement;
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;

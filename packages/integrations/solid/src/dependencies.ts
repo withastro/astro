@@ -18,8 +18,7 @@ export async function getSolidPkgsConfig(isBuild: boolean, astroConfig: AstroCon
 // License: MIT (https://github.com/solidjs/vite-plugin-solid/blob/5558486b0c63788e1275244256918f80294a8338/package.json#L38)
 function containsSolidField(fields: Record<string, any>) {
 	const keys = Object.keys(fields);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
+	for (const key of keys) {
 		if (key === 'solid') return true;
 		if (typeof fields[key] === 'object' && fields[key] != null && containsSolidField(fields[key]))
 			return true;

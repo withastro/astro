@@ -1,5 +1,59 @@
 # @astrojs/vercel
 
+## 3.7.0
+
+### Minor Changes
+
+- [#7532](https://github.com/withastro/astro/pull/7532) [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b) Thanks [@ematipico](https://github.com/ematipico)! - Support for Vercel Edge Middleware via Astro middleware.
+
+  When a project uses the new option Astro `build.excludeMiddleware`, the
+  `@astrojs/vercel/serverless` adapter will automatically create a Vercel Edge Middleware
+  that will automatically communicate with the Astro Middleware.
+
+  Check the [documentation](https://github.com/withastro/astro/blob/main/packages/integrations/vercel/README.md##vercel-edge-middleware-with-astro-middleware) for more details.
+
+### Patch Changes
+
+- Updated dependencies [[`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`6e9c29579`](https://github.com/withastro/astro/commit/6e9c295799cb6524841adbcbec21ff628d8d19c8), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b), [`9e5fafa2b`](https://github.com/withastro/astro/commit/9e5fafa2b25b5128084c7072aa282642fcfbb14b)]:
+  - astro@2.8.0
+
+## 3.6.0
+
+### Minor Changes
+
+- [#7514](https://github.com/withastro/astro/pull/7514) [`154af8f5e`](https://github.com/withastro/astro/commit/154af8f5ead25b3cf100cfd445329bd1d3fe876a) Thanks [@matthewp](https://github.com/matthewp)! - Split support in Vercel Serverless
+
+  The Vercel adapter builds to a single function by default. Astro 2.7 added support for splitting your build into separate entry points per page. If you use this configuration the Vercel adapter will generate a separate function for each page. This can help reduce the size of each function so they are only bundling code used on that page.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel/serverless';
+
+  export default defineConfig({
+    output: 'server',
+    adapter: vercel(),
+    build: {
+      split: true,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb), [`cdc28326c`](https://github.com/withastro/astro/commit/cdc28326cf21f305924363e9c8c02ce54b6ff895), [`19c2d43ea`](https://github.com/withastro/astro/commit/19c2d43ea41efdd8741007de0774e7e394f174b0), [`2172dd4f0`](https://github.com/withastro/astro/commit/2172dd4f0dd8f87d1adbc5ae90f44724e66eb964), [`1170877b5`](https://github.com/withastro/astro/commit/1170877b51aaa13203e8c488dcf4e39d1b5553ee)]:
+  - astro@2.7.3
+
+## 3.5.1
+
+### Patch Changes
+
+- [#7447](https://github.com/withastro/astro/pull/7447) [`32bde967f`](https://github.com/withastro/astro/commit/32bde967f4b21648b1e11dbfa7964bf7f348f7b9) Thanks [@bluwy](https://github.com/bluwy)! - Fix redirects for root page when using `trailingSlash: "always"`
+
+- Updated dependencies [[`601403744`](https://github.com/withastro/astro/commit/60140374418ff0ee80899615be8e718ae57f791a), [`869197aaf`](https://github.com/withastro/astro/commit/869197aafd9802d059dd8db1ef23794fdd938a91), [`2b7539952`](https://github.com/withastro/astro/commit/2b75399520bebfc537cca8204e483f0df3373904), [`478cd9d8f`](https://github.com/withastro/astro/commit/478cd9d8fa9452466a73e0981863ef6e82f87238), [`57e603038`](https://github.com/withastro/astro/commit/57e603038fa51f5cf023c086705e2ced67434b38), [`2b7539952`](https://github.com/withastro/astro/commit/2b75399520bebfc537cca8204e483f0df3373904), [`f359d77b1`](https://github.com/withastro/astro/commit/f359d77b1844335ceeb103b9d3753eb2f440ed5f)]:
+  - astro@2.7.1
+  - @astrojs/internal-helpers@0.1.1
+
 ## 3.5.0
 
 ### Minor Changes

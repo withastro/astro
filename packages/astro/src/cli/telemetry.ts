@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-import type { AstroTelemetry } from '@astrojs/telemetry';
 import type yargs from 'yargs-parser';
 import * as msg from '../core/messages.js';
+import { telemetry } from '../events/index.js';
+
 export interface TelemetryOptions {
 	flags: yargs.Arguments;
-	telemetry: AstroTelemetry;
 }
 
-export async function update(subcommand: string, { flags, telemetry }: TelemetryOptions) {
+export async function update(subcommand: string, { flags }: TelemetryOptions) {
 	const isValid = ['enable', 'disable', 'reset'].includes(subcommand);
 
 	if (flags.help || flags.h || !isValid) {

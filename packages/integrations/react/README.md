@@ -9,6 +9,7 @@ There are two ways to add integrations to your project. Let's try the most conve
 ### `astro add` command
 
 Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
+
 1. (Optionally) Install all necessary dependencies and peer dependencies
 2. (Also optionally) Update your `astro.config.*` file to apply this integration
 
@@ -41,9 +42,8 @@ npm install react react-dom
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
-
-```js ins={2} "react()"
+```js ins={3} "react()"
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
@@ -56,6 +56,7 @@ export default defineConfig({
 ## Getting started
 
 To use your first React component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
+
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
 - 🤝 opportunities to mix and nest frameworks together

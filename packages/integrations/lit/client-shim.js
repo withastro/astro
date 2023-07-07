@@ -17,6 +17,6 @@ const polyfillCheckEl = new DOMParser()
 	)
 	.querySelector('p');
 
-if (!polyfillCheckEl || !polyfillCheckEl.shadowRoot) {
+if (!polyfillCheckEl?.shadowRoot) {
 	polyfill();
 }

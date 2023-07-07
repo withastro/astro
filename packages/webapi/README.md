@@ -108,8 +108,8 @@ The `exclude` option receives a list of WebAPIs to exclude from polyfilling.
 
 ```js
 polyfill(globalThis, {
-  // disables polyfills for setTimeout clearTimeout
-  exclude: 'setTimeout clearTimeout',
+	// disables polyfills for setTimeout clearTimeout
+	exclude: 'setTimeout clearTimeout',
 })
 ```
 
@@ -117,38 +117,36 @@ The `exclude` option accepts shorthands to exclude multiple polyfills. These sho
 
 ```js
 polyfill(globalThis, {
-  // disables polyfills for setTimeout clearTimeout
-  exclude: 'Timeout+',
+	// disables polyfills for setTimeout clearTimeout
+	exclude: 'Timeout+',
 })
 ```
 
 ```js
 polyfill(globalThis, {
-  // disables polyfills for Node, Window, Document, HTMLElement, etc.
-  exclude: 'Node+',
+	// disables polyfills for Node, Window, Document, HTMLElement, etc.
+	exclude: 'Node+',
 })
 ```
 
 ```js
 polyfill(globalThis, {
-  // disables polyfills for Event, EventTarget, Node, Window, Document, HTMLElement, etc.
-  exclude: 'Event+',
+	// disables polyfills for Event, EventTarget, Node, Window, Document, HTMLElement, etc.
+	exclude: 'Event+',
 })
 ```
 
-| Shorthand      | Excludes |
-|:-------------- |:-------- |
-| `Document+`    | `Document`, `HTMLDocument` |
-| `Element+`     | `Element`, and exclusions from `HTMLElement+` |
-| `Event+`       | `Event`, `CustomEvent`, `EventTarget`, `MediaQueryList`, `Window`, and exclusions from `Node+` |
-| `EventTarget+` | `Event`, `CustomEvent`, `EventTarget`, `MediaQueryList`, `Window`, and exclusions from `Node+` |
+| Shorthand      | Excludes                                                                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Document+`    | `Document`, `HTMLDocument`                                                                                                                                                                                                            |
+| `Element+`     | `Element`, and exclusions from `HTMLElement+`                                                                                                                                                                                         |
+| `Event+`       | `Event`, `CustomEvent`, `EventTarget`, `MediaQueryList`, `Window`, and exclusions from `Node+`                                                                                                                                        |
+| `EventTarget+` | `Event`, `CustomEvent`, `EventTarget`, `MediaQueryList`, `Window`, and exclusions from `Node+`                                                                                                                                        |
 | `HTMLElement+` | `CustomElementsRegistry`, `HTMLElement`, `HTMLBodyElement`, `HTMLCanvasElement`, `HTMLDivElement`, `HTMLHeadElement`, `HTMLHtmlElement`, `HTMLImageElement`, `HTMLStyleElement`, `HTMLTemplateElement`, `HTMLUnknownElement`, `Image` |
-| `Node+`        | `Node`, `DocumentFragment`, `ShadowRoot`, `Document`, `HTMLDocument`, and exclusions from `Element+` |
-| `StyleSheet+`  | `StyleSheet`, `CSSStyleSheet` |
+| `Node+`        | `Node`, `DocumentFragment`, `ShadowRoot`, `Document`, `HTMLDocument`, and exclusions from `Element+`                                                                                                                                  |
+| `StyleSheet+`  | `StyleSheet`, `CSSStyleSheet`                                                                                                                                                                                                         |
 
 ---
-
-
 
 ## License & Attribution
 

@@ -1,5 +1,5 @@
 import { loadFixture } from './test-utils.ts';
-import { assertEquals, assert, DOMParser } from './deps.ts';
+import { assertEquals } from './deps.ts';
 
 Deno.test({
 	// TODO: debug why build cannot be found in "await import"

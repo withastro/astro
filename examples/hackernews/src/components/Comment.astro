@@ -14,7 +14,7 @@ const { comment } = Astro.props;
 <li>
 	<div class="by">
 		<a href={`/users/${comment.user}`}>{comment.user}</a>{' '}
-		{comment.time_ago} ago
+		{comment.time_ago}
 	</div>
 	<div class="text" set:html={comment.content} />
 	<Show when={comment.comments.length}>

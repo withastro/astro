@@ -1,36 +1,24 @@
-import type { AstroRenderer, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroRenderer, AstroSettings, SSRLoadedRenderer } from '../../@types/astro';
+import type { ModuleLoader } from '../module-loader/index.js';
 
-export type RendererServerEntrypointModule = {
-	default: SSRLoadedRenderer['ssr'];
-};
-export type MaybeRendererServerEntrypointModule = Partial<RendererServerEntrypointModule>;
-export type RendererLoader = (entryPoint: string) => Promise<MaybeRendererServerEntrypointModule>;
+export async function loadRenderers(
+	settings: AstroSettings,
+	moduleLoader: ModuleLoader
+): Promise<SSRLoadedRenderer[]> {
+	const renderers = await Promise.all(settings.renderers.map((r) => loadRenderer(r, moduleLoader)));
+	return renderers.filter(Boolean) as SSRLoadedRenderer[];
+}
 
 export async function loadRenderer(
 	renderer: AstroRenderer,
-	loader: RendererLoader
+	moduleLoader: ModuleLoader
 ): Promise<SSRLoadedRenderer | undefined> {
-	const mod = await loader(renderer.serverEntrypoint);
+	const mod = await moduleLoader.import(renderer.serverEntrypoint);
 	if (typeof mod.default !== 'undefined') {
-		return createLoadedRenderer(renderer, mod as RendererServerEntrypointModule);
+		return {
+			...renderer,
+			ssr: mod.default,
+		};
 	}
 	return undefined;
-}
-
-export function filterFoundRenderers(
-	renderers: Array<SSRLoadedRenderer | undefined>
-): SSRLoadedRenderer[] {
-	return renderers.filter((renderer): renderer is SSRLoadedRenderer => {
-		return !!renderer;
-	});
-}
-
-export function createLoadedRenderer(
-	renderer: AstroRenderer,
-	mod: RendererServerEntrypointModule
-): SSRLoadedRenderer {
-	return {
-		...renderer,
-		ssr: mod.default,
-	};
 }

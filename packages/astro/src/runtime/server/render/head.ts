@@ -1,6 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
+import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './types';
 import { renderElement } from './util.js';
 
 // Filter out duplicate elements in our set
@@ -25,7 +26,7 @@ export function renderAllHeadContent(result: SSRResult) {
 	result.styles.clear();
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
-		.map((script, i) => {
+		.map((script) => {
 			return renderElement('script', script, false);
 		});
 	const links = Array.from(result.links)
@@ -34,8 +35,8 @@ export function renderAllHeadContent(result: SSRResult) {
 
 	let content = links.join('\n') + styles.join('\n') + scripts.join('\n');
 
-	if (result.extraHead.length > 0) {
-		for (const part of result.extraHead) {
+	if (result._metadata.extraHead.length > 0) {
+		for (const part of result._metadata.extraHead) {
 			content += part;
 		}
 	}
@@ -43,20 +44,16 @@ export function renderAllHeadContent(result: SSRResult) {
 	return markHTMLString(content);
 }
 
-export function* renderHead(result: SSRResult) {
-	yield { type: 'head', result } as const;
+export function* renderHead(): Generator<RenderHeadInstruction> {
+	yield { type: 'head' };
 }
 
 // This function is called by Astro components that do not contain a <head> component
 // This accommodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export function* maybeRenderHead(result: SSRResult) {
-	if (result._metadata.hasRenderedHead) {
-		return;
-	}
-
+export function* maybeRenderHead(): Generator<MaybeRenderHeadInstruction> {
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	yield { type: 'maybe-head', result, scope: result.scope } as const;
+	yield { type: 'maybe-head' };
 }

@@ -1,5 +1,25 @@
 # create-astro
 
+## 3.1.10
+
+### Patch Changes
+
+- [#7580](https://github.com/withastro/astro/pull/7580) [`2ca5bdde2`](https://github.com/withastro/astro/commit/2ca5bdde2b1acc2be1586a99686a9a48cdef65dc) Thanks [@sankethchebbi](https://github.com/sankethchebbi)! - Update dependency installation grammar
+
+## 3.1.9
+
+### Patch Changes
+
+- [#7527](https://github.com/withastro/astro/pull/7527) [`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Default registry logic to fallback to NPM if registry command fails (sorry, Bun users!)
+
+- [#7539](https://github.com/withastro/astro/pull/7539) [`1170877b5`](https://github.com/withastro/astro/commit/1170877b51aaa13203e8c488dcf4e39d1b5553ee) Thanks [@jc1144096387](https://github.com/jc1144096387)! - Update registry logic, improving edge cases (http support, redirects, registries ending with '/')
+
+## 3.1.8
+
+### Patch Changes
+
+- [#7435](https://github.com/withastro/astro/pull/7435) [`3f9f5c117`](https://github.com/withastro/astro/commit/3f9f5c117e4e9e4a0c0a648cb6db9a3073cd5727) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix registry failures using unexpected package managers when running create-astro
+
 ## 3.1.7
 
 ### Patch Changes

@@ -10,7 +10,7 @@ export const astroEntryPrefix = '\0astro-entry:';
  * entries to re-export only the names the user is using.
  */
 export function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
-	const componentToExportNames: Map<string, string[]> = new Map();
+	const componentToExportNames = new Map<string, string[]>();
 
 	mergeComponentExportNames(internals.discoveredHydratedComponents);
 	mergeComponentExportNames(internals.discoveredClientOnlyComponents);

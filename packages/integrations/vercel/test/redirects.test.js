@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Redirects', () => {
@@ -18,6 +17,7 @@ describe('Redirects', () => {
 				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
 			},
+			trailingSlash: 'always',
 			experimental: {
 				redirects: true,
 			},
@@ -55,5 +55,18 @@ describe('Redirects', () => {
 		expect(blogRoute).to.not.be.undefined;
 		expect(blogRoute.headers.Location.startsWith('/team/articles')).to.equal(true);
 		expect(blogRoute.status).to.equal(301);
+	});
+
+	it('define trailingSlash redirect for sub pages', async () => {
+		const config = await getConfig();
+
+		const subpathRoute = config.routes.find((r) => r.src === '/\\/subpage');
+		expect(subpathRoute).to.not.be.undefined;
+		expect(subpathRoute.headers.Location).to.equal('/subpage/');
+	});
+
+	it('does not define trailingSlash redirect for root page', async () => {
+		const config = await getConfig();
+		expect(config.routes.find((r) => r.src === '/')).to.be.undefined;
 	});
 });

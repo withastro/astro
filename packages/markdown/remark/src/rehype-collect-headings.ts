@@ -20,7 +20,7 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 			if (node.type !== 'element') return;
 			const { tagName } = node;
 			if (tagName[0] !== 'h') return;
-			const [_, level] = tagName.match(/h([0-6])/) ?? [];
+			const [, level] = tagName.match(/h([0-6])/) ?? [];
 			if (!level) return;
 			const depth = Number.parseInt(level);
 

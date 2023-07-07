@@ -59,7 +59,6 @@ declare const Astro: {
 					}
 				}
 				async childrenConnectedCallback() {
-					window.addEventListener('astro:hydrate', this.hydrate);
 					let beforeHydrationUrl = this.getAttribute('before-hydration-url');
 					if (beforeHydrationUrl) {
 						await import(beforeHydrationUrl);
@@ -96,17 +95,22 @@ declare const Astro: {
 						this
 					);
 				}
-				hydrate = () => {
-					if (
-						!this.hydrator ||
-						// Make sure the island is mounted on the DOM before hydrating. It could be unmounted
-						// when the parent island hydrates and re-creates this island.
-						!this.isConnected ||
-						// Wait for parent island to hydrate first so we hydrate top-down.
-						this.parentElement?.closest('astro-island[ssr]')
-					) {
+				hydrate = async () => {
+					// The client directive needs to load the hydrator code before it can hydrate
+					if (!this.hydrator) return;
+
+					// Make sure the island is mounted on the DOM before hydrating. It could be unmounted
+					// when the parent island hydrates and re-creates this island.
+					if (!this.isConnected) return;
+
+					// Wait for parent island to hydrate first so we hydrate top-down. The `ssr` attribute
+					// represents that it has not completed hydration yet.
+					const parentSsrIsland = this.parentElement?.closest('astro-island[ssr]');
+					if (parentSsrIsland) {
+						parentSsrIsland.addEventListener('astro:hydrate', this.hydrate, { once: true });
 						return;
 					}
+
 					const slotted = this.querySelectorAll('astro-slot');
 					const slots: Record<string, string> = {};
 					// Always check to see if there are templates.
@@ -114,24 +118,23 @@ declare const Astro: {
 					const templates = this.querySelectorAll('template[data-astro-template]');
 					for (const template of templates) {
 						const closest = template.closest(this.tagName);
-						if (!closest || !closest.isSameNode(this)) continue;
+						if (!closest?.isSameNode(this)) continue;
 						slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
 						template.remove();
 					}
 					for (const slot of slotted) {
 						const closest = slot.closest(this.tagName);
-						if (!closest || !closest.isSameNode(this)) continue;
+						if (!closest?.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
 					const props = this.hasAttribute('props')
 						? JSON.parse(this.getAttribute('props')!, reviver)
 						: {};
-					this.hydrator(this)(this.Component, props, slots, {
+					await this.hydrator(this)(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});
 					this.removeAttribute('ssr');
-					window.removeEventListener('astro:hydrate', this.hydrate);
-					window.dispatchEvent(new CustomEvent('astro:hydrate'));
+					this.dispatchEvent(new CustomEvent('astro:hydrate'));
 				};
 				attributeChangedCallback() {
 					this.hydrate();

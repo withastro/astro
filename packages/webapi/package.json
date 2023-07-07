@@ -50,23 +50,23 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "dependencies": {
-    "undici": "^5.22.0"
+    "undici": "^5.22.1"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-inject": "^4.0.4",
     "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-typescript": "^8.3.2",
-    "@types/chai": "^4.3.1",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@types/chai": "^4.3.5",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.7.21",
+    "@types/node": "^18.16.18",
     "@ungap/structured-clone": "^0.3.4",
-    "chai": "^4.3.6",
+    "chai": "^4.3.7",
     "event-target-shim": "^6.0.2",
     "magic-string": "^0.27.0",
     "mocha": "^9.2.2",
     "rollup": "^2.79.1",
-    "tslib": "^2.5.0",
+    "tslib": "^2.5.3",
     "typescript": "~5.0.2",
     "urlpattern-polyfill": "^1.0.0-rc5"
   },

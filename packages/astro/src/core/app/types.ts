@@ -30,16 +30,17 @@ export interface RouteInfo {
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 	routeData: SerializedRouteData;
 };
-type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
-export interface SSRManifest {
+export type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
+
+export type SSRManifest = {
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
-	base?: string;
+	base: string;
+	compressHTML: boolean;
 	assetsPrefix?: string;
 	markdown: MarkdownRenderingOptions;
-	pageMap: Map<ComponentPath, ImportComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
@@ -48,7 +49,9 @@ export interface SSRManifest {
 	entryModules: Record<string, string>;
 	assets: Set<string>;
 	componentMetadata: SSRResult['componentMetadata'];
-}
+	pageModule?: SinglePageBuiltModule;
+	pageMap?: Map<ComponentPath, ImportComponentInstance>;
+};
 
 export type SerializedSSRManifest = Omit<
 	SSRManifest,

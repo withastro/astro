@@ -1,13 +1,12 @@
+import mime from 'mime';
 import type {
 	EndpointHandler,
 	ManifestData,
 	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
+	SSRManifest,
 } from '../../@types/astro';
-import type { RouteInfo, SSRManifest as Manifest } from './types';
-
-import mime from 'mime';
 import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { callEndpoint, createAPIContext } from '../endpoint/index.js';
@@ -29,6 +28,7 @@ import {
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
+import type { RouteInfo } from './types';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -41,7 +41,7 @@ export interface MatchOptions {
 
 export class App {
 	#env: Environment;
-	#manifest: Manifest;
+	#manifest: SSRManifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#encoder = new TextEncoder();
@@ -52,7 +52,7 @@ export class App {
 	#base: string;
 	#baseWithoutTrailingSlash: string;
 
-	constructor(manifest: Manifest, streaming = true) {
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
@@ -63,6 +63,7 @@ export class App {
 			logging: this.#logging,
 			markdown: manifest.markdown,
 			mode: 'production',
+			compressHTML: manifest.compressHTML,
 			renderers: manifest.renderers,
 			clientDirectives: manifest.clientDirectives,
 			async resolve(specifier: string) {
@@ -115,7 +116,7 @@ export class App {
 			return undefined;
 		}
 	}
-	async render(request: Request, routeData?: RouteData): Promise<Response> {
+	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
 		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
@@ -131,7 +132,7 @@ export class App {
 			}
 		}
 
-		Reflect.set(request, clientLocalsSymbol, {});
+		Reflect.set(request, clientLocalsSymbol, locals ?? {});
 
 		// Use the 404 status code for 404.astro components
 		if (routeData.route === '/404') {
@@ -175,14 +176,23 @@ export class App {
 		if (route.type === 'redirect') {
 			return RedirectSinglePageBuiltModule;
 		} else {
-			const importComponentInstance = this.#manifest.pageMap.get(route.component);
-			if (!importComponentInstance) {
+			if (this.#manifest.pageMap) {
+				const importComponentInstance = this.#manifest.pageMap.get(route.component);
+				if (!importComponentInstance) {
+					throw new Error(
+						`Unexpectedly unable to find a component instance for route ${route.route}`
+					);
+				}
+				const pageModule = await importComponentInstance();
+				return pageModule;
+			} else if (this.#manifest.pageModule) {
+				const importComponentInstance = this.#manifest.pageModule;
+				return importComponentInstance;
+			} else {
 				throw new Error(
-					`Unexpectedly unable to find a component instance for route ${route.route}`
+					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
 				);
 			}
-			const built = await importComponentInstance();
-			return built;
 		}
 	}
 
@@ -194,7 +204,7 @@ export class App {
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		const info = this.#routeDataToRouteInfo.get(routeData!)!;
+		const info = this.#routeDataToRouteInfo.get(routeData)!;
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const styles = createStylesheetElementSet(info.styles);
@@ -217,7 +227,6 @@ export class App {
 			const mod = (await page.page()) as any;
 			const renderContext = await createRenderContext({
 				request,
-				origin: url.origin,
 				pathname,
 				componentMetadata: this.#manifest.componentMetadata,
 				scripts,
@@ -236,15 +245,19 @@ export class App {
 				site: this.#env.site,
 				adapterName: this.#env.adapterName,
 			});
-			const onRequest = page.middleware?.onRequest;
 			let response;
-			if (onRequest) {
+			if (page.onRequest) {
 				response = await callMiddleware<Response>(
 					this.#env.logging,
-					onRequest as MiddlewareResponseHandler,
+					page.onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
-						return renderPage({ mod, renderContext, env: this.#env, apiContext });
+						return renderPage({
+							mod,
+							renderContext,
+							env: this.#env,
+							cookies: apiContext.cookies,
+						});
 					}
 				);
 			} else {
@@ -252,7 +265,7 @@ export class App {
 					mod,
 					renderContext,
 					env: this.#env,
-					apiContext,
+					cookies: apiContext.cookies,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
@@ -279,7 +292,6 @@ export class App {
 
 		const ctx = await createRenderContext({
 			request,
-			origin: url.origin,
 			pathname,
 			route: routeData,
 			status,
@@ -287,7 +299,7 @@ export class App {
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.#env, ctx, this.#logging, page.middleware);
+		const result = await callEndpoint(handler, this.#env, ctx, page.onRequest);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

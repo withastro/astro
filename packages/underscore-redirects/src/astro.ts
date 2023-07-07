@@ -12,7 +12,7 @@ function getRedirectStatus(route: RouteData): ValidRedirectStatus {
 }
 
 interface CreateRedirectsFromAstroRoutesParams {
-	config: Pick<AstroConfig, 'output' | 'build'>;
+	config: Pick<AstroConfig, 'build' | 'output'>;
 	routes: RouteData[];
 	dir: URL;
 	dynamicTarget?: string;
@@ -139,5 +139,5 @@ function generateDynamicPattern(route: RouteData) {
 }
 
 function prependForwardSlash(str: string) {
-	return str[0] === '/' ? str : '/' + str;
+	return str.startsWith('/') ? str : '/' + str;
 }

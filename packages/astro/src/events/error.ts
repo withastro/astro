@@ -1,11 +1,10 @@
 import type { ZodError } from 'zod';
+import type { ErrorData } from '../core/errors/errors-data.js';
 import { AstroError, AstroErrorData, type ErrorWithMetadata } from '../core/errors/index.js';
-import { getErrorDataByCode } from '../core/errors/utils.js';
 
 const EVENT_ERROR = 'ASTRO_CLI_ERROR';
 
 interface ErrorEventPayload {
-	code: number | undefined;
 	name: string;
 	isFatal: boolean;
 	plugin?: string | undefined;
@@ -30,7 +29,7 @@ interface ConfigErrorEventPayload extends ErrorEventPayload {
 const ANONYMIZE_MESSAGE_REGEX = /^(\w| )+/;
 function anonymizeErrorMessage(msg: string): string | undefined {
 	const matchedMessage = msg.match(ANONYMIZE_MESSAGE_REGEX);
-	if (!matchedMessage || !matchedMessage[0]) {
+	if (!matchedMessage?.[0]) {
 		return undefined;
 	}
 	return matchedMessage[0].trim().substring(0, 20);
@@ -46,7 +45,6 @@ export function eventConfigError({
 	isFatal: boolean;
 }): { eventName: string; payload: ConfigErrorEventPayload }[] {
 	const payload: ConfigErrorEventPayload = {
-		code: AstroErrorData.UnknownConfigError.code,
 		name: 'ZodError',
 		isFatal,
 		isConfig: true,
@@ -66,15 +64,16 @@ export function eventError({
 	isFatal: boolean;
 }): { eventName: string; payload: ErrorEventPayload }[] {
 	const errorData =
-		AstroError.is(err) && err.errorCode ? getErrorDataByCode(err.errorCode)?.data : undefined;
+		AstroError.is(err) && (AstroErrorData[err.name as keyof typeof AstroErrorData] as ErrorData);
 
 	const payload: ErrorEventPayload = {
-		code: err.code || err.errorCode || AstroErrorData.UnknownError.code,
 		name: err.name,
 		plugin: err.plugin,
 		cliCommand: cmd,
 		isFatal: isFatal,
 		anonymousMessageHint:
+			// https://github.com/typescript-eslint/typescript-eslint/issues/4820
+			// eslint-disable-next-line @typescript-eslint/prefer-optional-chain -- errorData may be false
 			errorData && errorData.message
 				? getSafeErrorMessage(errorData.message)
 				: anonymizeErrorMessage(err.message),

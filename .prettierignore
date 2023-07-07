@@ -12,14 +12,11 @@ packages/markdown/component/Markdown.astro
 **/fixtures
 **/vendor
 **/.vercel
-examples/docs/**/*.md
-examples/blog/**/*.md
 
 # Directories
 .github
 .changeset
 
 # Files
-README.md
 packages/webapi/mod.d.ts
 pnpm-lock.yaml

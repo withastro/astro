@@ -1,4 +1,3 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
@@ -30,7 +29,6 @@ import { wrapDefaultExport } from './wrapper.js';
 export interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
-	telemetry: AstroTelemetry;
 	cwd?: string;
 }
 
@@ -79,11 +77,15 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 // A copy of this function also exists in the create-astro package
 async function getRegistry(): Promise<string> {
 	const packageManager = (await preferredPM(process.cwd()))?.name || 'npm';
-	const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
-	return stdout || 'https://registry.npmjs.org';
+	try {
+		const { stdout } = await execa(packageManager, ['config', 'get', 'registry']);
+		return stdout?.trim()?.replace(/\/$/, '') || 'https://registry.npmjs.org';
+	} catch (e) {
+		return 'https://registry.npmjs.org';
+	}
 }
 
-export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
+export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({

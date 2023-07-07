@@ -111,21 +111,6 @@ export interface CLIFlags {
 	experimentalRedirects?: boolean;
 }
 
-export interface BuildConfig {
-	/**
-	 * @deprecated Use config.build.client instead.
-	 */
-	client: URL;
-	/**
-	 * @deprecated Use config.build.server instead.
-	 */
-	server: URL;
-	/**
-	 * @deprecated Use config.build.serverEntry instead.
-	 */
-	serverEntry: string;
-}
-
 /**
  * Astro global available in all contexts in .astro files
  *
@@ -335,6 +320,22 @@ type ServerConfig = {
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 	headers?: OutgoingHttpHeaders;
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
+	 * }
+	 * ```
+	 */
+	open?: boolean;
 };
 
 export interface ViteUserConfig extends vite.UserConfig {
@@ -546,9 +547,11 @@ export interface AstroUserConfig {
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
 	 *
+	 * By default, the value of `import.meta.env.BASE_URL` includes a trailing slash. If you have the [`trailingSlash`](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) option set to `'never'`, you will need to add it manually in your static asset imports and URLs.
+	 *
 	 * ```astro
 	 * <a href="/docs/about/">About</a>
-	 * <img src=`${import.meta.env.BASE_URL}/image.png`>
+	 * <img src=`${import.meta.env.BASE_URL}image.png`>
 	 * ```
 	 */
 	base?: string;
@@ -822,6 +825,51 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
+
+		/**
+		 * @docs
+		 * @name build.split
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.7.0
+		 * @description
+		 * Defines how the SSR code should be bundled when built.
+		 *
+		 * When `split` is `true`, Astro will emit a file for each page.
+		 * Each file emitted will render only one page. The pages will be emitted
+		 * inside a `dist/pages/` directory, and the emitted files will keep the same file paths
+		 * of the `src/pages` directory.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     split: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		split?: boolean;
+
+		/**
+		 * @docs
+		 * @name build.excludeMiddleware
+		 * @type {boolean}
+		 * @default {false}
+		 * @version 2.8.0
+		 * @description
+		 * Defines whether or not any SSR middleware code will be bundled when built.
+		 *
+		 * When enabled, middleware code is not bundled and imported by all pages during the build. To instead execute and import middleware code manually, set `build.excludeMiddleware: true`:
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     excludeMiddleware: true
+		 *   }
+		 * }
+		 * ```
+		 */
+		excludeMiddleware?: boolean;
 	};
 
 	/**
@@ -843,7 +891,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
+	 *   server: ({ command }) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -874,6 +922,21 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   server: { port: 8080 }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @name server.open
+	 * @type {boolean}
+	 * @default `false`
+	 * @version 2.1.8
+	 * @description
+	 * Control whether the dev server should open in your browser window on startup.
+	 *
+	 * ```js
+	 * {
+	 *   server: { open: true }
 	 * }
 	 * ```
 	 */
@@ -1238,6 +1301,7 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
 export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
+	prerender?: boolean;
 }
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
@@ -1332,7 +1396,6 @@ export interface AstroSettings {
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
-	forceDisableTelemetry: boolean;
 	timer: AstroTimer;
 }
 
@@ -1722,20 +1785,20 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	locals: App.Locals;
 }
 
-export type Props = Record<string, unknown>;
-
 export interface EndpointOutput {
 	body: Body;
 	encoding?: BufferEncoding;
 }
 
-export type APIRoute = (
-	context: APIContext
+export type APIRoute<Props extends Record<string, any> = Record<string, any>> = (
+	context: APIContext<Props>
 ) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
+
+export type Props = Record<string, unknown>;
 
 export interface AstroRenderer {
 	/** Name of the renderer. */
@@ -1793,7 +1856,18 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
+		'astro:build:ssr'?: (options: {
+			manifest: SerializedSSRManifest;
+			/**
+			 * This maps a {@link RouteData} to an {@link URL}, this URL represents
+			 * the physical file you should import.
+			 */
+			entryPoints: Map<RouteData, URL>;
+			/**
+			 * File path of the emitted middleware
+			 */
+			middlewareEntryPoint: URL | undefined;
+		}) => void | Promise<void>;
 		'astro:build:start'?: () => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: vite.InlineConfig;
@@ -1883,16 +1957,6 @@ export interface SSRElement {
 	children: string;
 }
 
-export interface SSRMetadata {
-	renderers: SSRLoadedRenderer[];
-	pathname: string;
-	hasHydrationScript: boolean;
-	hasDirectives: Set<string>;
-	hasRenderedHead: boolean;
-	headInTree: boolean;
-	clientDirectives: Map<string, string>;
-}
-
 /**
  * A hint on whether the Astro runtime needs to wait on a component to render head
  * content. The meanings:
@@ -1915,9 +1979,6 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
-	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
-	extraHead: Array<string>;
-	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
@@ -1925,11 +1986,31 @@ export interface SSRResult {
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	response: ResponseInit;
-	// Bits 1 = astro, 2 = jsx, 4 = slot
-	// As rendering occurs these bits are manipulated to determine where content
-	// is within a slot. This is used for head injection.
-	scope: number;
+	renderers: SSRLoadedRenderer[];
+	/**
+	 * Map of directive name (e.g. `load`) to the directive script code
+	 */
+	clientDirectives: Map<string, string>;
+	compressHTML: boolean;
+	/**
+	 * Only used for logging
+	 */
+	pathname: string;
+	cookies: AstroCookies | undefined;
 	_metadata: SSRMetadata;
+}
+
+/**
+ * Ephemeral and mutable state during rendering that doesn't rely
+ * on external configuration
+ */
+export interface SSRMetadata {
+	hasHydrationScript: boolean;
+	hasDirectives: Set<string>;
+	hasRenderedHead: boolean;
+	headInTree: boolean;
+	extraHead: string[];
+	propagators: Map<AstroComponentFactory, AstroComponentInstance>;
 }
 
 /* Preview server stuff */

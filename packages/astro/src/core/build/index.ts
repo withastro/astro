@@ -1,17 +1,9 @@
-import type { AstroTelemetry } from '@astrojs/telemetry';
-import type {
-	AstroConfig,
-	AstroSettings,
-	BuildConfig,
-	ManifestData,
-	RuntimeMode,
-} from '../../@types/astro';
-
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
+import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -19,7 +11,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { debug, info, levels, timerMessage, type LogOptions } from '../logger/core.js';
+import { debug, info, levels, timerMessage, warn, type LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -32,7 +24,6 @@ import { getTimeStat } from './util.js';
 export interface BuildOptions {
 	mode?: RuntimeMode;
 	logging: LogOptions;
-	telemetry: AstroTelemetry;
 	/**
 	 * Teardown the compiler WASM instance after build. This can improve performance when
 	 * building once, but may cause a performance hit if building multiple times in a row.
@@ -123,11 +114,6 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		const buildConfig: BuildConfig = {
-			client: this.settings.config.build.client,
-			server: this.settings.config.build.server,
-			serverEntry: this.settings.config.build.serverEntry,
-		};
 		await runHookBuildStart({ config: this.settings.config, logging: this.logging });
 		this.validateConfig();
 
@@ -168,7 +154,6 @@ class AstroBuilder {
 			routeCache: this.routeCache,
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
-			buildConfig,
 		};
 
 		const { internals } = await viteBuild(opts);
@@ -188,7 +173,6 @@ class AstroBuilder {
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			config: this.settings.config,
-			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 			logging: this.logging,
@@ -225,6 +209,25 @@ class AstroBuilder {
 			throw new Error(
 				`the outDir cannot be the root folder. Please build to a folder such as dist.`
 			);
+		}
+
+		if (config.build.split === true) {
+			if (config.output === 'static') {
+				warn(
+					this.logging,
+					'configuration',
+					'The option `build.split` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
+				);
+			}
+		}
+		if (config.build.excludeMiddleware === true) {
+			if (config.output === 'static') {
+				warn(
+					this.logging,
+					'configuration',
+					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
+				);
+			}
 		}
 	}
 

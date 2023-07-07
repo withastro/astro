@@ -1,17 +1,12 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { addRollupInput } from '../add-rollup-input.js';
-import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin';
 import type { StaticBuildOptions } from '../types';
 
 export const RENDERERS_MODULE_ID = '@astro-renderers';
 export const RESOLVED_RENDERERS_MODULE_ID = `\0${RENDERERS_MODULE_ID}`;
 
-let inputs: Set<string> = new Set();
-export function vitePluginRenderers(
-	opts: StaticBuildOptions,
-	_internals: BuildInternals
-): VitePlugin {
+export function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
 	return {
 		name: '@astro/plugin-renderers',
 
@@ -49,16 +44,13 @@ export function vitePluginRenderers(
 	};
 }
 
-export function pluginRenderers(
-	opts: StaticBuildOptions,
-	internals: BuildInternals
-): AstroBuildPlugin {
+export function pluginRenderers(opts: StaticBuildOptions): AstroBuildPlugin {
 	return {
 		build: 'ssr',
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginRenderers(opts, internals),
+					vitePlugin: vitePluginRenderers(opts),
 				};
 			},
 		},

@@ -3,8 +3,6 @@ import type {
 	AstroGlobal,
 	AstroGlobalPartial,
 	Params,
-	Props,
-	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -23,28 +21,29 @@ import { warn, type LogOptions } from '../logger/core.js';
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
-function onlyAvailableInSSR(name: 'Astro.redirect') {
-	return function _onlyAvailableInSSR() {
-		switch (name) {
-			case 'Astro.redirect':
-				throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
-		}
-	};
-}
-
 export interface CreateResultArgs {
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
 	adapterName: string | undefined;
+	/**
+	 * Value of Astro config's `output` option, true if "server" or "hybrid"
+	 */
 	ssr: boolean;
 	logging: LogOptions;
-	origin: string;
+	/**
+	 * Used to support `Astro.__renderMarkdown` for legacy `<Markdown />` component
+	 */
 	markdown: MarkdownRenderingOptions;
-	mode: RuntimeMode;
 	params: Params;
 	pathname: string;
-	props: Props;
 	renderers: SSRLoadedRenderer[];
 	clientDirectives: Map<string, string>;
+	compressHTML: boolean;
 	resolve: (s: string) => Promise<string>;
+	/**
+	 * Used for `Astro.site`
+	 */
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
@@ -136,8 +135,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, clientDirectives, request, resolve, locals } =
-		args;
+	const { markdown, params, request, resolve, locals } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -157,7 +155,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
 	let cookies: AstroCookies | undefined = args.cookies;
-	let componentMetadata = args.componentMetadata ?? new Map();
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -166,10 +163,11 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
-		componentMetadata,
-		propagators: new Map(),
-		extraHead: [],
-		scope: 0,
+		componentMetadata: args.componentMetadata ?? new Map(),
+		renderers: args.renderers,
+		clientDirectives: args.clientDirectives,
+		compressHTML: args.compressHTML,
+		pathname: args.pathname,
 		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(
@@ -256,16 +254,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			return Astro;
 		},
 		resolve,
+		response,
 		_metadata: {
-			renderers,
-			pathname,
 			hasHydrationScript: false,
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
-			clientDirectives,
+			extraHead: [],
+			propagators: new Map(),
 		},
-		response,
 	};
 
 	return result;

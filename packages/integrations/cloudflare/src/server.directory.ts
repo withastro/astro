@@ -1,3 +1,4 @@
+import type { EventContext, Request as CFRequest } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy, isNode } from './util.js';
@@ -14,8 +15,9 @@ export function createExports(manifest: SSRManifest) {
 		next,
 		...runtimeEnv
 	}: {
-		request: Request;
+		request: Request & CFRequest;
 		next: (request: Request) => void;
+		waitUntil: EventContext<unknown, any, unknown>['waitUntil'];
 	} & Record<string, unknown>) => {
 		process.env = runtimeEnv.env as any;
 
@@ -34,8 +36,13 @@ export function createExports(manifest: SSRManifest) {
 			);
 			Reflect.set(request, Symbol.for('runtime'), {
 				...runtimeEnv,
+				waitUntil: (promise: Promise<any>) => {
+					runtimeEnv.waitUntil(promise);
+				},
 				name: 'cloudflare',
 				next,
+				caches,
+				cf: request.cf,
 			});
 			let response = await app.render(request, routeData);
 
@@ -54,5 +61,5 @@ export function createExports(manifest: SSRManifest) {
 		});
 	};
 
-	return { onRequest };
+	return { onRequest, manifest };
 }

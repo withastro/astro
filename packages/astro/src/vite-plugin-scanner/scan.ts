@@ -41,7 +41,7 @@ export async function scan(code: string, id: string, isHybridOutput = false): Pr
 		didInit = true;
 	}
 
-	const [_, exports] = eslexer.parse(code, id);
+	const [, exports] = eslexer.parse(code, id);
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;

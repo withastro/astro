@@ -1,3 +1,5 @@
+/* Deno types consider DOM elements nullable */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm.ts';
 import { assert, assertEquals } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 import { runBuildAndStartApp, defaultTestPermissions } from './helpers.ts';
@@ -102,6 +104,12 @@ Deno.test({
 			const doc = new DOMParser().parseFromString(html, `text/html`);
 			const h1 = doc!.querySelector('h1');
 			assertEquals(h1!.innerText, 'test');
+		});
+
+		await t.step('node compatibility', async () => {
+			const resp = await fetch(new URL('/nodecompat', app.url));
+			assertEquals(resp.status, 200);
+			await resp.text();
 		});
 
 		app.stop();

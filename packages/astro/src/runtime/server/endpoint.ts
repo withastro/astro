@@ -19,7 +19,7 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(mod: EndpointHandler, context: APIContext, ssr: boolean) {
-	const { request, params, locals } = context;
+	const { request, params } = context;
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'get') {

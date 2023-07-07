@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { loadFixture, silentLogging } from './test-utils.js';
 
 describe('Errors in JavaScript', () => {

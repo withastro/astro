@@ -385,6 +385,14 @@ describe('Events', () => {
 			expect(payload.config.integrations.length).to.equal(0);
 		});
 
+		it('finds names for integration arrays', () => {
+			const config = {
+				integrations: [{ name: 'foo' }, [{ name: 'bar' }, { name: 'baz' }]],
+			};
+			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
+			expect(payload.config.integrations).to.deep.equal(['foo', 'bar', 'baz']);
+		});
+
 		it('includes cli flags in payload', () => {
 			const config = {};
 			const flags = {
@@ -427,7 +435,6 @@ describe('Events', () => {
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
-					code: AstroErrorData.UnknownConfigError.code,
 					name: 'ZodError',
 					isFatal: true,
 					isConfig: true,
@@ -451,7 +458,6 @@ describe('Events', () => {
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
-					code: 1234,
 					plugin: 'TEST PLUGIN',
 					name: 'Error',
 					isFatal: true,
@@ -477,7 +483,6 @@ describe('Events', () => {
 					anonymousMessageHint:
 						'`Astro.clientAddress` is not available in the `ADAPTER_NAME` adapter. File an issue with the adapter to add support.',
 					cliCommand: 'COMMAND_NAME',
-					code: 3002,
 					isFatal: false,
 					name: 'ClientAddressNotAvailable',
 					plugin: undefined,
@@ -494,7 +499,6 @@ describe('Events', () => {
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
 				payload: {
-					code: AstroErrorData.UnknownError.code,
 					name: 'Error',
 					plugin: undefined,
 					isFatal: false,
