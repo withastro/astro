@@ -86,7 +86,7 @@ export default defineConfig({
 
 By default, the prefetch script also searches the page for any links that include a `rel="prefetch-intent"` attribute, ex: `<a rel="prefetch-intent" />`. This behavior can be changed in your `astro.config.*` file to use a custom query selector when finding prefetch-intent links.
 
-__`astro.config.mjs`__
+**`astro.config.mjs`**
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -94,13 +94,15 @@ import prefetch from '@astrojs/prefetch';
 
 export default defineConfig({
   // ...
-  integrations: [prefetch({
-     // Only prefetch links with an href that begins with `/products` or `/coupons`
-    intentSelector: ["a[href^='/products']", "a[href^='/coupons']"]
-    
-    // Use a string to prefetch a single selector
-    // intentSelector: "a[href^='/products']"
-  })],
+  integrations: [
+    prefetch({
+      // Only prefetch links with an href that begins with `/products` or `/coupons`
+      intentSelector: ["a[href^='/products']", "a[href^='/coupons']"],
+
+      // Use a string to prefetch a single selector
+      // intentSelector: "a[href^='/products']"
+    }),
+  ],
 });
 ```
 
