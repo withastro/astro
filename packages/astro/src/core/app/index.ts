@@ -42,27 +42,26 @@ export interface MatchOptions {
 export class App {
 	/**
 	 * The current environment of the application
-	 * @protected
 	 */
-	protected env: Environment;
+	#env: Environment;
 	#manifest: SSRManifest;
-	protected manifestData: ManifestData;
+	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	protected encoder = new TextEncoder();
-	protected logging: LogOptions = {
+	#encoder = new TextEncoder();
+	#logging: LogOptions = {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
-	protected baseWithoutTrailingSlash: string;
+	#baseWithoutTrailingSlash: string;
 
 	constructor(manifest: SSRManifest, streaming = true) {
 		this.#manifest = manifest;
-		this.manifestData = {
+		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
-		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
-		this.env = this.#createEnvironment(streaming);
+		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
+		this.#env = this.#createEnvironment(streaming);
 	}
 
 	set setManifest(newManifest: SSRManifest) {
@@ -78,7 +77,7 @@ export class App {
 	#createEnvironment(streaming = false) {
 		return createEnvironment({
 			adapterName: this.#manifest.adapterName,
-			logging: this.logging,
+			logging: this.#logging,
 			markdown: this.#manifest.markdown,
 			mode: 'production',
 			compressHTML: this.#manifest.compressHTML,
@@ -99,7 +98,7 @@ export class App {
 					}
 				}
 			},
-			routeCache: new RouteCache(this.logging),
+			routeCache: new RouteCache(this.#logging),
 			site: this.#manifest.site,
 			ssr: true,
 			streaming,
@@ -107,11 +106,11 @@ export class App {
 	}
 
 	set setManifestData(newManifestData: ManifestData) {
-		this.manifestData = newManifestData;
+		this.#manifestData = newManifestData;
 	}
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
-			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
+			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
 		}
 		return pathname;
 	}
@@ -122,13 +121,13 @@ export class App {
 			return undefined;
 		}
 		let pathname = prependForwardSlash(this.removeBase(url.pathname));
-		let routeData = matchRoute(pathname, this.manifestData);
+		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
 			if (routeData.prerender) return undefined;
 			return routeData;
 		} else if (matchNotFound) {
-			const notFoundRouteData = matchRoute('/404', this.manifestData);
+			const notFoundRouteData = matchRoute('/404', this.#manifestData);
 			if (notFoundRouteData?.prerender) return undefined;
 			return notFoundRouteData;
 		} else {
@@ -165,7 +164,7 @@ export class App {
 
 			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 			if (response.status === 500 || response.status === 404) {
-				const errorRouteData = matchRoute('/' + response.status, this.manifestData);
+				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
 				if (errorRouteData && errorRouteData.route !== routeData.route) {
 					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
@@ -254,27 +253,27 @@ export class App {
 				route: routeData,
 				status,
 				mod,
-				env: this.env,
+				env: this.#env,
 			});
 
 			const apiContext = createAPIContext({
 				request: renderContext.request,
 				params: renderContext.params,
 				props: renderContext.props,
-				site: this.env.site,
-				adapterName: this.env.adapterName,
+				site: this.#env.site,
+				adapterName: this.#env.adapterName,
 			});
 			let response;
 			if (page.onRequest) {
 				response = await callMiddleware<Response>(
-					this.env.logging,
+					this.#env.logging,
 					page.onRequest as MiddlewareResponseHandler,
 					apiContext,
 					() => {
 						return renderPage({
 							mod,
 							renderContext,
-							env: this.env,
+							env: this.#env,
 							cookies: apiContext.cookies,
 						});
 					}
@@ -283,14 +282,14 @@ export class App {
 				response = await renderPage({
 					mod,
 					renderContext,
-					env: this.env,
+					env: this.#env,
 					cookies: apiContext.cookies,
 				});
 			}
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
-			error(this.logging, 'ssr', err.stack || err.message || String(err));
+			error(this.#logging, 'ssr', err.stack || err.message || String(err));
 			return new Response(null, {
 				status: 500,
 				statusText: 'Internal server error',
@@ -314,11 +313,11 @@ export class App {
 			pathname,
 			route: routeData,
 			status,
-			env: this.env,
+			env: this.#env,
 			mod: handler as any,
 		});
 
-		const result = await callEndpoint(handler, this.env, ctx, page.onRequest);
+		const result = await callEndpoint(handler, this.#env, ctx, page.onRequest);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
@@ -338,7 +337,7 @@ export class App {
 			} else {
 				headers.set('Content-Type', 'text/plain;charset=utf-8');
 			}
-			const bytes = this.encoder.encode(body);
+			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());
 
 			const response = new Response(bytes, {

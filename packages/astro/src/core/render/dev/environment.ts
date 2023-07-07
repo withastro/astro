@@ -27,7 +27,7 @@ export function createDevelopmentEnvironment(
 		// This will be overridden in the dev server
 		renderers: [],
 		clientDirectives: manifest.clientDirectives,
-		compressHTML: settings.config.compressHTML,
+		compressHTML: manifest.compressHTML,
 		resolve: createResolve(loader, settings.config.root),
 		routeCache: new RouteCache(logging, mode),
 		site: manifest.site,
