@@ -20,13 +20,13 @@ describe('Markdoc - render html', () => {
 
     let devServer;
 
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
+    before(async () => {
+      devServer = await fixture.startDevServer();
+    });
 
-		after(async () => {
-			await devServer.stop();
-		});
+    after(async () => {
+      await devServer.stop();
+    });
 
     it('renders content - simple', async () => {
       const res = await fixture.fetch('/simple');
@@ -49,13 +49,20 @@ describe('Markdoc - render html', () => {
       renderComponentsHTMLChecks(html);
     });
 
+    it('renders content - randomly cased html attributes', async () => {
+      const res = await fixture.fetch('/randomly-cased-html-attributes');
+      const html = await res.text();
+
+      renderRandomlyCasedHTMLAttributesChecks(html);
+    });
+
   });
 
   describe('build', () => {
 
-		before(async () => {
-			await fixture.build();
-		});
+    before(async () => {
+      await fixture.build();
+    });
 
 
     it('renders content - simple', async () => {
@@ -74,6 +81,12 @@ describe('Markdoc - render html', () => {
       const html = await fixture.readFile('/components/index.html');
 
       renderComponentsHTMLChecks(html);
+    });
+
+    it('renders content - randomly cased html attributes', async () => {
+      const html = await fixture.readFile('/randomly-cased-html-attributes/index.html');
+
+      renderRandomlyCasedHTMLAttributesChecks(html);
     });
 
   });
@@ -152,6 +165,32 @@ function renderNestedHTMLChecks(html) {
   expect(p5.textContent).to.equal('before inner after');
   expect(p5.children.length).to.equal(1);
 
+}
+
+/** 
+ * 
+ * @param {string} html */
+function renderRandomlyCasedHTMLAttributesChecks(html) {
+  const { document } = parseHTML(html);
+
+  const td1 = document.querySelector('#td1');
+  const td2 = document.querySelector('#td1');
+  const td3 = document.querySelector('#td1');
+  const td4 = document.querySelector('#td1');
+
+  // all four <td>'s which had randomly cased variants of colspan/rowspan should all be rendered lowercased at this point
+
+  expect(td1.getAttribute("colspan")).to.equal("3");
+  expect(td1.getAttribute("rowspan")).to.equal("2");
+
+  expect(td2.getAttribute("colspan")).to.equal("3");
+  expect(td2.getAttribute("rowspan")).to.equal("2");
+
+  expect(td3.getAttribute("colspan")).to.equal("3");
+  expect(td3.getAttribute("rowspan")).to.equal("2");
+
+  expect(td4.getAttribute("colspan")).to.equal("3");
+  expect(td4.getAttribute("rowspan")).to.equal("2");
 }
 
 /** 
