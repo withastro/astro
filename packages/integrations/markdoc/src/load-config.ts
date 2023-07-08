@@ -77,7 +77,7 @@ async function bundleConfigFile({
 						// This swallows the `hint` and blows up the stacktrace.
 						markdocError = new MarkdocError({
 							message: '`.astro` files are no longer supported in the Markdoc config.',
-							hint: 'Use the `component()` utility to specify a component path instead.',
+							hint: 'Use the `component()` utility to specify a component path instead. See https://docs.astro.build/en/guides/integrations-guide/markdoc/',
 						});
 						return {
 							// Stub with an unused default export.

@@ -105,13 +105,12 @@ This example renders an `Aside` component, and allows a `type` prop to be passed
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc/config';
-import Aside from './src/components/Aside.astro';
+import { defineMarkdocConfig, component } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
   tags: {
     aside: {
-      render: Aside,
+      render: component('./src/components/Aside.astro'),
       attributes: {
         // Markdoc requires type defs for each attribute.
         // These should mirror the `Props` type of the component
@@ -137,6 +136,31 @@ Use tags like this fancy "aside" to add some _flair_ to your docs.
 {% /aside %}
 ```
 
+### Use Astro components from npm packages and TypeScript files
+
+You may need to use Astro components exposed as named exports from TypeScript or JavaScript files. This is common when using npm packages and design systems.
+
+You can pass the import name as the second argument to the `component()` function:
+
+```js
+// markdoc.config.mjs
+import { defineMarkdocConfig, component } from '@astrojs/markdoc/config';
+
+export default defineMarkdocConfig({
+  tags: {
+    tabs: {
+      render: component('@astrojs/starlight/components', 'Tabs'),
+    },
+  },
+});
+```
+
+This generates the following import statement internally:
+
+```ts
+import { Tabs } from '@astrojs/starlight/components';
+```
+
 ### Custom headings
 
 `@astrojs/markdoc` automatically adds anchor links to your headings, and [generates a list of `headings` via the content collections API](https://docs.astro.build/en/guides/content-collections/#rendering-content-to-html). To further customize how headings are rendered, you can apply an Astro component [as a Markdoc node][markdoc-nodes].
@@ -145,14 +169,13 @@ This example renders a `Heading.astro` component using the `render` property:
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
-import Heading from './src/components/Heading.astro';
+import { defineMarkdocConfig, nodes, component } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
   nodes: {
     heading: {
       ...nodes.heading, // Preserve default anchor link generation
-      render: Heading,
+      render: component('./src/components/Heading.astro'),
     },
   },
 });
@@ -239,14 +262,13 @@ This example renders blockquotes with a custom `Quote.astro` component:
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig, nodes } from '@astrojs/markdoc/config';
-import Quote from './src/components/Quote.astro';
+import { defineMarkdocConfig, nodes, component } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
   nodes: {
     blockquote: {
       ...nodes.blockquote, // Apply Markdoc's defaults for other options
-      render: Quote,
+      render: component('./src/components/Quote.astro'),
     },
   },
 });
@@ -273,13 +295,12 @@ This Astro component can now be passed to the `render` prop for any [tag][markdo
 
 ```js
 // markdoc.config.mjs
-import { defineMarkdocConfig } from '@astrojs/markdoc/config';
-import ClientAside from './src/components/ClientAside.astro';
+import { defineMarkdocConfig, component } from '@astrojs/markdoc/config';
 
 export default defineMarkdocConfig({
   tags: {
     aside: {
-      render: ClientAside,
+      render: component('./src/components/ClientAside.astro'),
       attributes: {
         type: { type: String },
       },
