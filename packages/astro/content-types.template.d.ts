@@ -10,7 +10,11 @@ declare module 'astro:content' {
 
 declare module 'astro:content' {
 	export { z } from 'astro/zod';
-	export type CollectionEntry<C extends keyof AnyEntryMap> = AnyEntryMap[C][keyof AnyEntryMap[C]];
+	export type CollectionKey = keyof AnyEntryMap;
+	export type CollectionEntry<C extends CollectionKey> = AnyEntryMap[C][keyof AnyEntryMap[C]];
+
+	export type ContentCollectionKey = keyof ContentEntryMap;
+	export type DataCollectionKey = keyof DataEntryMap;
 
 	// TODO: Remove this when having this fallback is no longer relevant. 2.3? 3.0? - erika, 2023-04-04
 	/**
