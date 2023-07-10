@@ -112,8 +112,9 @@ async function printInfo({
 		}
 	} catch (_e) {}
 	console.log();
+	const packageManagerName = packageManager?.name ?? "Couldn't determine.";
 	printRow('Astro version', `v${ASTRO_VERSION}`);
-	printRow('Package manager', packageManager?.name);
+	printRow('Package manager', packageManagerName);
 	printRow('Platform', platform());
 	printRow('Architecture', arch());
 	printRow('Adapter', adapter);
