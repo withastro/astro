@@ -1,6 +1,6 @@
+import type { ServerCapabilities } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { ServerCapabilities } from 'vscode-languageserver-protocol';
 import { LanguageServer, getLanguageServer } from '../server.js';
 
 describe('Initialize', async () => {

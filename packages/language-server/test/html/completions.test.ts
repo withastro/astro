@@ -1,6 +1,6 @@
+import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { describe } from 'mocha';
-import { Position } from 'vscode-languageserver-protocol';
 import { LanguageServer, getLanguageServer } from '../server.js';
 
 describe('HTML - Completions', () => {

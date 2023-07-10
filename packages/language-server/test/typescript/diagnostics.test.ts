@@ -1,6 +1,6 @@
+import { DiagnosticSeverity, Range, type Diagnostic } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
-import { Diagnostic, DiagnosticSeverity, Range } from 'vscode-languageserver-protocol';
 import { LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript - Diagnostics', async () => {
