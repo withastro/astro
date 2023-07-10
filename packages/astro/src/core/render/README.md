@@ -20,7 +20,7 @@ Each render (page or endpoint) requires a `RenderContext` that contains:
 - Additional `styles`, `links`, `scripts`
 - And more!
 
-The `RenderContext` is agnostic to what's being rendered. 
+The `RenderContext` is agnostic to what's being rendered.
 
 **Permitted state:** `RenderContext` should only contain per-request information.
 
