@@ -1,0 +1,6 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Split support outputs a correct redirect file 1`] = `
+"/blog    /.netlify/functions/src/pages/entry.blog.astro     200
+/        /.netlify/functions/src/pages/entry.index.astro    200"
+`;

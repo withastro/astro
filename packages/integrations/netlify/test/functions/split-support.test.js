@@ -1,10 +1,16 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
 import netlifyAdapter from '../../dist/index.js';
 import { loadFixture, testIntegration } from './test-utils.js';
+import chaiJestSnapshot from 'chai-jest-snapshot';
+
+use(chaiJestSnapshot);
 
 describe('Split support', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	beforeEach(function () {
+		chaiJestSnapshot.configureUsingMochaContext(this);
+	});
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -33,6 +39,7 @@ describe('Split support', () => {
 
 		expect(baseRouteIndex).to.not.be.equal(-1);
 		expect(blogRouteIndex).to.not.be.equal(-1);
+		expect(redir).to.matchSnapshot();
 	});
 
 	describe('Should create multiple functions', () => {
