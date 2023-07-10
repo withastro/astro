@@ -11,7 +11,7 @@ The codebase has a few abstractions for rendering:
 
 ### `RenderContext`
 
-Each render (page or endpoint) requires a `RenderContext` that contains information of:
+Each render (page or endpoint) requires a `RenderContext` that contains:
 
 - The `Request` object
 - The matched `route`
@@ -20,25 +20,27 @@ Each render (page or endpoint) requires a `RenderContext` that contains informat
 - Additional `styles`, `links`, `scripts`
 - And more!
 
-It is agnostic to what's being rendered and should only contain per-request information.
+The `RenderContext` is agnostic to what's being rendered. 
+
+**Permitted state:** `RenderContext` should only contain per-request information.
 
 ### `Environment`
 
 Every app (dev and prod) has one `Environment`. It contains a subset of the Astro `settings`, `config`, and `routes` information needed for Astro's runtime to work.
 
-In dev, the `Environment` (aka `DevelopmentEnvironment`) is derived from the `settings`, `config`, and `routes` information directly as it's available then. In prod, it can only be derived from the `SSRManifest` as an intermediate layer so to keep the build output lean.
+In dev, all of `settings`, `config`, and `routes` are available, so the `Environment` (aka `DevelopmentEnvironment`) is derived directly from them. In prod, the `Environment` is derived from the `SSRManifest`, an intermediate layer that helps keep the build output lean.
 
-The `Environment` should only contain the global state for all the requests.
+**Permitted state:** `Environment` should only contain the global state shared across all requests.
 
 ### `SSRManifest`
 
-An `SSRManifest` is created during a build to save information needed for creating an `Environment` during the runtime start-up. The values should be serializable (`buildManifest`) and deserializable (`deserializeManifest`).
+An `SSRManifest` is created during a build to save information needed to create an `Environment` during runtime start-up. The values should be serializable (`buildManifest`) and deserializable (`deserializeManifest`).
 
-The serialized string is inlined to the server output and can be usually read from the compiled module's `manifest` export.
+The serialized string is inlined in the server output and can usually be read from the compiled module's `manifest` export.
 
 ### `SSRResult`
 
-The `SSRResult` is used by the public rendering APIs at [src/runtime/server/](../../runtime/server/). At the top level, it is created by `renderPage` and passed down to the public rendering APIs. It is also often used in non-Astro pages, like `.mdx` and `.md`.
+The `SSRResult` is used by the public rendering APIs at [`src/runtime/server/`](../../runtime/server/). At the top level, it is created by `renderPage` and passed down to the public rendering APIs. It is also often used in non-Astro pages, like `.mdx` and `.md`.
 
 The `SSRResult` object contains a subset of `RenderContext`, the state used by the compiled output (`cookies`, `createAstro`, `resolve`, etc), and the state used by the rendering APIs (`_metadata`).
 
