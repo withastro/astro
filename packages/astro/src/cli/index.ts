@@ -113,7 +113,7 @@ async function printInfo({
 	} catch (_e) {}
 	console.log();
 	printRow('Astro version', `v${ASTRO_VERSION}`);
-	printRow('Package manager', packageManager.name);
+	printRow('Package manager', packageManager?.name);
 	printRow('Platform', platform());
 	printRow('Architecture', arch());
 	printRow('Adapter', adapter);
