@@ -44,11 +44,9 @@ describe('Split support', () => {
 
 	describe('Should create multiple functions', () => {
 		it('for index page', async () => {
-			const entryURL = new URL(
-				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.index.astro.mjs',
-				import.meta.url
+			const { handler } = await import(
+				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.index.astro.mjs'
 			);
-			const { handler } = await import(entryURL);
 			const resp = await handler({
 				httpMethod: 'POST',
 				headers: {},
@@ -59,12 +57,9 @@ describe('Split support', () => {
 			expect(resp.statusCode).to.equal(200);
 		});
 		it('for blog page', async () => {
-			const entryURL = new URL(
-				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.blog.astro.mjs',
-				import.meta.url
+			const { handler } = await import(
+				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.blog.astro.mjs'
 			);
-
-			const { handler } = await import(entryURL);
 			const resp = await handler({
 				httpMethod: 'POST',
 				headers: {},
