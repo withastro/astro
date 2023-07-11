@@ -201,9 +201,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	//
 	switch (cmd) {
 		case 'add': {
-			const { default: add } = await import('../core/add/index.js');
-
 			telemetry.record(event.eventCliSession(cmd));
+			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
 			return await add(packages, { cwd: root, flags, logging });
 		}

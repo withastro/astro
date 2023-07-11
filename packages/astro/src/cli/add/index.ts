@@ -9,35 +9,36 @@ import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
-import { loadTSConfig, resolveConfigPath } from '../config/index.js';
+import { loadTSConfig, resolveConfigPath } from '../../core/config/index.js';
 import {
 	defaultTSConfig,
 	presets,
 	updateTSConfigForFramework,
 	type frameworkWithTSSettings,
-} from '../config/tsconfig.js';
-import { debug, info, type LogOptions } from '../logger/core.js';
-import * as msg from '../messages.js';
-import { printHelp } from '../messages.js';
-import { appendForwardSlash } from '../path.js';
-import { apply as applyPolyfill } from '../polyfill.js';
-import { parseNpmName } from '../util.js';
+} from '../../core/config/tsconfig.js';
+import { debug, info, type LogOptions } from '../../core/logger/core.js';
+import * as msg from '../../core/messages.js';
+import { printHelp } from '../../core/messages.js';
+import { appendForwardSlash } from '../../core/path.js';
+import { apply as applyPolyfill } from '../../core/polyfill.js';
+import { parseNpmName } from '../../core/util.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
 
-export interface AddOptions {
+interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
 	cwd?: string;
 }
 
-export interface IntegrationInfo {
+interface IntegrationInfo {
 	id: string;
 	packageName: string;
 	dependencies: [name: string, version: string][];
 	type: 'integration' | 'adapter';
 }
+
 const ALIASES = new Map([
 	['solid', 'solid-js'],
 	['tailwindcss', 'tailwind'],
@@ -85,7 +86,7 @@ async function getRegistry(): Promise<string> {
 	}
 }
 
-export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+export async function add(names: string[], { cwd, flags, logging }: AddOptions) {
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
