@@ -209,7 +209,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 
-	const userConfig = (await tryLoadConfig(configOptions, root)) ?? {};
+	const userConfig = await loadConfig(configOptions, root);
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
@@ -220,17 +220,17 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	};
 }
 
-async function tryLoadConfig(
+async function loadConfig(
 	configOptions: LoadConfigOptions,
 	root: string
-): Promise<Record<string, any> | undefined> {
+): Promise<Record<string, any>> {
 	const fsMod = configOptions.fsMod ?? fs;
 	const configPath = await resolveConfigPath({
 		cwd: configOptions.cwd,
 		flags: configOptions.flags,
 		fs: fsMod,
 	});
-	if (!configPath) return undefined;
+	if (!configPath) return {};
 
 	// Create a vite server to load the config
 	return await loadConfigWithVite({
