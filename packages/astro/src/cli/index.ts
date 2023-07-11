@@ -213,12 +213,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return await docs({ flags });
 		}
 		case 'telemetry': {
-			const telemetryHandler = await import('./telemetry.js');
-
 			// Do not track session start, since the user may be trying to enable,
 			// disable, or modify telemetry settings.
+			const { update } = await import('./telemetry/index.js');
 			const subcommand = flags._[3]?.toString();
-			return await telemetryHandler.update(subcommand, { flags });
+			return await update(subcommand, { flags });
 		}
 	}
 
