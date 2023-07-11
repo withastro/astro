@@ -18,6 +18,12 @@ const first = defineMiddleware(async (context, next) => {
 		return new Response(JSON.stringify(object), {
 			headers: response.headers,
 		});
+	} else if(context.url.pathname === '/clone') {
+		const response = await next();
+		const newResponse = response.clone();
+		const /** @type {string} */ html = await newResponse.text();
+		const newhtml = html.replace('<h1>testing</h1>', '<h1>it works</h1>');
+		return new Response(newhtml, { status: 200, headers: response.headers });
 	} else {
 		if(context.url.pathname === '/') {
 			context.cookies.set('foo', 'bar');

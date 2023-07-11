@@ -14,6 +14,7 @@ Command
   memory          Run build memory and speed test
   render          Run rendering speed test
   server-stress   Run server stress test
+  cli-startup     Run CLI startup speed test
 
 Options
   --project <project-name>       Project to use for benchmark, see benchmark/make-project/ for available names
@@ -27,6 +28,7 @@ const benchmarks = {
 	memory: () => import('./bench/memory.js'),
 	render: () => import('./bench/render.js'),
 	'server-stress': () => import('./bench/server-stress.js'),
+	'cli-startup': () => import('./bench/cli-startup.js'),
 };
 
 if (commandName && !(commandName in benchmarks)) {
