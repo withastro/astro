@@ -2,8 +2,9 @@ import type fsType from 'fs';
 import { pathToFileURL } from 'url';
 import * as vite from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
+import { debug } from '../logger/core.js';
 
-export interface ViteLoader {
+interface ViteLoader {
 	root: string;
 	viteServer: vite.ViteDevServer;
 }
@@ -38,7 +39,7 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 
 interface LoadConfigWithViteOptions {
 	root: string;
-	configPath: string | undefined;
+	configPath: string;
 	fs: typeof fsType;
 }
 
@@ -46,29 +47,14 @@ export async function loadConfigWithVite({
 	configPath,
 	fs,
 	root,
-}: LoadConfigWithViteOptions): Promise<{
-	value: Record<string, any>;
-	filePath?: string;
-}> {
-	// No config file found, return an empty config that will be populated with defaults
-	if (!configPath) {
-		return {
-			value: {},
-			filePath: undefined,
-		};
-	}
-
-	// Try loading with Node import()
+}: LoadConfigWithViteOptions): Promise<Record<string, any>> {
 	if (/\.[cm]?js$/.test(configPath)) {
 		try {
-			const config = await import(pathToFileURL(configPath).toString());
-			return {
-				value: config.default ?? {},
-				filePath: configPath,
-			};
-		} catch {
-			// We do not need to keep the error here because with fallback the error will be rethrown
-			// when/if it fails in Vite.
+			const config = await import(pathToFileURL(configPath).toString() + '?t=' + Date.now());
+			return config.default ?? {};
+		} catch (e) {
+			// We do not need to throw the error here as we have a Vite fallback below
+			debug('Failed to load config with Node', e);
 		}
 	}
 
@@ -77,10 +63,7 @@ export async function loadConfigWithVite({
 	try {
 		loader = await createViteLoader(root, fs);
 		const mod = await loader.viteServer.ssrLoadModule(configPath);
-		return {
-			value: mod.default ?? {},
-			filePath: configPath,
-		};
+		return mod.default ?? {};
 	} finally {
 		if (loader) {
 			await loader.viteServer.close();

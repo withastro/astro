@@ -208,12 +208,8 @@ interface OpenConfigResult {
 export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
 
-	const config = await tryLoadConfig(configOptions, root);
-	if (config) {
-		userConfig = config.value;
-	}
+	const userConfig = (await tryLoadConfig(configOptions, root)) ?? {};
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
@@ -224,54 +220,24 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	};
 }
 
-interface TryLoadConfigResult {
-	value: Record<string, any>;
-	filePath?: string;
-}
-
 async function tryLoadConfig(
 	configOptions: LoadConfigOptions,
 	root: string
-): Promise<TryLoadConfigResult | undefined> {
+): Promise<Record<string, any> | undefined> {
 	const fsMod = configOptions.fsMod ?? fs;
-	let finallyCleanup = async () => {};
-	try {
-		let configPath = await resolveConfigPath({
-			cwd: configOptions.cwd,
-			flags: configOptions.flags,
-			fs: fsMod,
-		});
-		if (!configPath) return undefined;
-		if (configOptions.isRestart) {
-			// Hack: Write config to temporary file at project root
-			// This invalidates and reloads file contents when using ESM imports or "resolve"
-			const tempConfigPath = path.join(
-				root,
-				`.temp.${Date.now()}.config${path.extname(configPath)}`
-			);
+	const configPath = await resolveConfigPath({
+		cwd: configOptions.cwd,
+		flags: configOptions.flags,
+		fs: fsMod,
+	});
+	if (!configPath) return undefined;
 
-			const currentConfigContent = await fsMod.promises.readFile(configPath, 'utf-8');
-			await fs.promises.writeFile(tempConfigPath, currentConfigContent);
-			finallyCleanup = async () => {
-				try {
-					await fs.promises.unlink(tempConfigPath);
-				} catch {
-					/** file already removed */
-				}
-			};
-			configPath = tempConfigPath;
-		}
-
-		// Create a vite server to load the config
-		const config = await loadConfigWithVite({
-			configPath,
-			fs: fsMod,
-			root,
-		});
-		return config as TryLoadConfigResult;
-	} finally {
-		await finallyCleanup();
-	}
+	// Create a vite server to load the config
+	return await loadConfigWithVite({
+		configPath,
+		fs: fsMod,
+		root,
+	});
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
