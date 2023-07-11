@@ -52,6 +52,14 @@ function createResponseClass() {
 			}
 			return super.arrayBuffer();
 		}
+
+		clone() {
+			return new StreamingCompatibleResponse!(this.#body, {
+				status: this.status,
+				statusText: this.statusText,
+				headers: this.headers
+			});
+		}
 	};
 
 	return StreamingCompatibleResponse;
