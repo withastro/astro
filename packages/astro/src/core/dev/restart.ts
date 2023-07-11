@@ -87,7 +87,6 @@ export async function restartContainer({
 			cwd: resolvedRoot,
 			flags,
 			cmd: 'dev',
-			logging,
 			isRestart: true,
 			fsMod: container.fs,
 		});

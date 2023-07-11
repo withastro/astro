@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import * as colors from 'kleur/colors';
-import { arch, platform } from 'node:os';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { ZodError } from 'zod';
@@ -19,7 +18,6 @@ import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
-import { openInBrowser } from './open.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -69,60 +67,9 @@ function printAstroHelp() {
 }
 
 /** Display --version flag */
-async function printVersion() {
+function printVersion() {
 	console.log();
 	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
-}
-
-async function printInfo({
-	cwd,
-	flags,
-	logging,
-}: {
-	cwd?: string;
-	flags?: Flags;
-	logging: LogOptions;
-}) {
-	const whichPm = await import('which-pm');
-	const packageManager = await whichPm.default(process.cwd());
-	let adapter = "Couldn't determine.";
-	let integrations = [];
-
-	const MAX_PADDING = 25;
-	function printRow(label: string, value: string) {
-		const padding = MAX_PADDING - label.length;
-		console.log(`${colors.bold(label)}` + ' '.repeat(padding) + `${colors.green(value)}`);
-	}
-
-	try {
-		const { userConfig } = await openConfig({
-			cwd,
-			flags,
-			cmd: 'info',
-			logging,
-		});
-		if (userConfig.adapter?.name) {
-			adapter = userConfig.adapter.name;
-		}
-		if (userConfig.integrations) {
-			integrations = (userConfig?.integrations ?? [])
-				.filter(Boolean)
-				.flat()
-				.map((i: any) => i?.name);
-		}
-	} catch (_e) {}
-	console.log();
-	const packageManagerName = packageManager?.name ?? "Couldn't determine.";
-	printRow('Astro version', `v${ASTRO_VERSION}`);
-	printRow('Package manager', packageManagerName);
-	printRow('Platform', platform());
-	printRow('Architecture', arch());
-	printRow('Adapter', adapter);
-	let integrationsString = "None or couldn't determine.";
-	if (integrations.length > 0) {
-		integrationsString = integrations.join(', ');
-	}
-	printRow('Integrations', integrationsString);
 }
 
 /** Determine which command the user requested */
@@ -171,24 +118,40 @@ async function handleConfigError(
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
-	// logLevel
-	let logging: LogOptions = {
-		dest: nodeLogDestination,
-		level: 'info',
-	};
+
+	// These commands can run directly without parsing the user config.
 	switch (cmd) {
 		case 'help':
 			printAstroHelp();
-			return process.exit(0);
+			return;
 		case 'version':
-			await printVersion();
-			return process.exit(0);
+			printVersion();
+			return;
 		case 'info': {
-			await printInfo({ cwd: root, flags, logging });
-			return process.exit(0);
+			const { printInfo } = await import('./info/index.js');
+			await printInfo({ cwd: root, flags });
+			return;
+		}
+		case 'docs': {
+			telemetry.record(event.eventCliSession(cmd));
+			const { docs } = await import('./docs/index.js');
+			await docs({ flags });
+			return;
+		}
+		case 'telemetry': {
+			// Do not track session start, since the user may be trying to enable,
+			// disable, or modify telemetry settings.
+			const { update } = await import('./telemetry/index.js');
+			const subcommand = flags._[3]?.toString();
+			await update(subcommand, { flags });
+			return;
 		}
 	}
 
+	const logging: LogOptions = {
+		dest: nodeLogDestination,
+		level: 'info',
+	};
 	if (flags.verbose) {
 		logging.level = 'debug';
 		enableVerboseLogging();
@@ -196,39 +159,15 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		logging.level = 'silent';
 	}
 
-	// Special CLI Commands: "add", "docs", "telemetry"
-	// These commands run before the user's config is parsed, and may have other special
-	// conditions that should be handled here, before the others.
-	//
+	// These commands can also be run directly without parsing the user config,
+	// but they rely on parsing the `logging` first.
 	switch (cmd) {
 		case 'add': {
-			const { default: add } = await import('../core/add/index.js');
-
 			telemetry.record(event.eventCliSession(cmd));
+			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
-			return await add(packages, { cwd: root, flags, logging });
-		}
-		case 'docs': {
-			telemetry.record(event.eventCliSession(cmd));
-			if (flags.help || flags.h) {
-				printHelp({
-					commandName: 'astro docs',
-					tables: {
-						Flags: [['--help (-h)', 'See all available flags.']],
-					},
-					description: `Launches the Astro Docs website directly from the terminal.`,
-				});
-				return;
-			}
-			return await openInBrowser('https://docs.astro.build/');
-		}
-		case 'telemetry': {
-			const telemetryHandler = await import('./telemetry.js');
-
-			// Do not track session start, since the user may be trying to enable,
-			// disable, or modify telemetry settings.
-			const subcommand = flags._[3]?.toString();
-			return await telemetryHandler.update(subcommand, { flags });
+			await add(packages, { cwd: root, flags, logging });
+			return;
 		}
 	}
 
@@ -241,7 +180,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		cwd: root,
 		flags,
 		cmd,
-		logging,
 	}).catch(async (e) => {
 		await handleConfigError(e, { cmd, cwd: root, flags, logging });
 		return {} as any;
