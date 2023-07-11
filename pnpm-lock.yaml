@@ -4431,6 +4431,9 @@ importers:
       chai:
         specifier: ^4.3.7
         version: 4.3.7
+      chai-jest-snapshot:
+        specifier: ^2.0.0
+        version: 2.0.0(chai@4.3.7)
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
