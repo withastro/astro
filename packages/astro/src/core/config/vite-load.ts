@@ -1,16 +1,11 @@
 import type fsType from 'fs';
 import { pathToFileURL } from 'url';
-import * as vite from 'vite';
+import { createServer, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
 
-interface ViteLoader {
-	root: string;
-	viteServer: vite.ViteDevServer;
-}
-
-async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLoader> {
-	const viteServer = await vite.createServer({
+async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
+	const viteServer = await createServer({
 		server: { middlewareMode: true, hmr: false, watch: { ignored: ['**'] } },
 		optimizeDeps: { disabled: true },
 		clearScreen: false,
@@ -31,10 +26,7 @@ async function createViteLoader(root: string, fs: typeof fsType): Promise<ViteLo
 		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
 	});
 
-	return {
-		root,
-		viteServer,
-	};
+	return viteServer;
 }
 
 interface LoadConfigWithViteOptions {
@@ -59,14 +51,14 @@ export async function loadConfigWithVite({
 	}
 
 	// Try Loading with Vite
-	let loader: ViteLoader | undefined;
+	let server: ViteDevServer | undefined;
 	try {
-		loader = await createViteLoader(root, fs);
-		const mod = await loader.viteServer.ssrLoadModule(configPath);
+		server = await createViteServer(root, fs);
+		const mod = await server.ssrLoadModule(configPath, { fixStacktrace: true });
 		return mod.default ?? {};
 	} finally {
-		if (loader) {
-			await loader.viteServer.close();
+		if (server) {
+			await server.close();
 		}
 	}
 }
