@@ -57,7 +57,7 @@ function createResponseClass() {
 			return new StreamingCompatibleResponse!(this.#body, {
 				status: this.status,
 				statusText: this.statusText,
-				headers: this.headers
+				headers: this.headers,
 			});
 		}
 	};
