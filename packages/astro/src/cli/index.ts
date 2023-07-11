@@ -102,13 +102,10 @@ async function handleConfigError(
 	error(logging, 'astro', `Unable to load ${path ? colors.bold(path) : 'your Astro config'}\n`);
 	if (e instanceof ZodError) {
 		console.error(formatConfigErrorMessage(e) + '\n');
+		telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
 	} else if (e instanceof Error) {
 		console.error(formatErrorMessage(collectErrorMetadata(e)) + '\n');
 	}
-	const telemetryPromise = telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
-	await telemetryPromise.catch((err2: Error) =>
-		debug('telemetry', `record() error: ${err2.message}`)
-	);
 }
 
 /**
