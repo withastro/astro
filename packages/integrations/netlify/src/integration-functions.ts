@@ -2,10 +2,12 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Args } from './netlify-functions.js';
-import { createRedirects } from './shared.js';
+import { bundleServerEntry, createRedirects } from './shared.js';
 import { fileURLToPath } from 'node:url';
+import { generateEdgeMiddleware } from './middleware.js';
 
 export const NETLIFY_EDGE_MIDDLEWARE_FILE = 'netlify-edge-middleware';
+export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 
 export function getAdapter(args: Args = {}): AstroAdapter {
 	return {
@@ -30,6 +32,7 @@ function netlifyFunctions({
 	let _config: AstroConfig;
 	let _entryPoints: Map<RouteData, URL>;
 	let ssrEntryFile: string;
+	let _middlewareEntryPoint: URL;
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
@@ -45,18 +48,7 @@ function netlifyFunctions({
 			},
 			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
 				if (middlewareEntryPoint) {
-					const outPath = fileURLToPath(buildTempFolder);
-					const vercelEdgeMiddlewareHandlerPath = new URL(
-						NETLIFY_EDGE_MIDDLEWARE_FILE,
-						_config.srcDir
-					);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(
-						middlewareEntryPoint,
-						outPath,
-						vercelEdgeMiddlewareHandlerPath
-					);
-					// let's tell the adapter that we need to save this file
-					filesToInclude.push(bundledMiddlewarePath);
+					_middlewareEntryPoint = middlewareEntryPoint;
 				}
 				_entryPoints = entryPoints;
 			},
@@ -102,6 +94,21 @@ function netlifyFunctions({
 
 					await createRedirects(_config, routeToDynamicTargetMap, dir);
 				}
+				if (_middlewareEntryPoint) {
+					const outPath = fileURLToPath(new URL('./.netlify/edge-functions/', _config.root));
+					const netlifyEdgeMiddlewareHandlerPath = new URL(
+						NETLIFY_EDGE_MIDDLEWARE_FILE,
+						_config.srcDir
+					);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(
+						_middlewareEntryPoint,
+						outPath,
+						netlifyEdgeMiddlewareHandlerPath
+					);
+
+					await bundleServerEntry(bundledMiddlewarePath);
+				}
+				await createRedirects(_config, routes, dir, entryFile, type);
 			},
 		},
 	};
