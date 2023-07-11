@@ -1,10 +1,10 @@
 @keyframes astroFadeInOut {
-from {
-	opacity: 1;
-}
-to {
-	opacity: 0;
-}
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
 }
 
 @keyframes astroFadeIn {

@@ -42,7 +42,7 @@ export function fade({
 	duration
 }: {
 	duration?: string | number;
-}): TransitionDirectionalAnimations {
+} = {}): TransitionDirectionalAnimations {
 	const anim = {
 		old: {
 			name: 'astroFadeInOut',

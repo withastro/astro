@@ -1,5 +1,11 @@
-import type { SSRResult } from '../../@types/astro';
+import type {
+	SSRResult,
+	TransitionAnimation,
+	TransitionDirectionalAnimations,
+	TransitionAnimationValue,
+} from '../../@types/astro';
 import { markHTMLString } from './escape.js';
+import { slide, fade } from '../../transitions/index.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -11,18 +17,33 @@ function incrementTransitionNumber(result: SSRResult) {
 	return num;
 }
 
-function createTransitionName(result: SSRResult) {
-	return `astro-transition-${incrementTransitionNumber(result)}`;
+function createTransitionScope(result: SSRResult, hash: string) {
+	const num = incrementTransitionNumber(result);
+	return `astro-${hash}-${num}`;
 }
-
-export function renderTransition(result: SSRResult, hash: string, animationName: string | undefined, transitionName: string) {
-	if(!animationName) {
-		// TODO error?
-		return '';
+export function renderTransition(result: SSRResult, hash: string, animationName: TransitionAnimationValue | undefined, transitionName: string) {
+	let animations: TransitionDirectionalAnimations | null = null;
+	switch(animationName) {
+		case 'fade': {
+			animations = fade();
+			break;
+		}
+		case 'slide': {
+			animations = slide();
+			break;
+		}
+		default: {
+			if(typeof animationName === 'object') {
+				animations = animationName;
+			}
+		}
 	}
-	const animation = animations[animationName as keyof typeof animations];
+
+	const scope = createTransitionScope(result, hash);
+
+	// Default transition name is the scope of the element, ie HASH-1
 	if(!transitionName) {
-		transitionName = createTransitionName(result);
+		transitionName = scope;
 	}
 
 	const styles = markHTMLString(`<style>[data-astro-transition-scope="${scope}"] {
@@ -62,27 +83,57 @@ function addAnimationProperty(builder: AnimationBuilder, prop: string, value: st
 	} else {
 		builder[prop] = [value.toString()];
 	}
-	${animationName === 'morph' ? '' : `
-	::view-transition-old(${transitionName}) {
-		animation: var(${animation.old});
+}
+
+function animationBuilder(): AnimationBuilder {
+	return {
+		toString() {
+			let out = '';
+			for(let k in this) {
+				let value = this[k];
+				if(Array.isArray(value)) {
+					out += `\n\t${k}: ${value.join(', ')};`
+				}
+			}
+			return out;
+		}
+	};
+}
+
+function stringifyAnimation(anim: TransitionAnimation | TransitionAnimation[]): string {
+	if(Array.isArray(anim)) {
+		return stringifyAnimations(anim);
+	} else {
+		return stringifyAnimations([anim]);
 	}
-	::view-transition-new(${transitionName}) {
-		animation: var(${animation.new});
+}
+
+function stringifyAnimations(anims: TransitionAnimation[]): string {
+	const builder = animationBuilder();
+
+	for(const anim of anims) {
+		/*300ms cubic-bezier(0.4, 0, 0.2, 1) both astroSlideFromRight;*/
+		if(anim.duration) {
+			addAnimationProperty(builder, 'animation-duration', toTimeValue(anim.duration));
+		}
+		if(anim.easing) {
+			addAnimationProperty(builder, 'animation-timing-function', anim.easing);
+		}
+		if(anim.direction) {
+			addAnimationProperty(builder, 'animation-direction', anim.direction);
+		}
+		if(anim.delay) {
+			addAnimationProperty(builder, 'animation-delay', anim.delay);
+		}
+		if(anim.fillMode) {
+			addAnimationProperty(builder, 'animation-fill-mode', anim.fillMode);
+		}
+		addAnimationProperty(builder, 'animation-name', anim.name);
 	}
 	
-	${('backOld' in animation) && ('backNew' in animation) ? `
-	.astro-back-transition::view-transition-old(${transitionName}) {
-		animation-name: var(${animation.backOld});
-	}
-	.astro-back-transition::view-transition-new(${transitionName}) {
-		animation-name: var(${animation.backNew});
-	}
-	`.trim() : ''}
-	
-	`.trim()}
-	</style>`)
+	return builder.toString();
+}
 
-	result.extraHead.push(styles);
-
-	return '';
+function toTimeValue(num: number | string) {
+	return typeof num === 'number' ? num + 'ms' : num;
 }
