@@ -5,17 +5,13 @@ import whichPm from 'which-pm';
 import type yargs from 'yargs-parser';
 import { openConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
-import type { LogOptions } from '../../core/logger/core.js';
 
-export async function printInfo({
-	cwd,
-	flags,
-	logging,
-}: {
+interface InfoOptions {
 	cwd?: string;
-	flags?: yargs.Arguments;
-	logging: LogOptions;
-}) {
+	flags: yargs.Arguments;
+}
+
+export async function printInfo({ cwd, flags }: InfoOptions) {
 	const packageManager = await whichPm(process.cwd());
 	let adapter = "Couldn't determine.";
 	let integrations = [];
@@ -31,7 +27,6 @@ export async function printInfo({
 			cwd,
 			flags,
 			cmd: 'info',
-			logging,
 		});
 		if (userConfig.adapter?.name) {
 			adapter = userConfig.adapter.name;

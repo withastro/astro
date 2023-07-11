@@ -67,7 +67,7 @@ function printAstroHelp() {
 }
 
 /** Display --version flag */
-async function printVersion() {
+function printVersion() {
 	console.log();
 	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
 }
@@ -118,25 +118,40 @@ async function handleConfigError(
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
-	// logLevel
-	let logging: LogOptions = {
-		dest: nodeLogDestination,
-		level: 'info',
-	};
+
+	// These commands can run directly without parsing the user config.
 	switch (cmd) {
 		case 'help':
 			printAstroHelp();
-			return process.exit(0);
+			return;
 		case 'version':
-			await printVersion();
-			return process.exit(0);
+			printVersion();
+			return;
 		case 'info': {
 			const { printInfo } = await import('./info/index.js');
-			await printInfo({ cwd: root, flags, logging });
-			return process.exit(0);
+			await printInfo({ cwd: root, flags });
+			return;
+		}
+		case 'docs': {
+			telemetry.record(event.eventCliSession(cmd));
+			const { docs } = await import('./docs/index.js');
+			await docs({ flags });
+			return;
+		}
+		case 'telemetry': {
+			// Do not track session start, since the user may be trying to enable,
+			// disable, or modify telemetry settings.
+			const { update } = await import('./telemetry/index.js');
+			const subcommand = flags._[3]?.toString();
+			await update(subcommand, { flags });
+			return;
 		}
 	}
 
+	const logging: LogOptions = {
+		dest: nodeLogDestination,
+		level: 'info',
+	};
 	if (flags.verbose) {
 		logging.level = 'debug';
 		enableVerboseLogging();
@@ -144,28 +159,15 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		logging.level = 'silent';
 	}
 
-	// Special CLI Commands: "add", "docs", "telemetry"
-	// These commands run before the user's config is parsed, and may have other special
-	// conditions that should be handled here, before the others.
-	//
+	// These commands can also be run directly without parsing the user config,
+	// but they rely on parsing the `logging` first.
 	switch (cmd) {
 		case 'add': {
 			telemetry.record(event.eventCliSession(cmd));
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
-			return await add(packages, { cwd: root, flags, logging });
-		}
-		case 'docs': {
-			telemetry.record(event.eventCliSession(cmd));
-			const { docs } = await import('./docs/index.js');
-			return await docs({ flags });
-		}
-		case 'telemetry': {
-			// Do not track session start, since the user may be trying to enable,
-			// disable, or modify telemetry settings.
-			const { update } = await import('./telemetry/index.js');
-			const subcommand = flags._[3]?.toString();
-			return await update(subcommand, { flags });
+			await add(packages, { cwd: root, flags, logging });
+			return;
 		}
 	}
 
@@ -178,7 +180,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		cwd: root,
 		flags,
 		cmd,
-		logging,
 	}).catch(async (e) => {
 		await handleConfigError(e, { cmd, cwd: root, flags, logging });
 		return {} as any;
