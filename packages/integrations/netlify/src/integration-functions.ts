@@ -3,6 +3,9 @@ import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';
+import { fileURLToPath } from 'node:url';
+
+export const NETLIFY_EDGE_MIDDLEWARE_FILE = 'netlify-edge-middleware';
 
 export function getAdapter(args: Args = {}): AstroAdapter {
 	return {
@@ -40,7 +43,21 @@ function netlifyFunctions({
 					},
 				});
 			},
-			'astro:build:ssr': ({ entryPoints }) => {
+			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
+				if (middlewareEntryPoint) {
+					const outPath = fileURLToPath(buildTempFolder);
+					const vercelEdgeMiddlewareHandlerPath = new URL(
+						NETLIFY_EDGE_MIDDLEWARE_FILE,
+						_config.srcDir
+					);
+					const bundledMiddlewarePath = await generateEdgeMiddleware(
+						middlewareEntryPoint,
+						outPath,
+						vercelEdgeMiddlewareHandlerPath
+					);
+					// let's tell the adapter that we need to save this file
+					filesToInclude.push(bundledMiddlewarePath);
+				}
 				_entryPoints = entryPoints;
 			},
 			'astro:config:done': ({ config, setAdapter }) => {

@@ -6,6 +6,7 @@
     "module": "ES2022",
     "outDir": "./dist",
     "target": "ES2021",
-    "typeRoots": ["node_modules/@types", "node_modules/@netlify"]
+    "typeRoots": ["node_modules/@types", "node_modules/@netlify"],
+    "allowImportingTsExtensions": true
   }
 }
