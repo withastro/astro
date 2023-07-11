@@ -1,16 +1,10 @@
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import netlifyAdapter from '../../dist/index.js';
 import { loadFixture, testIntegration } from './test-utils.js';
-import chaiJestSnapshot from 'chai-jest-snapshot';
-
-use(chaiJestSnapshot);
 
 describe('Split support', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	beforeEach(function () {
-		chaiJestSnapshot.configureUsingMochaContext(this);
-	});
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -44,15 +38,18 @@ describe('Split support', () => {
 
 	describe('Should create multiple functions', () => {
 		it('for index page', async () => {
-			const { handler } = await import(
-				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.index.astro.mjs'
+			const entryURL = new URL(
+				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.index.astro.mjs',
+				import.meta.url
 			);
+			console.debug(entryURL);
+			console.debug(entryURL.toString());
+			const { handler } = await import(entryURL);
 			const resp = await handler({
 				httpMethod: 'POST',
 				headers: {},
 				rawUrl: 'http://example.com/',
 				body: '{}',
-				isBase64Encoded: false,
 			});
 			expect(resp.statusCode).to.equal(200);
 		});
@@ -65,7 +62,6 @@ describe('Split support', () => {
 				headers: {},
 				rawUrl: 'http://example.com/blog',
 				body: '{}',
-				isBase64Encoded: false,
 			});
 			expect(resp.statusCode).to.equal(200);
 		});

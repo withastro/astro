@@ -1,17 +1,10 @@
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import { loadFixture, testIntegration } from './test-utils.js';
 import netlifyAdapter from '../../dist/index.js';
-import chaiJestSnapshot from 'chai-jest-snapshot';
-
-use(chaiJestSnapshot);
 
 describe('SSG - Redirects', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
-
-	beforeEach(function () {
-		chaiJestSnapshot.configureUsingMochaContext(this);
-	});
 
 	before(async () => {
 		fixture = await loadFixture({
