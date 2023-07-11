@@ -1,5 +1,15 @@
 # @astrojs/prefetch
 
+## 0.3.0
+
+### Minor Changes
+
+- [#6585](https://github.com/withastro/astro/pull/6585) [`9807e4dc2`](https://github.com/withastro/astro/commit/9807e4dc22355f0b3b2ff65b0724a95af8e9702d) Thanks [@kory-smith](https://github.com/kory-smith)! - Adds the option to prefetch a link only when it is hovered or focused.
+
+### Patch Changes
+
+- [#7613](https://github.com/withastro/astro/pull/7613) [`131c92279`](https://github.com/withastro/astro/commit/131c92279ee8a282e71a09523870bb0e7df80627) Thanks [@Yan-Thomas](https://github.com/Yan-Thomas)! - Update prefetch README filename syntax
+
 ## 0.2.3
 
 ### Patch Changes

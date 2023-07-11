@@ -1,5 +1,15 @@
 # astro
 
+## 2.8.1
+
+### Patch Changes
+
+- [#7611](https://github.com/withastro/astro/pull/7611) [`904921cbe`](https://github.com/withastro/astro/commit/904921cbe44e168477c751774a2e01a6cc972a16) Thanks [@bluwy](https://github.com/bluwy)! - Ignore content .json files prefixed with underscores (regression)
+
+- [#7618](https://github.com/withastro/astro/pull/7618) [`3669e2d27`](https://github.com/withastro/astro/commit/3669e2d2762bf8a4909be00ed212a6c5e847eedf) Thanks [@ematipico](https://github.com/ematipico)! - Add a fallback label if `astro info` command can't determine the package manager used.
+
+- [#7620](https://github.com/withastro/astro/pull/7620) [`831dfd151`](https://github.com/withastro/astro/commit/831dfd1516c8b900ec4a0c151a40121655cdedc6) Thanks [@delucis](https://github.com/delucis)! - Filter out `astro` from integration peer dependencies when running `astro add`
+
 ## 2.8.0
 
 ### Minor Changes
