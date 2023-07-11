@@ -756,7 +756,8 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 					const meta = pkgJson['peerDependenciesMeta'] || {};
 					for (const peer in pkgJson['peerDependencies']) {
 						const optional = meta[peer]?.optional || false;
-						if (!optional) {
+						const isAstro = peer === 'astro';
+						if (!optional && !isAstro) {
 							dependencies.push([peer, pkgJson['peerDependencies'][peer]]);
 						}
 					}
