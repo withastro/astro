@@ -19,7 +19,6 @@ import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
-import { openInBrowser } from './open.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -210,17 +209,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'docs': {
 			telemetry.record(event.eventCliSession(cmd));
-			if (flags.help || flags.h) {
-				printHelp({
-					commandName: 'astro docs',
-					tables: {
-						Flags: [['--help (-h)', 'See all available flags.']],
-					},
-					description: `Launches the Astro Docs website directly from the terminal.`,
-				});
-				return;
-			}
-			return await openInBrowser('https://docs.astro.build/');
+			const { docs } = await import('./docs/index.js');
+			return await docs({ flags });
 		}
 		case 'telemetry': {
 			const telemetryHandler = await import('./telemetry.js');
