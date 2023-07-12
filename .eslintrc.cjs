@@ -44,7 +44,7 @@ module.exports = {
     '@typescript-eslint/restrict-template-expressions': 'off',
     '@typescript-eslint/sort-type-constituents': 'off',
     '@typescript-eslint/unbound-method': 'off',
-    "@typescript-eslint/no-explicit-any": 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
 
     // These rules enabled by the preset configs don't work well for us
     '@typescript-eslint/await-thenable': 'off',
