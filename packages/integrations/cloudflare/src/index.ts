@@ -134,33 +134,28 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						})
 					)
 
-					// loop through all new bundled files and write them to the functions folder
+					// move the files into the functions folder
+					// & make sure the file names match Cloudflare syntax for routing
 					for (const outputFile of outputFiles) {
-
-						// split the path into an array
 						const path = outputFile.split(sep);
 
-						// replace dynamic path with [path]
-						const pathWithDynamics = path.map((segment) => segment.replace(/(\_)(\w+)(\_)/g, (_, __, prop) => {
-							return `[${prop}]`;
-						}));
+						const finalSegments = path.map((segment) => segment
+							.replace(/(\_)(\w+)(\_)/g, (_, __, prop) => {
+								return `[${prop}]`;
+							})
+							.replace(/(\_\-\-\-)(\w+)(\_)/g, (_, __, prop) => {
+								return `[[${prop}]]`;
+							})
+						);
 
-						// replace nested dynamic path with [[path]]
-						const pathWithNestedDynamics = pathWithDynamics.map((segment) => segment.replace(/(\_\-\-\-)(\w+)(\_)/g, (_, __, prop) => {
-							return `[[${prop}]]`;
-						}))
-
-						// remove original file extension
-						const pathReversed = pathWithNestedDynamics.reverse();
-						pathReversed[0] = pathReversed[0]
+						finalSegments[finalSegments.length - 1] = finalSegments[finalSegments.length - 1]
 							.replace('entry.', '')
-							.replace(/(.*)\.(\w+)\.(\w+)$/g, (_, fileName, oldExt, newExt) => {
+							.replace(/(.*)\.(\w+)\.(\w+)$/g, (_, fileName, __, newExt) => {
 								return `${fileName}.${newExt}`;
 							})
 
-						const finalSegments = pathReversed.reverse();
-						const finalDirPath = finalSegments.slice(0, -1).join('/');
-						const finalPath = finalSegments.join('/');
+						const finalDirPath = finalSegments.slice(0, -1).join(sep);
+						const finalPath = finalSegments.join(sep);
 
 						const newDirUrl = new URL(finalDirPath, functionsUrl);
 						await fs.promises.mkdir(newDirUrl, { recursive: true })
