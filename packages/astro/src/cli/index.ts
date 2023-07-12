@@ -1,23 +1,17 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import * as colors from 'kleur/colors';
-import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
-import { ZodError } from 'zod';
-import {
-	createSettings,
-	openConfig,
-	resolveConfigPath,
-	resolveFlags,
-} from '../core/config/index.js';
+import { resolveConfigPath, resolveFlags } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
-import { debug, error, info, type LogOptions } from '../core/logger/core.js';
+import { debug, info, type LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
-import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
+import { formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
-import { eventConfigError, eventError, telemetry } from '../events/index.js';
+import { eventError, telemetry } from '../events/index.js';
+import { handleConfigError, loadSettings } from './load-settings.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -94,20 +88,6 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
-async function handleConfigError(
-	e: any,
-	{ cmd, cwd, flags, logging }: { cmd: string; cwd?: string; flags?: Flags; logging: LogOptions }
-) {
-	const path = await resolveConfigPath({ cwd, flags, fs });
-	error(logging, 'astro', `Unable to load ${path ? colors.bold(path) : 'your Astro config'}\n`);
-	if (e instanceof ZodError) {
-		console.error(formatConfigErrorMessage(e) + '\n');
-		telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
-	} else if (e instanceof Error) {
-		console.error(formatErrorMessage(collectErrorMetadata(e)) + '\n');
-	}
-}
-
 /**
  * Run the given command with the given flags.
  * NOTE: This function provides no error handling, so be sure
@@ -173,17 +153,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
 	}
 
-	let { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
-		cwd: root,
-		flags,
-		cmd,
-	}).catch(async (e) => {
-		await handleConfigError(e, { cmd, cwd: root, flags, logging });
-		return {} as any;
-	});
-	if (!initialAstroConfig) return;
-	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
-	let settings = createSettings(initialAstroConfig, root);
+	const settings = await loadSettings({ cmd, flags, logging });
+	if (!settings) return;
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
