@@ -1,17 +1,14 @@
 /* eslint-disable no-console */
-import fs from 'fs';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
-import { resolveConfigPath, resolveFlags } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
-import { debug, info, type LogOptions } from '../core/logger/core.js';
+import { debug, type LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventError, telemetry } from '../events/index.js';
-import { handleConfigError, loadSettings } from './load-settings.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -22,7 +19,6 @@ type CLICommand =
 	| 'dev'
 	| 'build'
 	| 'preview'
-	| 'reload'
 	| 'sync'
 	| 'check'
 	| 'info'
@@ -153,8 +149,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'dev': {
 			const { dev } = await import('./dev/index.js');
-			await dev({ flags, logging });
-			return await new Promise(() => {}); // lives forever
+			const server = await dev({ flags, logging });
+			if (server) {
+				return await new Promise(() => {}); // lives forever
+			}
+			return;
 		}
 		case 'build': {
 			const { build } = await import('./build/index.js');
@@ -182,6 +181,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					return process.exit(checkResult);
 				}
 			}
+			return;
 		}
 		case 'sync': {
 			const { sync } = await import('./sync/index.js');

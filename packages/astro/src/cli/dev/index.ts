@@ -18,7 +18,7 @@ export async function dev({ flags, logging }: DevOptions) {
 	const configFlag = resolveFlags(flags).config;
 	const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags, fs }) : undefined;
 
-	await devServer(settings, {
+	return await devServer(settings, {
 		configFlag,
 		configFlagPath,
 		flags,
