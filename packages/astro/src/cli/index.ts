@@ -156,19 +156,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await dev({ flags, logging });
 			return await new Promise(() => {}); // lives forever
 		}
-
 		case 'build': {
-			const { default: build } = await import('../core/build/index.js');
-
-			const settings = await loadSettings({ cmd, flags, logging });
-			if (!settings) return;
-
-			return await build(settings, {
-				flags,
-				logging,
-				teardownCompiler: true,
-				mode: flags.mode,
-			});
+			const { build } = await import('./build/index.js');
+			await build({ flags, logging });
+			return;
 		}
 
 		case 'check': {
