@@ -152,26 +152,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'dev': {
-			const { default: devServer } = await import('../core/dev/index.js');
-
-			const settings = await loadSettings({ cmd, flags, logging });
-			if (!settings) return;
-
-			const configFlag = resolveFlags(flags).config;
-			const configFlagPath = configFlag
-				? await resolveConfigPath({ cwd: root, flags, fs })
-				: undefined;
-
-			await devServer(settings, {
-				configFlag,
-				configFlagPath,
-				flags,
-				logging,
-				handleConfigError(e) {
-					handleConfigError(e, { cmd, cwd: root, flags, logging });
-					info(logging, 'astro', 'Continuing with previous valid configuration\n');
-				},
-			});
+			const { dev } = await import('./dev/index.js');
+			await dev({ flags, logging });
 			return await new Promise(() => {}); // lives forever
 		}
 
