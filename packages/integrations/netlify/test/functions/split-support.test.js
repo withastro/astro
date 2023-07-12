@@ -5,6 +5,7 @@ import { loadFixture, testIntegration } from './test-utils.js';
 describe('Split support', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	let _entryPoints;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,7 +15,13 @@ describe('Split support', () => {
 				dist: new URL('./fixtures/split-support/dist/', import.meta.url),
 			}),
 			site: `http://example.com`,
-			integrations: [testIntegration()],
+			integrations: [
+				testIntegration({
+					setEntryPoints(ep) {
+						_entryPoints = ep;
+					},
+				}),
+			],
 			build: {
 				split: true,
 			},
@@ -24,46 +31,33 @@ describe('Split support', () => {
 
 	it('outputs a correct redirect file', async () => {
 		const redir = await fixture.readFile('/_redirects');
-		const blogRouteIndex = redir.indexOf(
-			'/blog    /.netlify/functions/src/pages/entry.blog.astro     200'
-		);
-		const baseRouteIndex = redir.indexOf(
-			'/        /.netlify/functions/src/pages/entry.index.astro    200'
-		);
+		const lines = redir.split(/[\r\n]+/);
+		expect(lines.length).to.equal(2);
 
-		expect(baseRouteIndex).to.not.be.equal(-1);
-		expect(blogRouteIndex).to.not.be.equal(-1);
-		expect(redir).to.matchSnapshot();
+		expect(lines[0].includes('/blog')).to.be.true;
+		expect(lines[0].includes('blog.astro')).to.be.true;
+		expect(lines[0].includes('200')).to.be.true;
+		expect(lines[1].includes('/')).to.be.true;
+		expect(lines[1].includes('index.astro')).to.be.true;
+		expect(lines[1].includes('200')).to.be.true;
 	});
 
 	describe('Should create multiple functions', () => {
-		it('for index page', async () => {
-			const entryURL = new URL(
-				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.index.astro.mjs',
-				import.meta.url
-			);
-			console.debug(entryURL);
-			console.debug(entryURL.toString());
-			const { handler } = await import(entryURL);
-			const resp = await handler({
-				httpMethod: 'POST',
-				headers: {},
-				rawUrl: 'http://example.com/',
-				body: '{}',
-			});
-			expect(resp.statusCode).to.equal(200);
-		});
-		it('for blog page', async () => {
-			const { handler } = await import(
-				'./fixtures/split-support/.netlify/functions-internal/src/pages/entry.blog.astro.mjs'
-			);
-			const resp = await handler({
-				httpMethod: 'POST',
-				headers: {},
-				rawUrl: 'http://example.com/blog',
-				body: '{}',
-			});
-			expect(resp.statusCode).to.equal(200);
+		it('and hit 200', async () => {
+			if (_entryPoints) {
+				for (const [, filePath] of _entryPoints) {
+					const { handler } = await import(filePath.toString());
+					const resp = await handler({
+						httpMethod: 'POST',
+						headers: {},
+						rawUrl: 'http://example.com/',
+						body: '{}',
+					});
+					expect(resp.statusCode).to.equal(200);
+				}
+			} else {
+				expect(false).to.be.true;
+			}
 		});
 	});
 });

@@ -65,10 +65,12 @@ function netlifyFunctions({
 					const routeToDynamicTargetMap = new Map();
 					for (const [route, entryFile] of _entryPoints) {
 						const wholeFileUrl = fileURLToPath(entryFile);
+
 						const extension = extname(wholeFileUrl);
 						const relative = wholeFileUrl
-							.slice(fileURLToPath(_config.build.server).length)
-							.replace(extension, '');
+							.replace(fileURLToPath(_config.build.server), '')
+							.replace(extension, '')
+							.replaceAll('\\', '/');
 						const dynamicTarget = `/.netlify/${kind}/${relative}`;
 
 						routeToDynamicTargetMap.set(route, dynamicTarget);
