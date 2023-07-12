@@ -161,6 +161,14 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await build({ flags, logging });
 			return;
 		}
+		case 'preview': {
+			const { preview } = await import('./preview/index.js');
+			const server = await preview({ flags, logging });
+			if (server) {
+				return await server.closed(); // keep alive until the server is closed
+			}
+			return;
+		}
 
 		case 'check': {
 			const { check } = await import('./check/index.js');
@@ -189,19 +197,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 			const result = await syncCli(settings, { logging, fs, flags });
 			return process.exit(result);
-		}
-
-		case 'preview': {
-			const { default: preview } = await import('../core/preview/index.js');
-
-			const settings = await loadSettings({ cmd, flags, logging });
-			if (!settings) return;
-
-			const server = await preview(settings, { logging, flags });
-			if (server) {
-				return await server.closed(); // keep alive until the server is closed
-			}
-			return;
 		}
 	}
 
