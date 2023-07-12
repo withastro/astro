@@ -136,8 +136,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		logging.level = 'silent';
 	}
 
-	// These commands can also be run directly without parsing the user config,
-	// but they rely on parsing the `logging` first.
+	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
+	if (!process.env.NODE_ENV) {
+		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
+	}
+
+	// These commands uses the logging and user config. All commands are assumed to have been handled
+	// by the end of this switch statement.
 	switch (cmd) {
 		case 'add': {
 			telemetry.record(event.eventCliSession(cmd));
@@ -146,22 +151,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await add(packages, { cwd: root, flags, logging });
 			return;
 		}
-	}
-
-	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
-	if (!process.env.NODE_ENV) {
-		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
-	}
-
-	const settings = await loadSettings({ cmd, flags, logging });
-	if (!settings) return;
-
-	// Common CLI Commands:
-	// These commands run normally. All commands are assumed to have been handled
-	// by the end of this switch statement.
-	switch (cmd) {
 		case 'dev': {
 			const { default: devServer } = await import('../core/dev/index.js');
+
+			const settings = await loadSettings({ cmd, flags, logging });
+			if (!settings) return;
 
 			const configFlag = resolveFlags(flags).config;
 			const configFlagPath = configFlag
@@ -184,6 +178,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'build': {
 			const { default: build } = await import('../core/build/index.js');
 
+			const settings = await loadSettings({ cmd, flags, logging });
+			if (!settings) return;
+
 			return await build(settings, {
 				flags,
 				logging,
@@ -194,6 +191,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 		case 'check': {
 			const { check } = await import('./check/index.js');
+
+			const settings = await loadSettings({ cmd, flags, logging });
+			if (!settings) return;
 
 			// We create a server to start doing our operations
 			const checkServer = await check(settings, { flags, logging });
@@ -211,12 +211,18 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'sync': {
 			const { syncCli } = await import('../core/sync/index.js');
 
+			const settings = await loadSettings({ cmd, flags, logging });
+			if (!settings) return;
+
 			const result = await syncCli(settings, { logging, fs, flags });
 			return process.exit(result);
 		}
 
 		case 'preview': {
 			const { default: preview } = await import('../core/preview/index.js');
+
+			const settings = await loadSettings({ cmd, flags, logging });
+			if (!settings) return;
 
 			const server = await preview(settings, { logging, flags });
 			if (server) {
