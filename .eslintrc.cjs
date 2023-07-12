@@ -26,7 +26,6 @@ module.exports = {
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/dot-notation': 'off',
     '@typescript-eslint/no-base-to-string': 'off',
-    '@typescript-eslint/no-confusing-void-expression': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/no-misused-promises': 'off',
@@ -38,12 +37,14 @@ module.exports = {
     '@typescript-eslint/no-unsafe-member-access': 'off',
     '@typescript-eslint/no-unsafe-return': 'off',
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    '@typescript-eslint/prefer-optional-chain': 'off',
     '@typescript-eslint/prefer-string-starts-ends-with': 'off',
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
     '@typescript-eslint/sort-type-constituents': 'off',
     '@typescript-eslint/unbound-method': 'off',
+    "@typescript-eslint/no-explicit-any": 'off',
 
     // These rules enabled by the preset configs don't work well for us
     '@typescript-eslint/await-thenable': 'off',
