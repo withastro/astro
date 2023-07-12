@@ -61,9 +61,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      # Only build in ubuntu as windows can share the build cache
+      # Only build in ubuntu as windows can share the build cache.
+      # Also only build in core repo as forks don't have access to the Turbo cache.
       - name: Build Packages
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
         run: pnpm run build
 
   lint:
