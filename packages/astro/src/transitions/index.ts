@@ -48,13 +48,13 @@ export function fade({
 			name: 'astroFadeInOut',
 			duration: duration ?? '0.2s',
 			easing: 'linear',
-			direction: 'forwards',
+			fillMode: 'forwards',
 		},
 		new: {
 			name: 'astroFadeInOut',
 			duration: duration ?? '0.3s',
 			easing: 'linear',
-			direction: 'backwards',
+			fillMode: 'backwards',
 		}
 	} satisfies TransitionAnimationPair;
 
