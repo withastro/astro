@@ -5,9 +5,7 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { mergeConfig as mergeViteConfig } from 'vite';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
 
@@ -210,12 +208,8 @@ interface OpenConfigResult {
 export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
 
-	const config = await tryLoadConfig(configOptions, root);
-	if (config) {
-		userConfig = config.value;
-	}
+	const userConfig = await loadConfig(configOptions, root);
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
@@ -226,54 +220,24 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	};
 }
 
-interface TryLoadConfigResult {
-	value: Record<string, any>;
-	filePath?: string;
-}
-
-async function tryLoadConfig(
+async function loadConfig(
 	configOptions: LoadConfigOptions,
 	root: string
-): Promise<TryLoadConfigResult | undefined> {
+): Promise<Record<string, any>> {
 	const fsMod = configOptions.fsMod ?? fs;
-	let finallyCleanup = async () => {};
-	try {
-		let configPath = await resolveConfigPath({
-			cwd: configOptions.cwd,
-			flags: configOptions.flags,
-			fs: fsMod,
-		});
-		if (!configPath) return undefined;
-		if (configOptions.isRestart) {
-			// Hack: Write config to temporary file at project root
-			// This invalidates and reloads file contents when using ESM imports or "resolve"
-			const tempConfigPath = path.join(
-				root,
-				`.temp.${Date.now()}.config${path.extname(configPath)}`
-			);
+	const configPath = await resolveConfigPath({
+		cwd: configOptions.cwd,
+		flags: configOptions.flags,
+		fs: fsMod,
+	});
+	if (!configPath) return {};
 
-			const currentConfigContent = await fsMod.promises.readFile(configPath, 'utf-8');
-			await fs.promises.writeFile(tempConfigPath, currentConfigContent);
-			finallyCleanup = async () => {
-				try {
-					await fs.promises.unlink(tempConfigPath);
-				} catch {
-					/** file already removed */
-				}
-			};
-			configPath = tempConfigPath;
-		}
-
-		// Create a vite server to load the config
-		const config = await loadConfigWithVite({
-			configPath,
-			fs: fsMod,
-			root,
-		});
-		return config as TryLoadConfigResult;
-	} finally {
-		await finallyCleanup();
-	}
+	// Create a vite server to load the config
+	return await loadConfigWithVite({
+		configPath,
+		fs: fsMod,
+		root,
+	});
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
@@ -294,55 +258,4 @@ export function createDefaultDevConfig(
 	root: string = process.cwd()
 ) {
 	return resolveConfig(userConfig, root, undefined, 'dev');
-}
-
-function mergeConfigRecursively(
-	defaults: Record<string, any>,
-	overrides: Record<string, any>,
-	rootPath: string
-) {
-	const merged: Record<string, any> = { ...defaults };
-	for (const key in overrides) {
-		const value = overrides[key];
-		if (value == null) {
-			continue;
-		}
-
-		const existing = merged[key];
-
-		if (existing == null) {
-			merged[key] = value;
-			continue;
-		}
-
-		// fields that require special handling:
-		if (key === 'vite' && rootPath === '') {
-			merged[key] = mergeViteConfig(existing, value);
-			continue;
-		}
-
-		if (Array.isArray(existing) || Array.isArray(value)) {
-			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
-			continue;
-		}
-		if (isURL(existing) && isURL(value)) {
-			merged[key] = value;
-			continue;
-		}
-		if (isObject(existing) && isObject(value)) {
-			merged[key] = mergeConfigRecursively(existing, value, rootPath ? `${rootPath}.${key}` : key);
-			continue;
-		}
-
-		merged[key] = value;
-	}
-	return merged;
-}
-
-export function mergeConfig(
-	defaults: Record<string, any>,
-	overrides: Record<string, any>,
-	isRoot = true
-): Record<string, any> {
-	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
 }
