@@ -183,15 +183,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				}
 			}
 		}
-
 		case 'sync': {
-			const { syncCli } = await import('../core/sync/index.js');
-
-			const settings = await loadSettings({ cmd, flags, logging });
-			if (!settings) return;
-
-			const result = await syncCli(settings, { logging, fs, flags });
-			return process.exit(result);
+			const { sync } = await import('./sync/index.js');
+			const exitCode = await sync({ flags, logging });
+			return process.exit(exitCode);
 		}
 	}
 
