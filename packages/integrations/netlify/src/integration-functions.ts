@@ -106,7 +106,7 @@ function netlifyFunctions({
 						netlifyEdgeMiddlewareHandlerPath
 					);
 
-					await bundleServerEntry(bundledMiddlewarePath);
+					// await bundleServerEntry(bundledMiddlewarePath);
 				}
 				await createRedirects(_config, routes, dir, entryFile, type);
 			},

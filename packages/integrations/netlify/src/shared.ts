@@ -98,6 +98,9 @@ export async function bundleServerEntry(entryUrl: URL, serverUrl?: URL, vite?: a
 		format: 'esm',
 		bundle: true,
 		external: ['@astrojs/markdown-remark', 'astro/middleware'],
+		banner: {
+			js: DENO_SHIM,
+		},
 	});
 
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.

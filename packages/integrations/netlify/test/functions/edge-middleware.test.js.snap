@@ -1,21 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Middleware with handler file 1`] = `
-"// test/functions/fixtures/middleware-with-handler-file/.netlify/edge-functions/edgeMiddleware.mjs
-import { createContext, trySerializeLocals } from \\"astro/middleware\\";
-globalThis.process = {
-  argv: [],
-  env: Deno.env.toObject()
+"globalThis.process = {
+	argv: [],
+	env: Deno.env.toObject(),
 };
+
+// test/functions/fixtures/middleware-with-handler-file/src/netlify-edge-middleware.js
 function netlify_edge_middleware_default({ request, context }) {
   return {
     title: \\"Hello world\\"
   };
 }
+
+// test/functions/fixtures/middleware-with-handler-file/.netlify/functions-internal/middleware2.mjs
 var onRequest = (context, next) => {
   context.locals.title = \\"Middleware\\";
   return next();
 };
+
+// <stdin>
+import { createContext, trySerializeLocals } from \\"astro/middleware\\";
 async function middleware(request, context) {
   const url = new URL(request.url);
   const ctx = createContext({
@@ -40,16 +45,19 @@ export {
 `;
 
 exports[`Middleware with handler file 2`] = `
-"// test/functions/fixtures/middleware-without-handler-file/.netlify/edge-functions/edgeMiddleware.mjs
-import { createContext, trySerializeLocals } from \\"astro/middleware\\";
-globalThis.process = {
-  argv: [],
-  env: Deno.env.toObject()
+"globalThis.process = {
+	argv: [],
+	env: Deno.env.toObject(),
 };
+
+// test/functions/fixtures/middleware-without-handler-file/.netlify/functions-internal/middleware2.mjs
 var onRequest = (context, next) => {
   context.locals.title = \\"Middleware\\";
   return next();
 };
+
+// <stdin>
+import { createContext, trySerializeLocals } from \\"astro/middleware\\";
 async function middleware(request, context) {
   const url = new URL(request.url);
   const ctx = createContext({
