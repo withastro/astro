@@ -50,7 +50,7 @@ function edgeMiddlewareTemplate(middlewarePath: string, vercelEdgeMiddlewareHand
 	const filePathEdgeMiddleware = fileURLToPath(vercelEdgeMiddlewareHandlerPath);
 	let handlerTemplateImport = '';
 	let handlerTemplateCall = '{}';
-	if (existsSync(filePathEdgeMiddleware) + '.js' || existsSync(filePathEdgeMiddleware) + '.ts') {
+	if (existsSync(filePathEdgeMiddleware + '.js') || existsSync(filePathEdgeMiddleware + '.ts')) {
 		const stringified = JSON.stringify(filePathEdgeMiddleware.replace(/\\/g, '/'));
 		handlerTemplateImport = `import handler from ${stringified}`;
 		handlerTemplateCall = `handler({ request, context })`;
