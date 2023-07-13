@@ -32,6 +32,7 @@ import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugi
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { routeIsRedirect } from '../redirects/index.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -60,8 +61,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		// Track the page data in internals
 		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-		pageInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+		if(!routeIsRedirect(pageData.route)) {
+			pageInput.add(astroModuleId);
+			facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+		}
 	}
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
