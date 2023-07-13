@@ -45,7 +45,8 @@
   },
   "dependencies": {
     "@babel/core": "^7.22.5",
-    "@babel/plugin-transform-react-jsx": "^7.22.5"
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "ultrahtml": "^1.2.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.62",

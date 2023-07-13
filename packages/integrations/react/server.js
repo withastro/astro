@@ -43,6 +43,12 @@ async function check(Component, props, children) {
 		return React.createElement('div');
 	}
 
+	if (props['use:vnode']) {
+		const convert = await import('./vnode-children.js').then(mod => mod.default);
+		delete props['use:vnode'];
+		children = convert(children);
+	}
+
 	await renderToStaticMarkup(Tester, props, children, {});
 
 	if (error) {
@@ -85,7 +91,11 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		...slots,
 	};
 	const newChildren = children ?? props.children;
-	if (newChildren != null) {
+	if (props['use:vnode']) {
+		const convert = await import('./vnode-children.js').then(mod => mod.default);
+		delete props['use:vnode'];
+		newProps.children = convert(children)
+	} else if (newChildren != null) {
 		newProps.children = React.createElement(StaticHtml, {
 			hydrate: needsHydration(metadata),
 			value: newChildren,

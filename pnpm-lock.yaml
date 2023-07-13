@@ -4802,6 +4802,9 @@ importers:
       '@babel/plugin-transform-react-jsx':
         specifier: ^7.22.5
         version: 7.22.5(@babel/core@7.22.5)
+      ultrahtml:
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@types/react':
         specifier: ^17.0.62
@@ -17478,6 +17481,10 @@ packages:
 
   /ultrahtml@0.1.3:
     resolution: {integrity: sha512-P24ulZdT9UKyQuKA1IApdAZ+F9lwruGvmKb4pG3+sMvR3CjN0pjawPnxuSABHQFB+XqnB35TVXzJPOBYjCv6Kw==}
+    dev: false
+
+  /ultrahtml@1.2.0:
+    resolution: {integrity: sha512-vxZM2yNvajRmCj/SknRYGNXk2tqiy6kRNvZjJLaleG3zJbSh/aNkOqD1/CVzypw8tyHyhpzYuwQgMMhUB4ZVNQ==}
     dev: false
 
   /unbox-primitive@1.0.2:
