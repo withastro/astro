@@ -159,7 +159,7 @@ export function isIsolatedScriptTag(scriptTag: Node): boolean {
 	if (
 		!scriptTag.attributes ||
 		(scriptTag.attributes && Object.entries(scriptTag.attributes).length === 0) ||
-		scriptTag.attributes['type']?.includes("module")
+		scriptTag.attributes['type']?.includes('module')
 	) {
 		return true;
 	}
