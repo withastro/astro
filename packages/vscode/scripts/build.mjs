@@ -1,6 +1,5 @@
 // @ts-check
 import esbuild from 'esbuild';
-import { copy } from 'esbuild-plugin-copy';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { rebuildPlugin } from './shared.mjs';
@@ -16,27 +15,23 @@ export default async function build() {
 	 */
 	const config = {
 		entryPoints: {
-			client: './src/client.ts',
-			server: './node_modules/@astrojs/language-server/bin/nodeServer.js',
+			'dist/node/client': './src/client.ts',
+			'dist/node/server': './node_modules/@astrojs/language-server/bin/nodeServer.js',
+			// We need to generate this inside node_modules so VS Code can resolve it
+			'node_modules/astro-ts-plugin-bundle/index':
+				'./node_modules/@astrojs/ts-plugin/dist/index.js',
 		},
 		bundle: true,
 		metafile: metaFile,
 		sourcemap: isDev,
-		outdir: './dist/node',
-		external: ['vscode'],
+		outdir: '.',
+		external: ['vscode', '@astrojs/compiler', 'prettier', 'prettier-plugin-astro'],
 		format: 'cjs',
 		platform: 'node',
 		tsconfig: './tsconfig.json',
 		define: { 'process.env.NODE_ENV': '"production"' },
 		minify: process.argv.includes('--minify'),
 		plugins: [
-			copy({
-				assets: {
-					from: ['../language-server/node_modules/@astrojs/compiler/dist/astro.wasm'],
-					to: ['../astro.wasm'],
-					watch: isDev,
-				},
-			}),
 			{
 				name: 'umd2esm',
 				setup(pluginBuild) {

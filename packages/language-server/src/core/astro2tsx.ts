@@ -136,13 +136,6 @@ function getVirtualFileTSX(
 		}
 	}
 
-	// Ensure that `0:0` is mapped to `0:0` to make sure we properly handle "unmapped" lines
-	mappings.push({
-		sourceRange: [0, 0],
-		generatedRange: [0, 0],
-		data: {},
-	});
-
 	const ast = ts.createSourceFile('/a.tsx', tsx.code, ts.ScriptTarget.ESNext);
 	if (ast.statements[0]) {
 		mappings.push({

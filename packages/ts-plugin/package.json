@@ -27,8 +27,11 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/compiler": "^1.5.1",
-    "@jridgewell/trace-mapping": "^0.3.18"
+    "@volar/language-core": "~1.8.3",
+    "@volar/typescript": "~1.8.3",
+    "@astrojs/compiler": "^1.5.5",
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "vscode-languageserver-textdocument": "^1.0.8"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
