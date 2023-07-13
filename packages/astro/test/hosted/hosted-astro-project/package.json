@@ -1,0 +1,14 @@
+{
+  "name": "hosted-astro-project",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build:vercel": "astro build --config astro.config.vercel.mjs",
+    "build:netlify": "astro build --config astro.config.vercel.mjs"
+  },
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/vercel": "workspace:*",
+    "@astrojs/netlify": "workspace:*"
+  }
+}

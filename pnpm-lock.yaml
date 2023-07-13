@@ -3560,6 +3560,18 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/hosted/hosted-astro-project:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: workspace:*
+        version: link:../../../../integrations/netlify
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../../integrations/vercel
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/create-astro:
     dependencies:
       '@astrojs/cli-kit':
