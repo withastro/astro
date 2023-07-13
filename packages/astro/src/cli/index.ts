@@ -2,15 +2,8 @@
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
-import { collectErrorMetadata } from '../core/errors/dev/index.js';
-import { createSafeError } from '../core/errors/index.js';
-import { debug, type LogOptions } from '../core/logger/core.js';
-import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
-import { formatErrorMessage, printHelp } from '../core/messages.js';
-import * as event from '../events/index.js';
-import { eventError, telemetry } from '../events/index.js';
+import type { LogOptions } from '../core/logger/core.js';
 
-type Arguments = yargs.Arguments;
 type CLICommand =
 	| 'help'
 	| 'version'
@@ -25,7 +18,8 @@ type CLICommand =
 	| 'telemetry';
 
 /** Display --help flag */
-function printAstroHelp() {
+async function printAstroHelp() {
+	const { printHelp } = await import('../core/messages.js');
 	printHelp({
 		commandName: 'astro',
 		usage: '[command] [...flags]',
@@ -63,7 +57,7 @@ function printVersion() {
 }
 
 /** Determine which command the user requested */
-function resolveCommand(flags: Arguments): CLICommand {
+function resolveCommand(flags: yargs.Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (flags.version) return 'version';
 
@@ -90,23 +84,20 @@ function resolveCommand(flags: Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
-	const root = flags.root;
-
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
 		case 'help':
-			printAstroHelp();
+			await printAstroHelp();
 			return;
 		case 'version':
 			printVersion();
 			return;
 		case 'info': {
 			const { printInfo } = await import('./info/index.js');
-			await printInfo({ cwd: root, flags });
+			await printInfo({ flags });
 			return;
 		}
 		case 'docs': {
-			telemetry.record(event.eventCliSession(cmd));
 			const { docs } = await import('./docs/index.js');
 			await docs({ flags });
 			return;
@@ -121,6 +112,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
+	const { enableVerboseLogging, nodeLogDestination } = await import('../core/logger/node.js');
 	const logging: LogOptions = {
 		dest: nodeLogDestination,
 		level: 'info',
@@ -141,10 +133,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'add': {
-			telemetry.record(event.eventCliSession(cmd));
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
-			await add(packages, { cwd: root, flags, logging });
+			await add(packages, { flags, logging });
 			return;
 		}
 		case 'dev': {
@@ -177,7 +168,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					await checkServer.watch();
 					return await new Promise(() => {}); // lives forever
 				} else {
-					let checkResult = await checkServer.check();
+					const checkResult = await checkServer.check();
 					return process.exit(checkResult);
 				}
 			}
@@ -201,29 +192,7 @@ export async function cli(args: string[]) {
 	try {
 		await runCommand(cmd, flags);
 	} catch (err) {
+		const { throwAndExit } = await import('./throw-and-exit.js');
 		await throwAndExit(cmd, err);
 	}
-}
-
-/** Display error and exit */
-async function throwAndExit(cmd: string, err: unknown) {
-	let telemetryPromise: Promise<any>;
-	let errorMessage: string;
-	function exitWithErrorMessage() {
-		console.error(errorMessage);
-		process.exit(1);
-	}
-
-	const errorWithMetadata = collectErrorMetadata(createSafeError(err));
-	telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
-	errorMessage = formatErrorMessage(errorWithMetadata);
-
-	// Timeout the error reporter (very short) because the user is waiting.
-	// NOTE(fks): It is better that we miss some events vs. holding too long.
-	// TODO(fks): Investigate using an AbortController once we drop Node v14.
-	setTimeout(exitWithErrorMessage, 400);
-	// Wait for the telemetry event to send, then exit. Ignore any error.
-	await telemetryPromise
-		.catch((err2) => debug('telemetry', `record() error: ${err2.message}`))
-		.then(exitWithErrorMessage);
 }

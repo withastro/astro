@@ -22,6 +22,7 @@ import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { parseNpmName } from '../../core/util.js';
+import { eventCliSession, telemetry } from '../../events/index.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
@@ -29,7 +30,6 @@ import { wrapDefaultExport } from './wrapper.js';
 interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
-	cwd?: string;
 }
 
 interface IntegrationInfo {
@@ -86,7 +86,8 @@ async function getRegistry(): Promise<string> {
 	}
 }
 
-export async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+export async function add(names: string[], { flags, logging }: AddOptions) {
+	telemetry.record(eventCliSession('add'));
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
@@ -128,6 +129,7 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	}
 
 	// Some packages might have a common alias! We normalize those here.
+	const cwd = flags.root;
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
