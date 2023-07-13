@@ -84,8 +84,6 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
-	const root = flags.root;
-
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
 		case 'help':
@@ -96,7 +94,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		case 'info': {
 			const { printInfo } = await import('./info/index.js');
-			await printInfo({ cwd: root, flags });
+			await printInfo({ flags });
 			return;
 		}
 		case 'docs': {
@@ -137,7 +135,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'add': {
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
-			await add(packages, { cwd: root, flags, logging });
+			await add(packages, { flags, logging });
 			return;
 		}
 		case 'dev': {
@@ -170,7 +168,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					await checkServer.watch();
 					return await new Promise(() => {}); // lives forever
 				} else {
-					let checkResult = await checkServer.check();
+					const checkResult = await checkServer.check();
 					return process.exit(checkResult);
 				}
 			}

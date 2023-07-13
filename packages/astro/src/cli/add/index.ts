@@ -30,7 +30,6 @@ import { wrapDefaultExport } from './wrapper.js';
 interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
-	cwd?: string;
 }
 
 interface IntegrationInfo {
@@ -87,7 +86,7 @@ async function getRegistry(): Promise<string> {
 	}
 }
 
-export async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+export async function add(names: string[], { flags, logging }: AddOptions) {
 	telemetry.record(eventCliSession('add'));
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
@@ -130,6 +129,7 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	}
 
 	// Some packages might have a common alias! We normalize those here.
+	const cwd = flags.root;
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
