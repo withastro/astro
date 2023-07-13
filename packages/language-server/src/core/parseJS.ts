@@ -23,7 +23,7 @@ export function extractScriptTags(
 			root.tag === 'script' &&
 			root.startTagEnd !== undefined &&
 			root.endTagStart !== undefined &&
-			getScriptTagLanguage(root) === 'ts'
+			isIsolatedScriptTag(root)
 		) {
 			const scriptText = snapshot.getText(root.startTagEnd, root.endTagStart);
 
@@ -109,7 +109,7 @@ function findInlineScripts(
 			root.tag === 'script' &&
 			root.startTagEnd !== undefined &&
 			root.endTagStart !== undefined &&
-			getScriptTagLanguage(root) === 'js'
+			!isIsolatedScriptTag(root)
 		) {
 			const scriptText = snapshot.getText(root.startTagEnd, root.endTagStart);
 			inlineScripts.push({
@@ -154,16 +154,17 @@ function findEventAttributes(ast: ParseResult['ast']): JavaScriptContext[] {
 	return eventAttrs;
 }
 
-export function getScriptTagLanguage(scriptTag: Node): 'js' | 'ts' {
-	// Using any kind of attributes on the script tag will disable hoisting, so we can just check if there's any
+export function isIsolatedScriptTag(scriptTag: Node): boolean {
+	// Using any kind of attributes on the script tag will disable hoisting
 	if (
 		!scriptTag.attributes ||
-		(scriptTag.attributes && Object.entries(scriptTag.attributes).length === 0)
+		(scriptTag.attributes && Object.entries(scriptTag.attributes).length === 0) ||
+		scriptTag.attributes['type']?.includes("module")
 	) {
-		return 'ts';
+		return true;
 	}
 
-	return 'js';
+	return false;
 }
 
 export const htmlEventAttributes = [
