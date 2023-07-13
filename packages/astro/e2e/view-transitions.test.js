@@ -34,6 +34,25 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
+	test('Clicking on a link with nested content', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', p => {
+			loads.push(p.title());
+		});
+
+		// Go to page 4
+		await page.goto(astro.resolveUrl('/four'));
+		let p = page.locator('#four');
+		await expect(p, 'should have content').toHaveText('Page 4');
+
+		// Go to page 1
+		await page.click('#click-one');
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
 	test('Moving from a page without ViewTransitions triggers a full page navigation', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', p => {

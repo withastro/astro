@@ -1,7 +1,4 @@
 ---
-import "dom-view-transitions";
-import "network-information-types";
-
 type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
@@ -89,7 +86,11 @@ const { fallback = 'animate' } = Astro.props as Props;
 	if(supportsViewTransitions || getFallback() !== 'none') {
 		document.addEventListener('click', (ev) => {
 		let link = ev.target;
-		if (link instanceof HTMLAnchorElement &&
+		if(link instanceof Element && link.tagName !== 'A') {
+			link = link.closest('a');
+		}
+		if (link &&
+			link instanceof HTMLAnchorElement &&
 			link.href &&
 			(!link.target || link.target === '_self') &&
 			link.origin === location.origin &&
