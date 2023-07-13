@@ -153,17 +153,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 					),
 				});
 			}
+
+			if (options.src.format === 'svg') {
+				// We need to set the format as svg explicitly.
+				options.format = 'svg';
+			}
 		}
 
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
 		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
 		if (!options.format) {
 			options.format = 'webp';
-		}
-
-		if (options.src.format === 'svg') {
-			// We need to set the format as svg explicitly.
-			options.format = 'svg';
 		}
 
 		return options;
