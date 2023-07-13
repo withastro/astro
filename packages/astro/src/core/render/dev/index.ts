@@ -6,12 +6,10 @@ import type {
 	SSRElement,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import { createAPIContext } from '../../endpoint/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
-import { callMiddleware } from '../../middleware/callMiddleware.js';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
-import { createRenderContext, loadRenderers, renderPage as coreRenderPage } from '../index.js';
+import { createRenderContext, loadRenderers, tryRenderPage } from '../index.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
@@ -164,31 +162,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		mod,
 		env,
 	});
-	const apiContext = createAPIContext({
-		request: options.request,
-		params: renderContext.params,
-		props: renderContext.props,
-		adapterName: options.env.adapterName,
-	});
-	if (options.middleware) {
-		if (options.middleware?.onRequest) {
-			const onRequest = options.middleware.onRequest as MiddlewareResponseHandler;
-			const response = await callMiddleware<Response>(env.logging, onRequest, apiContext, () => {
-				return coreRenderPage({
-					mod,
-					renderContext,
-					env: options.env,
-					cookies: apiContext.cookies,
-				});
-			});
+	const onRequest = options.middleware?.onRequest as MiddlewareResponseHandler | undefined;
 
-			return response;
-		}
-	}
-	return await coreRenderPage({
-		mod,
-		renderContext,
-		env: options.env,
-		cookies: apiContext.cookies,
-	}); // NOTE: without "await", errors won’t get caught below
+	return tryRenderPage(renderContext, env, mod, onRequest);
 }
