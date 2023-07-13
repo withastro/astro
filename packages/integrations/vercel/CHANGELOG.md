@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 3.7.1
+
+### Patch Changes
+
+- [#7621](https://github.com/withastro/astro/pull/7621) [`2ddf34262`](https://github.com/withastro/astro/commit/2ddf3426268847d87c24ba1dc0adff20d3046035) Thanks [@ematipico](https://github.com/ematipico)! - Improve file detection of the middleware file handler
+
+- Updated dependencies [[`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - astro@2.8.2
+
 ## 3.7.0
 
 ### Minor Changes

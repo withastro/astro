@@ -1,5 +1,11 @@
 # astro
 
+## 2.8.2
+
+### Patch Changes
+
+- [#7623](https://github.com/withastro/astro/pull/7623) [`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede) Thanks [@matthewp](https://github.com/matthewp)! - Allow our Response wrapper to be cloneable
+
 ## 2.8.1
 
 ### Patch Changes
