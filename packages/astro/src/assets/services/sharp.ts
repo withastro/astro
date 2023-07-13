@@ -37,6 +37,10 @@ const sharpService: LocalImageService = {
 
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
+		// Return SVGs as-is
+		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
+		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
+
 		let result = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
 		// Never resize using both width and height at the same time, prioritizing width.

@@ -109,14 +109,18 @@ describe('astro:image', () => {
 				expect(res.headers.get('content-type')).to.equal('image/webp');
 			});
 
-			it('errors on unsupported formats', async () => {
-				logs.length = 0;
-				let res = await fixture.fetch('/unsupported-format');
-				await res.text();
+			it('properly skip processing SVGs, but does not error', async () => {
+				let res = await fixture.fetch('/svgSupport');
+				let html = await res.text();
 
-				expect(logs).to.have.a.lengthOf(1);
-				expect(logs[0].message).to.contain('Received unsupported format');
-			});
+				$ = cheerio.load(html);
+				let $img = $('img');
+				expect($img).to.have.a.lengthOf(1);
+
+				let src = $img.attr('src');
+				res = await fixture.fetch(src);
+				expect(res.status).to.equal(200);
+			})
 
 			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
 				logs.length = 0;

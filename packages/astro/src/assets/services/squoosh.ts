@@ -12,7 +12,7 @@ import type { Operation } from './vendor/squoosh/image.js';
 
 const baseQuality = { low: 25, mid: 50, high: 80, max: 100 };
 const qualityTable: Record<
-	Exclude<ImageOutputFormat, 'png'>,
+	Exclude<ImageOutputFormat, 'png' | 'svg'>,
 	Record<ImageQualityPreset, number>
 > = {
 	avif: {
@@ -37,6 +37,9 @@ const service: LocalImageService = {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
 		let format = transform.format;
+
+		// Return SVGs as-is
+		if (format === 'svg') return { data: inputBuffer, format: 'svg' };
 
 		const operations: Operation[] = [];
 

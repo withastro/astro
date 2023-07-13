@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { joinPaths } from '../../core/path.js';
-import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
+import { VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
@@ -143,15 +143,20 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 		} else {
-			if (!VALID_OPTIMIZABLE_FORMATS.includes(options.src.format as any)) {
+			if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
 				throw new AstroError({
 					...AstroErrorData.UnsupportedImageFormat,
 					message: AstroErrorData.UnsupportedImageFormat.message(
 						options.src.format,
 						options.src.src,
-						VALID_OPTIMIZABLE_FORMATS
+						VALID_SUPPORTED_FORMATS
 					),
 				});
+			}
+
+			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
+			if (options.src.format === 'svg') {
+				options.format = 'svg';
 			}
 		}
 
