@@ -66,7 +66,7 @@ describe('routing - createRouteManifest', () => {
 	it('static redirect route is prioritized over dynamic file route', async () => {
 		const fs = createFs(
 			{
-				'/src/pages/[...slug].astro': `<h1>test</h1>`
+				'/src/pages/[...slug].astro': `<h1>test</h1>`,
 			},
 			root
 		);
@@ -74,16 +74,19 @@ describe('routing - createRouteManifest', () => {
 			{
 				trailingSlash: 'never',
 				redirects: {
-					'/foo': '/bar'
-				}
+					'/foo': '/bar',
+				},
 			},
 			root
 		);
-		const manifest = createRouteManifest({
-			cwd: fileURLToPath(root),
-			settings,
-			fsMod: fs,
-		}, defaultLogging);
+		const manifest = createRouteManifest(
+			{
+				cwd: fileURLToPath(root),
+				settings,
+				fsMod: fs,
+			},
+			defaultLogging
+		);
 
 		expect(manifest.routes[0].route).to.equal('/foo');
 	});

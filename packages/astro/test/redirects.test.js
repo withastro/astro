@@ -109,13 +109,13 @@ describe('Astro.redirect', () => {
 				const html = await fixture.readFile('/secret/index.html');
 				expect(html).to.include('<link rel="canonical" href="/login">');
 			});
-			
+
 			it('A 302 status generates a "temporary redirect" through a short delay', async () => {
 				// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
 				const html = await fixture.readFile('/secret/index.html');
 				expect(html).to.include('content="2;url=/login"');
 			});
-			
+
 			it('Includes the meta refresh tag in `redirect` config pages', async () => {
 				let html = await fixture.readFile('/one/index.html');
 				expect(html).to.include('http-equiv="refresh');

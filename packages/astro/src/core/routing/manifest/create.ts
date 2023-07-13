@@ -463,16 +463,16 @@ export function createRouteManifest(
 		const redirBase = path.posix.dirname(route);
 		const dynamicRedir = lastSegmentIsDynamic(routeData);
 		let i = 0;
-		for(const existingRoute of routes) {
+		for (const existingRoute of routes) {
 			// An exact match, prefer the page/endpoint. This matches hosts.
-			if(existingRoute.route === route) {
-				routes.splice(i+1, 0, routeData);
+			if (existingRoute.route === route) {
+				routes.splice(i + 1, 0, routeData);
 				return;
 			}
 
 			// If the existing route is dynamic, prefer the static redirect.
 			const base = path.posix.dirname(existingRoute.route);
-			if(base === redirBase && !dynamicRedir && lastSegmentIsDynamic(existingRoute)) {
+			if (base === redirBase && !dynamicRedir && lastSegmentIsDynamic(existingRoute)) {
 				routes.splice(i, 0, routeData);
 				return;
 			}

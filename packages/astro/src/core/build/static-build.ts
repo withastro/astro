@@ -21,6 +21,7 @@ import { isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
+import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
@@ -32,7 +33,6 @@ import { RESOLVED_SPLIT_MODULE_ID, SSR_VIRTUAL_MODULE_ID } from './plugins/plugi
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { routeIsRedirect } from '../redirects/index.js';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
@@ -61,7 +61,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		// Track the page data in internals
 		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-		if(!routeIsRedirect(pageData.route)) {
+		if (!routeIsRedirect(pageData.route)) {
 			pageInput.add(astroModuleId);
 			facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
 		}
