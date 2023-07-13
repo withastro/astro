@@ -4,7 +4,6 @@
 
 This **[Astro integration][astro-integration]** optimizes images in your [Astro project](https://astro.build). It is supported in Astro v2 only for all static sites and for [some server-side rendering deploy hosts](#installation).
 
-
 - <strong>[Why `@astrojs/image`?](#why-astrojsimage)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
@@ -670,12 +669,15 @@ As an alternative, you can wrap these components in another Astro component for 
 ---
 import { Picture } from '@astrojs/image/components';
 
-const {src, ...attrs} = Astro.props;
+const { src, ...attrs } = Astro.props;
 ---
+
 <Picture src={src} widths={[400, 800, 1500]} sizes="(max-width: 767px) 100vw, 736px" {...attrs} />
 
 <style>
-  img, picture :global(img), svg {
+  img,
+  picture :global(img),
+  svg {
     margin-block: 2.5rem;
     border-radius: 0.75rem;
   }
@@ -686,6 +688,7 @@ const {src, ...attrs} = Astro.props;
 
 The official image integration will change image imports to return an object rather than a source string.
 The object has the following properties, derived from the imported file:
+
 ```ts
 {
   src: string;
@@ -701,7 +704,8 @@ If you have the image integration installed, refer to the `src` property of the 
 ---
 import rocket from '../images/rocket.svg';
 ---
-<img src={rocket.src} alt="A rocketship in space."/>
+
+<img src={rocket.src} alt="A rocketship in space." />
 ```
 
 Alternatively, add `?url` to your imports to tell them to return a source string.
@@ -710,7 +714,8 @@ Alternatively, add `?url` to your imports to tell them to return a source string
 ---
 import rocket from '../images/rocket.svg?url';
 ---
-<img src={rocket} alt="A rocketship in space."/>
+
+<img src={rocket} alt="A rocketship in space." />
 ```
 
 ## Troubleshooting
