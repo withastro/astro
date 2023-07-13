@@ -1,8 +1,9 @@
 # @astrojs/image 📷
 
-> ⚠️ This integration is still experimental! Only node environments are supported currently, stay tuned for Deno support in the future!
+> ⚠️ This integration will be deprecated in Astro v3.0 (Fall 2023) in favor of the `astro:assets` module. Please see the [Assets documentation](https://docs.astro.build/en/guide/assets/) for more information.
 
-This **[Astro integration][astro-integration]** makes it easy to optimize images in your [Astro project](https://astro.build), with full support for SSG builds and server-side rendering!
+This **[Astro integration][astro-integration]** optimizes images in your [Astro project](https://astro.build). It is supported in Astro v2 only for all static sites and for [some server-side rendering deploy hosts](#installation).
+
 
 - <strong>[Why `@astrojs/image`?](#why-astrojsimage)</strong>
 - <strong>[Installation](#installation)</strong>
@@ -124,6 +125,19 @@ Or, alternatively if your project is using the types through a `tsconfig.json`
 ```astro title="src/pages/index.astro"
 ---
 import { Image, Picture } from '@astrojs/image/components';
+import heroImage from '../assets/hero.png';
+---
+
+// optimized image, keeping the original width, height, and image format
+<Image src={heroImage} alt="descriptive text" />
+
+// specify multiple sizes for responsive images or art direction
+<Picture
+  src={heroImage}
+  widths={[200, 400, 800]}
+  sizes="(max-width: 800px) 100vw, 800px"
+  alt="descriptive text"
+/>
 ---
 ```
 
@@ -644,6 +658,59 @@ const imageUrl =
   sizes="(max-width: 800px) 100vw, 800px"
   alt="descriptive text"
 />
+```
+
+### Setting Default Values
+
+Currently, there is no way to specify default values for all `<Image />` and `<Picture />` components. Required attributes should be set on each individual component.
+
+As an alternative, you can wrap these components in another Astro component for reuse. For example, you could create a component for your blog post images:
+
+```astro title="src/components/BlogPostImage.astro"
+---
+import { Picture } from '@astrojs/image/components';
+
+const {src, ...attrs} = Astro.props;
+---
+<Picture src={src} widths={[400, 800, 1500]} sizes="(max-width: 767px) 100vw, 736px" {...attrs} />
+
+<style>
+  img, picture :global(img), svg {
+    margin-block: 2.5rem;
+    border-radius: 0.75rem;
+  }
+</style>
+```
+
+### Using `<img>` with the Image Integration
+
+The official image integration will change image imports to return an object rather than a source string.
+The object has the following properties, derived from the imported file:
+```ts
+{
+  src: string;
+  width: number;
+  height: number;
+  format: 'avif' | 'gif' | 'heic' | 'heif' | 'jpeg' | 'jpg' | 'png' | 'tiff' | 'webp';
+}
+```
+
+If you have the image integration installed, refer to the `src` property of the object when using `<img>`.
+
+```astro ".src"
+---
+import rocket from '../images/rocket.svg';
+---
+<img src={rocket.src} alt="A rocketship in space."/>
+```
+
+Alternatively, add `?url` to your imports to tell them to return a source string.
+
+```astro "?url"
+---
+import rocket from '../images/rocket.svg?url';
+---
+<img src={rocket} alt="A rocketship in space."/>
 ```
 
 ## Troubleshooting
