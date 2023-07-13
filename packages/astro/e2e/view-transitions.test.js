@@ -9,9 +9,8 @@ test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async ({ astro }) => {
+test.afterAll(async () => {
 	await devServer.stop();
-	//astro.resetAllFiles();
 });
 
 test.describe('View Transitions', () => {
