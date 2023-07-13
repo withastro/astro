@@ -46,5 +46,6 @@ describe('SSG - Redirects', () => {
 			'/.netlify/functions/entry',
 			'200',
 		]);
+		expect(redirects).to.matchSnapshot();
 	});
 });

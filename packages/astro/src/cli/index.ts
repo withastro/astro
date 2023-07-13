@@ -1,23 +1,14 @@
 /* eslint-disable no-console */
-import fs from 'fs';
 import * as colors from 'kleur/colors';
-import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
-import { ZodError } from 'zod';
-import {
-	createSettings,
-	openConfig,
-	resolveConfigPath,
-	resolveFlags,
-} from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
-import { debug, error, info, type LogOptions } from '../core/logger/core.js';
+import { debug, type LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
-import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
+import { formatErrorMessage, printHelp } from '../core/messages.js';
 import * as event from '../events/index.js';
-import { eventConfigError, eventError, telemetry } from '../events/index.js';
+import { eventError, telemetry } from '../events/index.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -28,7 +19,6 @@ type CLICommand =
 	| 'dev'
 	| 'build'
 	| 'preview'
-	| 'reload'
 	| 'sync'
 	| 'check'
 	| 'info'
@@ -94,20 +84,6 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
-async function handleConfigError(
-	e: any,
-	{ cmd, cwd, flags, logging }: { cmd: string; cwd?: string; flags?: Flags; logging: LogOptions }
-) {
-	const path = await resolveConfigPath({ cwd, flags, fs });
-	error(logging, 'astro', `Unable to load ${path ? colors.bold(path) : 'your Astro config'}\n`);
-	if (e instanceof ZodError) {
-		console.error(formatConfigErrorMessage(e) + '\n');
-		telemetry.record(eventConfigError({ cmd, err: e, isFatal: true }));
-	} else if (e instanceof Error) {
-		console.error(formatErrorMessage(collectErrorMetadata(e)) + '\n');
-	}
-}
-
 /**
  * Run the given command with the given flags.
  * NOTE: This function provides no error handling, so be sure
@@ -156,8 +132,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		logging.level = 'silent';
 	}
 
-	// These commands can also be run directly without parsing the user config,
-	// but they rely on parsing the `logging` first.
+	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
+	if (!process.env.NODE_ENV) {
+		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
+	}
+
+	// These commands uses the logging and user config. All commands are assumed to have been handled
+	// by the end of this switch statement.
 	switch (cmd) {
 		case 'add': {
 			telemetry.record(event.eventCliSession(cmd));
@@ -166,66 +147,31 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			await add(packages, { cwd: root, flags, logging });
 			return;
 		}
-	}
-
-	// Start with a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
-	if (!process.env.NODE_ENV) {
-		process.env.NODE_ENV = cmd === 'dev' ? 'development' : 'production';
-	}
-
-	let { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
-		cwd: root,
-		flags,
-		cmd,
-	}).catch(async (e) => {
-		await handleConfigError(e, { cmd, cwd: root, flags, logging });
-		return {} as any;
-	});
-	if (!initialAstroConfig) return;
-	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
-	let settings = createSettings(initialAstroConfig, root);
-
-	// Common CLI Commands:
-	// These commands run normally. All commands are assumed to have been handled
-	// by the end of this switch statement.
-	switch (cmd) {
 		case 'dev': {
-			const { default: devServer } = await import('../core/dev/index.js');
-
-			const configFlag = resolveFlags(flags).config;
-			const configFlagPath = configFlag
-				? await resolveConfigPath({ cwd: root, flags, fs })
-				: undefined;
-
-			await devServer(settings, {
-				configFlag,
-				configFlagPath,
-				flags,
-				logging,
-				handleConfigError(e) {
-					handleConfigError(e, { cmd, cwd: root, flags, logging });
-					info(logging, 'astro', 'Continuing with previous valid configuration\n');
-				},
-			});
-			return await new Promise(() => {}); // lives forever
+			const { dev } = await import('./dev/index.js');
+			const server = await dev({ flags, logging });
+			if (server) {
+				return await new Promise(() => {}); // lives forever
+			}
+			return;
 		}
-
 		case 'build': {
-			const { default: build } = await import('../core/build/index.js');
-
-			return await build(settings, {
-				flags,
-				logging,
-				teardownCompiler: true,
-				mode: flags.mode,
-			});
+			const { build } = await import('./build/index.js');
+			await build({ flags, logging });
+			return;
 		}
-
+		case 'preview': {
+			const { preview } = await import('./preview/index.js');
+			const server = await preview({ flags, logging });
+			if (server) {
+				return await server.closed(); // keep alive until the server is closed
+			}
+			return;
+		}
 		case 'check': {
 			const { check } = await import('./check/index.js');
-
 			// We create a server to start doing our operations
-			const checkServer = await check(settings, { flags, logging });
+			const checkServer = await check({ flags, logging });
 			if (checkServer) {
 				if (checkServer.isWatchMode) {
 					await checkServer.watch();
@@ -235,23 +181,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					return process.exit(checkResult);
 				}
 			}
-		}
-
-		case 'sync': {
-			const { syncCli } = await import('../core/sync/index.js');
-
-			const result = await syncCli(settings, { logging, fs, flags });
-			return process.exit(result);
-		}
-
-		case 'preview': {
-			const { default: preview } = await import('../core/preview/index.js');
-
-			const server = await preview(settings, { logging, flags });
-			if (server) {
-				return await server.closed(); // keep alive until the server is closed
-			}
 			return;
+		}
+		case 'sync': {
+			const { sync } = await import('./sync/index.js');
+			const exitCode = await sync({ flags, logging });
+			return process.exit(exitCode);
 		}
 	}
 
