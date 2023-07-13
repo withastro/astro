@@ -1,7 +1,7 @@
 import fs from 'fs';
 import type yargs from 'yargs-parser';
-import devServer from '../../core/dev/index.js';
 import { resolveConfigPath, resolveFlags } from '../../core/config/index.js';
+import devServer from '../../core/dev/index.js';
 import { info, type LogOptions } from '../../core/logger/core.js';
 import { handleConfigError, loadSettings } from '../load-settings.js';
 
