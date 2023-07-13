@@ -120,7 +120,7 @@ describe('astro:image', () => {
 				let src = $img.attr('src');
 				res = await fixture.fetch(src);
 				expect(res.status).to.equal(200);
-			})
+			});
 
 			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
 				logs.length = 0;
