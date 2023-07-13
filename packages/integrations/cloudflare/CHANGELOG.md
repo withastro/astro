@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 6.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`f21357b69`](https://github.com/withastro/astro/commit/f21357b69d94fe8d81f267efddb182d1a3cc678a), [`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - @astrojs/underscore-redirects@0.2.0
+  - astro@2.8.2
+
 ## 6.6.0
 
 ### Minor Changes
