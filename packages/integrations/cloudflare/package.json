@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -39,13 +39,13 @@
     "test:match": "mocha --exit --timeout 30000 -g"
   },
   "dependencies": {
-    "@astrojs/underscore-redirects": "^0.1.0",
+    "@astrojs/underscore-redirects": "^0.2.0",
     "@cloudflare/workers-types": "^4.20230518.0",
     "esbuild": "^0.17.19",
     "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.8.1"
+    "astro": "workspace:^2.8.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
