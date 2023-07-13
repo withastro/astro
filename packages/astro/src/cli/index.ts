@@ -3,10 +3,7 @@ import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
 import type { LogOptions } from '../core/logger/core.js';
-import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
-import { printHelp } from '../core/messages.js';
 
-type Arguments = yargs.Arguments;
 type CLICommand =
 	| 'help'
 	| 'version'
@@ -21,7 +18,8 @@ type CLICommand =
 	| 'telemetry';
 
 /** Display --help flag */
-function printAstroHelp() {
+async function printAstroHelp() {
+	const { printHelp } = await import('../core/messages.js');
 	printHelp({
 		commandName: 'astro',
 		usage: '[command] [...flags]',
@@ -59,7 +57,7 @@ function printVersion() {
 }
 
 /** Determine which command the user requested */
-function resolveCommand(flags: Arguments): CLICommand {
+function resolveCommand(flags: yargs.Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (flags.version) return 'version';
 
@@ -116,6 +114,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
+	const { enableVerboseLogging, nodeLogDestination } = await import('../core/logger/node.js');
 	const logging: LogOptions = {
 		dest: nodeLogDestination,
 		level: 'info',
