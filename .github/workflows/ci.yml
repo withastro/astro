@@ -30,37 +30,6 @@ env:
   NODE_OPTIONS: --max-old-space-size=6144
 
 jobs:
-  lint:
-    name: Lint
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build (ignoring failures)
-        run: pnpm run build || true
-
-      - name: Lint
-        run: pnpm run lint
-
-      # Checks that the formatter runs successfully on all files
-      # In the future, we may have this fail PRs on unformatted code
-      - name: Format Check
-        run: pnpm run format --check
-
   # Build primes out Turbo build cache and pnpm cache
   build:
     name: "Build: ${{ matrix.os }}"
@@ -92,10 +61,44 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      # Only build in ubuntu as windows can share the build cache
+      # Only build in ubuntu as windows can share the build cache.
+      # Also only build in core repo as forks don't have access to the Turbo cache.
       - name: Build Packages
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
         run: pnpm run build
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Format Check
+        run: pnpm run format --check
 
   test:
     name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"

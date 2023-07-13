@@ -73,6 +73,12 @@ describe('Middleware in DEV mode', () => {
 		let res = await fixture.fetch('/');
 		expect(res.headers.get('set-cookie')).to.equal('foo=bar');
 	});
+
+	it('should be able to clone the response', async () => {
+		let res = await fixture.fetch('/clone');
+		let html = await res.text();
+		expect(html).to.contain('<h1>it works</h1>');
+	});
 });
 
 describe('Middleware in PROD mode, SSG', () => {

@@ -15,7 +15,7 @@ import type {
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
-import { mergeConfig } from '../core/config/config.js';
+import { mergeConfig } from '../core/config/index.js';
 import { info, type LogOptions } from '../core/logger/core.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 
