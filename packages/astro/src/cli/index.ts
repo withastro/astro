@@ -5,8 +5,6 @@ import { ASTRO_VERSION } from '../core/constants.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { printHelp } from '../core/messages.js';
-import * as event from '../events/index.js';
-import { telemetry } from '../events/index.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -104,7 +102,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'docs': {
-			telemetry.record(event.eventCliSession(cmd));
 			const { docs } = await import('./docs/index.js');
 			await docs({ flags });
 			return;
@@ -139,7 +136,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'add': {
-			telemetry.record(event.eventCliSession(cmd));
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
 			await add(packages, { cwd: root, flags, logging });
