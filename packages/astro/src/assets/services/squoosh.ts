@@ -1,11 +1,13 @@
 // TODO: Investigate removing this service once sharp lands WASM support, as libsquoosh is deprecated
 
 import type { ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import { imageMetadata } from '../utils/metadata.js';
 import {
 	baseService,
 	parseQuality,
 	type BaseServiceTransform,
 	type LocalImageService,
+	type LocalImageTransform,
 } from './service.js';
 import { processBuffer } from './vendor/squoosh/image-pool.js';
 import type { Operation } from './vendor/squoosh/image.js';
@@ -28,6 +30,28 @@ const qualityTable: Record<
 	// Squoosh's PNG encoder does not support a quality setting, so we can skip that here
 };
 
+async function getRotationForEXIF(
+	transform: LocalImageTransform,
+	inputBuffer: Buffer
+): Promise<Operation | undefined> {
+	// check EXIF orientation data and rotate the image if needed
+	const meta = await imageMetadata(transform.src, inputBuffer);
+
+	if (!meta) return undefined;
+
+	switch (meta.orientation) {
+		case 3:
+		case 4:
+			return { type: 'rotate', numRotations: 2 };
+		case 5:
+		case 6:
+			return { type: 'rotate', numRotations: 1 };
+		case 7:
+		case 8:
+			return { type: 'rotate', numRotations: 3 };
+	}
+}
+
 const service: LocalImageService = {
 	validateOptions: baseService.validateOptions,
 	getURL: baseService.getURL,
@@ -39,6 +63,12 @@ const service: LocalImageService = {
 		let format = transform.format;
 
 		const operations: Operation[] = [];
+
+		const rotation = await getRotationForEXIF(transform, inputBuffer);
+
+		if (rotation) {
+			operations.push(rotation);
+		}
 
 		// Never resize using both width and height at the same time, prioritizing width.
 		if (transform.height && !transform.width) {

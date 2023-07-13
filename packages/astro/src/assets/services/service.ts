@@ -56,7 +56,7 @@ interface SharedServiceProps {
 
 export type ExternalImageService = SharedServiceProps;
 
-type LocalImageTransform = {
+export type LocalImageTransform = {
 	src: string;
 	[key: string]: any;
 };
