@@ -4,20 +4,15 @@ import fs from 'node:fs';
 
 export async function createRedirects(
 	config: AstroConfig,
-	routes: RouteData[],
-	dir: URL,
-	entryFile: string,
-	type: 'functions' | 'edge-functions' | 'builders' | 'static'
+	routeToDynamicTargetMap: Map<RouteData, string>,
+	dir: URL
 ) {
-	const kind = type ?? 'functions';
-	const dynamicTarget = `/.netlify/${kind}/${entryFile}`;
 	const _redirectsURL = new URL('./_redirects', dir);
 
 	const _redirects = createRedirectsFromAstroRoutes({
 		config,
-		routes,
+		routeToDynamicTargetMap,
 		dir,
-		dynamicTarget,
 	});
 	const content = _redirects.print();
 
