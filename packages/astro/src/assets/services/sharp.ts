@@ -43,6 +43,9 @@ const sharpService: LocalImageService = {
 
 		let result = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
+		// always call rotate to adjust for EXIF data orientation
+		result.rotate();
+
 		// Never resize using both width and height at the same time, prioritizing width.
 		if (transform.height && !transform.width) {
 			result.resize({ height: transform.height });
