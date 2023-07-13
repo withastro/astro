@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { joinPaths } from '../../core/path.js';
-import { VALID_OPTIMIZABLE_FORMATS } from '../consts.js';
+import { VALID_SUPPORTED_FORMATS } from '../consts.js';
 import { isESMImportedImage } from '../internal.js';
 import type { ImageOutputFormat, ImageTransform } from '../types.js';
 
@@ -143,13 +143,13 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 		} else {
-			if (!VALID_OPTIMIZABLE_FORMATS.includes(options.src.format as any)) {
+			if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
 				throw new AstroError({
 					...AstroErrorData.UnsupportedImageFormat,
 					message: AstroErrorData.UnsupportedImageFormat.message(
 						options.src.format,
 						options.src.src,
-						VALID_OPTIMIZABLE_FORMATS
+						VALID_SUPPORTED_FORMATS
 					),
 				});
 			}
@@ -159,6 +159,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
 		if (!options.format) {
 			options.format = 'webp';
+		}
+
+		if (options.src.format === 'svg') {
+			// We need to set the format as svg explicitly.
+			options.format = 'svg';
 		}
 
 		return options;

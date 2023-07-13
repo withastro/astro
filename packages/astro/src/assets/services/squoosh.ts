@@ -38,6 +38,8 @@ const service: LocalImageService = {
 
 		let format = transform.format;
 
+		if (format === 'svg') return { data: inputBuffer, format: 'svg' };
+
 		const operations: Operation[] = [];
 
 		// Never resize using both width and height at the same time, prioritizing width.

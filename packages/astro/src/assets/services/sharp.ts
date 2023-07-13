@@ -37,6 +37,8 @@ const sharpService: LocalImageService = {
 
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 
+		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
+
 		let result = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
 		// Never resize using both width and height at the same time, prioritizing width.
