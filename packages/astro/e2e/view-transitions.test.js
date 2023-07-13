@@ -33,6 +33,30 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
+	test('Back button is captured', async ({ page, astro }) => {
+		const loads = [];
+		page.addListener('load', p => {
+			loads.push(p.title());
+		});
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		// Back to page 1
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
 	test('Clicking on a link with nested content', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', p => {
