@@ -87,7 +87,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
 		case 'help':
-			printAstroHelp();
+			await printAstroHelp();
 			return;
 		case 'version':
 			printVersion();
