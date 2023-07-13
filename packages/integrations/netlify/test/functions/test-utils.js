@@ -7,7 +7,7 @@ export * from '../../../../astro/test/test-utils.js';
  *
  * @returns {import('../../../../astro/dist/types/@types/astro').AstroIntegration}
  */
-export function testIntegration() {
+export function testIntegration({ setEntryPoints } = {}) {
 	return {
 		name: '@astrojs/netlify/test-integration',
 		hooks: {
@@ -23,6 +23,11 @@ export function testIntegration() {
 						},
 					},
 				});
+			},
+			'astro:build:ssr': ({ entryPoints }) => {
+				if (entryPoints.size) {
+					setEntryPoints(entryPoints);
+				}
 			},
 		},
 	};

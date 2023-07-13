@@ -1,6 +1,8 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';
+import { fileURLToPath } from 'node:url';
+import { extname } from 'node:path';
 
 export function getAdapter(args: Args = {}): AstroAdapter {
 	return {
@@ -23,7 +25,8 @@ function netlifyFunctions({
 	binaryMediaTypes,
 }: NetlifyFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
-	let entryFile: string;
+	let _entryPoints: Map<RouteData, URL>;
+	let ssrEntryFile: string;
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
@@ -37,10 +40,13 @@ function netlifyFunctions({
 					},
 				});
 			},
+			'astro:build:ssr': ({ entryPoints }) => {
+				_entryPoints = entryPoints;
+			},
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter({ binaryMediaTypes, builders }));
 				_config = config;
-				entryFile = config.build.serverEntry.replace(/\.m?js/, '');
+				ssrEntryFile = config.build.serverEntry.replace(/\.m?js/, '');
 
 				if (config.output === 'static') {
 					console.warn(
@@ -53,7 +59,32 @@ function netlifyFunctions({
 			},
 			'astro:build:done': async ({ routes, dir }) => {
 				const type = builders ? 'builders' : 'functions';
-				await createRedirects(_config, routes, dir, entryFile, type);
+				const kind = type ?? 'functions';
+
+				if (_entryPoints.size) {
+					const routeToDynamicTargetMap = new Map();
+					for (const [route, entryFile] of _entryPoints) {
+						const wholeFileUrl = fileURLToPath(entryFile);
+
+						const extension = extname(wholeFileUrl);
+						const relative = wholeFileUrl
+							.replace(fileURLToPath(_config.build.server), '')
+							.replace(extension, '')
+							.replaceAll('\\', '/');
+						const dynamicTarget = `/.netlify/${kind}/${relative}`;
+
+						routeToDynamicTargetMap.set(route, dynamicTarget);
+					}
+					await createRedirects(_config, routeToDynamicTargetMap, dir);
+				} else {
+					const dynamicTarget = `/.netlify/${kind}/${ssrEntryFile}`;
+					const map: [RouteData, string][] = routes.map((route) => {
+						return [route, dynamicTarget];
+					});
+					const routeToDynamicTargetMap = new Map(Array.from(map));
+
+					await createRedirects(_config, routeToDynamicTargetMap, dir);
+				}
 			},
 		},
 	};
