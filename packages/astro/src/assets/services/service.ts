@@ -154,8 +154,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				});
 			}
 
+			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
 			if (options.src.format === 'svg') {
-				// We need to set the format as svg explicitly.
 				options.format = 'svg';
 			}
 		}

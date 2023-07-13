@@ -30,4 +30,4 @@ export const VALID_SUPPORTED_FORMATS = [
 	'gif',
 	'svg',
 ] as const;
-export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg'] as const;
+export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg', 'svg'] as const;
