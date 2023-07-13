@@ -1272,6 +1272,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		redirects?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.viewTransitions
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.9.0
+		 * @description
+		 * Enable experimental support for the ViewTransitions component. With this enabled
+		 * You can opt-in to client-side routing on a per-page basis using this component
+		 * and enable animations with the `transition:animate` directive.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		viewTransitions: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		 viewTransitions?: boolean;
 	};
 
 	// Legacy options to be removed
