@@ -1,8 +1,8 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
+import { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';
-import { fileURLToPath } from 'node:url';
-import { extname } from 'node:path';
 
 export function getAdapter(args: Args = {}): AstroAdapter {
 	return {
