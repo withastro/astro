@@ -13,7 +13,7 @@ describe('Astro.redirect', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				redirects: {
-					'/api/redirect': '/',
+					'/api/redirect': '/test',
 				},
 				experimental: {
 					redirects: true,
@@ -75,12 +75,13 @@ describe('Astro.redirect', () => {
 						redirects: true,
 					},
 					redirects: {
-						'/one': '/',
-						'/two': '/',
+						'/': '/test',
+						'/one': '/test',
+						'/two': '/test',
 						'/blog/[...slug]': '/articles/[...slug]',
 						'/three': {
 							status: 302,
-							destination: '/',
+							destination: '/test',
 						},
 					},
 				});
@@ -93,18 +94,44 @@ describe('Astro.redirect', () => {
 				expect(html).to.include('url=/login');
 			});
 
+			it('Includes the meta noindex tag', async () => {
+				const html = await fixture.readFile('/secret/index.html');
+				expect(html).to.include('name="robots');
+				expect(html).to.include('content="noindex');
+			});
+
+			it('Includes a link to the new pages for bots to follow', async () => {
+				const html = await fixture.readFile('/secret/index.html');
+				expect(html).to.include('<a href="/login">');
+			});
+
+			it('Includes a canonical link', async () => {
+				const html = await fixture.readFile('/secret/index.html');
+				expect(html).to.include('<link rel="canonical" href="/login">');
+			});
+			
+			it('A 302 status generates a "temporary redirect" through a short delay', async () => {
+				// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
+				const html = await fixture.readFile('/secret/index.html');
+				expect(html).to.include('content="2;url=/login"');
+			});
+			
 			it('Includes the meta refresh tag in `redirect` config pages', async () => {
 				let html = await fixture.readFile('/one/index.html');
 				expect(html).to.include('http-equiv="refresh');
-				expect(html).to.include('url=/');
+				expect(html).to.include('url=/test');
 
 				html = await fixture.readFile('/two/index.html');
 				expect(html).to.include('http-equiv="refresh');
-				expect(html).to.include('url=/');
+				expect(html).to.include('url=/test');
 
 				html = await fixture.readFile('/three/index.html');
 				expect(html).to.include('http-equiv="refresh');
-				expect(html).to.include('url=/');
+				expect(html).to.include('url=/test');
+
+				html = await fixture.readFile('/index.html');
+				expect(html).to.include('http-equiv="refresh');
+				expect(html).to.include('url=/test');
 			});
 
 			it('Generates page for dynamic routes', async () => {
@@ -120,7 +147,7 @@ describe('Astro.redirect', () => {
 			it('Generates redirect pages for redirects created by middleware', async () => {
 				let html = await fixture.readFile('/middleware-redirect/index.html');
 				expect(html).to.include('http-equiv="refresh');
-				expect(html).to.include('url=/');
+				expect(html).to.include('url=/test');
 			});
 		});
 

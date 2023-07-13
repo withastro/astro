@@ -458,7 +458,28 @@ export function createRouteManifest(
 			redirectRoute: routes.find((r) => r.route === to),
 		};
 
-		// Push so that redirects are selected last.
+		const lastSegmentIsDynamic = (r: RouteData) => !!r.segments.at(-1)?.at(-1)?.dynamic;
+
+		const redirBase = path.posix.dirname(route);
+		const dynamicRedir = lastSegmentIsDynamic(routeData);
+		let i = 0;
+		for(const existingRoute of routes) {
+			// An exact match, prefer the page/endpoint. This matches hosts.
+			if(existingRoute.route === route) {
+				routes.splice(i+1, 0, routeData);
+				return;
+			}
+
+			// If the existing route is dynamic, prefer the static redirect.
+			const base = path.posix.dirname(existingRoute.route);
+			if(base === redirBase && !dynamicRedir && lastSegmentIsDynamic(existingRoute)) {
+				routes.splice(i, 0, routeData);
+				return;
+			}
+			i++;
+		}
+
+		// Didn't find a good place, insert last
 		routes.push(routeData);
 	});
 
