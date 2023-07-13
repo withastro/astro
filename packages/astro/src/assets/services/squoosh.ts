@@ -39,6 +39,8 @@ async function getRotationForEXIF(
 
 	if (!meta) return undefined;
 
+	// EXIF orientations are a bit hard to read, but the numbers are actually standard. See https://exiftool.org/TagNames/EXIF.html for a list.
+	// Various illustrations can also be found online for a more graphic representation, it's a bit old school.
 	switch (meta.orientation) {
 		case 3:
 		case 4:
