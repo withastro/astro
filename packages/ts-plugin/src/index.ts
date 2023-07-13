@@ -1,5 +1,9 @@
 import { createVirtualFiles } from '@volar/language-core';
-import { decorateLanguageService, decorateLanguageServiceHost, getExternalFiles } from '@volar/typescript';
+import {
+	decorateLanguageService,
+	decorateLanguageServiceHost,
+	getExternalFiles,
+} from '@volar/typescript';
 import type ts from 'typescript/lib/tsserverlibrary';
 import { getLanguageModule } from './language.js';
 
