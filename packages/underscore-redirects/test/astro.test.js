@@ -8,16 +8,22 @@ describe('Astro', () => {
 	};
 
 	it('Creates a Redirects object from routes', () => {
-		const routes = [
-			{ pathname: '/', distURL: new URL('./index.html', import.meta.url), segments: [] },
-			{ pathname: '/one', distURL: new URL('./one/index.html', import.meta.url), segments: [] },
-		];
-		const dynamicTarget = './.adapter/dist/entry.mjs';
+		const routeToDynamicTargetMap = new Map(
+			Array.from([
+				[
+					{ pathname: '/', distURL: new URL('./index.html', import.meta.url), segments: [] },
+					'./.adapter/dist/entry.mjs',
+				],
+				[
+					{ pathname: '/one', distURL: new URL('./one/index.html', import.meta.url), segments: [] },
+					'./.adapter/dist/entry.mjs',
+				],
+			])
+		);
 		const _redirects = createRedirectsFromAstroRoutes({
 			config: serverConfig,
-			routes,
+			routeToDynamicTargetMap,
 			dir: new URL(import.meta.url),
-			dynamicTarget,
 		});
 
 		expect(_redirects.definitions).to.have.a.lengthOf(2);

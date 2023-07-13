@@ -854,7 +854,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.excludeMiddleware
 		 * @type {boolean}
-		 * @default {false}
+		 * @default `false`
 		 * @version 2.8.0
 		 * @description
 		 * Defines whether or not any SSR middleware code will be bundled when built.

@@ -72,8 +72,6 @@ export function eventError({
 		cliCommand: cmd,
 		isFatal: isFatal,
 		anonymousMessageHint:
-			// https://github.com/typescript-eslint/typescript-eslint/issues/4820
-			// eslint-disable-next-line @typescript-eslint/prefer-optional-chain -- errorData may be false
 			errorData && errorData.message
 				? getSafeErrorMessage(errorData.message)
 				: anonymizeErrorMessage(err.message),

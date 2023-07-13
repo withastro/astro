@@ -264,10 +264,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						}
 					}
 
-					const redirectRoutes = routes.filter((r) => r.type === 'redirect');
+					const redirectRoutes: [RouteData, string][] = routes
+						.filter((r) => r.type === 'redirect')
+						.map((r) => {
+							return [r, ''];
+						});
 					const trueRedirects = createRedirectsFromAstroRoutes({
 						config: _config,
-						routes: redirectRoutes,
+						routeToDynamicTargetMap: new Map(Array.from(redirectRoutes)),
 						dir,
 					});
 					if (!trueRedirects.empty()) {
