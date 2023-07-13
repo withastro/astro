@@ -1484,6 +1484,12 @@ importers:
         specifier: ^18.1.0
         version: 18.2.0(react@18.2.0)
 
+  packages/astro/e2e/fixtures/view-transitions:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/vue-component:
     dependencies:
       '@astrojs/mdx':

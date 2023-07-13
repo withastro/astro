@@ -1,0 +1,17 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+---
+<html>
+	<head>
+		<title>Testing</title>
+		<ViewTransitions />
+	</head>
+	<body>
+		<header transition:animate="morph">
+			<h1>testing</h1>
+		</header>
+		<main transition:animate="slide">
+			<slot />
+		</main>
+	</body>
+</html>
