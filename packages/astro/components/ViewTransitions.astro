@@ -1,4 +1,7 @@
 ---
+import "dom-view-transitions";
+import "network-information-types";
+
 type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
@@ -104,7 +107,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			currentIndex++;
 		}
   });
-	window.addEventListener('popstate', ev => {
+	window.addEventListener('popstate', () => {
 		if(!transitionEnabledOnThisPage()) return;
 		const index = history.state?.index ?? (currentIndex + 1);
 		const direction: Direction = index > currentIndex ? 'forward' : 'back';
