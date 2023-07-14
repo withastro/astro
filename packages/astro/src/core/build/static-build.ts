@@ -21,6 +21,7 @@ import { isServerLikeOutput } from '../../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
+import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
@@ -60,8 +61,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		// Track the page data in internals
 		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-		pageInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+		if (!routeIsRedirect(pageData.route)) {
+			pageInput.add(astroModuleId);
+			facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
+		}
 	}
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this

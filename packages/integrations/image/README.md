@@ -1,6 +1,6 @@
 # @astrojs/image 📷
 
-> ⚠️ This integration will be deprecated in Astro v3.0 (Fall 2023) in favor of the `astro:assets` module. Please see the [Assets documentation](https://docs.astro.build/en/guide/assets/) for more information.
+> ⚠️ This integration will be deprecated in Astro v3.0 (Fall 2023) in favor of the `astro:assets` module. Please see the [Assets documentation](https://docs.astro.build/en/guides/assets/) for more information.
 
 This **[Astro integration][astro-integration]** optimizes images in your [Astro project](https://astro.build). It is supported in Astro v2 only for all static sites and for [some server-side rendering deploy hosts](#installation).
 

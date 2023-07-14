@@ -25,6 +25,18 @@ function mergeConfigRecursively(
 			merged[key] = mergeViteConfig(existing, value);
 			continue;
 		}
+		if (key === 'server' && rootPath === '') {
+			// server config can be a function or an object, if one of the two values is a function,
+			// create a new wrapper function that merges them
+			if (typeof existing === 'function' || typeof value === 'function') {
+				merged[key] = (...args: any[]) => {
+					const existingConfig = typeof existing === 'function' ? existing(...args) : existing;
+					const valueConfig = typeof value === 'function' ? value(...args) : value;
+					return mergeConfigRecursively(existingConfig, valueConfig, key);
+				};
+				continue;
+			}
+		}
 
 		if (Array.isArray(existing) || Array.isArray(value)) {
 			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];

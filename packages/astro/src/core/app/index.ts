@@ -40,6 +40,9 @@ export interface MatchOptions {
 }
 
 export class App {
+	/**
+	 * The current environment of the application
+	 */
 	#env: Environment;
 	#manifest: SSRManifest;
 	#manifestData: ManifestData;
@@ -49,7 +52,6 @@ export class App {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
-	#base: string;
 	#baseWithoutTrailingSlash: string;
 
 	constructor(manifest: SSRManifest, streaming = true) {
@@ -58,26 +60,41 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
-		this.#env = createEnvironment({
-			adapterName: manifest.adapterName,
+		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#manifest.base);
+		this.#env = this.#createEnvironment(streaming);
+	}
+
+	set setManifest(newManifest: SSRManifest) {
+		this.#manifest = newManifest;
+	}
+
+	/**
+	 * Creates an environment by reading the stored manifest
+	 *
+	 * @param streaming
+	 * @private
+	 */
+	#createEnvironment(streaming = false) {
+		return createEnvironment({
+			adapterName: this.#manifest.adapterName,
 			logging: this.#logging,
-			markdown: manifest.markdown,
+			markdown: this.#manifest.markdown,
 			mode: 'production',
-			compressHTML: manifest.compressHTML,
-			renderers: manifest.renderers,
-			clientDirectives: manifest.clientDirectives,
-			async resolve(specifier: string) {
-				if (!(specifier in manifest.entryModules)) {
+			compressHTML: this.#manifest.compressHTML,
+			renderers: this.#manifest.renderers,
+			clientDirectives: this.#manifest.clientDirectives,
+			resolve: async (specifier: string) => {
+				if (!(specifier in this.#manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
-				const bundlePath = manifest.entryModules[specifier];
+				const bundlePath = this.#manifest.entryModules[specifier];
 				switch (true) {
 					case bundlePath.startsWith('data:'):
 					case bundlePath.length === 0: {
 						return bundlePath;
 					}
 					default: {
-						return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
+						return createAssetLink(bundlePath, this.#manifest.base, this.#manifest.assetsPrefix);
 					}
 				}
 			},
@@ -86,12 +103,13 @@ export class App {
 			ssr: true,
 			streaming,
 		});
+	}
 
-		this.#base = this.#manifest.base || '/';
-		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
+	set setManifestData(newManifestData: ManifestData) {
+		this.#manifestData = newManifestData;
 	}
 	removeBase(pathname: string) {
-		if (pathname.startsWith(this.#base)) {
+		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
 		}
 		return pathname;

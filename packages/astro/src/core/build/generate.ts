@@ -163,27 +163,27 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					}
 				} else {
 					const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-					const manifest = generateRuntimeManifest(opts.settings, internals, ssrEntry.renderers);
+					const manifest = createBuildManifest(opts.settings, internals, ssrEntry.renderers);
 					await generatePage(opts, internals, pageData, ssrEntry, builtPaths, manifest);
 				}
 			}
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			const manifest = createBuildManifest(opts.settings, internals, entry.renderers);
 			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 	} else {
 		for (const [pageData, filePath] of eachPageDataFromEntryPoint(internals)) {
 			const ssrEntryURLPage = createEntryURL(filePath, outFolder);
 			const entry: SinglePageBuiltModule = await import(ssrEntryURLPage.toString());
-			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			const manifest = createBuildManifest(opts.settings, internals, entry.renderers);
 
 			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 		for (const pageData of eachRedirectPageData(internals)) {
 			const entry = await getEntryForRedirectRoute(pageData.route, internals, outFolder);
-			const manifest = generateRuntimeManifest(opts.settings, internals, entry.renderers);
+			const manifest = createBuildManifest(opts.settings, internals, entry.renderers);
 			await generatePage(opts, internals, pageData, entry, builtPaths, manifest);
 		}
 	}
@@ -521,8 +521,7 @@ async function generatePath(
 		clientDirectives: manifest.clientDirectives,
 		compressHTML: manifest.compressHTML,
 		async resolve(specifier: string) {
-			// NOTE: next PR, borrow logic from build manifest maybe?
-			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
+			const hashedFilePath = manifest.entryModules[specifier];
 			if (typeof hashedFilePath !== 'string') {
 				// If no "astro:scripts/before-hydration.js" script exists in the build,
 				// then we can assume that no before-hydration scripts are needed.
@@ -619,9 +618,18 @@ async function generatePath(
 				return;
 			}
 			const location = getRedirectLocationOrThrow(response.headers);
+			const fromPath = new URL(renderContext.request.url).pathname;
+			// A short delay causes Google to interpret the redirect as temporary.
+			// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
+			const delay = response.status === 302 ? 2 : 0;
 			body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
-<meta http-equiv="refresh" content="0;url=${location}" />`;
+<meta http-equiv="refresh" content="${delay};url=${location}">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="${location}">
+<body>
+	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
+</body>`;
 			// A dynamic redirect, set the location so that integrations know about it.
 			if (pageData.route.type !== 'redirect') {
 				pageData.route.redirect = location;
@@ -647,14 +655,14 @@ async function generatePath(
  * @param settings
  * @param renderers
  */
-export function generateRuntimeManifest(
+export function createBuildManifest(
 	settings: AstroSettings,
 	internals: BuildInternals,
 	renderers: SSRLoadedRenderer[]
 ): SSRManifest {
 	return {
 		assets: new Set(),
-		entryModules: {},
+		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 		routes: [],
 		adapterName: '',
 		markdown: settings.config.markdown,

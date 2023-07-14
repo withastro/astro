@@ -6,6 +6,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
 
@@ -114,28 +115,18 @@ export function resolveRoot(cwd?: string | URL): string {
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
-	astroConfig.server = astroConfig.server || {};
-	astroConfig.markdown = astroConfig.markdown || {};
-	astroConfig.experimental = astroConfig.experimental || {};
-	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.base === 'string') astroConfig.base = flags.base;
-	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
-	if (typeof flags.port === 'number') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.port = flags.port;
-	}
-	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.host = flags.host;
-	}
-	if (typeof flags.open === 'boolean') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.open = flags.open;
-	}
-	return astroConfig;
+	return mergeConfig(astroConfig, {
+		site: flags.site,
+		base: flags.base,
+		markdown: {
+			drafts: flags.drafts,
+		},
+		server: {
+			port: flags.port,
+			host: flags.host,
+			open: flags.open,
+		},
+	});
 }
 
 async function search(fsMod: typeof fs, root: string) {
