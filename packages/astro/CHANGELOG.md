@@ -1,5 +1,17 @@
 # astro
 
+## 2.8.3
+
+### Patch Changes
+
+- [#7637](https://github.com/withastro/astro/pull/7637) [`af5827d4f`](https://github.com/withastro/astro/commit/af5827d4f7af9437c0c3fcff5c0239577aa68498) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `astro:assets` not respecting EXIF rotation
+
+- [#7644](https://github.com/withastro/astro/pull/7644) [`213e10991`](https://github.com/withastro/astro/commit/213e10991af337a7c4fd38c39be5c266c16fa600) Thanks [@matthewp](https://github.com/matthewp)! - Fix for allowing the root path / as a redirect
+
+- [#7644](https://github.com/withastro/astro/pull/7644) [`213e10991`](https://github.com/withastro/astro/commit/213e10991af337a7c4fd38c39be5c266c16fa600) Thanks [@matthewp](https://github.com/matthewp)! - Fix static redirects prefered over dynamic regular routes
+
+- [#7643](https://github.com/withastro/astro/pull/7643) [`4b82e55cf`](https://github.com/withastro/astro/commit/4b82e55cf15899babb61128a7393362e667ff724) Thanks [@alvinometric](https://github.com/alvinometric)! - Add support for using `.svg` files with `astro:assets`'s base services. The SVGs will NOT be processed and will be return as-is, however, proper attributes, alt enforcement etc will all work correctly.
+
 ## 2.8.2
 
 ### Patch Changes
