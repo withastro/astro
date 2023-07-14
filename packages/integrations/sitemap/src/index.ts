@@ -22,24 +22,24 @@ export type LinkItem = LinkItemBase;
 
 export type SitemapOptions =
 	| {
-		filter?(page: string): boolean;
-		customPages?: string[];
+			filter?(page: string): boolean;
+			customPages?: string[];
 
-		i18n?: {
-			defaultLocale: string;
-			locales: Record<string, string>;
-		};
-		// number of entries per sitemap file
-		entryLimit?: number;
+			i18n?: {
+				defaultLocale: string;
+				locales: Record<string, string>;
+			};
+			// number of entries per sitemap file
+			entryLimit?: number;
 
-		// sitemap specific
-		changefreq?: ChangeFreq;
-		lastmod?: Date;
-		priority?: number;
+			// sitemap specific
+			changefreq?: ChangeFreq;
+			lastmod?: Date;
+			priority?: number;
 
-		// called for each sitemap item just before to save them on disk, sync or async
-		serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
-	}
+			// called for each sitemap item just before to save them on disk, sync or async
+			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
+	  }
 	| undefined;
 
 function formatConfigErrorMessage(err: ZodError) {
@@ -86,12 +86,14 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = pages.filter((p) => !STATUS_CODE_PAGES.has('/' + p.pathname.slice(0, -1))).map((p) => {
-						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
-							finalSiteUrl.pathname += '/';
-						const path = finalSiteUrl.pathname + p.pathname;
-						return new URL(path, finalSiteUrl).href;
-					});
+					let pageUrls = pages
+						.filter((p) => !STATUS_CODE_PAGES.has('/' + p.pathname.slice(0, -1)))
+						.map((p) => {
+							if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+								finalSiteUrl.pathname += '/';
+							const path = finalSiteUrl.pathname + p.pathname;
+							return new URL(path, finalSiteUrl).href;
+						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
 						/**

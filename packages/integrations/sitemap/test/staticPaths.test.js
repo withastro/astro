@@ -14,7 +14,7 @@ describe('getStaticPaths support', () => {
 		await fixture.build();
 
 		const data = await readXML(fixture.readFile('/sitemap-0.xml'));
-		urls = data.urlset.url.map(url => url.loc[0]);
+		urls = data.urlset.url.map((url) => url.loc[0]);
 	});
 
 	it('requires zero config for getStaticPaths', async () => {
@@ -28,5 +28,5 @@ describe('getStaticPaths support', () => {
 
 	it('includes numerical pages', () => {
 		expect(urls).to.include('http://example.com/123/');
-	})
+	});
 });
