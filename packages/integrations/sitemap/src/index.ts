@@ -96,6 +96,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
+						// Only expose pages, not endpoints or redirects
+						if (r.type !== 'page') return urls;
+
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
@@ -111,7 +114,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 							if (config.trailingSlash === 'never') {
 								urls.push(newUrl);
-							} else if (config.build.format === 'directory' && !newUrl.endsWith('/') && r.type === 'page') {
+							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
 								urls.push(newUrl + '/');
 							} else {
 								urls.push(newUrl);
