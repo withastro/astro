@@ -1,5 +1,5 @@
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
+import type { AstroConfig, AstroUserConfig, CLIFlags, AstroInlineConfig } from '../../@types/astro';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -10,7 +10,7 @@ import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
 import { loadConfigWithVite } from './vite-load.js';
 
-export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
+const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
 	'src',
 	'pages',
@@ -23,11 +23,7 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 ]);
 
 /** Turn raw config values into normalized values */
-export async function validateConfig(
-	userConfig: any,
-	root: string,
-	cmd: string
-): Promise<AstroConfig> {
+export async function validateConfig(userConfig: any, root: string, cmd: string): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
@@ -88,6 +84,8 @@ export async function validateConfig(
 }
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
+// NOTE: This function will be removed in a later PR. Use `flagsToAstroInlineConfig` instead.
+// All CLI related flow should be located in the `packages/astro/src/cli` directory.
 export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
 		root: typeof flags.root === 'string' ? flags.root : undefined,
@@ -157,8 +155,8 @@ interface LoadConfigOptions {
 }
 
 interface ResolveConfigPathOptions {
-	cwd?: string;
-	flags?: Flags;
+	root: string;
+	configFile?: string;
 	fs: typeof fs;
 }
 
@@ -166,73 +164,65 @@ interface ResolveConfigPathOptions {
  * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
  */
 export async function resolveConfigPath(
-	configOptions: ResolveConfigPathOptions
+	options: ResolveConfigPathOptions
 ): Promise<string | undefined> {
-	const root = resolveRoot(configOptions.cwd);
-	const flags = resolveFlags(configOptions.flags || {});
-
 	let userConfigPath: string | undefined;
-	if (flags?.config) {
-		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
-		if (!configOptions.fs.existsSync(userConfigPath)) {
+	if (options.configFile) {
+		userConfigPath = path.join(options.root, options.configFile);
+		if (!options.fs.existsSync(userConfigPath)) {
 			throw new AstroError({
 				...AstroErrorData.ConfigNotFound,
-				message: AstroErrorData.ConfigNotFound.message(flags.config),
+				message: AstroErrorData.ConfigNotFound.message(options.configFile),
 			});
 		}
 	} else {
-		userConfigPath = await search(configOptions.fs, root);
+		userConfigPath = await search(options.fs, options.root);
 	}
 
 	return userConfigPath;
 }
 
-interface OpenConfigResult {
-	userConfig: AstroUserConfig;
-	astroConfig: AstroConfig;
-	flags: CLIFlags;
-	root: string;
-}
-
 /** Load a configuration file, returning both the userConfig and astroConfig */
-export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
+// NOTE: This function will be removed in a later PR. Use `resolveConfig` instead.
+export async function openConfig(configOptions: LoadConfigOptions): Promise<ResolveConfigResult> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 
-	const userConfig = await loadConfig(configOptions, root);
-	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+	const userConfig = await loadConfig(root, flags.config, configOptions.fsMod);
+	const astroConfig = await resolveConfigLegacy(userConfig, root, flags, configOptions.cmd);
 
 	return {
-		astroConfig,
 		userConfig,
-		flags,
-		root,
+		astroConfig,
 	};
 }
 
 async function loadConfig(
-	configOptions: LoadConfigOptions,
-	root: string
+	root: string,
+	configFile?: string | false,
+	fsMod = fs
 ): Promise<Record<string, any>> {
-	const fsMod = configOptions.fsMod ?? fs;
+	if (configFile === false) return {};
+
 	const configPath = await resolveConfigPath({
-		cwd: configOptions.cwd,
-		flags: configOptions.flags,
+		root,
+		configFile,
 		fs: fsMod,
 	});
 	if (!configPath) return {};
 
 	// Create a vite server to load the config
 	return await loadConfigWithVite({
+		root,
 		configPath,
 		fs: fsMod,
-		root,
 	});
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
-export async function resolveConfig(
+// NOTE: This function will be removed in a later PR. Renamed with "Legacy" suffix to make way
+// for the new `resolveConfig` API.
+async function resolveConfigLegacy(
 	userConfig: AstroUserConfig,
 	root: string,
 	flags: CLIFlags = {},
@@ -248,5 +238,25 @@ export function createDefaultDevConfig(
 	userConfig: AstroUserConfig = {},
 	root: string = process.cwd()
 ) {
-	return resolveConfig(userConfig, root, undefined, 'dev');
+	return resolveConfigLegacy(userConfig, root, undefined, 'dev');
+}
+
+interface ResolveConfigResult {
+	userConfig: AstroUserConfig;
+	astroConfig: AstroConfig;
+}
+
+// NOTE: This is the new API to load an Astro config. Use this instead of the other functions!
+export async function resolveConfig(
+	inlineConfig: AstroInlineConfig,
+	command: string,
+	fsMod = fs
+): Promise<ResolveConfigResult> {
+	const root = resolveRoot(inlineConfig.root);
+
+	const userConfig = await loadConfig(root, inlineConfig.configFile, fsMod);
+	const mergedConfig = mergeConfig(userConfig, inlineConfig);
+	const astroConfig = await validateConfig(mergedConfig, root, command);
+
+	return { userConfig, astroConfig };
 }

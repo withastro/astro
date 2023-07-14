@@ -1,6 +1,6 @@
 import fs from 'fs';
 import type yargs from 'yargs-parser';
-import { resolveConfigPath, resolveFlags } from '../../core/config/index.js';
+import { resolveConfigPath, resolveFlags, resolveRoot } from '../../core/config/index.js';
 import devServer from '../../core/dev/index.js';
 import { info, type LogOptions } from '../../core/logger/core.js';
 import { handleConfigError, loadSettings } from '../load-settings.js';
@@ -14,9 +14,11 @@ export async function dev({ flags, logging }: DevOptions) {
 	const settings = await loadSettings({ cmd: 'dev', flags, logging });
 	if (!settings) return;
 
-	const root = flags.root;
+	const root = resolveRoot(flags.root);
 	const configFlag = resolveFlags(flags).config;
-	const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags, fs }) : undefined;
+	const configFlagPath = configFlag
+		? await resolveConfigPath({ root, configFile: configFlag, fs })
+		: undefined;
 
 	return await devServer(settings, {
 		configFlag,

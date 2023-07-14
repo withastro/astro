@@ -1309,6 +1309,9 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
 }
+export interface AstroInlineConfig extends AstroUserConfig {
+	configFile?: string | false;
+}
 
 export type ContentEntryModule = {
 	id: string;
