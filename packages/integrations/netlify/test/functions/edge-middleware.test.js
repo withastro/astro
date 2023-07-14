@@ -1,7 +1,6 @@
 import netlifyAdapter from '../../dist/index.js';
 import { testIntegration, loadFixture } from './test-utils.js';
 import { expect } from 'chai';
-import chaiJestSnapshot from 'chai-jest-snapshot';
 
 describe('Middleware', () => {
 	it('with edge handle file, should successfully build the middleware', async () => {
@@ -19,10 +18,8 @@ describe('Middleware', () => {
 			},
 		});
 		await fixture.build();
-		const contents = await fixture.readFile('../.netlify/edge-functions/edgeMiddleware.mjs');
-		expect(contents.includes('title:')).to.be.true;
-		chaiJestSnapshot.setTestName('Middleware with handler file');
-		expect(contents).to.matchSnapshot(true);
+		const contents = await fixture.readFile('../.netlify/edge-functions/edgeMiddleware.js');
+		expect(contents.includes('"Hello world"')).to.be.true;
 	});
 
 	it('without edge handle file, should successfully build the middleware', async () => {
@@ -40,12 +37,7 @@ describe('Middleware', () => {
 			},
 		});
 		await fixture.build();
-		const contents = await fixture.readFile(
-			// this is abysmal...
-			'../.netlify/edge-functions/edgeMiddleware.mjs'
-		);
-		expect(contents.includes('title:')).to.be.false;
-		chaiJestSnapshot.setTestName('Middleware with handler file');
-		expect(contents).to.matchSnapshot(true);
+		const contents = await fixture.readFile('../.netlify/edge-functions/edgeMiddleware.js');
+		expect(contents.includes('"Hello world"')).to.be.false;
 	});
 });
