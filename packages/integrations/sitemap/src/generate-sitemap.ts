@@ -2,13 +2,11 @@ import type { EnumChangefreq } from 'sitemap';
 import type { SitemapItem, SitemapOptions } from './index.js';
 import { parseUrl } from './utils/parse-url.js';
 
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
-
 /** Construct sitemap.xml given a set of URLs */
 export function generateSitemap(pages: string[], finalSiteUrl: string, opts: SitemapOptions) {
 	const { changefreq, priority, lastmod: lastmodSrc, i18n } = opts!;
 	// TODO: find way to respect <link rel="canonical"> URLs here
-	const urls = [...pages].filter((url) => !STATUS_CODE_PAGES.has(url.endsWith('/') ? url.slice(0, -1) : url));
+	const urls = [...pages];
 	urls.sort((a, b) => a.localeCompare(b, 'en', { numeric: true })); // sort alphabetically so sitemap is same each time
 
 	const lastmod = lastmodSrc?.toISOString();

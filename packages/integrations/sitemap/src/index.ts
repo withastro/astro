@@ -22,24 +22,24 @@ export type LinkItem = LinkItemBase;
 
 export type SitemapOptions =
 	| {
-			filter?(page: string): boolean;
-			customPages?: string[];
+		filter?(page: string): boolean;
+		customPages?: string[];
 
-			i18n?: {
-				defaultLocale: string;
-				locales: Record<string, string>;
-			};
-			// number of entries per sitemap file
-			entryLimit?: number;
+		i18n?: {
+			defaultLocale: string;
+			locales: Record<string, string>;
+		};
+		// number of entries per sitemap file
+		entryLimit?: number;
 
-			// sitemap specific
-			changefreq?: ChangeFreq;
-			lastmod?: Date;
-			priority?: number;
+		// sitemap specific
+		changefreq?: ChangeFreq;
+		lastmod?: Date;
+		priority?: number;
 
-			// called for each sitemap item just before to save them on disk, sync or async
-			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
-	  }
+		// called for each sitemap item just before to save them on disk, sync or async
+		serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
+	}
 	| undefined;
 
 function formatConfigErrorMessage(err: ZodError) {
@@ -49,6 +49,7 @@ function formatConfigErrorMessage(err: ZodError) {
 
 const PKG_NAME = '@astrojs/sitemap';
 const OUTFILE = 'sitemap-index.xml';
+const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
@@ -85,7 +86,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = pages.map((p) => {
+					let pageUrls = pages.filter((p) => !STATUS_CODE_PAGES.has('/' + p.pathname.slice(0, -1))).map((p) => {
 						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
 							finalSiteUrl.pathname += '/';
 						const path = finalSiteUrl.pathname + p.pathname;
@@ -97,6 +98,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
+							if (STATUS_CODE_PAGES.has(r.pathname)) return urls;
 							/**
 							 * remove the initial slash from relative pathname
 							 * because `finalSiteUrl` always has trailing slash
