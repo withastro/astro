@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import {
 	bundleServerEntry,
 	createEdgeManifest,

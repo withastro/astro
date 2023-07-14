@@ -1,8 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Args } from './netlify-functions.js';
-import { bundleServerEntry, createRedirects } from './shared.js';
+import { createRedirects } from './shared.js';
 import { fileURLToPath } from 'node:url';
 import { generateEdgeMiddleware } from './middleware.js';
 
@@ -100,15 +99,12 @@ function netlifyFunctions({
 						NETLIFY_EDGE_MIDDLEWARE_FILE,
 						_config.srcDir
 					);
-					const bundledMiddlewarePath = await generateEdgeMiddleware(
+					await generateEdgeMiddleware(
 						_middlewareEntryPoint,
 						outPath,
 						netlifyEdgeMiddlewareHandlerPath
 					);
-
-					// await bundleServerEntry(bundledMiddlewarePath);
 				}
-				await createRedirects(_config, routes, dir, entryFile, type);
 			},
 		},
 	};
