@@ -1,6 +1,6 @@
 import type http from 'http';
 import mime from 'mime';
-import type { ComponentInstance, ManifestData, RouteData } from '../@types/astro';
+import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
@@ -114,25 +114,39 @@ export async function matchRoute(
 	return undefined;
 }
 
-export async function handleRoute(
-	matchedRoute: AsyncReturnType<typeof matchRoute>,
-	url: URL,
-	pathname: string,
-	body: ArrayBuffer | undefined,
-	origin: string,
-	env: DevelopmentEnvironment,
-	manifest: ManifestData,
-	req: http.IncomingMessage,
-	res: http.ServerResponse
-): Promise<void> {
+type HandleRoute = {
+	matchedRoute: AsyncReturnType<typeof matchRoute>;
+	url: URL;
+	pathname: string;
+	body: ArrayBuffer | undefined;
+	origin: string;
+	env: DevelopmentEnvironment;
+	manifestData: ManifestData;
+	incomingRequest: http.IncomingMessage;
+	incomingResponse: http.ServerResponse;
+	manifest: SSRManifest;
+};
+
+export async function handleRoute({
+	matchedRoute,
+	url,
+	pathname,
+	body,
+	origin,
+	env,
+	manifestData,
+	incomingRequest,
+	incomingResponse,
+	manifest,
+}: HandleRoute): Promise<void> {
 	const { logging, settings } = env;
 	if (!matchedRoute) {
-		return handle404Response(origin, req, res);
+		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
 
 	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
 		writeWebResponse(
-			res,
+			incomingResponse,
 			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
 				status: 400,
 			})
@@ -148,18 +162,18 @@ export async function handleRoute(
 	// Headers are only available when using SSR.
 	const request = createRequest({
 		url,
-		headers: buildingToSSR ? req.headers : new Headers(),
-		method: req.method,
+		headers: buildingToSSR ? incomingRequest.headers : new Headers(),
+		method: incomingRequest.method,
 		body,
 		logging,
 		ssr: buildingToSSR,
-		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
-		locals: Reflect.get(req, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
+		clientAddress: buildingToSSR ? incomingRequest.socket.remoteAddress : undefined,
+		locals: Reflect.get(incomingRequest, clientLocalsSymbol), // Allows adapters to pass in locals in dev mode.
 	});
 
 	// Set user specified headers to response object.
 	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
-		if (value) res.setHeader(name, value);
+		if (value) incomingResponse.setHeader(name, value);
 	}
 
 	const options: SSROptions = {
@@ -179,21 +193,22 @@ export async function handleRoute(
 		const result = await callEndpoint(options);
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-				const fourOhFourRoute = await matchRoute('/404', env, manifest);
-				return handleRoute(
-					fourOhFourRoute,
-					new URL('/404', url),
-					'/404',
+				const fourOhFourRoute = await matchRoute('/404', env, manifestData);
+				return handleRoute({
+					matchedRoute: fourOhFourRoute,
+					url: new URL('/404', url),
+					pathname: '/404',
 					body,
 					origin,
 					env,
+					manifestData,
+					incomingRequest,
+					incomingResponse,
 					manifest,
-					req,
-					res
-				);
+				});
 			}
 			throwIfRedirectNotAllowed(result.response, config);
-			await writeWebResponse(res, result.response);
+			await writeWebResponse(incomingResponse, result.response);
 		} else {
 			let contentType = 'text/plain';
 			// Dynamic routes don't include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
@@ -211,11 +226,11 @@ export async function handleRoute(
 				},
 			});
 			attachToResponse(response, result.cookies);
-			await writeWebResponse(res, response);
+			await writeWebResponse(incomingResponse, response);
 		}
 	} else {
 		const result = await renderPage(options);
 		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(request, result, res);
+		return await writeSSRResult(request, result, incomingResponse);
 	}
 }
