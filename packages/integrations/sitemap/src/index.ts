@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, RouteType } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import {
 	EnumChangefreq,
 	simpleSitemapAndIndex,
