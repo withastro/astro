@@ -23,7 +23,7 @@ const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 ]);
 
 /** Turn raw config values into normalized values */
-async function validateConfig(userConfig: any, root: string, cmd: string): Promise<AstroConfig> {
+export async function validateConfig(userConfig: any, root: string, cmd: string): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
