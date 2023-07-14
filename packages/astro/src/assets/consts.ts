@@ -18,8 +18,16 @@ export const VALID_INPUT_FORMATS = [
 	'svg',
 ] as const;
 /**
- * Valid formats for optimizations in our base services.
- * Certain formats can be imported (namely SVGs) but not processed, so they are excluded from this list.
+ * Valid formats that our base services support.
+ * Certain formats can be imported (namely SVGs) but will not be processed.
  */
-export const VALID_OPTIMIZABLE_FORMATS = ['jpeg', 'jpg', 'png', 'tiff', 'webp', 'gif'] as const;
-export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg'] as const;
+export const VALID_SUPPORTED_FORMATS = [
+	'jpeg',
+	'jpg',
+	'png',
+	'tiff',
+	'webp',
+	'gif',
+	'svg',
+] as const;
+export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg', 'svg'] as const;

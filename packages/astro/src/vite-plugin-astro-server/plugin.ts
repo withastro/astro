@@ -1,6 +1,5 @@
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData } from '../@types/astro';
-
 import type fs from 'fs';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { LogOptions } from '../core/logger/core.js';
@@ -10,6 +9,7 @@ import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { handleRequest } from './request.js';
+import type { SSRManifest } from '../@types/astro';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -26,15 +26,16 @@ export default function createVitePluginAstroServer({
 		name: 'astro:server',
 		configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			let env = createDevelopmentEnvironment(settings, logging, loader);
-			let manifest: ManifestData = createRouteManifest({ settings, fsMod }, logging);
-			const serverController = createController({ loader });
+			const manifest = createDevelopmentManifest(settings);
+			const env = createDevelopmentEnvironment(manifest, settings, logging, loader);
+			let manifestData: ManifestData = createRouteManifest({ settings, fsMod }, logging);
+			const controller = createController({ loader });
 
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean) {
 				env.routeCache.clearAll();
 				if (needsManifestRebuild) {
-					manifest = createRouteManifest({ settings }, logging);
+					manifestData = createRouteManifest({ settings }, logging);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
@@ -51,13 +52,20 @@ export default function createVitePluginAstroServer({
 					});
 				}
 				// Note that this function has a name so other middleware can find it.
-				viteServer.middlewares.use(async function astroDevHandler(req, res) {
-					if (req.url === undefined || !req.method) {
-						res.writeHead(500, 'Incomplete request');
-						res.end();
+				viteServer.middlewares.use(async function astroDevHandler(request, response) {
+					if (request.url === undefined || !request.method) {
+						response.writeHead(500, 'Incomplete request');
+						response.end();
 						return;
 					}
-					handleRequest(env, manifest, serverController, req, res);
+					handleRequest({
+						env,
+						manifestData,
+						controller,
+						incomingRequest: request,
+						incomingResponse: response,
+						manifest,
+					});
 				});
 			};
 		},
@@ -68,5 +76,31 @@ export default function createVitePluginAstroServer({
 			// Replace the Vite overlay with ours
 			return patchOverlay(code);
 		},
+	};
+}
+
+/**
+ * It creates a `SSRManifest` from the `AstroSettings`.
+ *
+ * Renderers needs to be pulled out from the page module emitted during the build.
+ * @param settings
+ * @param renderers
+ */
+export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
+	return {
+		compressHTML: settings.config.compressHTML,
+		assets: new Set(),
+		entryModules: {},
+		routes: [],
+		adapterName: '',
+		markdown: settings.config.markdown,
+		clientDirectives: settings.clientDirectives,
+		renderers: [],
+		base: settings.config.base,
+		assetsPrefix: settings.config.build.assetsPrefix,
+		site: settings.config.site
+			? new URL(settings.config.base, settings.config.site).toString()
+			: settings.config.site,
+		componentMetadata: new Map(),
 	};
 }
