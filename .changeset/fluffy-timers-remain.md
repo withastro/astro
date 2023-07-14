@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix `astro:assets` not respecting EXIF rotation
+Fix `astro:assets` not respecting EXIF rotation
