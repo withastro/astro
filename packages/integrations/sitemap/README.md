@@ -19,8 +19,7 @@ A sitemap file is recommended for large multi-page sites. If you don't use a sit
 
 With Astro Sitemap, you don't have to worry about creating this file: build your Astro site how you normally would, and the Astro Sitemap integration will crawl your routes and create the sitemap file.
 
-> **Note**
-> [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes) like `[...slug]` or `src/pages/[lang]/[version]/info.astro` will generate sitemap entries for the pages those routes render, _provided that they are rendered statically_ (i.e., using `getStaticPaths()`. But because of the nature of [Astro's SSR mode](https://docs.astro.build/en/guides/server-side-rendering/), any dynamic routes that are server-rendered (via Astro's server or hybrid modes) do not output a static array of pages, so they will _not_ generate corresponding sitemap entries.
+> **Note** > [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes) like `[...slug]` or `src/pages/[lang]/[version]/info.astro` will generate sitemap entries for the pages those routes render, _provided that they are rendered statically_ (i.e., using `getStaticPaths()`. But because of the nature of [Astro's SSR mode](https://docs.astro.build/en/guides/server-side-rendering/), any dynamic routes that are server-rendered (via Astro's server or hybrid modes) do not output a static array of pages, so they will _not_ generate corresponding sitemap entries.
 
 ## Installation
 
