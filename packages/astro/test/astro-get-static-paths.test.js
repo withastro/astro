@@ -54,7 +54,11 @@ describe('getStaticPaths - dev calls', () => {
 		await devServer.stop();
 	});
 
-	it('only calls getStaticPaths once', async () => {
+	it('only calls getStaticPaths once', async function () {
+		// Sometimes this fail in CI as the chokidar watcher triggers an update and invalidates the route cache,
+		// causing getStaticPaths to be called twice. Workaround this with 2 retries for now.
+		this.retries(2);
+
 		let res = await fixture.fetch('/a');
 		expect(res.status).to.equal(200);
 
