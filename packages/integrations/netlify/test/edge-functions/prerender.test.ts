@@ -4,7 +4,6 @@ import { assertEquals, assertExists, cheerio, fs } from './deps.ts';
 Deno.test({
 	name: 'Prerender',
 	permissions: 'inherit',
-	ignore: true,
 	async fn(t) {
 		const environmentVariables = {
 			PRERENDER: 'true',
