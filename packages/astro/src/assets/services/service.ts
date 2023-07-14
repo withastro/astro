@@ -108,7 +108,7 @@ export type BaseServiceTransform = {
  *
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
-	validateOptions(options) {
+	validateOptions(options, serviceConfig) {
 		// `src` is missing or is `undefined`.
 		if (!options.src || (typeof options.src !== 'string' && typeof options.src !== 'object')) {
 			throw new AstroError({
@@ -164,6 +164,14 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
 		if (!options.format) {
 			options.format = 'webp';
+		}
+
+		const { width, height } = options.src;
+
+		if (serviceConfig.maxWidth && width > serviceConfig.maxWidth) {
+			const aspectRatio = width / height;
+			options.width = serviceConfig.maxWidth;
+			options.height = Math.floor(serviceConfig.maxWidth / aspectRatio);
 		}
 
 		return options;
