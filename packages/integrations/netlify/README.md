@@ -118,9 +118,9 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 
 ### Edge Middleware with Astro middleware
 
-The `@astrojs/netlify/functoins` adapter can automatically create an edge function that will act as "Edge Middleware", from an Astro middleware in your code base.
+The `@astrojs/netlify/functions` adapter can automatically create an edge function that will act as "Edge Middleware", from an Astro middleware in your code base.
 
-This is an opt-in feature, and the `build.excludeMiddleware` option needs to be set to `true`:
+This is an opt-in feature and the `build.excludeMiddleware` option needs to be set to `true`:
 
 ```js
 // astro.config.mjs
@@ -137,7 +137,7 @@ export default defineConfig({
 
 Optionally, you can create a file recognized by the adapter named `netlify-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
 
-Typings requires the [`https://edge.netlify.com`](https://docs.netlify.com/edge-functions/api/#reference) types.
+Typings require the [`https://edge.netlify.com`](https://docs.netlify.com/edge-functions/api/#reference) types.
 
 > Netlify edge functions run in a Deno environment, so you would need to import types using URLs.
 > 
@@ -167,9 +167,9 @@ The function:
 
 #### Limitations and constraints
 
-When you opt in to this feature, there are few constraints to note:
+When you opt-in to this feature, there are a few constraints to note:
 
-- The Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This an architectural constraint that follows the [boundaries set by Netlify](https://vercel.com/docs/concepts/functions/edge-middleware).
+- The Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This is an architectural constraint that follows the [boundaries set by Netlify](https://vercel.com/docs/concepts/functions/edge-middleware).
 - Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
 - `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
 
