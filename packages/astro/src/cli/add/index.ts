@@ -9,7 +9,7 @@ import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
-import { loadTSConfig, resolveConfigPath } from '../../core/config/index.js';
+import { loadTSConfig, resolveConfigPath, resolveRoot } from '../../core/config/index.js';
 import {
 	defaultTSConfig,
 	presets,
@@ -133,7 +133,8 @@ export async function add(names: string[], { flags, logging }: AddOptions) {
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
-	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
+	const rootPath = resolveRoot(cwd);
+	const root = pathToFileURL(rootPath);
 	// Append forward slash to compute relative paths
 	root.href = appendForwardSlash(root.href);
 
@@ -199,7 +200,11 @@ export async function add(names: string[], { flags, logging }: AddOptions) {
 		}
 	}
 
-	const rawConfigPath = await resolveConfigPath({ cwd, flags, fs: fsMod });
+	const rawConfigPath = await resolveConfigPath({
+		root: rootPath,
+		configFile: flags.config,
+		fs: fsMod,
+	});
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 
 	if (configURL) {

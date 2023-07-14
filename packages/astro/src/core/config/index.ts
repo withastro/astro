@@ -2,9 +2,9 @@ export {
 	createDefaultDevConfig,
 	openConfig,
 	resolveConfigPath,
+	resolveConfig,
 	resolveFlags,
 	resolveRoot,
-	validateConfig,
 } from './config.js';
 export { mergeConfig } from './merge.js';
 export type { AstroConfigSchema } from './schema';
