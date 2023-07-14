@@ -619,9 +619,18 @@ async function generatePath(
 				return;
 			}
 			const location = getRedirectLocationOrThrow(response.headers);
+			const fromPath = new URL(renderContext.request.url).pathname;
+			// A short delay causes Google to interpret the redirect as temporary.
+			// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
+			const delay = response.status === 302 ? 2 : 0;
 			body = `<!doctype html>
 <title>Redirecting to: ${location}</title>
-<meta http-equiv="refresh" content="0;url=${location}" />`;
+<meta http-equiv="refresh" content="${delay};url=${location}">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="${location}">
+<body>
+	<a href="${location}">Redirecting from <code>${fromPath}</code> to <code>${location}</code></a>
+</body>`;
 			// A dynamic redirect, set the location so that integrations know about it.
 			if (pageData.route.type !== 'redirect') {
 				pageData.route.redirect = location;

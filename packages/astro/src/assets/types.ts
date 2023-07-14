@@ -24,6 +24,7 @@ export interface ImageMetadata {
 	width: number;
 	height: number;
 	format: ImageInputFormat;
+	orientation?: number;
 }
 
 /**
