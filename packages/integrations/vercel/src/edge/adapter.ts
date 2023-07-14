@@ -67,8 +67,8 @@ export default function vercelEdge({
 					vite: {
 						define: viteDefine,
 						ssr: {
-							external: ['@vercel/nft']
-						}
+							external: ['@vercel/nft'],
+						},
 					},
 					...getImageConfig(imageService, imagesConfig, command),
 				});
