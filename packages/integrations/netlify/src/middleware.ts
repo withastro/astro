@@ -18,7 +18,7 @@ export async function generateEdgeMiddleware(
 	);
 
 	const code = edgeMiddlewareTemplate(entryPointPathURLAsString, netlifyEdgeMiddlewareHandlerPath);
-	const bundledFilePath = join(outPath, 'edgeMiddleware.mjs');
+	const bundledFilePath = join(outPath, 'edgeMiddleware.js');
 	const esbuild = await import('esbuild');
 	await esbuild.build({
 		stdin: {
@@ -71,5 +71,10 @@ export default async function middleware(request, context) {
 	};
 
 	return onRequest(ctx, next);
-}`;
+}
+
+export const config = {
+	path: "/"
+}
+`;
 }
