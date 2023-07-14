@@ -1,0 +1,39 @@
+name: Check that everything still work on Netlify and Vercel
+
+on:
+  schedule:
+    - cron:  '0 0 * * 0'
+
+env:
+  ASTRO_TELEMETRY_DISABLED: true
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  VERCEL_TEST_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_TEST_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  FORCE_COLOR: true
+
+jobs:
+  check:
+    name: astro check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Test Vercel
+        working-directory: ./packages/astro/test/hosted/hosted-astro-project
+        run:
+          pnpx vercel pull deploy --environment production --yes --token=${{ secrets.VERCEL_TEST_TOKEN }}
+          pnpx vercel --prod --token=${{ secrets.VERCEL_TEST_TOKEN }}

@@ -5,6 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'server',
 	adapter: netlify(),
+	outDir: "./dist_netlify",
 	experimental: {
 		assets: true
 	}

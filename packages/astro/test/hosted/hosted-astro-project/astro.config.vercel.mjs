@@ -5,6 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'server',
 	adapter: vercel(),
+	outDir: "./dist_vercel",
 	experimental: {
 		assets: true
 	}
