@@ -81,6 +81,6 @@ Deno.test({
 			} catch (e) {}
 			assertEquals(prerenderedRouteExists, false);
 		});
-		// await fixture.cleanup();
+		await fixture.cleanup();
 	},
 });

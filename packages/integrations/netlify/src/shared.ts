@@ -85,8 +85,6 @@ export async function createEdgeManifest(routes: RouteData[], entryFile: string,
 	await fs.promises.writeFile(manifestURL, _manifest, 'utf-8');
 }
 
-export async function copyFilesToEdgeDirectory() {}
-
 export async function bundleServerEntry(entryUrl: URL, serverUrl?: URL, vite?: any | undefined) {
 	const pth = fileURLToPath(entryUrl);
 	await esbuild.build({

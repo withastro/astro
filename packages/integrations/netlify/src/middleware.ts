@@ -27,7 +27,6 @@ export async function generateEdgeMiddleware(
 		},
 		target: 'es2020',
 		platform: 'browser',
-		external: ['astro/middleware'],
 		outfile: bundledFilePath,
 		allowOverwrite: true,
 		format: 'esm',
@@ -62,19 +61,15 @@ export default async function middleware(request, context) {
 	});
 	ctx.locals = ${handlerTemplateCall};
 	const next = async () => {	
-		const response = await fetch(url, {
-			headers: {
-				${JSON.stringify(ASTRO_LOCALS_HEADER)}: trySerializeLocals(ctx.locals)
-			}
-		});
-		return response;
+		request.headers.set(${JSON.stringify(ASTRO_LOCALS_HEADER)}, trySerializeLocals(ctx.locals));
+		return await context.next();
 	};
 
 	return onRequest(ctx, next);
 }
 
 export const config = {
-	path: "/"
+	path: "/*"
 }
 `;
 }

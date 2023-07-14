@@ -13,10 +13,6 @@ Deno.test({
 			await fixture.runBuild();
 		});
 		await t.step('Should correctly render the response', async () => {
-			// TODO: debug why build cannot be found in "await import"
-			// Seems that the files are created, but can't be read at this stage.
-			// Remove the cleanup at the end and run twice, and the test will pass.
-			// This is weird...
 			const { default: handler } = await import(
 				'./fixtures/edge-basic/.netlify/edge-functions/entry.js'
 			);
