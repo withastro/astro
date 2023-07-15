@@ -112,7 +112,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// NOTE: AFAIK, esbuild keeps the order of the entryPoints array
 					const { outputFiles } = await esbuild.build({
 						target: 'es2020',
-						platform: 'browser',
+						platform: 'node',
 						conditions: ['workerd', 'worker', 'browser'],
 						entryPoints: entryPaths,
 						outdir: outputDir,
@@ -158,7 +158,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					await esbuild.build({
 						target: 'es2020',
-						platform: 'browser',
+						platform: 'node',
 						conditions: ['workerd', 'worker', 'browser'],
 						entryPoints: [entryPath],
 						outfile: buildPath,
