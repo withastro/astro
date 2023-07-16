@@ -92,7 +92,7 @@ export default defineConfig({
 
 ### Static sites
 
-For static sites you usually don't need an adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
+For static sites you usually don't need an adapter, and you are able to use Netlify functions without the adapter. However, if you use `redirects` configuration (experimental) in your Astro config, the Netlify adapter can be used to translate this to the proper `_redirects` format.
 
 ```js
 import { defineConfig } from 'astro/config';
