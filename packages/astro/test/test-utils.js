@@ -7,7 +7,7 @@ import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
 import { sync } from '../dist/core/sync/index.js';
 import build from '../dist/core/build/index.js';
-import { openConfig } from '../dist/core/config/config.js';
+import { resolveConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
@@ -28,7 +28,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 /**
  * @typedef {import('undici').Response} Response
  * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
- * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
+ * @typedef {import('../src/@types/astro').AstroInlineConfig} AstroInlineConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
@@ -82,7 +82,7 @@ export const silentLogging = {
 
 /**
  * Load Astro fixture
- * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
+ * @param {AstroInlineConfig} inlineConfig Astro config partial (note: must specify `root`)
  * @returns {Promise<Fixture>} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
@@ -103,35 +103,12 @@ export const silentLogging = {
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
-	// load config
-	let cwd = inlineConfig.root;
-	delete inlineConfig.root;
-	if (typeof cwd === 'string') {
-		try {
-			cwd = new URL(cwd.replace(/\/?$/, '/'));
-		} catch (err1) {
-			cwd = new URL(cwd.replace(/\/?$/, '/'), import.meta.url);
-		}
-	}
-
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = defaultLogging;
 
 	// Load the config.
-	let { astroConfig: config } = await openConfig({
-		cwd: fileURLToPath(cwd),
-		logging,
-		cmd: 'dev',
-	});
-	config = merge(config, { ...inlineConfig, root: cwd });
-
-	// HACK: the inline config doesn't run through config validation where these normalizations usually occur
-	if (typeof inlineConfig.site === 'string') {
-		config.site = new URL(inlineConfig.site);
-	}
-	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
-		config.base = inlineConfig.base + '/';
-	}
+	const root = fileURLToPath(new URL(inlineConfig.root.replace(/\/?$/, '/'), import.meta.url));
+	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
 	/**
 	 * The dev/build/sync/check commands run integrations' `astro:config:setup` hook that could mutate
@@ -139,7 +116,7 @@ export async function loadFixture(inlineConfig) {
 	 * command functions below to prevent tests from polluting each other.
 	 */
 	const getSettings = async () => {
-		let settings = createSettings(config, fileURLToPath(cwd));
+		let settings = createSettings(config, root);
 		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 			// Enable default JSX integration. It needs to come first, so unshift rather than push!
 			const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
@@ -280,32 +257,6 @@ function parseAddressToHost(address) {
 		return `[${address}]`;
 	}
 	return address;
-}
-
-/**
- * Basic object merge utility. Returns new copy of merged Object.
- * @param {Object} a
- * @param {Object} b
- * @returns {Object}
- */
-function merge(a, b) {
-	const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
-	const c = {};
-	for (const k of allKeys) {
-		const needsObjectMerge =
-			typeof a[k] === 'object' &&
-			typeof b[k] === 'object' &&
-			(Object.keys(a[k]).length || Object.keys(b[k]).length) &&
-			!Array.isArray(a[k]) &&
-			!Array.isArray(b[k]);
-		if (needsObjectMerge) {
-			c[k] = merge(a[k] || {}, b[k] || {});
-			continue;
-		}
-		c[k] = a[k];
-		if (b[k] !== undefined) c[k] = b[k];
-	}
-	return c;
 }
 
 const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
