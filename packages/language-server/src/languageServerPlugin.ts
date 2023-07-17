@@ -71,27 +71,34 @@ export const plugin: LanguageServerPlugin = (
 
 			if (prettier && prettierPluginPath) {
 				config.services.prettier ??= createPrettierService({
+					prettier: prettier,
 					languages: ['astro'],
+					ignoreIdeOptions: true,
 					resolveConfigOptions: {
 						// Prettier's cache is a bit cumbersome, because you need to reload the config yourself on change
 						// TODO: Upstream a fix for this
 						useCache: false,
 					},
-					additionalOptions: (resolvedConfig) => {
-						function getAstroPrettierPlugin() {
+					additionalOptions: async (resolvedConfig) => {
+						async function getAstroPrettierPlugin() {
 							if (!prettier || !prettierPluginPath) {
 								return [];
 							}
 
-							const hasPluginLoadedAlready = prettier
-								.getSupportInfo()
-								.languages.some((l: any) => l.name === 'astro');
+							const hasPluginLoadedAlready = (await prettier.getSupportInfo()).languages.some(
+								(l: any) => l.name === 'astro'
+							);
 
 							return hasPluginLoadedAlready ? [] : [prettierPluginPath];
 						}
 
+						const plugins = [
+							...(await getAstroPrettierPlugin()),
+							...(resolvedConfig.plugins ?? []),
+						];
+
 						return {
-							plugins: [...getAstroPrettierPlugin(), ...(resolvedConfig.plugins ?? [])],
+							plugins: plugins,
 							parser: 'astro',
 							...resolvedConfig,
 						};

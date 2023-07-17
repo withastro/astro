@@ -8,7 +8,7 @@ export function getAstroMetadata(input: string, position = true): AstroMetadata 
 
 	return {
 		...parseResult,
-		frontmatter: getFrontmatterStatus(parseResult.ast),
+		frontmatter: getFrontmatterStatus(parseResult.ast, input),
 	};
 }
 
@@ -35,7 +35,7 @@ interface FrontmatterNull {
 
 export type FrontmatterStatus = FrontmatterOpen | FrontmatterClosed | FrontmatterNull;
 
-export function getFrontmatterStatus(ast: ParseResult['ast']): FrontmatterStatus {
+function getFrontmatterStatus(ast: ParseResult['ast'], text: string): FrontmatterStatus {
 	if (!ast.children || (ast.children && ast.children.length === 0)) {
 		return {
 			status: 'doesnt-exist',
@@ -47,6 +47,19 @@ export function getFrontmatterStatus(ast: ParseResult['ast']): FrontmatterStatus
 		const frontmatter = ast.children[0];
 		if (frontmatter.position) {
 			if (frontmatter.position.end) {
+				// HACK: The compiler as of 1.5.5 always return an ending position, even if there's only a frontmatter opening
+				// This hack checks if the frontmatter's ending is the end of the file, and if so, checks if there's a `---`.
+				// If there's not, it means the compiler returned the EOF with an opened frontmatter
+				if (frontmatter.position.end.offset === text.length && !text.endsWith('---')) {
+					return {
+						status: 'open',
+						position: {
+							start: frontmatter.position.start,
+							end: undefined,
+						},
+					};
+				}
+
 				return {
 					status: 'closed',
 					position: {
