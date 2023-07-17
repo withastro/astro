@@ -3,7 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as os from 'os';
-import { dirname } from 'path';
+import { sep } from 'path';
 import glob from 'tiny-glob';
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -21,15 +21,15 @@ interface BuildConfig {
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 	return isModeDirectory
 		? {
-				name: '@astrojs/cloudflare',
-				serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
-				exports: ['onRequest', 'manifest'],
-		  }
+			name: '@astrojs/cloudflare',
+			serverEntrypoint: '@astrojs/cloudflare/server.directory.js',
+			exports: ['onRequest', 'manifest'],
+		}
 		: {
-				name: '@astrojs/cloudflare',
-				serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
-				exports: ['default'],
-		  };
+			name: '@astrojs/cloudflare',
+			serverEntrypoint: '@astrojs/cloudflare/server.advanced.js',
+			exports: ['default'],
+		};
 }
 
 const SHIM = `globalThis.process = {
@@ -112,13 +112,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 
 				if (isModeDirectory && _buildConfig.split) {
-					const entryPointsRouteData = [..._entryPoints.keys()];
 					const entryPointsURL = [..._entryPoints.values()];
 					const entryPaths = entryPointsURL.map((entry) => fileURLToPath(entry));
-					const outputDir = fileURLToPath(new URL('.astro', _buildConfig.server));
+					const outputUrl = new URL('$astro', _buildConfig.server)
+					const outputDir = fileURLToPath(outputUrl);
 
-					// NOTE: AFAIK, esbuild keeps the order of the entryPoints array
-					const { outputFiles } = await esbuild.build({
+					await esbuild.build({
 						target: 'es2020',
 						platform: 'browser',
 						conditions: ['workerd', 'worker', 'browser'],
@@ -134,28 +133,44 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logOverride: {
 							'ignored-bare-import': 'silent',
 						},
-						write: false,
 					});
 
-					// loop through all bundled files and write them to the functions folder
-					for (const [index, outputFile] of outputFiles.entries()) {
-						// we need to make sure the filename in the functions folder
-						// matches to cloudflares routing capabilities (see their docs)
-						// IN: src/pages/[language]/files/[...path].astro
-						// OUT: [language]/files/[[path]].js
-						const fileName = entryPointsRouteData[index].component
-							.replace('src/pages/', '')
-							.replace('.astro', '.js')
-							.replace(/(\[\.\.\.)(\w+)(\])/g, (_match, _p1, p2) => {
-								return `[[${p2}]]`;
-							});
+					const outputFiles: Array<string> = (
+						await glob(`**/*`, {
+							cwd: outputDir,
+							filesOnly: true,
+						})
+					)
 
-						const fileUrl = new URL(fileName, functionsUrl);
-						const newFileDir = dirname(fileURLToPath(fileUrl));
-						if (!fs.existsSync(newFileDir)) {
-							fs.mkdirSync(newFileDir, { recursive: true });
-						}
-						await fs.promises.writeFile(fileUrl, outputFile.contents);
+					// move the files into the functions folder
+					// & make sure the file names match Cloudflare syntax for routing
+					for (const outputFile of outputFiles) {
+						const path = outputFile.split(sep);
+
+						const finalSegments = path.map((segment) => segment
+							.replace(/(\_)(\w+)(\_)/g, (_, __, prop) => {
+								return `[${prop}]`;
+							})
+							.replace(/(\_\-\-\-)(\w+)(\_)/g, (_, __, prop) => {
+								return `[[${prop}]]`;
+							})
+						);
+
+						finalSegments[finalSegments.length - 1] = finalSegments[finalSegments.length - 1]
+							.replace('entry.', '')
+							.replace(/(.*)\.(\w+)\.(\w+)$/g, (_, fileName, __, newExt) => {
+								return `${fileName}.${newExt}`;
+							})
+
+						const finalDirPath = finalSegments.slice(0, -1).join(sep);
+						const finalPath = finalSegments.join(sep);
+
+						const newDirUrl = new URL(finalDirPath, functionsUrl);
+						await fs.promises.mkdir(newDirUrl, { recursive: true })
+
+						const oldFileUrl = new URL(`$astro/${outputFile}`, outputUrl);
+						const newFileUrl = new URL(finalPath, functionsUrl);
+						await fs.promises.rename(oldFileUrl, newFileUrl);
 					}
 				} else {
 					const entryPath = fileURLToPath(new URL(_buildConfig.serverEntry, _buildConfig.server));
