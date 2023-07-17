@@ -1,6 +1,6 @@
-import fs from 'fs/promises';
+import { expect, test as testBase } from '@playwright/test';
+import fs from 'node:fs/promises';
 import path from 'node:path';
-import { test as testBase, expect } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export const isWindows = process.platform === 'win32';
