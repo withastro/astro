@@ -1,6 +1,6 @@
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { join } from 'node:path';
 import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ASTRO_LOCALS_HEADER } from './integration-functions.js';
 import { DENO_SHIM } from './shared.js';
 

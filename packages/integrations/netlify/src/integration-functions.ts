@@ -1,9 +1,9 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { extname } from 'node:path';
-import type { Args } from './netlify-functions.js';
-import { createRedirects } from './shared.js';
 import { fileURLToPath } from 'node:url';
 import { generateEdgeMiddleware } from './middleware.js';
+import type { Args } from './netlify-functions.js';
+import { createRedirects } from './shared.js';
 
 export const NETLIFY_EDGE_MIDDLEWARE_FILE = 'netlify-edge-middleware';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
