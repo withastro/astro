@@ -1,5 +1,15 @@
 # @astrojs/ts-plugin
 
+## 1.1.0
+
+### Minor Changes
+
+- f9b2aea: The Astro TypeScript plugin is now powered by Volar! Much like our Volar-powered language server, this brings many improvement in stability, performance and in the future, will allow us to add more features to it much more easily than before.
+
+### Patch Changes
+
+- 1202c9d: Upgraded dependencies, added support for Prettier 3
+
 ## 1.0.10
 
 ### Patch Changes

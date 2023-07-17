@@ -1,5 +1,18 @@
 # @astrojs/language-server
 
+## 2.1.0
+
+### Minor Changes
+
+- f9b2aea: The Astro TypeScript plugin is now powered by Volar! Much like our Volar-powered language server, this brings many improvement in stability, performance and in the future, will allow us to add more features to it much more easily than before.
+
+### Patch Changes
+
+- fa15d04: Properly treat script tags with type="module" as their own scope
+- 1202c9d: Upgraded dependencies, added support for Prettier 3
+- d71c081: Upgraded Volar version
+- 6057e81: Significantly reduce the weight of the extension
+
 ## 2.0.17
 
 ### Patch Changes
