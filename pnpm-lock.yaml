@@ -4464,12 +4464,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../../astro
-      react:
-        specifier: ^18.1.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.1.0
-        version: 18.2.0(react@18.2.0)
 
   packages/integrations/netlify/test/edge-functions/fixtures/prerender:
     dependencies:

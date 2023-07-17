@@ -1,10 +1,12 @@
-import { runBuild, runApp } from './test-utils.ts';
+import { loadFixture } from './test-utils.ts';
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
 Deno.test({
 	name: 'Dynamic imports',
+	permissions: 'inherit',
 	async fn() {
-		await runBuild('./fixtures/dynimport/');
+		const { runApp, runBuild } = await loadFixture('./fixtures/dynimport/');
+		await runBuild();
 		const stop = await runApp('./fixtures/dynimport/prod.js');
 
 		try {
@@ -14,8 +16,10 @@ Deno.test({
 
 			assert(html, 'got some html');
 			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const div = doc.querySelector('#thing');
-			assert(div, 'div exists');
+			if (doc) {
+				const div = doc.querySelector('#thing');
+				assert(div, 'div exists');
+			}
 		} catch (err) {
 			console.error(err);
 		} finally {

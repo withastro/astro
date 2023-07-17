@@ -47,6 +47,8 @@ export default function vercelServerless({
 	let buildTempFolder: URL;
 	let serverEntry: string;
 	let _entryPoints: Map<RouteData, URL>;
+	// Extra files to be merged with `includeFiles` during build
+	const extraFilesToInclude: URL[] = [];
 
 	async function createFunctionFolder(funcName: string, entry: URL, inc: URL[]) {
 		const functionFolder = new URL(`./functions/${funcName}.func/`, _config.outDir);
@@ -73,8 +75,6 @@ export default function vercelServerless({
 			launcherType: 'Nodejs',
 		});
 	}
-
-	const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
 
 	return {
 		name: PACKAGE_NAME,
@@ -130,7 +130,7 @@ export default function vercelServerless({
 						vercelEdgeMiddlewareHandlerPath
 					);
 					// let's tell the adapter that we need to save this file
-					filesToInclude.push(bundledMiddlewarePath);
+					extraFilesToInclude.push(bundledMiddlewarePath);
 				}
 			},
 
@@ -140,7 +140,7 @@ export default function vercelServerless({
 					const mergeGlobbedIncludes = (globPattern: unknown) => {
 						if (typeof globPattern === 'string') {
 							const entries = glob.sync(globPattern).map((p) => pathToFileURL(p));
-							filesToInclude.push(...entries);
+							extraFilesToInclude.push(...entries);
 						} else if (Array.isArray(globPattern)) {
 							for (const pattern of globPattern) {
 								mergeGlobbedIncludes(pattern);
@@ -152,6 +152,8 @@ export default function vercelServerless({
 				}
 
 				const routeDefinitions: { src: string; dest: string }[] = [];
+				const filesToInclude = includeFiles?.map((file) => new URL(file, _config.root)) || [];
+				filesToInclude.push(...extraFilesToInclude);
 
 				// Multiple entrypoint support
 				if (_entryPoints.size) {

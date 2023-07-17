@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 export { fixLineEndings } from '../../../astro/test/test-utils.js';
 
 /**
+ * @typedef {{ ready: Promise<void>, stop: Promise<void> }} WranglerCLI
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
 
@@ -19,6 +20,9 @@ const wranglerPath = fileURLToPath(
 	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)
 );
 
+/**
+ * @returns {WranglerCLI}
+ */
 export function runCLI(basePath, { silent, port = 8787 }) {
 	const script = fileURLToPath(new URL(`${basePath}/dist/_worker.js`, import.meta.url));
 	const p = spawn('node', [wranglerPath, 'dev', '-l', script, '--port', port]);

@@ -33,8 +33,8 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test-fn": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/functions/",
-    "test-edge": "deno test --allow-run --allow-read --allow-net --allow-env ./test/edge-functions/",
-    "test": "npm run test-fn"
+    "test-edge": "deno test --allow-run --allow-read --allow-net --allow-env --allow-write ./test/edge-functions/",
+    "test": "pnpm test-fn"
   },
   "dependencies": {
     "@astrojs/underscore-redirects": "^0.2.0",
