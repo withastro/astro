@@ -136,7 +136,7 @@ jobs:
       - name: Use Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.34.1
+          deno-version: v1.35.0
 
       - name: Install dependencies
         run: pnpm install

@@ -115,6 +115,65 @@ Once you run `astro build` there will be a `dist/_redirects` file. Netlify will 
 > **Note**
 > You can still include a `public/_redirects` file for manual redirects. Any redirects you specify in the redirects config are appended to the end of your own.
 
+
+### Edge Middleware with Astro middleware
+
+The `@astrojs/netlify/functions` adapter can automatically create an edge function that will act as "Edge Middleware", from an Astro middleware in your code base.
+
+This is an opt-in feature and the `build.excludeMiddleware` option needs to be set to `true`:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify/functions';
+export default defineConfig({
+  output: 'server',
+  adapter: netlify(),
+  build: {
+    excludeMiddleware: true,
+  },
+});
+```
+
+Optionally, you can create a file recognized by the adapter named `netlify-edge-middleware.(js|ts)` in the [`srcDir`](https://docs.astro.build/en/reference/configuration-reference/#srcdir) folder to create [`Astro.locals`](https://docs.astro.build/en/reference/api-reference/#astrolocals).
+
+Typings require the [`https://edge.netlify.com`](https://docs.netlify.com/edge-functions/api/#reference) types.
+
+> Netlify edge functions run in a Deno environment, so you would need to import types using URLs.
+> 
+> You can find more in the [Netlify documentation page](https://docs.netlify.com/edge-functions/api/#runtime-environment)
+
+```ts
+// src/netlify-edge-middleware.ts
+import type { Context } from "https://edge.netlify.com";
+
+export default function ({ request, context }: { request: Request, context: Context }): object {
+  // do something with request and context
+  return {
+    title: "Spider-man's blog",
+  };
+}
+```
+
+The data returned by this function will be passed to Astro middleware.
+
+The function:
+
+- must export a **default** function;
+- must **return** an `object`;
+- accepts an object with a `request` and `context` as properties;
+- `request` is typed as [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request);
+- `context` is typed as [`Context`](https://docs.netlify.com/edge-functions/api/#edge-function-types);
+
+#### Limitations and constraints
+
+When you opt-in to this feature, there are a few constraints to note:
+
+- The Edge middleware will always be the **first** function to receive the `Request` and the last function to receive `Response`. This is an architectural constraint that follows the [boundaries set by Netlify](https://docs.netlify.com/edge-functions/overview/#use-cases).
+- Only `request` and `context` may be used to produce an `Astro.locals` object. Operations like redirects, etc. should be delegated to Astro middleware.
+- `Astro.locals` **must be serializable**. Failing to do so will result in a **runtime error**. This means that you **cannot** store complex types like `Map`, `function`, `Set`, etc.
+
+
 ## Usage
 
 [Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/netlify/)

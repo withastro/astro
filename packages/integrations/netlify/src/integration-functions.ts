@@ -1,8 +1,12 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';
+import { fileURLToPath } from 'node:url';
+import { generateEdgeMiddleware } from './middleware.js';
+
+export const NETLIFY_EDGE_MIDDLEWARE_FILE = 'netlify-edge-middleware';
+export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 
 export function getAdapter(args: Args = {}): AstroAdapter {
 	return {
@@ -27,6 +31,7 @@ function netlifyFunctions({
 	let _config: AstroConfig;
 	let _entryPoints: Map<RouteData, URL>;
 	let ssrEntryFile: string;
+	let _middlewareEntryPoint: URL;
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
@@ -40,7 +45,10 @@ function netlifyFunctions({
 					},
 				});
 			},
-			'astro:build:ssr': ({ entryPoints }) => {
+			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
+				if (middlewareEntryPoint) {
+					_middlewareEntryPoint = middlewareEntryPoint;
+				}
 				_entryPoints = entryPoints;
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
@@ -84,6 +92,18 @@ function netlifyFunctions({
 					const routeToDynamicTargetMap = new Map(Array.from(map));
 
 					await createRedirects(_config, routeToDynamicTargetMap, dir);
+				}
+				if (_middlewareEntryPoint) {
+					const outPath = fileURLToPath(new URL('./.netlify/edge-functions/', _config.root));
+					const netlifyEdgeMiddlewareHandlerPath = new URL(
+						NETLIFY_EDGE_MIDDLEWARE_FILE,
+						_config.srcDir
+					);
+					await generateEdgeMiddleware(
+						_middlewareEntryPoint,
+						outPath,
+						netlifyEdgeMiddlewareHandlerPath
+					);
 				}
 			},
 		},
