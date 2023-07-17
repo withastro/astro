@@ -229,6 +229,14 @@ class AstroBuilder {
 				);
 			}
 		}
+
+		if (config.build.split === true) {
+			if (config.output !== 'server') {
+				throw new Error(
+					'The option `build.split` can only be used when `output` is set to `"server"`.'
+				);
+			}
+		}
 	}
 
 	/** Stats */
