@@ -3,12 +3,16 @@ import { assertEquals, assertExists, cheerio, fs } from './deps.ts';
 
 Deno.test({
 	name: 'Prerender',
+	permissions: 'inherit',
 	async fn(t) {
 		const environmentVariables = {
 			PRERENDER: 'true',
 		};
-		const fixture = loadFixture('./fixtures/prerender/', environmentVariables);
-		await fixture.runBuild();
+		const { runBuild, cleanup } = loadFixture('./fixtures/prerender/', environmentVariables);
+
+		await t.step('Run the build', async () => {
+			await runBuild();
+		});
 
 		await t.step('Handler can process requests to non-existing routes', async () => {
 			const { default: handler } = await import(
@@ -16,7 +20,7 @@ Deno.test({
 			);
 			assertExists(handler);
 			const response = await handler(new Request('http://example.com/index.html'));
-			assertEquals(response, undefined, "No response because this route doesn't exist");
+			assertEquals(response.status, 404, "No response because this route doesn't exist");
 		});
 
 		await t.step('Prerendered route exists', async () => {
@@ -31,22 +35,28 @@ Deno.test({
 		});
 
 		Deno.env.delete('PRERENDER');
-		await fixture.cleanup();
+		await cleanup();
 	},
 });
 
 Deno.test({
 	name: 'Hybrid rendering',
+	permissions: 'inherit',
 	async fn(t) {
 		const environmentVariables = {
 			PRERENDER: 'false',
 		};
 		const fixture = loadFixture('./fixtures/prerender/', environmentVariables);
-		await fixture.runBuild();
+		await t.step('Run the build', async () => {
+			await fixture.runBuild();
+		});
 
 		const stop = await fixture.runApp('./fixtures/prerender/prod.js');
 		await t.step('Can fetch server route', async () => {
-			const response = await fetch('http://127.0.0.1:8085/');
+			const { default: handler } = await import(
+				'./fixtures/prerender/.netlify/edge-functions/entry.js'
+			);
+			const response = await handler(new Request('http://example.com/'));
 			assertEquals(response.status, 200);
 
 			const html = await response.text();
@@ -60,7 +70,7 @@ Deno.test({
 				'./fixtures/prerender/.netlify/edge-functions/entry.js'
 			);
 			const response = await handler(new Request('http://example.com/index.html'));
-			assertEquals(response, undefined, "No response because this route doesn't exist");
+			assertEquals(response.status, 404, "No response because this route doesn't exist");
 		});
 
 		await t.step('Has no prerendered route', async () => {
