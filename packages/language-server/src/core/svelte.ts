@@ -31,7 +31,10 @@ class SvelteFile implements VirtualFile {
 	embeddedFiles!: VirtualFile[];
 	codegenStacks = [];
 
-	constructor(public sourceFileName: string, public snapshot: ts.IScriptSnapshot) {
+	constructor(
+		public sourceFileName: string,
+		public snapshot: ts.IScriptSnapshot
+	) {
 		this.fileName = sourceFileName;
 		this.onSnapshotUpdated();
 	}
