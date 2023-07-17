@@ -1,37 +1,37 @@
 # See https://github.com/actions/labeler
 
-example:
+'pkg: example':
 - examples/**/*
 
 '🚨 action':
 - .github/workflows/**
 
-core:
+'pkg: astro':
 - packages/astro/**
 
-create-astro:
+'pkg: create-astro':
 - packages/create-astro/**
 
-markdown:
+'feat: markdown':
 - packages/markdown/**
 
-integration:
+'pkg: integration':
 - packages/integrations/**
 
-framework-lit:
+'pkg: lit':
 - packages/integrations/lit/**
 
-framework-preact:
+'pkg: preact':
 - packages/integrations/preact/**
 
-framework-react:
+'pkg: react':
 - packages/integrations/react/**
 
-framework-solid:
+'pkg: solid':
 - packages/integrations/solid/**
 
-framework-svelte:
+'pkg: svelte':
 - packages/integrations/svelte/**
 
-framework-vue:
+'pkg: vue':
 - packages/integrations/vue/**
