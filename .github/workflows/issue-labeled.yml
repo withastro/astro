@@ -19,8 +19,7 @@ jobs:
           labels: "needs triage"
 
       - name: needs repro
-        if: |
-            ${{ github.event.label.name == 'needs repro' }}
+        if: github.event.label.name == 'needs repro'
         uses: actions-cool/issues-helper@v3
         with:
           actions: "create-comment, remove-labels"
