@@ -40,16 +40,20 @@ const { fallback = 'animate' } = Astro.props as Props;
   async function updateDOM(dir: Direction, html: string, fallback: Fallback = 'swap') {
     const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
+		const swap = () => document.documentElement.replaceWith(doc.documentElement);
 
 		if(fallback === 'animate') {
+			let isAnimating = false;
+			addEventListener('animationstart', () => isAnimating = true, { once: true });
+
 			document.documentElement.dataset.astroTransitionFallback = 'old';
 			doc.documentElement.dataset.astroTransitionFallback = 'new';
 			// Trigger the animations
-			addEventListener('animationend', () => {
-				document.documentElement.replaceWith(doc.documentElement);
-			}, { once: true });
+			addEventListener('animationend', swap, { once: true });
+			// If there are no animations, go ahead and swap on next tick
+			setTimeout(() => !isAnimating && swap());
 		} else {
-			document.documentElement.replaceWith(doc.documentElement);
+			swap();
 		}
   }
 
