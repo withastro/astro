@@ -454,7 +454,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name redirects (Experimental)
+	 * @name redirects
 	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
 	 * @version 2.9.0
