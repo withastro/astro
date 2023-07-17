@@ -1,10 +1,17 @@
-import type { AstroCookies, ComponentInstance } from '../../@types/astro';
+import type {
+	AstroCookies,
+	ComponentInstance,
+	MiddlewareHandler,
+	MiddlewareResponseHandler,
+} from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
+import { createAPIContext } from '../endpoint/index.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 
 export type RenderPage = {
 	mod: ComponentInstance;
@@ -13,7 +20,7 @@ export type RenderPage = {
 	cookies: AstroCookies;
 };
 
-export async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
+async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 	if (routeIsRedirect(renderContext.route)) {
 		return new Response(null, {
 			status: redirectRouteStatus(renderContext.route, renderContext.request.method),
@@ -71,4 +78,49 @@ export async function renderPage({ mod, renderContext, env, cookies }: RenderPag
 	}
 
 	return response;
+}
+
+/**
+ * It attempts to render a page.
+ *
+ * ## Errors
+ *
+ * It throws an error if the page can't be rendered.
+ */
+export async function tryRenderPage<MiddlewareReturnType = Response>(
+	renderContext: Readonly<RenderContext>,
+	env: Readonly<Environment>,
+	mod: Readonly<ComponentInstance>,
+	onRequest?: MiddlewareHandler<MiddlewareReturnType>
+): Promise<Response> {
+	const apiContext = createAPIContext({
+		request: renderContext.request,
+		params: renderContext.params,
+		props: renderContext.props,
+		site: env.site,
+		adapterName: env.adapterName,
+	});
+
+	if (onRequest) {
+		return await callMiddleware<Response>(
+			env.logging,
+			onRequest as MiddlewareResponseHandler,
+			apiContext,
+			() => {
+				return renderPage({
+					mod,
+					renderContext,
+					env,
+					cookies: apiContext.cookies,
+				});
+			}
+		);
+	} else {
+		return await renderPage({
+			mod,
+			renderContext,
+			env,
+			cookies: apiContext.cookies,
+		});
+	}
 }

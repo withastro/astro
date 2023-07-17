@@ -12,7 +12,6 @@ import type {
 	GetStaticPathsItem,
 	ImageTransform,
 	MiddlewareHandler,
-	MiddlewareResponseHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -38,16 +37,15 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import { callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 import {
 	getRedirectLocationOrThrow,
 	RedirectSinglePageBuiltModule,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
+import { createEnvironment, createRenderContext } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -71,6 +69,7 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
+import { tryRenderPage } from '../render/index.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
@@ -575,36 +574,7 @@ async function generatePath(
 	} else {
 		let response: Response;
 		try {
-			const apiContext = createAPIContext({
-				request: renderContext.request,
-				params: renderContext.params,
-				props: renderContext.props,
-				site: env.site,
-				adapterName: env.adapterName,
-			});
-
-			if (onRequest) {
-				response = await callMiddleware<Response>(
-					env.logging,
-					onRequest as MiddlewareResponseHandler,
-					apiContext,
-					() => {
-						return renderPage({
-							mod,
-							renderContext,
-							env,
-							cookies: apiContext.cookies,
-						});
-					}
-				);
-			} else {
-				response = await renderPage({
-					mod,
-					renderContext,
-					env,
-					cookies: apiContext.cookies,
-				});
-			}
+			response = await tryRenderPage(renderContext, env, mod, onRequest);
 		} catch (err) {
 			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 				(err as SSRError).id = pageData.component;
