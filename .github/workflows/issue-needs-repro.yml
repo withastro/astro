@@ -14,5 +14,5 @@ jobs:
         with:
           actions: "close-issues"
           token: ${{ secrets.GITHUB_TOKEN }}
-          labels: "needs: repro"
+          labels: "needs repro"
           inactive-day: 3
