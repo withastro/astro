@@ -3,7 +3,6 @@ import mime from 'mime';
 import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -144,16 +143,6 @@ export async function handleRoute({
 		return handle404Response(origin, incomingRequest, incomingResponse);
 	}
 
-	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
-		writeWebResponse(
-			incomingResponse,
-			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
-				status: 400,
-			})
-		);
-		return;
-	}
-
 	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { route, preloadedComponent } = matchedRoute;
@@ -207,7 +196,6 @@ export async function handleRoute({
 					manifest,
 				});
 			}
-			throwIfRedirectNotAllowed(result.response, config);
 			await writeWebResponse(incomingResponse, result.response);
 		} else {
 			let contentType = 'text/plain';
@@ -230,7 +218,6 @@ export async function handleRoute({
 		}
 	} else {
 		const result = await renderPage(options);
-		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(request, result, incomingResponse);
+		await writeSSRResult(request, result, incomingResponse);
 	}
 }

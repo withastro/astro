@@ -1228,27 +1228,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		assets?: boolean;
-
-		/**
-		 * @docs
-		 * @name experimental.redirects
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 2.6.0
-		 * @description
-		 * Enable experimental support for redirect configuration. With this enabled
-		 * you can set redirects via the top-level `redirects` property. To enable
-		 * this feature, set `experimental.redirects` to `true`.
-		 *
-		 * ```js
-		 * {
-		 * 	experimental: {
-		 *		redirects: true,
-		 * 	},
-		 * }
-		 * ```
-		 */
-		redirects?: boolean;
 	};
 
 	// Legacy options to be removed

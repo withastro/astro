@@ -37,13 +37,12 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
+import { callEndpoint } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import {
 	getRedirectLocationOrThrow,
 	RedirectSinglePageBuiltModule,
-	routeIsRedirect,
 } from '../redirects/index.js';
 import { createEnvironment, createRenderContext, tryRenderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -228,10 +227,6 @@ async function generatePage(
 	builtPaths: Set<string>,
 	manifest: SSRManifest
 ) {
-	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
-		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
-	}
-
 	let timeStart = performance.now();
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
@@ -561,7 +556,6 @@ async function generatePath(
 		);
 
 		if (result.type === 'response') {
-			throwIfRedirectNotAllowed(result.response, opts.settings.config);
 			// If there's no body, do nothing
 			if (!result.response.body) return;
 			const ab = await result.response.arrayBuffer();
