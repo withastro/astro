@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro';
+import { string } from 'zod';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
@@ -31,7 +32,11 @@ function getPrivateEnv(
 		// Ignore public env var
 		if (envPrefixes.every((prefix) => !key.startsWith(prefix))) {
 			if (typeof process.env[key] !== 'undefined') {
-				const value = process.env[key];
+				let value = process.env[key];
+				// Replacements are always strings, so try to convert to strings here first
+				if (typeof value !== 'string') {
+					value = `${value}`;
+				}
 				// Boolean values should be inlined to support `export const prerender`
 				// We already know that these are NOT sensitive values, so inlining is safe
 				if (value === '0' || value === '1' || value === 'true' || value === 'false') {
