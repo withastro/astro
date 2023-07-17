@@ -13,7 +13,12 @@ import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { createEnvironment, createRenderContext, type Environment } from '../render/index.js';
+import {
+	createEnvironment,
+	createRenderContext,
+	tryRenderPage,
+	type Environment,
+} from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -22,7 +27,6 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
-import { tryRenderPage } from '../render/index.js';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

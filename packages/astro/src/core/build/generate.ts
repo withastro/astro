@@ -45,7 +45,7 @@ import {
 	RedirectSinglePageBuiltModule,
 	routeIsRedirect,
 } from '../redirects/index.js';
-import { createEnvironment, createRenderContext } from '../render/index.js';
+import { createEnvironment, createRenderContext, tryRenderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -69,7 +69,6 @@ import type {
 	StylesheetAsset,
 } from './types';
 import { getTimeStat } from './util.js';
-import { tryRenderPage } from '../render/index.js';
 
 function createEntryURL(filePath: string, outFolder: URL) {
 	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);

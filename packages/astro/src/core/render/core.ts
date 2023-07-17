@@ -6,12 +6,12 @@ import type {
 } from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
+import { createAPIContext } from '../endpoint/index.js';
+import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
-import { createAPIContext } from '../endpoint/index.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 
 export type RenderPage = {
 	mod: ComponentInstance;
