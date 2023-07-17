@@ -35,7 +35,9 @@ async function getRotationForEXIF(
 	inputBuffer: Buffer
 ): Promise<Operation | undefined> {
 	// check EXIF orientation data and rotate the image if needed
-	const meta = await imageMetadata(transform.src, inputBuffer);
+	const filePath = transform.src.slice('/@fs'.length);
+	const filePathURL = new URL('.' + filePath, 'file:');
+	const meta = await imageMetadata(filePathURL, inputBuffer);
 
 	if (!meta) return undefined;
 

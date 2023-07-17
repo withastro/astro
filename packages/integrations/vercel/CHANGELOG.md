@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 3.7.2
+
+### Patch Changes
+
+- [#7659](https://github.com/withastro/astro/pull/7659) [`57a5eff5c`](https://github.com/withastro/astro/commit/57a5eff5cee9852dca1e328e233949581edc5fb9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix critical build regression. `@vercel/nft` is excluded from the bundle automatically.
+
 ## 3.7.1
 
 ### Patch Changes

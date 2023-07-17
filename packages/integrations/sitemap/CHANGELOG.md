@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 1.4.0
+
+### Minor Changes
+
+- [#7655](https://github.com/withastro/astro/pull/7655) [`c258492b7`](https://github.com/withastro/astro/commit/c258492b7218cc7e5b7be38f48ec1bb1296292d5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure sitemap only excludes numerical pages matching `/404` and `/500` exactly
+
 ## 1.3.3
 
 ### Patch Changes

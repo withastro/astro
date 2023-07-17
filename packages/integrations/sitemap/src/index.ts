@@ -49,6 +49,7 @@ function formatConfigErrorMessage(err: ZodError) {
 
 const PKG_NAME = '@astrojs/sitemap';
 const OUTFILE = 'sitemap-index.xml';
+const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 	let config: AstroConfig;
@@ -85,18 +86,21 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return;
 					}
 
-					let pageUrls = pages.map((p) => {
-						if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
-							finalSiteUrl.pathname += '/';
-						const path = finalSiteUrl.pathname + p.pathname;
-						return new URL(path, finalSiteUrl).href;
-					});
+					let pageUrls = pages
+						.filter((p) => !STATUS_CODE_PAGES.has('/' + p.pathname.slice(0, -1)))
+						.map((p) => {
+							if (p.pathname !== '' && !finalSiteUrl.pathname.endsWith('/'))
+								finalSiteUrl.pathname += '/';
+							const path = finalSiteUrl.pathname + p.pathname;
+							return new URL(path, finalSiteUrl).href;
+						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
+							if (STATUS_CODE_PAGES.has(r.pathname)) return urls;
 							/**
 							 * remove the initial slash from relative pathname
 							 * because `finalSiteUrl` always has trailing slash
