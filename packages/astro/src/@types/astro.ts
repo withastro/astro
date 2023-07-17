@@ -108,7 +108,6 @@ export interface CLIFlags {
 	drafts?: boolean;
 	open?: boolean;
 	experimentalAssets?: boolean;
-	experimentalRedirects?: boolean;
 }
 
 /**
@@ -458,7 +457,7 @@ export interface AstroUserConfig {
 	 * @name redirects (Experimental)
 	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
-	 * @version 2.6.0
+	 * @version 2.9.0
 	 * @description Specify a mapping of redirects where the key is the route to match
 	 * and the value is the path to redirect to.
 	 *
