@@ -71,7 +71,7 @@ export async function callGetStaticPaths({
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
 
 	for (const sp of keyedStaticPaths) {
-		const paramsKey = stringifyParams(sp.params, route.component);
+		const paramsKey = stringifyParams(sp.params, route);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
@@ -127,7 +127,7 @@ export function findPathItemByKey(
 	params: Params,
 	route: RouteData
 ) {
-	const paramsKey = stringifyParams(params, route.component);
+	const paramsKey = stringifyParams(params, route);
 	const matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;
