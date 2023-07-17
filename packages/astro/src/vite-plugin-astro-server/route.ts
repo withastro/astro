@@ -233,9 +233,9 @@ export async function handleRoute({
 		if (result.status === 404) {
 			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
 			return handleRoute({
+				...options,
 				matchedRoute: fourOhFourRoute,
-				url: new URL('/404', url),
-				pathname: '/404',
+				url: new URL(pathname, url),
 				body,
 				origin,
 				env,
