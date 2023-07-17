@@ -26,7 +26,9 @@ export function createExports(manifest: SSRManifest) {
 		if (manifest.assets.has(pathname)) {
 			// we need this so the page does not error
 			// https://developers.cloudflare.com/pages/platform/functions/advanced-mode/#set-up-a-function
-			return (runtimeEnv.env as EventContext<unknown, string, unknown>['env']).ASSETS.fetch(request);
+			return (runtimeEnv.env as EventContext<unknown, string, unknown>['env']).ASSETS.fetch(
+				request
+			);
 		}
 
 		let routeData = app.match(request, { matchNotFound: true });
