@@ -3,7 +3,6 @@ import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro';
-import { string } from 'zod';
 
 interface EnvPluginOptions {
 	settings: AstroSettings;
