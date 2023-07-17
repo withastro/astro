@@ -56,7 +56,6 @@ const { fallback = 'animate' } = Astro.props as Props;
 	async function navigate(dir: Direction, href: string) {
 		let htmlPromise = getHTML(href);
 		let finished: Promise<void>;
-		document.documentElement.dataset.astroTransition = dir;
 		const html = await htmlPromise;
 		if(supportsViewTransitions) {
 			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
