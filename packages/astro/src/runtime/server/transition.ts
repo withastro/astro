@@ -52,22 +52,30 @@ export function renderTransition(result: SSRResult, hash: string, animationName:
 	${!animations ? `` :
 // Regular animations
 `
-::view-transition-old(${transitionName}),
+::view-transition-old(${transitionName}) {
+	${stringifyAnimation(animations.forwards.old)}
+}
 [data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.forwards.old)}
 }
 
-::view-transition-new(${transitionName}),
+::view-transition-new(${transitionName}) {
+	${stringifyAnimation(animations.forwards.new)}
+}
 [data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.forwards.new)}
 }
 
-[data-astro-transition=back]::view-transition-old(${transitionName}),
+[data-astro-transition=back]::view-transition-old(${transitionName}) {
+	${stringifyAnimation(animations.backwards.old)}
+}
 [data-astro-transition=back][data-astro-transition-fallback=old] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.backwards.old)}
 }
 
-[data-astro-transition=back]::view-transition-new(${transitionName}),
+[data-astro-transition=back]::view-transition-new(${transitionName}) {
+	${stringifyAnimation(animations.backwards.new)}
+}
 [data-astro-transition=back][data-astro-transition-fallback=new] [data-astro-transition-scope="${scope}"] {
 	${stringifyAnimation(animations.backwards.new)}
 }
