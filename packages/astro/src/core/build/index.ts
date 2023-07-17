@@ -1,5 +1,5 @@
-import fs from 'fs';
 import * as colors from 'kleur/colors';
+import fs from 'node:fs';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';

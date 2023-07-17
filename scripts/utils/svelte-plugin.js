@@ -1,7 +1,7 @@
 // @ts-nocheck
+import { promises as fs } from 'node:fs';
+import { dirname, isAbsolute, join, relative } from 'node:path';
 import { compile } from 'svelte/compiler';
-import { relative, isAbsolute, join, dirname } from 'path';
-import { promises as fs } from 'fs';
 
 const convertMessage = ({ message, start, end, filename, frame }) => ({
 	text: message,

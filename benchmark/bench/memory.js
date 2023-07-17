@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
 import { astroBin } from './_util.js';

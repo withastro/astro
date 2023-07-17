@@ -1,6 +1,6 @@
-import type http from 'http';
 import { cyan } from 'kleur/colors';
-import type { AddressInfo } from 'net';
+import type http from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { performance } from 'perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';

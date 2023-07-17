@@ -1,13 +1,13 @@
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
-import fsMod, { existsSync, promises as fs } from 'fs';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
+import fsMod, { existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import path from 'path';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
-import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath } from '../../core/config/index.js';
 import {

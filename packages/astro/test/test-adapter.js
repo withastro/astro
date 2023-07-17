@@ -29,7 +29,7 @@ export default function (
 									if (id === '@my-ssr') {
 										return `
 											import { App } from 'astro/app';
-											import fs from 'fs';
+											import fs from 'node:fs';
 
 											class MyApp extends App {
 												#manifest = null;
@@ -50,12 +50,12 @@ export default function (
 													return super.render(request, routeData, locals);
 												}
 											}
-											
+
 											export function createExports(manifest) {
 												return {
 													manifest,
 													createApp: (streaming) => new MyApp(manifest, streaming)
-													
+
 												};
 											}
 										`;

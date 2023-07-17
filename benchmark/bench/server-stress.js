@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import autocannon from 'autocannon';
 import { execaCommand } from 'execa';
 import { waitUntilBusy } from 'port-authority';

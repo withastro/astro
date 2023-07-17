@@ -1,7 +1,7 @@
-import type http from 'http';
+import type http from 'node:http';
+import { fileURLToPath } from 'node:url';
 import { performance } from 'perf_hooks';
 import enableDestroy from 'server-destroy';
-import { fileURLToPath } from 'url';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';

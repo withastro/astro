@@ -5,12 +5,12 @@ import {
 } from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
-import fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
+import fs from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import { fileURLToPath, pathToFileURL } from 'url';
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../../core/logger/core.js';

@@ -1,7 +1,7 @@
 // @ts-check
 import { createFs, createRequestAndResponse, defaultLogging } from '../test-utils.js';
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
 import { createDevelopmentEnvironment } from '../../../dist/core/render/dev/environment.js';
 import { expect } from 'chai';
