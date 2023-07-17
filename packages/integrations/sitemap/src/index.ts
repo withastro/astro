@@ -96,6 +96,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
+						// Only expose pages, not endpoints or redirects
+						if (r.type !== 'page') return urls;
+
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
