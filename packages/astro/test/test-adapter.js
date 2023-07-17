@@ -29,7 +29,7 @@ export default function (
 									if (id === '@my-ssr') {
 										return `
 											import { App } from 'astro/app';
-											import fs from 'node:fs';
+											import fs from 'fs';
 
 											class MyApp extends App {
 												#manifest = null;

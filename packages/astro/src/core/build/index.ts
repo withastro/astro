@@ -1,6 +1,6 @@
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';
-import { performance } from 'perf_hooks';
+import { performance } from 'node:perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
 import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
