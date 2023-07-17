@@ -91,6 +91,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 					vite.ssr ||= {};
 					vite.ssr.target = 'webworker';
+
+					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
+					// in a global way, so we shim their access as `process.env.*`. We will populate `process.env` later
+					// in its fetch handler.
+					vite.define = {
+						'process.env': 'process.env',
+						...vite.define,
+					};
 				}
 			},
 			'astro:build:ssr': ({ entryPoints }) => {
