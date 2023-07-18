@@ -41,8 +41,8 @@ import { callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import {
-	RedirectSinglePageBuiltModule,
 	getRedirectLocationOrThrow,
+	RedirectSinglePageBuiltModule,
 	routeIsRedirect,
 } from '../redirects/index.js';
 import { createEnvironment, createRenderContext, tryRenderPage } from '../render/index.js';
