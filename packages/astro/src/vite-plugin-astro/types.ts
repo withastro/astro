@@ -2,7 +2,8 @@ import type { TransformResult } from '@astrojs/compiler';
 import type { PropagationHint } from '../@types/astro';
 
 export interface PageOptions {
-	prerender?: boolean;
+  prerender?: boolean
+  tag?: string
 }
 
 export interface PluginMetadata {

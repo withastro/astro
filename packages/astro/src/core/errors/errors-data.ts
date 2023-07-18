@@ -390,6 +390,26 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	 * @docs
 	 * @message
 	 * **Example error messages:**<br/>
+	 * InvalidStaticExport: A static export has been detected, but its value cannot be statically analyzed.
+	 * @description
+	 * Some static feature only supports a subset of valid JavaScript — be sure to use exactly `export const {var} = {value}` so that our compiler can detect this directive at build time. Variables, `let`, and `var` declarations are not supported.
+	 */
+	InvalidStaticExport: {
+		title: 'Invalid static export.',
+		message: (prefix: string, suffix: string, isHydridOuput: boolean) => {
+			const defaultExpectedValue = isHydridOuput ? 'false' : 'true';
+			let msg = `A static export has been detected, but its value cannot be statically analyzed.`;
+			if (prefix !== 'const') msg += `\nExpected \`const\` declaration but got \`${prefix}\`.`;
+			if (suffix !== 'true')
+				msg += `\nExpected \`${defaultExpectedValue}\` value but got \`${suffix}\`.`;
+			return msg;
+		},
+		hint: 'Mutable values declared at runtime are not supported. Please make sure to use exactly `export const`.',
+	},
+	/**
+	 * @docs
+	 * @message
+	 * **Example error messages:**<br/>
 	 * InvalidPrerenderExport: A `prerender` export has been detected, but its value cannot be statically analyzed.
 	 * @description
 	 * The `prerender` feature only supports a subset of valid JavaScript — be sure to use exactly `export const prerender = true` so that our compiler can detect this directive at build time. Variables, `let`, and `var` declarations are not supported.
