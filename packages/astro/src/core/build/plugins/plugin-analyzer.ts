@@ -106,7 +106,7 @@ async function doesParentImportChild(
 
 	// If the component is imported by another component, assume it's in use
 	// and start tracking this new component now
-	if (parentInfo.id.endsWith('.astro')) {
+	if (parentInfo.id.endsWith('.astro') || parentInfo.id.endsWith('.mdx')) {
 		exportNames.push('default');
 	}
 
