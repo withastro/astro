@@ -98,7 +98,7 @@ Netlify Edge Functions provide a [context object](https://docs.netlify.com/edge-
 
 To expose values from this context to your site, create a `netlify-edge-middleware.ts` (or `.js`) file in your project’s [source directory](https://docs.astro.build/en/reference/configuration-reference/#srcdir). This file must export a function that returns the data to add to [Astro’s `locals` object](https://docs.astro.build/en/guides/middleware/#locals), which is available in middleware and Astro routes.
 
-In this example, `visitorCountry` and `hasEdgeMiddleware` would both be added to the Astro’s `locals` object:
+In this example, `visitorCountry` and `hasEdgeMiddleware` would both be added to Astro’s `locals` object:
 
 ```ts
 // src/netlify-edge-middleware.ts
