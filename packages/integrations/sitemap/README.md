@@ -1,6 +1,6 @@
 # @astrojs/sitemap 🗺
 
-This **[Astro integration][astro-integration]** generates a sitemap based on your routes when you build your Astro project.
+This **[Astro integration][astro-integration]** generates a sitemap based on your pages when you build your Astro project.
 
 - <strong>[Why Astro Sitemap](#why-astro-sitemap)</strong>
 - <strong>[Installation](#installation)</strong>
@@ -18,8 +18,6 @@ A Sitemap is an XML file that outlines all of the pages, videos, and files on yo
 A sitemap file is recommended for large multi-page sites. If you don't use a sitemap, most search engines will still be able to list your site's pages, but a sitemap is a great way to ensure that your site is as search engine friendly as possible.
 
 With Astro Sitemap, you don't have to worry about creating this file: build your Astro site how you normally would, and the Astro Sitemap integration will crawl your routes and create the sitemap file.
-
-> **Note** > [Dynamic routes](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes) like `[...slug]` or `src/pages/[lang]/[version]/info.astro` will generate sitemap entries for the pages those routes render, _provided that they are rendered statically_ (i.e., using `getStaticPaths()`. But because of the nature of [Astro's SSR mode](https://docs.astro.build/en/guides/server-side-rendering/), any dynamic routes that are server-rendered (via Astro's server or hybrid modes) do not output a static array of pages, so they will _not_ generate corresponding sitemap entries.
 
 ## Installation
 
@@ -339,7 +337,6 @@ The resulting sitemap looks like this:
 ## Examples
 
 - The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap-index.xml).
-- The [integrations playground template](https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github) comes with Astro Sitemap installed. Try adding a route and building the project!
 - [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22@astrojs/sitemap%22+filename:package.json&type=Code) for more examples!
 
 ## Troubleshooting

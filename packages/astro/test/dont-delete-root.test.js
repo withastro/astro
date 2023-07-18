@@ -1,6 +1,6 @@
 import { expect } from 'chai';
+import * as fs from 'node:fs';
 import { loadFixture } from './test-utils.js';
-import * as fs from 'fs';
 
 describe('outDir set to project root', async () => {
 	/** @type {import('./test-utils').Fixture} */

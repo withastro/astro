@@ -1,6 +1,6 @@
-import fs from 'fs';
 import * as colors from 'kleur/colors';
-import { performance } from 'perf_hooks';
+import fs from 'node:fs';
+import { performance } from 'node:perf_hooks';
 import type * as vite from 'vite';
 import type yargs from 'yargs-parser';
 import type { AstroConfig, AstroSettings, ManifestData, RuntimeMode } from '../../@types/astro';
@@ -226,6 +226,14 @@ class AstroBuilder {
 					this.logging,
 					'configuration',
 					'The option `build.excludeMiddleware` won\'t take effect, because `output` is not `"server"` or `"hybrid"`.'
+				);
+			}
+		}
+
+		if (config.build.split === true) {
+			if (config.output !== 'server') {
+				throw new Error(
+					'The option `build.split` can only be used when `output` is set to `"server"`.'
 				);
 			}
 		}

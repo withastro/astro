@@ -4,6 +4,9 @@ export function getStaticPaths() {
 		params: { cheese: 'mozzarella', topping: 'pepperoni' },
 	}, {
 		params: { cheese: 'provolone', topping: 'sausage' },
+  },  {
+		// fix(#7265): hyphenated behavior
+		params: { cheese: 'parmesan-and', topping: 'olives' },
   }]
 }
 const { cheese, topping } = Astro.params

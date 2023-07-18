@@ -1,11 +1,10 @@
 import { teardown } from '@astrojs/compiler';
 import * as eslexer from 'es-module-lexer';
 import glob from 'fast-glob';
-import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import { extname } from 'node:path';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path, { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import type { RouteData } from '../../@types/astro';
 import {

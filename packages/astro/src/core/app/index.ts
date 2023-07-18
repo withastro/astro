@@ -2,23 +2,21 @@ import mime from 'mime';
 import type {
 	EndpointHandler,
 	ManifestData,
-	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 	SSRManifest,
 } from '../../@types/astro';
 import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { callEndpoint, createAPIContext } from '../endpoint/index.js';
+import { callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
-	renderPage,
+	tryRenderPage,
 	type Environment,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -256,36 +254,8 @@ export class App {
 				env: this.#env,
 			});
 
-			const apiContext = createAPIContext({
-				request: renderContext.request,
-				params: renderContext.params,
-				props: renderContext.props,
-				site: this.#env.site,
-				adapterName: this.#env.adapterName,
-			});
-			let response;
-			if (page.onRequest) {
-				response = await callMiddleware<Response>(
-					this.#env.logging,
-					page.onRequest as MiddlewareResponseHandler,
-					apiContext,
-					() => {
-						return renderPage({
-							mod,
-							renderContext,
-							env: this.#env,
-							cookies: apiContext.cookies,
-						});
-					}
-				);
-			} else {
-				response = await renderPage({
-					mod,
-					renderContext,
-					env: this.#env,
-					cookies: apiContext.cookies,
-				});
-			}
+			const response = await tryRenderPage(renderContext, this.#env, mod, page.onRequest);
+
 			Reflect.set(request, responseSentSymbol, true);
 			return response;
 		} catch (err: any) {
