@@ -7,6 +7,7 @@ import type { Options } from './types';
 
 export default function (app: NodeApp, mode: Options['mode']) {
 	return async function (
+		error: unknown,
 		req: IncomingMessage,
 		res: ServerResponse,
 		next?: (err?: unknown) => void,
