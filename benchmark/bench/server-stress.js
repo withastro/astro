@@ -1,9 +1,9 @@
-import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
 import autocannon from 'autocannon';
 import { execaCommand } from 'execa';
-import { waitUntilBusy } from 'port-authority';
 import { markdownTable } from 'markdown-table';
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { waitUntilBusy } from 'port-authority';
 import pb from 'pretty-bytes';
 import { astroBin } from './_util.js';
 

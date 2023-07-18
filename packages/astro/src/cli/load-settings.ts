@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import fs from 'fs';
 import * as colors from 'kleur/colors';
+import fs from 'node:fs';
 import type { Arguments as Flags } from 'yargs-parser';
 import { ZodError } from 'zod';
 import { createSettings, openConfig, resolveConfigPath } from '../core/config/index.js';

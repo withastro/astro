@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 const dir = await fs.promises.readdir('packages/astro/node_modules/shiki/themes/');
 

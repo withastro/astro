@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { createFs } from '../test-utils.js';
 import { createRouteManifest } from '../../../dist/core/routing/manifest/create.js';
 import { createDefaultDevSettings } from '../../../dist/core/config/index.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);

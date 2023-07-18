@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 import {
 	createContainerWithAutomaticRestart,
@@ -30,7 +30,7 @@ describe('dev container restarts', () => {
 				</html>
 			`,
 				'/astro.config.mjs': `
-				
+
 				`,
 			},
 			root

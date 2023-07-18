@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
-// @ts-expect-error Cannot find module 'astro/assets' or its corresponding type declarations.
-import { emitESMImage } from 'astro/assets';
+// @ts-expect-error Cannot get the types here without `moduleResolution: 'nodenext'`
+import { emitESMImage } from 'astro/assets/utils';
 import path from 'node:path';
 import type * as rollup from 'rollup';
 import type { MarkdocConfigResult } from './load-config.js';

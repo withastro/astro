@@ -8,10 +8,10 @@ import type {
 } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 
-import nodeFs from 'fs';
 import { createRequire } from 'module';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import nodeFs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';

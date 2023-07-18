@@ -1,5 +1,5 @@
 import type { NodeApp } from 'astro/app/node';
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Readable } from 'stream';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
 import { responseIterator } from './response-iterator';
