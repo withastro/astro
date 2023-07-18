@@ -1,6 +1,6 @@
+import { cpus } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { isMainThread } from 'node:worker_threads';
-import { cpus } from 'os';
-import { fileURLToPath } from 'url';
 import type { ImageOutputFormat } from '../../../types.js';
 import { getModuleURL } from './emscripten-utils.js';
 import type { Operation } from './image.js';

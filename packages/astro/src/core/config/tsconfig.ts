@@ -1,6 +1,6 @@
 import { deepmerge } from 'deepmerge-ts';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import * as tsr from 'tsconfig-resolver';
 
 export const defaultTSConfig: tsr.TsConfigJson = { extends: 'astro/tsconfigs/base' };

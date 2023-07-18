@@ -1,7 +1,6 @@
 // @ts-check
 import { Octokit } from '@octokit/action';
-import { execSync } from 'child_process';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const octokit = new Octokit();
 const owner = 'snowpackjs';

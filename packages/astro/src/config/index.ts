@@ -22,7 +22,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			{ runHookConfigSetup, runHookConfigDone },
 			{ astroContentListenPlugin },
 		] = await Promise.all([
-			import('fs'),
+			import('node:fs'),
 			import('vite'),
 			import('../core/logger/node.js'),
 			import('../core/config/index.js'),

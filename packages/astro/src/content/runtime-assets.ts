@@ -1,6 +1,6 @@
 import type { PluginContext } from 'rollup';
 import { z } from 'zod';
-import { emitESMImage } from '../assets/index.js';
+import { emitESMImage } from '../assets/utils/emitAsset.js';
 
 export function createImage(pluginContext: PluginContext, entryFilePath: string) {
 	return () => {

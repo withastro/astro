@@ -1,8 +1,8 @@
-import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	AstroSettings,

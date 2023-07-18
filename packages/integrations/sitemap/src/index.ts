@@ -1,11 +1,11 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
+import { fileURLToPath } from 'node:url';
 import {
 	EnumChangefreq,
 	simpleSitemapAndIndex,
 	type LinkItem as LinkItemBase,
 	type SitemapItemLoose,
 } from 'sitemap';
-import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
@@ -96,6 +96,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						});
 
 					let routeUrls = routes.reduce<string[]>((urls, r) => {
+						// Only expose pages, not endpoints or redirects
+						if (r.type !== 'page') return urls;
+
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */

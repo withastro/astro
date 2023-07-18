@@ -1,5 +1,5 @@
-import type http from 'http';
 import mime from 'mime';
+import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';

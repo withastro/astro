@@ -1,6 +1,6 @@
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
 
 export { fixLineEndings } from '../../../astro/test/test-utils.js';
 

@@ -2,9 +2,7 @@
 '@astrojs/netlify': minor
 ---
 
-When a project uses the new option Astro `build.excludeMiddleware`, the
-`@astrojs/netlify/functions` adapter will automatically create an Edge Middleware
-that will automatically communicate with the Astro Middleware.
+When a project uses the new `build.excludeMiddleware` Astro config option, the `@astrojs/netlify/functions` adapter will bundle your middleware to run in a [Netlify Edge Function](https://docs.netlify.com/edge-functions/overview/).
 
-Check the [documentation](https://github.com/withastro/astro/blob/main/packages/integrations/netlify/README.md#edge-middleware-with-astro-middleware) for more details.
+See the [Netlify adapter documentation](https://docs.astro.build/en/guides/integrations-guide/netlify/#run-middleware-in-edge-functions) for more details.
 

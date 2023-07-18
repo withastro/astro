@@ -30,12 +30,12 @@
  * THE SOFTWARE.
  */
 
-import * as fs from 'fs';
-import { join, normalize, resolve } from 'path';
+import * as fs from 'node:fs';
+import { join, normalize, resolve } from 'node:path';
 // import { totalist } from 'totalist/sync';
 // import { parse } from '@polka/url';
 import { lookup } from 'mrmime';
-import { URL } from 'url';
+import { URL } from 'node:url';
 
 const noop = () => {};
 

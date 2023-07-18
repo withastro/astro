@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ASTRO_LOCALS_HEADER } from './adapter.js';
@@ -62,12 +62,12 @@ import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
 export default async function middleware(request, context) {
 	const url = new URL(request.url);
-	const ctx = createContext({ 
+	const ctx = createContext({
 		request,
 		params: {}
 	});
 	ctx.locals = ${handlerTemplateCall};
-	const next = async () => {	
+	const next = async () => {
 		const response = await fetch(url, {
 			headers: {
 				${JSON.stringify(ASTRO_LOCALS_HEADER)}: trySerializeLocals(ctx.locals)

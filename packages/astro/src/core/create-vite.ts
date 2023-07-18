@@ -1,8 +1,8 @@
 import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
-import nodeFs from 'fs';
-import { fileURLToPath } from 'url';
+import nodeFs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
