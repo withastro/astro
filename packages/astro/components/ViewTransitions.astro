@@ -13,9 +13,12 @@ const { fallback = 'animate' } = Astro.props as Props;
 	type Fallback = 'none' | 'animate' | 'swap';
 	type Direction = 'forward' | 'back';
 
-	let currentIndex = history.state?.index || 0;
+	// The History API does not tell you if navigation is forward or back, so
+	// you can figure it using an index. On pushState the index is incremented so you
+	// can use that to determine popstate if going forward or back.
+	let currentHistoryIndex = history.state?.index || 0;
 	if(!history.state) {
-		history.replaceState({index: currentIndex}, document.title);
+		history.replaceState({index: currentHistoryIndex}, document.title);
 	}
 
 	const supportsViewTransitions = !!document.startViewTransition;
@@ -96,6 +99,9 @@ const { fallback = 'animate' } = Astro.props as Props;
 		if(link instanceof Element && link.tagName !== 'A') {
 			link = link.closest('a');
 		}
+		// This check verifies that the click is happening on an anchor
+		// that is going to another page within the same origin. Basically it determines
+		// same-origin navigation, but omits special key combos for new tabs, etc.
 		if (link &&
 			link instanceof HTMLAnchorElement &&
 			link.href &&
@@ -111,16 +117,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 			) {
 			ev.preventDefault();
     	navigate('forward', link.href);
-			history.pushState({index: currentIndex + 1}, '', link.href);
-			currentIndex++;
+			currentHistoryIndex++;
+			history.pushState({index: currentHistoryIndex}, '', link.href);
 		}
   });
 	window.addEventListener('popstate', () => {
 		if(!transitionEnabledOnThisPage()) return;
-		const index = history.state?.index ?? (currentIndex + 1);
-		const direction: Direction = index > currentIndex ? 'forward' : 'back';
+		const index = history.state?.index ?? (currentHistoryIndex + 1);
+		const direction: Direction = index > currentHistoryIndex ? 'forward' : 'back';
 		navigate(direction, location.href);
-		currentIndex = index;
+		currentHistoryIndex = index;
 	});
 
 	['mouseenter', 'touchstart', 'focus'].forEach(evName => {
