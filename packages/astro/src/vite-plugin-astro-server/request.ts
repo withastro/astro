@@ -2,6 +2,7 @@ import type http from 'node:http';
 import type { ManifestData, SSRManifest } from '../@types/astro';
 import type { DevelopmentEnvironment } from '../core/render/dev/index';
 import type { DevServerController } from './controller';
+import type { MatchedRoute } from './route.js';
 
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
@@ -77,10 +78,12 @@ export async function handleRequest({
 		async run() {
 			const matchedRoute = await matchRoute(pathname, env, manifestData);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
+			const status = getStatus(matchedRoute);
 			return await handleRoute({
 				matchedRoute,
 				url,
 				pathname: resolvedPathname,
+				status,
 				body,
 				origin,
 				env,
@@ -110,4 +113,11 @@ export async function handleRequest({
 			return err;
 		},
 	});
+}
+
+function getStatus(matchedRoute?: MatchedRoute): number {
+	if (!matchedRoute) return 404;
+	if (matchedRoute.route.route === '/404') return 404;
+	if (matchedRoute.route.route === '/500') return 500;
+	return 200;
 }

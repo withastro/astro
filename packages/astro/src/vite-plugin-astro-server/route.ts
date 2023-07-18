@@ -25,7 +25,7 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
-interface MatchedRoute {
+export interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
@@ -118,6 +118,7 @@ type HandleRoute = {
 	matchedRoute: AsyncReturnType<typeof matchRoute>;
 	url: URL;
 	pathname: string;
+	status: number;
 	body: ArrayBuffer | undefined;
 	origin: string;
 	env: DevelopmentEnvironment;
@@ -131,6 +132,7 @@ export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
+	status,
 	body,
 	origin,
 	env,
@@ -198,6 +200,7 @@ export async function handleRoute({
 					matchedRoute: fourOhFourRoute,
 					url: new URL('/404', url),
 					pathname: '/404',
+					status: 404,
 					body,
 					origin,
 					env,
@@ -236,6 +239,7 @@ export async function handleRoute({
 				...options,
 				matchedRoute: fourOhFourRoute,
 				url: new URL(pathname, url),
+				status: 404,
 				body,
 				origin,
 				env,
@@ -246,6 +250,12 @@ export async function handleRoute({
 			});
 		}
 		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(request, result, incomingResponse);
+
+		let response = result;
+		// Response.status is read-only, so a clone is required to override
+		if (response.status !== status) {
+			response = new Response(result.body, { ...result, status });
+		}
+		return await writeSSRResult(request, response, incomingResponse);
 	}
 }
