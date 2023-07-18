@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const NUM_POSTS = 10;
 const POSTS_DIR = './src/content/posts.generated';

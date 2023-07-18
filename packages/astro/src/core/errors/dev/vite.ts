@@ -1,6 +1,6 @@
-import * as fs from 'fs';
+import * as fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { getHighlighter } from 'shiki';
-import { fileURLToPath } from 'url';
 import type { ErrorPayload } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroErrorData } from '../errors-data.js';

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { normalizePath, type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 

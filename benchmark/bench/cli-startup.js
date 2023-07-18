@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
 import { astroBin, calculateStat } from './_util.js';

@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
 import type { AstroConfig, AstroSettings } from '../@types/astro';

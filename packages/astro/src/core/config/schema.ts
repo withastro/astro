@@ -3,7 +3,7 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
-import type { OutgoingHttpHeaders } from 'http';
+import type { OutgoingHttpHeaders } from 'node:http';
 import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';

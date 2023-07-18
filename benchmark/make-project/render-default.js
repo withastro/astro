@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import { loremIpsumHtml, loremIpsumMd } from './_util.js';
 
 // Map of files to be generated and tested for rendering.

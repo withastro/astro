@@ -1,6 +1,6 @@
 // TODO: unskip this test
 // import { expect } from 'chai';
-// import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'node:url';
 // import { createRouteManifest } from '../dist/core/routing/index.js';
 // import { validateConfig } from '../dist/core/config.js';
 

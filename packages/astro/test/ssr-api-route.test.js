@@ -1,8 +1,8 @@
 import { expect } from 'chai';
+import net from 'node:net';
 import { File, FormData } from 'undici';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-import net from 'net';
 
 describe('API routes in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */

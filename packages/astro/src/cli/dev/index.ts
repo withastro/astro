@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import type yargs from 'yargs-parser';
 import { resolveConfigPath, resolveFlags } from '../../core/config/index.js';
 import devServer from '../../core/dev/index.js';

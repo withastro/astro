@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import os from 'os';
+import os from 'node:os';
 
-import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFsWithFallback, createRequestAndResponse } from '../test-utils.js';
 import mdx from '../../../../integrations/mdx/dist/index.js';
 import { attachContentServerListeners } from '../../../dist/content/server-listeners.js';
+import { runInContainer } from '../../../dist/core/dev/index.js';
+import { createFsWithFallback, createRequestAndResponse } from '../test-utils.js';
 
 const root = new URL('../../fixtures/content/', import.meta.url);
 

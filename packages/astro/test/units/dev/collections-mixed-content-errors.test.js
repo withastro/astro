@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { validateConfig } from '../../../dist/core/config/config.js';
 import { createSettings } from '../../../dist/core/config/index.js';
 import { sync as _sync } from '../../../dist/core/sync/index.js';

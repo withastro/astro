@@ -2,8 +2,8 @@ import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { AstroConfig, RouteData } from 'astro';
 import esbuild from 'esbuild';
 import fs from 'node:fs';
-import npath from 'path';
-import { fileURLToPath } from 'url';
+import npath from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const DENO_SHIM = `globalThis.process = {
 	argv: [],

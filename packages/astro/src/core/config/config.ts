@@ -1,10 +1,10 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
 
-import fs from 'fs';
 import * as colors from 'kleur/colors';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';

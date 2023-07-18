@@ -1,5 +1,5 @@
 import type { AstroConfig } from 'astro';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { crawlFrameworkPkgs } from 'vitefu';
 
 export async function getSolidPkgsConfig(isBuild: boolean, astroConfig: AstroConfig) {

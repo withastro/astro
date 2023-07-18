@@ -1,6 +1,6 @@
 import { bold } from 'kleur/colors';
-import type { AddressInfo } from 'net';
 import fs from 'node:fs';
+import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import type {

@@ -1,4 +1,4 @@
-import { basename, extname } from 'path';
+import { basename, extname } from 'node:path';
 import { removeQueryString } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { isESMImportedImage } from '../internal.js';

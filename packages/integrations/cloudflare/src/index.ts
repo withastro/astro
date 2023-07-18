@@ -1,11 +1,11 @@
 import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import esbuild from 'esbuild';
-import * as fs from 'fs';
-import * as os from 'os';
-import { sep } from 'path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import { sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
-import { fileURLToPath, pathToFileURL } from 'url';
 
 type Options = {
 	mode: 'directory' | 'advanced';

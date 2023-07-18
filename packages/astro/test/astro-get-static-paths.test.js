@@ -126,4 +126,9 @@ describe('getStaticPaths - dev calls', () => {
 			);
 		}
 	});
+
+	it('properly handles hyphenation in getStaticPaths', async () => {
+		const res = await fixture.fetch('/pizza/parmesan-and-olives');
+		expect(res.status).to.equal(200);
+	});
 });

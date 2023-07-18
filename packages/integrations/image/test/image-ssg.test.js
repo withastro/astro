@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import sizeOf from 'image-size';
-import fs from 'fs/promises';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import fs from 'node:fs/promises';
 import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadFixture } from './test-utils.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));

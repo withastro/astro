@@ -1,5 +1,5 @@
-import type http from 'http';
 import mime from 'mime';
+import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
@@ -218,6 +218,22 @@ export async function handleRoute({
 		}
 	} else {
 		const result = await renderPage(options);
+		if (result.status === 404) {
+			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
+			return handleRoute({
+				...options,
+				matchedRoute: fourOhFourRoute,
+				url: new URL(pathname, url),
+				body,
+				origin,
+				env,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+				manifest,
+			});
+		}
+		throwIfRedirectNotAllowed(result, config);
 		await writeSSRResult(request, result, incomingResponse);
 	}
 }
