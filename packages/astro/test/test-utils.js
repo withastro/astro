@@ -1,21 +1,21 @@
 import { polyfill } from '@astrojs/webapi';
 import { execa } from 'execa';
 import fastGlob from 'fast-glob';
-import fs from 'fs';
-import os from 'os';
+import fs from 'node:fs';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import stripAnsi from 'strip-ansi';
-import { fileURLToPath } from 'url';
-import { sync } from '../dist/core/sync/index.js';
+import { check } from '../dist/cli/check/index.js';
 import build from '../dist/core/build/index.js';
+import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
+import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
+import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
 import { openConfig } from '../dist/core/config/config.js';
 import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import preview from '../dist/core/preview/index.js';
-import { check } from '../dist/cli/check/index.js';
-import { getVirtualModulePageNameFromPath } from '../dist/core/build/plugins/util.js';
-import { RESOLVED_SPLIT_MODULE_ID } from '../dist/core/build/plugins/plugin-ssr.js';
-import { makeSplitEntryPointFileName } from '../dist/core/build/static-build.js';
+import { sync } from '../dist/core/sync/index.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {

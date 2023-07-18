@@ -5,7 +5,7 @@ import {
 	type LinkItem as LinkItemBase,
 	type SitemapItemLoose,
 } from 'sitemap';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';

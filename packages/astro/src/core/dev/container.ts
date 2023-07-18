@@ -1,8 +1,8 @@
-import type * as http from 'http';
-import type { AddressInfo } from 'net';
+import type * as http from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
 
-import nodeFs from 'fs';
+import nodeFs from 'node:fs';
 import * as vite from 'vite';
 import {
 	runHookConfigDone,

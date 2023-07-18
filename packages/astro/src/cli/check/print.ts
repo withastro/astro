@@ -12,7 +12,7 @@ import {
 	yellow,
 } from 'kleur/colors';
 import stringWidth from 'string-width';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 export function printDiagnostic(filePath: string, text: string, diag: Diagnostic): string {
 	let result = [];

@@ -1,8 +1,8 @@
 // @ts-check
 
-import { spawn } from 'child_process';
-import { readdirSync, readFileSync, writeFileSync } from 'fs';
-import * as path from 'path';
+import { spawn } from 'node:child_process';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import * as path from 'node:path';
 import pLimit from 'p-limit';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 

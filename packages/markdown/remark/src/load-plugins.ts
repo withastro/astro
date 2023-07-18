@@ -1,7 +1,7 @@
 import { resolve as importMetaResolve } from 'import-meta-resolve';
-import path from 'path';
+import path from 'node:path';
 import type * as unified from 'unified';
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from 'node:url';
 
 const cwdUrlStr = pathToFileURL(path.join(process.cwd(), 'package.json')).toString();
 

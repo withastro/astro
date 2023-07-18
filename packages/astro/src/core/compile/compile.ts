@@ -3,7 +3,7 @@ import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 
 import { transform } from '@astrojs/compiler';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';

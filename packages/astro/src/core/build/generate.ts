@@ -1,8 +1,8 @@
-import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	AstroSettings,
@@ -41,8 +41,8 @@ import { callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
 import {
-	getRedirectLocationOrThrow,
 	RedirectSinglePageBuiltModule,
+	getRedirectLocationOrThrow,
 	routeIsRedirect,
 } from '../redirects/index.js';
 import { createEnvironment, createRenderContext, tryRenderPage } from '../render/index.js';

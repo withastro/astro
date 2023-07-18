@@ -2,7 +2,7 @@ import * as devalue from 'devalue';
 import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import type { PluginContext } from 'rollup';
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import type {
 	AstroConfig,
