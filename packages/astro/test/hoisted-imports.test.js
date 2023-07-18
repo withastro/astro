@@ -54,11 +54,19 @@ describe('Hoisted Imports', () => {
 		}
 		function expectNotScript(scripts, letter) {
 			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
-			expect(scripts, 'shouldn\'t include component ' + letter).to.not.match(regex);
+			expect(scripts, "shouldn't include component " + letter).to.not.match(regex);
 		}
 
 		it('includes all imported scripts', async () => {
 			const scripts = await getAllScriptText('/all/index.html');
+			expectScript(scripts, 'A');
+			expectScript(scripts, 'B');
+			expectScript(scripts, 'C');
+			expectScript(scripts, 'D');
+			expectScript(scripts, 'E');
+		});
+		it('includes all imported scripts when dynamically imported', async () => {
+			const scripts = await getAllScriptText('/dynamic/index.html');
 			expectScript(scripts, 'A');
 			expectScript(scripts, 'B');
 			expectScript(scripts, 'C');
@@ -80,7 +88,6 @@ describe('Hoisted Imports', () => {
 			expectScript(scripts, 'C');
 			expectNotScript(scripts, 'D');
 			expectNotScript(scripts, 'E');
-
 		});
 	});
 });

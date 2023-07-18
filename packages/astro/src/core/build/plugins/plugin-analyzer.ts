@@ -26,9 +26,13 @@ async function doesParentImportChild(
 	this: PluginContext,
 	parentInfo: ModuleInfo,
 	childInfo: ModuleInfo | undefined,
-	childExportNames: string[] | undefined
-): Promise<undefined | string[]> {
-	if (!childInfo || !parentInfo.ast || !childExportNames) return undefined;
+	childExportNames: string[] | 'dynamic' | undefined
+): Promise<'no' | 'dynamic' | string[]> {
+	if (!childInfo || !parentInfo.ast || !childExportNames) return 'no';
+
+	if (childExportNames === 'dynamic' || parentInfo.dynamicallyImportedIds?.includes(childInfo.id)) {
+		return 'dynamic';
+	}
 
 	const imports: Array<ImportDeclaration> = [];
 	const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
@@ -98,14 +102,14 @@ async function doesParentImportChild(
 			}
 		}
 	}
-	if (!importNames.length) return undefined;
+	if (!importNames.length) return 'no';
 
 	// If the component is imported by another component, assume it's in use
 	// and start tracking this new component now
 	if (parentInfo.id.endsWith('.astro')) {
 		exportNames.push('default');
 	}
-	
+
 	return exportNames;
 }
 
@@ -126,7 +130,6 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				scripts: AstroPluginMetadata['astro']['scripts'],
 				from: string
 			) {
-
 				// console.log('\n\n==== ', from, ' ====\n\n');
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
@@ -135,32 +138,36 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (hoistedScripts.size) {
+					let dynamicallyImported = false;
 					const depthsToChildren = new Map<number, ModuleInfo>();
-					const depthsToExportNames = new Map<number, string[]>();
+					const depthsToExportNames = new Map<number, string[] | 'dynamic'>();
 					// The component export from the original component file will always be default.
 					depthsToExportNames.set(0, ['default']);
 
 					for (const [parentInfo, depth] of walkParentInfos(from, this, function until(importer) {
 						return isPropagatedAsset(importer);
 					})) {
-						// Check if the component is actually imported:
 						depthsToChildren.set(depth, parentInfo);
-						const childInfo = depthsToChildren.get(depth - 1);
-						const childExportNames = depthsToExportNames.get(depth - 1);
+						// If at any point
+						if (depth > 0 && !dynamicallyImported) {
+							// Check if the component is actually imported:
+							const childInfo = depthsToChildren.get(depth - 1);
+							const childExportNames = depthsToExportNames.get(depth - 1);
 
-						const parentReExportNames = await doesParentImportChild.call(
-							this,
-							parentInfo,
-							childInfo,
-							childExportNames,
-						);
+							const doesImport = await doesParentImportChild.call(
+								this,
+								parentInfo,
+								childInfo,
+								childExportNames
+							);
 
-						if (!parentReExportNames) {
-							// console.log(`[astro] ${parentInfo.id} does not import any of ${childExportNames?.join(', ')} ${childInfo?.id}`);
-							// Break the search if the parent doesn't import the child.
-							continue;
+							if (doesImport === 'no') {
+								// console.log(`[astro] ${parentInfo.id} does not import any of ${childExportNames?.join(', ')} ${childInfo?.id}`);
+								// Break the search if the parent doesn't import the child.
+								continue;
+							}
+							depthsToExportNames.set(depth, doesImport);
 						}
-						depthsToExportNames.set(depth, parentReExportNames);
 
 						if (isPropagatedAsset(parentInfo.id)) {
 							for (const [nestedParentInfo] of walkParentInfos(from, this)) {
