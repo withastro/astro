@@ -179,7 +179,7 @@ export class App {
 			);
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return new Response(null, {
+			response = new Response(null, {
 				status: 500,
 				statusText: 'Internal server error',
 			});
