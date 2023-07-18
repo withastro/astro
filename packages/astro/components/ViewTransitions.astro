@@ -22,8 +22,8 @@ const { fallback = 'animate' } = Astro.props as Props;
 	const transitionEnabledOnThisPage = () => !!document.querySelector('[name="astro-view-transitions-enabled"]');
 
   async function getHTML(href: string) {
-    let res = await fetch(href)
-    let html = await res.text();
+    const res = await fetch(href)
+    const html = await res.text();
 		return { ok: res.ok, html };
   }
 
