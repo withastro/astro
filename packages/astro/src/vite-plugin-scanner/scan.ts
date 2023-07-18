@@ -1,13 +1,21 @@
+import type { PageOptions } from '../vite-plugin-astro/types.js';
+import type { AstroSettings } from '../@types/astro.js';
+
 import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { PageOptions } from '../vite-plugin-astro/types.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
+import { warn, type LogOptions } from '../core/logger/core.js';
 
+const FUNCTION_EXPORTS = new Set(['getStaticPaths']);
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
 // Quick scan to determine if code includes recognized export
 // False positives are not a problem, so be forgiving!
 function includesExport(code: string) {
 	for (const name of BOOLEAN_EXPORTS) {
+		if (code.includes(name)) return true;
+	}
+	for (const name of FUNCTION_EXPORTS) {
 		if (code.includes(name)) return true;
 	}
 	return false;
@@ -34,7 +42,7 @@ function isFalsy(value: string) {
 
 let didInit = false;
 
-export async function scan(code: string, id: string, isHybridOutput = false): Promise<PageOptions> {
+export async function scan(code: string, id: string, settings: AstroSettings, logging: LogOptions): Promise<PageOptions> {
 	if (!includesExport(code)) return {};
 	if (!didInit) {
 		await eslexer.init;
@@ -42,6 +50,7 @@ export async function scan(code: string, id: string, isHybridOutput = false): Pr
 	}
 
 	const [, exports] = eslexer.parse(code, id);
+
 	let pageOptions: PageOptions = {};
 	for (const _export of exports) {
 		const { n: name, le: endOfLocalName } = _export;
@@ -62,7 +71,7 @@ export async function scan(code: string, id: string, isHybridOutput = false): Pr
 			if (prefix !== 'const' || !(isTruthy(suffix) || isFalsy(suffix))) {
 				throw new AstroError({
 					...AstroErrorData.InvalidPrerenderExport,
-					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, isHybridOutput),
+					message: AstroErrorData.InvalidPrerenderExport.message(prefix, suffix, settings.config.output === 'hybrid'),
 					location: { file: id },
 				});
 			} else {
@@ -70,5 +79,13 @@ export async function scan(code: string, id: string, isHybridOutput = false): Pr
 			}
 		}
 	}
+
+	if (settings.config.output === 'server' && !pageOptions.prerender) {
+		const hasGetStaticPaths = Boolean(exports.find(_export => _export.n === 'getStaticPaths'));
+		if (hasGetStaticPaths) {
+			warn(logging, 'scan', `getStaticPaths`)
+		}
+	}
+
 	return pageOptions;
 }

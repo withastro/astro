@@ -1,11 +1,17 @@
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
+import type { LogOptions } from '../core/logger/core.js';
 import { isEndpoint, isPage } from '../core/util.js';
 
 import { getPrerenderDefault } from '../prerender/utils.js';
 import { scan } from './scan.js';
 
-export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+export interface AstroPluginScannerOptions {
+	settings: AstroSettings;
+	logging: LogOptions;
+}
+
+export default function astroScannerPlugin({ settings, logging }: AstroPluginScannerOptions): VitePlugin {
 	return {
 		name: 'astro:scanner',
 		enforce: 'post',
@@ -26,7 +32,7 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 			const defaultPrerender = getPrerenderDefault(settings.config);
-			const pageOptions = await scan(code, id, settings.config.output === 'hybrid');
+			const pageOptions = await scan(code, id, settings, logging);
 
 			if (typeof pageOptions.prerender === 'undefined') {
 				pageOptions.prerender = defaultPrerender;
