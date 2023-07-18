@@ -28,7 +28,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 /**
  * @typedef {import('undici').Response} Response
  * @typedef {import('../src/core/dev/dev').DedvServer} DevServer
- * @typedef {import('../src/@types/astro').AstroInlineConfig} AstroInlineConfig
+ * @typedef {import('../src/@types/astro').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
@@ -107,7 +107,7 @@ export async function loadFixture(inlineConfig) {
 	const logging = defaultLogging;
 
 	// Load the config.
-	const root = fileURLToPath(new URL(inlineConfig.root.replace(/\/?$/, '/'), import.meta.url));
+	const root = fileURLToPath(new URL(inlineConfig.root, import.meta.url));
 	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
 	/**
