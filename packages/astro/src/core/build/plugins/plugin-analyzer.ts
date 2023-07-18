@@ -40,9 +40,9 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 				if (hoistedScripts.size) {
 					const depthsToChildren = new Map<number, ModuleInfo>();
-					const depthsToExportNames = new Map<number, string>();
+					const depthsToExportNames = new Map<number, string[]>();
 					// The component export from the original component file will always be default.
-					depthsToExportNames.set(0, 'default');
+					depthsToExportNames.set(0, ['default']);
 
 					for (const [parentInfo, depth] of walkParentInfos(from, this, function until(importer) {
 						return isPropagatedAsset(importer);
@@ -50,8 +50,8 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						// Check if the component is actually imported:
 						depthsToChildren.set(depth, parentInfo);
 						const childInfo = depthsToChildren.get(depth - 1);
-						const childExportName = depthsToExportNames.get(depth - 1);
-						if (childInfo && childExportName !== undefined && parentInfo.ast) {
+						const childExportNames = depthsToExportNames.get(depth - 1);
+						if (childInfo && childExportNames && parentInfo.ast) {
 							const imports: Array<ImportDeclaration> = [];
 							const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
 							walk(parentInfo.ast, {
@@ -63,7 +63,8 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 									}
 								}
 							});
-							let importName: string | null = null;
+							const importNames: string[] = [];
+							const exportNames: string[] = [];
 							for (const node of imports) {
 								const resolved = await this.resolve(node.source.value as string, parentInfo.id);
 								if (!resolved || resolved.id !== childInfo.id) continue;
@@ -72,15 +73,15 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 									if (specifier.type === 'ImportNamespaceSpecifier') continue;
 									const name = specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name;
 									// If we're importing the thing that the child exported, store the local name of what we imported
-									if (childExportName === name) {
-										importName = specifier.local.name;
+									if (childExportNames.includes(name)) {
+										importNames.push(specifier.local.name);
 									}
 								}
 							}
 							for (const node of exports) {
 								if (node.type === 'ExportDefaultDeclaration') {
-									if (node.declaration.type === 'Identifier' && node.declaration.name === importName) {
-										depthsToExportNames.set(depth, 'default');
+									if (node.declaration.type === 'Identifier' && importNames.includes(node.declaration.name)) {
+										exportNames.push('default');
 										// return
 									}
 								} else {
@@ -89,8 +90,8 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 										const resolved = await this.resolve(node.source.value as string, parentInfo.id);
 										if (!resolved || resolved.id !== childInfo.id) continue;
 										for (const specifier of node.specifiers) {
-											if (specifier.local.name === childExportName) {
-												importName = specifier.local.name;
+											if (childExportNames.includes(specifier.local.name)) {
+												exportNames.push(specifier.exported.name);
 											}
 										}
 									}
@@ -99,19 +100,20 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 										for (const declarator of node.declaration.declarations) {
 											if (declarator.init?.type !== 'Identifier') continue;
 											if (declarator.id.type !== 'Identifier') continue;
-											if (declarator.init.name === importName) {
-												depthsToExportNames.set(depth, declarator.id.name);
+											if (importNames.includes(declarator.init.name)) {
+												exportNames.push(declarator.id.name);
 											}
 										}
 									}
 									for (const specifier of node.specifiers) {
-										if (specifier.local.name === importName) {
-											depthsToExportNames.set(depth, specifier.exported.name);
+										if (importNames.includes(specifier.local.name)) {
+											exportNames.push(specifier.exported.name);
 										}
 									}
 								}
 							}
-							if (!importName) {
+							depthsToExportNames.set(depth, exportNames);
+							if (!importNames.length) {
 								// console.log(`Page ${parentInfo.id} does not import ${depthsToExportNames.get(depth - 1)}.`)
 								continue;
 							}
