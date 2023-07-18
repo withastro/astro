@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
 import { test as testBase, expect } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
@@ -24,7 +25,7 @@ export function loadFixture(inlineConfig) {
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
 	return baseLoadFixture({
 		...inlineConfig,
-		root: new URL(inlineConfig.root, import.meta.url).toString(),
+		root: fileURLToPath(new URL(inlineConfig.root, import.meta.url)),
 		server: {
 			port: testFileToPort.get(path.basename(inlineConfig.root)),
 		},

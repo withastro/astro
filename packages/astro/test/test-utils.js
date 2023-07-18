@@ -107,7 +107,11 @@ export async function loadFixture(inlineConfig) {
 	const logging = defaultLogging;
 
 	// Load the config.
-	const root = fileURLToPath(new URL(inlineConfig.root, import.meta.url));
+	const inlineRoot =
+		typeof inlineConfig.root === 'string' && !inlineConfig.root.startsWith('file://')
+			? inlineConfig.root
+			: fileURLToPath(inlineConfig.root);
+	const root = fileURLToPath(new URL(inlineRoot, import.meta.url));
 	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
 	/**
