@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
 import httpMocks from 'node-mocks-http';
+import { EventEmitter } from 'node:events';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 /**
