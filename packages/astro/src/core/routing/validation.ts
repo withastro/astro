@@ -19,7 +19,7 @@ export function validateGetStaticPathsParameter([key, value]: [string, any], rou
 	}
 }
 
-/** Warn or error for deprecated or malformed route components */
+/** Rrror for deprecated or malformed route components */
 export function validateDynamicRouteModule(
 	mod: ComponentInstance,
 	{
@@ -32,13 +32,6 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	}
 ) {
-	if (ssr && mod.getStaticPaths && !route.prerender) {
-		warn(
-			logging,
-			'getStaticPaths',
-			`getStaticPaths() in ${bold(route.component)} is ignored when "output: server" is set.`
-		);
-	}
 	if ((!ssr || route.prerender) && !mod.getStaticPaths) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsRequired,
