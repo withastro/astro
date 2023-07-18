@@ -3,7 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'ast
 import glob from 'fast-glob';
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from 'node:url';
 import {
 	defaultImageConfig,
 	getImageConfig,
