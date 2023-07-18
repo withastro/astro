@@ -19,7 +19,7 @@ export function validateGetStaticPathsParameter([key, value]: [string, any], rou
 	}
 }
 
-/** Rrror for deprecated or malformed route components */
+/** Error for deprecated or malformed route components */
 export function validateDynamicRouteModule(
 	mod: ComponentInstance,
 	{
