@@ -4,7 +4,7 @@ import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro'
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
