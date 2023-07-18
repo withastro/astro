@@ -107,11 +107,12 @@ export async function loadFixture(inlineConfig) {
 	const logging = defaultLogging;
 
 	// Load the config.
-	const root = fileURLToPath(
-		typeof inlineConfig.root === 'string'
-			? new URL(inlineConfig.root, import.meta.url)
-			: inlineConfig.root
-	);
+	let root = inlineConfig.root;
+	if (typeof root === 'string' && root.startsWith('file://')) {
+		root = fileURLToPath(new URL(root));
+	} else if (typeof root !== 'string') {
+		root = fileURLToPath(root);
+	}
 	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
 	/**
@@ -120,6 +121,9 @@ export async function loadFixture(inlineConfig) {
 	 * command functions below to prevent tests from polluting each other.
 	 */
 	const getSettings = async () => {
+		if (isWindows) {
+			console.log('VERCEL', config.root, root);
+		}
 		let settings = createSettings(config, root);
 		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 			// Enable default JSX integration. It needs to come first, so unshift rather than push!
