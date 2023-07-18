@@ -99,6 +99,13 @@ async function doesParentImportChild(
 		}
 	}
 	if (!importNames.length) return undefined;
+
+	// If the component is imported by another component, assume it's in use
+	// and start tracking this new component now
+	if (parentInfo.id.endsWith('.astro')) {
+		exportNames.push('default');
+	}
+	
 	return exportNames;
 }
 
@@ -119,6 +126,8 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				scripts: AstroPluginMetadata['astro']['scripts'],
 				from: string
 			) {
+
+				// console.log('\n\n==== ', from, ' ====\n\n');
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
 					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
