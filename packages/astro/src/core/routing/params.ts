@@ -1,4 +1,4 @@
-import type { GetStaticPathsItem, RouteData, Params } from '../../@types/astro';
+import type { GetStaticPathsItem, Params, RouteData } from '../../@types/astro';
 import { validateGetStaticPathsParameter } from './validation.js';
 
 /**
@@ -36,5 +36,5 @@ export function stringifyParams(params: GetStaticPathsItem['params'], route: Rou
 		return acc;
 	}, {} as Params);
 
-	return JSON.stringify(route.generate(validatedParams))
+	return JSON.stringify(route.generate(validatedParams));
 }
