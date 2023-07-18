@@ -49,11 +49,14 @@ const { fallback = 'animate' } = Astro.props as Props;
 			let isAnimating = false;
 			addEventListener('animationstart', () => isAnimating = true, { once: true });
 
+			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
 			doc.documentElement.dataset.astroTransitionFallback = 'new';
-			// Trigger the animations
+			// If there are any animations, want for the animationend event.
 			addEventListener('animationend', swap, { once: true });
 			// If there are no animations, go ahead and swap on next tick
+			// This is necessary because we do not know if there are animations.
+			// The setTimeout is a fallback in case there are none.
 			setTimeout(() => !isAnimating && swap());
 		} else {
 			swap();
@@ -61,12 +64,12 @@ const { fallback = 'animate' } = Astro.props as Props;
   }
 
 	async function navigate(dir: Direction, href: string) {
-		let htmlPromise = getHTML(href);
 		let finished: Promise<void>;
-		const { html, ok } = await htmlPromise;
+		const { html, ok } = await getHTML(href);
 		// If there is a problem fetching the new page, just do an MPA navigation to it.
 		if(!ok) {
 			location.href = href;
+			return;
 		}
 		if(supportsViewTransitions) {
 			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
@@ -123,10 +126,10 @@ const { fallback = 'animate' } = Astro.props as Props;
   });
 	window.addEventListener('popstate', () => {
 		if(!transitionEnabledOnThisPage()) return;
-		const index = history.state?.index ?? (currentHistoryIndex + 1);
-		const direction: Direction = index > currentHistoryIndex ? 'forward' : 'back';
+		const nextIndex = history.state?.index ?? (currentHistoryIndex + 1);
+		const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 		navigate(direction, location.href);
-		currentHistoryIndex = index;
+		currentHistoryIndex = nextIndex;
 	});
 
 	['mouseenter', 'touchstart', 'focus'].forEach(evName => {

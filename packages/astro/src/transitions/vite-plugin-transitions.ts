@@ -3,11 +3,10 @@ import * as vite from 'vite';
 import { AstroError } from '../core/errors/index.js';
 
 const virtualModuleId = 'astro:transitions';
+const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
 // The virtual module for the astro:transitions namespace
 export default function astroTransitions({ config }: { config: AstroConfig; }): vite.Plugin {
-	const resolvedVirtualModuleId = '\0' + virtualModuleId;
-
 	return {
 		name: 'astro:transitions',
 		async resolveId(id) {
