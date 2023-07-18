@@ -65,9 +65,7 @@ describe('Astro.redirect', () => {
 	});
 
 	describe('output: "static"', () => {
-		// Bug: https://github.com/withastro/astro/issues/7322
-		// Skip for now.
-		describe.skip('build', () => {
+		describe('build', () => {
 			before(async () => {
 				process.env.STATIC_MODE = true;
 				fixture = await loadFixture({

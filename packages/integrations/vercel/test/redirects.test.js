@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
-// Bug: https://github.com/withastro/astro/issues/7322
-// Skip for now.
-describe.skip('Redirects', () => {
+describe('Redirects', () => {
 	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
 	let fixture;
 

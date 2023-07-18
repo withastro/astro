@@ -3,7 +3,9 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
-import type { OutgoingHttpHeaders } from 'http';
+import type { OutgoingHttpHeaders } from 'node:http';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
@@ -149,7 +151,26 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
-	redirects: z.record(z.string(), z.string()).default(ASTRO_CONFIG_DEFAULTS.redirects),
+	redirects: z
+		.record(
+			z.string(),
+			z.union([
+				z.string(),
+				z.object({
+					status: z.union([
+						z.literal(300),
+						z.literal(301),
+						z.literal(302),
+						z.literal(303),
+						z.literal(304),
+						z.literal(307),
+						z.literal(308),
+					]),
+					destination: z.string(),
+				}),
+			])
+		)
+		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
 			service: z.object({
@@ -237,31 +258,31 @@ export const AstroConfigSchema = z.object({
 	legacy: z.object({}).optional().default({}),
 });
 
-export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
+export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
 		root: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.root)
-			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		srcDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
-			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 		publicDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
-			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		outDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.outDir)
-			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		cacheDir: z
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
-			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+			.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 		build: z
 			.object({
 				format: z
@@ -272,12 +293,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 					.string()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.client)
-					.transform((val) => new URL(val, fileProtocolRoot)),
+					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 				server: z
 					.string()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
-					.transform((val) => new URL(val, fileProtocolRoot)),
+					.transform((val) => resolveDirAsUrl(val, fileProtocolRoot)),
 				assets: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.assets),
 				assetsPrefix: z.string().optional(),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
@@ -356,4 +377,12 @@ A future version of Astro will stop using the site pathname when producing <link
 	});
 
 	return AstroConfigRelativeSchema;
+}
+
+function resolveDirAsUrl(dir: string, root: string) {
+	let resolvedDir = path.resolve(root, dir);
+	if (!resolvedDir.endsWith(path.sep)) {
+		resolvedDir += path.sep;
+	}
+	return pathToFileURL(resolvedDir);
 }

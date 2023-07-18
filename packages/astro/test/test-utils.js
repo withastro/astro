@@ -107,15 +107,20 @@ export async function loadFixture(inlineConfig) {
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = defaultLogging;
 
-	// Load the config.
 	let root = inlineConfig.root;
-	if (typeof root === 'string' && root.startsWith('file://')) {
-		root = fileURLToPath(new URL(root));
-	} else if (typeof root !== 'string') {
+	// Handle URL, should already be absolute so just convert to path
+	if (typeof root !== 'string') {
 		root = fileURLToPath(root);
-	} else if (!path.isAbsolute(root)) {
+	}
+	// Handle "file:///C:/Users/fred", convert to "C:/Users/fred"
+	else if (root.startsWith('file://')) {
+		root = fileURLToPath(new URL(root));
+	}
+	// Handle "./fixtures/...", convert to absolute path
+	else if (!path.isAbsolute(root)) {
 		root = fileURLToPath(new URL(root, import.meta.url));
 	}
+	// Load the config.
 	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
 	/**
