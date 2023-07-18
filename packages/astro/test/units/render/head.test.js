@@ -9,7 +9,7 @@ import {
 	renderHead,
 	Fragment,
 } from '../../../dist/runtime/server/index.js';
-import { createRenderContext, tryRenderPage } from '../../../dist/core/render/index.js';
+import { createRenderContext, tryRenderRoute } from '../../../dist/core/render/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
 import * as cheerio from 'cheerio';
 
@@ -96,7 +96,7 @@ describe('core/render', () => {
 				env,
 			});
 
-			const response = await tryRenderPage(ctx, env, PageModule);
+			const response = await tryRenderRoute('page', ctx, env, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -176,7 +176,7 @@ describe('core/render', () => {
 				mod: PageModule,
 			});
 
-			const response = await tryRenderPage(ctx, env, PageModule);
+			const response = await tryRenderRoute('page', ctx, env, PageModule);
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
@@ -222,7 +222,7 @@ describe('core/render', () => {
 				mod: PageModule,
 			});
 
-			const response = await tryRenderPage(ctx, env, PageModule);
+			const response = await tryRenderRoute('page', ctx, env, PageModule);
 			const html = await response.text();
 			const $ = cheerio.load(html);
 

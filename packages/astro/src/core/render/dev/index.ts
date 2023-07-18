@@ -1,7 +1,6 @@
 import type {
 	AstroMiddlewareInstance,
 	ComponentInstance,
-	MiddlewareResponseHandler,
 	RouteData,
 	SSRElement,
 } from '../../../@types/astro';
@@ -9,7 +8,7 @@ import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
 import { isPage, resolveIdToUrl, viteID } from '../../util.js';
-import { createRenderContext, loadRenderers, tryRenderPage } from '../index.js';
+import { loadRenderers } from '../index.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getComponentMetadata } from './metadata.js';
@@ -140,29 +139,4 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 	const metadata = await getComponentMetadata(filePath, env.loader);
 
 	return { scripts, styles, links, metadata };
-}
-
-export async function renderPage(options: SSROptions): Promise<Response> {
-	const mod = options.preload;
-
-	const { scripts, links, styles, metadata } = await getScriptsAndStyles({
-		env: options.env,
-		filePath: options.filePath,
-	});
-	const { env } = options;
-
-	const renderContext = await createRenderContext({
-		request: options.request,
-		pathname: options.pathname,
-		scripts,
-		links,
-		styles,
-		componentMetadata: metadata,
-		route: options.route,
-		mod,
-		env,
-	});
-	const onRequest = options.middleware?.onRequest as MiddlewareResponseHandler | undefined;
-
-	return tryRenderPage(renderContext, env, mod, onRequest);
 }
