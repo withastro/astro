@@ -1,4 +1,4 @@
-import type { PluginContext } from 'rollup';
+import type { ModuleInfo, PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
 import type { BuildInternals } from '../internal.js';
@@ -8,6 +8,8 @@ import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
+import { walk } from 'estree-walker';
+import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration } from 'estree';
 
 function isPropagatedAsset(id: string) {
 	try {
@@ -29,7 +31,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 		>();
 
 		return {
-			scan(this: PluginContext, scripts: AstroPluginMetadata['astro']['scripts'], from: string) {
+			async scan(this: PluginContext, scripts: AstroPluginMetadata['astro']['scripts'], from: string) {
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
 					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
@@ -37,9 +39,84 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (hoistedScripts.size) {
-					for (const [parentInfo] of walkParentInfos(from, this, function until(importer) {
+					const depthsToChildren = new Map<number, ModuleInfo>();
+					const depthsToExportNames = new Map<number, string>();
+					// The component export from the original component file will always be default.
+					depthsToExportNames.set(0, 'default');
+
+					for (const [parentInfo, depth] of walkParentInfos(from, this, function until(importer) {
 						return isPropagatedAsset(importer);
 					})) {
+						// Check if the component is actually imported:
+						depthsToChildren.set(depth, parentInfo);
+						const childInfo = depthsToChildren.get(depth - 1);
+						const childExportName = depthsToExportNames.get(depth - 1);
+						if (childInfo && childExportName !== undefined && parentInfo.ast) {
+							const imports: Array<ImportDeclaration> = [];
+							const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
+							walk(parentInfo.ast, {
+								async enter(node) {
+									if (node.type === 'ImportDeclaration') {
+										imports.push(node as ImportDeclaration);
+									} else if (node.type === 'ExportDefaultDeclaration' || node.type === 'ExportNamedDeclaration') {
+										exports.push(node as ExportNamedDeclaration | ExportDefaultDeclaration);
+									}
+								}
+							});
+							let importName: string | null = null;
+							for (const node of imports) {
+								const resolved = await this.resolve(node.source.value as string, parentInfo.id);
+								if (!resolved || resolved.id !== childInfo.id) continue;
+								for (const specifier of node.specifiers) {
+									// TODO: handle these?
+									if (specifier.type === 'ImportNamespaceSpecifier') continue;
+									const name = specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name;
+									// If we're importing the thing that the child exported, store the local name of what we imported
+									if (childExportName === name) {
+										importName = specifier.local.name;
+									}
+								}
+							}
+							for (const node of exports) {
+								if (node.type === 'ExportDefaultDeclaration') {
+									if (node.declaration.type === 'Identifier' && node.declaration.name === importName) {
+										depthsToExportNames.set(depth, 'default');
+										// return
+									}
+								} else {
+									// handle `export { x } from 'something';`, where the export and import are in the same node
+									if (node.source) {
+										const resolved = await this.resolve(node.source.value as string, parentInfo.id);
+										if (!resolved || resolved.id !== childInfo.id) continue;
+										for (const specifier of node.specifiers) {
+											if (specifier.local.name === childExportName) {
+												importName = specifier.local.name;
+											}
+										}
+									}
+									if (node.declaration) {
+										if (node.declaration.type !== 'VariableDeclaration') continue;
+										for (const declarator of node.declaration.declarations) {
+											if (declarator.init?.type !== 'Identifier') continue;
+											if (declarator.id.type !== 'Identifier') continue;
+											if (declarator.init.name === importName) {
+												depthsToExportNames.set(depth, declarator.id.name);
+											}
+										}
+									}
+									for (const specifier of node.specifiers) {
+										if (specifier.local.name === importName) {
+											depthsToExportNames.set(depth, specifier.exported.name);
+										}
+									}
+								}
+							}
+							if (!importName) {
+								// console.log(`Page ${parentInfo.id} does not import ${depthsToExportNames.get(depth - 1)}.`)
+								continue;
+							}
+						}
+
 						if (isPropagatedAsset(parentInfo.id)) {
 							for (const [nestedParentInfo] of walkParentInfos(from, this)) {
 								if (moduleIsTopLevelPage(nestedParentInfo)) {
@@ -146,7 +223,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				// Scan hoisted scripts
-				hoistScanner.scan.call(this, astro.scripts, id);
+				await hoistScanner.scan.call(this, astro.scripts, id);
 
 				if (astro.clientOnlyComponents.length) {
 					const clientOnlys: string[] = [];
