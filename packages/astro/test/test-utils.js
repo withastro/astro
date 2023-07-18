@@ -106,21 +106,12 @@ export async function loadFixture(inlineConfig) {
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = defaultLogging;
 
-	if (isWindows) {
-		console.log(
-			'HERE',
-			inlineConfig.root,
-			import.meta.url,
-			new URL(inlineConfig.root, import.meta.url)
-		);
-	}
-
 	// Load the config.
-	const inlineRoot =
-		typeof inlineConfig.root === 'string' && !inlineConfig.root.startsWith('file://')
-			? inlineConfig.root
-			: fileURLToPath(inlineConfig.root);
-	const root = fileURLToPath(new URL(inlineRoot, import.meta.url));
+	const root = fileURLToPath(
+		typeof inlineConfig.root === 'string'
+			? new URL(inlineConfig.root, import.meta.url)
+			: inlineConfig.root
+	);
 	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
 	/**
