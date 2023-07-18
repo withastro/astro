@@ -7,8 +7,8 @@
     "build:netlify": "astro build --config astro.config.netlify.mjs"
   },
   "dependencies": {
-    "astro": "workspace:*",
-    "@astrojs/vercel": "workspace:*",
-    "@astrojs/netlify": "workspace:*"
+    "@astrojs/netlify": "file:../../../../integrations/netlify",
+    "@astrojs/vercel": "file:../../../../integrations/vercel",
+    "astro": "file:../../.."
   }
 }
