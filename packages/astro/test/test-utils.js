@@ -106,6 +106,15 @@ export async function loadFixture(inlineConfig) {
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = defaultLogging;
 
+	if (isWindows) {
+		console.log(
+			'HERE',
+			inlineConfig.root,
+			import.meta.url,
+			new URL(inlineConfig.root, import.meta.url)
+		);
+	}
+
 	// Load the config.
 	const inlineRoot =
 		typeof inlineConfig.root === 'string' && !inlineConfig.root.startsWith('file://')
