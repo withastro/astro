@@ -3,7 +3,6 @@ import type { AstroSettings } from '../@types/astro.js';
 
 import * as eslexer from 'es-module-lexer';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { isServerLikeOutput } from '../prerender/utils.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
