@@ -1,9 +1,9 @@
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro.js';
-import type { LogOptions } from '../core/logger/core.js';
+import { warn, type LogOptions } from '../core/logger/core.js';
 import { isEndpoint, isPage } from '../core/util.js';
 
-import { getPrerenderDefault } from '../prerender/utils.js';
+import { getPrerenderDefault, isServerLikeOutput } from '../prerender/utils.js';
 import { scan } from './scan.js';
 
 export interface AstroPluginScannerOptions {
@@ -32,10 +32,15 @@ export default function astroScannerPlugin({ settings, logging }: AstroPluginSca
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 			const defaultPrerender = getPrerenderDefault(settings.config);
-			const pageOptions = await scan(code, id, settings, logging);
+			const pageOptions = await scan(code, id, settings);
 
 			if (typeof pageOptions.prerender === 'undefined') {
 				pageOptions.prerender = defaultPrerender;
+			}
+			
+			// `getStaticPaths` warning is just a string check, should be good enough for most cases
+			if (!pageOptions.prerender && isServerLikeOutput(settings.config) && code.includes('getStaticPaths')) {
+				warn(logging, "getStaticPaths", `The getStaticPaths() statement in ${id} will be ignored. Add \`export const prerender = true;\` to prerender this page.`);
 			}
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
