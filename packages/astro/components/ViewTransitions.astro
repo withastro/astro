@@ -28,7 +28,7 @@ const { fallback = 'animate' } = Astro.props as Props;
   }
 
 	function getFallback(): Fallback {
-		let el = document.querySelector('[name="astro-view-transitions-fallback"]');
+		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
 		if(el) {
 			return el.getAttribute('content') as Fallback;
 		}
