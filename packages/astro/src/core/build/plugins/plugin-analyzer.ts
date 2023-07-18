@@ -19,6 +19,89 @@ function isPropagatedAsset(id: string) {
 	}
 }
 
+/**
+ * @returns undefined if the parent does not import the child, string[] of the reexports if it does
+ */
+async function doesParentImportChild(
+	this: PluginContext,
+	parentInfo: ModuleInfo,
+	childInfo: ModuleInfo | undefined,
+	childExportNames: string[] | undefined
+): Promise<undefined | string[]> {
+	if (!childInfo || !parentInfo.ast || !childExportNames) return undefined;
+
+	const imports: Array<ImportDeclaration> = [];
+	const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
+	walk(parentInfo.ast, {
+		enter(node) {
+			if (node.type === 'ImportDeclaration') {
+				imports.push(node as ImportDeclaration);
+			} else if (
+				node.type === 'ExportDefaultDeclaration' ||
+				node.type === 'ExportNamedDeclaration'
+			) {
+				exports.push(node as ExportNamedDeclaration | ExportDefaultDeclaration);
+			}
+		},
+	});
+	// All of the aliases the current component is imported as
+	const importNames: string[] = [];
+	// All of the aliases the child component is exported as
+	const exportNames: string[] = [];
+
+	for (const node of imports) {
+		const resolved = await this.resolve(node.source.value as string, parentInfo.id);
+		if (!resolved || resolved.id !== childInfo.id) continue;
+		for (const specifier of node.specifiers) {
+			// TODO: handle these?
+			if (specifier.type === 'ImportNamespaceSpecifier') continue;
+			const name =
+				specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name;
+			// If we're importing the thing that the child exported, store the local name of what we imported
+			if (childExportNames.includes(name)) {
+				importNames.push(specifier.local.name);
+			}
+		}
+	}
+	for (const node of exports) {
+		if (node.type === 'ExportDefaultDeclaration') {
+			if (node.declaration.type === 'Identifier' && importNames.includes(node.declaration.name)) {
+				exportNames.push('default');
+				// return
+			}
+		} else {
+			// handle `export { x } from 'something';`, where the export and import are in the same node
+			if (node.source) {
+				const resolved = await this.resolve(node.source.value as string, parentInfo.id);
+				if (!resolved || resolved.id !== childInfo.id) continue;
+				for (const specifier of node.specifiers) {
+					if (childExportNames.includes(specifier.local.name)) {
+						importNames.push(specifier.local.name);
+						exportNames.push(specifier.exported.name);
+					}
+				}
+			}
+			if (node.declaration) {
+				if (node.declaration.type !== 'VariableDeclaration') continue;
+				for (const declarator of node.declaration.declarations) {
+					if (declarator.init?.type !== 'Identifier') continue;
+					if (declarator.id.type !== 'Identifier') continue;
+					if (importNames.includes(declarator.init.name)) {
+						exportNames.push(declarator.id.name);
+					}
+				}
+			}
+			for (const specifier of node.specifiers) {
+				if (importNames.includes(specifier.local.name)) {
+					exportNames.push(specifier.exported.name);
+				}
+			}
+		}
+	}
+	if (!importNames.length) return undefined;
+	return exportNames;
+}
+
 export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	function hoistedScriptScanner() {
 		const uniqueHoistedIds = new Map<string, string>();
@@ -31,7 +114,11 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 		>();
 
 		return {
-			async scan(this: PluginContext, scripts: AstroPluginMetadata['astro']['scripts'], from: string) {
+			async scan(
+				this: PluginContext,
+				scripts: AstroPluginMetadata['astro']['scripts'],
+				from: string
+			) {
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
 					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
@@ -51,73 +138,20 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						depthsToChildren.set(depth, parentInfo);
 						const childInfo = depthsToChildren.get(depth - 1);
 						const childExportNames = depthsToExportNames.get(depth - 1);
-						if (childInfo && childExportNames && parentInfo.ast) {
-							const imports: Array<ImportDeclaration> = [];
-							const exports: Array<ExportNamedDeclaration | ExportDefaultDeclaration> = [];
-							walk(parentInfo.ast, {
-								async enter(node) {
-									if (node.type === 'ImportDeclaration') {
-										imports.push(node as ImportDeclaration);
-									} else if (node.type === 'ExportDefaultDeclaration' || node.type === 'ExportNamedDeclaration') {
-										exports.push(node as ExportNamedDeclaration | ExportDefaultDeclaration);
-									}
-								}
-							});
-							const importNames: string[] = [];
-							const exportNames: string[] = [];
-							for (const node of imports) {
-								const resolved = await this.resolve(node.source.value as string, parentInfo.id);
-								if (!resolved || resolved.id !== childInfo.id) continue;
-								for (const specifier of node.specifiers) {
-									// TODO: handle these?
-									if (specifier.type === 'ImportNamespaceSpecifier') continue;
-									const name = specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name;
-									// If we're importing the thing that the child exported, store the local name of what we imported
-									if (childExportNames.includes(name)) {
-										importNames.push(specifier.local.name);
-									}
-								}
-							}
-							for (const node of exports) {
-								if (node.type === 'ExportDefaultDeclaration') {
-									if (node.declaration.type === 'Identifier' && importNames.includes(node.declaration.name)) {
-										exportNames.push('default');
-										// return
-									}
-								} else {
-									// handle `export { x } from 'something';`, where the export and import are in the same node
-									if (node.source) {
-										const resolved = await this.resolve(node.source.value as string, parentInfo.id);
-										if (!resolved || resolved.id !== childInfo.id) continue;
-										for (const specifier of node.specifiers) {
-											if (childExportNames.includes(specifier.local.name)) {
-												exportNames.push(specifier.exported.name);
-											}
-										}
-									}
-									if (node.declaration) {
-										if (node.declaration.type !== 'VariableDeclaration') continue;
-										for (const declarator of node.declaration.declarations) {
-											if (declarator.init?.type !== 'Identifier') continue;
-											if (declarator.id.type !== 'Identifier') continue;
-											if (importNames.includes(declarator.init.name)) {
-												exportNames.push(declarator.id.name);
-											}
-										}
-									}
-									for (const specifier of node.specifiers) {
-										if (importNames.includes(specifier.local.name)) {
-											exportNames.push(specifier.exported.name);
-										}
-									}
-								}
-							}
-							depthsToExportNames.set(depth, exportNames);
-							if (!importNames.length) {
-								// console.log(`Page ${parentInfo.id} does not import ${depthsToExportNames.get(depth - 1)}.`)
-								continue;
-							}
+
+						const parentReExportNames = await doesParentImportChild.call(
+							this,
+							parentInfo,
+							childInfo,
+							childExportNames,
+						);
+
+						if (!parentReExportNames) {
+							// console.log(`[astro] ${parentInfo.id} does not import any of ${childExportNames?.join(', ')} ${childInfo?.id}`);
+							// Break the search if the parent doesn't import the child.
+							continue;
 						}
+						depthsToExportNames.set(depth, parentReExportNames);
 
 						if (isPropagatedAsset(parentInfo.id)) {
 							for (const [nestedParentInfo] of walkParentInfos(from, this)) {
