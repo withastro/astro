@@ -28,7 +28,6 @@ export async function validateConfig(
 	root: string,
 	cmd: string
 ): Promise<AstroConfig> {
-	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
 	if (userConfig.hasOwnProperty('renderers')) {
@@ -78,7 +77,7 @@ export async function validateConfig(
 	}
 	/* eslint-enable no-console */
 
-	const AstroConfigRelativeSchema = createRelativeSchema(cmd, fileProtocolRoot);
+	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
 	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
