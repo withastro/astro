@@ -43,7 +43,8 @@ export default function astroScannerPlugin({ settings, logging }: AstroPluginSca
 			
 			// `getStaticPaths` warning is just a string check, should be good enough for most cases
 			if (!pageOptions.prerender && isServerLikeOutput(settings.config) && code.includes('getStaticPaths')) {
-				warn(logging, "getStaticPaths", `The getStaticPaths() statement in ${bold(rootRelativePath(settings.config.root, fileURL, true))} has been ignored.\n\nAdd \`export const prerender = true;\` to prerender this page.`);
+				const reason = ` because \`output: "${settings.config.output}"\` is set`
+				warn(logging, "getStaticPaths", `The getStaticPaths() statement in ${bold(rootRelativePath(settings.config.root, fileURL, true))} has been ignored${reason}.\n\nAdd \`export const prerender = true;\` to prerender this page.`);
 			}
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
