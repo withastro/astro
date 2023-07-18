@@ -118,7 +118,6 @@ type HandleRoute = {
 	matchedRoute: AsyncReturnType<typeof matchRoute>;
 	url: URL;
 	pathname: string;
-	status: number;
 	body: ArrayBuffer | undefined;
 	origin: string;
 	env: DevelopmentEnvironment;
@@ -126,13 +125,14 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
+	status?: number;
 };
 
 export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
-	status,
+	status = getStatus(matchedRoute),
 	body,
 	origin,
 	env,
@@ -253,9 +253,15 @@ export async function handleRoute({
 
 		let response = result;
 		// Response.status is read-only, so a clone is required to override
-		if (response.status !== status) {
+		if (status && response.status !== status) {
 			response = new Response(result.body, { ...result, status });
 		}
 		return await writeSSRResult(request, response, incomingResponse);
 	}
+}
+
+function getStatus(matchedRoute?: MatchedRoute): number | undefined {
+	if (!matchedRoute) return 404;
+	if (matchedRoute.route.route === '/404') return 404;
+	if (matchedRoute.route.route === '/500') return 500;
 }

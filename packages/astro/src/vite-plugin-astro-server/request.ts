@@ -78,12 +78,10 @@ export async function handleRequest({
 		async run() {
 			const matchedRoute = await matchRoute(pathname, env, manifestData);
 			const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
-			const status = getStatus(matchedRoute);
 			return await handleRoute({
 				matchedRoute,
 				url,
 				pathname: resolvedPathname,
-				status,
 				body,
 				origin,
 				env,
@@ -113,11 +111,4 @@ export async function handleRequest({
 			return err;
 		},
 	});
-}
-
-function getStatus(matchedRoute?: MatchedRoute): number {
-	if (!matchedRoute) return 404;
-	if (matchedRoute.route.route === '/404') return 404;
-	if (matchedRoute.route.route === '/500') return 500;
-	return 200;
 }
