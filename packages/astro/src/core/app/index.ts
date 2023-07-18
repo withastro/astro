@@ -27,7 +27,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
-import { isEndpointResult, isResponse } from '../render/core';
+import { isResponse } from '../render/core';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
