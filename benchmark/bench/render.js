@@ -1,12 +1,12 @@
-import fs from 'fs/promises';
-import http from 'http';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { execaCommand } from 'execa';
-import { waitUntilBusy } from 'port-authority';
 import { markdownTable } from 'markdown-table';
-import { renderFiles } from '../make-project/render-default.js';
+import fs from 'node:fs/promises';
+import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { waitUntilBusy } from 'port-authority';
 import { calculateStat } from '../make-project/_util.js';
+import { renderFiles } from '../make-project/render-default.js';
 import { astroBin } from './_util.js';
 
 const port = 4322;

@@ -1,8 +1,8 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
-import * as fs from 'fs';
-import * as npath from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from 'node:fs';
+import * as npath from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 interface BuildConfig {
 	server: URL;

@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
 import { execaCommand } from 'execa';
 import { markdownTable } from 'markdown-table';
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { astroBin } from './_util.js';
 
 /** @typedef {Record<string, import('../../packages/astro/src/core/config/timer').Stat>} AstroTimerStat */

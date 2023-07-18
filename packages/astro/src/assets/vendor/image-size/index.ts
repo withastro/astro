@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import Queue from "../queue/queue.js";
 import { detector } from "./detector.js";
 import { typeHandlers, type imageType } from "./types.js";
