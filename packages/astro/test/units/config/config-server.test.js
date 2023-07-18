@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { defaultLogging } from '../test-utils.js';
 import { openConfig } from '../../../dist/core/config/index.js';
 

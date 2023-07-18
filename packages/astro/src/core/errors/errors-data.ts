@@ -503,8 +503,8 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 		message: (format: string, imagePath: string, supportedFormats: readonly string[]) =>
 			`Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
 				', '
-			)} are supported for optimization.`,
-		hint: "If you do not need optimization, using an `img` tag directly instead of the `Image` component might be what you're looking for.",
+			)} are supported by our image services.`,
+		hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for.",
 	},
 	/**
 	 * @docs

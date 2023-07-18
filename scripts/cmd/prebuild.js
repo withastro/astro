@@ -1,9 +1,9 @@
 import esbuild from 'esbuild';
 import { red } from 'kleur/colors';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import glob from 'tiny-glob';
-import fs from 'fs';
-import path from 'path';
-import { pathToFileURL, fileURLToPath } from 'url';
 
 function escapeTemplateLiterals(str) {
 	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');

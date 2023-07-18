@@ -1,5 +1,31 @@
 # @astrojs/netlify
 
+## 2.4.0
+
+### Minor Changes
+
+- [#7615](https://github.com/withastro/astro/pull/7615) [`f21357b69`](https://github.com/withastro/astro/commit/f21357b69d94fe8d81f267efddb182d1a3cc678a) Thanks [@ematipico](https://github.com/ematipico)! - The Netlify adapter builds to a single function by default. Astro 2.7 added support for splitting your build into separate entry points per page. If you use this configuration, the Netlify adapter will generate a separate function for each page. This can help reduce the size of each function so they are only bundling code used on that page.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
+
+  export default defineConfig({
+    output: 'server',
+    adapter: netlify(),
+    build: {
+      split: true,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`f21357b69`](https://github.com/withastro/astro/commit/f21357b69d94fe8d81f267efddb182d1a3cc678a), [`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - @astrojs/underscore-redirects@0.2.0
+  - astro@2.8.2
+
 ## 2.3.0
 
 ### Minor Changes

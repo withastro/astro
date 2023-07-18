@@ -3,7 +3,7 @@ import type * as shiki from 'shiki';
 import { renderToHtml } from 'shiki';
 import { getHighlighter } from './Shiki.js';
 
-export interface Props {
+interface Props {
 	/** The code to highlight. Required. */
 	code: string;
 	/**

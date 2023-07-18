@@ -6,7 +6,11 @@ import {
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
 import { jsx } from '../../../dist/jsx-runtime/index.js';
-import { createRenderContext, renderPage, loadRenderer } from '../../../dist/core/render/index.js';
+import {
+	createRenderContext,
+	tryRenderPage,
+	loadRenderer,
+} from '../../../dist/core/render/index.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
 import { createBasicEnvironment } from '../test-utils.js';
 
@@ -46,11 +50,7 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const response = await renderPage({
-				mod,
-				renderContext: ctx,
-				env,
-			});
+			const response = await tryRenderPage(ctx, env, mod);
 
 			expect(response.status).to.equal(200);
 
@@ -94,11 +94,7 @@ describe('core/render', () => {
 				env,
 				mod,
 			});
-			const response = await renderPage({
-				mod,
-				renderContext: ctx,
-				env,
-			});
+			const response = await tryRenderPage(ctx, env, mod);
 
 			expect(response.status).to.equal(200);
 
@@ -124,11 +120,7 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const response = await renderPage({
-				mod,
-				renderContext: ctx,
-				env,
-			});
+			const response = await tryRenderPage(ctx, env, mod);
 
 			try {
 				await response.text();

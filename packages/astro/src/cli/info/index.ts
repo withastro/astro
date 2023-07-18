@@ -7,11 +7,10 @@ import { openConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 
 interface InfoOptions {
-	cwd?: string;
 	flags: yargs.Arguments;
 }
 
-export async function printInfo({ cwd, flags }: InfoOptions) {
+export async function printInfo({ flags }: InfoOptions) {
 	const packageManager = await whichPm(process.cwd());
 	let adapter = "Couldn't determine.";
 	let integrations = [];
@@ -24,7 +23,7 @@ export async function printInfo({ cwd, flags }: InfoOptions) {
 
 	try {
 		const { userConfig } = await openConfig({
-			cwd,
+			cwd: flags.root,
 			flags,
 			cmd: 'info',
 		});

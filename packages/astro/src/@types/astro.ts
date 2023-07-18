@@ -8,8 +8,8 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
-import type { OutgoingHttpHeaders } from 'http';
-import type { AddressInfo } from 'net';
+import type { OutgoingHttpHeaders } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type * as rollup from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
@@ -854,7 +854,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name build.excludeMiddleware
 		 * @type {boolean}
-		 * @default {false}
+		 * @default `false`
 		 * @version 2.8.0
 		 * @description
 		 * Defines whether or not any SSR middleware code will be bundled when built.

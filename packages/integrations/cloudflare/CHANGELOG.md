@@ -1,5 +1,26 @@
 # @astrojs/cloudflare
 
+## 6.6.2
+
+### Patch Changes
+
+- [#7568](https://github.com/withastro/astro/pull/7568) [`6ec040761`](https://github.com/withastro/astro/commit/6ec040761ef657df0e0f5ac103788da4b98fa688) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fix a bug where asset redirects caused Cloudflare error
+
+- [#7679](https://github.com/withastro/astro/pull/7679) [`1a6f833c4`](https://github.com/withastro/astro/commit/1a6f833c404ba2e64e3497929b64c863b5a348c8) Thanks [@bluwy](https://github.com/bluwy)! - Fix runtime env var handling
+
+- [#7568](https://github.com/withastro/astro/pull/7568) [`6ec040761`](https://github.com/withastro/astro/commit/6ec040761ef657df0e0f5ac103788da4b98fa688) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fix bug where `.ts` files are not renamed to `.js`
+
+- Updated dependencies [[`cc8e9de88`](https://github.com/withastro/astro/commit/cc8e9de88179d2ed4b70980c60b41448db393429), [`1a6f833c4`](https://github.com/withastro/astro/commit/1a6f833c404ba2e64e3497929b64c863b5a348c8), [`cc0f81c04`](https://github.com/withastro/astro/commit/cc0f81c040e912cff0c09e89327ef1655f96b67d)]:
+  - astro@2.8.4
+
+## 6.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`f21357b69`](https://github.com/withastro/astro/commit/f21357b69d94fe8d81f267efddb182d1a3cc678a), [`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - @astrojs/underscore-redirects@0.2.0
+  - astro@2.8.2
+
 ## 6.6.0
 
 ### Minor Changes

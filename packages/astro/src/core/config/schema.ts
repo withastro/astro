@@ -3,7 +3,7 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { AstroUserConfig, ViteUserConfig } from '../../@types/astro';
 
-import type { OutgoingHttpHeaders } from 'http';
+import type { OutgoingHttpHeaders } from 'node:http';
 import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
@@ -299,12 +299,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			// preprocess
 			(val) => {
 				if (typeof val === 'function') {
-					const result = val({ command: cmd === 'dev' ? 'dev' : 'preview' });
-					// @ts-expect-error revive attached prop added from CLI flags
-					if (val.port) result.port = val.port;
-					// @ts-expect-error revive attached prop added from CLI flags
-					if (val.host) result.host = val.host;
-					return result;
+					return val({ command: cmd === 'dev' ? 'dev' : 'preview' });
 				} else {
 					return val;
 				}

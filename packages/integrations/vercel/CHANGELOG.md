@@ -1,5 +1,29 @@
 # @astrojs/vercel
 
+## 3.7.3
+
+### Patch Changes
+
+- [#7677](https://github.com/withastro/astro/pull/7677) [`1f0d0b586`](https://github.com/withastro/astro/commit/1f0d0b5863750104fc93cbbbd54ebae9c65143f7) Thanks [@bluwy](https://github.com/bluwy)! - Fix build error when passing `includeFiles`
+
+- Updated dependencies [[`cc8e9de88`](https://github.com/withastro/astro/commit/cc8e9de88179d2ed4b70980c60b41448db393429), [`1a6f833c4`](https://github.com/withastro/astro/commit/1a6f833c404ba2e64e3497929b64c863b5a348c8), [`cc0f81c04`](https://github.com/withastro/astro/commit/cc0f81c040e912cff0c09e89327ef1655f96b67d)]:
+  - astro@2.8.4
+
+## 3.7.2
+
+### Patch Changes
+
+- [#7659](https://github.com/withastro/astro/pull/7659) [`57a5eff5c`](https://github.com/withastro/astro/commit/57a5eff5cee9852dca1e328e233949581edc5fb9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix critical build regression. `@vercel/nft` is excluded from the bundle automatically.
+
+## 3.7.1
+
+### Patch Changes
+
+- [#7621](https://github.com/withastro/astro/pull/7621) [`2ddf34262`](https://github.com/withastro/astro/commit/2ddf3426268847d87c24ba1dc0adff20d3046035) Thanks [@ematipico](https://github.com/ematipico)! - Improve file detection of the middleware file handler
+
+- Updated dependencies [[`86e19c7cf`](https://github.com/withastro/astro/commit/86e19c7cf8696e065c1ccdc2eb841ad0a2b61ede)]:
+  - astro@2.8.2
+
 ## 3.7.0
 
 ### Minor Changes

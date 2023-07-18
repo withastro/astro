@@ -3,14 +3,10 @@ import { fileURLToPath } from 'node:url';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
 import imageSize from '../vendor/image-size/index.js';
 
-export interface Metadata extends ImageMetadata {
-	orientation?: number;
-}
-
 export async function imageMetadata(
 	src: URL | string,
 	data?: Buffer
-): Promise<Metadata | undefined> {
+): Promise<ImageMetadata | undefined> {
 	let file = data;
 	if (!file) {
 		try {

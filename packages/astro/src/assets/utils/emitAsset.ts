@@ -2,13 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prependForwardSlash, slash } from '../../core/path.js';
-import { imageMetadata, type Metadata } from './metadata.js';
+import type { ImageMetadata } from '../types.js';
+import { imageMetadata } from './metadata.js';
 
 export async function emitESMImage(
 	id: string | undefined,
 	watchMode: boolean,
 	fileEmitter: any
-): Promise<Metadata | undefined> {
+): Promise<ImageMetadata | undefined> {
 	if (!id) {
 		return undefined;
 	}

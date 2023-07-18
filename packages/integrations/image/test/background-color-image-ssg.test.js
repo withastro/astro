@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import sharp from 'sharp';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { loadFixture } from './test-utils.js';
 
 describe('SSG image with background - dev', function () {

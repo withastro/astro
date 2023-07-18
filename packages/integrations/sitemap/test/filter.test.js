@@ -12,7 +12,7 @@ describe('Filter support', () => {
 				root: './fixtures/static/',
 				integrations: [
 					sitemap({
-						filter: (page) => page !== 'http://example.com/two/',
+						filter: (page) => page === 'http://example.com/one/',
 					}),
 				],
 			});
@@ -32,7 +32,7 @@ describe('Filter support', () => {
 				root: './fixtures/ssr/',
 				integrations: [
 					sitemap({
-						filter: (page) => page !== 'http://example.com/two/',
+						filter: (page) => page === 'http://example.com/one/',
 					}),
 				],
 			});

@@ -1,13 +1,13 @@
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
-import fsMod, { existsSync, promises as fs } from 'fs';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
+import fsMod, { existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import path from 'path';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
-import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath } from '../../core/config/index.js';
 import {
@@ -22,6 +22,7 @@ import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { parseNpmName } from '../../core/util.js';
+import { eventCliSession, telemetry } from '../../events/index.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
 import { wrapDefaultExport } from './wrapper.js';
@@ -29,7 +30,6 @@ import { wrapDefaultExport } from './wrapper.js';
 interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
-	cwd?: string;
 }
 
 interface IntegrationInfo {
@@ -86,7 +86,8 @@ async function getRegistry(): Promise<string> {
 	}
 }
 
-export async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+export async function add(names: string[], { flags, logging }: AddOptions) {
+	telemetry.record(eventCliSession('add'));
 	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
@@ -128,6 +129,7 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	}
 
 	// Some packages might have a common alias! We normalize those here.
+	const cwd = flags.root;
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
@@ -756,7 +758,8 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 					const meta = pkgJson['peerDependenciesMeta'] || {};
 					for (const peer in pkgJson['peerDependencies']) {
 						const optional = meta[peer]?.optional || false;
-						if (!optional) {
+						const isAstro = peer === 'astro';
+						if (!optional && !isAstro) {
 							dependencies.push([peer, pkgJson['peerDependencies'][peer]]);
 						}
 					}

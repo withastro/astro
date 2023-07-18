@@ -5,18 +5,19 @@ import {
 } from '@astrojs/language-server';
 import type { FSWatcher } from 'chokidar';
 import glob from 'fast-glob';
-import fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import { createRequire } from 'module';
+import fs from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ora from 'ora';
-import { fileURLToPath, pathToFileURL } from 'url';
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../../core/logger/core.js';
 import { debug, info } from '../../core/logger/core.js';
 import { printHelp } from '../../core/messages.js';
 import type { ProcessExit, SyncOptions } from '../../core/sync';
+import { loadSettings } from '../load-settings.js';
 import { printDiagnostic } from './print.js';
 
 type DiagnosticResult = {
@@ -74,15 +75,11 @@ const ASTRO_GLOB_PATTERN = '**/*.astro';
  *
  * Every time an astro files is modified, content collections are also generated.
  *
- * @param {AstroSettings} settings
  * @param {CheckPayload} options Options passed {@link AstroChecker}
  * @param {Flags} options.flags Flags coming from the CLI
  * @param {LogOptions} options.logging Logging options
  */
-export async function check(
-	settings: AstroSettings,
-	{ logging, flags }: CheckPayload
-): Promise<AstroChecker | undefined> {
+export async function check({ logging, flags }: CheckPayload): Promise<AstroChecker | undefined> {
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro check',
@@ -97,6 +94,10 @@ export async function check(
 		});
 		return;
 	}
+
+	const settings = await loadSettings({ cmd: 'check', flags, logging });
+	if (!settings) return;
+
 	const checkFlags = parseFlags(flags);
 	if (checkFlags.watch) {
 		info(logging, 'check', 'Checking files in watch mode');
