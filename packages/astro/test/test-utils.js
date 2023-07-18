@@ -3,6 +3,7 @@ import { execa } from 'execa';
 import fastGlob from 'fast-glob';
 import fs from 'fs';
 import os from 'os';
+import path from 'node:path';
 import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
 import { sync } from '../dist/core/sync/index.js';
@@ -112,6 +113,8 @@ export async function loadFixture(inlineConfig) {
 		root = fileURLToPath(new URL(root));
 	} else if (typeof root !== 'string') {
 		root = fileURLToPath(root);
+	} else if (!path.isAbsolute(root)) {
+		root = fileURLToPath(new URL(root, import.meta.url));
 	}
 	const { astroConfig: config } = await resolveConfig({ ...inlineConfig, root }, 'dev');
 
