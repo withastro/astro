@@ -230,6 +230,21 @@ export async function handleRoute({
 		}
 	} else {
 		const result = await renderPage(options);
+		if (result.status === 404) {
+			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
+			return handleRoute({
+				...options,
+				matchedRoute: fourOhFourRoute,
+				url: new URL(pathname, url),
+				body,
+				origin,
+				env,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+				manifest,
+			});
+		}
 		throwIfRedirectNotAllowed(result, config);
 		return await writeSSRResult(request, result, incomingResponse);
 	}
