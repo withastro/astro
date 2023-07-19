@@ -3,7 +3,6 @@ import type http from 'node:http';
 import type { ComponentInstance, ManifestData, RouteData, SSRManifest } from '../@types/astro';
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
@@ -25,7 +24,7 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
-interface MatchedRoute {
+export interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
@@ -125,12 +124,14 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
+	status?: number;
 };
 
 export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
+	status = getStatus(matchedRoute),
 	body,
 	origin,
 	env,
@@ -142,16 +143,6 @@ export async function handleRoute({
 	const { logging, settings } = env;
 	if (!matchedRoute) {
 		return handle404Response(origin, incomingRequest, incomingResponse);
-	}
-
-	if (matchedRoute.route.type === 'redirect' && !settings.config.experimental.redirects) {
-		writeWebResponse(
-			incomingResponse,
-			new Response(`To enable redirect set experimental.redirects to \`true\`.`, {
-				status: 400,
-			})
-		);
-		return;
 	}
 
 	const { config } = settings;
@@ -198,6 +189,7 @@ export async function handleRoute({
 					matchedRoute: fourOhFourRoute,
 					url: new URL('/404', url),
 					pathname: '/404',
+					status: 404,
 					body,
 					origin,
 					env,
@@ -207,7 +199,6 @@ export async function handleRoute({
 					manifest,
 				});
 			}
-			throwIfRedirectNotAllowed(result.response, config);
 			await writeWebResponse(incomingResponse, result.response);
 		} else {
 			let contentType = 'text/plain';
@@ -230,7 +221,34 @@ export async function handleRoute({
 		}
 	} else {
 		const result = await renderPage(options);
-		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(request, result, incomingResponse);
+		if (result.status === 404) {
+			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
+			return handleRoute({
+				...options,
+				matchedRoute: fourOhFourRoute,
+				url: new URL(pathname, url),
+				status: 404,
+				body,
+				origin,
+				env,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+				manifest,
+			});
+		}
+
+		let response = result;
+		// Response.status is read-only, so a clone is required to override
+		if (status && response.status !== status) {
+			response = new Response(result.body, { ...result, status });
+		}
+		await writeSSRResult(request, response, incomingResponse);
 	}
+}
+
+function getStatus(matchedRoute?: MatchedRoute): number | undefined {
+	if (!matchedRoute) return 404;
+	if (matchedRoute.route.route === '/404') return 404;
+	if (matchedRoute.route.route === '/500') return 500;
 }
