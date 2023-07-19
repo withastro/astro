@@ -55,6 +55,27 @@ export interface AstroBuiltinProps {
 	'client:only'?: boolean | string;
 }
 
+export interface TransitionAnimation {
+  name: string; // The name of the keyframe
+  delay?: number | string;
+  duration?: number | string;
+  easing?: string;
+	fillMode?: string;
+	direction?: string;
+}
+
+export interface TransitionAnimationPair {
+	old: TransitionAnimation | TransitionAnimation[];
+	new: TransitionAnimation | TransitionAnimation[];
+}
+
+export interface TransitionDirectionalAnimations {
+	forwards: TransitionAnimationPair;
+	backwards: TransitionAnimationPair;
+}
+
+export type TransitionAnimationValue = 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+
 // Allow users to extend this for astro-jsx.d.ts
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AstroClientDirectives {}
@@ -69,6 +90,8 @@ export interface AstroBuiltinAttributes {
 	'set:html'?: any;
 	'set:text'?: any;
 	'is:raw'?: boolean;
+	'transition:animate'?: 'morph' | 'slide' | 'fade' | TransitionDirectionalAnimations;
+	'transition:name'?: string;
 }
 
 export interface AstroDefineVarsAttribute {
@@ -1227,6 +1250,27 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		assets?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.viewTransitions
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 2.9.0
+		 * @description
+		 * Enable experimental support for the `<ViewTransitions / >` component. With this enabled
+		 * you can opt-in to  [client-side routing](https://docs.astro.build/en/guides/client-side-routing/) on a per-page basis using this component
+		 * and enable animations with the `transition:animate` directive.
+		 *
+		 * ```js
+		 * {
+		 * 	experimental: {
+		 *		viewTransitions: true,
+		 * 	},
+		 * }
+		 * ```
+		 */
+		 viewTransitions?: boolean;
 	};
 
 	// Legacy options to be removed

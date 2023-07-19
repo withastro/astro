@@ -71,7 +71,8 @@
     "./middleware": {
       "types": "./dist/core/middleware/index.d.ts",
       "default": "./dist/core/middleware/index.js"
-    }
+    },
+    "./transitions": "./dist/transitions/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -114,7 +115,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^1.5.3",
+    "@astrojs/compiler": "^1.6.0",
     "@astrojs/internal-helpers": "^0.1.1",
     "@astrojs/language-server": "^1.0.0",
     "@astrojs/markdown-remark": "^2.2.1",
@@ -127,6 +128,7 @@
     "@babel/traverse": "^7.22.5",
     "@babel/types": "^7.22.5",
     "@types/babel__core": "^7.20.1",
+    "@types/dom-view-transitions": "^1.0.1",
     "@types/yargs-parser": "^21.0.0",
     "acorn": "^8.9.0",
     "boxen": "^6.2.1",
@@ -150,6 +152,7 @@
     "kleur": "^4.1.4",
     "magic-string": "^0.27.0",
     "mime": "^3.0.0",
+    "network-information-types": "^0.1.1",
     "ora": "^6.3.1",
     "p-limit": "^4.0.0",
     "path-to-regexp": "^6.2.1",

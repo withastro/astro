@@ -6,6 +6,8 @@
     "declarationDir": "./dist",
     "module": "ES2022",
     "outDir": "./dist",
-    "target": "ES2021"
+    "target": "ES2021",
+    "jsx": "preserve",
+    "types": ["@types/dom-view-transitions", "network-information-types"]
   }
 }

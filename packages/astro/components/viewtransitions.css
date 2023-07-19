@@ -1,0 +1,32 @@
+@keyframes astroFadeInOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes astroFadeIn {
+	from { opacity: 0; }
+}
+
+@keyframes astroFadeOut {
+	to { opacity: 0; }
+}
+
+@keyframes astroSlideFromRight {
+	from { transform: translateX(100%); }
+}
+
+@keyframes astroSlideFromLeft {
+	from { transform: translateX(-100%); }
+}
+
+@keyframes astroSlideToRight {
+	to { transform: translateX(100%); }
+}
+
+@keyframes astroSlideToLeft {
+	to { transform: translateX(-100%); }
+}

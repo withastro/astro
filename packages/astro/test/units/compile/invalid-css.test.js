@@ -12,6 +12,7 @@ describe('astro/src/core/compile', () => {
 				await cachedCompilation({
 					astroConfig: {
 						root: pathToFileURL('/'),
+						experimental: {}
 					},
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
 					filename: '/src/pages/index.astro',

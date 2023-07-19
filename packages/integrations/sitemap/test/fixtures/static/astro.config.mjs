@@ -7,7 +7,4 @@ export default defineConfig({
   redirects: {
     '/redirect': '/'
   },
-  experimental: {
-    redirects: true
-  }
 })

@@ -1,0 +1,146 @@
+---
+type Fallback = 'none' | 'animate' | 'swap';
+
+export interface Props {
+	fallback?: Fallback;
+}
+
+const { fallback = 'animate' } = Astro.props as Props;
+---
+<meta name="astro-view-transitions-enabled" content="true">
+<meta name="astro-view-transitions-fallback" content={fallback}>
+<script>
+	type Fallback = 'none' | 'animate' | 'swap';
+	type Direction = 'forward' | 'back';
+
+	// The History API does not tell you if navigation is forward or back, so
+	// you can figure it using an index. On pushState the index is incremented so you
+	// can use that to determine popstate if going forward or back.
+	let currentHistoryIndex = history.state?.index || 0;
+	if(!history.state) {
+		history.replaceState({index: currentHistoryIndex}, document.title);
+	}
+
+	const supportsViewTransitions = !!document.startViewTransition;
+	const transitionEnabledOnThisPage = () => !!document.querySelector('[name="astro-view-transitions-enabled"]');
+
+  async function getHTML(href: string) {
+    const res = await fetch(href)
+    const html = await res.text();
+		return { ok: res.ok, html };
+  }
+
+	function getFallback(): Fallback {
+		const el = document.querySelector('[name="astro-view-transitions-fallback"]');
+		if(el) {
+			return el.getAttribute('content') as Fallback;
+		}
+		return 'animate';
+	}
+
+	const parser = new DOMParser();
+
+  async function updateDOM(dir: Direction, html: string, fallback?: Fallback) {
+    const doc = parser.parseFromString(html, 'text/html');
+		doc.documentElement.dataset.astroTransition = dir;
+		const swap = () => document.documentElement.replaceWith(doc.documentElement);
+
+		if(fallback === 'animate') {
+			let isAnimating = false;
+			addEventListener('animationstart', () => isAnimating = true, { once: true });
+
+			// Trigger the animations
+			document.documentElement.dataset.astroTransitionFallback = 'old';
+			doc.documentElement.dataset.astroTransitionFallback = 'new';
+			// If there are any animations, want for the animationend event.
+			addEventListener('animationend', swap, { once: true });
+			// If there are no animations, go ahead and swap on next tick
+			// This is necessary because we do not know if there are animations.
+			// The setTimeout is a fallback in case there are none.
+			setTimeout(() => !isAnimating && swap());
+		} else {
+			swap();
+		}
+  }
+
+	async function navigate(dir: Direction, href: string) {
+		let finished: Promise<void>;
+		const { html, ok } = await getHTML(href);
+		// If there is a problem fetching the new page, just do an MPA navigation to it.
+		if(!ok) {
+			location.href = href;
+			return;
+		}
+		if(supportsViewTransitions) {
+			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
+		} else {
+			finished = updateDOM(dir, html, getFallback());
+		}
+		try {
+			await finished;
+		} finally {
+			document.documentElement.removeAttribute('data-astro-transition');
+		}
+	}
+
+		// Prefetching
+	function maybePrefetch(pathname: string) {
+		if(document.querySelector(`link[rel=prefetch][href="${pathname}"]`)) return;
+		if(navigator.connection){
+			let conn = navigator.connection;
+			if(conn.saveData || /(2|3)g/.test(conn.effectiveType || '')) return;
+		}
+		let link = document.createElement('link');
+		link.setAttribute('rel', 'prefetch');
+		link.setAttribute('href', pathname);
+		document.head.append(link);
+	}
+
+	if(supportsViewTransitions || getFallback() !== 'none') {
+		document.addEventListener('click', (ev) => {
+		let link = ev.target;
+		if(link instanceof Element && link.tagName !== 'A') {
+			link = link.closest('a');
+		}
+		// This check verifies that the click is happening on an anchor
+		// that is going to another page within the same origin. Basically it determines
+		// same-origin navigation, but omits special key combos for new tabs, etc.
+		if (link &&
+			link instanceof HTMLAnchorElement &&
+			link.href &&
+			(!link.target || link.target === '_self') &&
+			link.origin === location.origin &&
+			ev.button === 0 && // left clicks only
+			!ev.metaKey && // new tab (mac)
+			!ev.ctrlKey && // new tab (windows)
+			!ev.altKey && // download
+			!ev.shiftKey &&
+			!ev.defaultPrevented &&
+			transitionEnabledOnThisPage()
+			) {
+			ev.preventDefault();
+    	navigate('forward', link.href);
+			currentHistoryIndex++;
+			history.pushState({index: currentHistoryIndex}, '', link.href);
+		}
+  });
+	window.addEventListener('popstate', () => {
+		if(!transitionEnabledOnThisPage()) return;
+		const nextIndex = history.state?.index ?? (currentHistoryIndex + 1);
+		const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+		navigate(direction, location.href);
+		currentHistoryIndex = nextIndex;
+	});
+
+	['mouseenter', 'touchstart', 'focus'].forEach(evName => {
+		document.addEventListener(evName, ev => {
+			if(ev.target instanceof HTMLAnchorElement) {
+				let el = ev.target;
+				if(el.origin === location.origin && el.pathname !== location.pathname && transitionEnabledOnThisPage()) {
+					maybePrefetch(el.pathname);
+				}
+			}
+		}, { passive: true, capture: true });
+	});
+	}
+</script>
