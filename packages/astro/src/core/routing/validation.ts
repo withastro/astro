@@ -1,4 +1,3 @@
-import { bold } from 'kleur/colors';
 import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core';
@@ -19,26 +18,17 @@ export function validateGetStaticPathsParameter([key, value]: [string, any], rou
 	}
 }
 
-/** Warn or error for deprecated or malformed route components */
+/** Error for deprecated or malformed route components */
 export function validateDynamicRouteModule(
 	mod: ComponentInstance,
 	{
 		ssr,
-		logging,
 		route,
 	}: {
 		ssr: boolean;
-		logging: LogOptions;
 		route: RouteData;
 	}
 ) {
-	if (ssr && mod.getStaticPaths && !route.prerender) {
-		warn(
-			logging,
-			'getStaticPaths',
-			`getStaticPaths() in ${bold(route.component)} is ignored when "output: server" is set.`
-		);
-	}
 	if ((!ssr || route.prerender) && !mod.getStaticPaths) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsRequired,
