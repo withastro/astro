@@ -6,7 +6,7 @@ Built-in View Transitions Support (experimental)
 
 Astro now supports [view transitions](https://developer.chrome.com/docs/web-platform/view-transitions/) through the new `<ViewTransitions />` component and the `transition:animate` (and associated) directives. View transitions are a great fit for content-oriented sites, and we see it as the best path to get the benefits of client-side routing (smoother transitions) without sacrificing the more simple mental model of MPAs.
 
-In this release, view transitions are enabled by add the experimental flag to your config:
+Enable support for view transitions in Astro 2.9 by adding the experimental flag to your config:
 
 ```js
 import { defineConfig } from 'astro/config';
