@@ -33,13 +33,13 @@ export {
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
-export { renderTransition } from './transition.js';
 export type {
 	AstroComponentFactory,
 	AstroComponentInstance,
 	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
+export { renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
 import { addAttribute, Renderer } from './render/index.js';

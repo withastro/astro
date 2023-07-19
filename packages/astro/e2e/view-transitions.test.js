@@ -16,7 +16,7 @@ test.afterAll(async () => {
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
 		const loads = [];
-		page.addListener('load', p => {
+		page.addListener('load', (p) => {
 			loads.push(p.title());
 		});
 
@@ -35,7 +35,7 @@ test.describe('View Transitions', () => {
 
 	test('Back button is captured', async ({ page, astro }) => {
 		const loads = [];
-		page.addListener('load', p => {
+		page.addListener('load', (p) => {
 			loads.push(p.title());
 		});
 
@@ -59,7 +59,7 @@ test.describe('View Transitions', () => {
 
 	test('Clicking on a link with nested content', async ({ page, astro }) => {
 		const loads = [];
-		page.addListener('load', p => {
+		page.addListener('load', (p) => {
 			loads.push(p.title());
 		});
 
@@ -76,9 +76,12 @@ test.describe('View Transitions', () => {
 		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
-	test('Moving from a page without ViewTransitions triggers a full page navigation', async ({ page, astro }) => {
+	test('Moving from a page without ViewTransitions triggers a full page navigation', async ({
+		page,
+		astro,
+	}) => {
 		const loads = [];
-		page.addListener('load', p => {
+		page.addListener('load', (p) => {
 			loads.push(p.title());
 		});
 
@@ -96,6 +99,9 @@ test.describe('View Transitions', () => {
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 
-		expect(loads.length, 'There should be 2 page loads. The original, then going from 3 to 2').toEqual(2);
+		expect(
+			loads.length,
+			'There should be 2 page loads. The original, then going from 3 to 2'
+		).toEqual(2);
 	});
 });

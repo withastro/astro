@@ -7,7 +7,11 @@ function validateArgs(args: unknown[]): args is Parameters<AstroComponentFactory
 	if (!args[0] || typeof args[0] !== 'object') return false;
 	return true;
 }
-function baseCreateComponent(cb: AstroComponentFactory, moduleId?: string, propagation?: PropagationHint): AstroComponentFactory {
+function baseCreateComponent(
+	cb: AstroComponentFactory,
+	moduleId?: string,
+	propagation?: PropagationHint
+): AstroComponentFactory {
 	const name = moduleId?.split('/').pop()?.replace('.astro', '') ?? '';
 	const fn = (...args: Parameters<AstroComponentFactory>) => {
 		if (!validateArgs(args)) {
@@ -40,7 +44,7 @@ function createComponentWithOptions(opts: CreateComponentOptions) {
 export function createComponent(
 	arg1: AstroComponentFactory | CreateComponentOptions,
 	moduleId?: string,
-	propagation?: PropagationHint,
+	propagation?: PropagationHint
 ) {
 	if (typeof arg1 === 'function') {
 		return baseCreateComponent(arg1, moduleId, propagation);

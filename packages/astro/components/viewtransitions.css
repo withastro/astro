@@ -8,25 +8,37 @@
 }
 
 @keyframes astroFadeIn {
-	from { opacity: 0; }
+	from {
+		opacity: 0;
+	}
 }
 
 @keyframes astroFadeOut {
-	to { opacity: 0; }
+	to {
+		opacity: 0;
+	}
 }
 
 @keyframes astroSlideFromRight {
-	from { transform: translateX(100%); }
+	from {
+		transform: translateX(100%);
+	}
 }
 
 @keyframes astroSlideFromLeft {
-	from { transform: translateX(-100%); }
+	from {
+		transform: translateX(-100%);
+	}
 }
 
 @keyframes astroSlideToRight {
-	to { transform: translateX(100%); }
+	to {
+		transform: translateX(100%);
+	}
 }
 
 @keyframes astroSlideToLeft {
-	to { transform: translateX(-100%); }
+	to {
+		transform: translateX(-100%);
+	}
 }

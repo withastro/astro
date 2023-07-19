@@ -56,10 +56,10 @@ export interface AstroBuiltinProps {
 }
 
 export interface TransitionAnimation {
-  name: string; // The name of the keyframe
-  delay?: number | string;
-  duration?: number | string;
-  easing?: string;
+	name: string; // The name of the keyframe
+	delay?: number | string;
+	duration?: number | string;
+	easing?: string;
 	fillMode?: string;
 	direction?: string;
 }
@@ -1270,7 +1270,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		 viewTransitions?: boolean;
+		viewTransitions?: boolean;
 	};
 
 	// Legacy options to be removed

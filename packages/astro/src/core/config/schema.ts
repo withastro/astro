@@ -233,7 +233,10 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
-			viewTransitions: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.viewTransitions),
+			viewTransitions: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.viewTransitions),
 		})
 		.passthrough()
 		.refine(
