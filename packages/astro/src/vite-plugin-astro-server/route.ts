@@ -25,7 +25,7 @@ type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	? R
 	: any;
 
-interface MatchedRoute {
+export interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
@@ -125,12 +125,14 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	manifest: SSRManifest;
+	status?: number;
 };
 
 export async function handleRoute({
 	matchedRoute,
 	url,
 	pathname,
+	status = getStatus(matchedRoute),
 	body,
 	origin,
 	env,
@@ -198,6 +200,7 @@ export async function handleRoute({
 					matchedRoute: fourOhFourRoute,
 					url: new URL('/404', url),
 					pathname: '/404',
+					status: 404,
 					body,
 					origin,
 					env,
@@ -230,7 +233,35 @@ export async function handleRoute({
 		}
 	} else {
 		const result = await renderPage(options);
+		if (result.status === 404) {
+			const fourOhFourRoute = await matchRoute('/404', env, manifestData);
+			return handleRoute({
+				...options,
+				matchedRoute: fourOhFourRoute,
+				url: new URL(pathname, url),
+				status: 404,
+				body,
+				origin,
+				env,
+				manifestData,
+				incomingRequest,
+				incomingResponse,
+				manifest,
+			});
+		}
 		throwIfRedirectNotAllowed(result, config);
-		return await writeSSRResult(request, result, incomingResponse);
+
+		let response = result;
+		// Response.status is read-only, so a clone is required to override
+		if (status && response.status !== status) {
+			response = new Response(result.body, { ...result, status });
+		}
+		return await writeSSRResult(request, response, incomingResponse);
 	}
+}
+
+function getStatus(matchedRoute?: MatchedRoute): number | undefined {
+	if (!matchedRoute) return 404;
+	if (matchedRoute.route.route === '/404') return 404;
+	if (matchedRoute.route.route === '/500') return 500;
 }

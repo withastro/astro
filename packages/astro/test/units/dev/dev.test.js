@@ -205,7 +205,7 @@ describe('dev container', () => {
 					await r.done;
 					const doc = await r.text();
 					expect(doc).to.match(/<h1>Custom 404<\/h1>/);
-					expect(r.res.statusCode).to.equal(200);
+					expect(r.res.statusCode).to.equal(404);
 				}
 				{
 					// A non-existent page also serves the custom 404 page.
@@ -214,7 +214,7 @@ describe('dev container', () => {
 					await r.done;
 					const doc = await r.text();
 					expect(doc).to.match(/<h1>Custom 404<\/h1>/);
-					expect(r.res.statusCode).to.equal(200);
+					expect(r.res.statusCode).to.equal(404);
 				}
 			}
 		);

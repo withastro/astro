@@ -2,12 +2,12 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Custom 404.html', () => {
+describe('Custom 404 server', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-html/',
+			root: './fixtures/custom-404-server/',
 			site: 'http://example.com',
 		});
 	});
@@ -39,7 +39,7 @@ describe('Custom 404.html', () => {
 			$ = cheerio.load(html);
 
 			expect($('h1').text()).to.equal('Page not found');
-			expect($('p').text()).to.equal('This 404 is a static HTML file.');
+			expect($('p').text()).to.equal('/a');
 		});
 	});
 });
