@@ -40,13 +40,15 @@ With only this change, your app will now route completely in-client. You can the
 
 ## Animations
 
-Using `transition:animate` you can use some of our built-in animations. For example:
+Add `transition:animate` to any element to use Astro's built-in animations.
 
 ```astro
 <header transition:animate="slide">
 ```
 
-Will perform an animation in which the element slides out to the left, and slides in from the right. You can also customize these animations by specifying a duration like so:
+In the above, Astro's `slide` animation will cause the `<header>` element to slide out to the left, and then slide in from the right when you navigate away from the page.
+
+You can also customize these animations using any CSS animation properties, for example, by specifying a duration:
 
 ```astro
 ---
