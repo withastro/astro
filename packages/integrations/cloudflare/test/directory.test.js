@@ -14,9 +14,6 @@ describe('mode: "directory"', () => {
 			redirects: {
 				'/old': '/',
 			},
-			experimental: {
-				redirects: true,
-			},
 		});
 		await fixture.build();
 	});
