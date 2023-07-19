@@ -10,5 +10,9 @@
     "@astrojs/netlify": "file:../../../../integrations/netlify",
     "@astrojs/vercel": "file:../../../../integrations/vercel",
     "astro": "file:../../.."
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.9.1",
+    "vercel": "^31.0.4"
   }
 }
