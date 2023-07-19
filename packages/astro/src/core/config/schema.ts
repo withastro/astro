@@ -149,7 +149,26 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
-	redirects: z.record(z.string(), z.string()).default(ASTRO_CONFIG_DEFAULTS.redirects),
+	redirects: z
+		.record(
+			z.string(),
+			z.union([
+				z.string(),
+				z.object({
+					status: z.union([
+						z.literal(300),
+						z.literal(301),
+						z.literal(302),
+						z.literal(303),
+						z.literal(304),
+						z.literal(307),
+						z.literal(308),
+					]),
+					destination: z.string(),
+				}),
+			])
+		)
+		.default(ASTRO_CONFIG_DEFAULTS.redirects),
 	image: z
 		.object({
 			service: z.object({
