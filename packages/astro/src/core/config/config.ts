@@ -4,7 +4,7 @@ import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro'
 import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
@@ -28,7 +28,6 @@ export async function validateConfig(
 	root: string,
 	cmd: string
 ): Promise<AstroConfig> {
-	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
 	if (userConfig.hasOwnProperty('renderers')) {
@@ -78,7 +77,7 @@ export async function validateConfig(
 	}
 	/* eslint-enable no-console */
 
-	const AstroConfigRelativeSchema = createRelativeSchema(cmd, fileProtocolRoot);
+	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
 	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
