@@ -237,7 +237,6 @@ export async function handleRoute({
 				manifest,
 			});
 		}
-		throwIfRedirectNotAllowed(result, config);
 
 		let response = result;
 		// Response.status is read-only, so a clone is required to override
