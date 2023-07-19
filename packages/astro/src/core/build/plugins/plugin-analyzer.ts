@@ -140,7 +140,6 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (hoistedScripts.size) {
-					let dynamicallyImported = false;
 					const depthsToChildren = new Map<number, ModuleInfo>();
 					const depthsToExportNames = new Map<number, string[] | 'dynamic'>();
 					// The component export from the original component file will always be default.
@@ -151,7 +150,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					})) {
 						depthsToChildren.set(depth, parentInfo);
 						// If at any point
-						if (depth > 0 && !dynamicallyImported) {
+						if (depth > 0) {
 							// Check if the component is actually imported:
 							const childInfo = depthsToChildren.get(depth - 1);
 							const childExportNames = depthsToExportNames.get(depth - 1);
