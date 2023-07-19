@@ -18,9 +18,6 @@ describe('SSG - Redirects', () => {
 			redirects: {
 				'/other': '/',
 			},
-			experimental: {
-				redirects: true,
-			},
 		});
 		await fixture.build();
 	});

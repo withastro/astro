@@ -1,6 +1,5 @@
 import type {
 	APIContext,
-	AstroConfig,
 	EndpointHandler,
 	EndpointOutput,
 	MiddlewareEndpointHandler,
@@ -9,7 +8,6 @@ import type {
 } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
-import { isServerLikeOutput } from '../../prerender/utils.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
@@ -160,18 +158,4 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 		encoding: response.encoding,
 		cookies: context.cookies,
 	};
-}
-
-function isRedirect(statusCode: number) {
-	return statusCode >= 300 && statusCode < 400;
-}
-
-export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (
-		!isServerLikeOutput(config) &&
-		isRedirect(response.status) &&
-		!config.experimental.redirects
-	) {
-		throw new AstroError(AstroErrorData.StaticRedirectNotAvailable);
-	}
 }
