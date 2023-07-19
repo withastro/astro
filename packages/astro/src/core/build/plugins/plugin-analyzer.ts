@@ -106,8 +106,10 @@ async function doesParentImportChild(
 
 	// If the component is imported by another component, assume it's in use
 	// and start tracking this new component now
-	if (parentInfo.id.endsWith('.astro') || parentInfo.id.endsWith('.mdx')) {
+	if (parentInfo.id.endsWith('.astro')) {
 		exportNames.push('default');
+	} else if (parentInfo.id.endsWith('.mdx')) {
+		exportNames.push('Content');
 	}
 
 	return exportNames;
@@ -162,7 +164,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 							);
 
 							if (doesImport === 'no') {
-								// console.log(`[astro] ${parentInfo.id} does not import any of ${childExportNames?.join(', ')} ${childInfo?.id}`);
+								// console.log(`[astro] ${parentInfo.id} does not import any of ${childExportNames} from ${childInfo?.id}`);
 								// Break the search if the parent doesn't import the child.
 								continue;
 							}
