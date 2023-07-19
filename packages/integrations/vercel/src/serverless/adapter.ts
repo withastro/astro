@@ -19,6 +19,12 @@ const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
+const SUPPORTED_NODE_VERSIONS = {
+	14: { status: 'deprecated', removal: 'August 15th 2023'  },
+	16: { status: 'deprecated', removal: 'February 6th 2024' },
+	18: { status: 'current' }
+}
+
 function getAdapter(): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
@@ -193,5 +199,13 @@ export default function vercelServerless({
 function getRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
+	const support = SUPPORTED_NODE_VERSIONS[major]
+	if (support === undefined) {
+		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime as your local Node.js version (${major}) is not supported by Vercel Serverless Functions. Consider switching to Node.js 18.`)
+		return 'nodejs18.x';
+	}
+	if (support.status === 'deprecated') {
+		console.warn(`[${PACKAGE_NAME}] Your project is using node ${major} as the runtime. This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${support.removal}. Please consider upgrading your local Node.js version to 18.`)
+	}
 	return `nodejs${major}.x`;
 }
