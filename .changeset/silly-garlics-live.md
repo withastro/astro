@@ -20,7 +20,7 @@ export default defineConfig({
 
 This enables you to use the new APIs added.
 
-## <ViewTransitions />
+#### <ViewTransitions />
 
 This is a component which acts as the *router* for transitions between pages. Add it to the `<head>` section of each individual page where transitions should occur *in the client* as you navigate away to another page, instead of causing a full page browser refresh. To enable support throughout your entire app, add the component in some common layout or component that targets the `<head>` of every page.
 
@@ -38,7 +38,7 @@ import { ViewTransitions } from 'astro:transitions';
 
 With only this change, your app will now route completely in-client. You can then add transitions to individual elements using the `transition:animate` directive.
 
-## Animations
+#### Animations
 
 Add `transition:animate` to any element to use Astro's built-in animations.
 
@@ -57,6 +57,6 @@ import { slide } from 'astro:transition';
 <header transition:animate={slide({ duration: 200 })}>
 ```
 
-## Continue learning
+#### Continue learning
 
 Check out the [client-side routing docs](https://docs.astro.build/en/guides/client-side-routing/) to learn more.
