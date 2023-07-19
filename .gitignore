@@ -3,6 +3,7 @@ dist/
 *.tsbuildinfo
 .DS_Store
 .vercel
+.netlify
 _site/
 scripts/smoke/*-main/
 scripts/memory/project/src/pages/

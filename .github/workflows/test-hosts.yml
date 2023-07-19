@@ -8,8 +8,10 @@ env:
   ASTRO_TELEMETRY_DISABLED: true
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-  VERCEL_TEST_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_TEST_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_TEST_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_TEST_PROJECT_ID }}
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_TEST_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TEST_AUTH_TOKEN }}
   FORCE_COLOR: true
 
 jobs:
@@ -35,5 +37,13 @@ jobs:
       - name: Test Vercel
         working-directory: ./packages/astro/test/hosted/hosted-astro-project
         run:
+          pnpm run build:vercel
           pnpx vercel pull deploy --environment production --yes --token=${{ secrets.VERCEL_TEST_TOKEN }}
-          pnpx vercel --prod --token=${{ secrets.VERCEL_TEST_TOKEN }}
+          pnpx vercel --prod --prebuilt --token=${{ secrets.VERCEL_TEST_TOKEN }}
+
+      - name: Test Netlify
+        working-directory: ./packages/astro/test/hosted/hosted-astro-project
+        run:
+          pnpm run build:netlify
+          pnpx netlify build
+          pnpx netlify deploy --prod

@@ -3564,10 +3564,10 @@ importers:
     dependencies:
       '@astrojs/netlify':
         specifier: file:../../../../integrations/netlify
-        version: file:packages/integrations/netlify(astro@2.8.0)
+        version: file:packages/integrations/netlify(astro@2.8.4)
       '@astrojs/vercel':
         specifier: file:../../../../integrations/vercel
-        version: file:packages/integrations/vercel(astro@2.8.0)
+        version: file:packages/integrations/vercel(astro@2.8.4)
       astro:
         specifier: file:../../..
         version: file:packages/astro(@types/node@18.16.18)
@@ -5556,7 +5556,7 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@astrojs/markdown-remark@2.2.1(astro@2.8.0):
+  /@astrojs/markdown-remark@2.2.1(astro@2.8.4):
     resolution: {integrity: sha512-VF0HRv4GpC1XEMLnsKf6jth7JSmlt9qpqP0josQgA2eSpCIAC/Et+y94mgdBIZVBYH/yFnMoIxgKVe93xfO2GA==}
     peerDependencies:
       astro: '*'
@@ -5602,8 +5602,8 @@ packages:
       - supports-color
     dev: false
 
-  /@astrojs/underscore-redirects@0.1.0:
-    resolution: {integrity: sha512-ZVBhD1Tj+gIY3sPu80UCrtbU8qLf6CevlRC6xeuGK8s09YpLzRkwmkxu+T1qVyv63hsW/ObTqu03RBoLuFBq2A==}
+  /@astrojs/underscore-redirects@0.2.0:
+    resolution: {integrity: sha512-TP+uEdqMGNC7Lyci6WmbHvvMElBDSyHlTsvGH9E9/2duvD/n4KJVyr59klycEroaZJiAi5tzlXL8Jsl9/R32gQ==}
     dev: false
 
   /@astrojs/webapi@2.2.0:
@@ -18307,7 +18307,7 @@ packages:
     resolution: {directory: packages/astro, type: directory}
     id: file:packages/astro
     name: astro
-    version: 2.8.0
+    version: 2.8.4
     engines: {node: '>=16.12.0', npm: '>=6.14.0'}
     hasBin: true
     peerDependencies:
@@ -18319,7 +18319,7 @@ packages:
       '@astrojs/compiler': 1.5.3
       '@astrojs/internal-helpers': 0.1.1
       '@astrojs/language-server': 1.0.0
-      '@astrojs/markdown-remark': 2.2.1(astro@2.8.0)
+      '@astrojs/markdown-remark': 2.2.1(astro@2.8.4)
       '@astrojs/telemetry': 2.1.1
       '@astrojs/webapi': 2.2.0
       '@babel/core': 7.22.5
@@ -18413,26 +18413,26 @@ packages:
       solid-js: 1.7.6
     dev: false
 
-  file:packages/integrations/netlify(astro@2.8.0):
+  file:packages/integrations/netlify(astro@2.8.4):
     resolution: {directory: packages/integrations/netlify, type: directory}
     id: file:packages/integrations/netlify
     name: '@astrojs/netlify'
-    version: 2.3.0
+    version: 2.4.0
     peerDependencies:
       astro: '*'
     dependencies:
-      '@astrojs/underscore-redirects': 0.1.0
+      '@astrojs/underscore-redirects': 0.2.0
       '@astrojs/webapi': 2.2.0
       '@netlify/functions': 1.6.0
       astro: file:packages/astro(@types/node@18.16.18)
       esbuild: 0.15.18
     dev: false
 
-  file:packages/integrations/vercel(astro@2.8.0):
+  file:packages/integrations/vercel(astro@2.8.4):
     resolution: {directory: packages/integrations/vercel, type: directory}
     id: file:packages/integrations/vercel
     name: '@astrojs/vercel'
-    version: 3.7.0
+    version: 3.7.3
     peerDependencies:
       astro: '*'
     dependencies:
