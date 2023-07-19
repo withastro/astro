@@ -1,7 +1,6 @@
 ---
 // Component Imports
 import Button from '../components/Button.astro';
-import { ViewTransitions } from 'astro:transitions';
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
@@ -14,9 +13,8 @@ import { ViewTransitions } from 'astro:transitions';
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro + TailwindCSS</title>
-		<ViewTransitions />
 	</head>
-	<body transition:animate="morph">
+	<body>
 		<div class="grid place-items-center h-screen content-center">
 			<Button>Tailwind Button in Astro!</Button>
 			<a href="/markdown-page" class="p-4 underline">Markdown is also supported...</a>
