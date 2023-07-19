@@ -13,7 +13,7 @@ const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 async function compile(source, id) {
 	return await cachedFullCompilation({
 		compileProps: {
-			astroConfig: { root: pathToFileURL('/'), base: '/' },
+			astroConfig: { root: pathToFileURL('/'), base: '/', experimental: {} },
 			viteConfig,
 			filename: id,
 			source,
