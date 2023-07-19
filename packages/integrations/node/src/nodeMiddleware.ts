@@ -1,18 +1,27 @@
 import type { NodeApp } from 'astro/app/node';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { ServerResponse } from 'node:http';
 import type { Readable } from 'stream';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders';
 import { responseIterator } from './response-iterator';
-import type { Options } from './types';
+import type { ErrorHandlerParams, Options, RequestHandlerParams } from './types';
 
 export default function (app: NodeApp, mode: Options['mode']) {
-	return async function (
-		error: unknown,
-		req: IncomingMessage,
-		res: ServerResponse,
-		next?: (err?: unknown) => void,
-		locals?: object
-	) {
+	return async function (...args: RequestHandlerParams | ErrorHandlerParams) {
+		let error = null;
+		let [req, res, next, locals] = args as RequestHandlerParams;
+
+		if (args[0] instanceof Error) {
+			[error, req, res, next, locals] = args as ErrorHandlerParams;
+
+			if (error) {
+				if (next) {
+					return next(error);
+				} else {
+					throw error;
+				}
+			}
+		}
+
 		try {
 			const route =
 				mode === 'standalone' ? app.match(req, { matchNotFound: true }) : app.match(req);
