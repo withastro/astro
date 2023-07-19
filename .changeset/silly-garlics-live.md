@@ -22,7 +22,7 @@ This enables you to use the new APIs added.
 
 ## <ViewTransitions />
 
-This is a component which acts as the *router* for transitions between pages. You need to add it to each page, in the `<head>` section, in which you want to have transitions away from be done in-client. To enable support throughout your entire app, add the component in some common layout or component.
+This is a component which acts as the *router* for transitions between pages. Add it to the `<head>` section of each individual page where transitions should occur *in the client* as you navigate away to another page, instead of causing a full page browser refresh. To enable support throughout your entire app, add the component in some common layout or component that targets the `<head>` of every page.
 
 __CommonHead.astro__
 
