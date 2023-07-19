@@ -40,10 +40,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-sc
 import { callEndpoint } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import {
-	getRedirectLocationOrThrow,
-	RedirectSinglePageBuiltModule,
-} from '../redirects/index.js';
+import { getRedirectLocationOrThrow, RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createEnvironment, createRenderContext, tryRenderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
