@@ -57,4 +57,4 @@ import { slide } from 'astro:transition';
 
 ## Continue learning
 
-Checkout the [docs](https://docs.astro.build/en/guides/client-side-routing/) to learn more.
+Check out the [client-side routing docs](https://docs.astro.build/en/guides/client-side-routing/) to learn more.
