@@ -45,7 +45,6 @@ const ASTRO_CONFIG_DEFAULTS = {
 	redirects: {},
 	experimental: {
 		assets: false,
-		redirects: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -233,7 +232,6 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.object({
 			assets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.assets),
-			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirects),
 		})
 		.passthrough()
 		.refine(
