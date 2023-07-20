@@ -4,12 +4,12 @@ import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
+import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration } from 'estree';
+import { walk } from 'estree-walker';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
-import { walk } from 'estree-walker';
-import type { ExportDefaultDeclaration, ExportNamedDeclaration, ImportDeclaration } from 'estree';
 
 function isPropagatedAsset(id: string) {
 	try {
