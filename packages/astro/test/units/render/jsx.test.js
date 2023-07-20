@@ -8,7 +8,7 @@ import {
 import { jsx } from '../../../dist/jsx-runtime/index.js';
 import {
 	createRenderContext,
-	tryRenderPage,
+	tryRenderRoute,
 	loadRenderer,
 } from '../../../dist/core/render/index.js';
 import { createAstroJSXComponent, renderer as jsxRenderer } from '../../../dist/jsx/index.js';
@@ -50,7 +50,7 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const response = await tryRenderPage(ctx, env, mod);
+			const response = await tryRenderRoute('page', ctx, env, mod);
 
 			expect(response.status).to.equal(200);
 
@@ -94,7 +94,7 @@ describe('core/render', () => {
 				env,
 				mod,
 			});
-			const response = await tryRenderPage(ctx, env, mod);
+			const response = await tryRenderRoute('page', ctx, env, mod);
 
 			expect(response.status).to.equal(200);
 
@@ -120,7 +120,7 @@ describe('core/render', () => {
 				mod,
 			});
 
-			const response = await tryRenderPage(ctx, env, mod);
+			const response = await tryRenderRoute('page', ctx, env, mod);
 
 			try {
 				await response.text();

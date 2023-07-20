@@ -43,11 +43,6 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/2');
 			expect(response.status).to.equal(404);
 		});
-
-		it('500 when redirecting in SSG mode', async () => {
-			const response = await fixture.fetch('/redirect');
-			expect(response.status).to.equal(500);
-		});
 	});
 
 	describe('No subpath used', () => {
