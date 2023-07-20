@@ -8,8 +8,5 @@
   "dependencies": {
     "@astrojs/vercel": "file:../../..",
     "astro": "file:../../../../../astro"
-  },
-  "devDependencies": {
-    "vercel": "^31.0.4"
   }
 }

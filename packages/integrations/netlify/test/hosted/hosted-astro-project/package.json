@@ -8,8 +8,5 @@
   "dependencies": {
     "@astrojs/netlify": "file:../../..",
     "astro": "file:../../../../../astro"
-  },
-  "devDependencies": {
-    "netlify-cli": "^15.9.1"
   }
 }
