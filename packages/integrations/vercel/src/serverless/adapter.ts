@@ -19,6 +19,7 @@ const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
+// https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<string, { status: 'current' } | { status: 'deprecated', removal: Date }> = {
 	14: { status: 'deprecated', removal: new Date('August 15 2023')  },
 	16: { status: 'deprecated', removal: new Date('February 6 2024') },
