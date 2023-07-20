@@ -162,7 +162,6 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 							);
 
 							if (doesImport === 'no') {
-								// console.log(`[astro] ${parentInfo.id} does not import any of ${childExportNames} from ${childInfo?.id}`);
 								// Break the search if the parent doesn't import the child.
 								continue;
 							}
