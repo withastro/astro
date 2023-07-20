@@ -1,4 +1,4 @@
-name: Check that everything still work on Netlify and Vercel
+name: Hosted tests
 
 on:
   schedule:
@@ -16,8 +16,8 @@ env:
   FORCE_COLOR: true
 
 jobs:
-  check:
-    name: astro check
+  test:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -36,18 +36,17 @@ jobs:
         run: pnpm install
 
       - name: Deploy Vercel
-        working-directory: ./packages/astro/test/hosted/hosted-astro-project
+        working-directory: ./packages/integrations/vercel/test/hosted/hosted-astro-project
         run:
-          pnpm run build:vercel
+          pnpm run build
           pnpm vercel --prod --prebuilt
 
       - name: Deploy Netlify
-        working-directory: ./packages/astro/test/hosted/hosted-astro-project
+        working-directory: ./packages/integrations/netlify/test/hosted/hosted-astro-project
         run:
-          pnpm run build:netlify
+          pnpm run build
           pnpm netlify deploy --prod
 
       - name: Test both hosts
-        working-directory: ./packages/astro/
         run:
           pnpm run test:hosts

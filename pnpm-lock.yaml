@@ -4520,6 +4520,19 @@ importers:
         specifier: workspace:*
         version: link:../../../../../../astro
 
+  packages/integrations/netlify/test/hosted/hosted-astro-project:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: file:../../..
+        version: file:packages/integrations/netlify(astro@2.8.5)
+      astro:
+        specifier: file:../../../../../astro
+        version: file:packages/astro(@types/node@18.16.18)
+    devDependencies:
+      netlify-cli:
+        specifier: ^15.9.1
+        version: 15.9.1(@types/node@18.16.18)
+
   packages/integrations/node:
     dependencies:
       '@astrojs/webapi':
@@ -5022,6 +5035,19 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/integrations/vercel/test/hosted/hosted-astro-project:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: file:../../..
+        version: file:packages/integrations/vercel(astro@2.8.5)
+      astro:
+        specifier: file:../../../../../astro
+        version: file:packages/astro(@types/node@18.16.18)
+    devDependencies:
+      vercel:
+        specifier: ^31.0.4
+        version: 31.0.4(@types/node@18.16.18)
 
   packages/integrations/vue:
     dependencies:
@@ -5727,7 +5753,7 @@ packages:
       '@babel/helper-replace-supers': 7.21.5
       '@babel/helper-skip-transparent-expression-wrappers': 7.20.0
       '@babel/helper-split-export-declaration': 7.22.5
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5764,7 +5790,7 @@ packages:
       '@babel/core': 7.22.5
       '@babel/helper-annotate-as-pure': 7.22.5
       regexpu-core: 5.3.2
-      semver: 6.3.0
+      semver: 6.3.1
 
   /@babel/helper-define-polyfill-provider@0.3.3(@babel/core@7.22.5):
     resolution: {integrity: sha512-z5aQKU4IzbqCC1XH0nAqfsFLMVSo22SBKUc0BxGrLkolTdPTructy0ToNnlO2zA4j9Q/7pjMZf0DSY+DSTYzww==}
@@ -5780,7 +5806,7 @@ packages:
       debug: 4.3.4(supports-color@9.4.0)
       lodash.debounce: 4.0.8
       resolve: 1.22.2
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -6451,6 +6477,7 @@ packages:
     dependencies:
       '@babel/core': 7.22.5
       '@babel/helper-plugin-utils': 7.22.5
+    dev: false
 
   /@babel/plugin-syntax-typescript@7.22.5(@babel/core@7.22.5):
     resolution: {integrity: sha512-1mS2o03i7t1c6VzH6fdQ3OA8tcEIxwG18zIPRp+UY1Ihv6W+XZzBCVxExF9upussPXJ0xE9XRHwMoNs1ep/nRQ==}
@@ -8665,8 +8692,8 @@ packages:
       strip-ansi: 7.1.0
       supports-color: 9.4.0
       terminal-link: 3.0.0
-      ts-node: 10.9.1(@types/node@18.16.18)(typescript@5.0.2)
-      typescript: 5.0.2
+      ts-node: 10.9.1(@types/node@18.16.18)(typescript@5.0.4)
+      typescript: 5.0.4
       uuid: 9.0.0
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -9300,7 +9327,7 @@ packages:
       '@octokit/graphql': 5.0.6
       '@octokit/request': 6.2.8
       '@octokit/request-error': 3.0.3
-      '@octokit/types': 9.2.2
+      '@octokit/types': 9.3.2
       before-after-hook: 2.2.3
       universal-user-agent: 6.0.0
     transitivePeerDependencies:
@@ -10423,15 +10450,15 @@ packages:
     resolution: {integrity: sha512-OyiZ3jEKu7RtGO1yp9oOdK0cTwZ/10oE9PDJ6fyN3r9T5wkyOcvr6awdugjYdqF6KVO5eUvt7jx7rk2Eylufow==}
     dev: true
 
+  /@types/dom-view-transitions@1.0.1:
+    resolution: {integrity: sha512-A9S1ijj/4MX06I1W/6on8lhaYyq1Ir7gaOvfllW1o4RzVWW88HAeqX0pUx9VgOLnNpdiGeUW2CTkg18p5LWIrA==}
+    dev: false
+
   /@types/estree-jsx@0.0.1:
     resolution: {integrity: sha512-gcLAYiMfQklDCPjQegGn0TBAn9it05ISEsEhlKQUddIk7o2XDokOcTN7HBO8tznM0D9dGezvHEfRZBfZf6me0A==}
     dependencies:
       '@types/estree': 1.0.1
     dev: true
-
-  /@types/dom-view-transitions@1.0.1:
-    resolution: {integrity: sha512-A9S1ijj/4MX06I1W/6on8lhaYyq1Ir7gaOvfllW1o4RzVWW88HAeqX0pUx9VgOLnNpdiGeUW2CTkg18p5LWIrA==}
-    dev: false
 
   /@types/estree-jsx@1.0.0:
     resolution: {integrity: sha512-3qvGd0z8F2ENTGr/GG1yViqfiKmRfrXVx5sJyHGFu3z7m5g5utCQtGp/g29JnjflhtQJBv1WDQukHiT58xPcYQ==}
@@ -11026,7 +11053,7 @@ packages:
     resolution: {integrity: sha512-+xYJz07G7TFAMZGrOqArOsURG+xcYvqctujEkANjw2McCBvGEK505RxQqOuNiA9Mi9hgGdNp2JedSa94f3eoLg==}
     dependencies:
       '@babel/core': 7.22.5
-      '@babel/plugin-syntax-typescript': 7.21.4(@babel/core@7.22.5)
+      '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.22.5)
       '@vanilla-extract/babel-plugin-debug-ids': 1.0.3
       '@vanilla-extract/css': 1.12.0
       esbuild: 0.17.6
@@ -11230,7 +11257,7 @@ packages:
       '@babel/generator': 7.22.5
       '@babel/parser': 7.22.5
       '@babel/plugin-syntax-jsx': 7.22.5(@babel/core@7.22.5)
-      '@babel/plugin-syntax-typescript': 7.21.4(@babel/core@7.22.5)
+      '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.22.5)
       '@babel/preset-env': 7.21.5(@babel/core@7.22.5)
       '@babel/preset-typescript': 7.22.5(@babel/core@7.22.5)
       '@babel/traverse': 7.22.5
@@ -12214,7 +12241,7 @@ packages:
       '@babel/compat-data': 7.22.5
       '@babel/core': 7.22.5
       '@babel/helper-define-polyfill-provider': 0.3.3(@babel/core@7.22.5)
-      semver: 6.3.0
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -17968,7 +17995,7 @@ packages:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
     dependencies:
-      semver: 6.3.0
+      semver: 6.3.1
 
   /make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
@@ -19277,6 +19304,14 @@ packages:
       typescript: '>= 3.0.0'
     dependencies:
       typescript: 5.0.2
+    dev: false
+
+  /network-information-types@0.1.1(typescript@5.0.4):
+    resolution: {integrity: sha512-mLXNafJYOkiJB6IlF727YWssTRpXitR+tKSLyA5VAdBi3SOvLf5gtizHgxf241YHPWocnAO/fAhVrB/68tPHDw==}
+    peerDependencies:
+      typescript: '>= 3.0.0'
+    dependencies:
+      typescript: 5.0.4
     dev: false
 
   /nice-try@1.0.5:
@@ -22065,7 +22100,6 @@ packages:
   /semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
-    dev: true
 
   /semver@7.3.8:
     resolution: {integrity: sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==}
@@ -23403,7 +23437,7 @@ packages:
       yn: 3.1.1
     dev: true
 
-  /ts-node@10.9.1(@types/node@18.16.18)(typescript@5.0.2):
+  /ts-node@10.9.1(@types/node@18.16.18)(typescript@5.0.4):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -23429,7 +23463,7 @@ packages:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.0.2
+      typescript: 5.0.4
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: true
@@ -23667,7 +23701,6 @@ packages:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
     engines: {node: '>=12.20'}
     hasBin: true
-    dev: true
 
   /ufo@1.1.2:
     resolution: {integrity: sha512-TrY6DsjTQQgyS3E3dBaOXf0TpPD8u9FVrVYmKVegJuFw51n/YB9XPt+U6ydzFG5ZIN7+DIjPbNmXoBj9esYhgQ==}
@@ -25160,7 +25193,7 @@ packages:
       sharp:
         optional: true
     dependencies:
-      '@astrojs/compiler': 1.5.3
+      '@astrojs/compiler': 1.6.0
       '@astrojs/internal-helpers': 0.1.1
       '@astrojs/language-server': 1.0.0
       '@astrojs/markdown-remark': 2.2.1(astro@2.8.5)
@@ -25173,6 +25206,7 @@ packages:
       '@babel/traverse': 7.22.5
       '@babel/types': 7.22.5
       '@types/babel__core': 7.20.1
+      '@types/dom-view-transitions': 1.0.1
       '@types/yargs-parser': 21.0.0
       acorn: 8.9.0
       boxen: 6.2.1
@@ -25196,6 +25230,7 @@ packages:
       kleur: 4.1.5
       magic-string: 0.27.0
       mime: 3.0.0
+      network-information-types: 0.1.1(typescript@5.0.4)
       ora: 6.3.1
       p-limit: 4.0.0
       path-to-regexp: 6.2.1
@@ -25208,7 +25243,7 @@ packages:
       string-width: 5.1.2
       strip-ansi: 7.1.0
       tsconfig-resolver: 3.0.1
-      typescript: 5.0.2
+      typescript: 5.0.4
       unist-util-visit: 4.1.2
       vfile: 5.3.7
       vite: 4.3.9(@types/node@18.16.18)(sass@1.63.4)

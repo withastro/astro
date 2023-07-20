@@ -1,0 +1,15 @@
+{
+  "name": "vercel-hosted-astro-project",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "astro build"
+  },
+  "dependencies": {
+    "@astrojs/vercel": "file:../../..",
+    "astro": "file:../../../../../astro"
+  },
+  "devDependencies": {
+    "vercel": "^31.0.4"
+  }
+}
