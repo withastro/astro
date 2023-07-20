@@ -20,7 +20,9 @@ function isPropagatedAsset(id: string) {
 }
 
 /**
- * @returns undefined if the parent does not import the child, string[] of the reexports if it does
+ * @returns 'no' if the parent does not import the child,
+ * 					'dynamic' if it imports it dynamically,
+ * 					string[] of the reexports if it imports it statically
  */
 async function doesParentImportChild(
 	this: PluginContext,
