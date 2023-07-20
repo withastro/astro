@@ -7,13 +7,8 @@ import {
 	isStarted,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import {
-	createFs,
-	createRequestAndResponse,
-	defaultLogging,
-	triggerFSEvent,
-} from '../test-utils.js';
-import { createSettings, openConfig } from '../../../dist/core/config/index.js';
+import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
+import { createSettings, resolveConfig } from '../../../dist/core/config/index.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -127,12 +122,7 @@ describe('dev container restarts', () => {
 			troot
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: troot,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
+		const { astroConfig } = await resolveConfig({ root: fileURLToPath(troot) }, 'dev');
 		const settings = createSettings(astroConfig);
 
 		let restart = await createContainerWithAutomaticRestart({
@@ -161,12 +151,7 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: root,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
+		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev');
 		const settings = createSettings(astroConfig, fileURLToPath(root));
 
 		let restart = await createContainerWithAutomaticRestart({
@@ -193,12 +178,7 @@ describe('dev container restarts', () => {
 			root
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: root,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-		});
+		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev');
 		const settings = createSettings(astroConfig, fileURLToPath(root));
 
 		let restart = await createContainerWithAutomaticRestart({

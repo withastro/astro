@@ -6,7 +6,7 @@ import { ZodError } from 'zod';
 import type { AstroInlineConfig } from '../@types/astro.js';
 import {
 	createSettings,
-	openConfig,
+	resolveConfig,
 	resolveConfigPath,
 	resolveRoot,
 } from '../core/config/index.js';
@@ -23,18 +23,17 @@ interface LoadSettingsOptions {
 }
 
 export async function loadSettings({ cmd, flags, logging }: LoadSettingsOptions) {
-	const root = flags.root;
-	const { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
-		cwd: root,
-		flags,
-		cmd,
-	}).catch(async (e) => {
-		await handleConfigError(e, { cmd, cwd: root, flags, logging });
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await resolveConfig(
+		inlineConfig,
+		cmd
+	).catch(async (e) => {
+		await handleConfigError(e, { cmd, cwd: inlineConfig.root, flags, logging });
 		return {} as any;
 	});
 	if (!initialAstroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
-	return createSettings(initialAstroConfig, root);
+	return createSettings(initialAstroConfig, inlineConfig.root);
 }
 
 export async function handleConfigError(

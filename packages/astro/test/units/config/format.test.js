@@ -1,8 +1,9 @@
+import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
-import { openConfig, createSettings } from '../../../dist/core/config/index.js';
-import { createFs, defaultLogging } from '../test-utils.js';
+import { resolveConfig, createSettings } from '../../../dist/core/config/index.js';
+import { createFs } from '../test-utils.js';
 
 const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
 
@@ -20,13 +21,7 @@ describe('Astro config formats', () => {
 			root
 		);
 
-		const { astroConfig } = await openConfig({
-			cwd: root,
-			flags: {},
-			cmd: 'dev',
-			logging: defaultLogging,
-			fsMod: fs,
-		});
+		const { astroConfig } = await resolveConfig({ root: fileURLToPath(root) }, 'dev', fs);
 		const settings = createSettings(astroConfig);
 
 		await runInContainer({ fs, root, settings }, () => {
