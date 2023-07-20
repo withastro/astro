@@ -1,6 +1,6 @@
 import { cyan } from 'kleur/colors';
 import { createRequire } from 'module';
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from 'node:url';
 import type { Arguments } from 'yargs-parser';
 import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';

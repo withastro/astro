@@ -1,7 +1,7 @@
 import type { NodeApp } from 'astro/app/node';
 import https from 'https';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createServer } from './http-server.js';
 import middleware from './nodeMiddleware.js';
 import type { Options } from './types';

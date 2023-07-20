@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import type yargs from 'yargs-parser';
 import type { LogOptions } from '../../core/logger/core.js';
 import { syncCli } from '../../core/sync/index.js';

@@ -1,5 +1,18 @@
 # @astrojs/netlify
 
+## 2.5.0
+
+### Minor Changes
+
+- [#7700](https://github.com/withastro/astro/pull/7700) [`a77741d25`](https://github.com/withastro/astro/commit/a77741d25e5d923461026003aba81869833863d4) Thanks [@delucis](https://github.com/delucis)! - When a project uses the new `build.excludeMiddleware` Astro config option, the `@astrojs/netlify/functions` adapter will bundle your middleware to run in a [Netlify Edge Function](https://docs.netlify.com/edge-functions/overview/).
+
+  See the [Netlify adapter documentation](https://docs.astro.build/en/guides/integrations-guide/netlify/#run-middleware-in-edge-functions) for more details.
+
+### Patch Changes
+
+- Updated dependencies [[`72bbfac97`](https://github.com/withastro/astro/commit/72bbfac976c2965a523eea88ff0543e64d848d80), [`d401866f9`](https://github.com/withastro/astro/commit/d401866f93bfe25a50c171bc54b2b1ee0f483cc9), [`4f6b5ae2b`](https://github.com/withastro/astro/commit/4f6b5ae2ba8eb162e03f25cbd600a905d434f529), [`06c255716`](https://github.com/withastro/astro/commit/06c255716ae8e922fb9d4ffa5595cbb34146fff6)]:
+  - astro@2.8.5
+
 ## 2.4.0
 
 ### Minor Changes

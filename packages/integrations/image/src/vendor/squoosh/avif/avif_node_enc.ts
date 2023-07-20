@@ -41,13 +41,13 @@ var Module = (function () {
     var nodePath
     if (ENVIRONMENT_IS_NODE) {
       if (ENVIRONMENT_IS_WORKER) {
-        scriptDirectory = require('path').dirname(scriptDirectory) + '/'
+        scriptDirectory = require('node:path').dirname(scriptDirectory) + '/'
       } else {
         scriptDirectory = dirname(getModuleURL(import.meta.url)) + '/'
       }
       read_ = function shell_read(filename, binary) {
-        if (!nodeFS) nodeFS = require('fs')
-        if (!nodePath) nodePath = require('path')
+        if (!nodeFS) nodeFS = require('node:fs')
+        if (!nodePath) nodePath = require('node:path')
         filename = nodePath['normalize'](filename)
         return nodeFS['readFileSync'](filename, binary ? null : 'utf8')
       }

@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { pathToFileURL } from 'url';
 import mri from 'mri';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const args = mri(process.argv.slice(2));
 

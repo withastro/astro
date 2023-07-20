@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import fs from 'fs';
 import sizeOf from 'image-size';
-import path from 'path';
+import fs from 'node:fs';
+import path, { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { join } from 'node:path';
-import { loadFixture } from './test-utils.js';
 import srcsetParse from 'srcset-parse';
+import { loadFixture } from './test-utils.js';
 
 const matchSrcset = srcsetParse.default;
 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import sizeOf from 'image-size';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { loadFixture } from './test-utils.js';
 
 let fixture;

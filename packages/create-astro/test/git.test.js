@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
-import fs from 'fs';
 import { execa } from 'execa';
+import fs from 'node:fs';
 
 import { git } from '../dist/index.js';
 import { setup } from './utils.js';

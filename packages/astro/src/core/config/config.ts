@@ -1,10 +1,10 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig, CLIFlags, AstroInlineConfig } from '../../@types/astro';
 
-import fs from 'fs';
 import * as colors from 'kleur/colors';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
@@ -23,8 +23,11 @@ const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 ]);
 
 /** Turn raw config values into normalized values */
-export async function validateConfig(userConfig: any, root: string, cmd: string): Promise<AstroConfig> {
-	const fileProtocolRoot = pathToFileURL(root + path.sep);
+export async function validateConfig(
+	userConfig: any,
+	root: string,
+	cmd: string
+): Promise<AstroConfig> {
 	// Manual deprecation checks
 	/* eslint-disable no-console */
 	if (userConfig.hasOwnProperty('renderers')) {
@@ -74,7 +77,7 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 	}
 	/* eslint-enable no-console */
 
-	const AstroConfigRelativeSchema = createRelativeSchema(cmd, fileProtocolRoot);
+	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
 	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
@@ -99,8 +102,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 		experimentalAssets:
 			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-		experimentalRedirects:
-			typeof flags.experimentalRedirects === 'boolean' ? flags.experimentalRedirects : undefined,
 	};
 }
 

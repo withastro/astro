@@ -1,7 +1,7 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { warn, type LogOptions } from '../core/logger/core.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import { log404 } from './common.js';
