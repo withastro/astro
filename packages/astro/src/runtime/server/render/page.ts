@@ -12,7 +12,7 @@ import {
 	isRenderTemplateResult,
 	renderAstroTemplateResult,
 } from './astro/index.js';
-import { chunkToByteArray, encoder, HTMLParts } from './common.js';
+import { HTMLParts, chunkToByteArray, encoder } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
 

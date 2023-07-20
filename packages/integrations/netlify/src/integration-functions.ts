@@ -110,4 +110,4 @@ function netlifyFunctions({
 	};
 }
 
-export { netlifyFunctions, netlifyFunctions as default };
+export { netlifyFunctions as default, netlifyFunctions };
