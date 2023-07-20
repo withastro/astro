@@ -23,4 +23,4 @@ import { Accordion } from '@matthewp/my-astro-lib';
 ---
 ```
 
-Previously Astro would bundle `<script>`s from both the Tabs and Accordion onto this page, even though on the Accordion is used. Now Astro is a little smarter and can support this re-export pattern that is common among libraries.
+Previously Astro would bundle `<script>`s from both the Tabs and Accordion onto this page, even though only the Accordion is used. Now Astro is a little smarter and can support this re-export pattern that is common among libraries.
