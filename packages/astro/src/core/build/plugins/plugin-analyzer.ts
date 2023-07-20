@@ -132,7 +132,6 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				scripts: AstroPluginMetadata['astro']['scripts'],
 				from: string
 			) {
-				// console.log('\n\n==== ', from, ' ====\n\n');
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
 					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
