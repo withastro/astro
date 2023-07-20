@@ -2,7 +2,7 @@ import type { ComponentInstance, Params, Props, RouteData } from '../../@types/a
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core.js';
 import { getParams } from '../routing/params.js';
-import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
+import { RouteCache, callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;

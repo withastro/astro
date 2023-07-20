@@ -104,4 +104,4 @@ function trySerializeLocals(value: unknown) {
 }
 
 // NOTE: this export must export only the functions that will be exposed to user-land as officials APIs
-export { sequence, defineMiddleware, createContext, trySerializeLocals };
+export { createContext, defineMiddleware, sequence, trySerializeLocals };
