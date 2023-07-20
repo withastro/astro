@@ -12,16 +12,12 @@ import { attachToResponse } from '../core/cookies/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { getStylesForURL } from './css.js';
-import { preload } from './index.js';
-import { getComponentMetadata } from './metadata.js';
-import { getScriptsForURL } from './scripts.js';
 import {
 	createRenderContext,
-	type DevelopmentEnvironment,
-	type SSROptions,
 	getParamsAndProps,
 	tryRenderRoute,
+	type DevelopmentEnvironment,
+	type SSROptions,
 } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
@@ -30,7 +26,11 @@ import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import { isServerLikeOutput } from '../prerender/utils.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { log404 } from './common.js';
+import { getStylesForURL } from './css.js';
+import { preload } from './index.js';
+import { getComponentMetadata } from './metadata.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { getScriptsForURL } from './scripts.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
 

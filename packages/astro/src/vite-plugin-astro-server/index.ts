@@ -1,9 +1,9 @@
 import type { ComponentInstance } from '../@types/astro.js';
+import { enhanceViteSSRError } from '../core/errors/dev/index.js';
+import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
+import type { DevelopmentEnvironment } from '../core/render/environment';
 import { loadRenderers } from '../core/render/index.js';
 import { viteID } from '../core/util.js';
-import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
-import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import type { DevelopmentEnvironment } from '../core/render/environment';
 
 export async function preload({
 	env,

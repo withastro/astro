@@ -1,8 +1,8 @@
-import type { ModuleLoader, ModuleNode } from '../core/module-loader/index';
 import npath from 'node:path';
-import { isCSSRequest } from './util.js';
-import { unwrapId } from '../core/util.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
+import type { ModuleLoader, ModuleNode } from '../core/module-loader/index';
+import { unwrapId } from '../core/util.js';
+import { isCSSRequest } from './util.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time

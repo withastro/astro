@@ -1,5 +1,5 @@
-import type { DevelopmentEnvironment } from './environment';
 import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../../@types/astro';
+import type { DevelopmentEnvironment } from './environment';
 
 export { createRenderContext } from './context.js';
 export type { RenderContext } from './context.js';

@@ -1,9 +1,9 @@
+import type { SSRElement } from '../@types/astro';
+import type { ModuleInfo, ModuleLoader } from '../core/module-loader';
+import { createModuleScriptElementWithSrc } from '../core/render/ssr-element.js';
+import { rootRelativePath, viteID } from '../core/util.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { crawlGraph } from './vite.js';
-import type { ModuleLoader, ModuleInfo } from '../core/module-loader';
-import type { SSRElement } from '../@types/astro';
-import { rootRelativePath, viteID } from '../core/util.js';
-import { createModuleScriptElementWithSrc } from '../core/render/ssr-element.js';
 
 export async function getScriptsForURL(
 	filePath: URL,

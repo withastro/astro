@@ -1,8 +1,8 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import type { RuntimeMode, SSRLoadedRenderer, AstroSettings } from '../../@types/astro';
+import type { AstroSettings, RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
-import type { RouteCache } from './route-cache.js';
 import type { ModuleLoader } from '../module-loader';
+import type { RouteCache } from './route-cache.js';
 
 /**
  * An environment represents the static parts of rendering that do not change
