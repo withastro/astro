@@ -10,7 +10,7 @@ Astro create bundles that optimize script usage between pages and place them in 
 
 Now, Astro has improved the static analysis to take into account the actual imports used. 
 
-For example, Astro would previously bundle the `<scripts>` from both the `<Tab>` and `<Accordian>`  component for the following library that re-exports multiple components:
+For example, Astro would previously bundle the `<script>`s from both the `<Tab>` and `<Accordian>`  component for the following library that re-exports multiple components:
 
 __@matthewp/my-astro-lib__
 
