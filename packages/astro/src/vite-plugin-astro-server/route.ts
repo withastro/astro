@@ -12,12 +12,17 @@ import { attachToResponse } from '../core/cookies/index.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { warn } from '../core/logger/core.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import { getStylesForURL } from '../core/render/dev/css.js';
-import type { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
-import { preload } from '../core/render/dev/index.js';
-import { getComponentMetadata } from '../core/render/dev/metadata.js';
-import { getScriptsForURL } from '../core/render/dev/scripts.js';
-import { createRenderContext, getParamsAndProps, tryRenderRoute } from '../core/render/index.js';
+import { getStylesForURL } from './css.js';
+import { preload } from './index.js';
+import { getComponentMetadata } from './metadata.js';
+import { getScriptsForURL } from './scripts.js';
+import {
+	createRenderContext,
+	type DevelopmentEnvironment,
+	type SSROptions,
+	getParamsAndProps,
+	tryRenderRoute,
+} from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { isPage, resolveIdToUrl, viteID } from '../core/util.js';

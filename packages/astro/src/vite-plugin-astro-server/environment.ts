@@ -1,16 +1,11 @@
-import type { AstroSettings, RuntimeMode, SSRManifest } from '../../../@types/astro';
-import { isServerLikeOutput } from '../../../prerender/utils.js';
-import type { LogOptions } from '../../logger/core.js';
-import type { ModuleLoader } from '../../module-loader/index';
-import type { Environment } from '../index';
-import { createEnvironment } from '../index.js';
-import { RouteCache } from '../route-cache.js';
 import { createResolve } from './resolve.js';
-
-export type DevelopmentEnvironment = Environment & {
-	loader: ModuleLoader;
-	settings: AstroSettings;
-};
+import type { ModuleLoader } from '../core/module-loader';
+import type { AstroSettings, RuntimeMode, SSRManifest } from '../@types/astro.js';
+import type { LogOptions } from '../core/logger/core.js';
+import { RouteCache } from '../core/render/route-cache.js';
+import { isServerLikeOutput } from '../prerender/utils.js';
+import type { DevelopmentEnvironment } from '../core/render';
+import { createEnvironment } from '../core/render/index.js';
 
 export function createDevelopmentEnvironment(
 	manifest: SSRManifest,

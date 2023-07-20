@@ -4,7 +4,7 @@ import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { createDevelopmentEnvironment } from '../core/render/dev/index.js';
+import { createDevelopmentEnvironment } from './environment.js';
 import { createRouteManifest } from '../core/routing/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
