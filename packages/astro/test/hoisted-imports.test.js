@@ -21,7 +21,6 @@ describe('Hoisted Imports', () => {
 			const matches = text.matchAll(importRegex);
 			for (const match of matches) {
 				const importPath = match[1];
-				console.log('- ', importPath);
 				const importText = await fixture.readFile('/_astro/' + importPath);
 				scriptText.push(await resolveImports(importText));
 			}
