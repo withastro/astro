@@ -122,9 +122,8 @@ export async function renderPage(
 	const init = result.response;
 	const headers = new Headers(init.headers);
 	// For non-streaming, convert string to byte array to calculate Content-Length
-	if (!streaming) {
-		const str = body as string;
-		body = encoder.encode(str);
+	if (!streaming && typeof body === 'string') {
+		body = encoder.encode(body);
 		headers.set('Content-Length', body.byteLength.toString());
 	}
 	const response = createResponse(body, { ...init, headers });
