@@ -3,12 +3,12 @@ import { createFs, createRequestAndResponse, defaultLogging } from '../test-util
 import { createRouteManifest, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { fileURLToPath } from 'node:url';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
-import { createDevelopmentEnvironment } from '../../../dist/core/render/dev/environment.js';
 import { expect } from 'chai';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import * as cheerio from 'cheerio';
 import testAdapter from '../../test-adapter.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
+import { createDevelopmentEnvironment } from '../../../dist/vite-plugin-astro-server/environment.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
