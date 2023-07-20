@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { normalizePath, type Plugin as VitePlugin, type ResolvedConfig } from 'vite';
+import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 
 type Alias = {

@@ -1,5 +1,5 @@
 /* eslint no-console: 'off' */
-import { color, label, say as houston, spinner as load } from '@astrojs/cli-kit';
+import { color, say as houston, label, spinner as load } from '@astrojs/cli-kit';
 import { align, sleep } from '@astrojs/cli-kit/utils';
 import { execa } from 'execa';
 import fetch from 'node-fetch-native';

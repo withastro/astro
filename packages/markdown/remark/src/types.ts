@@ -1,8 +1,8 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type {
-	all as Handlers,
 	one as Handler,
+	all as Handlers,
 	Options as RemarkRehypeOptions,
 } from 'remark-rehype';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';

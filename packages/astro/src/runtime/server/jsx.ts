@@ -2,8 +2,8 @@
 import type { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode, type AstroVNode } from '../../jsx-runtime/index.js';
 import {
-	escapeHTML,
 	HTMLString,
+	escapeHTML,
 	markHTMLString,
 	renderComponentToIterable,
 	renderToString,

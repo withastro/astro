@@ -26,6 +26,10 @@ describe('getStaticPaths support', () => {
 		expect(urls).to.not.include('http://example.com/404/');
 	});
 
+	it('does not include nested 404 pages', () => {
+		expect(urls).to.not.include('http://example.com/de/404/');
+	});
+
 	it('includes numerical pages', () => {
 		expect(urls).to.include('http://example.com/123/');
 	});

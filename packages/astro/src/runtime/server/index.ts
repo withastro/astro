@@ -16,6 +16,7 @@ export {
 	defineScriptVars,
 	Fragment,
 	maybeRenderHead,
+	renderTemplate as render,
 	renderAstroTemplateResult as renderAstroComponent,
 	renderComponent,
 	renderComponentToIterable,
@@ -26,7 +27,6 @@ export {
 	renderScriptElement,
 	renderSlot,
 	renderSlotToString,
-	renderTemplate as render,
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
@@ -39,6 +39,7 @@ export type {
 	ComponentSlots,
 	RenderInstruction,
 } from './render/index.js';
+export { renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
 import { addAttribute, Renderer } from './render/index.js';

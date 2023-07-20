@@ -15,7 +15,7 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'node:stream/web' // Remove when Node 16 is dropped for Node 18.
-import { fetch, File, FormData, Headers, Request, Response } from 'undici' // Remove when Node 16 is dropped for Node 18.
+import { File, FormData, Headers, Request, Response, fetch } from 'undici' // Remove when Node 16 is dropped for Node 18.
 import { URLPattern } from 'urlpattern-polyfill'
 import {
 	cancelAnimationFrame,
@@ -25,9 +25,9 @@ import { CharacterData, Comment, Text } from './lib/CharacterData'
 import { CustomEvent } from './lib/CustomEvent' // Look into removing when Node 18 is dropped for Node 20
 import { DOMException } from './lib/DOMException'
 import { cancelIdleCallback, requestIdleCallback } from './lib/IdleCallback'
-import structuredClone from './lib/structuredClone' // Remove when Node 16 is dropped for Node 18.
 import { clearTimeout, setTimeout } from './lib/Timeout'
 import { TreeWalker } from './lib/TreeWalker'
+import structuredClone from './lib/structuredClone' // Remove when Node 16 is dropped for Node 18.
 
 import { CanvasRenderingContext2D } from './lib/CanvasRenderingContext2D'
 import {
@@ -51,7 +51,7 @@ import { HTMLCanvasElement } from './lib/HTMLCanvasElement'
 import { HTMLImageElement } from './lib/HTMLImageElement'
 import { Image } from './lib/Image'
 import { ImageData } from './lib/ImageData'
-import { initMediaQueryList, MediaQueryList } from './lib/MediaQueryList'
+import { MediaQueryList, initMediaQueryList } from './lib/MediaQueryList'
 import {
 	DocumentFragment,
 	Node,
@@ -65,19 +65,19 @@ import {
 	ResizeObserver,
 } from './lib/Observer'
 import { OffscreenCanvas } from './lib/OffscreenCanvas'
-import { initStorage, Storage } from './lib/Storage'
+import { Storage, initStorage } from './lib/Storage'
 import { CSSStyleSheet, StyleSheet } from './lib/StyleSheet'
-import { initWindow, Window } from './lib/Window'
+import { Window, initWindow } from './lib/Window'
 
 import { alert } from './lib/Alert'
 
 export {
 	ByteLengthQueuingStrategy,
+	CSSStyleSheet,
 	CanvasRenderingContext2D,
 	CharacterData,
 	Comment,
 	CountQueuingStrategy,
-	CSSStyleSheet,
 	CustomElementRegistry,
 	CustomEvent,
 	DOMException,
@@ -88,7 +88,6 @@ export {
 	EventTarget,
 	File,
 	FormData,
-	Headers,
 	HTMLBodyElement,
 	HTMLCanvasElement,
 	HTMLDivElement,
@@ -101,6 +100,7 @@ export {
 	HTMLStyleElement,
 	HTMLTemplateElement,
 	HTMLUnknownElement,
+	Headers,
 	Image,
 	ImageData,
 	IntersectionObserver,
@@ -126,23 +126,23 @@ export {
 	TransformStream,
 	TreeWalker,
 	URLPattern,
+	Window,
 	WritableStream,
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
-	Window,
 	alert,
 	cancelAnimationFrame,
 	cancelIdleCallback,
 	clearTimeout,
 	crypto,
 	fetch,
-	requestAnimationFrame,
-	requestIdleCallback,
-	setTimeout,
-	structuredClone,
 	initCustomElementRegistry,
 	initDocument,
 	initMediaQueryList,
 	initStorage,
 	initWindow,
+	requestAnimationFrame,
+	requestIdleCallback,
+	setTimeout,
+	structuredClone,
 }

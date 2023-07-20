@@ -9,8 +9,8 @@ import type { StaticBuildOptions } from '../core/build/types';
 import type { ModuleLoader } from '../core/module-loader/loader.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { joinPaths, prependForwardSlash } from '../core/path.js';
-import { getStylesForURL } from '../core/render/dev/css.js';
-import { getScriptsForURL } from '../core/render/dev/scripts.js';
+import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
+import { getScriptsForURL } from '../vite-plugin-astro-server/scripts.js';
 import {
 	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
