@@ -1,12 +1,11 @@
-import netlify from "@astrojs/netlify";
+import vercel from '@astrojs/vercel/serverless';
 import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
 	output: 'server',
-	adapter: netlify(),
-	outDir: "./dist_netlify",
+	adapter: vercel(),
 	experimental: {
-		assets: true
-	}
+		assets: true,
+	},
 });
