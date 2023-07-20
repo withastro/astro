@@ -1,28 +1,9 @@
-import type { AstroMiddlewareInstance, ComponentInstance, RouteData } from '../@types/astro.js';
+import type { ComponentInstance } from '../@types/astro.js';
 import { loadRenderers } from '../core/render/index.js';
 import { viteID } from '../core/util.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import type { DevelopmentEnvironment } from './environment';
-
-export interface SSROptions {
-	/** The environment instance */
-	env: DevelopmentEnvironment;
-	/** location of file on disk */
-	filePath: URL;
-	/** the web request (needed for dynamic routes) */
-	pathname: string;
-	/** The runtime component instance */
-	preload: ComponentInstance;
-	/** Request */
-	request: Request;
-	/** optional, in case we need to render something outside of a dev server */
-	route?: RouteData;
-	/**
-	 * Optional middlewares
-	 */
-	middleware?: AstroMiddlewareInstance<unknown>;
-}
+import type { DevelopmentEnvironment } from '../core/render/environment';
 
 export async function preload({
 	env,
@@ -55,4 +36,3 @@ export async function preload({
 export { createController, runWithErrorHandling } from './controller.js';
 export { default as vitePluginAstroServer } from './plugin.js';
 export { handleRequest } from './request.js';
-export { type DevelopmentEnvironment };

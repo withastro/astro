@@ -1,7 +1,6 @@
 import type { EndpointHandler } from '../../../@types/astro';
-import { createRenderContext } from '../../render/index.js';
+import { createRenderContext, type SSROptions } from '../../render/index.js';
 import { callEndpoint } from '../index.js';
-import type { SSROptions } from '../../../vite-plugin-astro-server';
 
 export async function call(options: SSROptions) {
 	const { env, preload, middleware } = options;

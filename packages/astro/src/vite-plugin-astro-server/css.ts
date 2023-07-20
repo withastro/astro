@@ -1,4 +1,4 @@
-import type { ModuleLoader } from '../core/module-loader/index';
+import type { ModuleLoader } from '../core/module-loader';
 import type { RuntimeMode } from '../@types/astro.js';
 import { viteID } from '../core/util.js';
 import { isBuildableCSSRequest } from './util.js';
