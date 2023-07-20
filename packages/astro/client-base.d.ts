@@ -70,6 +70,15 @@ declare module 'astro:assets' {
 	export const { getImage, getConfiguredImageService, Image }: AstroAssets;
 }
 
+declare module 'astro:transitions' {
+	type TransitionModule = typeof import('./dist/transitions/index.js');
+	export const slide: TransitionModule['slide'];
+	export const fade: TransitionModule['fade'];
+
+	type ViewTransitionsModule = typeof import('./components/ViewTransitions.astro');
+	export const ViewTransitions: ViewTransitionsModule['default'];
+}
+
 type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
 interface ExportedMarkdownModuleEntities {
 	frontmatter: MD['frontmatter'];

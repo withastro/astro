@@ -32,7 +32,10 @@ describe('Custom 404.html', () => {
 		});
 
 		it('renders 404 for /a', async () => {
-			const html = await fixture.fetch('/a').then((res) => res.text());
+			const res = await fixture.fetch('/a');
+			expect(res.status).to.equal(404);
+
+			const html = await res.text();
 			$ = cheerio.load(html);
 
 			expect($('h1').text()).to.equal('Page not found');

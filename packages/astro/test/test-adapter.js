@@ -50,12 +50,12 @@ export default function (
 													return super.render(request, routeData, locals);
 												}
 											}
-											
+
 											export function createExports(manifest) {
 												return {
 													manifest,
 													createApp: (streaming) => new MyApp(manifest, streaming)
-													
+
 												};
 											}
 										`;

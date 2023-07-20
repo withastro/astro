@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { flagsToAstroInlineConfig } from '../../../dist/cli/load-settings.js';
 import { resolveConfig } from '../../../dist/core/config/index.js';
 

@@ -108,7 +108,7 @@ Or, with Fastify (>4):
 import Fastify from 'fastify';
 import fastifyMiddie from '@fastify/middie';
 import fastifyStatic from '@fastify/static';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
 const app = Fastify({ logger: true });

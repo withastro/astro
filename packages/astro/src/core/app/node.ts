@@ -1,9 +1,9 @@
 import type { RouteData } from '../../@types/astro';
 import type { SerializedSSRManifest, SSRManifest } from './types';
 
-import * as fs from 'fs';
-import { IncomingMessage } from 'http';
-import { TLSSocket } from 'tls';
+import * as fs from 'node:fs';
+import { IncomingMessage } from 'node:http';
+import { TLSSocket } from 'node:tls';
 import { deserializeManifest } from './common.js';
 import { App, type MatchOptions } from './index.js';
 

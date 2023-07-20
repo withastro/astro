@@ -1,4 +1,4 @@
-import type fs from 'fs';
+import type fs from 'node:fs';
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData, SSRManifest } from '../@types/astro';
 import { patchOverlay } from '../core/errors/overlay.js';

@@ -1,10 +1,10 @@
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroConfig, AstroUserConfig, CLIFlags, AstroInlineConfig } from '../../@types/astro';
+import type { AstroConfig, AstroInlineConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
 
-import fs from 'fs';
 import * as colors from 'kleur/colors';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { mergeConfig } from './merge.js';
 import { createRelativeSchema } from './schema.js';
@@ -102,8 +102,6 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 		experimentalAssets:
 			typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-		experimentalRedirects:
-			typeof flags.experimentalRedirects === 'boolean' ? flags.experimentalRedirects : undefined,
 	};
 }
 

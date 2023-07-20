@@ -18,9 +18,6 @@ describe('Redirects', () => {
 				'/blog/[...slug]': '/team/articles/[...slug]',
 			},
 			trailingSlash: 'always',
-			experimental: {
-				redirects: true,
-			},
 		});
 		await fixture.build();
 	});

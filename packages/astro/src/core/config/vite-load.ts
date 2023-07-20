@@ -1,5 +1,5 @@
-import type fsType from 'fs';
-import { pathToFileURL } from 'url';
+import type fsType from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { createServer, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';

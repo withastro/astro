@@ -1,18 +1,15 @@
-import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import type { OutputAsset, OutputChunk } from 'rollup';
-import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	AstroSettings,
 	ComponentInstance,
-	EndpointHandler,
-	EndpointOutput,
 	GetStaticPathsItem,
 	ImageTransform,
 	MiddlewareHandler,
-	MiddlewareResponseHandler,
 	RouteData,
 	RouteType,
 	SSRError,
@@ -38,16 +35,11 @@ import {
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { callEndpoint, createAPIContext, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
-import {
-	getRedirectLocationOrThrow,
-	RedirectSinglePageBuiltModule,
-	routeIsRedirect,
-} from '../redirects/index.js';
-import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
+import { getRedirectLocationOrThrow, RedirectSinglePageBuiltModule } from '../redirects/index.js';
+import { isEndpointResult } from '../render/core.js';
+import { createEnvironment, createRenderContext, tryRenderRoute } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import {
 	createAssetLink,
@@ -230,10 +222,6 @@ async function generatePage(
 	builtPaths: Set<string>,
 	manifest: SSRManifest
 ) {
-	if (routeIsRedirect(pageData.route) && !opts.settings.config.experimental.redirects) {
-		throw new Error(`To use redirects first set experimental.redirects to \`true\``);
-	}
-
 	let timeStart = performance.now();
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
@@ -552,66 +540,28 @@ async function generatePath(
 
 	let body: string | Uint8Array;
 	let encoding: BufferEncoding | undefined;
-	if (pageData.route.type === 'endpoint') {
-		const endpointHandler = mod as unknown as EndpointHandler;
 
-		const result = await callEndpoint(
-			endpointHandler,
-			env,
-			renderContext,
-			onRequest as MiddlewareHandler<Response | EndpointOutput>
-		);
+	let response;
+	try {
+		response = await tryRenderRoute(pageData.route.type, renderContext, env, mod, onRequest);
+	} catch (err) {
+		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+			(err as SSRError).id = pageData.component;
+		}
+		throw err;
+	}
 
-		if (result.type === 'response') {
-			throwIfRedirectNotAllowed(result.response, opts.settings.config);
+	if (isEndpointResult(response, pageData.route.type)) {
+		if (response.type === 'response') {
 			// If there's no body, do nothing
-			if (!result.response.body) return;
-			const ab = await result.response.arrayBuffer();
+			if (!response.response.body) return;
+			const ab = await response.response.arrayBuffer();
 			body = new Uint8Array(ab);
 		} else {
-			body = result.body;
-			encoding = result.encoding;
+			body = response.body;
+			encoding = response.encoding;
 		}
 	} else {
-		let response: Response;
-		try {
-			const apiContext = createAPIContext({
-				request: renderContext.request,
-				params: renderContext.params,
-				props: renderContext.props,
-				site: env.site,
-				adapterName: env.adapterName,
-			});
-
-			if (onRequest) {
-				response = await callMiddleware<Response>(
-					env.logging,
-					onRequest as MiddlewareResponseHandler,
-					apiContext,
-					() => {
-						return renderPage({
-							mod,
-							renderContext,
-							env,
-							cookies: apiContext.cookies,
-						});
-					}
-				);
-			} else {
-				response = await renderPage({
-					mod,
-					renderContext,
-					env,
-					cookies: apiContext.cookies,
-				});
-			}
-		} catch (err) {
-			if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
-				(err as SSRError).id = pageData.component;
-			}
-			throw err;
-		}
-
 		if (response.status >= 300 && response.status < 400) {
 			// If redirects is set to false, don't output the HTML
 			if (!opts.settings.config.build.redirects) {
