@@ -8,7 +8,6 @@ import type {
 } from '../../@types/astro';
 import type { SinglePageBuiltModule } from '../build/types';
 import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
-import { callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
@@ -16,8 +15,9 @@ import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createEnvironment,
 	createRenderContext,
-	tryRenderPage,
+	tryRenderRoute,
 	type Environment,
+	type RenderContext,
 } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
@@ -27,6 +27,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
+import { isResponse } from '../render/core';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');
@@ -157,35 +158,153 @@ export class App {
 
 		let mod = await this.#getModuleForRoute(routeData);
 
-		if (routeData.type === 'page' || routeData.type === 'redirect') {
-			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
+		const pageModule = (await mod.page()) as any;
+		const url = new URL(request.url);
 
+		const renderContext = await this.#createRenderContext(
+			url,
+			request,
+			routeData,
+			mod,
+			defaultStatus
+		);
+		let response;
+		try {
+			response = await tryRenderRoute(
+				routeData.type,
+				renderContext,
+				this.#env,
+				pageModule,
+				mod.onRequest
+			);
+		} catch (err: any) {
+			error(this.#logging, 'ssr', err.stack || err.message || String(err));
+			response = new Response(null, {
+				status: 500,
+				statusText: 'Internal server error',
+			});
+		}
+
+		if (isResponse(response, routeData.type)) {
 			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 			if (response.status === 500 || response.status === 404) {
 				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
 				if (errorRouteData && errorRouteData.route !== routeData.route) {
 					mod = await this.#getModuleForRoute(errorRouteData);
 					try {
-						let errorResponse = await this.#renderPage(
+						const newRenderContext = await this.#createRenderContext(
+							url,
 							request,
-							errorRouteData,
+							routeData,
 							mod,
 							response.status
 						);
-						return errorResponse;
+						const page = (await mod.page()) as any;
+						const errorResponse = await tryRenderRoute(
+							routeData.type,
+							newRenderContext,
+							this.#env,
+							page
+						);
+						return errorResponse as Response;
 					} catch {}
 				}
 			}
+			Reflect.set(response, responseSentSymbol, true);
 			return response;
-		} else if (routeData.type === 'endpoint') {
-			return this.#callEndpoint(request, routeData, mod, defaultStatus);
 		} else {
-			throw new Error(`Unsupported route type [${routeData.type}].`);
+			if (response.type === 'response') {
+				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
+					const fourOhFourRequest = new Request(new URL('/404', request.url));
+					const fourOhFourRouteData = this.match(fourOhFourRequest);
+					if (fourOhFourRouteData) {
+						return this.render(fourOhFourRequest, fourOhFourRouteData);
+					}
+				}
+				return response.response;
+			} else {
+				const body = response.body;
+				const headers = new Headers();
+				const mimeType = mime.getType(url.pathname);
+				if (mimeType) {
+					headers.set('Content-Type', `${mimeType};charset=utf-8`);
+				} else {
+					headers.set('Content-Type', 'text/plain;charset=utf-8');
+				}
+				const bytes = this.#encoder.encode(body);
+				headers.set('Content-Length', bytes.byteLength.toString());
+
+				const newResponse = new Response(bytes, {
+					status: 200,
+					headers,
+				});
+
+				attachToResponse(newResponse, response.cookies);
+				return newResponse;
+			}
 		}
 	}
 
 	setCookieHeaders(response: Response) {
 		return getSetCookiesFromResponse(response);
+	}
+
+	/**
+	 * Creates the render context of the current route
+	 */
+	async #createRenderContext(
+		url: URL,
+		request: Request,
+		routeData: RouteData,
+		page: SinglePageBuiltModule,
+		status = 200
+	): Promise<RenderContext> {
+		if (routeData.type === 'endpoint') {
+			const pathname = '/' + this.removeBase(url.pathname);
+			const mod = await page.page();
+			const handler = mod as unknown as EndpointHandler;
+			return await createRenderContext({
+				request,
+				pathname,
+				route: routeData,
+				status,
+				env: this.#env,
+				mod: handler as any,
+			});
+		} else {
+			const pathname = prependForwardSlash(this.removeBase(url.pathname));
+			const info = this.#routeDataToRouteInfo.get(routeData)!;
+			// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+			const links = new Set<never>();
+			const styles = createStylesheetElementSet(info.styles);
+
+			let scripts = new Set<SSRElement>();
+			for (const script of info.scripts) {
+				if ('stage' in script) {
+					if (script.stage === 'head-inline') {
+						scripts.add({
+							props: {},
+							children: script.children,
+						});
+					}
+				} else {
+					scripts.add(createModuleScriptElement(script));
+				}
+			}
+			const mod = await page.page();
+			return await createRenderContext({
+				request,
+				pathname,
+				componentMetadata: this.#manifest.componentMetadata,
+				scripts,
+				styles,
+				links,
+				route: routeData,
+				status,
+				mod,
+				env: this.#env,
+			});
+		}
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
@@ -209,114 +328,6 @@ export class App {
 					"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue."
 				);
 			}
-		}
-	}
-
-	async #renderPage(
-		request: Request,
-		routeData: RouteData,
-		page: SinglePageBuiltModule,
-		status = 200
-	): Promise<Response> {
-		const url = new URL(request.url);
-		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		const info = this.#routeDataToRouteInfo.get(routeData)!;
-		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-		const links = new Set<never>();
-		const styles = createStylesheetElementSet(info.styles);
-
-		let scripts = new Set<SSRElement>();
-		for (const script of info.scripts) {
-			if ('stage' in script) {
-				if (script.stage === 'head-inline') {
-					scripts.add({
-						props: {},
-						children: script.children,
-					});
-				}
-			} else {
-				scripts.add(createModuleScriptElement(script));
-			}
-		}
-
-		try {
-			const mod = (await page.page()) as any;
-			const renderContext = await createRenderContext({
-				request,
-				pathname,
-				componentMetadata: this.#manifest.componentMetadata,
-				scripts,
-				styles,
-				links,
-				route: routeData,
-				status,
-				mod,
-				env: this.#env,
-			});
-
-			const response = await tryRenderPage(renderContext, this.#env, mod, page.onRequest);
-
-			Reflect.set(request, responseSentSymbol, true);
-			return response;
-		} catch (err: any) {
-			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			return new Response(null, {
-				status: 500,
-				statusText: 'Internal server error',
-			});
-		}
-	}
-
-	async #callEndpoint(
-		request: Request,
-		routeData: RouteData,
-		page: SinglePageBuiltModule,
-		status = 200
-	): Promise<Response> {
-		const url = new URL(request.url);
-		const pathname = '/' + this.removeBase(url.pathname);
-		const mod = await page.page();
-		const handler = mod as unknown as EndpointHandler;
-
-		const ctx = await createRenderContext({
-			request,
-			pathname,
-			route: routeData,
-			status,
-			env: this.#env,
-			mod: handler as any,
-		});
-
-		const result = await callEndpoint(handler, this.#env, ctx, page.onRequest);
-
-		if (result.type === 'response') {
-			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-				const fourOhFourRequest = new Request(new URL('/404', request.url));
-				const fourOhFourRouteData = this.match(fourOhFourRequest);
-				if (fourOhFourRouteData) {
-					return this.render(fourOhFourRequest, fourOhFourRouteData);
-				}
-			}
-			return result.response;
-		} else {
-			const body = result.body;
-			const headers = new Headers();
-			const mimeType = mime.getType(url.pathname);
-			if (mimeType) {
-				headers.set('Content-Type', `${mimeType};charset=utf-8`);
-			} else {
-				headers.set('Content-Type', 'text/plain;charset=utf-8');
-			}
-			const bytes = this.#encoder.encode(body);
-			headers.set('Content-Length', bytes.byteLength.toString());
-
-			const response = new Response(bytes, {
-				status: 200,
-				headers,
-			});
-
-			attachToResponse(response, result.cookies);
-			return response;
 		}
 	}
 }

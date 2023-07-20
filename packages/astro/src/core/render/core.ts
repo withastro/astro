@@ -3,15 +3,17 @@ import type {
 	ComponentInstance,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
+	RouteType,
 } from '../../@types/astro';
 import { renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
-import { createAPIContext } from '../endpoint/index.js';
+import { callEndpoint, createAPIContext, type EndpointCallResult } from '../endpoint/index.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../redirects/index.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
+import type { EndpointHandler } from '../../@types/astro';
 
 export type RenderPage = {
 	mod: ComponentInstance;
@@ -81,18 +83,22 @@ async function renderPage({ mod, renderContext, env, cookies }: RenderPage) {
 }
 
 /**
- * It attempts to render a page.
+ * It attempts to render a route. A route can be a:
+ * - page
+ * - redirect
+ * - endpoint
  *
  * ## Errors
  *
  * It throws an error if the page can't be rendered.
  */
-export async function tryRenderPage<MiddlewareReturnType = Response>(
+export async function tryRenderRoute<MiddlewareReturnType = Response>(
+	routeType: RouteType,
 	renderContext: Readonly<RenderContext>,
 	env: Readonly<Environment>,
 	mod: Readonly<ComponentInstance>,
 	onRequest?: MiddlewareHandler<MiddlewareReturnType>
-): Promise<Response> {
+): Promise<Response | EndpointCallResult> {
 	const apiContext = createAPIContext({
 		request: renderContext.request,
 		params: renderContext.params,
@@ -101,26 +107,50 @@ export async function tryRenderPage<MiddlewareReturnType = Response>(
 		adapterName: env.adapterName,
 	});
 
-	if (onRequest) {
-		return await callMiddleware<Response>(
-			env.logging,
-			onRequest as MiddlewareResponseHandler,
-			apiContext,
-			() => {
-				return renderPage({
+	switch (routeType) {
+		case 'page':
+		case 'redirect': {
+			if (onRequest) {
+				return await callMiddleware<Response>(
+					env.logging,
+					onRequest as MiddlewareResponseHandler,
+					apiContext,
+					() => {
+						return renderPage({
+							mod,
+							renderContext,
+							env,
+							cookies: apiContext.cookies,
+						});
+					}
+				);
+			} else {
+				return await renderPage({
 					mod,
 					renderContext,
 					env,
 					cookies: apiContext.cookies,
 				});
 			}
-		);
-	} else {
-		return await renderPage({
-			mod,
-			renderContext,
-			env,
-			cookies: apiContext.cookies,
-		});
+		}
+		case 'endpoint': {
+			const result = await callEndpoint(
+				mod as any as EndpointHandler,
+				env,
+				renderContext,
+				onRequest
+			);
+			return result;
+		}
+		default:
+			throw new Error(`Couldn't find route of type [${routeType}]`);
 	}
+}
+
+export function isEndpointResult(result: any, routeType: RouteType): result is EndpointCallResult {
+	return !(result instanceof Response) && routeType === 'endpoint';
+}
+
+export function isResponse(result: any, routeType: RouteType): result is Response {
+	return result instanceof Response && (routeType === 'page' || routeType === 'redirect');
 }

@@ -17,7 +17,7 @@ import { callMiddleware } from '../middleware/callMiddleware.js';
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const clientLocalsSymbol = Symbol.for('astro.locals');
 
-type EndpointCallResult =
+export type EndpointCallResult =
 	| {
 			type: 'simple';
 			body: string;
