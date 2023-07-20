@@ -1,4 +1,4 @@
-import type { TransitionDirectionalAnimations } from '../@types/astro';
+import type { TransitionDirectionalAnimations, TransitionAnimationPair } from '../@types/astro';
 
 export function slide({
 	duration,
@@ -49,7 +49,7 @@ export function fade({
 }: {
 	duration?: string | number;
 } = {}): TransitionDirectionalAnimations {
-	const anim = {
+	const anim: TransitionAnimationPair = {
 		old: {
 			name: 'astroFadeInOut',
 			duration: duration ?? '0.2s',
@@ -62,7 +62,7 @@ export function fade({
 			easing: 'linear',
 			fillMode: 'backwards',
 		},
-	} satisfies TransitionAnimationPair;
+	};
 
 	return {
 		forwards: anim,
