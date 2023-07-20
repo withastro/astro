@@ -6,7 +6,7 @@ Improved hoisted script bundling
 
 Astro's static analysis to determine which `<script>` tags to bundle together just got a little smarter!
 
-Astro create bundles that optimize script usage between pages and place them in the head of the document so that they are downloaded as early as possible. One limitation to Astro's exiting approach has been that you could not dynamically use hoisted scripts. Each page received the same, all-inclusive bundle whether or not every script was needed on that page.
+Astro create bundles that optimize script usage between pages and place them in the head of the document so that they are downloaded as early as possible. One limitation to Astro's existing approach has been that you could not dynamically use hoisted scripts. Each page received the same, all-inclusive bundle whether or not every script was needed on that page.
 
 Now, Astro has improved the static analysis to take into account the actual imports used. 
 
