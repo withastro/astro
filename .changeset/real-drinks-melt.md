@@ -4,9 +4,13 @@
 
 Improved hoisted script bundling
 
-Astro uses static analysis to determine which `<script>` to bundle together. This allows us to create bundles that optimize script usage between pages and place them in the head of the document so that they are downloaded as early as possible. The downside is that you cannot dynamically use hoisted scripts.
+Astro's static analysis to determine which `<script>` tags to bundle together just got a little smarter!
 
-Now Astro has improved the static analysis to take into account the imports used. If you have a library that re-exports components like so:
+Astro create bundles that optimize script usage between pages and place them in the head of the document so that they are downloaded as early as possible. One limitation to Astro's exiting approach has been that you could not dynamically use hoisted scripts. Each page received the same, all-inclusive bundle whether or not every script was needed on that page.
+
+Now, Astro has improved the static analysis to take into account the actual imports used. 
+
+For example, Astro would previously bundle the `<scripts>` from both the `<Tab>` and `<Accordian>`  component for the following library that re-exports multiple components:
 
 __@matthewp/my-astro-lib__
 
@@ -15,7 +19,7 @@ export { default as Tabs } from './Tabs.astro';
 export { default as Accordion } from './Accordion.astro';
 ```
 
-Then let's say you have a page that uses just the Accordion like so:
+Now, when an Astro page only uses a single component, Astro will send only the necessary script to the page. A page that only imports the `<Accordian>` component will not receive any `<Tab>` component's scripts:
 
 ```astro
 ---
@@ -23,4 +27,4 @@ import { Accordion } from '@matthewp/my-astro-lib';
 ---
 ```
 
-Previously Astro would bundle `<script>`s from both the Tabs and Accordion onto this page, even though only the Accordion is used. Now Astro is a little smarter and can support this re-export pattern that is common among libraries.
+You should now see more efficient performance with Astro now supporting this common library re-export pattern.
