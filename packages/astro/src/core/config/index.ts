@@ -1,8 +1,8 @@
 export {
 	createDefaultDevConfig,
 	openConfig,
-	resolveConfigPath,
 	resolveConfig,
+	resolveConfigPath,
 	resolveFlags,
 	resolveRoot,
 } from './config.js';

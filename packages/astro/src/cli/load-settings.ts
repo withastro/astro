@@ -3,6 +3,7 @@ import * as colors from 'kleur/colors';
 import fs from 'node:fs';
 import type { Arguments as Flags } from 'yargs-parser';
 import { ZodError } from 'zod';
+import type { AstroInlineConfig } from '../@types/astro.js';
 import {
 	createSettings,
 	openConfig,
@@ -14,7 +15,6 @@ import { error, type LogOptions } from '../core/logger/core.js';
 import { formatConfigErrorMessage, formatErrorMessage } from '../core/messages.js';
 import * as event from '../events/index.js';
 import { eventConfigError, telemetry } from '../events/index.js';
-import type { AstroInlineConfig } from '../@types/astro.js';
 
 interface LoadSettingsOptions {
 	cmd: string;
@@ -69,8 +69,6 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 		},
 		experimental: {
 			assets: typeof flags.experimentalAssets === 'boolean' ? flags.experimentalAssets : undefined,
-			redirects:
-				typeof flags.experimentalRedirects === 'boolean' ? flags.experimentalRedirects : undefined,
 		},
 	};
 }
