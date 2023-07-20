@@ -12,6 +12,7 @@ import { consoleLogDestination } from '../logger/console.js';
 import { error, type LogOptions } from '../logger/core.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
+import { isResponse } from '../render/core';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -27,7 +28,6 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 import type { RouteInfo } from './types';
-import { isResponse } from '../render/core';
 export { deserializeManifest } from './common.js';
 
 const clientLocalsSymbol = Symbol.for('astro.locals');

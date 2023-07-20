@@ -1,6 +1,7 @@
 import type {
 	AstroCookies,
 	ComponentInstance,
+	EndpointHandler,
 	MiddlewareHandler,
 	MiddlewareResponseHandler,
 	RouteType,
@@ -13,7 +14,6 @@ import { redirectRouteGenerate, redirectRouteStatus, routeIsRedirect } from '../
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 import { createResult } from './result.js';
-import type { EndpointHandler } from '../../@types/astro';
 
 export type RenderPage = {
 	mod: ComponentInstance;
