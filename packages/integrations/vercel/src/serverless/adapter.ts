@@ -19,9 +19,9 @@ const PACKAGE_NAME = '@astrojs/vercel/serverless';
 export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
-const SUPPORTED_NODE_VERSIONS: Record<string, { status: 'current' } | { status: 'deprecated', removal: string }> = {
-	14: { status: 'deprecated', removal: 'August 15th 2023'  },
-	16: { status: 'deprecated', removal: 'February 6th 2024' },
+const SUPPORTED_NODE_VERSIONS: Record<string, { status: 'current' } | { status: 'deprecated', removal: Date }> = {
+	14: { status: 'deprecated', removal: new Date('August 15 2023')  },
+	16: { status: 'deprecated', removal: new Date('February 6 2024') },
 	18: { status: 'current' }
 }
 
@@ -208,7 +208,7 @@ function getRuntime() {
 	}
 	if (support.status === 'deprecated') {
 		console.warn(`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`)
-		console.warn(`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${support.removal}.`)
+		console.warn(`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(support.removal)}.`)
 		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`)
 	}
 	return `nodejs${major}.x`;
