@@ -35,7 +35,7 @@ export function* walkParentInfos(
 		if (seen.has(imp)) {
 			continue;
 		}
-		yield* walkParentInfos(imp, ctx, until, ++depth, order, seen, id);
+		yield* walkParentInfos(imp, ctx, until, depth + 1, order, seen, id);
 	}
 }
 
