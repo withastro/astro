@@ -20,11 +20,14 @@ export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
-const SUPPORTED_NODE_VERSIONS: Record<string, { status: 'current' } | { status: 'deprecated', removal: Date }> = {
-	14: { status: 'deprecated', removal: new Date('August 15 2023')  },
+const SUPPORTED_NODE_VERSIONS: Record<
+	string,
+	{ status: 'current' } | { status: 'deprecated'; removal: Date }
+> = {
+	14: { status: 'deprecated', removal: new Date('August 15 2023') },
 	16: { status: 'deprecated', removal: new Date('February 6 2024') },
-	18: { status: 'current' }
-}
+	18: { status: 'current' },
+};
 
 function getAdapter(): AstroAdapter {
 	return {
@@ -200,17 +203,26 @@ export default function vercelServerless({
 function getRuntime() {
 	const version = process.version.slice(1); // 'v16.5.0' --> '16.5.0'
 	const major = version.split('.')[0]; // '16.5.0' --> '16'
-	const support = SUPPORTED_NODE_VERSIONS[major]
+	const support = SUPPORTED_NODE_VERSIONS[major];
 	if (support === undefined) {
-		console.warn(`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`)
-		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`)
-		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`)
+		console.warn(
+			`[${PACKAGE_NAME}] The local Node.js version (${major}) is not supported by Vercel Serverless Functions.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Your project will use Node.js 18 as the runtime instead.`);
+		console.warn(`[${PACKAGE_NAME}] Consider switching your local version to 18.`);
 		return 'nodejs18.x';
 	}
 	if (support.status === 'deprecated') {
-		console.warn(`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`)
-		console.warn(`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(support.removal)}.`)
-		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`)
+		console.warn(
+			`[${PACKAGE_NAME}] Your project is being built for Node.js ${major} as the runtime.`
+		);
+		console.warn(
+			`[${PACKAGE_NAME}] This version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${new Intl.DateTimeFormat(
+				undefined,
+				{ dateStyle: 'long' }
+			).format(support.removal)}.`
+		);
+		console.warn(`[${PACKAGE_NAME}] Consider upgrading your local version to 18.`);
 	}
 	return `nodejs${major}.x`;
 }
