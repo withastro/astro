@@ -129,9 +129,6 @@ export async function loadFixture(inlineConfig) {
 	 * command functions below to prevent tests from polluting each other.
 	 */
 	const getSettings = async () => {
-		if (isWindows) {
-			console.log('VERCEL', config.root, root);
-		}
 		let settings = createSettings(config, root);
 		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 			// Enable default JSX integration. It needs to come first, so unshift rather than push!
