@@ -143,7 +143,7 @@ export async function tryRenderRoute<MiddlewareReturnType = Response>(
 			return result;
 		}
 		default:
-			throw new Error('');
+			throw new Error(`Couldn't find route of type [${routeType}]`);
 	}
 }
 
