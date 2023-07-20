@@ -553,7 +553,6 @@ async function generatePath(
 
 	if (isEndpointResult(response, pageData.route.type)) {
 		if (response.type === 'response') {
-			throwIfRedirectNotAllowed(response.response, opts.settings.config);
 			// If there's no body, do nothing
 			if (!response.response.body) return;
 			const ab = await response.response.arrayBuffer();
