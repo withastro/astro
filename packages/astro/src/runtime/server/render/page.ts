@@ -112,7 +112,7 @@ export async function renderPage(
 	if (streaming) {
 		body = await renderToReadableStream(result, componentFactory, props, children, true, route);
 	} else {
-		body = await renderToString(result, componentFactory, props, children, true);
+		body = await renderToString(result, componentFactory, props, children, true, route);
 	}
 
 	// If the Astro component returns a Response on init, return that response
