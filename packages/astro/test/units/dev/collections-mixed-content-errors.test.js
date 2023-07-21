@@ -10,7 +10,7 @@ const logging = defaultLogging;
 
 async function sync({ fs, config = {} }) {
 	const astroConfig = await validateConfig(config, fileURLToPath(root), 'prod');
-	const settings = createSettings(astroConfig, fileURLToPath(root));
+	const settings = createSettings(astroConfig, 'build', fileURLToPath(root));
 
 	return _sync(settings, { logging, fs });
 }
