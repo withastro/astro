@@ -128,9 +128,9 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
-		page.addListener('console', data => {
-			console.log(data)
-		})
+		page.addListener('console', (data) => {
+			console.log(data);
+		});
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
