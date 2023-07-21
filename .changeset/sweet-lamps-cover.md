@@ -1,12 +1,12 @@
 ---
-'@astrojs/tailwind': minor
-'@astrojs/markdoc': minor
-'@astrojs/netlify': minor
-'@astrojs/svelte': minor
-'@astrojs/image': minor
-'@astrojs/mdx': minor
-'@astrojs/vue': minor
-'astro': minor
+'@astrojs/tailwind': patch
+'@astrojs/markdoc': patch
+'@astrojs/netlify': patch
+'@astrojs/svelte': patch
+'@astrojs/image': patch
+'@astrojs/mdx': patch
+'@astrojs/vue': patch
+'astro': patch
 ---
 
 Update Vite to 4.4
