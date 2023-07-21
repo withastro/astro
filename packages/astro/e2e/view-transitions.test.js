@@ -126,4 +126,21 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
+
+	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
+		page.addListener('console', data => {
+			console.log(data)
+		})
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// Go to page 2
+		await page.click('#click-two');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+		await expect(p, 'imported CSS updated').toHaveCSS('font-size', '24px');
+	});
 });
