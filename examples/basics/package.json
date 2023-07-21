@@ -1,5 +1,5 @@
 {
-  "name": "@example-basics",
+  "name": "@example/basics",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
