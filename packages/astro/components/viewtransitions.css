@@ -50,7 +50,7 @@
     animation: none !important;
   }
 
-	[data-astro-transition-fallback] {
+	[data-astro-transition-scope] {
 		animation: none !important;
 	}
 }
