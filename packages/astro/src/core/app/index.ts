@@ -34,6 +34,9 @@ const clientLocalsSymbol = Symbol.for('astro.locals');
 
 const responseSentSymbol = Symbol.for('astro.responseSent');
 
+const STATUS_CODES = new Set([404, 500]);
+const STATUS_CODE_ROUTES = new Set(['/404', '/500']);
+
 export interface MatchOptions {
 	matchNotFound?: boolean | undefined;
 }
@@ -113,7 +116,7 @@ export class App {
 		}
 		return pathname;
 	}
-	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
+	match(request: Request, _: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) {
@@ -125,38 +128,21 @@ export class App {
 		if (routeData) {
 			if (routeData.prerender) return undefined;
 			return routeData;
-		} else if (matchNotFound) {
-			const notFoundRouteData = matchRoute('/404', this.#manifestData);
-			if (notFoundRouteData?.prerender) return undefined;
-			return notFoundRouteData;
 		} else {
 			return undefined;
 		}
 	}
 	async render(request: Request, routeData?: RouteData, locals?: object): Promise<Response> {
-		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
 			if (!routeData) {
-				defaultStatus = 404;
-				routeData = this.match(request, { matchNotFound: true });
-			}
-			if (!routeData) {
-				return new Response(null, {
-					status: 404,
-					statusText: 'Not found',
-				});
+				return this.#renderStatusCode(request, routeData, 404);
 			}
 		}
 
 		Reflect.set(request, clientLocalsSymbol, locals ?? {});
-
-		// Use the 404 status code for 404.astro components
-		if (routeData.route === '/404') {
-			defaultStatus = 404;
-		}
-
-		let mod = await this.#getModuleForRoute(routeData);
+		const defaultStatus = this.#getDefaultStatusCode(routeData.route);
+		const mod = await this.#getModuleForRoute(routeData);
 
 		const pageModule = (await mod.page()) as any;
 		const url = new URL(request.url);
@@ -179,47 +165,19 @@ export class App {
 			);
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
-			response = new Response(null, {
-				status: 500,
-				statusText: 'Internal server error',
-			});
+			return this.#renderStatusCode(request, routeData, 500);
 		}
 
 		if (isResponse(response, routeData.type)) {
-			// If there was a known error code, try sending the according page (e.g. 404.astro / 500.astro).
-			if (response.status === 500 || response.status === 404) {
-				const errorRouteData = matchRoute('/' + response.status, this.#manifestData);
-				if (errorRouteData && errorRouteData.route !== routeData.route) {
-					mod = await this.#getModuleForRoute(errorRouteData);
-					try {
-						const newRenderContext = await this.#createRenderContext(
-							url,
-							request,
-							routeData,
-							mod,
-							response.status
-						);
-						const page = (await mod.page()) as any;
-						const errorResponse = await tryRenderRoute(
-							routeData.type,
-							newRenderContext,
-							this.#env,
-							page
-						);
-						return errorResponse as Response;
-					} catch {}
-				}
+			if (STATUS_CODES.has(response.status)) {
+				return this.#renderStatusCode(request, routeData, response.status as 404 | 500);
 			}
 			Reflect.set(response, responseSentSymbol, true);
 			return response;
 		} else {
 			if (response.type === 'response') {
 				if (response.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					const fourOhFourRequest = new Request(new URL('/404', request.url));
-					const fourOhFourRouteData = this.match(fourOhFourRequest);
-					if (fourOhFourRouteData) {
-						return this.render(fourOhFourRequest, fourOhFourRouteData);
-					}
+					return this.#renderStatusCode(request, routeData, 404);
 				}
 				return response.response;
 			} else {
@@ -305,6 +263,53 @@ export class App {
 				env: this.#env,
 			});
 		}
+	}
+
+	#getDefaultStatusCode(route: string) {
+		route = removeTrailingForwardSlash(route)
+		if (route.endsWith('/404')) return 404;
+		if (route.endsWith('/500')) return 500;
+		return 200;
+	}
+
+	/**
+	 * If is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
+	 * This also handles pre-rendered /404 or /500 routes
+	 */
+	async #renderStatusCode(request: Request, routeData: RouteData | undefined, status: 404 | 500) {
+		const errorRouteData = matchRoute('/' + status, this.#manifestData);
+		const url = new URL(request.url);
+		if (errorRouteData) {
+			if (errorRouteData.prerender) {
+				const statusURL = new URL(`${this.#baseWithoutTrailingSlash}/${status}`, url);
+				return fetch(statusURL.toString());
+			}
+
+			const finalRouteData = routeData ?? errorRouteData;
+		
+			let mod = await this.#getModuleForRoute(errorRouteData);
+			try {
+				const newRenderContext = await this.#createRenderContext(
+					url,
+					request,
+					finalRouteData,
+					mod,
+					status
+				);
+				const page = (await mod.page()) as any;
+				const errorResponse = await tryRenderRoute(
+					finalRouteData.type,
+					newRenderContext,
+					this.#env,
+					page
+				);
+				return errorResponse as Response;
+			} catch {}
+		}
+
+		const response = new Response(null, { status });
+		Reflect.set(response, responseSentSymbol, true);
+		return response;
 	}
 
 	async #getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
