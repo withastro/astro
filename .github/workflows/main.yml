@@ -20,7 +20,7 @@ jobs:
     if: ${{ github.repository_owner == 'withastro' && github.event.head_commit.message != '[ci] format' }}
     uses: withastro/automation/.github/workflows/congratsbot.yml@main
     with:
-      EMOJIS: '🎉,🎊,🧑‍🚀,🥳,🙌,🚀,👏,<:houston_golden:1068575433647456447>,<:astrocoin:894990669515489301>,<:astro_pride:1085944201587458169>'
+      EMOJIS: '🎉,🎊,🧑‍🚀,🥳,🙌,🚀,👏,<:houston_golden:1068575433647456447>,<:astrocoin:894990669515489301>,<:astro_pride:1130501345326157854>'
     secrets:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
 
