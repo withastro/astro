@@ -40,7 +40,8 @@
       "outputMode": "new-only"
     },
     "test:hosted": {
-      "outputMode": "new-only"
+      "outputMode": "new-only",
+      "cache": false
     }
   }
 }

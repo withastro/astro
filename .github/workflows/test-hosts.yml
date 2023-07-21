@@ -52,4 +52,4 @@ jobs:
 
       - name: Test both hosts
         run:
-          pnpm run test:hosts
+          pnpm run test:e2e:hosts
