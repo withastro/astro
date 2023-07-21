@@ -192,7 +192,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 		},
 		{
 			name: 'transition:name',
-			description: 'Specifies a `view-transition-name` for this element. The name should be unique on the page.',
+			description:
+				'Specifies a `view-transition-name` for this element. The name should be unique on the page.',
 			references: [
 				{
 					name: 'Astro reference',
