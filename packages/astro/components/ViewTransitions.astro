@@ -128,7 +128,12 @@ const { fallback = 'animate' } = Astro.props as Props;
 			}
 		});
 		window.addEventListener('popstate', () => {
-			if (!transitionEnabledOnThisPage()) return;
+			if (!transitionEnabledOnThisPage()) {
+				// The current page doesn't haven't View Transitions,
+				// respect that with a full page reload
+				location.reload();
+				return;
+			}
 			const nextIndex = history.state?.index ?? currentHistoryIndex + 1;
 			const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 			navigate(direction, location.href);
