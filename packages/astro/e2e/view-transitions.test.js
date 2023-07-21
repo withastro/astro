@@ -105,10 +105,7 @@ test.describe('View Transitions', () => {
 		).toEqual(2);
 	});
 
-	test('Moving from a page without ViewTransitions w/ back button', async ({
-		page,
-		astro,
-	}) => {
+	test('Moving from a page without ViewTransitions w/ back button', async ({ page, astro }) => {
 		const loads = [];
 		page.addListener('load', (p) => {
 			loads.push(p.title());
@@ -123,7 +120,6 @@ test.describe('View Transitions', () => {
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
-
 
 		// Back to page 1
 		await page.goBack();
