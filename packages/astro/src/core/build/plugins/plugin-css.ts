@@ -2,7 +2,7 @@ import * as crypto from 'node:crypto';
 import * as npath from 'node:path';
 import type { GetModuleInfo } from 'rollup';
 import { type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
-import { isBuildableCSSRequest } from '../../render/dev/util.js';
+import { isBuildableCSSRequest } from '../../../vite-plugin-astro-server/util.js';
 import type { BuildInternals } from '../internal';
 import type { AstroBuildPlugin } from '../plugin';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types';
