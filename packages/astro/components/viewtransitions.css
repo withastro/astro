@@ -49,4 +49,8 @@
   ::view-transition-new(*) {
     animation: none !important;
   }
+
+	[data-astro-transition-fallback] {
+		animation: none !important;
+	}
 }
