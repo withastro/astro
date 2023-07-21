@@ -2,6 +2,7 @@
 // for some reason. This comes from Vite, and is conditionally called based on `isTTY`.
 // We set it to false here to skip this odd behavior.
 process.stdout.isTTY = false;
+import { devices as replayDevices } from "@replayio/playwright";
 
 const config = {
 	testMatch: 'e2e/*.test.js',
@@ -28,14 +29,18 @@ const config = {
 		trace: 'on-first-retry',
 	},
 	projects: [
+		// {
+		// 	name: 'Chrome Stable',
+		// 	use: {
+		// 		browserName: 'chromium',
+		// 		channel: 'chrome',
+		// 		args: ['--use-gl=egl'],
+		// 	},
+		// },
 		{
-			name: 'Chrome Stable',
-			use: {
-				browserName: 'chromium',
-				channel: 'chrome',
-				args: ['--use-gl=egl'],
-			},
-		},
+      name: "replay-chromium",
+      use: { ...replayDevices["Replay Chromium"] },
+    },
 	],
 };
 
