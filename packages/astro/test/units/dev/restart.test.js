@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { fileURLToPath } from 'node:url';
 
+import { createSettings, openConfig } from '../../../dist/core/config/index.js';
 import {
 	createContainerWithAutomaticRestart,
 	isStarted,
@@ -13,7 +14,6 @@ import {
 	defaultLogging,
 	triggerFSEvent,
 } from '../test-utils.js';
-import { createSettings, openConfig } from '../../../dist/core/config/index.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -133,7 +133,7 @@ describe('dev container restarts', () => {
 			cmd: 'dev',
 			logging: defaultLogging,
 		});
-		const settings = createSettings(astroConfig);
+		const settings = createSettings(astroConfig, 'dev');
 
 		let restart = await createContainerWithAutomaticRestart({
 			params: { fs, root, settings },
@@ -167,7 +167,7 @@ describe('dev container restarts', () => {
 			cmd: 'dev',
 			logging: defaultLogging,
 		});
-		const settings = createSettings(astroConfig, fileURLToPath(root));
+		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
 
 		let restart = await createContainerWithAutomaticRestart({
 			params: { fs, root, settings },
@@ -199,7 +199,7 @@ describe('dev container restarts', () => {
 			cmd: 'dev',
 			logging: defaultLogging,
 		});
-		const settings = createSettings(astroConfig, fileURLToPath(root));
+		const settings = createSettings(astroConfig, 'dev', fileURLToPath(root));
 
 		let restart = await createContainerWithAutomaticRestart({
 			params: { fs, root, settings },
