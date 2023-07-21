@@ -180,6 +180,26 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 				},
 			],
 		},
+		{
+			name: 'transition:animate',
+			description: 'Specifies an animation to use with this element on page transition.',
+			references: [
+				{
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/guides/view-transitions/#transition-directives',
+				},
+			],
+		},
+		{
+			name: 'transition:name',
+			description: 'Specifies a `view-transition-name` for this element. The name should be unique on the page.',
+			references: [
+				{
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/guides/view-transitions/#transition-directives',
+				},
+			],
+		},
 		slotAttr,
 	],
 });
