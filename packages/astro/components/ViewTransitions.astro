@@ -22,6 +22,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 		history.replaceState({ index: currentHistoryIndex }, document.title);
 	}
 
+	const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const supportsViewTransitions = !!document.startViewTransition;
 	const transitionEnabledOnThisPage = () =>
 		!!document.querySelector('[name="astro-view-transitions-enabled"]');
@@ -46,24 +47,29 @@ const { fallback = 'animate' } = Astro.props as Props;
 		const doc = parser.parseFromString(html, 'text/html');
 		doc.documentElement.dataset.astroTransition = dir;
 		const swap = () => document.documentElement.replaceWith(doc.documentElement);
-
-		if (fallback === 'animate') {
+	
+		if (fallback === 'animate' && !prefersReducedMotion) {
 			let isAnimating = false;
 			addEventListener('animationstart', () => (isAnimating = true), { once: true });
-
+	
 			// Trigger the animations
 			document.documentElement.dataset.astroTransitionFallback = 'old';
 			doc.documentElement.dataset.astroTransitionFallback = 'new';
-			// If there are any animations, want for the animationend event.
+	
+			// If there are any animations, wait for the animationend event.
 			addEventListener('animationend', swap, { once: true });
+	
 			// If there are no animations, go ahead and swap on next tick
 			// This is necessary because we do not know if there are animations.
 			// The setTimeout is a fallback in case there are none.
-			setTimeout(() => !isAnimating && swap());
+			// Set the delay as 50ms to ensure that the document has transitioned to the new state
+			setTimeout(() => !isAnimating && swap(), 50);
 		} else {
 			swap();
 		}
 	}
+
+
 
 	async function navigate(dir: Direction, href: string) {
 		let finished: Promise<void>;
@@ -73,7 +79,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			location.href = href;
 			return;
 		}
-		if (supportsViewTransitions) {
+		if (supportsViewTransitions && !prefersReducedMotion) {
 			finished = document.startViewTransition(() => updateDOM(dir, html)).finished;
 		} else {
 			finished = updateDOM(dir, html, getFallback());
@@ -84,6 +90,7 @@ const { fallback = 'animate' } = Astro.props as Props;
 			document.documentElement.removeAttribute('data-astro-transition');
 		}
 	}
+
 
 	// Prefetching
 	function maybePrefetch(pathname: string) {
