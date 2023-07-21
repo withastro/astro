@@ -37,7 +37,7 @@ import { isServerLikeOutput } from '../../prerender/utils.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { debug, info } from '../logger/core.js';
-import { getRedirectLocationOrThrow, RedirectSinglePageBuiltModule } from '../redirects/index.js';
+import { RedirectSinglePageBuiltModule, getRedirectLocationOrThrow } from '../redirects/index.js';
 import { isEndpointResult } from '../render/core.js';
 import { createEnvironment, createRenderContext, tryRenderRoute } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';

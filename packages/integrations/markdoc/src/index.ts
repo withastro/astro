@@ -3,8 +3,8 @@ import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } 
 import { bold, red } from 'kleur/colors';
 import { getContentEntryType } from './content-entry-type.js';
 import {
-	loadMarkdocConfig,
 	SUPPORTED_MARKDOC_CONFIG_FILES,
+	loadMarkdocConfig,
 	type MarkdocConfigResult,
 } from './load-config.js';
 

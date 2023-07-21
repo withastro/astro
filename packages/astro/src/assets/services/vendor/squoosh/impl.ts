@@ -1,4 +1,4 @@
-import { codecs as supportedFormats, preprocessors } from './codecs.js'
+import { preprocessors, codecs as supportedFormats } from './codecs.js'
 import ImageData from './image_data.js'
 
 type EncoderKey = keyof typeof supportedFormats

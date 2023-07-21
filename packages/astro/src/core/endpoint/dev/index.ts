@@ -1,6 +1,5 @@
 import type { EndpointHandler } from '../../../@types/astro';
-import type { SSROptions } from '../../render/dev';
-import { createRenderContext } from '../../render/index.js';
+import { createRenderContext, type SSROptions } from '../../render/index.js';
 import { callEndpoint } from '../index.js';
 
 export async function call(options: SSROptions) {

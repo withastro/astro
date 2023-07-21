@@ -17,7 +17,7 @@ import {
 } from './astro/index.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
-import { renderSlots, renderSlotToString, type ComponentSlots } from './slot.js';
+import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const rendererAliases = new Map([['solid', 'solid-js']]);

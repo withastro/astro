@@ -1,5 +1,5 @@
-import type { ModuleLoader } from '../../module-loader/index';
-import { resolveIdToUrl } from '../../util.js';
+import type { ModuleLoader } from '../core/module-loader';
+import { resolveIdToUrl } from '../core/util.js';
 
 export function createResolve(loader: ModuleLoader, root: URL) {
 	// Resolves specifiers in the inline hydrated scripts, such as:
