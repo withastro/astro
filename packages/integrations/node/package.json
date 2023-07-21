@@ -38,7 +38,7 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "workspace:^2.9.0"
+    "astro": "workspace:^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^18.16.18",
