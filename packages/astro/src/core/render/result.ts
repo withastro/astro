@@ -8,15 +8,12 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { isHTMLString } from '../../runtime/server/escape.js';
-import {
-	renderSlotToString,
-	stringifyChunk,
-	type ComponentSlots,
-} from '../../runtime/server/index.js';
+import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { warn, type LogOptions } from '../logger/core.js';
+import { chunkToString } from '../../runtime/server/render/index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 const responseSentSymbol = Symbol.for('astro.responseSent');
@@ -126,7 +123,7 @@ class Slots {
 		}
 
 		const content = await renderSlotToString(result, this.#slots[name]);
-		const outHTML = stringifyChunk(result, content);
+		const outHTML = chunkToString(result, content);
 
 		return outHTML;
 	}
@@ -160,6 +157,11 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	// This object starts here as an empty shell (not yet the result) but then
 	// calling the render() function will populate the object with scripts, styles, etc.
 	const result: SSRResult = {
+		destination: {
+			write() {
+				throw new Error('SSRResult destination is not assigned before rendering');
+			},
+		},
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),

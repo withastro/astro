@@ -4,6 +4,7 @@ import type { RenderInstruction } from './types.js';
 
 import { HTMLString, markHTMLString } from '../escape.js';
 import { renderChild } from './any.js';
+import type { RenderDestination } from './common.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
@@ -27,18 +28,18 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
-export async function* renderSlot(
+export async function renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
 	fallback?: ComponentSlotValue | RenderTemplateResult
-): AsyncGenerator<any, void, undefined> {
+): Promise<void> {
 	if (slotted) {
-		let iterator = renderChild(typeof slotted === 'function' ? slotted(result) : slotted);
-		yield* iterator;
-	}
-
-	if (fallback && !slotted) {
-		yield* renderSlot(result, fallback);
+		await renderChild(
+			result.destination,
+			typeof slotted === 'function' ? slotted(result) : slotted
+		);
+	} else if (fallback) {
+		await renderSlot(result, fallback);
 	}
 }
 
@@ -49,17 +50,24 @@ export async function renderSlotToString(
 ): Promise<string> {
 	let content = '';
 	let instructions: null | RenderInstruction[] = null;
-	let iterator = renderSlot(result, slotted, fallback);
-	for await (const chunk of iterator) {
-		if (typeof chunk.type === 'string') {
-			if (instructions === null) {
-				instructions = [];
+	const temporaryDestination: RenderDestination = {
+		// TODO: Revist this chunk type
+		write(chunk: string | RenderInstruction) {
+			if (typeof chunk === 'object' && typeof chunk.type === 'string') {
+				if (instructions === null) {
+					instructions = [];
+				}
+				instructions.push(chunk);
+			} else {
+				content += chunk;
 			}
-			instructions.push(chunk);
-		} else {
-			content += chunk;
-		}
-	}
+		},
+	};
+	const temporaryResult = {
+		...result,
+		destination: temporaryDestination,
+	};
+	await renderSlot(temporaryResult, slotted, fallback);
 	return markHTMLString(new SlotString(content, instructions));
 }
 

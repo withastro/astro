@@ -11,12 +11,23 @@ import {
 import { renderAllHeadContent } from './head.js';
 import { isSlotString, type SlotString } from './slot.js';
 
+/**
+ * Possible chunk types to be written to the destination, and it'll
+ * handle stringifying them at the end.
+ */
+export type RenderDestinationChunk =
+	| string
+	| HTMLBytes
+	| ArrayBufferView
+	| RenderInstruction
+	| Response;
+
 export interface RenderDestination {
 	/**
 	 * Any rendering logic should call this to construct the HTML output.
-	 * See the `chunk` parameter for possible writable values
+	 * See the `chunk` parameter for possible writable values.
 	 */
-	write(chunk: string | HTMLBytes | RenderInstruction | Response): void;
+	write(chunk: RenderDestinationChunk): void;
 }
 
 export const Fragment = Symbol.for('astro:fragment');
@@ -28,10 +39,7 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(
-	result: SSRResult,
-	chunk: string | SlotString | RenderInstruction
-): string {
+function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
 		switch (instruction.type) {
@@ -89,27 +97,7 @@ export function stringifyChunk(
 	}
 }
 
-export class HTMLParts {
-	public parts: string;
-	constructor() {
-		this.parts = '';
-	}
-	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
-		if (ArrayBuffer.isView(part)) {
-			this.parts += decoder.decode(part);
-		} else {
-			this.parts += stringifyChunk(result, part);
-		}
-	}
-	toString() {
-		return this.parts;
-	}
-	toArrayBuffer() {
-		return encoder.encode(this.parts);
-	}
-}
-
-export function chunkToString(result: SSRResult, chunk: string | HTMLBytes | RenderInstruction) {
+export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinationChunk, Response>) {
 	if (ArrayBuffer.isView(chunk)) {
 		return decoder.decode(chunk);
 	} else {
@@ -119,7 +107,7 @@ export function chunkToString(result: SSRResult, chunk: string | HTMLBytes | Ren
 
 export function chunkToByteArray(
 	result: SSRResult,
-	chunk: string | HTMLBytes | RenderInstruction
+	chunk: Exclude<RenderDestinationChunk, Response>
 ): Uint8Array {
 	if (ArrayBuffer.isView(chunk)) {
 		return chunk as Uint8Array;

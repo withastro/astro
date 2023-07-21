@@ -6,6 +6,7 @@ import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import { isAPropagatingComponent } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
+import type { RenderDestination } from '../common.js';
 
 type ComponentProps = Record<string | number, any>;
 
@@ -40,7 +41,7 @@ export class AstroComponentInstance {
 		return this.returnValue;
 	}
 
-	async *render() {
+	async render(destination: RenderDestination) {
 		if (this.returnValue === undefined) {
 			await this.init(this.result);
 		}
@@ -50,9 +51,9 @@ export class AstroComponentInstance {
 			value = await value;
 		}
 		if (isHeadAndContent(value)) {
-			yield* value.content;
+			await value.content.render(destination);
 		} else {
-			yield* renderChild(value);
+			await renderChild(destination, value);
 		}
 	}
 }

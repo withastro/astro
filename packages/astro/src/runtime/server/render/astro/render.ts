@@ -3,7 +3,7 @@ import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
-import { isRenderTemplateResult, renderAstroTemplateResult } from './render-template.js';
+import { isRenderTemplateResult } from './render-template.js';
 
 // Calls a component and renders it into a string of HTML
 export async function renderToString(
@@ -14,6 +14,10 @@ export async function renderToString(
 	isPage = false,
 	route?: RouteData
 ): Promise<string | Response> {
+	// Keep a separate instance of SSRResult so we can mutate `result.destination`
+	// without affecting the original SSRResult
+	result = { ...result };
+
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
@@ -46,9 +50,10 @@ export async function renderToString(
 		},
 	};
 
-	for await (const chunk of renderAstroTemplateResult(templateResult)) {
-		destination.write(chunk);
-	}
+	// Assign the destination before rendering, so the rendering APIs have a place to write to
+	result.destination = destination;
+
+	await templateResult.render(destination);
 
 	return str;
 }
@@ -62,6 +67,10 @@ export async function renderToReadableStream(
 	isPage = false,
 	route?: RouteData
 ): Promise<ReadableStream | Response> {
+	// Keep a separate instance of SSRResult so we can mutate `result.destination`
+	// without affecting the original SSRResult
+	result = { ...result };
+
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
@@ -106,11 +115,12 @@ export async function renderToReadableStream(
 				},
 			};
 
+			// Assign the destination before rendering, so the rendering APIs have a place to write to
+			result.destination = destination;
+
 			(async () => {
 				try {
-					for await (const chunk of renderAstroTemplateResult(templateResult)) {
-						destination.write(chunk);
-					}
+					await templateResult.render(destination);
 					controller.close();
 				} catch (e) {
 					// We don't have a lot of information downstream, and upstream we can't catch the error properly
