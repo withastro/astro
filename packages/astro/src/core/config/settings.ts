@@ -15,7 +15,6 @@ import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig, mode: 'build' | 'dev'): AstroSettings {
-	console.log(mode);
 	const { contentDir } = getContentPaths(config);
 	return {
 		config,
