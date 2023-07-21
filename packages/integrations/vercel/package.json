@@ -47,7 +47,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/"
+    "test": "mocha --exit --timeout 20000 --file \"./test/setup.js\" test/ --ignore test/hosted",
+    "test:hosted": "mocha --exit --timeout 30000 test/hosted"
   },
   "dependencies": {
     "@astrojs/internal-helpers": "^0.1.1",

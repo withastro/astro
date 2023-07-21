@@ -1,0 +1,12 @@
+{
+  "name": "netlify-hosted-astro-project",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "astro build"
+  },
+  "dependencies": {
+    "@astrojs/netlify": "file:../../..",
+    "astro": "file:../../../../../astro"
+  }
+}
