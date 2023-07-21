@@ -1,8 +1,7 @@
 {
-  "name": "@example/basics",
+  "name": "gh-basics",
   "type": "module",
   "version": "0.0.1",
-  "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -11,6 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.9.1"
+    "astro": "^2.9.0"
   }
 }
