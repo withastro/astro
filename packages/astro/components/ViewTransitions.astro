@@ -47,6 +47,16 @@ const { fallback = 'animate' } = Astro.props as Props;
 		doc.documentElement.dataset.astroTransition = dir;
 		const swap = () => document.documentElement.replaceWith(doc.documentElement);
 
+		// Wait on links to finish, to prevent FOUC
+		const links = Array.from(doc.querySelectorAll('head link[rel=stylesheet]')).map(link => new Promise(resolve => {
+		const c = link.cloneNode();
+			['load', 'error'].forEach(evName => c.addEventListener(evName, resolve));
+			document.head.append(c);
+		}));
+		if(links.length) {
+			await Promise.all(links);
+		}
+
 		if (fallback === 'animate') {
 			let isAnimating = false;
 			addEventListener('animationstart', () => (isAnimating = true), { once: true });
