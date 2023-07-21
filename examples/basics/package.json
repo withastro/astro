@@ -1,5 +1,5 @@
 {
-  "name": "gh-basics",
+  "name": "@example-basics",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -10,6 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.9.0"
+    "astro": "^2.9.1"
   }
 }
