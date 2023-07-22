@@ -130,6 +130,9 @@ export default function vercelEdge({
 					format: 'esm',
 					bundle: true,
 					minify: true,
+					logOverride: {
+						'ignored-bare-import': 'silent',
+					},
 				});
 
 				// Copy entry and other server files
