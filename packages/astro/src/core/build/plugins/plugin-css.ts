@@ -9,7 +9,7 @@ import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../type
 
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import * as assetName from '../css-asset-name.js';
-import { moduleIsTopLevelPage, walkParentInfos } from '../graph.js';
+import { moduleIsTopLevelPage, walkParentInfos, walkParentInfosTrackingImports } from '../graph.js';
 import {
 	eachPageData,
 	getPageDataByViteID,
@@ -70,6 +70,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const createNameForParentPages = namingIncludesHash
 				? assetName.shortHashedName
 				: assetName.createSlugger(settings);
+			const ctx = this;
 
 			extendManualChunks(outputOptions, {
 				after(id, meta) {
@@ -87,9 +88,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							return internals.cssModuleToChunkIdMap.get(id)!;
 						}
 
-						for (const [pageInfo] of walkParentInfos(id, {
-							getModuleInfo: meta.getModuleInfo,
-						})) {
+						for (const [pageInfo] of walkParentInfos(id, ctx)) {
 							if (new URL(pageInfo.id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG)) {
 								// Split delayed assets to separate modules
 								// so they can be injected where needed
