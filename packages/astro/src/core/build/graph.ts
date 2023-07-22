@@ -44,7 +44,7 @@ export function* walkParentInfos(
 export async function* walkParentInfosTrackingImports(
 	id: string,
 	ctx: PluginContext,
-	until?: (importer: string) => boolean,
+	until?: (importer: string) => boolean
 ): AsyncGenerator<[ModuleInfo, number, number], void, unknown> {
 	const depthsToChildren = new Map<number, ModuleInfo>();
 	const depthsToExportNames = new Map<number, string[] | 'dynamic'>();
@@ -55,27 +55,21 @@ export async function* walkParentInfosTrackingImports(
 		const [parentInfo, depth] = res;
 		depthsToChildren.set(depth, parentInfo);
 		if (depth > 0) {
-				// Check if the component is actually imported:
-				const childInfo = depthsToChildren.get(depth - 1);
-				const childExportNames = depthsToExportNames.get(depth - 1);
+			// Check if the component is actually imported:
+			const childInfo = depthsToChildren.get(depth - 1);
+			const childExportNames = depthsToExportNames.get(depth - 1);
 
-				const doesImport = await doesParentImportChild(
-					ctx,
-					parentInfo,
-					childInfo,
-					childExportNames
-				);
+			const doesImport = await doesParentImportChild(ctx, parentInfo, childInfo, childExportNames);
 
-				if (doesImport === 'no') {
-					// Break the search if the parent doesn't import the child.
-					continue;
-				}
-				depthsToExportNames.set(depth, doesImport);
+			if (doesImport === 'no') {
+				// Break the search if the parent doesn't import the child.
+				continue;
 			}
+			depthsToExportNames.set(depth, doesImport);
+		}
 		yield res;
 	}
 }
-
 
 /**
  * @returns 'no' if the parent does not import the child,

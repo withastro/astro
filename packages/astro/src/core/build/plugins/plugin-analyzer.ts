@@ -5,7 +5,12 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { prependForwardSlash } from '../../../core/path.js';
-import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos, walkParentInfosTrackingImports } from '../graph.js';
+import {
+	getTopLevelPages,
+	moduleIsTopLevelPage,
+	walkParentInfos,
+	walkParentInfosTrackingImports,
+} from '../graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from '../internal.js';
 
 function isPropagatedAsset(id: string) {
@@ -40,10 +45,13 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (hoistedScripts.size) {
-					for await (const [parentInfo] of walkParentInfosTrackingImports(from, this, function until(importer) {
-						return isPropagatedAsset(importer);
-					})) {
-
+					for await (const [parentInfo] of walkParentInfosTrackingImports(
+						from,
+						this,
+						function until(importer) {
+							return isPropagatedAsset(importer);
+						}
+					)) {
 						if (isPropagatedAsset(parentInfo.id)) {
 							for (const [nestedParentInfo] of walkParentInfos(from, this)) {
 								if (moduleIsTopLevelPage(nestedParentInfo)) {
