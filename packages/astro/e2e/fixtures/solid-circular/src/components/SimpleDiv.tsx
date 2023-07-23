@@ -1,4 +1,5 @@
-import { Component, useContext } from 'solid-js';
+import { useContext } from 'solid-js';
+import type {Component}	from 'solid-js';
 import { ApplicationContext } from './ContextProvider';
 
 export const SimpleDiv: Component = () => {
