@@ -75,7 +75,10 @@ const posts = (await getCollection('blog')).sort(
 					width: 100%;
 					text-align: center;
 				}
-				ul li .title {
+				ul li:first-child {
+					margin-bottom: 0;
+				}
+				ul li:first-child .title {
 					font-size: 1.563em;
 				}
 			}
