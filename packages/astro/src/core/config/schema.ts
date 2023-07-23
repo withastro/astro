@@ -28,6 +28,7 @@ const ASTRO_CONFIG_DEFAULTS = {
 		inlineStylesheets: 'auto',
 		split: false,
 		excludeMiddleware: false,
+		filterPage: () => true,
 	},
 	compressHTML: true,
 	server: {
@@ -136,6 +137,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
+			filterPage: z
+				.function()
+				.optional()
+				.default(() => true),
 		})
 		.optional()
 		.default({}),
@@ -348,6 +353,10 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.boolean()
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.build.excludeMiddleware),
+				filterPage: z
+					.function()
+					.optional()
+					.default(() => true),
 			})
 			.optional()
 			.default({}),

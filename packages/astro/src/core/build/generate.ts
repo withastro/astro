@@ -165,7 +165,13 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 					// forcing to use undefined, so we fail in an expected way if the module is not even there.
 					const ssrEntry = ssrEntryPage?.pageModule;
 					if (ssrEntry) {
-						await generatePage(pageData, ssrEntry, builtPaths, pipeline);
+						await generatePage(
+							pageData,
+							ssrEntry,
+							builtPaths,
+							pipeline,
+							opts.settings.config.build.filterPage
+						);
 					} else {
 						throw new Error(
 							`Unable to find the manifest for the module ${ssrEntryURLPage.toString()}. This is unexpected and likely a bug in Astro, please report.`
@@ -232,7 +238,8 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline
+	pipeline: BuildPipeline,
+	pathFilter?: (path: string) => boolean
 ) {
 	let timeStart = performance.now();
 	const logger = pipeline.getLogger();
@@ -285,6 +292,7 @@ async function generatePage(
 	let prevTimeEnd = timeStart;
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
+		if (pathFilter && !pathFilter(path)) continue;
 		await generatePath(path, generationOptions, pipeline);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(prevTimeEnd, timeEnd);

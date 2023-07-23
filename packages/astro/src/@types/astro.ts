@@ -883,6 +883,26 @@ export interface AstroUserConfig {
 		 * Please see your [SSR adapter's documentation](/en/guides/integrations-guide/#official-integrations) for using `edgeMiddleware` to define whether or not any SSR middleware code will be bundled when built.
 		 */
 		excludeMiddleware?: boolean;
+
+		/**
+		 * @docs
+		 * @name build.filterPage
+		 * @type {(pagePath: string) => boolean}
+		 * @default `undefined`
+		 * @version 2.10.0
+		 * @description
+		 * When defined, will be called for every single page to be generated (before generation) and gives opportunity to skip the generation of the page (based on user defined criterias)
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     // will exclude all /dev/ from being generated
+		 *     filterPage: (pagePath) => !pagePath.startsWith('/dev/')
+		 *   }
+		 * }
+		 * ```
+		 */
+		filterPage?: (pagePath: string) => boolean;
 	};
 
 	/**
