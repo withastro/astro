@@ -6,6 +6,7 @@ import {
 	activateReloadProjects,
 	activateTsConfigStatusItem,
 	activateTsVersionStatusItem,
+	getTsdk,
 	supportLabsVersion,
 	type ExportsInfoForLabs,
 } from '@volar/vscode';
@@ -57,9 +58,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<Export
 
 	const initializationOptions: InitializationOptions = {
 		typescript: {
-			tsdk: require('path').join(vscode.env.appRoot, 'extensions/node_modules/typescript/lib'),
+			tsdk: (await getTsdk(context)).tsdk,
 		},
-		diagnosticModel: DiagnosticModel.Pull,
+		diagnosticModel: DiagnosticModel.Push,
 	};
 	const clientOptions: lsp.LanguageClientOptions = {
 		documentSelector: [{ language: 'astro' }],
