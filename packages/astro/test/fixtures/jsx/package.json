@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
+    "@astrojs/mdx": "workspace:*",
     "@astrojs/preact": "workspace:*",
     "@astrojs/react": "workspace:*",
     "@astrojs/solid-js": "workspace:*",

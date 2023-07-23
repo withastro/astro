@@ -7,6 +7,8 @@ export default function PreactCounter() {
   const add = () => setCount((i) => i + 1);
   const subtract = () => setCount((i) => i - 1);
 
+	debugger;
+
   return (
     <div id="preact">
       <div className="counter">
