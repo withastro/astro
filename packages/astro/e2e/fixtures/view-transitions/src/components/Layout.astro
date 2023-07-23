@@ -1,9 +1,16 @@
 ---
 import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+	link?: string;
+}
+
+const { link } = Astro.props as Props;
 ---
 <html>
 	<head>
 		<title>Testing</title>
+		{link ? <link rel="stylesheet" href={link} > : ''}
 		<ViewTransitions />
 	</head>
 	<body>

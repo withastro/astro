@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
+import { createSettings, openConfig } from '../../../dist/core/config/index.js';
 import { runInContainer } from '../../../dist/core/dev/index.js';
-import { openConfig, createSettings } from '../../../dist/core/config/index.js';
 import { createFs, defaultLogging } from '../test-utils.js';
 
 const root = new URL('../../fixtures/tailwindcss-ts/', import.meta.url);
@@ -27,7 +27,7 @@ describe('Astro config formats', () => {
 			logging: defaultLogging,
 			fsMod: fs,
 		});
-		const settings = createSettings(astroConfig);
+		const settings = createSettings(astroConfig, 'dev');
 
 		await runInContainer({ fs, root, settings }, () => {
 			expect(true).to.equal(

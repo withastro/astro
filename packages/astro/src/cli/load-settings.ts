@@ -26,9 +26,11 @@ export async function loadSettings({ cmd, flags, logging }: LoadSettingsOptions)
 		await handleConfigError(e, { cmd, cwd: root, flags, logging });
 		return {} as any;
 	});
+
+	const mode = cmd === 'build' ? 'build' : 'dev';
 	if (!initialAstroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
-	return createSettings(initialAstroConfig, root);
+	return createSettings(initialAstroConfig, mode, root);
 }
 
 export async function handleConfigError(

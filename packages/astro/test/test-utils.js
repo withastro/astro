@@ -138,8 +138,8 @@ export async function loadFixture(inlineConfig) {
 	 * the `AstroSettings`. This function helps to create a fresh settings object that is used by the
 	 * command functions below to prevent tests from polluting each other.
 	 */
-	const getSettings = async () => {
-		let settings = createSettings(config, fileURLToPath(cwd));
+	const getSettings = async (mode) => {
+		let settings = createSettings(config, mode, fileURLToPath(cwd));
 		if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 			// Enable default JSX integration. It needs to come first, so unshift rather than push!
 			const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
@@ -179,15 +179,15 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			return build(await getSettings(), { logging, ...opts });
+			return build(await getSettings('build'), { logging, ...opts });
 		},
-		sync: async (opts) => sync(await getSettings(), { logging, fs, ...opts }),
+		sync: async (opts) => sync(await getSettings('build'), { logging, fs, ...opts }),
 		check: async (opts) => {
-			return await check(await getSettings(), { logging, ...opts });
+			return await check(await getSettings('build'), { logging, ...opts });
 		},
 		startDevServer: async (opts = {}) => {
 			process.env.NODE_ENV = 'development';
-			devServer = await dev(await getSettings(), { logging, ...opts });
+			devServer = await dev(await getSettings('dev'), { logging, ...opts });
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			return devServer;
@@ -209,7 +209,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		preview: async (opts = {}) => {
 			process.env.NODE_ENV = 'production';
-			const previewServer = await preview(await getSettings(), { logging, ...opts });
+			const previewServer = await preview(await getSettings('build'), { logging, ...opts });
 			config.server.host = parseAddressToHost(previewServer.host); // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;
