@@ -16,6 +16,7 @@ import {
 	createAstroComponentInstance,
 	isAstroComponentFactory,
 	renderTemplate,
+	type AstroComponentFactory,
 } from './astro/index.js';
 import {
 	Fragment,
@@ -23,6 +24,7 @@ import {
 	type RenderDestination,
 	chunkToString,
 	type RenderInstance,
+	type RenderDestinationChunk,
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
@@ -411,6 +413,32 @@ async function renderHTMLComponent(
 	};
 }
 
+async function renderAstroComponent(
+	result: SSRResult,
+	displayName: string,
+	Component: AstroComponentFactory,
+	props: Record<string | number, any>,
+	slots: any = {}
+): Promise<RenderInstance> {
+	const instance = await createAstroComponentInstance(result, displayName, Component, props, slots);
+
+	// Eagerly render the component so they are rendered in parallel
+	const chunks: RenderDestinationChunk[] = [];
+	const temporaryDestination: RenderDestination = {
+		write: (chunk) => chunks.push(chunk),
+	};
+	await instance.render(temporaryDestination);
+
+	return {
+		render(destination) {
+			// The real render function will simply pass on the results from the temporary destination
+			for (const chunk of chunks) {
+				destination.write(chunk);
+			}
+		},
+	};
+}
+
 export async function renderComponent(
 	result: SSRResult,
 	displayName: string,
@@ -432,7 +460,7 @@ export async function renderComponent(
 	}
 
 	if (isAstroComponentFactory(Component)) {
-		return createAstroComponentInstance(result, displayName, Component, props, slots);
+		return await renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
 	return await renderFrameworkComponent(result, displayName, Component, props, slots);
