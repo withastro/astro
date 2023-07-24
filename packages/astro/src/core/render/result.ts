@@ -7,7 +7,6 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { isHTMLString } from '../../runtime/server/escape.js';
 import { renderSlotToString, type ComponentSlots } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';

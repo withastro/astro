@@ -450,22 +450,24 @@ export async function renderComponentToString(
 	let str = '';
 	let renderedFirstPageChunk = false;
 
+	// Handle head injection if required. Note that this needs to run early so
+	// we can ensure getting a value for `head`.
+	let head = '';
+	if (nonAstroPageNeedsHeadInjection(Component)) {
+		for (const headChunk of maybeRenderHead()) {
+			head += chunkToString(result, headChunk);
+		}
+	}
+
 	try {
 		const destination: RenderDestination = {
 			write(chunk) {
-				// Automatic doctype insertion for pages
+				// Automatic doctype and head insertion for pages
 				if (isPage && !renderedFirstPageChunk) {
 					renderedFirstPageChunk = true;
 					if (!/<!doctype html/i.test(String(chunk))) {
 						const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-						str += doctype;
-
-						// Also handle head injection if required by component
-						if (nonAstroPageNeedsHeadInjection(Component)) {
-							for (const headChunk of maybeRenderHead()) {
-								str += chunkToString(result, headChunk);
-							}
-						}
+						str += doctype + head;
 					}
 				}
 
@@ -499,12 +501,7 @@ export type NonAstroPageComponent = {
 };
 
 function nonAstroPageNeedsHeadInjection(
-	pageComponent: unknown
+	pageComponent: any
 ): pageComponent is NonAstroPageComponent {
-	return (
-		!!pageComponent &&
-		typeof pageComponent == 'object' &&
-		needsHeadRenderingSymbol in pageComponent &&
-		!!pageComponent[needsHeadRenderingSymbol]
-	);
+	return !!pageComponent?.[needsHeadRenderingSymbol];
 }
