@@ -109,7 +109,7 @@ class Slots {
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = async () =>
-					isHTMLString(await expression) ? expression : expression(...args);
+					typeof expression === 'function' ? expression(...args) : expression;
 				return await renderSlotToString(result, slot).then((res) => {
 					return res != null ? String(res) : res;
 				});
@@ -157,11 +157,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	// This object starts here as an empty shell (not yet the result) but then
 	// calling the render() function will populate the object with scripts, styles, etc.
 	const result: SSRResult = {
-		destination: {
-			write() {
-				throw new Error('SSRResult destination is not assigned before rendering');
-			},
-		},
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),

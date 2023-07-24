@@ -17,7 +17,13 @@ import {
 	isAstroComponentFactory,
 	renderTemplate,
 } from './astro/index.js';
-import { Fragment, Renderer, type RenderDestination, chunkToString } from './common.js';
+import {
+	Fragment,
+	Renderer,
+	type RenderDestination,
+	chunkToString,
+	type RenderInstance,
+} from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { renderSlotToString, renderSlots, type ComponentSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
@@ -71,7 +77,7 @@ async function renderFrameworkComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<void> {
+): Promise<RenderInstance> {
 	if (!Component && !_props['client:only']) {
 		throw new Error(
 			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
@@ -138,9 +144,17 @@ async function renderFrameworkComponent(
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
-			const output = renderHTMLElement(result, Component as typeof HTMLElement, _props, slots);
-
-			return output;
+			const output = await renderHTMLElement(
+				result,
+				Component as typeof HTMLElement,
+				_props,
+				slots
+			);
+			return {
+				render(destination) {
+					destination.write(output);
+				},
+			};
 		}
 	} else {
 		// Attempt: use explicitly passed renderer name
@@ -275,20 +289,25 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		// If no hydration is needed, start rendering the html and return
-		if (slotInstructions) {
-			for (const instruction of slotInstructions) {
-				result.destination.write(instruction);
-			}
-		}
-		if (isPage || renderer?.name === 'astro:jsx') {
-			result.destination.write(html);
-		} else if (html && html.length > 0) {
-			result.destination.write(
-				markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false))
-			);
-		}
-		return;
+		return {
+			render(destination) {
+				// If no hydration is needed, start rendering the html and return
+				if (slotInstructions) {
+					for (const instruction of slotInstructions) {
+						destination.write(instruction);
+					}
+				}
+				if (isPage || renderer?.name === 'astro:jsx') {
+					destination.write(html);
+				} else if (html && html.length > 0) {
+					destination.write(
+						markHTMLString(
+							removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot ?? false)
+						)
+					);
+				}
+			},
+		};
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
@@ -341,14 +360,18 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		island.props['await-children'] = '';
 	}
 
-	// Render the html
-	if (slotInstructions) {
-		for (const instruction of slotInstructions) {
-			result.destination.write(instruction);
-		}
-	}
-	result.destination.write({ type: 'directive', hydration });
-	result.destination.write(markHTMLString(renderElement('astro-island', island, false)));
+	return {
+		render(destination) {
+			// Render the html
+			if (slotInstructions) {
+				for (const instruction of slotInstructions) {
+					destination.write(instruction);
+				}
+			}
+			destination.write({ type: 'directive', hydration });
+			destination.write(markHTMLString(renderElement('astro-island', island, false)));
+		},
+	};
 }
 
 function sanitizeElementName(tag: string) {
@@ -360,10 +383,14 @@ function sanitizeElementName(tag: string) {
 async function renderFragmentComponent(
 	result: SSRResult,
 	slots: ComponentSlots = {}
-): Promise<void> {
+): Promise<RenderInstance> {
 	const children = await renderSlotToString(result, slots?.default);
-	if (children == null) return;
-	result.destination.write(children);
+	return {
+		render(destination) {
+			if (children == null) return;
+			destination.write(children);
+		},
+	};
 }
 
 async function renderHTMLComponent(
@@ -371,13 +398,17 @@ async function renderHTMLComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<void> {
+): Promise<RenderInstance> {
 	const { slotInstructions, children } = await renderSlots(result, slots);
 	const html = (Component as any)({ slots: children });
 	const hydrationHtml = slotInstructions
 		? slotInstructions.map((instr) => chunkToString(result, instr)).join('')
 		: '';
-	result.destination.write(markHTMLString(hydrationHtml + html));
+	return {
+		render(destination) {
+			destination.write(markHTMLString(hydrationHtml + html));
+		},
+	};
 }
 
 export async function renderComponent(
@@ -386,29 +417,25 @@ export async function renderComponent(
 	Component: unknown,
 	props: Record<string | number, any>,
 	slots: any = {}
-): Promise<void> {
+): Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		Component = await Component;
 	}
 
 	if (isFragmentComponent(Component)) {
-		await renderFragmentComponent(result, slots);
-		return;
+		return await renderFragmentComponent(result, slots);
 	}
 
 	// .html components
 	if (isHTMLComponent(Component)) {
-		await renderHTMLComponent(result, Component, props, slots);
-		return;
+		return await renderHTMLComponent(result, Component, props, slots);
 	}
 
 	if (isAstroComponentFactory(Component)) {
-		const component = createAstroComponentInstance(result, displayName, Component, props, slots);
-		await component.render(result.destination);
-		return;
+		return createAstroComponentInstance(result, displayName, Component, props, slots);
 	}
 
-	return renderFrameworkComponent(result, displayName, Component, props, slots);
+	return await renderFrameworkComponent(result, displayName, Component, props, slots);
 }
 
 export async function renderComponentToString(
@@ -420,10 +447,6 @@ export async function renderComponentToString(
 	isPage = false,
 	route?: RouteData
 ): Promise<string> {
-	// Keep a separate instance of SSRResult so we can mutate `result.destination`
-	// without affecting the original SSRResult
-	result = { ...result };
-
 	let str = '';
 	let renderedFirstPageChunk = false;
 
@@ -453,10 +476,8 @@ export async function renderComponentToString(
 			},
 		};
 
-		// Assign the destination before rendering, so the rendering APIs have a place to write to
-		result.destination = destination;
-
-		await renderComponent(result, displayName, Component, props, slots);
+		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
+		await renderInstance.render(destination);
 	} catch (e) {
 		// We don't have a lot of information downstream, and upstream we can't catch the error properly
 		// So let's add the location here

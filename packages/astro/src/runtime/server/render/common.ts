@@ -9,7 +9,6 @@ import {
 	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
-import { isSlotString, type SlotString } from './slot.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll
@@ -30,6 +29,10 @@ export interface RenderDestination {
 	write(chunk: RenderDestinationChunk): void;
 }
 
+export interface RenderInstance {
+	render(destination: RenderDestination): Promise<void> | void;
+}
+
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
 
@@ -39,7 +42,7 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderInstruction): string {
+function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
 		switch (instruction.type) {
@@ -81,18 +84,6 @@ function stringifyChunk(result: SSRResult, chunk: string | SlotString | RenderIn
 			}
 		}
 	} else {
-		if (isSlotString(chunk as string)) {
-			let out = '';
-			const c = chunk as SlotString;
-			if (c.instructions) {
-				for (const instr of c.instructions) {
-					out += stringifyChunk(result, instr);
-				}
-			}
-			out += chunk.toString();
-			return out;
-		}
-
 		return chunk.toString();
 	}
 }
@@ -115,4 +106,8 @@ export function chunkToByteArray(
 		// stringify chunk might return a HTMLString
 		return encoder.encode(stringifyChunk(result, chunk));
 	}
+}
+
+export function isRenderInstance(obj: unknown): obj is RenderInstance {
+	return !!obj && typeof obj === 'object' && 'render' in obj && typeof obj.render === 'function';
 }

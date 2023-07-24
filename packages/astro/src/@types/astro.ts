@@ -22,7 +22,6 @@ import type { AstroCookies } from '../core/cookies';
 import type { LogOptions } from '../core/logger/core';
 import type { AstroComponentFactory, AstroComponentInstance } from '../runtime/server';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
-import type { RenderDestination } from '../runtime/server/render/common';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -1998,7 +1997,6 @@ export type SSRComponentMetadata = {
 };
 
 export interface SSRResult {
-	destination: RenderDestination;
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;

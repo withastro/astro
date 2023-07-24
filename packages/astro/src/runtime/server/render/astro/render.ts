@@ -14,10 +14,6 @@ export async function renderToString(
 	isPage = false,
 	route?: RouteData
 ): Promise<string | Response> {
-	// Keep a separate instance of SSRResult so we can mutate `result.destination`
-	// without affecting the original SSRResult
-	result = { ...result };
-
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
@@ -50,9 +46,6 @@ export async function renderToString(
 		},
 	};
 
-	// Assign the destination before rendering, so the rendering APIs have a place to write to
-	result.destination = destination;
-
 	await templateResult.render(destination);
 
 	return str;
@@ -67,10 +60,6 @@ export async function renderToReadableStream(
 	isPage = false,
 	route?: RouteData
 ): Promise<ReadableStream | Response> {
-	// Keep a separate instance of SSRResult so we can mutate `result.destination`
-	// without affecting the original SSRResult
-	result = { ...result };
-
 	const templateResult = await callComponentAsTemplateResultOrResponse(
 		result,
 		componentFactory,
@@ -114,9 +103,6 @@ export async function renderToReadableStream(
 					controller.enqueue(bytes);
 				},
 			};
-
-			// Assign the destination before rendering, so the rendering APIs have a place to write to
-			result.destination = destination;
 
 			(async () => {
 				try {

@@ -1,6 +1,6 @@
 import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
-import { renderChildrenInParallelAsync } from '../any.js';
+import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
@@ -32,18 +32,14 @@ export class RenderTemplateResult {
 	}
 
 	async render(destination: RenderDestination) {
-		const expressionPromises = renderChildrenInParallelAsync(this.expressions);
-
 		for (let i = 0; i < this.htmlParts.length; i++) {
 			const html = this.htmlParts[i];
-			const promise = expressionPromises[i];
+			const exp = this.expressions[i];
 
 			destination.write(markHTMLString(html));
-			if (promise) {
-				const chunks = await promise;
-				for (const chunk of chunks) {
-					destination.write(chunk);
-				}
+			// Skip render if falsy, except the number 0
+			if (exp || exp === 0) {
+				await renderChild(destination, exp);
 			}
 		}
 	}
