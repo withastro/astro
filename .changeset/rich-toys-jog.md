@@ -1,4 +1,5 @@
 ---
+'@astrojs/netlify': patch
 '@astrojs/vercel': patch
 ---
 
