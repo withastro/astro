@@ -2,7 +2,9 @@
 'astro': major
 ---
 
-The endpoints methods are not in **capital case**.
+The endpoints that have **lower case** name are **deprecated**.
+
+The endpoints methods **needs** to be in **upper case**.
 
 ```diff
 --export function get() {

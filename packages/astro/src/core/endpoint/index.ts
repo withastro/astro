@@ -119,11 +119,11 @@ export async function callEndpoint<MiddlewareResult = Response | EndpointOutput>
 			onRequest as MiddlewareEndpointHandler,
 			context,
 			async () => {
-				return await renderEndpoint(mod, context, env.ssr);
+				return await renderEndpoint(mod, context, env.ssr, env.logging);
 			}
 		);
 	} else {
-		response = await renderEndpoint(mod, context, env.ssr);
+		response = await renderEndpoint(mod, context, env.ssr, env.logging);
 	}
 
 	if (response instanceof Response) {
