@@ -3,7 +3,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "strict": true,
-    "moduleResolution": "node",
+    // All packages are built with ESBuild, so we can use `moduleResolution: 'bundler'`
+    "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true
