@@ -27,6 +27,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.26.1
         version: 2.26.1
+      '@replayio/playwright':
+        specifier: ^1.0.8
+        version: 1.0.8(@playwright/test@1.29.2)
       '@types/node':
         specifier: ^18.16.18
         version: 18.16.18
