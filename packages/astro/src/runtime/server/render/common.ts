@@ -124,7 +124,8 @@ export function chunkToByteArray(
 	if (ArrayBuffer.isView(chunk)) {
 		return chunk as Uint8Array;
 	} else {
-		// stringify chunk might return a HTMLString
-		return encoder.encode(stringifyChunk(result, chunk));
+		// `stringifyChunk` might return a HTMLString, call `.toString()` to really ensure it's a string
+		const stringified = stringifyChunk(result, chunk);
+		return encoder.encode(stringified.toString());
 	}
 }
