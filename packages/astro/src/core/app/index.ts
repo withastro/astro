@@ -120,7 +120,9 @@ export class App {
 		}
 		return pathname;
 	}
-	match(request: Request, _: MatchOptions = {}): RouteData | undefined {
+	// Disable no-unused-vars to avoid breaking signature change
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	match(request: Request, _opts: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
