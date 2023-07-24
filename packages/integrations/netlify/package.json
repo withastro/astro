@@ -41,7 +41,7 @@
     "@astrojs/underscore-redirects": "^0.2.0",
     "@astrojs/webapi": "^2.2.0",
     "@netlify/functions": "^1.6.0",
-    "esbuild": "^0.15.18"
+    "esbuild": "^0.18.16"
   },
   "peerDependencies": {
     "astro": "workspace:^2.10.3"
