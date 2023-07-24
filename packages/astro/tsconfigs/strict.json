@@ -3,7 +3,7 @@
   "extends": "./base.json",
   "compilerOptions": {
     "strict": true,
-    // Error when a value import is only used as a type.
-    "importsNotUsedAsValues": "error"
+    // Enforce the usage of type-only imports when needed, which helps avoiding bundling issues.
+    "verbatimModuleSyntax": true
   }
 }

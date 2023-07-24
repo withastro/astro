@@ -5,11 +5,11 @@
     "target": "ESNext",
     "module": "ESNext",
     // Enable node-style module resolution, for things like npm package imports.
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
+    // Allow importing TypeScript files using their native extension (.ts(x)).
+    "allowImportingTsExtensions": true,
     // Enable JSON imports.
     "resolveJsonModule": true,
-    // Enable stricter transpilation for better output.
-    "isolatedModules": true,
     // Astro directly run TypeScript code, no transpilation needed.
     "noEmit": true,
     // Report an error when importing a file using a casing different from the casing on disk.
@@ -23,9 +23,6 @@
     "paths": {
       "~/assets/*": ["src/assets/*"]
     },
-    // TypeScript 5.0 changed how `isolatedModules` and `importsNotUsedAsValues` works, deprecating the later
-    // Until the majority of users are on TypeScript 5.0, we'll have to supress those deprecation errors
-    "ignoreDeprecations": "5.0",
     // Allow JavaScript files to be imported
     "allowJs": true
   }
