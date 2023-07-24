@@ -25,7 +25,9 @@ export default function markdocIntegration(options?: MarkdocIntegrationOptions):
 
 				markdocConfigResult = await loadMarkdocConfig(astroConfig);
 
-				addContentEntryType(await getContentEntryType({ markdocConfigResult, astroConfig, options }));
+				addContentEntryType(
+					await getContentEntryType({ markdocConfigResult, astroConfig, options })
+				);
 
 				updateConfig({
 					vite: {

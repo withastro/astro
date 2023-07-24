@@ -11,21 +11,20 @@ import { MarkdocError, isComponentConfig, isValidUrl, prependForwardSlash } from
 import { emitESMImage } from 'astro/assets/utils';
 import path from 'node:path';
 import type * as rollup from 'rollup';
+import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
+import type { MarkdocIntegrationOptions } from './options.js';
 import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
-import type { MarkdocIntegrationOptions } from './options.js';
-import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 
 export async function getContentEntryType({
 	markdocConfigResult,
 	astroConfig,
-  options,
+	options,
 }: {
 	astroConfig: AstroConfig;
 	markdocConfigResult?: MarkdocConfigResult;
-  options?: MarkdocIntegrationOptions,
-
+	options?: MarkdocIntegrationOptions;
 }): Promise<ContentEntryType> {
 	return {
 		extensions: ['.mdoc'],
@@ -33,12 +32,12 @@ export async function getContentEntryType({
 		handlePropagation: true,
 		async getRenderModule({ contents, fileUrl, viteId }) {
 			const entry = getEntryInfo({ contents, fileUrl });
-      const tokenizer = getMarkdocTokenizer(options);
+			const tokenizer = getMarkdocTokenizer(options);
 			let tokens = tokenizer.tokenize(entry.body);
 
-      if (options?.allowHTML) {
-        tokens = htmlTokenTransform(tokenizer, tokens);
-      }
+			if (options?.allowHTML) {
+				tokens = htmlTokenTransform(tokenizer, tokens);
+			}
 
 			const ast = Markdoc.parse(tokens);
 			const usedTags = getUsedTags(ast);

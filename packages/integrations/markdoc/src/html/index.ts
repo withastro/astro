@@ -1,2 +1,2 @@
-export { htmlTokenTransform } from "./transform/html-token-transform";
-export { htmlTag } from "./tagdefs/html.tag";
+export { htmlTag } from './tagdefs/html.tag';
+export { htmlTokenTransform } from './transform/html-token-transform';

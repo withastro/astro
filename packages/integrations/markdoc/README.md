@@ -409,16 +409,14 @@ The Astro Markdoc integration handles configuring Markdoc options and capabiliti
 
 Enables writing HTML markup alongside Markdoc tags and nodes.
 
-By default, Markdoc will not recognize HTML markup as semantic content.  
+By default, Markdoc will not recognize HTML markup as semantic content.
 
-To achieve a more Markdown-like experience, where HTML elements can be included alongside your content, set `allowHTML:true`  as a `markdoc` integration option. This will enable HTML parsing in Markdoc markup.
-
+To achieve a more Markdown-like experience, where HTML elements can be included alongside your content, set `allowHTML:true` as a `markdoc` integration option. This will enable HTML parsing in Markdoc markup.
 
 > **Warning**
 > When `allowHTML` is enabled, HTML markup inside Markdoc documents will be rendered as actual HTML elements (including `<script>`), making attack vectors like XSS possible.
 >
-> Ensure that any HTML markup comes from trusted sources. 
-
+> Ensure that any HTML markup comes from trusted sources.
 
 ```js {7} "allowHTML: true"
 // astro.config.mjs

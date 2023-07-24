@@ -10,15 +10,18 @@ import type { AstroInstance } from 'astro';
 import { createComponent, renderComponent } from 'astro/runtime/server/index.js';
 import type { AstroMarkdocConfig } from './config.js';
 import { setupHeadingConfig } from './heading-ids.js';
-import type { MarkdocIntegrationOptions } from './options.js';
 import { htmlTag } from './html/tagdefs/html.tag.js';
+import type { MarkdocIntegrationOptions } from './options.js';
 
 /**
  * Merge user config with default config and set up context (ex. heading ID slugger)
  * Called on each file's individual transform.
  * TODO: virtual module to merge configs per-build instead of per-file?
  */
-export async function setupConfig(userConfig: AstroMarkdocConfig = {}, options: MarkdocIntegrationOptions | undefined): Promise<MergedConfig> {
+export async function setupConfig(
+	userConfig: AstroMarkdocConfig = {},
+	options: MarkdocIntegrationOptions | undefined
+): Promise<MergedConfig> {
 	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	if (userConfig.extends) {
@@ -33,24 +36,27 @@ export async function setupConfig(userConfig: AstroMarkdocConfig = {}, options: 
 
 	let merged = mergeConfig(defaultConfig, userConfig);
 
-  if (options?.allowHTML) {
-    merged = mergeConfig(merged, HTML_CONFIG);
-  }
+	if (options?.allowHTML) {
+		merged = mergeConfig(merged, HTML_CONFIG);
+	}
 
-  return merged;
+	return merged;
 }
 
 /** Used for synchronous `getHeadings()` function */
-export function setupConfigSync(userConfig: AstroMarkdocConfig = {}, options: MarkdocIntegrationOptions | undefined): MergedConfig {
+export function setupConfigSync(
+	userConfig: AstroMarkdocConfig = {},
+	options: MarkdocIntegrationOptions | undefined
+): MergedConfig {
 	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	let merged = mergeConfig(defaultConfig, userConfig);
 
-  if (options?.allowHTML) {
-    merged = mergeConfig(merged, HTML_CONFIG);
-  }
+	if (options?.allowHTML) {
+		merged = mergeConfig(merged, HTML_CONFIG);
+	}
 
-  return merged;
+	return merged;
 }
 
 type MergedConfig = Required<Omit<AstroMarkdocConfig, 'extends'>>;
@@ -160,7 +166,11 @@ export function collectHeadings(
 	}
 }
 
-export function createGetHeadings(stringifiedAst: string, userConfig: AstroMarkdocConfig, options: MarkdocIntegrationOptions | undefined) {
+export function createGetHeadings(
+	stringifiedAst: string,
+	userConfig: AstroMarkdocConfig,
+	options: MarkdocIntegrationOptions | undefined
+) {
 	return function getHeadings() {
 		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
 			TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
@@ -178,7 +188,7 @@ export function createContentComponent(
 	Renderer: AstroInstance['default'],
 	stringifiedAst: string,
 	userConfig: AstroMarkdocConfig,
-  options: MarkdocIntegrationOptions | undefined,
+	options: MarkdocIntegrationOptions | undefined,
 	tagComponentMap: Record<string, AstroInstance['default']>,
 	nodeComponentMap: Record<NodeType, AstroInstance['default']>
 ) {
@@ -199,7 +209,7 @@ export function createContentComponent(
 
 // statically define a partial MarkdocConfig which registers the required "html-tag" Markdoc tag when the "allowHTML" feature is enabled
 const HTML_CONFIG: AstroMarkdocConfig = {
-  tags: {
-    "html-tag": htmlTag,
-  },
+	tags: {
+		'html-tag': htmlTag,
+	},
 };
