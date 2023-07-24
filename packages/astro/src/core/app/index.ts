@@ -270,7 +270,7 @@ export class App {
 				return fetch(statusURL.toString());
 			}
 			const finalRouteData = routeData ?? errorRouteData;
-			let mod = await this.#getModuleForRoute(errorRouteData);
+			const mod = await this.#getModuleForRoute(errorRouteData);
 			try {
 				const newRenderContext = await this.#createRenderContext(
 					url,
@@ -281,7 +281,7 @@ export class App {
 				);
 				const page = (await mod.page()) as any;
 				const errorResponse = await tryRenderRoute(
-					finalRouteData.type,
+					'page', // this is hardcoded to ensure proper behavior for missing endpoints
 					newRenderContext,
 					this.#env,
 					page
