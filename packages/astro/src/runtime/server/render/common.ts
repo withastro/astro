@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { HTMLBytes, markHTMLString } from '../escape.js';
+import { HTMLBytes, HTMLString, markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -9,14 +9,20 @@ import {
 	type PrescriptType,
 } from '../scripts.js';
 import { renderAllHeadContent } from './head.js';
+import { isSlotString, type SlotString } from './slot.js';
 
 /**
  * Possible chunk types to be written to the destination, and it'll
  * handle stringifying them at the end.
+ *
+ * NOTE: Try to reduce adding new types here. If possible, serialize
+ * the custom types to a string in `renderChild` in `any.ts`.
  */
 export type RenderDestinationChunk =
 	| string
 	| HTMLBytes
+	| HTMLString
+	| SlotString
 	| ArrayBufferView
 	| RenderInstruction
 	| Response;
@@ -42,7 +48,10 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction): string {
+function stringifyChunk(
+	result: SSRResult,
+	chunk: string | HTMLString | SlotString | RenderInstruction
+): string {
 	if (typeof (chunk as any).type === 'string') {
 		const instruction = chunk as RenderInstruction;
 		switch (instruction.type) {
@@ -84,6 +93,18 @@ function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction): s
 			}
 		}
 	} else {
+		if (isSlotString(chunk as string)) {
+			let out = '';
+			const c = chunk as SlotString;
+			if (c.instructions) {
+				for (const instr of c.instructions) {
+					out += stringifyChunk(result, instr);
+				}
+			}
+			out += chunk.toString();
+			return out;
+		}
+
 		return chunk.toString();
 	}
 }

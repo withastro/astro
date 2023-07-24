@@ -6,14 +6,9 @@ import { SlotString } from './slot.js';
 export async function renderChild(destination: RenderDestination, child: any) {
 	child = await child;
 	if (child instanceof SlotString) {
-		if (child.instructions) {
-			for (const instruction of child.instructions) {
-				destination.write(instruction);
-			}
-		}
-		destination.write(child as unknown as string);
+		destination.write(child);
 	} else if (isHTMLString(child)) {
-		destination.write(child as unknown as string);
+		destination.write(child);
 	} else if (Array.isArray(child)) {
 		for (const c of child) {
 			await renderChild(destination, c);
