@@ -39,7 +39,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=16.12.0",
+    "node": ">=18.14.1",
     "pnpm": ">=8.6.2"
   },
   "packageManager": "pnpm@8.6.2",
